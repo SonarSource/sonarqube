@@ -25,16 +25,21 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
+import org.sonar.api.utils.SonarException;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
 
 import javax.annotation.Nullable;
 
+import java.io.IOException;
+import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,9 +48,15 @@ import java.util.List;
  */
 public class DefaultNotificationManager implements NotificationManager {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultNotificationManager.class);
+
+  private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
+
   private NotificationChannel[] notificationChannels;
   private NotificationQueueDao notificationQueueDao;
   private PropertiesDao propertiesDao;
+
+  private boolean alreadyLoggedDeserializationIssue = false;
 
   /**
    * Default constructor used by Pico
@@ -91,8 +102,27 @@ public class DefaultNotificationManager implements NotificationManager {
     }
     notificationQueueDao.delete(notifications);
 
-    // If batchSize is increased then we should return a list instead of a single element
-    return notifications.get(0).toNotification();
+    try {
+      // If batchSize is increased then we should return a list instead of a single element
+      return notifications.get(0).toNotification();
+    } catch (InvalidClassException e) {
+      // SONAR-4739
+      if (!alreadyLoggedDeserializationIssue) {
+        logDeserializationIssue();
+        alreadyLoggedDeserializationIssue = true;
+      }
+      return null;
+    } catch (IOException e) {
+      throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
+
+    } catch (ClassNotFoundException e) {
+      throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
+    }
+  }
+
+  @VisibleForTesting
+  void logDeserializationIssue() {
+    LOG.warn("It is impossible to send pending notifications which existed prior to the upgrade of SonarQube. They will be ignored.");
   }
 
   public long count() {

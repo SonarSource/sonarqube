@@ -40,7 +40,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_new_notification_queue() {
+  public void should_insert_new_notification_queue() throws Exception {
     NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
 
     dao.insert(Arrays.asList(notificationQueueDto));

@@ -34,6 +34,7 @@ import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +43,10 @@ import java.util.Map;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +107,21 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     InOrder inOrder = inOrder(notificationQueueDao);
     inOrder.verify(notificationQueueDao).findOldest(1);
     inOrder.verify(notificationQueueDao).delete(dtos);
+  }
+
+  // SONAR-4739
+  @Test
+  public void shouldNotFailWhenUnableToDeserialize() throws Exception {
+    NotificationQueueDto dto1 = mock(NotificationQueueDto.class);
+    when(dto1.toNotification()).thenThrow(new InvalidClassException("Pouet"));
+    List<NotificationQueueDto> dtos = Arrays.asList(dto1);
+    when(notificationQueueDao.findOldest(1)).thenReturn(dtos);
+
+    manager = spy(manager);
+    assertThat(manager.getFromQueue()).isNull();
+    assertThat(manager.getFromQueue()).isNull();
+
+    verify(manager, times(1)).logDeserializationIssue();
   }
 
   @Test
