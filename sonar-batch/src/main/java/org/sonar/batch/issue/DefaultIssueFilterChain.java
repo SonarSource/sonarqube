@@ -17,16 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+package org.sonar.batch.issue;
 
-import org.sonar.api.BatchExtension;
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
 
-/**
- * @since 3.6
- * @deprecated since 4.0
- */
-public interface IssueFilter extends BatchExtension {
+import java.util.List;
 
-  boolean accept(Issue issue);
+public class DefaultIssueFilterChain implements IssueFilterChain {
 
+  private final List<IssueFilter> filters;
+
+  public DefaultIssueFilterChain(IssueFilter... filters) {
+    this.filters = ImmutableList.copyOf(filters);
+  }
+
+  public DefaultIssueFilterChain() {
+    this.filters = ImmutableList.of();
+  }
+
+  private DefaultIssueFilterChain(List<IssueFilter> filters) {
+    this.filters = filters;
+  }
+
+  @Override
+  public boolean accept(Issue issue) {
+    if (filters.isEmpty()) {
+      return true;
+    } else {
+      return filters.get(0).accept(issue, new DefaultIssueFilterChain(filters.subList(1, filters.size())));
+    }
+  }
 }

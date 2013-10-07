@@ -21,7 +21,7 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.ViolationFilters;
@@ -37,21 +37,21 @@ public class IssueFiltersTest {
   ViolationFilters deprecatedFilters = mock(ViolationFilters.class);
 
   @Test
-  public void accept() throws Exception {
-    IssueFilter ok = mock(IssueFilter.class);
+  public void accept_when_filter_chain_is_empty() throws Exception {
+    org.sonar.api.issue.IssueFilter ok = mock(org.sonar.api.issue.IssueFilter.class);
     when(ok.accept(any(Issue.class))).thenReturn(true);
 
-    IssueFilter ko = mock(IssueFilter.class);
+    org.sonar.api.issue.IssueFilter ko = mock(org.sonar.api.issue.IssueFilter.class);
     when(ko.accept(any(Issue.class))).thenReturn(false);
 
     when(deprecatedFilters.isEmpty()).thenReturn(true);
-    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ok, ko});
+    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[]{ok, ko});
     assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
 
-    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ok});
+    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[]{ok});
     assertThat(filters.accept(new DefaultIssue(), null)).isTrue();
 
-    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ko});
+    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[]{ko});
     assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
   }
 
@@ -66,7 +66,7 @@ public class IssueFiltersTest {
   public void should_check_deprecated_violation_filters() throws Exception {
     when(deprecatedFilters.isEmpty()).thenReturn(false);
     when(deprecatedFilters.isIgnored(any(Violation.class))).thenReturn(true);
-    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[0]);
+    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0]);
     assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
 
   }

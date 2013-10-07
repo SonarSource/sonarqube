@@ -17,16 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+package org.sonar.api.issue.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.issue.Issue;
 
 /**
- * @since 3.6
- * @deprecated since 4.0
+ * A filter chain is an object provided to issues filters for fine control over the filtering logic. Each filter has the choice to:
+ * <ul>
+ *  <li>Accept the issue</li>
+ *  <li>Reject the issue</li>
+ *  <li>Let downstream filters decide by passing the issue to the rest of the chain</li>
+ * </ul>
+ * @since 4.0
+ *
  */
-public interface IssueFilter extends BatchExtension {
+public interface IssueFilterChain {
 
+  /**
+   * Called by a filter to let downstream filters decide the fate of the issue
+   * @param issue
+   * @return
+   */
   boolean accept(Issue issue);
-
 }
