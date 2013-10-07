@@ -31,8 +31,8 @@
     inner join characteristic_edges char_to_root_char on char_to_root_char.child_id = characteristic.id
     inner join characteristics root_char on root_char.id = char_to_root_char.parent_id and root_char.enabled = ${_true}
     <where>
-      req.rule_id=#{ruleId}
-      and req.enabled=${_true}
+      req.rule_id = #{ruleId}
+      and req.enabled = ${_true}
     </where>
   </select>
 
