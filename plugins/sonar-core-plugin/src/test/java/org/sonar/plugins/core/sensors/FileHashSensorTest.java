@@ -42,7 +42,9 @@ import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -98,5 +100,15 @@ public class FileHashSensorTest {
     verify(componentDataCache).setStringData("java_project", "hash",
       "src/com/foo/Bar.java=barhash\n"
         + "src/com/foo/Foo.java=foohash\n");
+  }
+
+  @Test
+  public void dont_save_hashes_if_no_file() throws Exception {
+    File baseDir = temp.newFolder();
+    when(fileSystem.baseDir()).thenReturn(baseDir);
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(Collections.<File> emptyList());
+    sensor.analyse(project, mock(SensorContext.class));
+
+    verify(componentDataCache, never()).setStringData(anyString(), anyString(), anyString());
   }
 }

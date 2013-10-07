@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -63,7 +64,10 @@ public final class FileHashSensor implements Sensor {
     StringBuilder fileHashMap = new StringBuilder();
     analyse(fileHashMap, project, FileType.SOURCE);
     analyse(fileHashMap, project, FileType.TEST);
-    componentDataCache.setStringData(project.getKey(), SnapshotDataType.FILE_HASH.getValue(), fileHashMap.toString());
+    String fileHashes = fileHashMap.toString();
+    if (StringUtils.isNotBlank(fileHashes)) {
+      componentDataCache.setStringData(project.getKey(), SnapshotDataType.FILE_HASH.getValue(), fileHashes);
+    }
   }
 
   private void analyse(StringBuilder fileHashMap, Project project, FileType fileType) {
