@@ -8,10 +8,10 @@
     select
     req.id as id,
     req.rule_id as rule_id,
-    rule.id as rule_id,
-    rule.plugin_rule_key as rule_key,
-    rule.plugin_name as rule_repository_key,
-    rule.name as rule_name,
+    req_rule.id as rule_id,
+    req_rule.plugin_rule_key as rule_key,
+    req_rule.plugin_name as rule_repository_key,
+    req_rule.name as rule_name,
     prop.id as prop_id,
     prop.kee as prop_kee,
     prop.value as prop_value,
@@ -24,7 +24,7 @@
     characteristic.name as char_name
     from characteristics req
     inner join quality_models on quality_models.id = req.quality_model_id and quality_models.name = 'TECHNICAL_DEBT'
-    inner join rules rule on rule.id = req.rule_id
+    inner join rules req_rule on req_rule.id = req.rule_id
     inner join characteristic_properties prop on prop.characteristic_id = req.id
     inner join characteristic_edges req_to_char on req_to_char.child_id = req.id
     inner join characteristics characteristic on characteristic.id = req_to_char.parent_id and characteristic.enabled = ${_true}
