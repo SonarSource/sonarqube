@@ -1,7 +1,6 @@
-<div>
+<div class="<%= @requirement.isLinear() ? '' : 'marginbottom10' %>">
   <% if @requirement.isConstant() %>
     <%= message('issue.technical_debt.constant_resource') -%>
-    <br/>
   <% elsif @requirement.isLinearWithThreshold() or @requirement.isLinearWithOffset() %>
     <%
        case @requirement.offset.unit
@@ -18,7 +17,9 @@
     <% else %>
       <%= message('issue.technical_debt.linear_offset', :params => value) -%>
     <% end %>
-    <br/>
   <% end %>
+</div>
+
+<div class="note">
   <%= @requirement.rootCharacteristic.name %>&nbsp;&gt;&nbsp;<%= @requirement.characteristic.name %>
 </div>

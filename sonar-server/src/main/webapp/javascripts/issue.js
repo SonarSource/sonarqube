@@ -210,6 +210,7 @@ function toggleIssueRule(elt) {
     ruleElt.slideUp('fast');
   } else {
     issueElt.find('.issue-changelog').slideUp('fast');
+    issueElt.find('.issue-technicaldebt').slideUp('fast');
     var ruleKey = issueElt.attr('data-issue-rule');
     $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
       ruleElt.html(html);
@@ -229,6 +230,7 @@ function toggleIssueChangelog(elt) {
     changelogElt.slideUp('fast');
   } else {
     issueElt.find('.issue-rule').slideUp('fast');
+    issueElt.find('.issue-technicaldebt').slideUp('fast');
     var issueKey = issueElt.attr('data-issue-key');
     $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
       changelogElt.html(html);
@@ -240,15 +242,16 @@ function toggleIssueChangelog(elt) {
 
 function toggleTechnicalDebt(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
-  var changelogElt = issueElt.find('.issue-technicaldebt');
-  if (changelogElt.is(':visible')) {
-    changelogElt.slideUp('fast');
+  var debtElt = issueElt.find('.issue-technicaldebt');
+  if (debtElt.is(':visible')) {
+    debtElt.slideUp('fast');
   } else {
+    issueElt.find('.issue-changelog').slideUp('fast');
     issueElt.find('.issue-rule').slideUp('fast');
     var issueKey = issueElt.attr('data-issue-key');
     $j.get(baseUrl + "/issue/technicaldebt/" + issueKey, function (html) {
-      changelogElt.html(html);
-      changelogElt.slideDown('fast');
+      debtElt.html(html);
+      debtElt.slideDown('fast');
     });
   }
   return false;
