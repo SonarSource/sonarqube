@@ -20,18 +20,30 @@
 package org.sonar.api.issue;
 
 import com.google.common.collect.ImmutableSet;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.rule.RuleKey;
 
 import java.util.Set;
 
+import static org.mockito.Mockito.times;
+
+import static org.mockito.Mockito.verify;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NoSonarFilterTest {
 
   NoSonarFilter filter = new NoSonarFilter();
+  IssueFilterChain chain = mock(IssueFilterChain.class);
+
+  @Before
+  public void setupChain() {
+    when(chain.accept(isA(Issue.class))).thenReturn(true);
+  }
 
   @Test
   public void should_ignore_lines_commented_with_nosonar() {
@@ -43,14 +55,17 @@ public class NoSonarFilterTest {
     filter.addComponent("struts:org.apache.Action", noSonarLines);
 
     // issue on file
-    assertThat(filter.accept(issue)).isTrue();
+    when(issue.line()).thenReturn(null);
+    assertThat(filter.accept(issue, chain)).isTrue();
 
     // issue on lines
     when(issue.line()).thenReturn(31);
-    assertThat(filter.accept(issue)).isFalse();
+    assertThat(filter.accept(issue, chain)).isFalse();
 
     when(issue.line()).thenReturn(222);
-    assertThat(filter.accept(issue)).isTrue();
+    assertThat(filter.accept(issue, chain)).isTrue();
+
+    verify(chain, times(2)).accept(issue);
   }
 
   @Test
@@ -64,9 +79,11 @@ public class NoSonarFilterTest {
     filter.addComponent("struts:org.apache.Action", noSonarLines);
 
     when(issue.line()).thenReturn(31);
-    assertThat(filter.accept(issue)).isTrue();
+    assertThat(filter.accept(issue, chain)).isTrue();
 
     when(issue.line()).thenReturn(222);
-    assertThat(filter.accept(issue)).isTrue();
+    assertThat(filter.accept(issue, chain)).isTrue();
+
+    verify(chain, times(2)).accept(issue);
   }
 }

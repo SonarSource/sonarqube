@@ -19,6 +19,8 @@
  */
 package org.sonar.api.issue;
 
+import org.sonar.api.issue.batch.IssueFilterChain;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,7 +36,7 @@ import java.util.Set;
  *
  * @since 3.6
  */
-public class NoSonarFilter implements IssueFilter {
+public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
 
   private final Map<String, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
 
@@ -44,7 +46,7 @@ public class NoSonarFilter implements IssueFilter {
   }
 
   @Override
-  public boolean accept(Issue issue) {
+  public boolean accept(Issue issue, IssueFilterChain chain) {
     boolean accepted = true;
     if (issue.line() != null) {
       Set<Integer> noSonarLines = noSonarLinesByResource.get(issue.componentKey());
@@ -52,6 +54,9 @@ public class NoSonarFilter implements IssueFilter {
       if (!accepted && StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar")) {
         accepted = true;
       }
+    }
+    if (accepted) {
+      accepted = chain.accept(issue);
     }
     return accepted;
   }
