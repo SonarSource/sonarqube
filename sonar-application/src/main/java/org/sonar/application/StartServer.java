@@ -19,8 +19,10 @@
  */
 package org.sonar.application;
 
-// TODO dev mode
-// TODO remove logback/slf4j from sonar-server
+import org.apache.catalina.LifecycleException;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public final class StartServer {
 
@@ -32,7 +34,7 @@ public final class StartServer {
     this.tomcat = new EmbeddedTomcat(env);
   }
 
-  void start() throws Exception {
+  void start() throws IOException, LifecycleException {
     tomcat.start();
   }
 
@@ -40,11 +42,11 @@ public final class StartServer {
     return tomcat.port();
   }
 
-  void stop() throws Exception {
+  void stop() {
     tomcat.stop();
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws URISyntaxException, IOException, LifecycleException {
     new StartServer(new Env()).start();
   }
 }

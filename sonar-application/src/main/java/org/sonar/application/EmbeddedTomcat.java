@@ -24,6 +24,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 class EmbeddedTomcat {
 
@@ -38,7 +39,7 @@ class EmbeddedTomcat {
     this.env = env;
   }
 
-  void start() throws Exception {
+  void start() throws IOException, LifecycleException {
     if (tomcat != null || hook != null) {
       throw new IllegalStateException("Tomcat is already started");
     }
