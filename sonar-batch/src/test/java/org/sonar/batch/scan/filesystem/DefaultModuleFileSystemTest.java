@@ -288,8 +288,8 @@ public class DefaultModuleFileSystemTest {
       .addTestDir(testDir)
       .setSettings(settings);
 
-    assertThat(fileSystem.files(FileQuery.onSource())).containsExactly(foo, hello);
-    assertThat(fileSystem.files(FileQuery.onTest())).containsExactly(fooTest, helloTest);
+    assertThat(fileSystem.files(FileQuery.onSource())).containsOnly(foo, hello);
+    assertThat(fileSystem.files(FileQuery.onTest())).containsOnly(fooTest, helloTest);
 
     assertThat(fileSystem.changedFiles(FileQuery.onSource())).containsExactly(foo);
     assertThat(fileSystem.changedFiles(FileQuery.onTest())).containsExactly(fooTest);
