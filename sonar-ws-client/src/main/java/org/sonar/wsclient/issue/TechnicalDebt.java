@@ -17,32 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt.functions;
+package org.sonar.wsclient.issue;
 
-import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+/**
+ * @since 4.0
+ */
+public interface TechnicalDebt {
 
-import java.util.Collection;
-
-public final class LinearWithOffsetFunction extends LinearFunction {
-
-  public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
-
-  public LinearWithOffsetFunction(TechnicalDebtConverter converter) {
-    super(converter);
-  }
-
-  public String getKey() {
-    return FUNCTION_LINEAR_WITH_OFFSET;
-  }
-
-  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    if (violations.isEmpty()) {
-      return 0.0;
-    }
-    double minimunCost = getConverter().toDays(requirement.getOffset());
-    return minimunCost + super.costInHours(requirement, violations);
-  }
+  int days();
+  int minutes();
+  int hours();
 
 }

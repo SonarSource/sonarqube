@@ -26,9 +26,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnit;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,8 +45,8 @@ public class LinearFunctionTest {
   @Before
   public void before() {
     Settings settings = new Settings();
-    settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, 8);
-    function = new LinearFunction(new WorkUnitConverter(settings));
+    settings.setProperty(TechnicalDebtConverter.PROPERTY_HOURS_IN_DAY, 8);
+    function = new LinearFunction(new TechnicalDebtConverter(settings));
 
     requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));

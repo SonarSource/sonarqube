@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -53,7 +54,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
-      .setRemediationCost(10L)
+      .setTechnicalDebt(TechnicalDebt.of(10, 0, 0))
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -87,7 +88,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
         // updated fields
       .setLine(5000)
-      .setRemediationCost(10L)
+      .setTechnicalDebt(TechnicalDebt.of(10, 0, 0))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")

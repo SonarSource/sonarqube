@@ -28,6 +28,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
@@ -47,7 +48,6 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
-  public static final String REMEDIATION_COST = "remediationCost";
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {
@@ -199,23 +199,21 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return setEffortToFix(issue, currentEffort, context);
   }
 
-  public boolean setRemediationCost(DefaultIssue issue, @Nullable Long value, IssueChangeContext context) {
-    Long oldValue = issue.remediationCost();
+  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable TechnicalDebt value, IssueChangeContext context) {
+    TechnicalDebt oldValue = issue.technicalDebt();
     if (!Objects.equal(value, oldValue)) {
-      issue.setRemediationCost(value);
+      issue.setTechnicalDebt(value);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
-      issue.setFieldChange(context, REMEDIATION_COST, oldValue, value);
       return true;
     }
     return false;
   }
 
-  public boolean setPastRemediationCost(DefaultIssue issue, @Nullable Long previousRemediationCost, IssueChangeContext context) {
-    Long currentRemediationCost = issue.remediationCost();
-    issue.setRemediationCost(previousRemediationCost);
-    return setRemediationCost(issue, currentRemediationCost, context);
-
+  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable TechnicalDebt previousTechnicalDebt, IssueChangeContext context) {
+    TechnicalDebt currentTechnicalDebt = issue.technicalDebt();
+    issue.setTechnicalDebt(previousTechnicalDebt);
+    return setTechnicalDebt(issue, currentTechnicalDebt, context);
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {

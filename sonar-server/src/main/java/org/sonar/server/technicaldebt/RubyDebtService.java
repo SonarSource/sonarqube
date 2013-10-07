@@ -17,32 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt.functions;
+package org.sonar.server.technicaldebt;
 
-import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.api.ServerComponent;
 
-import java.util.Collection;
+public class RubyDebtService implements ServerComponent {
 
-public final class LinearWithOffsetFunction extends LinearFunction {
-
-  public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
-
-  public LinearWithOffsetFunction(TechnicalDebtConverter converter) {
-    super(converter);
-  }
-
-  public String getKey() {
-    return FUNCTION_LINEAR_WITH_OFFSET;
-  }
-
-  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    if (violations.isEmpty()) {
-      return 0.0;
-    }
-    double minimunCost = getConverter().toDays(requirement.getOffset());
-    return minimunCost + super.costInHours(requirement, violations);
-  }
 
 }

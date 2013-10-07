@@ -32,7 +32,7 @@ class Issue
     hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:remediationCost] = issue.remediationCost.to_i if issue.remediationCost
+    hash[:technicalDebt] = technical_debt_to_hash(issue.technicalDebt) if issue.technicalDebt
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
@@ -53,6 +53,14 @@ class Issue
       :login => comment.userLogin(),
       :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
       :createdAt => Api::Utils.format_datetime(comment.createdAt())
+    }
+  end
+
+  def self.technical_debt_to_hash(technical_debt)
+    {
+        :days => technical_debt.days(),
+        :hours => technical_debt.hours(),
+        :minutes => technical_debt.minutes()
     }
   end
 

@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
@@ -48,7 +49,7 @@ public final class IssueDto implements Serializable {
   private String message;
   private Integer line;
   private Double effortToFix;
-  private Long remediationCost;
+  private Long technicalDebt;
   private String status;
   private String resolution;
   private String checksum;
@@ -183,12 +184,12 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public Long getRemediationCost() {
-    return remediationCost;
+  public Long getTechnicalDebt() {
+    return technicalDebt;
   }
 
-  public IssueDto setRemediationCost(@Nullable Long remediationCost) {
-    this.remediationCost = remediationCost;
+  public IssueDto setTechnicalDebt(@Nullable Long technicalDebt) {
+    this.technicalDebt = technicalDebt;
     return this;
   }
 
@@ -367,7 +368,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setRemediationCost(issue.remediationCost())
+      .setTechnicalDebt(issue.technicalDebt() != null ? issue.technicalDebt().toLong() : null)
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -396,7 +397,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setRemediationCost(issue.remediationCost())
+      .setTechnicalDebt(issue.technicalDebt() != null ? issue.technicalDebt().toLong() : null)
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -421,7 +422,7 @@ public final class IssueDto implements Serializable {
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
-    issue.setRemediationCost(remediationCost);
+    issue.setTechnicalDebt(technicalDebt != null ? TechnicalDebt.fromLong(technicalDebt) : null);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);

@@ -23,14 +23,15 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 
-public final class WorkUnitConverter implements BatchComponent, ServerComponent {
+public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
 
   public static final String PROPERTY_HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
 
   private int hoursInDay;
 
-  public WorkUnitConverter(Settings settings) {
+  public TechnicalDebtConverter(Settings settings) {
     this.hoursInDay = settings.getInt(PROPERTY_HOURS_IN_DAY);
   }
 
@@ -64,8 +65,28 @@ public final class WorkUnitConverter implements BatchComponent, ServerComponent 
     }
   }
 
-  public RemediationCostTimeUnit toRemediationCostTimeUnit(long minutes){
-    return RemediationCostTimeUnit.of(minutes, hoursInDay);
+  public TechnicalDebt fromMinutes(Long inMinutes){
+    int oneHourInMinute = 60;
+    int days = 0;
+    int hours = 0;
+    int minutes = 0;
+
+    int oneWorkingDay = hoursInDay * oneHourInMinute;
+    if (inMinutes >= oneWorkingDay) {
+      Long nbDays = inMinutes / oneWorkingDay;
+      days = nbDays.shortValue();
+      inMinutes = inMinutes - (nbDays * oneWorkingDay);
+    }
+
+    if (inMinutes >= oneHourInMinute) {
+      Long nbHours = inMinutes / oneHourInMinute;
+      hours = nbHours.shortValue();
+      inMinutes = inMinutes - (nbHours * oneHourInMinute);
+    }
+
+    minutes = inMinutes.shortValue();
+
+    return TechnicalDebt.of(minutes, hours, days);
   }
 
 }

@@ -17,32 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt.functions;
+package org.sonar.wsclient.issue.internal;
 
-import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.wsclient.issue.TechnicalDebt;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
-import java.util.Collection;
+import java.util.Map;
 
-public final class LinearWithOffsetFunction extends LinearFunction {
+/**
+ * @since 4.0
+ */
+public class DefaultTechnicalDebt implements TechnicalDebt {
+  private final Map json;
 
-  public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
-
-  public LinearWithOffsetFunction(TechnicalDebtConverter converter) {
-    super(converter);
+  DefaultTechnicalDebt(Map json) {
+    this.json = json;
   }
 
-  public String getKey() {
-    return FUNCTION_LINEAR_WITH_OFFSET;
+  public int days() {
+    return JsonUtils.getInteger(json, "days");
   }
 
-  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    if (violations.isEmpty()) {
-      return 0.0;
-    }
-    double minimunCost = getConverter().toDays(requirement.getOffset());
-    return minimunCost + super.costInHours(requirement, violations);
+  public int hours() {
+    return JsonUtils.getInteger(json, "hours");
+  }
+
+  public int minutes() {
+    return JsonUtils.getInteger(json, "minutes");
   }
 
 }

@@ -21,20 +21,20 @@ package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
 public abstract class AbstractFunction implements Function {
 
-  private WorkUnitConverter converter;
+  private TechnicalDebtConverter converter;
 
-  public AbstractFunction(WorkUnitConverter converter) {
+  public AbstractFunction(TechnicalDebtConverter converter) {
     this.converter = converter;
   }
 
-  protected WorkUnitConverter getConverter() {
+  protected TechnicalDebtConverter getConverter() {
     return converter;
   }
 

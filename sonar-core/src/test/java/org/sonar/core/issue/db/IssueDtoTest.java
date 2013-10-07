@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -65,7 +66,7 @@ public class IssueDtoTest {
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
         .setEffortToFix(15.0)
-        .setRemediationCost(500L)
+        .setTechnicalDebt(101010L)
         .setLine(6)
         .setSeverity("BLOCKER")
         .setMessage("message")
@@ -86,7 +87,7 @@ public class IssueDtoTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.effortToFix()).isEqualTo(15.0);
-    assertThat(issue.remediationCost()).isEqualTo(500L);
+    assertThat(issue.technicalDebt()).isEqualTo(TechnicalDebt.of(10, 10, 10));
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");

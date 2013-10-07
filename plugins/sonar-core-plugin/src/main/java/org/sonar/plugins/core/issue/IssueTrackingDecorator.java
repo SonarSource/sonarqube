@@ -38,6 +38,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
@@ -166,7 +167,7 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastLine(issue, ref.getLine());
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
-      updater.setPastRemediationCost(issue, ref.getRemediationCost(), changeContext);
+      updater.setPastTechnicalDebt(issue, TechnicalDebt.fromLong(ref.getTechnicalDebt()), changeContext);
     }
   }
 

@@ -9,7 +9,7 @@
           author_login="simon"
           checksum="FFFFF"
           effort_to_fix="[null]"
-          remediation_cost="10"
+          technical_debt="10"
           message="[null]"
           line="5000"
           component_id="100"

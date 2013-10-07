@@ -20,8 +20,8 @@
 package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ public final class LinearWithThresholdFunction extends LinearFunction {
 
   public static final String FUNCTION_LINEAR_WITH_THRESHOLD = "linear_threshold";
 
-  public LinearWithThresholdFunction(WorkUnitConverter converter) {
+  public LinearWithThresholdFunction(TechnicalDebtConverter converter) {
     super(converter);
   }
 

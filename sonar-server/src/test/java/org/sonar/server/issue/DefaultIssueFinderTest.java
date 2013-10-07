@@ -29,6 +29,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
@@ -283,6 +284,28 @@ public class DefaultIssueFinderTest {
     assertThat(results.rules()).isEmpty();
     assertThat(results.components()).isEmpty();
     assertThat(results.actionPlans()).isEmpty();
+  }
+
+  @Test
+  public void should_find_issue_with_technical_debt() {
+    IssueQuery query = IssueQuery.builder().build();
+
+    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRootComponentKey_unit_test_only("struts")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN")
+      .setTechnicalDebt(10L)
+      ;
+    List<IssueDto> dtoList = newArrayList(issue);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+
+    IssueQueryResult results = finder.find(query);
+    verify(issueDao).selectIssueIds(eq(query), anyInt(), any(SqlSession.class));
+
+    assertThat(results.issues()).hasSize(1);
+    DefaultIssue result = (DefaultIssue) results.issues().iterator().next();
+    assertThat(result.technicalDebt()).isEqualTo(TechnicalDebt.of(10, 0, 0));
   }
 
 }

@@ -34,6 +34,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 
 import java.util.Calendar;
@@ -200,14 +201,14 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
-    when(technicalDebtCalculator.cost(issue)).thenReturn(10L);
+    when(technicalDebtCalculator.calculTechnicalDebt(issue)).thenReturn(TechnicalDebt.of(10, 0, 0));
     when(filters.accept(issue, null)).thenReturn(true);
 
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().remediationCost()).isEqualTo(10L);
+    assertThat(argument.getValue().technicalDebt()).isEqualTo(TechnicalDebt.of(10, 0, 0));
   }
 
 }

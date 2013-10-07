@@ -34,6 +34,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultIssueClientTest {
+
   @Rule
   public MockHttpServerInterceptor httpServer = new MockHttpServerInterceptor();
 

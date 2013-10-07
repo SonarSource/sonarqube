@@ -32,6 +32,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.core.technicaldebt.functions.Functions;
 
 import java.util.Collection;
@@ -48,17 +49,19 @@ public class TechnicalDebtCalculator implements BatchExtension {
   private Map<TechnicalDebtRequirement, Double> requirementCosts = Maps.newHashMap();
 
   private Functions functions;
+  private final TechnicalDebtConverter converter;
   private TechnicalDebtModel technicalDebtModel;
 
-  public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, Functions functions) {
+  public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, Functions functions, TechnicalDebtConverter converter) {
     this.technicalDebtModel = technicalDebtModel;
     this.functions = functions;
+    this.converter = converter;
   }
 
-  public Long cost(Issue issue) {
+  public TechnicalDebt calculTechnicalDebt(Issue issue) {
     TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (requirement != null) {
-      return functions.costInMinutes(requirement, issue);
+      return converter.fromMinutes(functions.costInMinutes(requirement, issue));
     }
     return null;
   }
@@ -72,7 +75,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
     // the total cost is: cost(violations)
     for (TechnicalDebtRequirement requirement : technicalDebtModel.getAllRequirements()) {
       List<Violation> violations = violationsByRequirement.get(requirement);
-      double allViolationsCost = computeRemediationCost(CoreMetrics.TECHNICAL_DEBT, context, requirement, violations);
+      double allViolationsCost = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, requirement, violations);
       updateRequirementCosts(requirement, allViolationsCost);
     }
   }
@@ -112,7 +115,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
     propagateCostInParents(requirement.getParent(), cost);
   }
 
-  private double computeRemediationCost(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+  private double computeTechnicalDebt(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double cost = 0.0;
     if (violations != null) {
       cost = functions.costInHours(requirement, violations);

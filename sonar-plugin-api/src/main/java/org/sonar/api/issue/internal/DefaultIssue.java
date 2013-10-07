@@ -34,9 +34,11 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -56,7 +58,7 @@ public class DefaultIssue implements Issue {
   private String message;
   private Integer line;
   private Double effortToFix;
-  private Long remediationCost;
+  private TechnicalDebt technicalDebt;
   private String status;
   private String resolution;
   private String reporter;
@@ -187,12 +189,12 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public Long remediationCost() {
-    return remediationCost;
+  public TechnicalDebt technicalDebt() {
+    return technicalDebt;
   }
 
-  public DefaultIssue setRemediationCost(@Nullable Long r) {
-    this.remediationCost = r;
+  public DefaultIssue setTechnicalDebt(@Nullable TechnicalDebt t) {
+    this.technicalDebt = t;
     return this;
   }
 

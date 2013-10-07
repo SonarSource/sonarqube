@@ -24,6 +24,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.user.User;
 import org.sonar.core.user.DefaultUser;
 
@@ -364,15 +365,13 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_remediation_cost() throws Exception {
-    issue.setRemediationCost(15l);
-    boolean updated = updater.setPastRemediationCost(issue, 10l, context);
+  public void set_past_technical_debt() throws Exception {
+    issue.setTechnicalDebt(TechnicalDebt.of(15, 0, 0));
+    TechnicalDebt previousDebt = TechnicalDebt.of(10, 0, 0);
+    boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
-    assertThat(issue.remediationCost()).isEqualTo(15L);
+    assertThat(issue.technicalDebt()).isEqualTo(TechnicalDebt.of(15, 0, 0));
 
-    FieldDiffs.Diff diff = issue.currentChange().get("remediationCost");
-    assertThat(diff.oldValue()).isEqualTo(10L);
-    assertThat(diff.newValue()).isEqualTo(15L);
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 

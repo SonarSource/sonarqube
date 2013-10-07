@@ -28,9 +28,9 @@ import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnit;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import java.util.Collections;
 public class LinearWithThresholdFunctionTest {
 
   private TechnicalDebtRequirement requirement;
-  private Function function = new LinearWithThresholdFunction(new WorkUnitConverter(new Settings()));
+  private Function function = new LinearWithThresholdFunction(new TechnicalDebtConverter(new Settings()));
 
   @Before
   public void before() {

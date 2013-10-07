@@ -52,12 +52,14 @@ public class TechnicalDebtCalculatorTest {
   private TechnicalDebtModel technicalDebtModel;
   private Functions functions;
   private TechnicalDebtCalculator remediationCostCalculator;
+  private TechnicalDebtConverter converter;
 
   @Before
   public void initMocks() {
     technicalDebtModel = mock(TechnicalDebtModel.class);
     functions = mock(Functions.class);
-    remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, functions);
+    converter = mock(TechnicalDebtConverter.class);
+    remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, functions, converter);
   }
 
   @Test
@@ -150,22 +152,22 @@ public class TechnicalDebtCalculatorTest {
   }
 
   @Test
-  public void cost_from_one_issue() throws Exception {
+  public void technical_debt_from_one_issue() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    stub(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).toReturn(requirement);
-
+    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
     when(functions.costInMinutes(eq(requirement), eq(issue))).thenReturn(10L);
 
-    assertThat(remediationCostCalculator.cost(issue)).isEqualTo(10L);
+    remediationCostCalculator.calculTechnicalDebt(issue);
+    verify(functions).costInMinutes(eq(requirement), eq(issue));
   }
 
   @Test
-  public void no_cost_from_one_issue_if_reauirement_not_found() throws Exception {
+  public void no_technical_debt_from_one_issue_if_reauirement_not_found() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    stub(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).toReturn(null);
+    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(null);
 
-    assertThat(remediationCostCalculator.cost(issue)).isNull();
+    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
     verify(functions, never()).costInMinutes(any(TechnicalDebtRequirement.class), any(Issue.class));
   }
 

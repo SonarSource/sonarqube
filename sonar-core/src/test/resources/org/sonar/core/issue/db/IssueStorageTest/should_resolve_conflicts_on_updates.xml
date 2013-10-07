@@ -17,7 +17,7 @@
           author_login="[null]"
           checksum="FFFFF"
           effort_to_fix="[null]"
-          remediation_cost="[null]"
+          technical_debt="[null]"
           message="[null]"
           line="1"
           component_id="100"

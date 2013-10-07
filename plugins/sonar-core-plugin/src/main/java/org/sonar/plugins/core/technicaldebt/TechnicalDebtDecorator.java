@@ -32,8 +32,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -111,7 +111,7 @@ public final class TechnicalDebtDecorator implements Decorator {
 
   private static List<PropertyDefinition> definitions() {
     return ImmutableList.of(
-      PropertyDefinition.builder(WorkUnitConverter.PROPERTY_HOURS_IN_DAY)
+      PropertyDefinition.builder(TechnicalDebtConverter.PROPERTY_HOURS_IN_DAY)
         .name("Number of working hours in a day")
         .defaultValue("8")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)

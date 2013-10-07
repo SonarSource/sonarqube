@@ -20,6 +20,7 @@
 package org.sonar.wsclient.issue;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public interface Issue {
   Double effortToFix();
 
   @CheckForNull
-  Long remediationCost();
+  TechnicalDebt technicalDebt();
 
   String status();
 

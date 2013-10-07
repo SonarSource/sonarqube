@@ -23,10 +23,10 @@
 # SONAR-4716
 #
 
-class AddRemediationCostToIssue < ActiveRecord::Migration
+class AddTechnicalDebtToIssue < ActiveRecord::Migration
 
   def self.up
-    add_column 'issues', 'remediation_cost', :integer, :null => true
+    add_column 'issues', 'technical_debt', :integer, :null => true
   end
 
 end

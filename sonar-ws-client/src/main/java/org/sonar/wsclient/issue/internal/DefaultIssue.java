@@ -21,9 +21,11 @@ package org.sonar.wsclient.issue.internal;
 
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueComment;
+import org.sonar.wsclient.issue.TechnicalDebt;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 /**
@@ -76,8 +78,12 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public Long remediationCost() {
-    return JsonUtils.getLong(json, "remediationCost");
+  public TechnicalDebt technicalDebt() {
+    Map technicalDebt = (Map) json.get("technicalDebt");
+    if (technicalDebt != null) {
+      return new DefaultTechnicalDebt(technicalDebt);
+    }
+    return null;
   }
 
   public String status() {

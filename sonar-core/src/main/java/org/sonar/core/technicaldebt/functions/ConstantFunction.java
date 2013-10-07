@@ -21,8 +21,8 @@ package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ public final class ConstantFunction extends AbstractFunction {
 
   public static final String FUNCTION_CONSTANT_RESOURCE = "constant_resource";
 
-  public ConstantFunction(WorkUnitConverter converter) {
+  public ConstantFunction(TechnicalDebtConverter converter) {
     super(converter);
   }
 

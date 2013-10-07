@@ -21,8 +21,8 @@ package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
@@ -32,7 +32,7 @@ public class LinearFunction extends AbstractFunction {
 
   public static final double DEFAULT_VIOLATION_COST = 1.0;
 
-  public LinearFunction(WorkUnitConverter converter) {
+  public LinearFunction(TechnicalDebtConverter converter) {
     super(converter);
   }
 

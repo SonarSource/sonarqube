@@ -51,7 +51,7 @@ public class IssueJsonParserTest {
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
-    assertThat(first.remediationCost()).isEqualTo(10L);
+    assertThat(first.technicalDebt()).isNull();
     assertThat(first.reporter()).isEqualTo("perceval");
     assertThat(first.author()).isEqualTo("pirlouis");
     assertThat(first.actionPlan()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
@@ -67,7 +67,7 @@ public class IssueJsonParserTest {
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.line()).isNull();
     assertThat(second.effortToFix()).isNull();
-    assertThat(second.remediationCost()).isNull();
+    assertThat(second.technicalDebt()).isNull();
     assertThat(second.reporter()).isNull();
     assertThat(second.author()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
@@ -194,6 +194,18 @@ public class IssueJsonParserTest {
     assertThat(actionPlan.deadLine().getTime()).isEqualTo(1369951200000l);
     assertThat(actionPlan.createdAt().getTime()).isEqualTo(1369828520000l);
     assertThat(actionPlan.updatedAt().getTime()).isEqualTo(1369828520000l);
+  }
+
+  @Test
+  public void should_parse_technical_debt() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-technical-debt.json"));
+    Issues issues = new IssueJsonParser().parseIssues(json);
+    assertThat(issues.size()).isEqualTo(1);
+
+    Issue issue = issues.list().get(0);
+    assertThat(issue.technicalDebt().days()).isEqualTo(3);
+    assertThat(issue.technicalDebt().hours()).isEqualTo(0);
+    assertThat(issue.technicalDebt().minutes()).isEqualTo(10);
   }
 
   @Test

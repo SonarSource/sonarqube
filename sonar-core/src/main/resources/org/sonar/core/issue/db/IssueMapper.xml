@@ -16,7 +16,7 @@
     i.message as message,
     i.line as line,
     i.effort_to_fix as effortToFix,
-    i.remediation_cost as remediationCost,
+    i.technical_debt as technicalDebt,
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
@@ -62,11 +62,11 @@
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
-    message, line, effort_to_fix, remediation_cost, status,
+    message, line, effort_to_fix, technical_debt, status,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
     VALUES (#{kee}, #{componentId}, #{rootComponentId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
-    #{message}, #{line}, #{effortToFix}, #{remediationCost}, #{status},
+    #{message}, #{line}, #{effortToFix}, #{technicalDebt}, #{status},
     #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{issueAttributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -82,7 +82,7 @@
     message=#{message},
     line=#{line},
     effort_to_fix=#{effortToFix},
-    remediation_cost=#{remediationCost},
+    technical_debt=#{technicalDebt},
     status=#{status},
     resolution=#{resolution},
     checksum=#{checksum},
@@ -108,7 +108,7 @@
     message=#{message},
     line=#{line},
     effort_to_fix=#{effortToFix},
-    remediation_cost=#{remediationCost},
+    technical_debt=#{technicalDebt},
     status=#{status},
     resolution=#{resolution},
     checksum=#{checksum},
@@ -148,7 +148,7 @@
       i.message as message,
       i.line as line,
       i.effort_to_fix as effortToFix,
-      i.remediation_cost as remediationCost,
+      i.technical_debt as technicalDebt,
       i.status as status,
       i.resolution as resolution,
       i.checksum as checksum,

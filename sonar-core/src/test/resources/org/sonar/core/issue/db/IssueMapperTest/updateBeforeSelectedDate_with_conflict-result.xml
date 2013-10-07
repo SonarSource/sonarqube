@@ -11,7 +11,7 @@
       message="old"
       line="[null]"
       effort_to_fix="[null]"
-      remediation_cost="[null]"
+      technical_debt="[null]"
       status="OPEN"
       resolution="[null]"
       checksum="[null]"

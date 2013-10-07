@@ -82,7 +82,7 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    issue.setRemediationCost(technicalDebtCalculator.cost(issue));
+    issue.setTechnicalDebt(technicalDebtCalculator.calculTechnicalDebt(issue));
 
     if (filters.accept(issue, violation)) {
       cache.put(issue);

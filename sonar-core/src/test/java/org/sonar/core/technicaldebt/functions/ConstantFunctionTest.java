@@ -29,9 +29,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnit;
-import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class ConstantFunctionTest {
 
   @Before
   public void before() {
-    function = new ConstantFunction(new WorkUnitConverter(new Settings()));
+    function = new ConstantFunction(new TechnicalDebtConverter(new Settings()));
     requirement = Mockito.mock(TechnicalDebtRequirement.class);
     Mockito.when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));
   }
