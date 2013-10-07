@@ -49,13 +49,15 @@
            # Do not display minutes if days is not null to not have too much information
            message += message('issue.technical_debt.x_minutes', :params => minutes) if minutes > 0 && days == 0
       %>
-        <span><%= message -%></span>
+        <a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
+           id="toggle-issue-technicaldebt"><%= message -%></a>
         &nbsp;
     <% end %>
   </div>
 
   <div class="issue-rule rule-desc" style="display: none"></div>
   <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
+  <div class="issue-technicaldebt" id="issue-technicaldebt" style="display: none"></div>
 
   <% unless issue.message.blank? %>
     <div class="code-issue-msg">

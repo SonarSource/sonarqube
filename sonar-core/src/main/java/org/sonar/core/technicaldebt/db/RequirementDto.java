@@ -66,6 +66,7 @@ public class RequirementDto {
 
   public RequirementDto setCharacteristic(CharacteristicDto characteristic) {
     this.characteristic = characteristic;
+
     return this;
   }
 

@@ -19,6 +19,9 @@
  */
 package org.sonar.core.technicaldebt;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class DefaultRequirementProperty {
 
   public static final String PROPERTY_REMEDIATION_FUNCTION = "remediationFunction";
@@ -54,5 +57,10 @@ public class DefaultRequirementProperty {
   public DefaultRequirementProperty setTextValue(String textValue) {
     this.textValue = textValue;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }

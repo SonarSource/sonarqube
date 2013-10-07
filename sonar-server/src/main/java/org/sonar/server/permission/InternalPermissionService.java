@@ -20,11 +20,6 @@
 
 package org.sonar.server.permission;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -43,7 +38,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -192,7 +186,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void badRequestIfNullResult(Object component, String objectType, String objectKey) {
-    if(component == null) {
+    if (component == null) {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }
   }

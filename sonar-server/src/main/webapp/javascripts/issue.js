@@ -238,6 +238,22 @@ function toggleIssueChangelog(elt) {
   return false;
 }
 
+function toggleTechnicalDebt(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var changelogElt = issueElt.find('.issue-technicaldebt');
+  if (changelogElt.is(':visible')) {
+    changelogElt.slideUp('fast');
+  } else {
+    issueElt.find('.issue-rule').slideUp('fast');
+    var issueKey = issueElt.attr('data-issue-key');
+    $j.get(baseUrl + "/issue/technicaldebt/" + issueKey, function (html) {
+      changelogElt.html(html);
+      changelogElt.slideDown('fast');
+    });
+  }
+  return false;
+}
+
 function openIssueRulePopup(elt) {
   var issueElt = $j(elt).closest('[data-issue-rule]');
   var ruleKey = issueElt.attr('data-issue-rule');

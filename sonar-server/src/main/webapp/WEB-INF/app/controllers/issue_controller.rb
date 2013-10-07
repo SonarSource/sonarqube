@@ -200,6 +200,16 @@ class IssueController < ApplicationController
     render :partial => 'issue/changelog'
   end
 
+  # Display the technical debt detail in the issue panel
+  def technicaldebt
+    verify_ajax_request
+    require_parameters :id
+    @issue_results = Api.issues.find(params[:id])
+    @issue = @issue_results.first()
+    @requirement = Internal.technical_debt.requirement(@issue.ruleKey)
+    render :partial => 'issue/technicaldebt'
+  end
+
 
   private
 

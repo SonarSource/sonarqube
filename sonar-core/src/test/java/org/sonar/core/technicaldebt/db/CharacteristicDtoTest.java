@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.core.technicaldebt.db;
 
-import org.sonar.api.ServerComponent;
+import org.junit.Test;
+import org.sonar.core.technicaldebt.DefaultCharacteristic;
 
-public class RubyDebtService implements ServerComponent {
+import static org.fest.assertions.Assertions.assertThat;
 
+public class CharacteristicDtoTest {
 
+  @Test
+  public void to_default_characteristic(){
+    CharacteristicDto characteristicDto = new CharacteristicDto()
+      .setKey("COMPILER_RELATED_PORTABILITY")
+      .setName("Compiler");
+
+    DefaultCharacteristic defaultCharacteristic = characteristicDto.toDefaultCharacteristic();
+    assertThat(defaultCharacteristic.key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(defaultCharacteristic.name()).isEqualTo("Compiler");
+  }
 }

@@ -1,0 +1,24 @@
+<div>
+  <% if @requirement.isConstant() %>
+    <%= message('issue.technical_debt.constant_resource') -%>
+    <br/>
+  <% elsif @requirement.isLinearWithThreshold() or @requirement.isLinearWithOffset() %>
+    <%
+       case @requirement.offset.unit
+         when 'd'
+           value = message('issue.technical_debt.x_days', :params => @requirement.factor.value)
+         when 'h'
+           value = message('issue.technical_debt.x_hours', :params => @requirement.factor.value)
+         when 'mn'
+           value = message('issue.technical_debt.x_minutes', :params => @requirement.factor.value)
+       end
+    %>
+    <% if @requirement.isLinearWithThreshold() %>
+      <%= message('issue.technical_debt.linear_threshold', :params => value) -%>
+    <% else %>
+      <%= message('issue.technical_debt.linear_offset', :params => value) -%>
+    <% end %>
+    <br/>
+  <% end %>
+  <%= @requirement.rootCharacteristic.name %>&nbsp;&gt;&nbsp;<%= @requirement.characteristic.name %>
+</div>

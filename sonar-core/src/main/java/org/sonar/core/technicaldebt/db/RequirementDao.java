@@ -24,6 +24,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 public class RequirementDao implements ServerComponent {
 
   private final MyBatis mybatis;
@@ -32,6 +34,7 @@ public class RequirementDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
+  @CheckForNull
   public RequirementDto selectByRuleId(long ruleId) {
     SqlSession session = mybatis.openSession();
     RequirementMapper mapper = session.getMapper(RequirementMapper.class);

@@ -35,6 +35,7 @@ import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
 import org.sonar.core.user.AuthorizationDao;
@@ -70,6 +71,7 @@ public final class DaoUtils {
       PermissionTemplateDao.class,
       PropertiesDao.class,
       PurgeDao.class,
+      RequirementDao.class,
       ResourceIndexerDao.class,
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,

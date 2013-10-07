@@ -79,7 +79,7 @@ public class CharacteristicDto implements Serializable {
   public DefaultCharacteristic toDefaultCharacteristic() {
     return new DefaultCharacteristic()
       .setKey(kee)
-      .setKey(name);
+      .setName(name);
   }
 
 }

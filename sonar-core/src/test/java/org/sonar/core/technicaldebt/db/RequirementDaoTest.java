@@ -71,4 +71,14 @@ public class RequirementDaoTest extends AbstractDaoTestCase {
     assertThat(requirementDto.getProperties()).hasSize(2);
   }
 
+  @Test
+  public void return_null_on_unknown_rule(){
+    setupData("select_requirement_from_rule");
+
+    RequirementDto requirementDto = dao.selectByRuleId(999L);
+
+    assertThat(requirementDto).isNull();
+  }
+
+
 }

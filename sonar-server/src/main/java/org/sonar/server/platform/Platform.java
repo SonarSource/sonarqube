@@ -91,6 +91,7 @@ import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
+import org.sonar.server.technicaldebt.RubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtManager;
 import org.sonar.server.technicaldebt.TechnicalDebtModelFinder;
 import org.sonar.server.technicaldebt.XMLImporter;
@@ -303,6 +304,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtModelFinder.class);
     servicesContainer.addSingleton(XMLImporter.class);
     servicesContainer.addSingleton(TechnicalDebtConverter.class);
+    servicesContainer.addSingleton(RubyTechnicalDebtService.class);
 
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);
