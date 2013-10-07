@@ -167,7 +167,10 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastLine(issue, ref.getLine());
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
-      updater.setPastTechnicalDebt(issue, TechnicalDebt.fromLong(ref.getTechnicalDebt()), changeContext);
+      Long technicalDebt = ref.getTechnicalDebt();
+      if (technicalDebt != null) {
+        updater.setPastTechnicalDebt(issue, TechnicalDebt.fromLong(technicalDebt), changeContext);
+      }
     }
   }
 

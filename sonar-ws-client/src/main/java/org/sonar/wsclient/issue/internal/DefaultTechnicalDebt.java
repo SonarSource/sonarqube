@@ -34,15 +34,15 @@ public class DefaultTechnicalDebt implements TechnicalDebt {
     this.json = json;
   }
 
-  public int days() {
+  public Integer days() {
     return JsonUtils.getInteger(json, "days");
   }
 
-  public int hours() {
+  public Integer hours() {
     return JsonUtils.getInteger(json, "hours");
   }
 
-  public int minutes() {
+  public Integer minutes() {
     return JsonUtils.getInteger(json, "minutes");
   }
 

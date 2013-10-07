@@ -24,8 +24,10 @@ package org.sonar.wsclient.issue;
  */
 public interface TechnicalDebt {
 
-  int days();
-  int minutes();
-  int hours();
+  Integer days();
+
+  Integer minutes();
+
+  Integer hours();
 
 }
