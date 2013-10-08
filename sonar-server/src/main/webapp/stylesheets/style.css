@@ -2456,6 +2456,10 @@ textarea.width100 {
   max-width: 200px;
 }
 
+.property .note {
+  margin-top: 5px;
+}
+
 /* ------------------- Accordion navigation styles ------------------- */
 
 .accordion-item {
