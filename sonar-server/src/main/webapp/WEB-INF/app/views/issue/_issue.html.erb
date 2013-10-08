@@ -21,7 +21,7 @@
     <% end %>
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
+    <%= message('issue.updated') -%>&nbsp;<a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
        id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
@@ -33,7 +33,7 @@
     <% if issue.authorLogin %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
-     <span><%= message('issue.authorLogin') -%> <%= issue.authorLogin -%></span>
+     <span><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></span>
       &nbsp;
     <% end %>
     <% if issue.technicalDebt %>
@@ -49,7 +49,7 @@
            # Do not display minutes if days is not null to not have too much information
            message += message('issue.technical_debt.x_minutes', :params => minutes) if minutes > 0 && days == 0
       %>
-        <a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
+      <%= message('issue.technical_debt') -%>&nbsp;<a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
            id="toggle-issue-technicaldebt"><%= message -%></a>
         &nbsp;
     <% end %>
