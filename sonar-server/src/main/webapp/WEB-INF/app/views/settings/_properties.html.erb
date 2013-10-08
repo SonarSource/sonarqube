@@ -61,9 +61,12 @@
 
               <%= render "settings/error", :key => property.key -%>
 
-              <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
-              <% unless default_prop_value.blank? -%>
-                <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+              <!-- SONAR-4707 Don't display default value for property sets -->
+              <% if property.fields.blank? %>
+                <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
+                <% unless default_prop_value.blank? -%>
+                  <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+                <% end -%>
               <% end -%>
 
               <% desc=property_description(property) -%>
