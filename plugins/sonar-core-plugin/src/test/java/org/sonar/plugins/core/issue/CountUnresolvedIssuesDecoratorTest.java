@@ -31,7 +31,11 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
@@ -44,11 +48,24 @@ import org.sonar.api.test.IsRuleMeasure;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CountUnresolvedIssuesDecoratorTest {
 
@@ -64,7 +81,9 @@ public class CountUnresolvedIssuesDecoratorTest {
   Rule ruleB1;
   Date rightNow;
   Date tenDaysAgo;
+  Date afterTenDaysAgo;
   Date fiveDaysAgo;
+  Date afterFiveDaysAgo;
   Date sameSecond;
 
   @Before
@@ -80,15 +99,19 @@ public class CountUnresolvedIssuesDecoratorTest {
 
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
+    afterTenDaysAgo = DateUtils.addDays(tenDaysAgo, 1);
     fiveDaysAgo = DateUtils.addDays(rightNow, -5);
+    afterFiveDaysAgo = DateUtils.addDays(fiveDaysAgo, 1);
     sameSecond = DateUtils.truncate(rightNow, Calendar.SECOND);
 
     PastSnapshot pastSnapshot = mock(PastSnapshot.class);
     when(pastSnapshot.getIndex()).thenReturn(1);
+    when(pastSnapshot.getDate()).thenReturn(afterFiveDaysAgo);
     when(pastSnapshot.getTargetDate()).thenReturn(fiveDaysAgo);
 
     PastSnapshot pastSnapshot2 = mock(PastSnapshot.class);
     when(pastSnapshot2.getIndex()).thenReturn(2);
+    when(pastSnapshot2.getDate()).thenReturn(afterTenDaysAgo);
     when(pastSnapshot2.getTargetDate()).thenReturn(tenDaysAgo);
 
     timeMachineConfiguration = mock(TimeMachineConfiguration.class);
@@ -116,7 +139,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   public void should_count_issues() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(issuable.issues()).thenReturn(createissues());
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -141,7 +164,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   public void should_not_count_issues_if_measure_already_exists() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(issuable.issues()).thenReturn(createissues());
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
     when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
 
@@ -155,8 +178,8 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_projects() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
+    when(issuable.issues()).thenReturn(Lists.<Issue> newArrayList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -166,8 +189,8 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_directories() {
     when(resource.getScope()).thenReturn(Scopes.DIRECTORY);
-    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
+    when(issuable.issues()).thenReturn(Lists.<Issue> newArrayList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -178,7 +201,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   public void should_count_issues_by_severity() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(issuable.issues()).thenReturn(createissues());
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
