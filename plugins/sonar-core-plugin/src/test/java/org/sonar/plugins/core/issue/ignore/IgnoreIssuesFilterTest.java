@@ -23,8 +23,8 @@ package org.sonar.plugins.core.issue.ignore;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
-import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
@@ -32,45 +32,37 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssuesFilterTest {
+public class IgnoreIssuesFilterTest {
 
-  private InclusionPatternInitializer inclusionPatternInitializer;
   private ExclusionPatternInitializer exclusionPatternInitializer;
-  private PatternMatcher inclusionPatternMatcher;
   private PatternMatcher exclusionPatternMatcher;
   private IgnoreIssuesFilter ignoreFilter;
-  private EnforceIssuesFilter enforceFilter;
   private Issue issue;
+  private IssueFilterChain chain;
 
   @Before
   public void init() {
     exclusionPatternMatcher = mock(PatternMatcher.class);
     exclusionPatternInitializer = mock(ExclusionPatternInitializer.class);
     when(exclusionPatternInitializer.getPatternMatcher()).thenReturn(exclusionPatternMatcher);
-    inclusionPatternMatcher = mock(PatternMatcher.class);
-    inclusionPatternInitializer = mock(InclusionPatternInitializer.class);
-    when(inclusionPatternInitializer.getPatternMatcher()).thenReturn(inclusionPatternMatcher);
     issue = mock(Issue.class);
+    chain = mock(IssueFilterChain.class);
+    when(chain.accept(issue)).thenReturn(true);
 
     ignoreFilter = new IgnoreIssuesFilter(exclusionPatternInitializer);
-    enforceFilter = new EnforceIssuesFilter(inclusionPatternInitializer);
   }
 
   @Test
-  public void shouldAcceptIfMatcherHasNoPatternForIssue() {
-    when(inclusionPatternMatcher.getMatchingPattern(issue)).thenReturn(null);
+  public void shouldPassToChainIfMatcherHasNoPatternForIssue() {
     when(exclusionPatternMatcher.getMatchingPattern(issue)).thenReturn(null);
 
-    assertThat(ignoreFilter.accept(issue)).isTrue();
-    assertThat(enforceFilter.accept(issue)).isTrue();
+    assertThat(ignoreFilter.accept(issue, chain)).isTrue();
   }
 
   @Test
-  public void shouldNotAcceptIfMatcherHasPatternForIssue() {
-    when(inclusionPatternMatcher.getMatchingPattern(issue)).thenReturn(mock(IssuePattern.class));
+  public void shouldAcceptOrRefuseIfMatcherHasPatternForIssue() {
     when(exclusionPatternMatcher.getMatchingPattern(issue)).thenReturn(mock(IssuePattern.class));
 
-    assertThat(ignoreFilter.accept(issue)).isFalse();
-    assertThat(enforceFilter.accept(issue)).isFalse();
+    assertThat(ignoreFilter.accept(issue, chain)).isFalse();
   }
 }

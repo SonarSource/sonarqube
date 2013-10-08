@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.batch;
 
+import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 
 /**
@@ -26,7 +27,7 @@ import org.sonar.api.issue.Issue;
  * @since 4.0
  *
  */
-public interface IssueFilter {
+public interface IssueFilter extends BatchExtension {
 
   /**
    * The <code>accept</code> method is called for each {@link Issue} created during analysis, to check if it has to be persisted. Examples of use cases are:

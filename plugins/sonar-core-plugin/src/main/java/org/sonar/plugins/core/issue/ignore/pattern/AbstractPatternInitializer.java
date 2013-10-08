@@ -21,14 +21,14 @@ package org.sonar.plugins.core.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.config.Settings;
+import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 import static com.google.common.base.Objects.firstNonNull;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.config.Settings;
 
 public abstract class AbstractPatternInitializer implements BatchExtension {
 
@@ -36,20 +36,13 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
 
   private List<IssuePattern> multicriteriaPatterns;
 
-  private PatternMatcher patternMatcher;
-
   protected AbstractPatternInitializer(Settings settings) {
     this.settings = settings;
-    this.patternMatcher = new PatternMatcher();
     initPatterns();
   }
 
   protected Settings getSettings() {
     return settings;
-  }
-
-  public PatternMatcher getPatternMatcher() {
-    return patternMatcher;
   }
 
   public List<IssuePattern> getMulticriteriaPatterns() {
@@ -64,15 +57,7 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
     return ! multicriteriaPatterns.isEmpty();
   }
 
-  public void initializePatternsForPath(String relativePath, String componentKey) {
-    for (IssuePattern pattern: getMulticriteriaPatterns()) {
-      if (shouldAddPatternIfMatch(pattern.matchResource(relativePath))) {
-        getPatternMatcher().addPatternForComponent(componentKey, pattern);
-      }
-    }
-  }
-
-  protected abstract boolean shouldAddPatternIfMatch(boolean match);
+  public abstract void initializePatternsForPath(String relativePath, String componentKey);
 
   @VisibleForTesting
   protected final void initPatterns() {

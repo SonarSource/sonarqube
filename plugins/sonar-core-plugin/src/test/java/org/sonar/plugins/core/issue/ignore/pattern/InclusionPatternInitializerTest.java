@@ -44,7 +44,6 @@ public class InclusionPatternInitializerTest {
   public void testNoConfiguration() {
     patternsInitializer.initPatterns();
     assertThat(patternsInitializer.hasConfiguredPatterns()).isFalse();
-    assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
   }
 
   @Test
@@ -66,9 +65,9 @@ public class InclusionPatternInitializerTest {
     patternsInitializer.initializePatternsForPath("org/foo/Baz.java", "org.foo.Baz");
     patternsInitializer.initializePatternsForPath("org/foo/Hello.java", "org.foo.Hello");
 
-    assertThat(patternsInitializer.getPatternMatcher().getPatternsForComponent("org.foo.Bar")).hasSize(1);
-    assertThat(patternsInitializer.getPatternMatcher().getPatternsForComponent("org.foo.Baz")).hasSize(2);
-    assertThat(patternsInitializer.getPatternMatcher().getPatternsForComponent("org.foo.Hello")).hasSize(1);
+    assertThat(patternsInitializer.getPathForComponent("org.foo.Bar")).isEqualTo("org/foo/Bar.java");
+    assertThat(patternsInitializer.getPathForComponent("org.foo.Baz")).isEqualTo("org/foo/Baz.java");
+    assertThat(patternsInitializer.getPathForComponent("org.foo.Hello")).isEqualTo("org/foo/Hello.java");
   }
 
 }

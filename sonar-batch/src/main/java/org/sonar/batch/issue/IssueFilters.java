@@ -41,6 +41,10 @@ public class IssueFilters implements BatchExtension {
     this.filters = filters;
   }
 
+  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
+    this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0], filters);
+  }
+
   public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
     this(deprecatedFilters, deprecatedViolations, exclusionFilters, new IssueFilter[0]);
   }

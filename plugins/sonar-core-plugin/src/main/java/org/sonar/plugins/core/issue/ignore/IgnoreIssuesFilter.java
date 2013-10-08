@@ -22,19 +22,41 @@ package org.sonar.plugins.core.issue.ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
-public final class IgnoreIssuesFilter extends IssuesFilterBase {
+public class IgnoreIssuesFilter implements IssueFilter {
+
+  private PatternMatcher patternMatcher;
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
 
   public IgnoreIssuesFilter(ExclusionPatternInitializer patternInitializer) {
-    super(patternInitializer);
+    this.patternMatcher = patternInitializer.getPatternMatcher();
   }
 
   @Override
-  protected void logExclusion(Issue issue, IssuePattern pattern) {
+  public boolean accept(Issue issue, IssueFilterChain chain) {
+    if (hasMatchFor(issue)) {
+      return false;
+    } else {
+      return chain.accept(issue);
+    }
+  }
+
+  private boolean hasMatchFor(Issue issue) {
+    IssuePattern pattern = patternMatcher.getMatchingPattern(issue);
+    if (pattern != null) {
+      logExclusion(issue, pattern);
+      return true;
+    }
+    return false;
+  }
+
+  private void logExclusion(Issue issue, IssuePattern pattern) {
     LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
   }
 }

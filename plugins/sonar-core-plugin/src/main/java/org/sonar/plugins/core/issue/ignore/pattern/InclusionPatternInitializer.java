@@ -20,13 +20,19 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.config.Settings;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
+import java.util.Map;
+
 public class InclusionPatternInitializer extends AbstractPatternInitializer {
+
+  private Map<String, String> pathForComponent;
 
   public InclusionPatternInitializer(Settings settings) {
     super(settings);
+    pathForComponent = Maps.newHashMap();
   }
 
   @Override
@@ -35,8 +41,11 @@ public class InclusionPatternInitializer extends AbstractPatternInitializer {
   }
 
   @Override
-  protected boolean shouldAddPatternIfMatch(boolean match) {
-    return ! match;
+  public void initializePatternsForPath(String relativePath, String componentKey) {
+    pathForComponent.put(componentKey, relativePath);
   }
 
+  public String getPathForComponent(String componentKey) {
+    return pathForComponent.get(componentKey);
+  }
 }

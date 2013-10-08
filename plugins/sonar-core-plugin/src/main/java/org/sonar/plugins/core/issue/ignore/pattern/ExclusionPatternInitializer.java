@@ -33,9 +33,11 @@ public class ExclusionPatternInitializer extends AbstractPatternInitializer {
 
   private List<IssuePattern> blockPatterns;
   private List<IssuePattern> allFilePatterns;
+  private PatternMatcher patternMatcher;
 
   public ExclusionPatternInitializer(Settings settings) {
     super(settings);
+    patternMatcher = new PatternMatcher();
   }
 
   @Override
@@ -43,9 +45,17 @@ public class ExclusionPatternInitializer extends AbstractPatternInitializer {
     return IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY;
   }
 
+  public PatternMatcher getPatternMatcher() {
+    return patternMatcher;
+  }
+
   @Override
-  protected boolean shouldAddPatternIfMatch(boolean match) {
-    return match;
+  public void initializePatternsForPath(String relativePath, String componentKey) {
+    for (IssuePattern pattern: getMulticriteriaPatterns()) {
+      if (pattern.matchResource(relativePath)) {
+        getPatternMatcher().addPatternForComponent(componentKey, pattern);
+      }
+    }
   }
 
   @Override

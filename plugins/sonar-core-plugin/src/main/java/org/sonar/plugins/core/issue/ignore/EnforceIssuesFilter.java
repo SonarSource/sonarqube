@@ -22,19 +22,45 @@ package org.sonar.plugins.core.issue.ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 
-public final class EnforceIssuesFilter extends IssuesFilterBase {
+public class EnforceIssuesFilter implements IssueFilter {
+
+  private InclusionPatternInitializer patternInitializer;
 
   private static final Logger LOG = LoggerFactory.getLogger(EnforceIssuesFilter.class);
 
   public EnforceIssuesFilter(InclusionPatternInitializer patternInitializer) {
-    super(patternInitializer);
+    this.patternInitializer = patternInitializer;
   }
 
   @Override
-  protected void logExclusion(Issue issue, IssuePattern pattern) {
-    LOG.debug("Issue {} ignored by inclusion pattern {}", issue, pattern);
+  public boolean accept(Issue issue, IssueFilterChain chain) {
+    boolean atLeastOneRuleMatched = false;
+    boolean atLeastOnePatternFullyMatched = false;
+    IssuePattern matchingPattern = null;
+
+    for (IssuePattern pattern : patternInitializer.getMulticriteriaPatterns()) {
+      if (pattern.getRulePattern().match(issue.ruleKey().toString())) {
+        atLeastOneRuleMatched = true;
+        String pathForComponent = patternInitializer.getPathForComponent(issue.componentKey());
+        if (pathForComponent != null && pattern.getResourcePattern().match(pathForComponent)) {
+          atLeastOnePatternFullyMatched = true;
+          matchingPattern = pattern;
+        }
+      }
+    }
+
+    if (atLeastOneRuleMatched) {
+      if (atLeastOnePatternFullyMatched) {
+        LOG.debug("Issue {} enforced by pattern {}", issue, matchingPattern);
+      }
+      return atLeastOnePatternFullyMatched;
+    } else {
+      return chain.accept(issue);
+    }
   }
 }
