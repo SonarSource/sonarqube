@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +33,6 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,9 +41,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
-public class XMLImporter implements ServerExtension {
+public class TechnicalDebtXMLImporter implements ServerExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XMLImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtXMLImporter.class);
 
   private static final String CHARACTERISTIC = "chc";
   private static final String CHARACTERISTIC_KEY = "key";
@@ -55,12 +54,12 @@ public class XMLImporter implements ServerExtension {
   private static final String PROPERTY_VALUE = "val";
   private static final String PROPERTY_TEXT_VALUE = "txt";
 
-  public Model importXML(String xml, ValidationMessages messages, RuleCache ruleCache) {
-    return importXML(new StringReader(xml), messages, ruleCache);
+  public Model importXML(String xml, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
+    return importXML(new StringReader(xml), messages, technicalDebtRuleCache);
   }
 
-  public Model importXML(Reader xml, ValidationMessages messages, RuleCache repositoryCache) {
-    Model model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+  public Model importXML(Reader xml, ValidationMessages messages, TechnicalDebtRuleCache repositoryCache) {
+    Model model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -91,7 +90,7 @@ public class XMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, RuleCache ruleCache) throws XMLStreamException {
+  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) throws XMLStreamException {
     Characteristic characteristic = Characteristic.create();
     SMInputCursor cursor = chcCursor.childElementCursor();
 
@@ -112,7 +111,7 @@ public class XMLImporter implements ServerExtension {
         processProperty(characteristic, cursor, messages);
 
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        children.add(processCharacteristic(model, cursor, messages, ruleCache));
+        children.add(processCharacteristic(model, cursor, messages, technicalDebtRuleCache));
 
       } else if (StringUtils.equals(node, "rule-repo")) {
         ruleRepositoryKey = cursor.collectDescendantText().trim();
@@ -121,7 +120,7 @@ public class XMLImporter implements ServerExtension {
         ruleKey = cursor.collectDescendantText().trim();
       }
     }
-    fillRule(characteristic, ruleRepositoryKey, ruleKey, messages, ruleCache);
+    fillRule(characteristic, ruleRepositoryKey, ruleKey, messages, technicalDebtRuleCache);
 
     if (StringUtils.isNotBlank(characteristic.getKey()) || characteristic.getRule() != null) {
       addCharacteristicToModel(model, characteristic, children);
@@ -131,9 +130,9 @@ public class XMLImporter implements ServerExtension {
   }
 
   private void fillRule(Characteristic characteristic, String ruleRepositoryKey, String ruleKey, ValidationMessages messages,
-                        RuleCache ruleCache) {
+                        TechnicalDebtRuleCache technicalDebtRuleCache) {
     if (StringUtils.isNotBlank(ruleRepositoryKey) && StringUtils.isNotBlank(ruleKey)) {
-      Rule rule = ruleCache.getRule(ruleRepositoryKey, ruleKey);
+      Rule rule = technicalDebtRuleCache.getRule(ruleRepositoryKey, ruleKey);
       if (rule != null) {
         characteristic.setRule(rule);
       } else {

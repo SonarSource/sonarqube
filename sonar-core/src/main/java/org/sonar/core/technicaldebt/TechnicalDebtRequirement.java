@@ -84,7 +84,7 @@ public class TechnicalDebtRequirement {
     return offset;
   }
 
-  public org.sonar.api.qualitymodel.Characteristic toCharacteristic() {
+  public Characteristic toCharacteristic() {
     return characteristic;
   }
 }

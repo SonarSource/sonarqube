@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import java.util.List;
 
@@ -38,22 +37,22 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TechnicalDebtModelTest {
+public class TechnicalDebtMergeModelTest {
 
   private Model model;
-  private TechnicalDebtModel technicalDebtModel;
+  private TechnicalDebtMergeModel technicalDebtMergeModel;
   private List<Characteristic> defaultCharacteristics;
 
   @Before
   public void setUpModel() {
-    model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     defaultCharacteristics = newArrayList();
-    technicalDebtModel = new TechnicalDebtModel(model, defaultCharacteristics);
+    technicalDebtMergeModel = new TechnicalDebtMergeModel(model, defaultCharacteristics);
   }
 
   @Test
   public void merge_with_empty_model() {
-    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     Characteristic ramEfficiency = with.createCharacteristicByKey("ram-efficiency", "RAM Efficiency");
     efficiency.addChild(ramEfficiency);
@@ -62,7 +61,7 @@ public class TechnicalDebtModelTest {
     ValidationMessages messages = ValidationMessages.create();
 
     defaultCharacteristics.addAll(newArrayList(efficiency, ramEfficiency, usability));
-    technicalDebtModel.mergeWith(with, messages, mockRuleCache());
+    technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(3);
     assertThat(model.getRootCharacteristics()).hasSize(2);
@@ -74,10 +73,10 @@ public class TechnicalDebtModelTest {
   public void not_update_existing_characteristics() {
     model.createCharacteristicByKey("efficiency", "Efficiency");
 
-    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     with.createCharacteristicByKey("efficiency", "New efficiency");
 
-    technicalDebtModel.mergeWith(with, ValidationMessages.create(), mockRuleCache());
+    technicalDebtMergeModel.mergeWith(with, ValidationMessages.create(), mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(1);
     assertThat(model.getRootCharacteristics()).hasSize(1);
@@ -86,7 +85,7 @@ public class TechnicalDebtModelTest {
 
   @Test
   public void warn_on_missing_rule() {
-    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     Rule fooRule = Rule.create("foo", "bar", "Bar");
     Characteristic requirement = with.createCharacteristicByRule(fooRule);
@@ -95,7 +94,7 @@ public class TechnicalDebtModelTest {
     ValidationMessages messages = ValidationMessages.create();
 
     defaultCharacteristics.add(efficiency);
-    technicalDebtModel.mergeWith(with, messages, mockRuleCache());
+    technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(1);
     assertThat(model.getCharacteristicByKey("efficiency").getName()).isEqualTo("Efficiency");
@@ -106,7 +105,7 @@ public class TechnicalDebtModelTest {
 
   @Test
   public void fail_when_adding_characteristic_not_existing_in_default_characteristics() {
-    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(TechnicalDebtModel.MODEL_NAME);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     // usability is not available in default characteristics
     with.createCharacteristicByKey("usability", "Usability");
@@ -115,7 +114,7 @@ public class TechnicalDebtModelTest {
 
     defaultCharacteristics.add(efficiency);
     try {
-      technicalDebtModel.mergeWith(with, messages, mockRuleCache());
+      technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
@@ -123,10 +122,10 @@ public class TechnicalDebtModelTest {
     assertThat(model.getCharacteristics()).hasSize(1);
   }
 
-  private RuleCache mockRuleCache() {
+  private TechnicalDebtRuleCache mockRuleCache() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(newArrayList(newRegexpRule()));
-    return new RuleCache(ruleFinder);
+    return new TechnicalDebtRuleCache(ruleFinder);
   }
 
   private Rule newRegexpRule() {

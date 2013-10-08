@@ -28,6 +28,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
+import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.FileNotFoundException;
@@ -49,7 +52,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     when(technicalDebtModelFinder.createReaderForXMLFile("technical-debt")).thenReturn(
       new FileReader(Resources.getResource(TechnicalDebtManagerTest.class, "TechnicalDebtManagerTest/fake-default-model.xml").getPath()));
 
-    manager = new TechnicalDebtManager(getSessionFactory(), new DefaultModelFinder(getSessionFactory()), technicalDebtModelFinder, new XMLImporter());
+    manager = new TechnicalDebtManager(getSessionFactory(), new DefaultModelFinder(getSessionFactory()), technicalDebtModelFinder, new TechnicalDebtXMLImporter());
   }
 
   @Test
@@ -67,15 +70,15 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
     addPluginModel("java", "fake-java-model.xml");
 
-    RuleCache ruleCache = mock(RuleCache.class);
+    TechnicalDebtRuleCache technicalDebtRuleCache = mock(TechnicalDebtRuleCache.class);
     Rule rule1 = Rule.create("checkstyle", "import", "Regular expression");
     rule1.setId(1);
-    when(ruleCache.getRule("checkstyle", "import")).thenReturn(rule1);
+    when(technicalDebtRuleCache.getRule("checkstyle", "import")).thenReturn(rule1);
     Rule rule2 = Rule.create("checkstyle", "export", "Regular expression");
     rule2.setId(2);
-    when(ruleCache.getRule("checkstyle", "export")).thenReturn(rule2);
+    when(technicalDebtRuleCache.getRule("checkstyle", "export")).thenReturn(rule2);
 
-    manager.init(ValidationMessages.create(), ruleCache);
+    manager.init(ValidationMessages.create(), technicalDebtRuleCache);
 
     checkTables("create_model_with_requirements_from_plugin_on_first_execution", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
@@ -147,23 +150,23 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
     addPluginModel("java", "fake-java-model.xml");
 
-    RuleCache ruleCache = mock(RuleCache.class);
+    TechnicalDebtRuleCache technicalDebtRuleCache = mock(TechnicalDebtRuleCache.class);
     Rule rule1 = Rule.create("checkstyle", "import", "Regular expression");
     rule1.setId(1);
-    when(ruleCache.getRule("checkstyle", "import")).thenReturn(rule1);
+    when(technicalDebtRuleCache.getRule("checkstyle", "import")).thenReturn(rule1);
     Rule rule2 = Rule.create("checkstyle", "export", "Regular expression");
     rule2.setId(2);
-    when(ruleCache.getRule("checkstyle", "export")).thenReturn(rule2);
+    when(technicalDebtRuleCache.getRule("checkstyle", "export")).thenReturn(rule2);
 
     ValidationMessages messages = ValidationMessages.create();
-    manager.init(messages, ruleCache);
+    manager.init(messages, technicalDebtRuleCache);
 
     assertThat(messages.getWarnings()).hasSize(1);
     assertThat(messages.getWarnings().get(0)).isEqualTo("Rule not found: [repository=checkstyle, key=ConstantNameCheck]");
   }
 
-  private RuleCache defaultRuleCache() {
-    return new RuleCache(new DefaultRuleFinder(getSessionFactory()));
+  private TechnicalDebtRuleCache defaultRuleCache() {
+    return new TechnicalDebtRuleCache(new DefaultRuleFinder(getSessionFactory()));
   }
 
   private void addPluginModel(String pluginKey, String xmlFile) throws FileNotFoundException {

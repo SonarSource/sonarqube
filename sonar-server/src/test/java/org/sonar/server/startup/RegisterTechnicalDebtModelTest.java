@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.technicaldebt.RuleCache;
+import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
 import org.sonar.server.technicaldebt.TechnicalDebtManager;
 
 import static org.mockito.Matchers.any;
@@ -38,6 +38,6 @@ public class RegisterTechnicalDebtModelTest {
 
     sqaleDefinition.start();
 
-    verify(technicalDebtManager, times(1)).init(any(ValidationMessages.class), any(RuleCache.class));
+    verify(technicalDebtManager, times(1)).init(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
   }
 }

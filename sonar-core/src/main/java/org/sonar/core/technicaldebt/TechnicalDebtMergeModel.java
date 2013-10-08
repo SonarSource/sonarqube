@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.qualitymodel.CharacteristicProperty;
@@ -27,21 +27,21 @@ import org.sonar.api.utils.ValidationMessages;
 
 import java.util.List;
 
-public class TechnicalDebtModel {
+public class TechnicalDebtMergeModel {
 
   private Model model;
 
   private List<Characteristic> defaultCharacteristics;
 
-  public TechnicalDebtModel(Model model, List<Characteristic> defaultCharacteristics) {
+  public TechnicalDebtMergeModel(Model model, List<Characteristic> defaultCharacteristics) {
     this.model = model;
     this.defaultCharacteristics = defaultCharacteristics;
   }
 
-  public void mergeWith(Model with, ValidationMessages messages, RuleCache ruleCache) {
+  public void mergeWith(Model with, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
     for (Characteristic characteristic : with.getCharacteristics()) {
       if (isRequirement(characteristic)) {
-        mergeRequirement(characteristic, messages, ruleCache);
+        mergeRequirement(characteristic, messages, technicalDebtRuleCache);
       } else {
         mergeCharacteristic(characteristic, messages);
       }
@@ -64,10 +64,10 @@ public class TechnicalDebtModel {
     return existingCharacteristic;
   }
 
-  private void mergeRequirement(Characteristic requirement, ValidationMessages messages, RuleCache ruleCache) {
+  private void mergeRequirement(Characteristic requirement, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
     Characteristic targetRequirement = model.getCharacteristicByRule(requirement.getRule());
     if (targetRequirement == null && !requirement.getParents().isEmpty()) {
-      Rule rule = ruleCache.getRule(requirement.getRule().getRepositoryKey(), requirement.getRule().getKey());
+      Rule rule = technicalDebtRuleCache.getRule(requirement.getRule().getRepositoryKey(), requirement.getRule().getKey());
       if (rule == null) {
         messages.addWarningText("The rule " + requirement.getRule() + " does not exist.");
 
