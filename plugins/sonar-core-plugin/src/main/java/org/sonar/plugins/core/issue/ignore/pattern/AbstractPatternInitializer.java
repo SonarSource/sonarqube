@@ -74,7 +74,7 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
       String propPrefix = getMulticriteriaConfigurationKey() + "." + id + ".";
       String resourceKeyPattern = settings.getString(propPrefix + IgnoreIssuesConfiguration.RESOURCE_KEY);
       String ruleKeyPattern = settings.getString(propPrefix + IgnoreIssuesConfiguration.RULE_KEY);
-      String lineRange = settings.getString(propPrefix + IgnoreIssuesConfiguration.LINE_RANGE_KEY);
+      String lineRange = "*";
       String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
       IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));

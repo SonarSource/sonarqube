@@ -53,10 +53,8 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1,2");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".2." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Hello.java");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".2." + IgnoreIssuesConfiguration.RULE_KEY, "checkstyle:MagicNumber");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".2." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "[15-200]");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -81,7 +79,6 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
     patternsInitializer.initPatterns();
   }
 
@@ -90,16 +87,6 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "*");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
-    patternsInitializer.initPatterns();
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldLogInvalidLineRange() {
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "notALineRange");
     patternsInitializer.initPatterns();
   }
 

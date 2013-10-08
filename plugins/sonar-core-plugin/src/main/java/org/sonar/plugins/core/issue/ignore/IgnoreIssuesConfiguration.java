@@ -20,12 +20,12 @@
 
 package org.sonar.plugins.core.issue.ignore;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.CoreProperties;
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.config.PropertyDefinition;
 
 import java.util.List;
 
@@ -43,8 +43,6 @@ public final class IgnoreIssuesConfiguration {
   private static final String PROPERTY_FILE_PATH_PATTERN = "File Path Pattern";
   public static final String RULE_KEY = "ruleKey";
   private static final String PROPERTY_RULE_KEY_PATTERN = "Rule Key Pattern";
-  public static final String LINE_RANGE_KEY = "lineRange";
-  private static final String PROPERTY_LINE_RANGE = "Line Range";
 
   public static final String BLOCK_SUFFIX = ".block";
   public static final String PATTERNS_BLOCK_KEY = EXCLUSION_KEY_PREFIX + BLOCK_SUFFIX;
@@ -72,23 +70,17 @@ public final class IgnoreIssuesConfiguration {
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .fields(
-          PropertyFieldDefinition.build(RESOURCE_KEY)
-            .name(PROPERTY_FILE_PATH_PATTERN)
-            .description("Pattern used to match files which should be ignored.")
-            .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
-            .build(),
           PropertyFieldDefinition.build(RULE_KEY)
             .name(PROPERTY_RULE_KEY_PATTERN)
             .description("Pattern used to match rules which should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
-          PropertyFieldDefinition.build(LINE_RANGE_KEY)
-            .name(PROPERTY_LINE_RANGE)
-            .description("Range of lines that should be ignored.")
+          PropertyFieldDefinition.build(RESOURCE_KEY)
+            .name(PROPERTY_FILE_PATH_PATTERN)
+            .description("Pattern used to match files which should be ignored.")
             .type(PropertyType.STRING)
-            .indicativeSize(SMALL_SIZE)
+            .indicativeSize(LARGE_SIZE)
             .build())
         .build(),
       PropertyDefinition.builder(PATTERNS_BLOCK_KEY)
@@ -135,23 +127,17 @@ public final class IgnoreIssuesConfiguration {
         .onQualifiers(Qualifiers.PROJECT)
         .index(4)
         .fields(
-          PropertyFieldDefinition.build(RESOURCE_KEY)
-            .name(PROPERTY_FILE_PATH_PATTERN)
-            .description("Pattern used to match files on which issues should be enforced.")
-            .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
-            .build(),
           PropertyFieldDefinition.build(RULE_KEY)
             .name(PROPERTY_RULE_KEY_PATTERN)
             .description("Pattern used to match rules which should be enforced.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
-          PropertyFieldDefinition.build(LINE_RANGE_KEY)
-            .name(PROPERTY_LINE_RANGE)
-            .description("Range of lines that should be considered.")
+          PropertyFieldDefinition.build(RESOURCE_KEY)
+            .name(PROPERTY_FILE_PATH_PATTERN)
+            .description("Pattern used to match files on which issues should be enforced.")
             .type(PropertyType.STRING)
-            .indicativeSize(SMALL_SIZE)
+            .indicativeSize(LARGE_SIZE)
             .build())
         .build());
   }
