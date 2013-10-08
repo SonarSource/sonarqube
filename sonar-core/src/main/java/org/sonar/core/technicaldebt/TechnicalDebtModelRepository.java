@@ -43,7 +43,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * they must be named "<pluginKey>-model.xml".
  * </p>
  */
-public class TechnicalDebtModelFinder implements ServerExtension, Startable {
+public class TechnicalDebtModelRepository implements ServerExtension, Startable {
 
   public static final String DEFAULT_MODEL = "technical-debt";
 
@@ -55,19 +55,19 @@ public class TechnicalDebtModelFinder implements ServerExtension, Startable {
   private PluginRepository pluginRepository;
   private Map<String, ClassLoader> contributingPluginKeyToClassLoader;
 
-  public TechnicalDebtModelFinder(PluginRepository pluginRepository) {
+  public TechnicalDebtModelRepository(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
     this.xmlFilePrefix = XML_FILE_PREFIX;
   }
 
   @VisibleForTesting
-  TechnicalDebtModelFinder(PluginRepository pluginRepository, String xmlFilePrefix) {
+  TechnicalDebtModelRepository(PluginRepository pluginRepository, String xmlFilePrefix) {
     this.pluginRepository = pluginRepository;
     this.xmlFilePrefix = xmlFilePrefix;
   }
 
   @VisibleForTesting
-  TechnicalDebtModelFinder(Map<String, ClassLoader> contributingPluginKeyToClassLoader, String xmlFilePrefix) {
+  TechnicalDebtModelRepository(Map<String, ClassLoader> contributingPluginKeyToClassLoader, String xmlFilePrefix) {
     this.contributingPluginKeyToClassLoader = contributingPluginKeyToClassLoader;
     this.xmlFilePrefix = xmlFilePrefix;
   }

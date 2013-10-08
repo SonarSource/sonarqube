@@ -22,8 +22,8 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.technicaldebt.TechnicalDebtManager;
 import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
-import org.sonar.server.technicaldebt.TechnicalDebtManager;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;

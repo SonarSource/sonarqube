@@ -28,11 +28,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,13 +38,11 @@ public class TechnicalDebtMergeModelTest {
 
   private Model model;
   private TechnicalDebtMergeModel technicalDebtMergeModel;
-  private List<Characteristic> defaultCharacteristics;
 
   @Before
   public void setUpModel() {
     model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
-    defaultCharacteristics = newArrayList();
-    technicalDebtMergeModel = new TechnicalDebtMergeModel(model, defaultCharacteristics);
+    technicalDebtMergeModel = new TechnicalDebtMergeModel(model);
   }
 
   @Test
@@ -56,15 +51,13 @@ public class TechnicalDebtMergeModelTest {
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     Characteristic ramEfficiency = with.createCharacteristicByKey("ram-efficiency", "RAM Efficiency");
     efficiency.addChild(ramEfficiency);
-    Characteristic usability = with.createCharacteristicByKey("usability", "Usability");
 
     ValidationMessages messages = ValidationMessages.create();
 
-    defaultCharacteristics.addAll(newArrayList(efficiency, ramEfficiency, usability));
     technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
 
-    assertThat(model.getCharacteristics()).hasSize(3);
-    assertThat(model.getRootCharacteristics()).hasSize(2);
+    assertThat(model.getCharacteristics()).hasSize(2);
+    assertThat(model.getRootCharacteristics()).hasSize(1);
     assertThat(model.getCharacteristicByKey("ram-efficiency").getDepth()).isEqualTo(Characteristic.ROOT_DEPTH + 1);
     assertThat(messages.getErrors()).isEmpty();
   }
@@ -93,7 +86,6 @@ public class TechnicalDebtMergeModelTest {
 
     ValidationMessages messages = ValidationMessages.create();
 
-    defaultCharacteristics.add(efficiency);
     technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(1);
@@ -101,25 +93,6 @@ public class TechnicalDebtMergeModelTest {
     assertThat(model.getCharacteristicByRule(fooRule)).isNull();
     assertThat(messages.getWarnings()).hasSize(1);
     assertThat(messages.getWarnings().get(0)).contains("foo"); // warning: the rule foo does not exist
-  }
-
-  @Test
-  public void fail_when_adding_characteristic_not_existing_in_default_characteristics() {
-    Model with = Model.createByName(TechnicalDebtModel.MODEL_NAME);
-    Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
-    // usability is not available in default characteristics
-    with.createCharacteristicByKey("usability", "Usability");
-
-    ValidationMessages messages = ValidationMessages.create();
-
-    defaultCharacteristics.add(efficiency);
-    try {
-      technicalDebtMergeModel.mergeWith(with, messages, mockRuleCache());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class);
-    }
-    assertThat(model.getCharacteristics()).hasSize(1);
   }
 
   private TechnicalDebtRuleCache mockRuleCache() {

@@ -59,7 +59,8 @@ import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtManager;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
@@ -94,7 +95,6 @@ import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.RubyTechnicalDebtService;
-import org.sonar.server.technicaldebt.TechnicalDebtManager;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
@@ -301,7 +301,7 @@ public final class Platform {
 
     // technical debt
     servicesContainer.addSingleton(TechnicalDebtManager.class);
-    servicesContainer.addSingleton(TechnicalDebtModelFinder.class);
+    servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(TechnicalDebtConverter.class);
     servicesContainer.addSingleton(RubyTechnicalDebtService.class);

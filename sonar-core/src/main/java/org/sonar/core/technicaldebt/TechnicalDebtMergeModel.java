@@ -25,17 +25,12 @@ import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
 
-import java.util.List;
-
 public class TechnicalDebtMergeModel {
 
   private Model model;
 
-  private List<Characteristic> defaultCharacteristics;
-
-  public TechnicalDebtMergeModel(Model model, List<Characteristic> defaultCharacteristics) {
+  public TechnicalDebtMergeModel(Model model) {
     this.model = model;
-    this.defaultCharacteristics = defaultCharacteristics;
   }
 
   public void mergeWith(Model with, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
@@ -51,14 +46,10 @@ public class TechnicalDebtMergeModel {
   private Characteristic mergeCharacteristic(Characteristic characteristic, ValidationMessages messages) {
     Characteristic existingCharacteristic = model.getCharacteristicByKey(characteristic.getKey());
     if (existingCharacteristic == null) {
-      if (defaultCharacteristics.contains(characteristic)) {
-        existingCharacteristic = model.addCharacteristic(clone(characteristic));
-        if (!characteristic.getParents().isEmpty()) {
-          Characteristic parentTargetCharacteristic = mergeCharacteristic(characteristic.getParents().get(0), messages);
-          parentTargetCharacteristic.addChild(existingCharacteristic);
-        }
-      } else {
-        throw new IllegalArgumentException("The characteristic : " + characteristic.getKey() + " cannot be used as it's not available in default ones.");
+      existingCharacteristic = model.addCharacteristic(clone(characteristic));
+      if (!characteristic.getParents().isEmpty()) {
+        Characteristic parentTargetCharacteristic = mergeCharacteristic(characteristic.getParents().get(0), messages);
+        parentTargetCharacteristic.addChild(existingCharacteristic);
       }
     }
     return existingCharacteristic;

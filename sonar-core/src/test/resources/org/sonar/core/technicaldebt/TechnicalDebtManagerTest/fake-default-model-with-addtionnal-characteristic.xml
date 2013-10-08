@@ -1,0 +1,34 @@
+<sqale>
+  <chc>
+    <key>PORTABILITY</key>
+    <name>Portability</name>
+    <chc>
+      <key>COMPILER_RELATED_PORTABILITY</key>
+      <name>Compiler related portability</name>
+    </chc>
+    <chc>
+      <key>HARDWARE_RELATED_PORTABILITY</key>
+      <name>Hardware related portability</name>
+    </chc>
+  </chc>
+  <chc>
+    <chc>
+      <key>MAINTAINABILITY</key>
+      <name>Maintainability</name>
+      <chc>
+        <key>READABILITY</key>
+        <name>Readability</name>
+      </chc>
+    </chc>
+  </chc>
+  <chc>
+    <chc>
+      <key>NEW_ONE</key>
+      <name>New One</name>
+      <chc>
+        <key>SUB_ONE</key>
+        <name>Sub One</name>
+      </chc>
+    </chc>
+  </chc>
+</sqale>

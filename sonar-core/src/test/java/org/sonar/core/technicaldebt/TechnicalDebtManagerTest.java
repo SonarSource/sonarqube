@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
@@ -28,9 +28,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
-import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.FileNotFoundException;
@@ -44,15 +41,15 @@ import static org.mockito.Mockito.when;
 public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
   private TechnicalDebtManager manager;
-  private TechnicalDebtModelFinder technicalDebtModelFinder = mock(TechnicalDebtModelFinder.class);
+  private TechnicalDebtModelRepository technicalDebtModelRepository = mock(TechnicalDebtModelRepository.class);
 
   @Before
   public void init() throws Exception {
-    technicalDebtModelFinder = mock(TechnicalDebtModelFinder.class);
-    when(technicalDebtModelFinder.createReaderForXMLFile("technical-debt")).thenReturn(
+    technicalDebtModelRepository = mock(TechnicalDebtModelRepository.class);
+    when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(
       new FileReader(Resources.getResource(TechnicalDebtManagerTest.class, "TechnicalDebtManagerTest/fake-default-model.xml").getPath()));
 
-    manager = new TechnicalDebtManager(getSessionFactory(), new DefaultModelFinder(getSessionFactory()), technicalDebtModelFinder, new TechnicalDebtXMLImporter());
+    manager = new TechnicalDebtManager(getSessionFactory(), new DefaultModelFinder(getSessionFactory()), technicalDebtModelRepository, new TechnicalDebtXMLImporter());
   }
 
   @Test
@@ -165,13 +162,27 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     assertThat(messages.getWarnings().get(0)).isEqualTo("Rule not found: [repository=checkstyle, key=ConstantNameCheck]");
   }
 
+  @Test
+  public void fail_when_adding_characteristic_not_existing_in_default_characteristics() throws FileNotFoundException {
+    setupData("empty");
+
+    addPluginModel("java", "fake-default-model-with-addtionnal-characteristic.xml");
+
+    try {
+      manager.init(ValidationMessages.create(), defaultRuleCache());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The characteristic : SUB_ONE cannot be used as it's not available in default ones.");
+    }
+  }
+
   private TechnicalDebtRuleCache defaultRuleCache() {
     return new TechnicalDebtRuleCache(new DefaultRuleFinder(getSessionFactory()));
   }
 
   private void addPluginModel(String pluginKey, String xmlFile) throws FileNotFoundException {
-    when(technicalDebtModelFinder.getContributingPluginList()).thenReturn(ImmutableList.of(pluginKey));
-    when(technicalDebtModelFinder.createReaderForXMLFile(pluginKey)).thenReturn(
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(ImmutableList.of(pluginKey));
+    when(technicalDebtModelRepository.createReaderForXMLFile(pluginKey)).thenReturn(
       new FileReader(Resources.getResource(TechnicalDebtManagerTest.class, "TechnicalDebtManagerTest/" + xmlFile).getPath()));
   }
 

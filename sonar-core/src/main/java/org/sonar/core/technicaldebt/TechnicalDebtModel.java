@@ -29,6 +29,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +37,14 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
+/**
+ * This class contains characteristics and requirement of the technical debt mode.
+ * It should be used only on batch side, because on server side the model can be updated by the SQALE plugin
+ */
 public class TechnicalDebtModel implements BatchComponent {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDebtModel.class);
 
-  // FIXME Use the same as in RegisterTechnicalDebtModel
   public static final String MODEL_NAME = "TECHNICAL_DEBT";
 
   private List<TechnicalDebtCharacteristic> characteristics = newArrayList();

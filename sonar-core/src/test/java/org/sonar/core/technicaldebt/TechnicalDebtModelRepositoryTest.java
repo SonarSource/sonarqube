@@ -46,11 +46,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TechnicalDebtModelFinderTest {
+public class TechnicalDebtModelRepositoryTest {
 
   private static final String TEST_XML_PREFIX_PATH = "org/sonar/core/technicaldebt/TechnicalDebtModelFinderTest/";
 
-  private TechnicalDebtModelFinder modelFinder;
+  private TechnicalDebtModelRepository modelFinder;
 
   @Test
   public void test_component_initialization() throws Exception {
@@ -66,7 +66,7 @@ public class TechnicalDebtModelFinderTest {
     when(repository.getMetadata()).thenReturn(Lists.newArrayList(csharpPluginMetadata, phpPluginMetadata));
     FakePlugin fakePlugin = new FakePlugin();
     when(repository.getPlugin(anyString())).thenReturn(fakePlugin);
-    modelFinder = new TechnicalDebtModelFinder(repository, TEST_XML_PREFIX_PATH);
+    modelFinder = new TechnicalDebtModelRepository(repository, TEST_XML_PREFIX_PATH);
 
     // when
     modelFinder.start();
@@ -110,7 +110,7 @@ public class TechnicalDebtModelFinderTest {
 
   @Test
   public void contain_default_model() throws Exception {
-    modelFinder = new TechnicalDebtModelFinder(mock(PluginRepository.class));
+    modelFinder = new TechnicalDebtModelRepository(mock(PluginRepository.class));
     modelFinder.start();
     assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
   }
@@ -119,7 +119,7 @@ public class TechnicalDebtModelFinderTest {
     Map<String, ClassLoader> contributingPluginKeyToClassLoader = Maps.newHashMap();
     contributingPluginKeyToClassLoader.put("csharp", newClassLoader());
     contributingPluginKeyToClassLoader.put("java", newClassLoader());
-    modelFinder = new TechnicalDebtModelFinder(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
+    modelFinder = new TechnicalDebtModelRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
   }
 
   private ClassLoader newClassLoader() throws MalformedURLException {
