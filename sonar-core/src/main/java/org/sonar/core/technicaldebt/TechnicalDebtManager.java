@@ -46,45 +46,54 @@ public class TechnicalDebtManager implements ServerExtension {
   private TechnicalDebtXMLImporter importer;
 
   public TechnicalDebtManager(DatabaseSessionFactory sessionFactory, ModelFinder modelFinder,
-                              TechnicalDebtModelRepository languageModelFinder, TechnicalDebtXMLImporter importer) {
+                              TechnicalDebtModelRepository modelRepository, TechnicalDebtXMLImporter importer) {
     this.sessionFactory = sessionFactory;
     this.modelFinder = modelFinder;
-    this.languageModelFinder = languageModelFinder;
+    this.languageModelFinder = modelRepository;
     this.importer = importer;
   }
 
   public Model init(ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     DatabaseSession session = sessionFactory.getSession();
 
-    disableRequirementsOnRemovedRules(rulesCache);
-
-    Model defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
-    Model model = loadOrCreateModelFromDb(defaultModel, messages, rulesCache);
-    loadRequirementsFromPlugins(model, defaultModel, messages, rulesCache);
+    Model model = init(messages, rulesCache, session);
 
     session.save(model);
     session.commit();
     return model;
   }
 
+  public Model init(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, DatabaseSession session) {
+    disableRequirementsOnRemovedRules(rulesCache, session);
+
+    Model defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
+    Model model = loadOrCreateModelFromDb(defaultModel, messages, rulesCache);
+    mergePlugins(model, defaultModel, messages, rulesCache);
+    return model;
+  }
+
+  public Model loadModel(){
+    return modelFinder.findByName(TechnicalDebtModel.MODEL_NAME);
+  }
+
   private Model loadOrCreateModelFromDb(Model defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
-    Model model = modelFinder.findByName(TechnicalDebtModel.MODEL_NAME);
+    Model model = loadModel();
     if (model == null) {
       model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
-      merge(defaultModel, model, messages, rulesCache);
+      mergePlugin(defaultModel, model, messages, rulesCache);
     }
     return model;
   }
 
-  private void loadRequirementsFromPlugins(Model existingModel, Model defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
+  private void mergePlugins(Model existingModel, Model defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
       Model pluginModel = loadModelFromXml(pluginKey, messages, rulesCache);
       checkPluginDoNotAddNewCharacteristic(pluginModel, defaultModel);
-      merge(pluginModel, existingModel, messages, rulesCache);
+      mergePlugin(pluginModel, existingModel, messages, rulesCache);
     }
   }
 
-  private void merge(Model pluginModel, Model existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
+  public void mergePlugin(Model pluginModel, Model existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     messages.log(LOG);
     if (!messages.hasErrors()) {
       new TechnicalDebtMergeModel(existingModel).mergeWith(pluginModel, messages, rulesCache);
@@ -92,7 +101,7 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
-  private Model loadModelFromXml(String pluginKey, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
+  public Model loadModelFromXml(String pluginKey, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
@@ -111,7 +120,7 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
-  private void disableRequirementsOnRemovedRules(TechnicalDebtRuleCache rulesCache) {
+  private void disableRequirementsOnRemovedRules(TechnicalDebtRuleCache rulesCache, DatabaseSession session) {
     Model existingModel = modelFinder.findByName(TechnicalDebtModel.MODEL_NAME);
     if (existingModel != null) {
       for (Characteristic requirement : existingModel.getCharacteristicsByDepth(REQUIREMENT_LEVEL)) {
@@ -119,7 +128,7 @@ public class TechnicalDebtManager implements ServerExtension {
           existingModel.removeCharacteristic(requirement);
         }
       }
-      sessionFactory.getSession().commit();
+      session.commit();
     }
   }
 
