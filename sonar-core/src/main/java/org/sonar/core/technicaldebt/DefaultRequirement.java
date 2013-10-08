@@ -35,7 +35,7 @@ public class DefaultRequirement {
   public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
   public static final String FUNCTION_LINEAR_WITH_THRESHOLD = "linear_threshold";
 
-  public static List<String> FUNCTIONS = ImmutableList.of(FUNCTION_CONSTANT, FUNCTION_LINEAR, FUNCTION_LINEAR_WITH_OFFSET, FUNCTION_LINEAR_WITH_THRESHOLD);
+  public static final List<String> FUNCTIONS = ImmutableList.of(FUNCTION_CONSTANT, FUNCTION_LINEAR, FUNCTION_LINEAR_WITH_OFFSET, FUNCTION_LINEAR_WITH_THRESHOLD);
 
   private RuleKey ruleKey;
   private DefaultCharacteristic rootCharacteristic;
