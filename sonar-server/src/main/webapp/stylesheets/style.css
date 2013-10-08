@@ -2430,17 +2430,30 @@ textarea.width100 {
   box-sizing: border-box; /* Opera/IE 8+ */
 }
 
-.property table.data > tbody > tr > td {
+.property {
+  margin-bottom: 10px:
+}
+
+.property > th, .property > td {
   vertical-align: top;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+
+.property > th {
+  text-align: right;
+  width: 1px;
+  max-width: 380px;
 }
 
 .property table.data {
   width: auto;
-  min-width: 600px;
+  min-width: 480px;
 }
 
-.property table.data > thead > tr > th {
-  vertical-align: top;
+.property table.data input {
+  max-width: 200px;
 }
 
 /* ------------------- Accordion navigation styles ------------------- */

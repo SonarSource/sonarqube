@@ -26,28 +26,25 @@
         <thead>
         <% if @subcategory.key == @category.key && !category_desc(@category).blank? -%>
           <tr>
-            <td class="categoryDescription"><%= category_desc(@category) -%> </td>
+            <td class="categoryDescription" colspan="2"><%= category_desc(@category) -%> </td>
           </tr>
         <% end -%>
         <% if @subcategory.key != @category.key && !subcategory_desc(@category, @subcategory).blank? -%>
           <tr>
-            <td class="categoryDescription"><%= subcategory_desc(@category, @subcategory) -%> </td>
+            <td class="categoryDescription" colspan="2"><%= subcategory_desc(@category, @subcategory) -%> </td>
           </tr>
         <% end -%>
         </thead>
         <tbody>
         <% by_property_index_or_name(@definitions).each do |property| -%>
-          <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
-            <td style="padding: 10px" id="block_<%= property.key -%>">
+          <tr class="property" id="block_<%= property.key -%>">
+            <th>
               <h3>
                 <div><%= property_name(property) -%></div>
                 <div class="note"><%= property.key -%></div>
               </h3>
-              <% desc=property_description(property) -%>
-              <% unless desc.blank? %>
-                <p class="marginbottom10"><%= desc -%></p>
-              <% end -%>
-
+            </th>
+            <td>
               <% value = property_value(property) -%>
               <% if property.multi_values -%>
                 <% value.each_with_index do |sub_value, index| -%>
@@ -68,11 +65,16 @@
               <% unless default_prop_value.blank? -%>
                 <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
               <% end -%>
+
+              <% desc=property_description(property) -%>
+              <% unless desc.blank? %>
+                <p class="marginbottom10"><%= desc -%></p>
+              <% end -%>
             </td>
           </tr>
         <% end -%>
-
         </tbody>
+
       </table>
 
       <% unless @definitions.empty? %>
