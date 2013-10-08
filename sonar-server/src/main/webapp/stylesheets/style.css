@@ -2435,7 +2435,7 @@ textarea.width100 {
 }
 
 .property > th, .property > td {
-  vertical-align: top;
+  vertical-align: baseline;
   padding-right: 10px;
   padding-left: 10px;
   padding-bottom: 10px;
