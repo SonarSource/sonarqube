@@ -29,12 +29,21 @@ class Webapp {
     try {
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
-      context.addParameter("rails.env", "production");
-      context.addParameter("jruby.max.runtimes", "1");
+      configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp", e);
+    }
+  }
+
+  static void configureRailsMode(Props props, Context context) {
+    if (props.booleanOf("sonar.web.dev")) {
+      context.addParameter("rails.env", "development");
+      context.addParameter("jruby.max.runtimes", "3");
+    } else {
+      context.addParameter("rails.env", "production");
+      context.addParameter("jruby.max.runtimes", "1");
     }
   }
 }

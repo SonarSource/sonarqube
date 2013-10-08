@@ -47,6 +47,11 @@ class Props {
     return s == null ? defaultValue : s;
   }
 
+  boolean booleanOf(String key) {
+    String s = of(key);
+    return s != null && Boolean.parseBoolean(s);
+  }
+
   Integer intOf(String key) {
     String s = of(key);
     if (s != null && !"".equals(s)) {

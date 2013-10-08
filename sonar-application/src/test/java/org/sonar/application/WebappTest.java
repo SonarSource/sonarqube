@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,6 +51,29 @@ public class WebappTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to configure webapp");
     }
+  }
 
+  @Test
+  public void configure_dev_mode() throws Exception {
+    Props props = mock(Props.class);
+    when(props.booleanOf("sonar.web.dev")).thenReturn(true);
+    Context context = mock(Context.class);
+
+    Webapp.configureRailsMode(props, context);
+
+    verify(context).addParameter("jruby.max.runtimes", "3");
+    verify(context).addParameter("rails.env", "development");
+  }
+
+  @Test
+  public void configure_production_mode() throws Exception {
+    Props props = mock(Props.class);
+    when(props.booleanOf("sonar.web.dev")).thenReturn(false);
+    Context context = mock(Context.class);
+
+    Webapp.configureRailsMode(props, context);
+
+    verify(context).addParameter("jruby.max.runtimes", "1");
+    verify(context).addParameter("rails.env", "production");
   }
 }

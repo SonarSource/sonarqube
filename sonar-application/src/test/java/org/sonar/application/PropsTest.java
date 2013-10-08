@@ -73,6 +73,18 @@ public class PropsTest {
   }
 
   @Test
+  public void booleanOf() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("foo", "True");
+    p.setProperty("bar", "false");
+    Props props = new Props(p);
+
+    assertThat(props.booleanOf("foo")).isTrue();
+    assertThat(props.booleanOf("bar")).isFalse();
+    assertThat(props.booleanOf("unknown")).isFalse();
+  }
+
+  @Test
   public void load_file_and_system_properties() throws Exception {
     Env env = mock(Env.class);
     File propsFile = new File(getClass().getResource("/org/sonar/application/PropsTest/sonar.properties").toURI());
