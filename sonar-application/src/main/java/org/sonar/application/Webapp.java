@@ -24,6 +24,9 @@ import org.apache.catalina.startup.Tomcat;
 
 class Webapp {
 
+  private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
+  private static final String RAILS_ENV = "rails.env";
+
   static void configure(Tomcat tomcat, Env env, Props props) {
     String ctx = props.of("sonar.web.context", "/");
     try {
@@ -39,11 +42,11 @@ class Webapp {
 
   static void configureRailsMode(Props props, Context context) {
     if (props.booleanOf("sonar.web.dev")) {
-      context.addParameter("rails.env", "development");
-      context.addParameter("jruby.max.runtimes", "3");
+      context.addParameter(RAILS_ENV, "development");
+      context.addParameter(JRUBY_MAX_RUNTIMES, "3");
     } else {
-      context.addParameter("rails.env", "production");
-      context.addParameter("jruby.max.runtimes", "1");
+      context.addParameter(RAILS_ENV, "production");
+      context.addParameter(JRUBY_MAX_RUNTIMES, "1");
     }
   }
 }
