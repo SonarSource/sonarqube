@@ -96,12 +96,16 @@ public class DefaultNotificationManager implements NotificationManager {
    */
   public Notification getFromQueue() {
     int batchSize = 1;
-    List<NotificationQueueDto> notifications = notificationQueueDao.findOldest(batchSize);
-    if (notifications.isEmpty()) {
+    List<NotificationQueueDto> notificationDtos = notificationQueueDao.findOldest(batchSize);
+    if (notificationDtos.isEmpty()) {
       return null;
     }
-    notificationQueueDao.delete(notifications);
+    notificationQueueDao.delete(notificationDtos);
 
+    return convertToNotification(notificationDtos);
+  }
+
+  private Notification convertToNotification(List<NotificationQueueDto> notifications) {
     try {
       // If batchSize is increased then we should return a list instead of a single element
       return notifications.get(0).toNotification();

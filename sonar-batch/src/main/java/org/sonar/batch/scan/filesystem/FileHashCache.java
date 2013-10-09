@@ -110,5 +110,6 @@ public class FileHashCache implements BatchComponent, Startable {
 
   @Override
   public void stop() {
+    // Nothing to do
   }
 }
