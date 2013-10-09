@@ -2454,7 +2454,7 @@ textarea.width100 {
 }
 
 .property textarea {
-  vertical-align: baseline;
+  vertical-align: text-top;
 }
 
 .property .note {
