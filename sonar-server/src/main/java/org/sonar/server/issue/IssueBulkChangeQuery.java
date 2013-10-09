@@ -47,15 +47,18 @@ public class IssueBulkChangeQuery {
   private List<String> issues;
   private List<String> actions;
   private boolean hasComment;
+  private boolean sendNotifications;
 
   Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
 
-  public IssueBulkChangeQuery(Map<String, Object> props, String comment) {
+  public IssueBulkChangeQuery(Map<String, Object> props, String comment, boolean sendNotifications) {
+    this.sendNotifications = sendNotifications;
     parse(props, comment);
   }
 
   @VisibleForTesting
-  IssueBulkChangeQuery(Map<String, Object> props) {
+  IssueBulkChangeQuery(Map<String, Object> props, boolean sendNotifications) {
+    this.sendNotifications = sendNotifications;
     parse(props, null);
   }
 
@@ -80,8 +83,8 @@ public class IssueBulkChangeQuery {
     }
   }
 
-  private List<String> sanitizeList(List<String> list){
-    if (list == null || list.isEmpty()){
+  private List<String> sanitizeList(List<String> list) {
+    if (list == null || list.isEmpty()) {
       return Collections.emptyList();
     }
     return newArrayList(Iterables.filter(list, new Predicate<String>() {
@@ -104,8 +107,12 @@ public class IssueBulkChangeQuery {
     return actions;
   }
 
-  public boolean hasComment(){
+  public boolean hasComment() {
     return hasComment;
+  }
+
+  public boolean sendNotifications() {
+    return sendNotifications;
   }
 
   public Map<String, Object> properties(String action) {

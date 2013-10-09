@@ -273,7 +273,8 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
 
     comment = Api::Utils.read_post_request_param(params[:comment])
-    result = Internal.issues.bulkChange(params, comment)
+    sendNotifications = params[:sendNotifications] || 'true'
+    result = Internal.issues.bulkChange(params, comment, sendNotifications == 'true')
     hash = {}
     hash[:issuesChanged] = {
         :total => result.issuesChanged().size,

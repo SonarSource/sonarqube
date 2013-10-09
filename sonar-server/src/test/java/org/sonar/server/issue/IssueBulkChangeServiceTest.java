@@ -51,6 +51,7 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -89,7 +90,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     actions.add(new MockAction("assign"));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).hasSize(1);
     assertThat(result.issuesNotChanged()).isEmpty();
@@ -97,6 +98,25 @@ public class IssueBulkChangeServiceTest {
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
     verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
+    verifyNoMoreInteractions(issueNotifications);
+  }
+
+  @Test
+  public void should_skip_send_notifications() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+    actions.add(new MockAction("assign"));
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, false);
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).hasSize(1);
+    assertThat(result.issuesNotChanged()).isEmpty();
+
+    verify(issueStorage).save(eq(issue));
+    verifyNoMoreInteractions(issueStorage);
+    verify(issueNotifications, never()).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
     verifyNoMoreInteractions(issueNotifications);
   }
 
@@ -115,7 +135,7 @@ public class IssueBulkChangeServiceTest {
     actions.add(commentAction);
     actions.add(new MockAction("assign"));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment");
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment", true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).hasSize(1);
     assertThat(result.issuesNotChanged()).isEmpty();
@@ -148,7 +168,7 @@ public class IssueBulkChangeServiceTest {
     when(assignAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true).thenReturn(false);
     actions.add(assignAction);
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment");
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment", true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).hasSize(1);
     assertThat(result.issuesNotChanged()).hasSize(1);
@@ -169,7 +189,7 @@ public class IssueBulkChangeServiceTest {
     actions.add(new MockAction("set_severity"));
     actions.add(new MockAction("assign"));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).hasSize(1);
     assertThat(result.issuesNotChanged()).isEmpty();
@@ -188,7 +208,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     actions.add(new MockAction("assign"));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     service.execute(issueBulkChangeQuery, userSession);
 
     ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
@@ -207,7 +227,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     actions.add(new MockAction("assign", true, true, false));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
@@ -224,7 +244,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     actions.add(new MockAction("assign", false, true, true));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).isEmpty();
@@ -241,7 +261,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     actions.add(new MockAction("assign", true, false, true));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
@@ -264,7 +284,7 @@ public class IssueBulkChangeServiceTest {
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
     actions.add(action);
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
@@ -281,7 +301,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     try {
       service.execute(issueBulkChangeQuery, userSession);
       fail();
@@ -298,7 +318,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD");
     properties.put("actions", "unknown");
     properties.put("unknown.unknown", "unknown");
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
     try {
       service.execute(issueBulkChangeQuery, userSession);
       fail();

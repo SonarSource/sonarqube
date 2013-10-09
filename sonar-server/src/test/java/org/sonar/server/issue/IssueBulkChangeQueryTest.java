@@ -43,7 +43,7 @@ public class IssueBulkChangeQueryTest {
     params.put("set_severity.severity", "MINOR");
     params.put("plan.plan", "3.7");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, true);
     assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition", "assign", "set_severity", "plan");
     assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
   }
@@ -55,7 +55,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("do_transition", "", null));
     params.put("do_transition.transition", "confirm");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, true);
     assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition");
     assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
   }
@@ -67,7 +67,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("do_transition"));
     params.put("do_transition.transition", "confirm");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, true);
     assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition");
     assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
   }
@@ -79,7 +79,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, "My comment for bulk change");
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, "My comment for bulk change", true);
     assertThat(issueBulkChangeQuery.hasComment()).isTrue();
     assertThat(issueBulkChangeQuery.actions()).containsOnly("assign");
     assertThat(issueBulkChangeQuery.properties("comment").get("comment")).isEqualTo("My comment for bulk change");
@@ -92,7 +92,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, true);
     assertThat(issueBulkChangeQuery.properties("assign")).hasSize(1);
     assertThat(issueBulkChangeQuery.properties("assign").get("assignee")).isEqualTo("arthur");
   }
@@ -103,7 +103,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
     try {
-      new IssueBulkChangeQuery(params);
+      new IssueBulkChangeQuery(params, true);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -118,7 +118,7 @@ public class IssueBulkChangeQueryTest {
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
     try {
-      new IssueBulkChangeQuery(params);
+      new IssueBulkChangeQuery(params, true);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -131,7 +131,7 @@ public class IssueBulkChangeQueryTest {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     try {
-      new IssueBulkChangeQuery(params);
+      new IssueBulkChangeQuery(params, true);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -145,7 +145,7 @@ public class IssueBulkChangeQueryTest {
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", Collections.emptyList());
     try {
-      new IssueBulkChangeQuery(params);
+      new IssueBulkChangeQuery(params, true);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);

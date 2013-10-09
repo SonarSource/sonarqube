@@ -174,7 +174,7 @@ class IssuesController < ApplicationController
   # POST /issues/bulk_change?criteria
   def bulk_change
     verify_post_request
-    Internal.issues.bulkChange(params, params[:comment])
+    Internal.issues.bulkChange(params, params[:comment], params[:sendNotifications] == 'true')
     render :text => '', :status => 200
   end
 

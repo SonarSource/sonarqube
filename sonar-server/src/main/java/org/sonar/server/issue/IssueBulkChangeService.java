@@ -84,7 +84,9 @@ public class IssueBulkChangeService {
           applyAction(getAction(CommentAction.KEY), actionContext, issueBulkChangeQuery, result);
         }
         issueStorage.save((DefaultIssue) issue);
-        issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
+        if (issueBulkChangeQuery.sendNotifications()) {
+          issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
+        }
         concernedProjects.add(((DefaultIssue) issue).projectKey());
       }
     }

@@ -83,10 +83,10 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueBulkChangeService issueBulkChangeService;
 
   public InternalRubyIssueService(IssueService issueService,
-                                  IssueCommentService commentService,
-                                  IssueChangelogService changelogService, ActionPlanService actionPlanService,
-                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
-                                  IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
+    IssueCommentService commentService,
+    IssueChangelogService changelogService, ActionPlanService actionPlanService,
+    IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
+    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -396,7 +396,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueQuery emptyIssueQuery() {
-    return PublicRubyIssueService.toQuery(Maps.<String, Object>newHashMap());
+    return PublicRubyIssueService.toQuery(Maps.<String, Object> newHashMap());
   }
 
   @CheckForNull
@@ -578,8 +578,8 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Execute a bulk change
    */
-  public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment) {
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment);
+  public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment, boolean sendNotifications) {
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment, sendNotifications);
     return issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get());
   }
 

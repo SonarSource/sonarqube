@@ -102,6 +102,13 @@
           </div>
         </div>
       </div>
+
+      <div class="modal-field">
+        <label for="send-notifications">
+          <%= message('issue.send_notifications') -%>
+        </label>
+        <input id="send-notifications" name="sendNotifications" type="checkbox" value="true" checked="checked" />
+      </div>
     </div>
     <div class="modal-foot">
       <span id="bulk-change-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>

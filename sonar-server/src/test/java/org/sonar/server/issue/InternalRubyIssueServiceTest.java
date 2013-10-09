@@ -43,8 +43,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class InternalRubyIssueServiceTest {
 
@@ -286,7 +291,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void test_changelog() throws Exception {
-    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
+    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs> emptyList(), Collections.<User> emptyList());
     when(changelogService.changelog(eq("ABCDE"), any(UserSession.class))).thenReturn(changelog);
 
     IssueChangelog result = service.changelog("ABCDE");
@@ -451,7 +456,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_execute_issue_filter_from_issue_query() {
-    service.execute(Maps.<String, Object>newHashMap());
+    service.execute(Maps.<String, Object> newHashMap());
     verify(issueFilterService).execute(any(IssueQuery.class));
   }
 
@@ -538,7 +543,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_check_if_user_can_share_issue_filter(){
+  public void should_check_if_user_can_share_issue_filter() {
     service.canUserShareIssueFilter();
     verify(issueFilterService).canShareFilter(any(UserSession.class));
   }
@@ -552,7 +557,7 @@ public class InternalRubyIssueServiceTest {
     params.put("assign.assignee", "arthur");
     params.put("set_severity.severity", "MINOR");
     params.put("plan.plan", "3.7");
-    service.bulkChange(params, "My comment");
+    service.bulkChange(params, "My comment", true);
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
