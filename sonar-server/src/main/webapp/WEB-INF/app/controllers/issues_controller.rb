@@ -82,7 +82,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/save_as_form?[&criteria]
   def save_as_form
-    @filter_query_serialized = Internal.issues.serializeFilterQuery(params)
+    @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params)
     render :partial => 'issues/filter_save_as_form'
   end
 
@@ -99,7 +99,7 @@ class IssuesController < ApplicationController
     verify_post_request
     require_parameters :id
 
-    @filter = Internal.issues.updateIssueFilterQuery(params[:id].to_i, params)
+    @filter = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params)
     redirect_to :action => 'filter', :id => @filter.id.to_s
   end
 
@@ -198,7 +198,7 @@ class IssuesController < ApplicationController
     new_params = params.clone
     new_params.delete('controller')
     new_params.delete('action')
-    new_params
+    translate_unassigned(new_params)
   end
 
   def init_params
@@ -207,6 +207,16 @@ class IssuesController < ApplicationController
 
   def issues_query_params_sanitized
     Internal.issues.sanitizeFilterQuery(params).to_hash
+  end
+
+  def translate_unassigned(issues_query_params)
+    if issues_query_params.has_key?(:assignees) && issues_query_params[:assignees] == '<unassigned>'
+      issues_query_params.delete(:assignees)
+      issues_query_params[:assigned] = false
+    else
+      issues_query_params[:assigned] = nil
+    end
+    issues_query_params
   end
 
   def issues_query_params_from_filter(filter)

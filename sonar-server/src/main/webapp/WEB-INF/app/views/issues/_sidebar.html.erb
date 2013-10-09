@@ -46,9 +46,21 @@
     </li>
     <li id="criteria-assignee" class="marginbottom5">
       <%= message 'issue_filter.criteria.assignee' -%>:
-      <% selected_assignee = Api.users.findByLogin(@issues_query.assignees.to_a.first) if @issues_query.assignees && @issues_query.assignees.size == 1 %>
-      <%= user_select_tag('assignees', {:selected_user => selected_assignee, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
-                        :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
+      <%
+         if @issues_query.assignees && @issues_query.assignees.size == 1
+           selected_assignee = Api.users.findByLogin(@issues_query.assignees.to_a.first)
+           selected_id = nil
+           selected_text = nil
+         elsif !@issues_query.assigned.nil? && !@issues_query.assigned
+           selected_assignee = nil
+           selected_id = "'<unassigned>'"
+           selected_text = escape_javascript(message('unassigned'))
+         end
+      %>
+      <%= user_select_tag('assignees', :selected_user => selected_assignee, :selected_id => selected_id, :selected_text => selected_text,
+                        :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
+                        :html_id => 'select-assignee', :open => false, :allow_clear => true,
+                        :include_choices => {'<unassigned>' => escape_javascript(message('unassigned'))}) -%>
     </li>
     <li id="criteria-reporter" class="marginbottom5">
       <%= message 'issue_filter.criteria.reporter' -%>:
@@ -70,3 +82,4 @@
     </li>
   </form>
 </ul>
+
