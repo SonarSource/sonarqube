@@ -155,6 +155,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   /**
    * @since 4.0
+   * TODO move into API
    */
   public Iterable<InputFile> inputFiles(FileQuery query) {
     List<InputFile> result = Lists.newArrayList();
@@ -169,6 +170,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   @Override
+  // TODO deprecate
   public List<File> files(FileQuery query) {
     return InputFile.toFiles(inputFiles(query));
   }
