@@ -22,27 +22,19 @@
     <% if @subcategory.isSpecial %>
       <%= render 'special', :url => url_for(:controller => "#{@subcategory.key}_configuration") -%>
     <% else %>
-      <table class="data marginbottom10">
-        <thead>
         <% if @subcategory.key == @category.key && !category_desc(@category).blank? -%>
-          <tr>
-            <td class="categoryDescription" colspan="2"><%= category_desc(@category) -%> </td>
-          </tr>
+          <p class="categoryDescription"><%= category_desc(@category) -%> </p>
         <% end -%>
         <% if @subcategory.key != @category.key && !subcategory_desc(@category, @subcategory).blank? -%>
-          <tr>
-            <td class="categoryDescription" colspan="2"><%= subcategory_desc(@category, @subcategory) -%> </td>
-          </tr>
+          <p class="categoryDescription" colspan="2"><%= subcategory_desc(@category, @subcategory) -%> </p>
         <% end -%>
-        </thead>
+
+      <table class="marginbottom10">
         <tbody>
         <% by_property_index_or_name(@definitions).each do |property| -%>
           <tr class="property" id="block_<%= property.key -%>">
             <th>
-              <h3>
-                <div><%= property_name(property) -%></div>
-                <div class="note"><%= property.key -%></div>
-              </h3>
+              <h3><%= property_name(property) -%></h3>
             </th>
             <td>
               <% value = property_value(property) -%>
@@ -73,6 +65,7 @@
               <% unless desc.blank? %>
                 <p class="marginbottom10"><%= desc -%></p>
               <% end -%>
+              <div class="note"><%= message('key') -%>:&nbsp;<%= property.key -%></div>
             </td>
           </tr>
         <% end -%>

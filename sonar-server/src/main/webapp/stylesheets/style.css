@@ -2434,17 +2434,18 @@ textarea.width100 {
   margin-bottom: 10px:
 }
 
+.property h3 {
+  float: none;
+  max-width: 20em;
+}
+
 .property > th, .property > td {
   vertical-align: baseline;
-  padding-right: 10px;
-  padding-left: 10px;
-  padding-bottom: 10px;
+  padding: 10px;
 }
 
 .property > th {
   text-align: right;
-  width: 1px;
-  max-width: 380px;
 }
 
 .property table.data {
