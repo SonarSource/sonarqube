@@ -343,6 +343,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     List<Component> components = dao.selectGhostsProjects(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
     assertThat(getKeys(components)).containsOnly("org.apache.shindig");
 
     assertThat(dao.selectGhostsProjects(newArrayList("unknown"))).isEmpty();

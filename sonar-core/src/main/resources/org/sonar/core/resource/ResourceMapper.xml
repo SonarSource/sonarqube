@@ -167,7 +167,7 @@
   </sql>
 
   <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
-    select p.* from projects p
+    select distinct p.* from projects p
     inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
     left join snapshots s2 on s2.project_id = p.id and s2.status='P'
     <where>
