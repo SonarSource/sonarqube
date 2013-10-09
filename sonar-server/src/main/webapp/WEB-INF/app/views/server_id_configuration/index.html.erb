@@ -1,8 +1,8 @@
 <form method="post" action="<%= ApplicationController.root_context -%>/server_id_configuration/generate">
-  <table class="data marginbottom10">
+  <table class="marginbottom10">
     <thead>
     <tr>
-      <td style="padding: 10px">
+      <td style="padding: 10px" colspan="2">
         <p><%= message('server_id_configuration.information') -%></p>
 
         <% if @server_id %>
@@ -18,27 +18,29 @@
     </tr>
     </thead>
     <tbody>
-    <tr class="even">
-      <td style="padding: 10px">
+    <tr class="property">
+      <th>
         <h3><%= message('server_id_configuration.organisation.title') -%></h3>
-
-        <p class="marginbottom10"><%= message('server_id_configuration.organisation.desc') -%></p>
+      </th>
+      <td>
         <input type="text" name="organisation" value="<%= @organisation -%>" size="50"/>
         <br/>
+        <p class="marginbottom10"><%= message('server_id_configuration.organisation.desc') -%></p>
         <span class="note"><%= message('server_id_configuration.organisation.pattern') -%></span>
       </td>
     </tr>
-    <tr class="odd">
-      <td style="padding: 10px">
+    <tr class="property">
+      <th>
         <h3><%= message('server_id_configuration.ip.title') -%></h3>
-
+      </th>
+      <td>
+        <input type="text" name="address" value="<%= @address -%>"/>
         <p class="marginbottom10"><%= message('server_id_configuration.ip.desc') -%></p>
         <ul class="marginbottom10 bullet">
           <% @valid_addresses.each_with_index do |ip_address, index| %>
             <li><span id="address_<%= index -%>"><%= ip_address.getHostAddress() -%></span></li>
           <% end %>
         </ul>
-        <input type="text" name="address" value="<%= @address -%>"/>
       </td>
     </tr>
     </tbody>
