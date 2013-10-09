@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
@@ -38,6 +39,7 @@ public class ExclusionPatternInitializer extends AbstractPatternInitializer {
   public ExclusionPatternInitializer(Settings settings) {
     super(settings);
     patternMatcher = new PatternMatcher();
+    loadFileContentPatterns();
   }
 
   @Override
@@ -63,10 +65,8 @@ public class ExclusionPatternInitializer extends AbstractPatternInitializer {
     return hasFileContentPattern() || hasMulticriteriaPatterns();
   }
 
-  @Override
-  protected void loadPatternsFromNewProperties() {
-    super.loadPatternsFromNewProperties();
-
+  @VisibleForTesting
+  protected final void loadFileContentPatterns() {
     // Patterns Block
     blockPatterns = Lists.newArrayList();
     String patternConf = StringUtils.defaultIfBlank(getSettings().getString(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY), "");

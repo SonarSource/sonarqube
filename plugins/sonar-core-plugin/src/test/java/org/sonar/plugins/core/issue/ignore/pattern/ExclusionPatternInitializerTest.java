@@ -99,7 +99,7 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".2." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// FOO-ON");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".3." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// IGNORE-TO-EOF");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".3." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "");
-    patternsInitializer.initPatterns();
+    patternsInitializer.loadFileContentPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
@@ -114,7 +114,7 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
-    patternsInitializer.initPatterns();
+    patternsInitializer.loadFileContentPatterns();
   }
 
   @Test
@@ -122,7 +122,7 @@ public class ExclusionPatternInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY, "1,2");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IgnoreIssuesConfiguration.FILE_REGEXP, "@SONAR-IGNORE-ALL");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".2." + IgnoreIssuesConfiguration.FILE_REGEXP, "//FOO-IGNORE-ALL");
-    patternsInitializer.initPatterns();
+    patternsInitializer.loadFileContentPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
@@ -136,6 +136,6 @@ public class ExclusionPatternInitializerTest {
   public void shouldLogInvalidAllFilePattern() {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IgnoreIssuesConfiguration.FILE_REGEXP, "");
-    patternsInitializer.initPatterns();
+    patternsInitializer.loadFileContentPatterns();
   }
 }

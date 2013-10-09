@@ -61,12 +61,6 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
 
   @VisibleForTesting
   protected final void initPatterns() {
-    loadPatternsFromNewProperties();
-  }
-
-  protected abstract String getMulticriteriaConfigurationKey();
-
-  protected void loadPatternsFromNewProperties() {
     // Patterns Multicriteria
     multicriteriaPatterns = Lists.newArrayList();
     String patternConf = StringUtils.defaultIfBlank(settings.getString(getMulticriteriaConfigurationKey()), "");
@@ -82,4 +76,6 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
       multicriteriaPatterns.add(pattern);
     }
   }
+
+  protected abstract String getMulticriteriaConfigurationKey();
 }
