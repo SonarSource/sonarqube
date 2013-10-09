@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Language;
 
@@ -28,16 +29,26 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 
 /**
- * Based on file extensions.
+ * Detect language of source files. Simplistic, based on file extensions.
  */
-public class LanguageRecognizer implements BatchComponent {
+public class LanguageRecognizer implements BatchComponent, Startable {
 
-  private final Map<String, String> byExtensions = Maps.newHashMap();
+  /**
+   * Lower-case extension -> language
+   */
+  private Map<String, String> byExtensions = Maps.newHashMap();
+
+  private final Language[] languages;
 
   public LanguageRecognizer(Language[] languages) {
+    this.languages = languages;
+  }
+
+  @Override
+  public void start() {
     for (Language language : languages) {
       for (String suffix : language.getFileSuffixes()) {
-        String extension = StringUtils.removeStart(suffix, ".");
+        String extension = sanitizeExtension(suffix);
 
         String s = byExtensions.get(extension);
         if (s != null) {
@@ -50,12 +61,21 @@ public class LanguageRecognizer implements BatchComponent {
     }
   }
 
+  @Override
+  public void stop() {
+    // do nothing
+  }
+
   // TODO what about cobol files without extension ?
   @CheckForNull
   String ofExtension(String fileExtension) {
     if (StringUtils.isNotBlank(fileExtension)) {
-      return byExtensions.get(fileExtension);
+      return byExtensions.get(StringUtils.lowerCase(fileExtension));
     }
     return null;
+  }
+
+  static String sanitizeExtension(String suffix) {
+    return StringUtils.lowerCase(StringUtils.removeStart(suffix, "."));
   }
 }

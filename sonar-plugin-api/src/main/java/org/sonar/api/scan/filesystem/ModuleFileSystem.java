@@ -20,7 +20,6 @@
 package org.sonar.api.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.resources.InputFile;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
@@ -80,6 +79,11 @@ public interface ModuleFileSystem extends BatchComponent {
    * Search for files. Never return null.
    */
   List<File> files(FileQuery query);
+
+  /**
+   * @since 4.0
+   */
+  Iterable<InputFile> inputFiles(FileQuery query);
 
   /**
    * Charset of source and test files. If it's not defined, then return the platform default charset.

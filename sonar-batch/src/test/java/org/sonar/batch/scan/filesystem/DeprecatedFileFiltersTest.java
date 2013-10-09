@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import java.io.File;
 
@@ -48,7 +48,7 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() throws Exception {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = InputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap());
+    InputFile inputFile = DefaultInputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap());
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
@@ -58,8 +58,7 @@ public class DeprecatedFileFiltersTest {
 
     File basedir = temp.newFolder();
     File file = temp.newFile();
-    InputFile inputFile = InputFile.create(file, "src/main/java/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_CANONICAL_PATH, new File(basedir, "src/main/java/Foo.java").getAbsolutePath(),
+    InputFile inputFile = DefaultInputFile.create(file, "src/main/java/Foo.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCEDIR_PATH, new File(basedir, "src/main/java").getAbsolutePath(),
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java",
       InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST
@@ -73,7 +72,7 @@ public class DeprecatedFileFiltersTest {
     verify(filter).accept(eq(file), argument.capture());
 
     DeprecatedFileFilters.DeprecatedContext context = argument.getValue();
-    assertThat(context.canonicalPath()).isEqualTo(new File(basedir, "src/main/java/Foo.java").getAbsolutePath());
+    assertThat(context.canonicalPath()).isEqualTo(file.getAbsolutePath());
     assertThat(context.relativeDir()).isEqualTo(new File(basedir, "src/main/java"));
     assertThat(context.relativePath()).isEqualTo("Foo.java");
     assertThat(context.type()).isEqualTo(FileType.TEST);

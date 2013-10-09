@@ -17,36 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
+import com.google.common.collect.Lists;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 
-import java.util.Collection;
+import java.io.File;
 
-class AttributeFilter implements InputFileFilter {
-  private final String key;
-  private final Collection<String> values;
+import static org.fest.assertions.Assertions.assertThat;
 
-  AttributeFilter(String key, Collection<String> values) {
-    this.key = key;
-    this.values = values;
-  }
+public class InputFilesTest {
 
-  @Override
-  public boolean accept(InputFile inputFile) {
-    String value = inputFile.attribute(key);
-    return values.contains(value);
-  }
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  @VisibleForTesting
-  String key() {
-    return key;
-  }
+  @Test
+  public void test_toFiles() throws Exception {
+    File file1 = temp.newFile();
+    File file2 = temp.newFile();
+    InputFile input1 = new InputFileBuilder(file1, "src/main/java/Foo.java").build();
+    InputFile input2 = new InputFileBuilder(file2, "src/main/java/Bar.java").build();
 
-  @VisibleForTesting
-  Collection<String> values() {
-    return values;
+    assertThat(InputFiles.toFiles(Lists.newArrayList(input1, input2))).containsOnly(file1, file2);
   }
 }

@@ -21,7 +21,7 @@ package org.sonar.api.scan.filesystem;
 
 /**
  * @since 3.5
- * @deprecated in 4.0. Replaced by more flexible {@link InputFile} attributes.
+ * @deprecated in 4.0. Replaced by more flexible {@link org.sonar.api.scan.filesystem.InputFile} attributes.
  */
 @Deprecated
 public enum FileType {

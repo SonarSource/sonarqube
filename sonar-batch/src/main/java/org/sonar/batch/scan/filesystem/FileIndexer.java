@@ -33,6 +33,7 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -63,9 +64,10 @@ public class FileIndexer implements BatchComponent {
     this.fileHashes = fileHashes;
   }
 
-  public void index(ModuleFileSystem fileSystem) {
+  public void index(DefaultModuleFileSystem fileSystem) {
     Logger logger = LoggerFactory.getLogger(FileIndexer.class);
     logger.info("Index files");
+    // TODO log configuration too (replace FileSystemLogger)
 
     cache.removeModule(fileSystem.moduleKey());
     int count = 0;
@@ -102,7 +104,6 @@ public class FileIndexer implements BatchComponent {
       String baseRelativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
       set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.normalize(sourceDir.getCanonicalPath(), true));
       set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
-      set(attributes, InputFile.ATTRIBUTE_CANONICAL_PATH, FilenameUtils.normalize(file.getCanonicalPath(), true));
 
       // other metadata
       set(attributes, InputFile.ATTRIBUTE_TYPE, type);
@@ -111,7 +112,7 @@ public class FileIndexer implements BatchComponent {
       set(attributes, InputFile.ATTRIBUTE_LANGUAGE, languageRecognizer.ofExtension(extension));
       initStatus(file, fileSystem.sourceCharset(), baseRelativePath, attributes);
 
-      return InputFile.create(file, baseRelativePath, attributes);
+      return DefaultInputFile.create(file, baseRelativePath, attributes);
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to read file: " + file.getAbsolutePath(), e);

@@ -29,6 +29,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,8 +152,8 @@ public class DefaultModuleFileSystemTest {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileCache, fileIndexer);
 
     File mainFile = temp.newFile();
-    InputFile mainInput = InputFile.create(mainFile, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
-    InputFile testInput = InputFile.create(temp.newFile(), "Test.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
+    InputFile mainInput = DefaultInputFile.create(mainFile, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
+    InputFile testInput = DefaultInputFile.create(temp.newFile(), "Test.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
 
     when(fileCache.byModule("foo")).thenReturn(Lists.newArrayList(mainInput, testInput));
 

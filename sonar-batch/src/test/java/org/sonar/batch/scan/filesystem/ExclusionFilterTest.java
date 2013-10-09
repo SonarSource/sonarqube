@@ -24,9 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -40,17 +40,16 @@ public class ExclusionFilterTest {
     ExclusionFilter sourceRelativeFilter = new ExclusionFilter("**/*Foo.java");
     ExclusionFilter absoluteFilter = new ExclusionFilter("file:**/src/main/**Foo.java");
 
-    File file = temp.newFile();
-    InputFile inputFile = InputFile.create(file, "src/main/java/org/MyFoo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_CANONICAL_PATH, "/absolute/path/to/src/main/java/org/MyFoo.java",
+    File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.java");
+    InputFile inputFile = DefaultInputFile.create(file, "src/main/java/org/MyFoo.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/MyFoo.java"
     ));
 
     assertThat(sourceRelativeFilter.accept(inputFile)).isFalse();
     assertThat(absoluteFilter.accept(inputFile)).isFalse();
 
-    inputFile = InputFile.create(file, "src/main/java/org/Other.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_CANONICAL_PATH, "/absolute/path/to/src/main/java/org/Other.java",
+    file = new File(temp.newFolder(), "src/main/java/org/Other.java");
+    inputFile = DefaultInputFile.create(file, "src/main/java/org/Other.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/Other.java"
     ));
     assertThat(sourceRelativeFilter.accept(inputFile)).isTrue();

@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -53,8 +54,8 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes() throws Exception {
     when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
-      InputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
-      InputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
+      DefaultInputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
+      DefaultInputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
     ));
 
     SensorContext sensorContext = mock(SensorContext.class);

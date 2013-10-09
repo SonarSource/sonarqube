@@ -27,8 +27,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFiles;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
@@ -155,8 +155,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   /**
    * @since 4.0
-   * TODO move into API
    */
+  @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
     List<InputFile> result = Lists.newArrayList();
 
@@ -172,7 +172,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   @Override
   // TODO deprecate
   public List<File> files(FileQuery query) {
-    return InputFile.toFiles(inputFiles(query));
+    return InputFiles.toFiles(inputFiles(query));
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {

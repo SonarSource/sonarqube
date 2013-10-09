@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -37,9 +37,11 @@ public class AttributeFilterTest {
   public void should_check_attribute_value() throws Exception {
     AttributeFilter filter = new AttributeFilter("foo", Lists.newArrayList("one", "two"));
 
-    assertThat(filter.accept(InputFile.create(temp.newFile(), "Why.java", ImmutableMap.of("foo", "two")))).isTrue();
-    assertThat(filter.accept(InputFile.create(temp.newFile(), "Where.java", ImmutableMap.of("foo", "three")))).isFalse();
-    assertThat(filter.accept(InputFile.create(temp.newFile(), "What.java", ImmutableMap.of("bar", "one")))).isFalse();
+    assertThat(filter.key()).isEqualTo("foo");
+    assertThat(filter.values()).containsOnly("one", "two");
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "Why.java", ImmutableMap.of("foo", "two")))).isTrue();
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "Where.java", ImmutableMap.of("foo", "three")))).isFalse();
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "What.java", ImmutableMap.of("bar", "one")))).isFalse();
 
   }
 }

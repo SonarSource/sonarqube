@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public class FileQuery {
 
-  // TODO better builders, for example FileQuery.ALL
+  // TODO REFACTOR - better builders, for example FileQuery.ALL
 
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
@@ -62,7 +62,7 @@ public class FileQuery {
   private FileQuery() {
   }
 
-  private FileQuery on(String attribute, String... values) {
+  public FileQuery on(String attribute, String... values) {
     for (String value : values) {
       attributes.put(attribute, value);
     }

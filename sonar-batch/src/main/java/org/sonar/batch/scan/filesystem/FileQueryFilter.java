@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -54,6 +55,11 @@ class FileQueryFilter {
         filters.add(new AttributeFilter(InputFile.ATTRIBUTE_STATUS, Lists.newArrayList(InputFile.STATUS_ADDED, InputFile.STATUS_CHANGED)));
       }
     }
+  }
+
+  @VisibleForTesting
+  List<InputFileFilter> filters() {
+    return filters;
   }
 
   boolean accept(InputFile inputFile) {

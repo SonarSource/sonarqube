@@ -23,6 +23,7 @@ import org.sonar.api.BatchExtension;
 
 /**
  * TODO document lifecycle -> executed when initializing project
+ *
  * @since 4.0
  */
 public interface InputFileFilter extends BatchExtension {

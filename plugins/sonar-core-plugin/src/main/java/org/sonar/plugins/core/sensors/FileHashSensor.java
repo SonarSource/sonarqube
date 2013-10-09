@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -28,6 +27,7 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.Map;
@@ -36,8 +36,10 @@ import java.util.Map;
  * This sensor will retrieve hash of each file of the current module and store it in DB
  * in order to compare it during next analysis and see if the file was modified.
  * This is used by the incremental preview mode.
+ *
  * @since 4.0
  */
+@DryRunIncompatible
 public final class FileHashSensor implements Sensor {
 
   private final InputFileCache fileCache;
@@ -56,10 +58,9 @@ public final class FileHashSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     Map<String, String> map = Maps.newHashMap();
     for (InputFile inputFile : fileCache.byModule(project.key())) {
-      String baseRelativePath = inputFile.attribute(InputFile.ATTRIBUTE_BASE_RELATIVE_PATH);
       String hash = inputFile.attribute(InputFile.ATTRIBUTE_HASH);
-      if (StringUtils.isNotEmpty(baseRelativePath) && StringUtils.isNotEmpty(hash)) {
-        map.put(baseRelativePath, hash);
+      if (hash != null) {
+        map.put(inputFile.relativePath(), hash);
       }
     }
     if (!map.isEmpty()) {
