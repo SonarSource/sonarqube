@@ -93,6 +93,7 @@ public class ModuleScanContainer extends ComponentContainer {
       // file system
       FileExclusions.class,
       ExclusionFilters.class,
+      DeprecatedFileFilters.class,
       FileHashes.class,
       RemoteFileHashes.class,
       FileIndexer.class,

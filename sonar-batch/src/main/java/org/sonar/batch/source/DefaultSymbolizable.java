@@ -23,7 +23,7 @@ package org.sonar.batch.source;
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 
 public class DefaultSymbolizable implements Symbolizable {
 
@@ -48,6 +48,6 @@ public class DefaultSymbolizable implements Symbolizable {
   @Override
   public void setSymbolTable(SymbolTable symbolTable) {
     SymbolData symbolData = new SymbolData(symbolTable);
-    cache.setStringData(component().key(), SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue(), symbolData.writeString());
+    cache.setStringData(component().key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING, symbolData.writeString());
   }
 }

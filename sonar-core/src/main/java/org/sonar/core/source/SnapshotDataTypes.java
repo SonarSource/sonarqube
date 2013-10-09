@@ -20,27 +20,14 @@
 
 package org.sonar.core.source;
 
-public enum SnapshotDataType {
+public interface SnapshotDataTypes {
 
-  SYNTAX_HIGHLIGHTING("highlight_syntax"),
-  SYMBOL_HIGHLIGHTING("symbol"),
-  FILE_HASH("file_hash");
+  String SYNTAX_HIGHLIGHTING = "highlight_syntax";
+  String SYMBOL_HIGHLIGHTING = "symbol";
 
-  private SnapshotDataType(String value) {
-    this.value = value;
-  }
-
-  private String value;
-
-  public static boolean isSyntaxHighlighting(String dataType) {
-    return SYNTAX_HIGHLIGHTING.value.equals(dataType);
-  }
-
-  public static boolean isSymbolHighlighting(String dataType) {
-    return SYMBOL_HIGHLIGHTING.value.equals(dataType);
-  }
-
-  public String getValue() {
-    return value;
-  }
+  /**
+   * Key-values [relative path, hash] of all files. Stored on modules.
+   * @since 4.0
+   */
+  String FILE_HASHES = "file_hashes";
 }

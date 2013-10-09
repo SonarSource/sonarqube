@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class InputFile implements Serializable {
    * // TODO provide builder ?
    */
   public static InputFile create(File file, String baseRelativePath, Map<String, String> attributes) {
-    Map<String,String> copy = Maps.newHashMap(attributes);
+    Map<String,String> copy = new HashMap<String, String>(attributes);
     copy.put(InputFile.ATTRIBUTE_BASE_RELATIVE_PATH, baseRelativePath);
     return new InputFile(file, copy);
   }

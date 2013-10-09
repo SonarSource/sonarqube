@@ -51,9 +51,8 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   public List<String> getDecoratedSourceAsHtml(long snapshotId) {
-
-    List<String> highlightingDataTypes = Lists.newArrayList(SnapshotDataType.SYNTAX_HIGHLIGHTING.getValue(),
-      SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue());
+    List<String> highlightingDataTypes = Lists.newArrayList(SnapshotDataTypes.SYNTAX_HIGHLIGHTING,
+      SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
 
     Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes);
 
@@ -72,12 +71,12 @@ public class HtmlSourceDecorator implements ServerComponent {
     return null;
   }
 
-  private void loadSnapshotData(DecorationDataHolder decorationDataHolder, SnapshotDataDto snapshotDataEntry) {
-    if(!Strings.isNullOrEmpty(snapshotDataEntry.getData())) {
-      if (SnapshotDataType.isSyntaxHighlighting(snapshotDataEntry.getDataType())) {
-        decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getData());
-      } else if (SnapshotDataType.isSymbolHighlighting(snapshotDataEntry.getDataType())) {
-        decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getData());
+  private void loadSnapshotData(DecorationDataHolder dataHolder, SnapshotDataDto entry) {
+    if(!Strings.isNullOrEmpty(entry.getData())) {
+      if (SnapshotDataTypes.SYNTAX_HIGHLIGHTING.equals(entry.getDataType())) {
+        dataHolder.loadSyntaxHighlightingData(entry.getData());
+      } else if (SnapshotDataTypes.SYMBOL_HIGHLIGHTING.equals(entry.getDataType())) {
+        dataHolder.loadSymbolReferences(entry.getData());
       }
     }
   }

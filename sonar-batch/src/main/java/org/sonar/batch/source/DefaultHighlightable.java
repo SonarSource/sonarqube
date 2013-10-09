@@ -22,7 +22,7 @@ package org.sonar.batch.source;
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 
 /**
  * @since 3.6
@@ -63,7 +63,7 @@ public class DefaultHighlightable implements Highlightable {
 
     @Override
     public void done() {
-      cache.setStringData(component().key(), SnapshotDataType.SYNTAX_HIGHLIGHTING.getValue(), builder.build().writeString());
+      cache.setStringData(component().key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING, builder.build().writeString());
     }
   }
 }

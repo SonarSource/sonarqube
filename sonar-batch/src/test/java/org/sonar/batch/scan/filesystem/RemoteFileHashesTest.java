@@ -26,7 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 
@@ -79,7 +79,7 @@ public class RemoteFileHashesTest {
 
     SnapshotDataDto snapshotDataDto = new SnapshotDataDto();
     snapshotDataDto.setData("src/main/java/foo/Bar.java=abcd1234");
-    when(snapshotDataDao.selectSnapshotData(123, Arrays.asList(SnapshotDataType.FILE_HASH.getValue())))
+    when(snapshotDataDao.selectSnapshotData(123, Arrays.asList(SnapshotDataTypes.FILE_HASHES)))
       .thenReturn(Arrays.asList(snapshotDataDto));
 
     hashes.start();

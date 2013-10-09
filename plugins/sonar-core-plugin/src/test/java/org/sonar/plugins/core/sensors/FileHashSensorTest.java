@@ -21,7 +21,6 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +30,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.core.source.SnapshotDataTypes;
+
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -58,7 +60,7 @@ public class FileHashSensorTest {
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);
 
-    verify(componentDataCache).setStringData("struts", "file_hash", "src/Foo.java=ABC;src/Bar.java=DEF");
+    verify(componentDataCache).setStringData("struts", SnapshotDataTypes.FILE_HASHES, "src/Foo.java=ABC;src/Bar.java=DEF");
     verifyZeroInteractions(sensorContext);
   }
 

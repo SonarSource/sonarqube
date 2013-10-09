@@ -41,12 +41,12 @@
   <snapshots id="3012" project_id="302" root_project_id="300" root_snapshot_id="3010" path="3010." islast="[false]"/>
   <snapshots id="3013" project_id="303" root_project_id="300" root_snapshot_id="3010" path="3010.3011." islast="[false]"/>
 
-  <snapshot_data id="1" snapshot_id="3001" resource_id="301" snapshot_data="foo=AB12" data_type="file_hash" />
+  <snapshot_data id="1" snapshot_id="3001" resource_id="301" snapshot_data="foo=AB12" data_type="file_hashes" />
   <snapshot_data id="2" snapshot_id="3001" resource_id="301" snapshot_data="bar" data_type="other" />
-  <snapshot_data id="3" snapshot_id="3002" resource_id="302" snapshot_data="bar=DC12" data_type="file_hash" />
+  <snapshot_data id="3" snapshot_id="3002" resource_id="302" snapshot_data="bar=DC12" data_type="file_hashes" />
 
-  <snapshot_data id="4" snapshot_id="3011" resource_id="301" snapshot_data="foo=CD34" data_type="file_hash" />
-  <snapshot_data id="5" snapshot_id="3012" resource_id="302" snapshot_data="bar=EF78" data_type="file_hash" />
+  <snapshot_data id="4" snapshot_id="3011" resource_id="301" snapshot_data="foo=CD34" data_type="file_hashes" />
+  <snapshot_data id="5" snapshot_id="3012" resource_id="302" snapshot_data="bar=EF78" data_type="file_hashes" />
 
   <project_measures id="1" value="12" metric_id="1" snapshot_id="3000" />
   <project_measures id="2" value="5" metric_id="1" snapshot_id="3001" />

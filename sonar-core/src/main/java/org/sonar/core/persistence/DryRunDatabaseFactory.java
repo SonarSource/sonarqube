@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
@@ -113,7 +113,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
         .append(" ON snap.project_id=res.id")
         .append(" INNER JOIN snapshot_data data")
         .append(" ON snap.id=data.snapshot_id")
-        .append(" AND data.data_type='").append(SnapshotDataType.FILE_HASH.getValue()).append("'")
+        .append(" AND data.data_type='").append(SnapshotDataTypes.FILE_HASHES).append("'")
         .append(" AND snap.islast=").append(database.getDialect().getTrueSqlValue());
       template.copyTable(source, dest, "snapshots", snapshotQuery.toString());
 
@@ -126,7 +126,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
         .append(projectQuery(projectId, true))
         .append(") res")
         .append(" ON data.resource_id=res.id")
-        .append(" AND data.data_type='").append(SnapshotDataType.FILE_HASH.getValue()).append("'");
+        .append(" AND data.data_type='").append(SnapshotDataTypes.FILE_HASHES).append("'");
       template.copyTable(source, dest, "snapshot_data", snapshotDataQuery.toString());
 
       // All measures of snapshots of root project for alerts on differential periods

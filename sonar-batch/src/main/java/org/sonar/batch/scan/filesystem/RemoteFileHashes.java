@@ -26,7 +26,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 
@@ -56,7 +56,7 @@ public class RemoteFileHashes implements BatchComponent, Startable {
     if (pastSnapshot.isRelatedToSnapshot()) {
       Collection<SnapshotDataDto> selectSnapshotData = dao.selectSnapshotData(
         pastSnapshot.getProjectSnapshot().getId().longValue(),
-        Arrays.asList(SnapshotDataType.FILE_HASH.getValue())
+        Arrays.asList(SnapshotDataTypes.FILE_HASHES)
       );
       if (!selectSnapshotData.isEmpty()) {
         SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();

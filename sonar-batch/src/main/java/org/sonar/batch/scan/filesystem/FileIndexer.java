@@ -55,7 +55,6 @@ public class FileIndexer implements BatchComponent {
   private final InputFileCache cache;
   private final FileHashes fileHashes;
 
-  // TODO support deprecated filters
   public FileIndexer(List<InputFileFilter> filters, LanguageRecognizer languageRecognizer,
                      InputFileCache cache, FileHashes fileHashes) {
     this.filters = filters;

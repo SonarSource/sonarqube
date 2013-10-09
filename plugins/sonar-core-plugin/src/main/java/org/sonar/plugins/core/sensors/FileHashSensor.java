@@ -28,7 +28,7 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
-import org.sonar.core.source.SnapshotDataType;
+import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public final class FileHashSensor implements Sensor {
     }
     if (!map.isEmpty()) {
       String data = KeyValueFormat.format(map);
-      componentDataCache.setStringData(project.getKey(), SnapshotDataType.FILE_HASH.getValue(), data);
+      componentDataCache.setStringData(project.getKey(), SnapshotDataTypes.FILE_HASHES, data);
     }
   }
 
