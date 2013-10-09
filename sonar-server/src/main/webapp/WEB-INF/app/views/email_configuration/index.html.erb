@@ -1,50 +1,59 @@
 <form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/save" class="marginbottom10">
-  <table class="data form marginbottom10">
-    <thead>
-    <tr>
-      <th colspan="3"><span><%= message('email_configuration.page') -%></span></th>
-    </tr>
-    </thead>
+  <table class="marginbottom10">
     <tbody>
-    <tr class="even">
-      <td class="keyCell"><label for="smtp_host"><%= message('email_configuration.smtp_host') -%>:</label></td>
-      <td><%= text_field_tag 'smtp_host', @smtp_host %></td>
-      <td class="comments"><%= message('email_configuration.smtp_host.description') -%></td>
+    <tr class="property">
+      <th><label for="smtp_host"><h3><%= message('email_configuration.smtp_host') -%></h3></label></th>
+      <td>
+        <%= text_field_tag 'smtp_host', @smtp_host %>
+        <p class="marginbottom10"><%= message('email_configuration.smtp_host.description') -%></p>
+      </td>
     </tr>
-    <tr class="odd">
-      <td class="keyCell"><label for="smtp_port"><%= message('email_configuration.smtp_port') -%>:</label></td>
-      <td><%= text_field_tag 'smtp_port', @smtp_port %></td>
-      <td class="comments"><%= message('email_configuration.smtp_port.description') -%></td>
+    <tr class="property">
+      <th><label for="smtp_port"><h3><%= message('email_configuration.smtp_port') -%></h3></label></th>
+      <td>
+        <%= text_field_tag 'smtp_port', @smtp_port %>
+        <p class="marginbottom10"><%= message('email_configuration.smtp_port.description') -%></p>
+      </td>
     </tr>
-    <tr class="even">
-      <td class="keyCell"><label for="smtp_secure_connection"><%= message('email_configuration.smtp_secure_connection') -%>:</label></td>
-      <td><%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL' => 'ssl'}, @smtp_secure_connection) %></td>
-      <td class="comments"><%= message('email_configuration.smtp_secure_connection.description') -%></td>
+    <tr class="property">
+      <th><label for="smtp_secure_connection"><h3><%= message('email_configuration.smtp_secure_connection') -%></h3></label></th>
+      <td>
+        <%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL' => 'ssl'}, @smtp_secure_connection) %>
+        <p class="marginbottom10"><%= message('email_configuration.smtp_secure_connection.description') -%></p>
+      </td>
     </tr>
-    <tr class="odd">
-      <td class="keyCell"><label for="smtp_username"><%= message('email_configuration.smtp_username') -%>:</label></td>
-      <td><%= text_field_tag 'smtp_username', @smtp_username %></td>
-      <td class="comments"><%= message('email_configuration.smtp_username.description') -%></td>
+    <tr class="property">
+      <th><label for="smtp_username"><h3><%= message('email_configuration.smtp_username') -%></h3></label></th>
+      <td>
+        <%= text_field_tag 'smtp_username', @smtp_username %>
+        <p class="marginbottom10"><%= message('email_configuration.smtp_username.description') -%></p>
+      </td>
     </tr>
-    <tr class="even">
-      <td class="keyCell"><label for="smtp_password"><%= message('email_configuration.smtp_password') -%>:</label></td>
-      <td><%= password_field_tag 'smtp_password', @smtp_password, {:autocomplete => 'off'}  %></td>
-      <td class="comments"><%= message('email_configuration.smtp_password.description') -%></td>
+    <tr class="property">
+      <th><label for="smtp_password"><h3><%= message('email_configuration.smtp_password') -%></h3></label></th>
+      <td>
+        <%= password_field_tag 'smtp_password', @smtp_password, {:autocomplete => 'off'}  %>
+        <p class="marginbottom10"><%= message('email_configuration.smtp_password.description') -%></p>
+      </td>
     </tr>
-    <tr class="odd">
-      <td class="keyCell"><label for="email_from"><%= message('email_configuration.from_address') -%>:</label></td>
-      <td><%= text_field_tag 'email_from', @email_from %></td>
-      <td class="comments"><%= message('email_configuration.from_address.description') -%></td>
+    <tr class="property">
+      <th><label for="email_from"><h3><%= message('email_configuration.from_address') -%></h3></label></th>
+      <td>
+        <%= text_field_tag 'email_from', @email_from %>
+        <p class="marginbottom10"><%= message('email_configuration.from_address.description') -%></p>
+      </td>
     </tr>
-    <tr class="even">
-      <td class="keyCell"><label for="email_prefix"><%= message('email_configuration.email_prefix') -%>:</label></td>
-      <td><%= text_field_tag 'email_prefix', @email_prefix %></td>
-      <td class="comments"><%= message('email_configuration.email_prefix.description') -%></td>
+    <tr class="property">
+      <th><label for="email_prefix"><h3><%= message('email_configuration.email_prefix') -%></h3></label></th>
+      <td>
+        <%= text_field_tag 'email_prefix', @email_prefix %>
+        <p class="marginbottom10"><%= message('email_configuration.email_prefix.description') -%></p>
+      </td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
-      <td colspan="3">
+      <td colspan="2">
         <%= submit_tag message('email_configuration.save_settings'), :disable_with => message('email_configuration.saving_settings'), :id => 'submit_save' %>
       </td>
     </tr>
@@ -53,7 +62,7 @@
 </form>
 
 <form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/send_test_email">
-  <table class="data form marginbottom10">
+  <table class="data marginbottom10">
     <thead>
     <tr>
       <th colspan="2"><span><%= message('email_configuration.test.title') -%></span></th>
@@ -67,16 +76,16 @@
     </tr>
     </tfoot>
     <tbody>
-    <tr class="even">
-      <td class="keyCell"><label for="to_address"><%= message('email_configuration.test.to_address') -%>:</label></td>
+    <tr class="property">
+      <th><label for="to_address"><h3><%= message('email_configuration.test.to_address') -%></h3></label></th>
       <td><%= text_field_tag 'to_address', current_user.email %></td>
     </tr>
-    <tr class="odd">
-      <td class="keyCell"><label for="subject"><%= message('email_configuration.test.subject') -%>:</label></td>
+    <tr class="property">
+      <th><label for="subject"><h3><%= message('email_configuration.test.subject') -%></h3></label></th>
       <td><%= text_field_tag 'subject', message('email_configuration.test.subject_text') %></td>
     </tr>
-    <tr class="even">
-      <td class="keyCell"><label for="message"><%= message('email_configuration.test.message') -%>:</label></td>
+    <tr class="property">
+      <th><label for="message"><h3><%= message('email_configuration.test.message') -%></h3></label></th>
       <td><%= text_area_tag 'message', message('email_configuration.test.message_text'), {:cols => 40, :rows => 6} %></td>
     </tr>
     </tbody>

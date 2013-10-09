@@ -2453,8 +2453,8 @@ textarea.width100 {
   min-width: 480px;
 }
 
-.property table.data input {
-  max-width: 200px;
+.property textarea {
+  vertical-align: baseline;
 }
 
 .property .note {
