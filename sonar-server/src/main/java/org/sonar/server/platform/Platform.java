@@ -89,7 +89,6 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.plugins.*;
-import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
@@ -224,7 +223,6 @@ public final class Platform {
     servicesContainer.addSingleton(ServerIdGenerator.class);
     // depends on plugins
     servicesContainer.addSingleton(DefaultModelFinder.class);
-    servicesContainer.addSingleton(DefaultModelManager.class);
     servicesContainer.addSingleton(ChartFactory.class);
     servicesContainer.addSingleton(Languages.class);
     servicesContainer.addSingleton(Views.class);
@@ -335,7 +333,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
-    startupContainer.addSingleton(RegisterQualityModels.class);
+    startupContainer.addSingleton(VerifyNoQualityModelsAreDefined.class);
     startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);

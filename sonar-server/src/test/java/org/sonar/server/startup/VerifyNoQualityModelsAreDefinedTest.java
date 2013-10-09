@@ -19,25 +19,31 @@
  */
 package org.sonar.server.startup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.TimeProfiler;
-import org.sonar.server.qualitymodel.ModelManager;
+import org.junit.Test;
+import org.sonar.api.qualitymodel.ModelDefinition;
+import org.sonar.api.utils.MessageException;
 
-public final class RegisterQualityModels {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterQualityModels.class);
-  private final ModelManager manager;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
 
-  /**
-   * @param registerRulesBeforeModels used only to be started after the creation of check templates
-   */
-  public RegisterQualityModels(ModelManager manager, RegisterRules registerRulesBeforeModels) {// NOSONAR the parameter registerRulesBeforeModels is only used to provide the execution order by picocontainer
-    this.manager = manager;
+public class VerifyNoQualityModelsAreDefinedTest {
+
+  @Test
+  public void not_fail_if_no_model_defined() {
+    // Not fail
+    VerifyNoQualityModelsAreDefined verifyNoQualityModelsAreDefined = new VerifyNoQualityModelsAreDefined();
+    verifyNoQualityModelsAreDefined.start();
   }
 
-  public void start() {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Register Quality Models");
-    manager.registerDefinitions();
-    profiler.stop();
+  @Test
+  public void fail_if_at_least_one_model_is_defined() {
+    try {
+      VerifyNoQualityModelsAreDefined verifyNoQualityModelsAreDefined = new VerifyNoQualityModelsAreDefined(new ModelDefinition[]{mock(ModelDefinition.class)});
+      verifyNoQualityModelsAreDefined.start();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class);
+    }
   }
 }

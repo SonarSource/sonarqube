@@ -25,10 +25,10 @@ import org.sonar.api.ServerExtension;
 
 /**
  *
- * This extension point must be implemented to define a new quality model.
- *
  * @since 2.3
+ * @deprecated since 4.0. It no more possible to define new quality models.
  */
+@Deprecated
 public abstract class ModelDefinition implements ServerExtension {
 
   private String name;

@@ -17,17 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.startup;
 
-package org.sonar.server.qualitymodel;
-
-import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.qualitymodel.ModelDefinition;
+import org.sonar.api.utils.MessageException;
 
-public interface ModelManager {
+/**
+ * Verify that no quality models are defined by plugin as now a technical debt model is already provided. See SONAR-4752 for detail.
+ * @see org.sonar.server.startup.RegisterTechnicalDebtModel
+ */
+public final class VerifyNoQualityModelsAreDefined {
 
-  ModelManager registerDefinitions();
+  private final ModelDefinition[] definitions;
 
-  Model reset(String name);
+  public VerifyNoQualityModelsAreDefined(ModelDefinition[] definitions) {
+    this.definitions = definitions;
+  }
 
-  ModelDefinition findDefinitionByName(String name);
+  public VerifyNoQualityModelsAreDefined() {
+    this.definitions = new ModelDefinition[0];
+  }
+
+  public void start() {
+    if (definitions.length > 0) {
+      throw MessageException.of("The SQALE model definition is already provided by SonarQube. " +
+        "You're probably using a old version of the SQALE plugin, please upgrade to a newer version.");
+    }
+  }
 }
