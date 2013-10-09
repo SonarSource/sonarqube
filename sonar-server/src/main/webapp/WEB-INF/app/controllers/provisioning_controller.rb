@@ -25,6 +25,7 @@ class ProvisioningController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   def index
+    access_denied unless has_role?("provisioning")
     params['qualifiers'] = 'TRK'
 
     @query_result = Internal.component_api.findProvisionedProjects(params)
