@@ -34,7 +34,9 @@ import java.util.List;
 
 /**
  * @since 2.8
+ * @deprecated in 4.0. Replaced by {@link org.sonar.api.scan.filesystem.InputFile}.
  */
+@Deprecated
 public final class InputFileUtils {
 
   private InputFileUtils() {

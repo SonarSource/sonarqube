@@ -19,35 +19,41 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.InputFile;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class InclusionFilterTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void accept() throws IOException {
-    InclusionFilter filter = new InclusionFilter("**/*Foo.java");
+  public void accept() throws Exception {
+    InclusionFilter sourceRelativeFilter = new InclusionFilter("**/*Foo.java");
+    InclusionFilter absoluteFilter = new InclusionFilter("file:**/src/main/**Foo.java");
+
+
     File file = temp.newFile();
-    FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class));
+    InputFile inputFile = InputFile.create(file, "src/main/java/org/MyFoo.java", ImmutableMap.of(
+      InputFile.ATTRIBUTE_CANONICAL_PATH, "/absolute/path/to/src/main/java/org/MyFoo.java",
+      InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/MyFoo.java"
+    ));
 
-    context.setCanonicalPath("/absolute/path/to/MyFoo.java");
-    context.setRelativePath("relative/path/to/MyFoo.java");
-    assertThat(filter.accept(file, context)).isTrue();
+    assertThat(sourceRelativeFilter.accept(inputFile)).isTrue();
+    assertThat(absoluteFilter.accept(inputFile)).isTrue();
 
-    context.setCanonicalPath("/absolute/path/to/Other.java");
-    context.setRelativePath("relative/path/to/Other.java");
-
-    assertThat(filter.accept(file, context)).isFalse();
+    inputFile = InputFile.create(file, "src/main/java/org/Other.java", ImmutableMap.of(
+      InputFile.ATTRIBUTE_CANONICAL_PATH, "/absolute/path/to/src/main/java/org/Other.java",
+      InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/Other.java"
+    ));
+    assertThat(sourceRelativeFilter.accept(inputFile)).isFalse();
+    assertThat(absoluteFilter.accept(inputFile)).isFalse();
   }
 
   @Test

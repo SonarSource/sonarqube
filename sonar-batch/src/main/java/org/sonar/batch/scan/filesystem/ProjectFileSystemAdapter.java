@@ -24,19 +24,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -47,14 +40,14 @@ import java.util.List;
  *
  * @since 3.5
  */
-public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
+public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   private final DefaultModuleFileSystem target;
   private final PathResolver pathResolver = new PathResolver();
   private final MavenProject pom;
 
 
-  public DeprecatedFileSystemAdapter(DefaultModuleFileSystem target, Project project, @Nullable MavenProject pom) {
+  public ProjectFileSystemAdapter(DefaultModuleFileSystem target, Project project, @Nullable MavenProject pom) {
     this.target = target;
     this.pom = pom;
 
@@ -63,7 +56,7 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
     project.setFileSystem(this);
   }
 
-  public DeprecatedFileSystemAdapter(DefaultModuleFileSystem target, Project project) {
+  public ProjectFileSystemAdapter(DefaultModuleFileSystem target, Project project) {
     this(target, project, null);
   }
 
@@ -192,11 +185,12 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> mainFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    List<File> files = target.files(FileQuery.onSource().onLanguage(langs));
-    for (File file : files) {
-      PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
-      if (relativePath != null) {
-        result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
+    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onSource().onLanguage(langs));
+    for (org.sonar.api.scan.filesystem.InputFile file : files) {
+      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.InputFile.ATTRIBUTE_SOURCEDIR_PATH);
+      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      if (sourceDir != null && sourceRelativePath != null) {
+        result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
       }
     }
     return result;
@@ -204,14 +198,14 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> testFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    List<File> files = target.files(FileQuery.onTest().onLanguage(langs));
-    for (File file : files) {
-      PathResolver.RelativePath relativePath = pathResolver.relativePath(getTestDirs(), file);
-      if (relativePath != null) {
-        result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
+    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onTest().onLanguage(langs));
+    for (org.sonar.api.scan.filesystem.InputFile file : files) {
+      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.InputFile.ATTRIBUTE_SOURCEDIR_PATH);
+      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      if (sourceDir != null && sourceRelativePath != null) {
+        result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
       }
     }
-
     return result;
   }
 }

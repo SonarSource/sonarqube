@@ -29,18 +29,17 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class DeprecatedFileSystemAdapterTest {
+public class ProjectFileSystemAdapterTest {
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void should_wrap_module_file_system() {
     DefaultModuleFileSystem target = mock(DefaultModuleFileSystem.class, Mockito.RETURNS_SMART_NULLS);
-    DeprecatedFileSystemAdapter adapter = new DeprecatedFileSystemAdapter(target, new Project("my-project"));
+    ProjectFileSystemAdapter adapter = new ProjectFileSystemAdapter(target, new Project("my-project"));
 
     assertThat(adapter.getBasedir()).isNotNull();
     verify(target).baseDir();
@@ -63,7 +62,7 @@ public class DeprecatedFileSystemAdapterTest {
     File workingDir = temp.newFile("work");
     DefaultModuleFileSystem target = mock(DefaultModuleFileSystem.class);
     when(target.workingDir()).thenReturn(workingDir);
-    DeprecatedFileSystemAdapter adapter = new DeprecatedFileSystemAdapter(target, new Project("my-project"));
+    ProjectFileSystemAdapter adapter = new ProjectFileSystemAdapter(target, new Project("my-project"));
 
     File buildDir = adapter.getBuildDir();
     assertThat(buildDir.getParentFile().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());

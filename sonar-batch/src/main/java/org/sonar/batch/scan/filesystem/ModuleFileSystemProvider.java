@@ -19,13 +19,11 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
@@ -37,22 +35,21 @@ import java.util.List;
  */
 public class ModuleFileSystemProvider extends ProviderAdapter {
 
+  private PathResolver pathResolver = new PathResolver();
   private DefaultModuleFileSystem singleton;
 
-  public DefaultModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
-    LanguageFilters languageFilters, Settings settings, FileSystemFilter[] pluginFileFilters,
-    FileHashCache fileHashCache) {
+  public DefaultModuleFileSystem provide(
+    ProjectDefinition module, TempDirectories tempDirectories,Settings settings, InputFileCache cache, FileIndexer indexer) {
+
     if (singleton == null) {
-      DefaultModuleFileSystem fs = new DefaultModuleFileSystem(fileHashCache);
-      fs.setLanguageFilters(languageFilters);
+      DefaultModuleFileSystem fs = new DefaultModuleFileSystem(module.getKey(), settings, cache, indexer);
       fs.setBaseDir(module.getBaseDir());
       fs.setBuildDir(module.getBuildDir());
-      fs.setSettings(settings);
       fs.setWorkingDir(guessWorkingDir(module, tempDirectories));
-      fs.addFilters(pluginFileFilters);
-      initBinaryDirs(module, pathResolver, fs);
-      initSources(module, pathResolver, fs);
-      initTests(module, pathResolver, fs);
+      initBinaryDirs(module, fs);
+      initSources(module, fs);
+      initTests(module, fs);
+      fs.index();
       singleton = fs;
     }
     return singleton;
@@ -72,7 +69,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
     return workDir;
   }
 
-  private void initSources(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
+  private void initSources(ProjectDefinition module, DefaultModuleFileSystem fs) {
     for (String sourcePath : module.getSourceDirs()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
       if (dir.isDirectory() && dir.exists()) {
@@ -80,12 +77,10 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       }
     }
     List<File> sourceFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getSourceFiles());
-    if (!sourceFiles.isEmpty()) {
-      fs.addFilters(new WhiteListFileFilter(FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
-    }
+    fs.setAdditionalSourceFiles(sourceFiles);
   }
 
-  private void initTests(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
+  private void initTests(ProjectDefinition module, DefaultModuleFileSystem fs) {
     for (String testPath : module.getTestDirs()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
       if (dir.exists() && dir.isDirectory()) {
@@ -93,12 +88,10 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       }
     }
     List<File> testFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getTestFiles());
-    if (!testFiles.isEmpty()) {
-      fs.addFilters(new WhiteListFileFilter(FileType.TEST, ImmutableSet.copyOf(testFiles)));
-    }
+    fs.setAdditionalTestFiles(testFiles);
   }
 
-  private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
+  private void initBinaryDirs(ProjectDefinition module, DefaultModuleFileSystem fs) {
     for (String path : module.getBinaries()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), path);
       fs.addBinaryDir(dir);

@@ -19,12 +19,17 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 
+import javax.annotation.Nullable;
 import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,8 +37,14 @@ import java.util.Set;
  */
 public class FileQuery {
 
+  // TODO better builders, for example FileQuery.ALL
+
   public static FileQuery on(FileType... types) {
-    return new FileQuery(types);
+    FileQuery query = new FileQuery();
+    for (FileType type : types) {
+      query.on(InputFile.ATTRIBUTE_TYPE, type.name().toLowerCase());
+    }
+    return query;
   }
 
   public static FileQuery onSource() {
@@ -44,27 +55,40 @@ public class FileQuery {
     return on(FileType.TEST);
   }
 
-  private final Set<FileType> types;
-  private final Set<String> languages = Sets.newLinkedHashSet();
-  private final Set<String> inclusions = Sets.newLinkedHashSet();
-  private final Set<String> exclusions = Sets.newLinkedHashSet();
-  private final Collection<FileFilter> filters = Lists.newLinkedList();
+  private final ListMultimap<String, String> attributes = ArrayListMultimap.create();
+  private final Set<String> inclusions = Sets.newHashSet();
+  private final Set<String> exclusions = Sets.newHashSet();
 
-  private FileQuery(FileType... types) {
-    this.types = Sets.newHashSet(types);
+  private FileQuery() {
   }
 
+  private FileQuery on(String attribute, String... values) {
+    for (String value : values) {
+      attributes.put(attribute, value);
+    }
+    return this;
+  }
+
+  public Map<String, Collection<String>> attributes() {
+    return attributes.asMap();
+  }
+
+  @Deprecated
   public Collection<FileType> types() {
-    return types;
+    return Collections2.transform(attributes.get(InputFile.ATTRIBUTE_TYPE), new Function<String, FileType>() {
+      @Override
+      public FileType apply(@Nullable String input) {
+        return input != null ? FileType.valueOf(input) : null;
+      }
+    });
   }
 
   public Collection<String> languages() {
-    return languages;
+    return attributes.get(InputFile.ATTRIBUTE_LANGUAGE);
   }
 
   public FileQuery onLanguage(String... languages) {
-    this.languages.addAll(Arrays.asList(languages));
-    return this;
+    return on(InputFile.ATTRIBUTE_LANGUAGE, languages);
   }
 
   public Collection<String> inclusions() {
@@ -85,13 +109,14 @@ public class FileQuery {
     return this;
   }
 
+  // TODO deprecate
   public Collection<FileFilter> filters() {
-    return filters;
+    throw new UnsupportedOperationException("TODO");
   }
 
+  // TODO deprecate ?
   public FileQuery withFilters(FileFilter... filters) {
-    this.filters.addAll(Arrays.asList(filters));
-    return this;
+    throw new UnsupportedOperationException("TODO");
   }
 }
 

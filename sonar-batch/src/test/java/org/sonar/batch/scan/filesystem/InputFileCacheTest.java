@@ -19,27 +19,47 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.collect.Maps;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-
-import java.io.File;
-import java.io.IOException;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.batch.index.Caches;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class FileFilterContextTest {
+public class InputFileCacheTest {
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  Caches caches = new Caches();
+
+  @Before
+  public void start() {
+    caches.start();
+  }
+
+  @After
+  public void stop() {
+    caches.stop();
+  }
+
   @Test
-  public void should_use_slash_for_canonical_path() throws IOException {
-    // even on windows
-    File file = temp.newFile("foo.txt");
-    FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class));
-    context.setCanonicalPath(file.getCanonicalPath());
-    assertThat(context.canonicalPath()).doesNotContain("\\").contains("/");
+  public void should_add_input_file() throws Exception {
+    InputFileCache cache = new InputFileCache(caches);
+    cache.put("struts", InputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
+    cache.put("struts-core", InputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
+
+    assertThat(cache.byModule("struts")).hasSize(1);
+    assertThat(cache.byModule("struts-core")).hasSize(1);
+    assertThat(cache.all()).hasSize(2);
+
+    cache.removeModule("struts");
+    assertThat(cache.byModule("struts")).hasSize(0);
+    assertThat(cache.byModule("struts-core")).hasSize(1);
+    assertThat(cache.all()).hasSize(1);
   }
 }

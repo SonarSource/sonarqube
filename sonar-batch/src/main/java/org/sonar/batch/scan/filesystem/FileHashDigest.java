@@ -22,30 +22,29 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.utils.SonarException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
 /**
- * @since 4.0
+ * Computes hash of files. Ends of Lines are ignored, so files with
+ * same content but different EOL encoding have the same hash.
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class HashBuilder implements BatchExtension {
+class FileHashDigest {
+
+  // This singleton aims only to increase the coverage by allowing
+  // to test the private method !
+  static final FileHashDigest INSTANCE = new FileHashDigest();
+
+  private FileHashDigest() {
+  }
 
   /**
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
-  public String computeHashNormalizeLineEnds(File file, Charset charset) {
+  String hash(File file, Charset charset) {
     Reader reader = null;
     try {
       MessageDigest md5Digest = DigestUtils.getMd5Digest();
@@ -72,14 +71,14 @@ public final class HashBuilder implements BatchExtension {
       }
       return Hex.encodeHexString(md5Digest.digest());
     } catch (IOException e) {
-      throw new SonarException("Unable to compute file hash", e);
+      throw new IllegalStateException(String.format("Fail to compute hash of file %s with charset %s", file.getAbsolutePath(), charset), e);
     } finally {
       IOUtils.closeQuietly(reader);
     }
   }
 
-  public static byte[] charToBytesUTF(char c) {
-    char[] buffer = new char[] {c};
+  private byte[] charToBytesUTF(char c) {
+    char[] buffer = new char[]{c};
     byte[] b = new byte[buffer.length << 1];
     for (int i = 0; i < buffer.length; i++) {
       int bpos = i << 1;

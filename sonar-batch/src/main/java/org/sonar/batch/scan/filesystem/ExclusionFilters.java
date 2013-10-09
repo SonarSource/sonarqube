@@ -26,12 +26,10 @@ import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 
-import java.io.File;
-
-public class ExclusionFilters implements FileSystemFilter, ResourceFilter, BatchComponent {
+public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchComponent {
   private final FileExclusions exclusionSettings;
 
   public ExclusionFilters(FileExclusions exclusions) {
@@ -45,7 +43,6 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
     log("Excluded tests: ", testExclusions());
   }
 
-
   private void log(String title, PathPattern[] patterns) {
     if (patterns.length > 0) {
       Logger log = LoggerFactory.getLogger(ExclusionFilters.class);
@@ -56,25 +53,37 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
     }
   }
 
-  public boolean accept(File file, Context context) {
-    PathPattern[] inclusionPatterns = context.type() == FileType.TEST ? testInclusions() : sourceInclusions();
-    if (inclusionPatterns.length > 0) {
+  @Override
+  public boolean accept(InputFile inputFile) {
+    String type = inputFile.attribute(InputFile.ATTRIBUTE_TYPE);
+    PathPattern[] inclusionPatterns = null;
+    PathPattern[] exclusionPatterns = null;
+    if (InputFile.TYPE_SOURCE.equals(type)) {
+      inclusionPatterns = sourceInclusions();
+      exclusionPatterns = sourceExclusions();
+    } else if (InputFile.TYPE_TEST.equals(type)) {
+      inclusionPatterns = testInclusions();
+      exclusionPatterns = testExclusions();
+    }
+    if (inclusionPatterns != null && inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(context);
+        matchInclusion |= pattern.match(inputFile);
       }
       if (!matchInclusion) {
         return false;
       }
     }
-    PathPattern[] exclusionPatterns = context.type() == FileType.TEST ? testExclusions() : sourceExclusions();
-    for (PathPattern pattern : exclusionPatterns) {
-      if (pattern.match(context)) {
-        return false;
+    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
+      for (PathPattern pattern : exclusionPatterns) {
+        if (pattern.match(inputFile)) {
+          return false;
+        }
       }
     }
     return true;
   }
+
 
   public boolean isIgnored(Resource resource) {
     if (ResourceUtils.isFile(resource)) {

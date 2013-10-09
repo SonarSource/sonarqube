@@ -19,39 +19,32 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.FileType;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.filesystem.FileHashCache;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.source.SnapshotDataType;
 
-import java.io.File;
-import java.util.List;
+import java.util.Map;
 
 /**
  * This sensor will retrieve hash of each file of the current module and store it in DB
  * in order to compare it during next analysis and see if the file was modified.
  * This is used by the incremental preview mode.
- * @see org.sonar.plugins.core.batch.IncrementalPreviewFilter
  * @since 4.0
  */
 public final class FileHashSensor implements Sensor {
 
-  private ModuleFileSystem moduleFileSystem;
-  private PathResolver pathResolver;
-  private ComponentDataCache componentDataCache;
-  private FileHashCache fileHashCache;
+  private final InputFileCache fileCache;
+  private final ComponentDataCache componentDataCache;
 
-  public FileHashSensor(FileHashCache fileHashCache, ModuleFileSystem moduleFileSystem, PathResolver pathResolver, ComponentDataCache componentDataCache) {
-    this.fileHashCache = fileHashCache;
-    this.moduleFileSystem = moduleFileSystem;
-    this.pathResolver = pathResolver;
+  public FileHashSensor(InputFileCache fileCache, ComponentDataCache componentDataCache) {
+    this.fileCache = fileCache;
     this.componentDataCache = componentDataCache;
   }
 
@@ -61,20 +54,17 @@ public final class FileHashSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    StringBuilder fileHashMap = new StringBuilder();
-    analyse(fileHashMap, project, FileType.SOURCE);
-    analyse(fileHashMap, project, FileType.TEST);
-    String fileHashes = fileHashMap.toString();
-    if (StringUtils.isNotBlank(fileHashes)) {
-      componentDataCache.setStringData(project.getKey(), SnapshotDataType.FILE_HASH.getValue(), fileHashes);
+    Map<String, String> map = Maps.newHashMap();
+    for (InputFile inputFile : fileCache.byModule(project.key())) {
+      String baseRelativePath = inputFile.attribute(InputFile.ATTRIBUTE_BASE_RELATIVE_PATH);
+      String hash = inputFile.attribute(InputFile.ATTRIBUTE_HASH);
+      if (StringUtils.isNotEmpty(baseRelativePath) && StringUtils.isNotEmpty(hash)) {
+        map.put(baseRelativePath, hash);
+      }
     }
-  }
-
-  private void analyse(StringBuilder fileHashMap, Project project, FileType fileType) {
-    List<File> files = moduleFileSystem.files(FileQuery.on(fileType).onLanguage(project.getLanguageKey()));
-    for (File file : files) {
-      String hash = fileHashCache.getCurrentHash(file, moduleFileSystem.sourceCharset());
-      fileHashMap.append(pathResolver.relativePath(moduleFileSystem.baseDir(), file)).append("=").append(hash).append("\n");
+    if (!map.isEmpty()) {
+      String data = KeyValueFormat.format(map);
+      componentDataCache.setStringData(project.getKey(), SnapshotDataType.FILE_HASH.getValue(), data);
     }
   }
 

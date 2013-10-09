@@ -22,24 +22,17 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -49,42 +42,57 @@ import java.util.List;
  */
 public class DefaultModuleFileSystem implements ModuleFileSystem {
 
-  private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
+  private final String moduleKey;
+  private final InputFileCache cache;
+  private final FileIndexer indexer;
+  private final Settings settings;
 
-  private Settings settings;
   private File baseDir, workingDir, buildDir;
   private List<File> sourceDirs = Lists.newArrayList();
   private List<File> testDirs = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();
-  private PathResolver pathResolver = new PathResolver();
-  private List<FileSystemFilter> fsFilters = Lists.newArrayList();
-  private LanguageFilters languageFilters;
-  private FileHashCache fileHashCache;
+  private List<File> additionalSourceFiles = Lists.newArrayList();
+  private List<File> additionalTestFiles = Lists.newArrayList();
 
-  DefaultModuleFileSystem(FileHashCache fileHashCache) {
-    this.fileHashCache = fileHashCache;
+  public DefaultModuleFileSystem(String moduleKey, Settings settings, InputFileCache cache, FileIndexer indexer) {
+    this.moduleKey = moduleKey;
+    this.settings = settings;
+    this.cache = cache;
+    this.indexer = indexer;
   }
 
+  @Override
+  public String moduleKey() {
+    return moduleKey;
+  }
+
+  @Override
   public File baseDir() {
     return baseDir;
   }
 
+  @Override
+  @CheckForNull
   public File buildDir() {
     return buildDir;
   }
 
+  @Override
   public List<File> sourceDirs() {
     return sourceDirs;
   }
 
+  @Override
   public List<File> testDirs() {
     return testDirs;
   }
 
+  @Override
   public List<File> binaryDirs() {
     return binaryDirs;
   }
 
+  @Override
   public Charset sourceCharset() {
     final Charset charset;
     String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
@@ -100,97 +108,69 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
+  @Override
   public File workingDir() {
     return workingDir;
   }
 
-  List<FileSystemFilter> filters() {
-    return fsFilters;
+  List<File> additionalSourceFiles() {
+    return additionalSourceFiles;
   }
 
-  LanguageFilters languageFilters() {
-    return languageFilters;
+  List<File> additionalTestFiles() {
+    return additionalTestFiles;
   }
 
-  public List<File> files(FileQuery query) {
-    boolean changedFilesOnly = false;
-    if (settings.getBoolean(CoreProperties.INCREMENTAL_PREVIEW)) {
-      if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
-        throw new SonarException("Incremental preview is only supported with preview mode");
-      }
-      changedFilesOnly = true;
-    }
-    return files(query, changedFilesOnly);
+  void setBaseDir(File baseDir) {
+    this.baseDir = baseDir;
   }
 
-  @Override
-  public List<File> changedFiles(FileQuery query) {
-    return files(query, true);
+  void setWorkingDir(File workingDir) {
+    this.workingDir = workingDir;
   }
 
-  private List<File> files(FileQuery query, boolean changedFilesOnly) {
-    List<FileSystemFilter> filters = Lists.newArrayList(fsFilters);
-    if (changedFilesOnly) {
-      filters.add(new ChangedFileFilter(fileHashCache));
-    }
-    for (FileFilter fileFilter : query.filters()) {
-      filters.add(new FileFilterWrapper(fileFilter));
-    }
-    for (String language : query.languages()) {
-      filters.add(new FileFilterWrapper(languageFilters.forLang(language)));
-    }
-    for (String inclusion : query.inclusions()) {
-      filters.add(new InclusionFilter(inclusion));
-    }
-    for (String exclusion : query.exclusions()) {
-      filters.add(new ExclusionFilter(exclusion));
-    }
-    List<File> result = Lists.newLinkedList();
-    FileFilterContext context = new FileFilterContext(this);
-    for (FileType type : query.types()) {
-      context.setType(type);
-      switch (type) {
-        case SOURCE:
-          applyFilters(result, context, filters, sourceDirs);
-          break;
-        case TEST:
-          applyFilters(result, context, filters, testDirs);
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown file type: " + type);
+  void setBuildDir(File buildDir) {
+    this.buildDir = buildDir;
+  }
+
+  void addSourceDir(File d) {
+    this.sourceDirs.add(d);
+  }
+
+  void addTestDir(File d) {
+    this.testDirs.add(d);
+  }
+
+  void addBinaryDir(File d) {
+    this.binaryDirs.add(d);
+  }
+
+  void setAdditionalSourceFiles(List<File> files) {
+    this.additionalSourceFiles = files;
+  }
+
+  void setAdditionalTestFiles(List<File> files) {
+    this.additionalTestFiles = files;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public Iterable<InputFile> inputFiles(FileQuery query) {
+    List<InputFile> result = Lists.newArrayList();
+
+    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    for (InputFile input : cache.byModule(moduleKey)) {
+      if (filter.accept(input)) {
+        result.add(input);
       }
     }
     return result;
   }
 
-  private void applyFilters(List<File> result, FileFilterContext context,
-    Collection<FileSystemFilter> filters, Collection<File> dirs) {
-    for (File dir : dirs) {
-      if (dir.exists()) {
-        context.setRelativeDir(dir);
-        Collection<File> files = FileUtils.listFiles(dir, HiddenFileFilter.VISIBLE, DIR_FILTER);
-        for (File file : files) {
-          if (accept(file, context, filters)) {
-            result.add(file);
-          }
-        }
-      }
-    }
-  }
-
-  private boolean accept(File file, FileFilterContext context, Collection<FileSystemFilter> filters) {
-    context.setRelativePath(pathResolver.relativePath(context.relativeDir(), file));
-    try {
-      context.setCanonicalPath(file.getCanonicalPath());
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to get the canonical path of: " + file);
-    }
-    for (FileSystemFilter filter : filters) {
-      if (!filter.accept(file, context)) {
-        return false;
-      }
-    }
-    return true;
+  @Override
+  public List<File> files(FileQuery query) {
+    return InputFile.toFiles(inputFiles(query));
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
@@ -200,6 +180,11 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     this.sourceDirs = existingDirs(sourceDirs);
     this.testDirs = existingDirs(testDirs);
     this.binaryDirs = existingDirs(binaryDirs);
+    indexer.index(this);
+  }
+
+  void index() {
+    indexer.index(this);
   }
 
   private List<File> existingDirs(List<File> dirs) {
@@ -212,50 +197,21 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return builder.build();
   }
 
-  DefaultModuleFileSystem setSettings(Settings settings) {
-    this.settings = settings;
-    return this;
-  }
 
-  DefaultModuleFileSystem setBaseDir(File baseDir) {
-    this.baseDir = baseDir;
-    return this;
-  }
-
-  DefaultModuleFileSystem setWorkingDir(File workingDir) {
-    this.workingDir = workingDir;
-    return this;
-  }
-
-  DefaultModuleFileSystem setBuildDir(File buildDir) {
-    this.buildDir = buildDir;
-    return this;
-  }
-
-  DefaultModuleFileSystem addFilters(FileSystemFilter... f) {
-    for (FileSystemFilter filter : f) {
-      this.fsFilters.add(filter);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return this;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DefaultModuleFileSystem that = (DefaultModuleFileSystem) o;
+    return moduleKey.equals(that.moduleKey);
   }
 
-  DefaultModuleFileSystem setLanguageFilters(LanguageFilters languageFilters) {
-    this.languageFilters = languageFilters;
-    return this;
-  }
-
-  DefaultModuleFileSystem addSourceDir(File d) {
-    this.sourceDirs.add(d);
-    return this;
-  }
-
-  DefaultModuleFileSystem addTestDir(File d) {
-    this.testDirs.add(d);
-    return this;
-  }
-
-  DefaultModuleFileSystem addBinaryDir(File d) {
-    this.binaryDirs.add(d);
-    return this;
+  @Override
+  public int hashCode() {
+    return moduleKey.hashCode();
   }
 }

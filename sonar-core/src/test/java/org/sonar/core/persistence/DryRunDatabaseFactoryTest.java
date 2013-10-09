@@ -54,7 +54,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_without_project() throws IOException, SQLException {
+  public void should_create_database_without_project() throws Exception {
     setupData("should_create_database");
 
     byte[] db = createDb(null);
@@ -71,7 +71,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_with_project() throws IOException, SQLException {
+  public void should_create_database_with_project() throws Exception {
     setupData("should_create_database");
 
     byte[] database = createDb(123L);
@@ -85,7 +85,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_with_issues() throws IOException, SQLException {
+  public void should_create_database_with_issues() throws Exception {
     setupData("should_create_database_with_issues");
 
     byte[] database = createDb(399L);
@@ -95,7 +95,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_export_issues_of_project_tree() throws IOException, SQLException {
+  public void should_export_issues_of_project_tree() throws Exception {
     setupData("multi-modules-with-issues");
 
     // 300 : root module -> export issues of all modules
@@ -109,7 +109,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_export_issues_of_sub_module() throws IOException, SQLException {
+  public void should_export_issues_of_sub_module() throws Exception {
     setupData("multi-modules-with-issues");
 
     // 301 : sub module with 1 closed issue and 1 open issue
@@ -122,7 +122,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_export_issues_of_sub_module_2() throws IOException, SQLException {
+  public void should_export_issues_of_sub_module_2() throws Exception {
     setupData("multi-modules-with-issues");
 
     // 302 : sub module without any issues

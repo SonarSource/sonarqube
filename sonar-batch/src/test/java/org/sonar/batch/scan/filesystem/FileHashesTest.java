@@ -19,29 +19,40 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.charset.Charset;
 
-public class FileFilterWrapperTest {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+public class FileHashesTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  RemoteFileHashes remoteFileHashes = mock(RemoteFileHashes.class);
+
   @Test
-  public void should_wrap_java_io_filefilter() throws IOException {
-    IOFileFilter filter = Mockito.mock(IOFileFilter.class);
-    FileFilterWrapper wrapper = new FileFilterWrapper(filter);
-
+  public void hash() throws Exception {
     File file = temp.newFile();
-    wrapper.accept(file, Mockito.mock(FileSystemFilter.Context.class));
+    FileUtils.write(file, "fooo");
 
-    Mockito.verify(filter).accept(file);
+    FileHashes hashes = new FileHashes(remoteFileHashes);
+    assertThat(hashes.hash(file, Charset.forName("UTF-8"))).isEqualTo("efc4470c96a94b1ff400175ef8368444");
+    verifyZeroInteractions(remoteFileHashes);
+  }
+
+  @Test
+  public void remote_hash() throws Exception {
+    String path = "src/main/java/Foo.java";
+    when(remoteFileHashes.remoteHash(path)).thenReturn("ABCDE");
+
+    FileHashes hashes = new FileHashes(remoteFileHashes);
+    assertThat(hashes.remoteHash(path)).isEqualTo("ABCDE");
   }
 }

@@ -19,37 +19,30 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
+import org.sonar.api.BatchComponent;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
-import java.util.Set;
+import java.nio.charset.Charset;
 
 /**
- * @since 3.5
+ * Facade for local and remote file hashes
  */
-class WhiteListFileFilter implements FileSystemFilter {
-  private final FileType fileType;
-  private final Set<File> files;
+public class FileHashes implements BatchComponent {
 
-  WhiteListFileFilter(FileType fileType, Set<File> files) {
-    Preconditions.checkNotNull(fileType);
-    Preconditions.checkNotNull(files);
-    this.fileType = fileType;
-    this.files = files;
+  private final RemoteFileHashes remoteFileHashes;
+
+  public FileHashes(RemoteFileHashes remoteFileHashes) {
+    this.remoteFileHashes = remoteFileHashes;
   }
 
-  public boolean accept(File file, Context context) {
-    return !context.type().equals(fileType) || files.contains(file);
+  @CheckForNull
+  public String hash(File file, Charset charset) {
+    return FileHashDigest.INSTANCE.hash(file, charset);
   }
 
-  @Override
-  public String toString() {
-    return StringUtils.capitalize(fileType.name().toLowerCase()) + " files: " + SystemUtils.LINE_SEPARATOR +
-      Joiner.on(SystemUtils.LINE_SEPARATOR).join(files);
+  @CheckForNull
+  public String remoteHash(String baseRelativePath) {
+    return remoteFileHashes.remoteHash(baseRelativePath);
   }
 }

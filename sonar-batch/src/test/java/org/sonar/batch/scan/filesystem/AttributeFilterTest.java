@@ -19,30 +19,27 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.FileSystemFilter;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.scan.filesystem.InputFile;
 
-import java.io.File;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * When enabled this filter will only allow modified files to be analyzed.
- * @since 4.0
- */
-class ChangedFileFilter implements FileSystemFilter {
+public class AttributeFilterTest {
 
-  private FileHashCache fileHashCache;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  public ChangedFileFilter(FileHashCache fileHashCache) {
-    this.fileHashCache = fileHashCache;
+  @Test
+  public void should_check_attribute_value() throws Exception {
+    AttributeFilter filter = new AttributeFilter("foo", Lists.newArrayList("one", "two"));
+
+    assertThat(filter.accept(InputFile.create(temp.newFile(), "Why.java", ImmutableMap.of("foo", "two")))).isTrue();
+    assertThat(filter.accept(InputFile.create(temp.newFile(), "Where.java", ImmutableMap.of("foo", "three")))).isFalse();
+    assertThat(filter.accept(InputFile.create(temp.newFile(), "What.java", ImmutableMap.of("bar", "one")))).isFalse();
+
   }
-
-  @Override
-  public boolean accept(File file, Context context) {
-    String previousHash = fileHashCache.getPreviousHash(file);
-    if (previousHash == null) {
-      return true;
-    }
-    String currentHash = fileHashCache.getCurrentHash(file, context.fileSystem().sourceCharset());
-    return !currentHash.equals(previousHash);
-  }
-
 }

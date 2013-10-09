@@ -20,9 +20,9 @@
 package org.sonar.api.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.resources.InputFile;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -31,6 +31,14 @@ import java.util.List;
  * @since 3.5
  */
 public interface ModuleFileSystem extends BatchComponent {
+
+  /**
+   * Unique module key
+   *
+   * @since 4.0
+   */
+  String moduleKey();
+
   /**
    * Base directory.
    */
@@ -47,12 +55,14 @@ public interface ModuleFileSystem extends BatchComponent {
    * Source directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/main/java
    */
+  // TODO mark as dangerous to use
   List<File> sourceDirs();
 
   /**
    * Test directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/test/java
    */
+  // TODO mark as dangerous to use
   List<File> testDirs();
 
   /**
@@ -70,12 +80,6 @@ public interface ModuleFileSystem extends BatchComponent {
    * Search for files. Never return null.
    */
   List<File> files(FileQuery query);
-
-  /**
-   * Search for changed files. Never return null.
-   * @since 4.0
-   */
-  List<File> changedFiles(FileQuery query);
 
   /**
    * Charset of source and test files. If it's not defined, then return the platform default charset.

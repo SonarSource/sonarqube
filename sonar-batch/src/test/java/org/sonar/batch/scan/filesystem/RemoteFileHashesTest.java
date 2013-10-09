@@ -19,24 +19,17 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Charsets;
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.source.SnapshotDataType;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -44,7 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FileHashCacheTest {
+public class RemoteFileHashesTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -52,76 +45,45 @@ public class FileHashCacheTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private FileHashCache cache;
-
-  private PastSnapshotFinder pastSnapshotFinder;
-
-  private Snapshot snapshot;
-
-  private File baseDir;
-
-  private SnapshotDataDao snapshotDataDao;
-
-  private ModuleFileSystem moduleFileSystem;
-
-  @Before
-  public void prepare() throws Exception {
-    pastSnapshotFinder = mock(PastSnapshotFinder.class);
-    snapshot = mock(Snapshot.class);
-    baseDir = temp.newFolder();
-    snapshotDataDao = mock(SnapshotDataDao.class);
-    moduleFileSystem = mock(ModuleFileSystem.class);
-    cache = new FileHashCache(ProjectDefinition.create().setBaseDir(baseDir), new PathResolver(), new HashBuilder(), snapshot,
-      snapshotDataDao, pastSnapshotFinder);
-  }
+  PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
+  Snapshot snapshot = mock(Snapshot.class);
+  SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
+  RemoteFileHashes hashes = new RemoteFileHashes(snapshot, snapshotDataDao, pastSnapshotFinder);
 
   @Test
-  public void should_return_null_if_no_previous_snapshot() throws Exception {
+  public void should_return_null_if_no_remote_snapshot() throws Exception {
     when(pastSnapshotFinder.findPreviousAnalysis(snapshot)).thenReturn(new PastSnapshot("foo"));
 
-    cache.start();
-    assertThat(cache.getPreviousHash(new File(baseDir, "src/main/java/foo/Bar.java"))).isNull();
+    hashes.start();
+    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isNull();
+    hashes.stop();
   }
 
   @Test
-  public void should_return_null_if_no_previous_snapshot_data() throws Exception {
+  public void should_return_null_if_no_remote_hashes() throws Exception {
     Snapshot previousSnapshot = mock(Snapshot.class);
     PastSnapshot pastSnapshot = new PastSnapshot("foo", new Date(), previousSnapshot);
     when(pastSnapshotFinder.findPreviousAnalysis(snapshot)).thenReturn(pastSnapshot);
 
-    cache.start();
-    assertThat(cache.getPreviousHash(new File(baseDir, "src/main/java/foo/Bar.java"))).isNull();
+    hashes.start();
+    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isNull();
+    hashes.stop();
   }
 
   @Test
-  public void should_return_previous_hash() throws Exception {
+  public void should_return_remote_hash() throws Exception {
     Snapshot previousSnapshot = mock(Snapshot.class);
     when(previousSnapshot.getId()).thenReturn(123);
     PastSnapshot pastSnapshot = new PastSnapshot("foo", new Date(), previousSnapshot);
     when(pastSnapshotFinder.findPreviousAnalysis(snapshot)).thenReturn(pastSnapshot);
 
     SnapshotDataDto snapshotDataDto = new SnapshotDataDto();
-    snapshotDataDto.setData("src/main/java/foo/Bar.java=abcd1234\n");
+    snapshotDataDto.setData("src/main/java/foo/Bar.java=abcd1234");
     when(snapshotDataDao.selectSnapshotData(123, Arrays.asList(SnapshotDataType.FILE_HASH.getValue())))
       .thenReturn(Arrays.asList(snapshotDataDto));
 
-    File file = new File(baseDir, "src/main/java/foo/Bar.java");
-    FileUtils.write(file, "foo", Charsets.UTF_8);
-    cache.start();
-    assertThat(cache.getPreviousHash(file)).isEqualTo("abcd1234");
-  }
-
-  @Test
-  public void should_compute_and_cache_current_hash() throws Exception {
-    when(moduleFileSystem.sourceCharset()).thenReturn(Charsets.UTF_8);
-
-    File file = new File(baseDir, "src/main/java/foo/Bar.java");
-    FileUtils.write(file, "foo", Charsets.UTF_8);
-    String hash = "9a8742076ef9ffa5591f633704c2286b";
-    assertThat(cache.getCurrentHash(file, Charsets.UTF_8)).isEqualTo(hash);
-
-    // Modify file
-    FileUtils.write(file, "bar", Charsets.UTF_8);
-    assertThat(cache.getCurrentHash(file, Charsets.UTF_8)).isEqualTo(hash);
+    hashes.start();
+    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isEqualTo("abcd1234");
+    hashes.stop();
   }
 }

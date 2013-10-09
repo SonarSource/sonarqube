@@ -19,19 +19,19 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 
-import java.io.File;
-
-class InclusionFilter implements FileSystemFilter {
+class InclusionFilter implements InputFileFilter {
   private final PathPattern pattern;
 
   InclusionFilter(String s) {
     this.pattern = PathPattern.create(s);
   }
 
-  public boolean accept(File file, FileSystemFilter.Context context) {
-    return pattern.match(context);
+  @Override
+  public boolean accept(InputFile inputFile) {
+    return pattern.match(inputFile);
   }
 
   @Override

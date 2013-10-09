@@ -19,31 +19,23 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 
-public class LanguageFilters implements BatchComponent {
-  private final Languages languages;
+import java.util.Collection;
 
-  public LanguageFilters(Languages languages) {
-    this.languages = languages;
+class AttributeFilter implements InputFileFilter {
+  private final String key;
+  private final Collection<String> values;
+
+  AttributeFilter(String key, Collection<String> values) {
+    this.key = key;
+    this.values = values;
   }
 
-  public IOFileFilter forLang(String lang) {
-    Language language = languages.get(lang);
-    if (language == null) {
-      return FalseFileFilter.FALSE;
-    }
-    String[] suffixes = language.getFileSuffixes();
-    if (suffixes != null && suffixes.length>0) {
-      return new SuffixFileFilter(suffixes, IOCase.SENSITIVE);
-    }
-    return TrueFileFilter.TRUE;
+  @Override
+  public boolean accept(InputFile inputFile) {
+    String value = inputFile.attribute(key);
+    return values.contains(value);
   }
 }

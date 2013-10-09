@@ -19,23 +19,39 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
+import org.sonar.batch.index.Cache;
+import org.sonar.batch.index.Caches;
 
-class ExclusionFilter implements InputFileFilter {
-  private final PathPattern pattern;
+/**
+ * Cache of all files. This cache is shared amongst all project modules. Inclusion and
+ * exclusion patterns are already applied.
+ */
+public class InputFileCache implements BatchComponent {
 
-  ExclusionFilter(String s) {
-    this.pattern = PathPattern.create(s);
+  // module key -> path -> InputFile
+  private final Cache<String, InputFile> cache;
+
+  public InputFileCache(Caches caches) {
+    cache = caches.createCache("inputFiles");
   }
 
-  @Override
-  public boolean accept(InputFile inputFile) {
-    return !pattern.match(inputFile);
+  public Iterable<InputFile> byModule(String moduleKey) {
+    return cache.values(moduleKey);
   }
 
-  @Override
-  public String toString() {
-    return "Excludes: " + pattern;
+  public InputFileCache removeModule(String moduleKey) {
+    cache.clear(moduleKey);
+    return this;
+  }
+
+  public Iterable<InputFile> all() {
+    return cache.allValues();
+  }
+
+  public InputFileCache put(String moduleKey, InputFile file) {
+    cache.put(moduleKey, file.path(), file);
+    return this;
   }
 }

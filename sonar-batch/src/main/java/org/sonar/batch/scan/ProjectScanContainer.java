@@ -28,6 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
@@ -38,7 +39,7 @@ import org.sonar.batch.index.*;
 import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.scan.filesystem.HashBuilder;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.source.HighlightableBuilder;
@@ -117,7 +118,10 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
-      HashBuilder.class,
+
+      // file system
+      InputFileCache.class,
+      PathResolver.class,
 
       // issues
       IssueUpdater.class,

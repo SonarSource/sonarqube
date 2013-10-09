@@ -23,13 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 
-public class FileSystemLogger {
+public class FileSystemLogger implements BatchComponent {
 
   private final DefaultModuleFileSystem fs;
 

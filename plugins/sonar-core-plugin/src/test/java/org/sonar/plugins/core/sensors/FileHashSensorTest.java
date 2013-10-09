@@ -19,96 +19,63 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import com.google.common.base.Charsets;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.filesystem.FileHashCache;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FileHashSensorTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private FileHashSensor sensor;
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ModuleFileSystem fileSystem;
+  Project project = new Project("struts");
+  InputFileCache fileCache = mock(InputFileCache.class);
+  ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
+  FileHashSensor sensor = new FileHashSensor(fileCache, componentDataCache);
 
-  private ComponentDataCache componentDataCache;
+  @Test
+  public void store_file_hashes() throws Exception {
+    when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
+      InputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
+      InputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
+    ));
 
-  private Project project;
+    SensorContext sensorContext = mock(SensorContext.class);
+    sensor.analyse(project, sensorContext);
 
-  private FileHashCache fileHashCache;
-
-  @Before
-  public void prepare() {
-    fileSystem = mock(ModuleFileSystem.class);
-    when(fileSystem.sourceCharset()).thenReturn(Charsets.UTF_8);
-    componentDataCache = mock(ComponentDataCache.class);
-    fileHashCache = mock(FileHashCache.class);
-    sensor = new FileHashSensor(fileHashCache, fileSystem, new PathResolver(), componentDataCache);
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.language", "java");
-    project = new Project("java_project").setConfiguration(conf).setLanguage(Java.INSTANCE);
+    verify(componentDataCache).setStringData("struts", "file_hash", "src/Foo.java=ABC;src/Bar.java=DEF");
+    verifyZeroInteractions(sensorContext);
   }
 
   @Test
-  public void improve_code_coverage() throws Exception {
+  public void various_tests() throws Exception {
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     assertThat(sensor.toString()).isEqualTo("FileHashSensor");
   }
 
   @Test
-  public void computeHashes() throws Exception {
-    File baseDir = temp.newFolder();
-    File file1 = new File(baseDir, "src/com/foo/Bar.java");
-    FileUtils.write(file1, "Bar", Charsets.UTF_8);
-    when(fileHashCache.getCurrentHash(file1, Charsets.UTF_8)).thenReturn("barhash");
-    File file2 = new File(baseDir, "src/com/foo/Foo.java");
-    FileUtils.write(file2, "Foo", Charsets.UTF_8);
-    when(fileHashCache.getCurrentHash(file2, Charsets.UTF_8)).thenReturn("foohash");
-    when(fileSystem.baseDir()).thenReturn(baseDir);
-    when(fileSystem.files(any(FileQuery.class))).thenReturn(Arrays.asList(file1, file2)).thenReturn(Collections.<File> emptyList());
-    sensor.analyse(project, mock(SensorContext.class));
+  public void dont_save_hashes_if_no_files() throws Exception {
+    when(fileCache.byModule("struts")).thenReturn(Collections.<InputFile>emptyList());
 
-    verify(componentDataCache).setStringData("java_project", "hash",
-      "src/com/foo/Bar.java=barhash\n"
-        + "src/com/foo/Foo.java=foohash\n");
-  }
+    SensorContext sensorContext = mock(SensorContext.class);
+    sensor.analyse(project, sensorContext);
 
-  @Test
-  public void dont_save_hashes_if_no_file() throws Exception {
-    File baseDir = temp.newFolder();
-    when(fileSystem.baseDir()).thenReturn(baseDir);
-    when(fileSystem.files(any(FileQuery.class))).thenReturn(Collections.<File> emptyList());
-    sensor.analyse(project, mock(SensorContext.class));
-
-    verify(componentDataCache, never()).setStringData(anyString(), anyString(), anyString());
+    verifyZeroInteractions(componentDataCache);
+    verifyZeroInteractions(sensorContext);
   }
 }

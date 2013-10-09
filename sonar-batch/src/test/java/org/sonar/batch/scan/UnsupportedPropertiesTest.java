@@ -22,8 +22,9 @@ package org.sonar.batch.scan;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.scan.UnsupportedProperties;
+import org.sonar.api.utils.MessageException;
 
 public class UnsupportedPropertiesTest {
 
@@ -32,16 +33,36 @@ public class UnsupportedPropertiesTest {
 
   @Test
   public void should_fail_if_sonar_light_is_set() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("The property 'sonar.light' is no longer supported. Please use 'sonar.dynamicAnalysis'");
+
     Settings settings = new Settings();
     settings.setProperty("sonar.light", true);
-
-    thrown.expect(IllegalArgumentException.class);
     new UnsupportedProperties(settings).start();
   }
 
   @Test
   public void should_not_fail_if_sonar_light_is_not_set() {
     Settings settings = new Settings();
+    new UnsupportedProperties(settings).start();
+  }
+
+  @Test
+  public void should_fail_if_incremental_but_not_preview_mode() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Incremental mode is only supported with preview mode");
+
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+    settings.setProperty(CoreProperties.DRY_RUN, false);
+    new UnsupportedProperties(settings).start();
+  }
+
+  @Test
+  public void should_not_fail_if_incremental_preview_mode() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+    settings.setProperty(CoreProperties.DRY_RUN, true);
     new UnsupportedProperties(settings).start();
   }
 }

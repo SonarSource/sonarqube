@@ -42,6 +42,11 @@ public class SimpleModuleFileSystem implements ModuleFileSystem {
     this.buildDir = new File(baseDir, "build");
   }
 
+  @Override
+  public String moduleKey() {
+    return null;
+  }
+
   public File baseDir() {
     return baseDir;
   }
@@ -78,11 +83,6 @@ public class SimpleModuleFileSystem implements ModuleFileSystem {
   }
 
   public List<File> files(FileQuery query) {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public List<File> changedFiles(FileQuery query) {
     return Collections.emptyList();
   }
 

@@ -35,7 +35,7 @@ public class ResourceFilters {
   private ResourceFilter[] filters;
 
   public ResourceFilters(ResourceFilter[] filters) {
-    this.filters = (filters == null ? new ResourceFilter[0] : filters);
+    this.filters = filters == null ? new ResourceFilter[0] : filters;
   }
 
   public ResourceFilters() {

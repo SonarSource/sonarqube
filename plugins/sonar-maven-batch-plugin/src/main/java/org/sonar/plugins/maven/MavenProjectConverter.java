@@ -226,11 +226,11 @@ public class MavenProjectConverter implements TaskExtension {
 
   public static void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
     into.resetDirs(
-        pom.getBasedir(),
-        getBuildDir(pom),
-        resolvePaths(pom.getCompileSourceRoots(), pom.getBasedir()),
-        resolvePaths(pom.getTestCompileSourceRoots(), pom.getBasedir()),
-        Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
+      pom.getBasedir(),
+      getBuildDir(pom),
+      resolvePaths(pom.getCompileSourceRoots(), pom.getBasedir()),
+      resolvePaths(pom.getTestCompileSourceRoots(), pom.getBasedir()),
+      Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 
   static File resolvePath(@Nullable String path, File basedir) {

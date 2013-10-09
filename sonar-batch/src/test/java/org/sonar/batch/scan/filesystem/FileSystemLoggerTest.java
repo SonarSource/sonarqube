@@ -38,11 +38,10 @@ public class FileSystemLoggerTest {
 
   @Test
   public void log() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(mock(FileHashCache.class));
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", mock(Settings.class), mock(InputFileCache.class), mock(FileIndexer.class));
     File src = temp.newFolder("src");
     File test = temp.newFolder("test");
     File base = temp.newFolder("base");
-    fs.setSettings(new Settings());
     fs.setBaseDir(base);
     fs.addSourceDir(src);
     fs.addTestDir(test);

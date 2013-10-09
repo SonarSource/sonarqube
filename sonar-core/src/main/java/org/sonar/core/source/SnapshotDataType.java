@@ -24,7 +24,7 @@ public enum SnapshotDataType {
 
   SYNTAX_HIGHLIGHTING("highlight_syntax"),
   SYMBOL_HIGHLIGHTING("symbol"),
-  FILE_HASH("hash");
+  FILE_HASH("file_hash");
 
   private SnapshotDataType(String value) {
     this.value = value;

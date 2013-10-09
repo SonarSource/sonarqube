@@ -23,53 +23,60 @@ import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class HashBuilderTest {
+public class FileHashDigestTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  private HashBuilder hashBuilder = new HashBuilder();
 
   @Test
   public void should_compute_hash() throws Exception {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\r\nbar", Charsets.UTF_8, true);
 
-    assertThat(hashBuilder.computeHashNormalizeLineEnds(tempFile, Charsets.UTF_8)).isEqualTo("daef8a22a3f12580beadf086a9e11519");
+    assertThat(FileHashDigest.INSTANCE.hash(tempFile, Charsets.UTF_8)).isEqualTo("daef8a22a3f12580beadf086a9e11519");
   }
 
   @Test
   public void should_normalize_line_ends() throws Exception {
     File file1 = temp.newFile();
     FileUtils.write(file1, "foobar\nfofo", Charsets.UTF_8);
-    String hash1 = hashBuilder.computeHashNormalizeLineEnds(file1, Charsets.UTF_8);
+    String hash1 = FileHashDigest.INSTANCE.hash(file1, Charsets.UTF_8);
 
     File file2 = temp.newFile();
     FileUtils.write(file2, "foobar\r\nfofo", Charsets.UTF_8);
-    String hash2 = hashBuilder.computeHashNormalizeLineEnds(file2, Charsets.UTF_8);
+    String hash2 = FileHashDigest.INSTANCE.hash(file2, Charsets.UTF_8);
 
     File file3 = temp.newFile();
     FileUtils.write(file3, "foobar\rfofo", Charsets.UTF_8);
-    String hash3 = hashBuilder.computeHashNormalizeLineEnds(file3, Charsets.UTF_8);
+    String hash3 = FileHashDigest.INSTANCE.hash(file3, Charsets.UTF_8);
 
     File file4 = temp.newFile();
     FileUtils.write(file4, "foobar\nfofo\n", Charsets.UTF_8);
-    String hash4 = hashBuilder.computeHashNormalizeLineEnds(file4, Charsets.UTF_8);
+    String hash4 = FileHashDigest.INSTANCE.hash(file4, Charsets.UTF_8);
 
     assertThat(hash1).isEqualTo(hash2);
     assertThat(hash1).isEqualTo(hash3);
     assertThat(hash1).isNotEqualTo(hash4);
   }
 
-  @Test(expected = SonarException.class)
-  public void should_throw_on_not_existing_file() throws Exception {
+  @Test
+  public void should_throw_if_file_does_not_exist() throws Exception {
     File tempFolder = temp.newFolder();
-    hashBuilder.computeHashNormalizeLineEnds(new File(tempFolder, "unknowFile.txt"), Charsets.UTF_8);
+    File file = new File(tempFolder, "doesNotExist.txt");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Fail to compute hash of file " + file.getAbsolutePath() + " with charset UTF-8");
+
+    FileHashDigest.INSTANCE.hash(file, Charsets.UTF_8);
   }
 }

@@ -28,7 +28,6 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProjectClasspath;
 import org.sonar.batch.DefaultSensorContext;
 import org.sonar.batch.DefaultTimeMachine;
@@ -49,12 +48,7 @@ import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.ExclusionFilters;
-import org.sonar.batch.scan.filesystem.FileHashCache;
-import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.filesystem.LanguageFilters;
-import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
+import org.sonar.batch.scan.filesystem.*;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
 
@@ -97,15 +91,16 @@ public class ModuleScanContainer extends ComponentContainer {
       Languages.class,
 
       // file system
-      PathResolver.class,
       FileExclusions.class,
-      LanguageFilters.class,
       ExclusionFilters.class,
+      FileHashes.class,
+      RemoteFileHashes.class,
+      FileIndexer.class,
+      LanguageRecognizer.class,
+      FileSystemLogger.class,
       DefaultProjectClasspath.class,
       new ModuleFileSystemProvider(),
-      DeprecatedFileSystemAdapter.class,
-      FileSystemLogger.class,
-      FileHashCache.class,
+      ProjectFileSystemAdapter.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),

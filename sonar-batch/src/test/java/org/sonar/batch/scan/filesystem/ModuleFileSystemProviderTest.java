@@ -25,13 +25,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
@@ -45,6 +44,10 @@ public class ModuleFileSystemProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  InputFileCache fileCache = mock(InputFileCache.class, Mockito.RETURNS_DEEP_STUBS);
+  Settings settings = new Settings();
+  FileIndexer fileIndexer = mock(FileIndexer.class, Mockito.RETURNS_DEEP_STUBS);
+
   @Test
   public void test_provide() throws IOException {
     ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
@@ -53,8 +56,7 @@ public class ModuleFileSystemProviderTest {
     ProjectDefinition module = ProjectDefinition.create()
       .setBaseDir(baseDir)
       .setWorkDir(workDir);
-    ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
+    ModuleFileSystem fs = provider.provide(module, new TempDirectories(), settings, fileCache, fileIndexer);
 
     assertThat(fs).isNotNull();
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
@@ -69,8 +71,8 @@ public class ModuleFileSystemProviderTest {
   public void default_charset_is_platform_dependent() throws IOException {
     ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
 
-    ModuleFileSystem fs = provider.provide(newSimpleModule(), new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
+    ModuleFileSystem fs = provider.provide(newSimpleModule(), new TempDirectories(),
+      new Settings(), mock(InputFileCache.class), mock(FileIndexer.class));
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
   }
@@ -82,8 +84,8 @@ public class ModuleFileSystemProviderTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, Charsets.ISO_8859_1.name());
 
-    ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      settings, new FileSystemFilter[0], mock(FileHashCache.class));
+    ModuleFileSystem fs = provider.provide(module, new TempDirectories(),
+      settings, mock(InputFileCache.class), mock(FileIndexer.class));
 
     assertThat(fs.sourceCharset()).isEqualTo(Charsets.ISO_8859_1);
   }
@@ -108,8 +110,8 @@ public class ModuleFileSystemProviderTest {
       .addTestDirs("src/test/java", "src/test/unknown")
       .addBinaryDir("target/classes");
 
-    ModuleFileSystem fs = provider.provide(project, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
+    ModuleFileSystem fs = provider.provide(project, new TempDirectories(),
+      new Settings(), mock(InputFileCache.class), mock(FileIndexer.class));
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());

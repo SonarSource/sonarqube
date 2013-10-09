@@ -21,19 +21,20 @@ package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.WildcardPattern;
 
 abstract class PathPattern {
+
   final WildcardPattern pattern;
 
   PathPattern(String pattern) {
     this.pattern = WildcardPattern.create(pattern);
   }
 
-  abstract boolean match(FileSystemFilter.Context context);
-
   abstract boolean match(Resource resource);
+
+  abstract boolean match(InputFile inputFile);
 
   abstract boolean supportResource();
 
@@ -58,14 +59,17 @@ abstract class PathPattern {
       super(pattern);
     }
 
-    boolean match(FileSystemFilter.Context context) {
-      return pattern.match(context.canonicalPath());
+    @Override
+    boolean match(InputFile inputFile) {
+      return pattern.match(inputFile.attribute(InputFile.ATTRIBUTE_CANONICAL_PATH));
     }
 
+    @Override
     boolean match(Resource resource) {
       return false;
     }
 
+    @Override
     boolean supportResource() {
       return false;
     }
@@ -76,19 +80,26 @@ abstract class PathPattern {
     }
   }
 
+  /**
+   * Path relative to source directory
+   */
   private static class RelativePathPattern extends PathPattern {
     private RelativePathPattern(String pattern) {
       super(pattern);
     }
 
-    boolean match(FileSystemFilter.Context context) {
-      return pattern.match(context.relativePath());
+    @Override
+    boolean match(InputFile inputFile) {
+      String path = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      return path != null && pattern.match(path);
     }
 
+    @Override
     boolean match(Resource resource) {
       return resource.matchFilePattern(pattern.toString());
     }
 
+    @Override
     boolean supportResource() {
       return true;
     }

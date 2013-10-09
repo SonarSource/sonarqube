@@ -17,24 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.FileSystemFilter;
-
-import java.io.File;
-import java.io.FileFilter;
+import org.sonar.api.BatchExtension;
 
 /**
- * @since 3.5
+ * TODO document lifecycle -> executed when initializing project
+ * @since 4.0
  */
-class FileFilterWrapper implements FileSystemFilter {
-  private final FileFilter filter;
+public interface InputFileFilter extends BatchExtension {
 
-  FileFilterWrapper(FileFilter filter) {
-    this.filter = filter;
-  }
+  boolean accept(InputFile inputFile);
 
-  public boolean accept(File file, Context context) {
-    return filter.accept(file);
-  }
 }
