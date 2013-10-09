@@ -45,7 +45,7 @@ public final class RegisterTechnicalDebtModel {
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Technical Debt Model");
     TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
-    technicalDebtManager.init(ValidationMessages.create(), technicalDebtRuleCache);
+    technicalDebtManager.initAndMergePlugins(ValidationMessages.create(), technicalDebtRuleCache);
     profiler.stop();
   }
 

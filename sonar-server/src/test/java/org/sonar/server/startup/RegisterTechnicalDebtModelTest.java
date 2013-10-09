@@ -38,6 +38,6 @@ public class RegisterTechnicalDebtModelTest {
 
     sqaleDefinition.start();
 
-    verify(technicalDebtManager, times(1)).init(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
+    verify(technicalDebtManager, times(1)).initAndMergePlugins(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
   }
 }

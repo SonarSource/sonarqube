@@ -53,22 +53,22 @@ public class TechnicalDebtManager implements ServerExtension {
     this.importer = importer;
   }
 
-  public Model init(ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
+  public Model initAndMergePlugins(ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     DatabaseSession session = sessionFactory.getSession();
 
-    Model model = init(messages, rulesCache, session);
+    Model model = initAndMergePlugins(messages, rulesCache, session);
 
-    session.save(model);
     session.commit();
     return model;
   }
 
-  public Model init(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, DatabaseSession session) {
+  public Model initAndMergePlugins(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, DatabaseSession session) {
     disableRequirementsOnRemovedRules(rulesCache, session);
 
     Model defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
     Model model = loadOrCreateModelFromDb(defaultModel, messages, rulesCache);
     mergePlugins(model, defaultModel, messages, rulesCache);
+    session.save(model);
     return model;
   }
 
@@ -80,8 +80,8 @@ public class TechnicalDebtManager implements ServerExtension {
     Model model = loadModel();
     if (model == null) {
       model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
-      mergePlugin(defaultModel, model, messages, rulesCache);
     }
+    mergePlugin(defaultModel, model, messages, rulesCache);
     return model;
   }
 
@@ -128,7 +128,6 @@ public class TechnicalDebtManager implements ServerExtension {
           existingModel.removeCharacteristic(requirement);
         }
       }
-      session.commit();
     }
   }
 

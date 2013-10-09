@@ -44,7 +44,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
   private TechnicalDebtModelRepository technicalDebtModelRepository = mock(TechnicalDebtModelRepository.class);
 
   @Before
-  public void init() throws Exception {
+  public void initAndMerge() throws Exception {
     technicalDebtModelRepository = mock(TechnicalDebtModelRepository.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(
       new FileReader(Resources.getResource(TechnicalDebtManagerTest.class, "TechnicalDebtManagerTest/fake-default-model.xml").getPath()));
@@ -56,7 +56,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
   public void create_only_default_model_on_first_execution_when_no_plugin() throws Exception {
     setupData("empty");
 
-    manager.init(ValidationMessages.create(), defaultRuleCache());
+    manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+    getSession().commit();
 
     checkTables("create_default_model_on_first_execution", "quality_models", "characteristics", "characteristic_edges");
   }
@@ -75,7 +76,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     rule2.setId(2);
     when(technicalDebtRuleCache.getRule("checkstyle", "export")).thenReturn(rule2);
 
-    manager.init(ValidationMessages.create(), technicalDebtRuleCache);
+    manager.initAndMergePlugins(ValidationMessages.create(), technicalDebtRuleCache);
+    getSession().commit();
 
     checkTables("create_model_with_requirements_from_plugin_on_first_execution", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
@@ -86,7 +88,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
     addPluginModel("java", "fake-java-model.xml");
 
-    manager.init(ValidationMessages.create(), defaultRuleCache());
+    manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+    getSession().commit();
 
     checkTables("add_new_requirements_from_plugin", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
@@ -97,7 +100,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
     addPluginModel("java", "fake-java-model.xml");
 
-    manager.init(ValidationMessages.create(), defaultRuleCache());
+    manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+    getSession().commit();
 
     checkTables("disable_requirements_on_removed_rules", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
@@ -109,7 +113,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     addPluginModel("java", "fake-java-model-adding-unknown-characteristic.xml");
 
     try {
-      manager.init(ValidationMessages.create(), defaultRuleCache());
+      manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+      getSession().commit();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
@@ -123,14 +128,16 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
     addPluginModel("java", "fake-java-model.xml");
 
-    manager.init(ValidationMessages.create(), defaultRuleCache());
+    manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+    getSession().commit();
 
     checkTables("recreate_previously_deleted_characteristic_from_default_model_when_plugin_define_requirements_on_it", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test
   public void provided_plugin_should_not_override_default_characteristics_name() throws FileNotFoundException {
-    Model model = manager.init(ValidationMessages.create(), defaultRuleCache());
+    Model model = manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+    getSession().commit();
     // Default model values
     assertThat(model.getCharacteristicByKey("PORTABILITY").getName()).isEqualTo("Portability");
     assertThat(model.getCharacteristicByKey("COMPILER_RELATED_PORTABILITY").getName()).isEqualTo("Compiler related portability");
@@ -156,7 +163,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     when(technicalDebtRuleCache.getRule("checkstyle", "export")).thenReturn(rule2);
 
     ValidationMessages messages = ValidationMessages.create();
-    manager.init(messages, technicalDebtRuleCache);
+    manager.initAndMergePlugins(messages, technicalDebtRuleCache);
+    getSession().commit();
 
     assertThat(messages.getWarnings()).hasSize(1);
     assertThat(messages.getWarnings().get(0)).isEqualTo("Rule not found: [repository=checkstyle, key=ConstantNameCheck]");
@@ -169,7 +177,8 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     addPluginModel("java", "fake-default-model-with-addtionnal-characteristic.xml");
 
     try {
-      manager.init(ValidationMessages.create(), defaultRuleCache());
+      manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
+      getSession().commit();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The characteristic : SUB_ONE cannot be used as it's not available in default ones.");
