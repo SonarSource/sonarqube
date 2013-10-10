@@ -1,6 +1,6 @@
 <dataset>
 
-  <quality_models id="1" name="TECHNICAL_DEBT" />
+  < quality_models id="1" name="SQALE" />
 
   <characteristics id="1" kee="testability" name="Testability" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="1" description="[null]" enabled="true" />
   <characteristics id="2" kee="unit_testability" name="Unit tests" quality_model_id="1" rule_id="[null]" characteristic_order="2" depth="2" description="[null]" enabled="true" />

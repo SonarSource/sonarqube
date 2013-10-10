@@ -23,7 +23,7 @@
     characteristic.kee as char_kee,
     characteristic.name as char_name
     from characteristics req
-    inner join quality_models on quality_models.id = req.quality_model_id and quality_models.name = 'TECHNICAL_DEBT'
+    inner join quality_models on quality_models.id = req.quality_model_id and quality_models.name = 'SQALE'
     inner join rules req_rule on req_rule.id = req.rule_id
     inner join characteristic_properties prop on prop.characteristic_id = req.id
     inner join characteristic_edges req_to_char on req_to_char.child_id = req.id

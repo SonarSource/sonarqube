@@ -2024,7 +2024,7 @@ public final class CoreMetrics {
   /**
    * @since 4.0
    */
-  public static final String TECHNICAL_DEBT_KEY = "technical_debt";
+  public static final String TECHNICAL_DEBT_KEY = "sqale_index";
 
   /**
    * @since 4.0

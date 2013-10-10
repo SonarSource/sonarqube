@@ -1,6 +1,6 @@
 <%
-   technical_debt_model = 'TECHNICAL_DEBT'
-   technical_debt = measure('technical_debt')
+   technical_debt_model = 'SQALE'
+   technical_debt = measure('sqale_index')
    characteristics = Characteristic.find(:all, :joins => :quality_model,
                                        :conditions => ['quality_models.name=? AND characteristics.depth=1 AND characteristics.rule_id IS NULL and characteristics.enabled=?', technical_debt_model, true],
                                        :order => 'characteristic_order DESC')
@@ -103,7 +103,7 @@
          value=(measure && measure.value ? measure.value : 0)
          total_size=(total>0 ? (100*cumulated/total).to_i: 0)
          value_size=(cumulated>0 ? (100*value/cumulated).to_i: 100)
-         drilldown_url=url_for_drilldown('technical_debt', :model => technical_debt_model, :characteristic => characteristic.key)
+         drilldown_url=url_for_drilldown('sqale_index', :model => technical_debt_model, :characteristic => characteristic.key)
     %>
       <tr>
         <td class="label"><%= h(characteristic.name) -%></td>

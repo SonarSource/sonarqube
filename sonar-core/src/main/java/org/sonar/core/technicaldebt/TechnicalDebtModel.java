@@ -45,7 +45,7 @@ public class TechnicalDebtModel implements BatchComponent {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDebtModel.class);
 
-  public static final String MODEL_NAME = "TECHNICAL_DEBT";
+  public static final String MODEL_NAME = "SQALE";
 
   private List<TechnicalDebtCharacteristic> characteristics = newArrayList();
   private Map<Rule, TechnicalDebtRequirement> requirementsByRule = newHashMap();
