@@ -41,7 +41,7 @@ public class DefaultInputFile implements InputFile {
 
   private DefaultInputFile(File file, String relativePath, Map<String, String> attributes) {
     try {
-      this.path = file.getCanonicalPath();
+      this.path = FilenameUtils.separatorsToUnix(file.getCanonicalPath());
       this.relativePath = FilenameUtils.separatorsToUnix(relativePath);
       this.attributes = attributes;
     } catch (IOException e) {
