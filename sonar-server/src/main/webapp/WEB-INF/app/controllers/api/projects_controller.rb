@@ -68,17 +68,28 @@ class Api::ProjectsController < Api::ApiController
   end
 
   #
-  # POST /api/projects/
-  # curl -X POST http://localhost:9000/api/projects/ -d key=project1 -d name='Project One' -v -u admin:admin
+  # POST /api/projects/create?key=<key>&name=<name>
+  #
+  # -- Example
+  # curl  -v -u admin:admin -X POST 'http://localhost:9000/api/projects/create?key=project1&name=Project%20One'
+  #
+  # since 4.0
   #
   def create
     verify_post_request
     require_parameters :key, :name
     access_denied unless has_role?("provisioning")
+    key = params[:key]
+    name = params[:name]
 
-    Internal.component_api.createComponent(params[:key], params[:name], 'PRJ', 'TRK')
-    Internal.permissions.applyDefaultPermissionTemplate(params[:key])
-    render_success("Project %s created" % params[:key])
+    Internal.component_api.createComponent(key, name, 'PRJ', 'TRK')
+    Internal.permissions.applyDefaultPermissionTemplate(key)
+    result = Project.by_key(key)
+
+    respond_to do |format|
+      format.json { render :json => jsonp(to_json_hash(result)) }
+      format.xml { render :xml => to_xml_hash(result) }
+    end
   end
 
   private
@@ -152,13 +163,7 @@ class Api::ProjectsController < Api::ApiController
   def to_json
     json=[]
     @projects.each do |project|
-      hash={}
-      hash[:id]=project.id.to_s
-      hash[:k]=project.key
-      hash[:nm]=project.name(true)
-      hash[:sc]=project.scope
-      hash[:qu]=project.qualifier
-      hash[:ds]=project.description if @show_description && project.description
+      hash=to_json_hash(project)
 
       if @snapshots_by_pid && @snapshots_by_pid[project.id]
         versions={}
@@ -177,26 +182,40 @@ class Api::ProjectsController < Api::ApiController
     json
   end
 
+  def to_json_hash(project)
+    {
+      :id => project.id.nil? ? nil : project.id.to_s,
+      :k => project.key,
+      :nm => project.name(true),
+      :sc => project.scope,
+      :qu => project.qualifier,
+      :ds => @show_description && project.description ? project.description : nil
+    }.reject!{|k,v| v.nil?}
+  end
+
   def to_xml
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.projects do
       @projects.each do |project|
-        xml.project(:id => project.id.to_s, :key => project.key) do
-          xml.name(project.name(true))
-          xml.scope(project.scope)
-          xml.qualifier(project.qualifier)
-          xml.desc(project.description) if @show_description && project.description
-
-          if @snapshots_by_pid && @snapshots_by_pid[project.id]
-            @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
-              attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
-              attributes[:date]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
-              xml.version(snapshot.version, attributes)
-            end
-          end
-        end
+        to_xml_hash(project, xml)
       end
     end
   end
 
+  def to_xml_hash(project, xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.project(:id => project.id.to_s, :key => project.key) do
+      xml.name(project.name(true))
+      xml.scope(project.scope)
+      xml.qualifier(project.qualifier)
+      xml.desc(project.description) if @show_description && project.description
+
+      if @snapshots_by_pid && @snapshots_by_pid[project.id]
+        @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
+          attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
+          attributes[:date]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
+          xml.version(snapshot.version, attributes)
+        end
+      end
+    end
+  end
 end
