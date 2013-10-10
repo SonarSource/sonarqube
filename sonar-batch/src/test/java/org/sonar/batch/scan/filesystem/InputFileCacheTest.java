@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.batch.index.Caches;
 
@@ -56,6 +57,10 @@ public class InputFileCacheTest {
     assertThat(cache.byModule("struts")).hasSize(1);
     assertThat(cache.byModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(2);
+    for (InputFile inputFile : cache.all()) {
+      assertThat(inputFile.relativePath()).startsWith("src/main/java");
+    }
+    assertThat(cache.fileRelativePaths("struts-core")).containsOnly("src/main/java/Foo.java");
 
     cache.removeModule("struts");
     assertThat(cache.byModule("struts")).hasSize(0);

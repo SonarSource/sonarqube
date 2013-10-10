@@ -57,7 +57,7 @@ public class InputFileCache implements BatchComponent {
     return cache.allValues();
   }
 
-  public Set<String> filePathsOfModule(String moduleKey) {
+  public Set<String> fileRelativePaths(String moduleKey) {
     return cache.keySet(moduleKey);
   }
 
@@ -66,7 +66,7 @@ public class InputFileCache implements BatchComponent {
   }
 
   public InputFileCache put(String moduleKey, InputFile file) {
-    cache.put(moduleKey, file.path(), file);
+    cache.put(moduleKey, file.relativePath(), file);
     return this;
   }
 }

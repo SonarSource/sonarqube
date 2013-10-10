@@ -35,6 +35,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -84,7 +85,7 @@ public class FileIndex implements BatchComponent {
     logger.info("Index files");
     // TODO log configuration too (replace FileSystemLogger)
 
-    IndexStatus status = new IndexStatus(cache.filePathsOfModule(fileSystem.moduleKey()));
+    IndexStatus status = new IndexStatus(cache.fileRelativePaths(fileSystem.moduleKey()));
 
     for (File sourceDir : fileSystem.sourceDirs()) {
       indexDirectory(fileSystem, status, sourceDir, InputFile.TYPE_SOURCE);
@@ -111,30 +112,33 @@ public class FileIndex implements BatchComponent {
     for (File file : files) {
       String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
       if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
-        InputFile input = newInputFile(fileSystem, sourceDir, type, file);
-        if (accept(input)) {
+        InputFile input = newInputFile(fileSystem, sourceDir, type, file, relativePath);
+        if (input != null && accept(input)) {
           cache.put(fileSystem.moduleKey(), input);
-          status.markAsIndexed(relativePath);
         }
       }
+      status.markAsIndexed(relativePath);
     }
   }
 
+  @CheckForNull
+  private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String baseRelativePath) {
+    // File extension must be kept case-sensitive
+    String extension = FilenameUtils.getExtension(file.getName());
+    String lang = languageRecognizer.ofExtension(extension);
+    if (lang == null) {
+      return null;
+    }
 
-  private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file) {
     try {
       Map<String, String> attributes = Maps.newHashMap();
+      set(attributes, InputFile.ATTRIBUTE_EXTENSION, extension);
       set(attributes, InputFile.ATTRIBUTE_TYPE, type);
+      set(attributes, InputFile.ATTRIBUTE_LANGUAGE, lang);
 
       // paths
-      String baseRelativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
       set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.normalize(sourceDir.getCanonicalPath(), true));
       set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
-
-      // File extension must be kept case-sensitive
-      String extension = FilenameUtils.getExtension(file.getName());
-      set(attributes, InputFile.ATTRIBUTE_EXTENSION, extension);
-      set(attributes, InputFile.ATTRIBUTE_LANGUAGE, languageRecognizer.ofExtension(extension));
 
       // hash + status
       initStatus(file, fileSystem.sourceCharset(), baseRelativePath, attributes);
