@@ -54,6 +54,7 @@ public final class ProjectDefaultDashboard extends DashboardTemplate {
   }
 
   private void addSecondColumn(Dashboard dashboard) {
+    dashboard.addWidget("technical_debt", 2);
     dashboard.addWidget("rules", 2);
     dashboard.addWidget("alerts", 2);
     dashboard.addWidget("file_design", 2);
