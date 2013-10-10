@@ -101,7 +101,8 @@ public final class DefaultPages {
           CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
           CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
           CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY,
-          CoreMetrics.FALSE_POSITIVE_ISSUES_KEY
+          CoreMetrics.FALSE_POSITIVE_ISSUES_KEY,
+          CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TECHNICAL_DEBT_DENSITY_KEY
       })
   @ResourceQualifier(
       value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,
