@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -72,7 +73,7 @@ public class DeprecatedFileFiltersTest {
     verify(filter).accept(eq(file), argument.capture());
 
     DeprecatedFileFilters.DeprecatedContext context = argument.getValue();
-    assertThat(context.canonicalPath()).isEqualTo(file.getAbsolutePath());
+    assertThat(context.canonicalPath()).isEqualTo(FilenameUtils.separatorsToUnix(file.getAbsolutePath()));
     assertThat(context.relativeDir()).isEqualTo(new File(basedir, "src/main/java"));
     assertThat(context.relativePath()).isEqualTo("Foo.java");
     assertThat(context.type()).isEqualTo(FileType.TEST);
