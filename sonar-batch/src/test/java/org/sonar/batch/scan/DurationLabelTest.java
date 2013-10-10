@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.junit.Test;
-import org.sonar.batch.scan.DurationLabel;
 
 import java.text.MessageFormat;
 
@@ -49,7 +48,8 @@ public class DurationLabelTest {
   @Test
   public void testAgoSeconds() {
     DurationLabel durationLabel = new DurationLabel();
-    String label = durationLabel.label(now() - System.currentTimeMillis());
+    long now = System.currentTimeMillis();
+    String label = durationLabel.label(now - System.currentTimeMillis());
     String expected = durationLabel.join(durationLabel.getSeconds(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
@@ -145,7 +145,8 @@ public class DurationLabelTest {
   }
 
   private long now() {
-    return System.currentTimeMillis();
+    // Add 5 seconds in order to have zero false positive
+    return System.currentTimeMillis() + 5000;
   }
 
 }
