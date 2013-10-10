@@ -2037,6 +2037,22 @@ public final class CoreMetrics {
     .setQualitative(true)
     .create();
 
+  /**
+   * @since 4.0
+   */
+  public static final String TECHNICAL_DEBT_DENSITY_KEY = "technical_debt_density";
+
+  /**
+   * @since 4.0
+   */
+  public static final Metric TECHNICAL_DEBT_DENSITY = new Metric.Builder(TECHNICAL_DEBT_DENSITY_KEY, "Technical Debt Density", Metric.ValueType.FLOAT)
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
+
 
   // --------------------------------------------------------------------------------------------------------------------
   //

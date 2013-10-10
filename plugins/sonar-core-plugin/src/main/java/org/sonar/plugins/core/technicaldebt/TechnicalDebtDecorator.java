@@ -35,9 +35,10 @@ import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Decorator that computes the technical debt metric
@@ -45,7 +46,7 @@ import java.util.Map;
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public final class TechnicalDebtDecorator implements Decorator {
 
-  public static final int DECIMALS_PRECISION = 5;
+  private static final int DECIMALS_PRECISION = 5;
   private TechnicalDebtCalculator costCalculator;
 
   public TechnicalDebtDecorator(TechnicalDebtCalculator costCalculator) {
@@ -58,7 +59,7 @@ public final class TechnicalDebtDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(CoreMetrics.TECHNICAL_DEBT);
+    return newArrayList(CoreMetrics.TECHNICAL_DEBT);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
