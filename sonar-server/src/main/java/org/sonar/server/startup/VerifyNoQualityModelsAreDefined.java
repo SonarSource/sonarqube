@@ -40,8 +40,8 @@ public final class VerifyNoQualityModelsAreDefined {
 
   public void start() {
     if (definitions.length > 0) {
-      throw MessageException.of("The SQALE model definition is already provided by SonarQube. " +
-        "You're probably using a old version of the SQALE plugin, please upgrade to a newer version.");
+      throw MessageException.of("The server could not start because the SQALE model definition is already provided by SonarQube. " +
+        "You're probably using an old version of the SQALE plugin, please upgrade to a version compatible with the current version of SonarQube.");
     }
   }
 }
