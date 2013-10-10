@@ -137,10 +137,22 @@ class UsersController < ApplicationController
     redirect_to(:action => 'index', :id => params[:id])
   end
 
+  def edit_modal_form
+    init_users_list
+    @user = User.find(params[:id])
+    render :partial => 'users/edit_modal_form', :status =>200
+  end
+
   def change_password
     init_users_list
     @user = User.find(params[:id])
     render :action => 'index', :id => params[:id]
+  end
+
+  def change_password_modal_form
+    init_users_list
+    @user = User.find(params[:id])
+    render :partial => 'users/change_password_modal_form', :status =>200
   end
 
   def update_password
@@ -170,6 +182,37 @@ class UsersController < ApplicationController
     end
 
     to_index(user.errors, nil)
+  end
+
+  def update_password_modal
+    user = User.find(params[:id])
+    @user = user
+    if params[:user][:password].blank?
+      @errors = 'Password required.'
+      render :partial => 'users/change_password_modal_form', :status => 400
+    elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
+      flash[:notice] = 'Password was successfully updated.'
+      render :text => 'ok', :status => 200
+    else
+      @errors = user.errors.full_messages.join("<br/>\n")
+      render :partial => 'users/change_password_modal_form', :status => 400
+    end
+  end
+
+  def update_modal
+    user = User.find(params[:id])
+    @user = user
+    @errors = []
+    if user.login!=params[:user][:login]
+      @errors  = 'Login can not be changed.'
+      render :partial => 'users/edit_modal_form', :status => 400
+    elsif user.update_attributes(params[:user])
+      flash[:notice] = 'User was successfully updated.'
+      render :text => 'ok', :status => 200
+    else
+      @errors  = user.errors.full_messages.join("<br/>\n")
+      render :partial => 'users/edit_modal_form', :status => 400
+    end
   end
 
   def reactivate

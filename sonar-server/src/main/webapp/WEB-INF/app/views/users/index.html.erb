@@ -34,7 +34,12 @@
               <td class="left" valign="top">
                 <%= link_to "Edit", { :id => user.id, :action => 'edit'}, {:id => "edit-#{u user.login}", :class => 'link-action'} %>
                 &nbsp;
+
+                <a id="edit-modal-azaz" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_modal_form/<%= user.id -%>">Edit_modal</a>
+                &nbsp;
                 <%= link_to "Change password", { :id => user.id, :action => 'change_password'}, {:id => "change-password-#{u user.login}", :class => 'link-action'} %>
+                &nbsp;
+                <%= link_to "Change password_modal", { :id => user.id, :action => 'change_password_modal_form'}, {:id => "change-password-modal-#{u user.login}", :class => 'open-modal link-action'} %>
                 &nbsp;
                 <%= link_to "Delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user?", :method => 'delete',
                                                                                :id => "delete-#{u user.login}", :class => 'link-action link-red'} %>
