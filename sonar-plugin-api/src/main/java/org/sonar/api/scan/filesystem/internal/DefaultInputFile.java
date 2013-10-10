@@ -22,10 +22,10 @@ package org.sonar.api.scan.filesystem.internal;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -40,13 +40,9 @@ public class DefaultInputFile implements InputFile {
   private final Map<String, String> attributes;
 
   private DefaultInputFile(File file, String relativePath, Map<String, String> attributes) {
-    try {
-      this.path = FilenameUtils.separatorsToUnix(file.getCanonicalPath());
-      this.relativePath = FilenameUtils.separatorsToUnix(relativePath);
+    this.path = PathUtils.canonicalPath(file);
+    this.relativePath = FilenameUtils.separatorsToUnix(relativePath);
       this.attributes = attributes;
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to get canonical path of: " + file, e);
-    }
   }
 
   /**

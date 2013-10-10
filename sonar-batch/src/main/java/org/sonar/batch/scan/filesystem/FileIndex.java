@@ -34,6 +34,7 @@ import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -140,6 +141,7 @@ public class FileIndex implements BatchComponent {
   private void indexFile(ModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
     String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
     if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
+      // Not indexed yet
       InputFile input = newInputFile(fileSystem, sourceDir, type, file, relativePath);
       if (input != null && accept(input)) {
         cache.put(fileSystem.moduleKey(), input);
@@ -157,14 +159,13 @@ public class FileIndex implements BatchComponent {
       return null;
     }
 
-    try {
       Map<String, String> attributes = Maps.newHashMap();
       set(attributes, InputFile.ATTRIBUTE_EXTENSION, extension);
       set(attributes, InputFile.ATTRIBUTE_TYPE, type);
       set(attributes, InputFile.ATTRIBUTE_LANGUAGE, lang);
 
       // paths
-      set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.normalize(sourceDir.getCanonicalPath(), true));
+      set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(file));
       set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
 
       // hash + status
@@ -172,9 +173,7 @@ public class FileIndex implements BatchComponent {
 
       return DefaultInputFile.create(file, baseRelativePath, attributes);
 
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to read file: " + file.getAbsolutePath(), e);
-    }
+
   }
 
   private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {
