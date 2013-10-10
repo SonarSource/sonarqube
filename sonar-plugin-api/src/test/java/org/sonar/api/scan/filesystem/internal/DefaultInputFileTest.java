@@ -73,7 +73,7 @@ public class DefaultInputFileTest {
     assertThat(input.file()).isEqualTo(file);
     assertThat(input.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(FilenameUtils.separatorsToUnix(sourceDir.getAbsolutePath()));
     assertThat(input.relativePath()).isEqualTo("src/main/java/Foo.java");
-    assertThat(input.path()).isEqualTo(file.getCanonicalPath());
+    assertThat(input.path()).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
   }
 
   @Test
