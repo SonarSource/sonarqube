@@ -66,7 +66,7 @@ public class InputFileCache implements BatchComponent {
   }
 
   public InputFileCache put(String moduleKey, InputFile file) {
-    cache.put(moduleKey, file.relativePath(), file);
+    cache.put(moduleKey, file.path(), file);
     return this;
   }
 }

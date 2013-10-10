@@ -21,7 +21,6 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -52,15 +51,15 @@ public class FileIndex implements BatchComponent {
 
   private static class Progress {
     private int count = 0;
-    private final Set<String> removedRelativePaths;
+    private final Set<String> removedPaths;
 
-    Progress(Set<String> removedRelativePaths) {
-      this.removedRelativePaths = removedRelativePaths;
+    Progress(Set<String> removedPaths) {
+      this.removedPaths = removedPaths;
     }
 
     void markAsIndexed(String relativePath) {
       count++;
-      removedRelativePaths.remove(relativePath);
+      removedPaths.remove(relativePath);
     }
   }
 
@@ -109,8 +108,8 @@ public class FileIndex implements BatchComponent {
     }
 
     // Remove files that have been removed since previous indexation
-    for (String relativePath : progress.removedRelativePaths) {
-      cache.remove(fileSystem.moduleKey(), relativePath);
+    for (String path : progress.removedPaths) {
+      cache.remove(fileSystem.moduleKey(), path);
     }
 
     logger.info(String.format("%d files indexed", progress.count));
@@ -139,41 +138,37 @@ public class FileIndex implements BatchComponent {
   }
 
   private void indexFile(ModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
-    String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
-    if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
+    String path = pathResolver.relativePath(fileSystem.baseDir(), file);
+    if (!cache.containsFile(fileSystem.moduleKey(), path)) {
       // Not indexed yet
-      InputFile input = newInputFile(fileSystem, sourceDir, type, file, relativePath);
+      InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
       if (input != null && accept(input)) {
         cache.put(fileSystem.moduleKey(), input);
       }
     }
-    status.markAsIndexed(relativePath);
+    status.markAsIndexed(path);
   }
 
   @CheckForNull
-  private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String baseRelativePath) {
+  private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String path) {
     // File extension must be kept case-sensitive
-    String extension = FilenameUtils.getExtension(file.getName());
-    String lang = languageRecognizer.ofExtension(extension);
+    String lang = languageRecognizer.of(file);
     if (lang == null) {
       return null;
     }
 
-      Map<String, String> attributes = Maps.newHashMap();
-      set(attributes, InputFile.ATTRIBUTE_EXTENSION, extension);
-      set(attributes, InputFile.ATTRIBUTE_TYPE, type);
-      set(attributes, InputFile.ATTRIBUTE_LANGUAGE, lang);
+    Map<String, String> attributes = Maps.newHashMap();
+    set(attributes, InputFile.ATTRIBUTE_TYPE, type);
+    set(attributes, InputFile.ATTRIBUTE_LANGUAGE, lang);
 
-      // paths
-      set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(file));
-      set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
+    // paths
+    set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(sourceDir));
+    set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
 
-      // hash + status
-      initStatus(file, fileSystem.sourceCharset(), baseRelativePath, attributes);
+    // hash + status
+    initStatus(file, fileSystem.sourceCharset(), path, attributes);
 
-      return DefaultInputFile.create(file, baseRelativePath, attributes);
-
-
+    return DefaultInputFile.create(file, path, attributes);
   }
 
   private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {

@@ -87,12 +87,14 @@ public interface ModuleFileSystem extends BatchComponent {
   Iterable<InputFile> inputFiles(FileQuery query);
 
   /**
-   * Charset of source and test files. If it's not defined, then return the platform default charset.
+   * Charset of source and test files. If it's not defined, then
+   * return the platform default charset.
    */
   Charset sourceCharset();
 
   /**
-   * Working directory used by Sonar. This directory can be used for example to store intermediary reports.
+   * Working directory used by Sonar. This directory can be used for example to
+   * store intermediary reports.
    */
   File workingDir();
 }

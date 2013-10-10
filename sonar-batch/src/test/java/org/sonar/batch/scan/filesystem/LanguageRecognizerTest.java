@@ -19,7 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
 
@@ -27,6 +29,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class LanguageRecognizerTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void test_sanitizeExtension() throws Exception {
@@ -42,12 +47,11 @@ public class LanguageRecognizerTest {
     LanguageRecognizer recognizer = new LanguageRecognizer(languages);
 
     recognizer.start();
-    assertThat(recognizer.ofExtension("java")).isEqualTo(Java.KEY);
-    assertThat(recognizer.ofExtension("cbl")).isEqualTo("cobol");
-    assertThat(recognizer.ofExtension("CBL")).isEqualTo("cobol");
-    assertThat(recognizer.ofExtension("php")).isNull();
-    assertThat(recognizer.ofExtension("")).isNull();
-    assertThat(recognizer.ofExtension(null)).isNull();
+    assertThat(recognizer.of(temp.newFile("Foo.java"))).isEqualTo(Java.KEY);
+    assertThat(recognizer.of(temp.newFile("abc.cbl"))).isEqualTo("cobol");
+    assertThat(recognizer.of(temp.newFile("abc.CBL"))).isEqualTo("cobol");
+    assertThat(recognizer.of(temp.newFile("abc.php"))).isNull();
+    assertThat(recognizer.of(temp.newFile("abc"))).isNull();
     recognizer.stop();
   }
 

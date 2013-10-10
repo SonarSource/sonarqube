@@ -58,10 +58,6 @@ public class InputFileBuilder {
     return attribute(InputFile.ATTRIBUTE_TYPE, type);
   }
 
-  public InputFileBuilder extension(@Nullable String extension) {
-    return attribute(InputFile.ATTRIBUTE_EXTENSION, extension);
-  }
-
   public InputFileBuilder language(@Nullable String language) {
     return attribute(InputFile.ATTRIBUTE_LANGUAGE, language);
   }

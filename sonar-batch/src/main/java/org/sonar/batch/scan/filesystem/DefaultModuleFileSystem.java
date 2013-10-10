@@ -141,7 +141,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
     List<InputFile> result = Lists.newArrayList();
-
     FileQueryFilter filter = new FileQueryFilter(settings, query);
     for (InputFile input : index.inputFiles(moduleKey)) {
       if (filter.accept(input)) {

@@ -42,7 +42,7 @@ public class FileQuery {
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
     for (FileType type : types) {
-      query.on(InputFile.ATTRIBUTE_TYPE, type.name().toLowerCase());
+      query.on(InputFile.ATTRIBUTE_TYPE, type.name());
     }
     return query;
   }

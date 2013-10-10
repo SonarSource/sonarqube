@@ -29,20 +29,20 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * PLUGINS MUST NOT USE THIS CLASS.
+ * PLUGINS MUST NOT USE THIS CLASS, EVEN FOR UNIT TESTING.
  *
  * @since 4.0
  */
 public class DefaultInputFile implements InputFile {
 
+  private final String absolutePath;
   private final String path;
-  private final String relativePath;
   private final Map<String, String> attributes;
 
-  private DefaultInputFile(File file, String relativePath, Map<String, String> attributes) {
-    this.path = PathUtils.canonicalPath(file);
-    this.relativePath = FilenameUtils.separatorsToUnix(relativePath);
-      this.attributes = attributes;
+  private DefaultInputFile(File file, String path, Map<String, String> attributes) {
+    this.absolutePath = PathUtils.canonicalPath(file);
+    this.path = FilenameUtils.separatorsToUnix(path);
+    this.attributes = attributes;
   }
 
   /**
@@ -51,13 +51,8 @@ public class DefaultInputFile implements InputFile {
    * <p/>
    * Usage: <code>InputFile.create(file, "src/main/java/com/Foo.java", attributes)</code>
    */
-  public static DefaultInputFile create(File file, String relativePath, Map<String, String> attributes) {
-    return new DefaultInputFile(file, relativePath, attributes);
-  }
-
-  @Override
-  public String relativePath() {
-    return relativePath;
+  public static DefaultInputFile create(File file, String path, Map<String, String> attributes) {
+    return new DefaultInputFile(file, path, attributes);
   }
 
   @Override
@@ -66,13 +61,23 @@ public class DefaultInputFile implements InputFile {
   }
 
   @Override
+  public String absolutePath() {
+    return absolutePath;
+  }
+
+  @Override
   public File file() {
-    return new File(path);
+    return new File(absolutePath);
   }
 
   @Override
   public String name() {
     return file().getName();
+  }
+
+  @Override
+  public String type() {
+    return attribute(ATTRIBUTE_TYPE);
   }
 
   @Override
@@ -100,11 +105,16 @@ public class DefaultInputFile implements InputFile {
       return false;
     }
     DefaultInputFile other = (DefaultInputFile) o;
-    return path.equals(other.path);
+    return absolutePath.equals(other.absolutePath);
   }
 
   @Override
   public int hashCode() {
-    return path.hashCode();
+    return absolutePath.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("[%s,%s]", path, type());
   }
 }

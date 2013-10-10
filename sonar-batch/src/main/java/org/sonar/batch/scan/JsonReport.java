@@ -160,6 +160,8 @@ public class JsonReport implements BatchComponent {
       json
           .beginObject()
           .name("key").value(componentKey)
+        // module
+        // path
           .endObject();
     }
     json.endArray();

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.utils.PathUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,17 +42,15 @@ public class DefaultInputFileTest {
     InputFile input = new InputFileBuilder(file, "src/main/java/Foo.java")
       .attribute("foo", "bar")
       .type(InputFile.TYPE_TEST)
-      .extension("jav")
       .hash("ABC")
       .status(InputFile.STATUS_ADDED)
       .language("java")
       .build();
 
-    assertThat(input.attributes()).hasSize(6);
+    assertThat(input.attributes()).hasSize(5);
     assertThat(input.attribute("unknown")).isNull();
     assertThat(input.attribute("foo")).isEqualTo("bar");
     assertThat(input.attribute(InputFile.ATTRIBUTE_TYPE)).isEqualTo(InputFile.TYPE_TEST);
-    assertThat(input.attribute(InputFile.ATTRIBUTE_EXTENSION)).isEqualTo("jav");
     assertThat(input.attribute(InputFile.ATTRIBUTE_HASH)).isEqualTo("ABC");
     assertThat(input.attribute(InputFile.ATTRIBUTE_LANGUAGE)).isEqualTo("java");
     assertThat(input.attribute(InputFile.ATTRIBUTE_STATUS)).isEqualTo(InputFile.STATUS_ADDED);
@@ -72,8 +71,8 @@ public class DefaultInputFileTest {
     assertThat(input.name()).isEqualTo("Foo.java");
     assertThat(input.file()).isEqualTo(file);
     assertThat(input.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(FilenameUtils.separatorsToUnix(sourceDir.getAbsolutePath()));
-    assertThat(input.relativePath()).isEqualTo("src/main/java/Foo.java");
-    assertThat(input.path()).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
+    assertThat(input.path()).isEqualTo("src/main/java/Foo.java");
+    assertThat(input.absolutePath()).isEqualTo(PathUtils.canonicalPath(file));
   }
 
   @Test
@@ -88,6 +87,12 @@ public class DefaultInputFileTest {
     assertThat(input1.equals(input2)).isFalse();
     assertThat(input1.hashCode()).isEqualTo(input1.hashCode());
     assertThat(input1.hashCode()).isEqualTo(input1a.hashCode());
+  }
 
+  @Test
+  public void test_toString() throws Exception {
+    File file1 = temp.newFile();
+    InputFile input = new InputFileBuilder(file1, "src/main/java/Foo.java").type(InputFile.TYPE_TEST).build();
+    assertThat(input.toString()).isEqualTo("[src/main/java/Foo.java,TEST]");
   }
 }

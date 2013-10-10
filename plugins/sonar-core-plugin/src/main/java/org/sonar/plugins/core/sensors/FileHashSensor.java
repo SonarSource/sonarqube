@@ -60,7 +60,7 @@ public final class FileHashSensor implements Sensor {
     for (InputFile inputFile : fileCache.byModule(project.key())) {
       String hash = inputFile.attribute(InputFile.ATTRIBUTE_HASH);
       if (hash != null) {
-        map.put(inputFile.relativePath(), hash);
+        map.put(inputFile.path(), hash);
       }
     }
     if (!map.isEmpty()) {

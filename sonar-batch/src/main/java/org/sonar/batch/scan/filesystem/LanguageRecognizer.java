@@ -20,12 +20,14 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Language;
 
 import javax.annotation.CheckForNull;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -68,9 +70,10 @@ public class LanguageRecognizer implements BatchComponent, Startable {
 
   // TODO what about cobol files without extension ?
   @CheckForNull
-  String ofExtension(String fileExtension) {
-    if (StringUtils.isNotBlank(fileExtension)) {
-      return byExtensions.get(StringUtils.lowerCase(fileExtension));
+  String of(File file) {
+    String extension = FilenameUtils.getExtension(file.getName());
+    if (StringUtils.isNotBlank(extension)) {
+      return byExtensions.get(StringUtils.lowerCase(extension));
     }
     return null;
   }

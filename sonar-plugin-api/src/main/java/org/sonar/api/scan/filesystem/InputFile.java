@@ -46,57 +46,48 @@ public interface InputFile extends Serializable {
   /**
    *
    */
-  String ATTRIBUTE_TYPE = "type";
-  String TYPE_SOURCE = "source";
-  String TYPE_TEST = "test";
+  String ATTRIBUTE_TYPE = "TYPE";
+  String TYPE_SOURCE = "SOURCE";
+  String TYPE_TEST = "TEST";
 
-  String ATTRIBUTE_STATUS = "status";
-  String STATUS_SAME = "same";
-  String STATUS_CHANGED = "changed";
-  String STATUS_ADDED = "added";
+  String ATTRIBUTE_STATUS = "STATUS";
+  String STATUS_SAME = "SAME";
+  String STATUS_CHANGED = "CHANGED";
+  String STATUS_ADDED = "ADDED";
 
-  String ATTRIBUTE_HASH = "hash";
-  String ATTRIBUTE_EXTENSION = "extension";
+  String ATTRIBUTE_HASH = "HASH";
 
-
-  /**
-   * Path from module base directory. Path is unique and identifies file within given
-   * <code>{@link org.sonar.api.scan.filesystem.ModuleFileSystem}</code>. File separator is the forward slash ('/'),
-   * even on MSWindows.
-   * <p/>
-   * If:
-   * <ul>
-   * <li>Module base dir is <code>/absolute/path/to/module</code></li>
-   * <li>File is <code>/absolute/path/to/module/src/main/java/com/Foo.java</code></li>
-   * </ul>
-   * then the path is <code>src/main/java/com/Foo.java</code>
-   * <p/>
-   * On MSWindows, if:
-   * <ul>
-   * <li>Module base dir is <code>C:\absolute\path\to\module</code></li>
-   * <li>File is <code>C:\absolute\path\to\module\src\main\java\com\Foo.java</code></li>
-   * </ul>
-   * then the path is <code>src/main/java/com/Foo.java</code>.
-   * <p/>
-   * Returned relative path is never null.
-   */
-  String relativePath();
 
   /**
-   * Canonical path.
+   * Path is relative from module base directory. Path is unique and identifies file
+   * within given <code>{@link org.sonar.api.scan.filesystem.ModuleFileSystem}</code>.
+   * File separator is the forward slash ('/'), even on MSWindows.
+   * <p/>
+   * Returns <code>src/main/java/com/Foo.java</code> if module base dir is
+   * <code>/absolute/path/to/module</code> and if file is
+   * <code>/absolute/path/to/module/src/main/java/com/Foo.java</code>.
+   * <p/>
+   * Returned path is never null.
    */
   String path();
 
   /**
-   * Not-null related {@link java.io.File}
+   * Not-null canonical path. File separator is forward slash ('/'), even on MSWindows.
    */
+  String absolutePath();
+
   File file();
 
   /**
    * Not-null filename, including extension
    */
-
   String name();
+
+  /**
+   * Not-null type (is it a source file or a unit test file?).
+   * See constant values prefixed by <code>TYPE_</code>, for example {@link #TYPE_SOURCE}.
+   */
+  String type();
 
   /**
    * Does the given attribute have the given value ?

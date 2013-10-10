@@ -61,7 +61,7 @@ abstract class PathPattern {
 
     @Override
     boolean match(InputFile inputFile) {
-      return pattern.match(inputFile.path());
+      return pattern.match(inputFile.absolutePath());
     }
 
     @Override

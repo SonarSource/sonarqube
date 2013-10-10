@@ -78,7 +78,7 @@ public class DeprecatedFileFilters implements InputFileFilter {
 
     @Override
     public String canonicalPath() {
-      return inputFile.path();
+      return inputFile.absolutePath();
     }
   }
 }

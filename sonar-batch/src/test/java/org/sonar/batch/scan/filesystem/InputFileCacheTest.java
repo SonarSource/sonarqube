@@ -58,7 +58,7 @@ public class InputFileCacheTest {
     assertThat(cache.byModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(2);
     for (InputFile inputFile : cache.all()) {
-      assertThat(inputFile.relativePath()).startsWith("src/main/java");
+      assertThat(inputFile.path()).startsWith("src/main/java");
     }
     assertThat(cache.fileRelativePaths("struts-core")).containsOnly("src/main/java/Foo.java");
 
