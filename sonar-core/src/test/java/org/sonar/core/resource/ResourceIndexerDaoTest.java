@@ -19,18 +19,10 @@
  */
 package org.sonar.core.resource;
 
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
 
 public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
@@ -75,37 +67,6 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
     dao.indexProject(1);
 
     checkTables("shouldReindexProjectAfterRenaming", new String[] {"id"}, "resource_index");
-  }
-
-  @Test
-  public void shouldNotIndexPackages() throws SQLException {
-    setupData("shouldNotIndexPackages");
-
-    dao.indexProject(1);
-
-    Connection connection = getConnection();
-    ResultSet rs = null;
-    try {
-      // project
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=1");
-      rs.next();
-      assertThat(rs.getInt(1), greaterThan(0));
-
-      // directory
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=2");
-      rs.next();
-      assertThat(rs.getInt(1), Is.is(0));
-
-      // file
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=3");
-      rs.next();
-      assertThat(rs.getInt(1), greaterThan(0));
-    } finally {
-      if (null != rs) {
-        rs.close();
-      }
-      connection.close();
-    }
   }
 
   @Test

@@ -23,6 +23,16 @@
   <snapshots purge_status="[null]" id="2" islast="[true]" root_project_id="1" project_id="2" scope="DIR" qualifier="PAC"/>
   <snapshots purge_status="[null]" id="3" islast="[true]" root_project_id="1" project_id="3" scope="CLA" qualifier="CLA"/>
 
+  <!-- org.struts -->
+  <resource_index kee="org.struts" position="0" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="rg.struts" position="1" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="g.struts" position="2" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee=".struts" position="3" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="struts" position="4" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="truts" position="5" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="ruts" position="6" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+  <resource_index kee="uts" position="7" name_size="10" resource_id="2" root_project_id="1" qualifier="PAC"/>
+
   <!-- RequestContext -->
   <resource_index kee="requestcontext" position="0" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
   <resource_index kee="equestcontext" position="1" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>

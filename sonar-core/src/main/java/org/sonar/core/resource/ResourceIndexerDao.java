@@ -34,11 +34,10 @@ public class ResourceIndexerDao {
   public static final int SINGLE_INDEX_SIZE = 2;
 
   // The scopes and qualifiers that are not in the following constants are not indexed at all.
-  // Directories and packages are explicitly excluded.
   private static final String[] RENAMABLE_QUALIFIERS = {Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW};
   private static final String[] RENAMABLE_SCOPES = {Scopes.PROJECT};
-  private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS};
-  private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE};
+  private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS, Qualifiers.DIRECTORY, Qualifiers.PACKAGE};
+  private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE, Scopes.DIRECTORY};
 
   private final MyBatis mybatis;
 
