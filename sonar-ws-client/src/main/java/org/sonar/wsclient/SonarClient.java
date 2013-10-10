@@ -26,6 +26,8 @@ import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.permissions.PermissionClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
+import org.sonar.wsclient.project.ProjectClient;
+import org.sonar.wsclient.project.internal.DefaultProjectClient;
 import org.sonar.wsclient.user.UserClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
@@ -90,6 +92,13 @@ public class SonarClient {
    */
   public PermissionClient permissionClient() {
     return new DefaultPermissionClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to projects
+   */
+  public ProjectClient projectClient() {
+    return new DefaultProjectClient(requestFactory);
   }
 
   /**
