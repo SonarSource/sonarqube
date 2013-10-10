@@ -96,8 +96,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
   }
 
   public ProjectFileSystem addSourceDir(File dir) {
-    target.addSourceDir(dir);
-    return this;
+    throw new UnsupportedOperationException("Unsupported since 4.0");
   }
 
   public List<File> getTestDirs() {
@@ -105,8 +104,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
   }
 
   public ProjectFileSystem addTestDir(File dir) {
-    target.addTestDir(dir);
-    return this;
+    throw new UnsupportedOperationException("Unsupported since 4.0");
   }
 
   public File getReportOutputDir() {

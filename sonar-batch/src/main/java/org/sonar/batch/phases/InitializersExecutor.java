@@ -71,6 +71,10 @@ public class InitializersExecutor {
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, false));
     }
 
+    if (!initializers.isEmpty()) {
+      fs.index();
+    }
+
     eventBus.fireEvent(new InitializersPhaseEvent(Lists.newArrayList(initializers), false));
   }
 

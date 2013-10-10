@@ -24,6 +24,8 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
+import java.util.Set;
+
 /**
  * Cache of all files. This cache is shared amongst all project modules. Inclusion and
  * exclusion patterns are already applied.
@@ -46,8 +48,21 @@ public class InputFileCache implements BatchComponent {
     return this;
   }
 
+  public InputFileCache remove(String moduleKey, String relativePath) {
+    cache.remove(moduleKey, relativePath);
+    return this;
+  }
+
   public Iterable<InputFile> all() {
     return cache.allValues();
+  }
+
+  public Set<String> filePathsOfModule(String moduleKey) {
+    return cache.keySet(moduleKey);
+  }
+
+  public boolean containsFile(String moduleKey, String relativePath) {
+    return cache.containsKey(moduleKey, relativePath);
   }
 
   public InputFileCache put(String moduleKey, InputFile file) {

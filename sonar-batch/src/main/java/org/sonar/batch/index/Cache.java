@@ -80,10 +80,10 @@ public class Cache<K, V extends Serializable> {
       }
       return (V) exchange.getValue().get();
     } catch (Exception e) {
+      // TODO add parameters to message
       throw new IllegalStateException("Fail to get element from cache " + name, e);
     }
   }
-
 
   /**
    * Returns the object associated with key from the cache, or null if not found.
@@ -96,12 +96,25 @@ public class Cache<K, V extends Serializable> {
     return get(DEFAULT_GROUP, key);
   }
 
+  public boolean containsKey(String group, K key) {
+    try {
+      exchange.clear();
+      exchange.append(group).append(key);
+      exchange.fetch();
+      return exchange.isValueDefined();
+    } catch (Exception e) {
+      // TODO add parameters to message
+      throw new IllegalStateException("Fail to check if element is in cache " + name, e);
+    }
+  }
+
   public boolean remove(String group, K key) {
     try {
       exchange.clear();
       exchange.append(group).append(key);
       return exchange.remove();
     } catch (Exception e) {
+      // TODO add parameters to message
       throw new IllegalStateException("Fail to get element from cache " + name, e);
     }
   }

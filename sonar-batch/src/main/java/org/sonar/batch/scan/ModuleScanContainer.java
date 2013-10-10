@@ -96,11 +96,12 @@ public class ModuleScanContainer extends ComponentContainer {
       DeprecatedFileFilters.class,
       FileHashes.class,
       RemoteFileHashes.class,
-      FileIndexer.class,
+      FileIndex.class,
       LanguageRecognizer.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,
-      new ModuleFileSystemProvider(),
+      DefaultModuleFileSystem.class,
+      ModuleFileSystemInitializer.class,
       ProjectFileSystemAdapter.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)

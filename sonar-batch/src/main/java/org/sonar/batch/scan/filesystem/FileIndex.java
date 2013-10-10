@@ -41,11 +41,26 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Index input files into {@link InputFileCache}.
  */
-public class FileIndexer implements BatchComponent {
+public class FileIndex implements BatchComponent {
+
+  private static class IndexStatus {
+    private int count = 0;
+    private final Set<String> orphans;
+
+    IndexStatus(Set<String> orphans) {
+      this.orphans = orphans;
+    }
+
+    void markAsIndexed(String relativePath) {
+      count++;
+      orphans.remove(relativePath);
+    }
+  }
 
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
@@ -56,60 +71,72 @@ public class FileIndexer implements BatchComponent {
   private final InputFileCache cache;
   private final FileHashes fileHashes;
 
-  public FileIndexer(List<InputFileFilter> filters, LanguageRecognizer languageRecognizer,
-                     InputFileCache cache, FileHashes fileHashes) {
+  public FileIndex(List<InputFileFilter> filters, LanguageRecognizer languageRecognizer,
+                   InputFileCache cache, FileHashes fileHashes) {
     this.filters = filters;
     this.languageRecognizer = languageRecognizer;
     this.cache = cache;
     this.fileHashes = fileHashes;
   }
 
-  public void index(DefaultModuleFileSystem fileSystem) {
-    Logger logger = LoggerFactory.getLogger(FileIndexer.class);
+  void index(DefaultModuleFileSystem fileSystem) {
+    Logger logger = LoggerFactory.getLogger(FileIndex.class);
     logger.info("Index files");
     // TODO log configuration too (replace FileSystemLogger)
 
-    cache.removeModule(fileSystem.moduleKey());
-    int count = 0;
+    IndexStatus status = new IndexStatus(cache.filePathsOfModule(fileSystem.moduleKey()));
+
     for (File sourceDir : fileSystem.sourceDirs()) {
-      count += indexDirectory(fileSystem, sourceDir, InputFile.TYPE_SOURCE);
+      indexDirectory(fileSystem, status, sourceDir, InputFile.TYPE_SOURCE);
     }
     for (File testDir : fileSystem.testDirs()) {
-      count += indexDirectory(fileSystem, testDir, InputFile.TYPE_TEST);
+      indexDirectory(fileSystem, status, testDir, InputFile.TYPE_TEST);
     }
 
     // TODO index additional sources and test files
 
-    logger.info(String.format("%d files indexed", count));
+    for (String relativePath : status.orphans) {
+      cache.remove(fileSystem.moduleKey(), relativePath);
+    }
+
+    logger.info(String.format("%d files indexed", status.count));
   }
 
-  private int indexDirectory(ModuleFileSystem fileSystem, File sourceDir, String type) {
-    int count = 0;
+  Iterable<InputFile> inputFiles(String moduleKey) {
+    return cache.byModule(moduleKey);
+  }
+
+  private void indexDirectory(ModuleFileSystem fileSystem, IndexStatus status, File sourceDir, String type) {
     Collection<File> files = FileUtils.listFiles(sourceDir, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
-      InputFile input = newInputFile(fileSystem, sourceDir, type, file);
-      if (accept(input)) {
-        cache.put(fileSystem.moduleKey(), input);
-        count++;
+      String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
+      if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
+        InputFile input = newInputFile(fileSystem, sourceDir, type, file);
+        if (accept(input)) {
+          cache.put(fileSystem.moduleKey(), input);
+          status.markAsIndexed(relativePath);
+        }
       }
     }
-    return count;
   }
+
 
   private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file) {
     try {
       Map<String, String> attributes = Maps.newHashMap();
+      set(attributes, InputFile.ATTRIBUTE_TYPE, type);
 
       // paths
       String baseRelativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
       set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.normalize(sourceDir.getCanonicalPath(), true));
       set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
 
-      // other metadata
-      set(attributes, InputFile.ATTRIBUTE_TYPE, type);
+      // File extension must be kept case-sensitive
       String extension = FilenameUtils.getExtension(file.getName());
       set(attributes, InputFile.ATTRIBUTE_EXTENSION, extension);
       set(attributes, InputFile.ATTRIBUTE_LANGUAGE, languageRecognizer.ofExtension(extension));
+
+      // hash + status
       initStatus(file, fileSystem.sourceCharset(), baseRelativePath, attributes);
 
       return DefaultInputFile.create(file, baseRelativePath, attributes);

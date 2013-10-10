@@ -19,11 +19,14 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
@@ -40,11 +43,10 @@ import java.util.List;
  *
  * @since 3.5
  */
-public class DefaultModuleFileSystem implements ModuleFileSystem {
+public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
 
   private final String moduleKey;
-  private final InputFileCache cache;
-  private final FileIndexer indexer;
+  private final FileIndex index;
   private final Settings settings;
 
   private File baseDir, workingDir, buildDir;
@@ -54,11 +56,23 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private List<File> additionalSourceFiles = Lists.newArrayList();
   private List<File> additionalTestFiles = Lists.newArrayList();
 
-  public DefaultModuleFileSystem(String moduleKey, Settings settings, InputFileCache cache, FileIndexer indexer) {
+  public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer) {
+    this(module.getKey(), settings, index, initializer);
+  }
+
+  @VisibleForTesting
+  DefaultModuleFileSystem(String moduleKey, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer) {
     this.moduleKey = moduleKey;
     this.settings = settings;
-    this.cache = cache;
-    this.indexer = indexer;
+    this.index = index;
+    this.baseDir = initializer.baseDir();
+    this.workingDir = initializer.workingDir();
+    this.buildDir = initializer.buildDir();
+    this.sourceDirs = initializer.sourceDirs();
+    this.testDirs = initializer.testDirs();
+    this.binaryDirs = initializer.binaryDirs();
+    this.additionalSourceFiles = initializer.additionalSourceFiles();
+    this.additionalTestFiles = initializer.additionalTestFiles();
   }
 
   @Override
@@ -93,6 +107,19 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   @Override
+  public File workingDir() {
+    return workingDir;
+  }
+
+  List<File> additionalSourceFiles() {
+    return additionalSourceFiles;
+  }
+
+  List<File> additionalTestFiles() {
+    return additionalTestFiles;
+  }
+
+  @Override
   public Charset sourceCharset() {
     final Charset charset;
     String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
@@ -108,51 +135,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
-  @Override
-  public File workingDir() {
-    return workingDir;
-  }
-
-  List<File> additionalSourceFiles() {
-    return additionalSourceFiles;
-  }
-
-  List<File> additionalTestFiles() {
-    return additionalTestFiles;
-  }
-
-  void setBaseDir(File baseDir) {
-    this.baseDir = baseDir;
-  }
-
-  void setWorkingDir(File workingDir) {
-    this.workingDir = workingDir;
-  }
-
-  void setBuildDir(File buildDir) {
-    this.buildDir = buildDir;
-  }
-
-  void addSourceDir(File d) {
-    this.sourceDirs.add(d);
-  }
-
-  void addTestDir(File d) {
-    this.testDirs.add(d);
-  }
-
-  void addBinaryDir(File d) {
-    this.binaryDirs.add(d);
-  }
-
-  void setAdditionalSourceFiles(List<File> files) {
-    this.additionalSourceFiles = files;
-  }
-
-  void setAdditionalTestFiles(List<File> files) {
-    this.additionalTestFiles = files;
-  }
-
   /**
    * @since 4.0
    */
@@ -161,7 +143,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     List<InputFile> result = Lists.newArrayList();
 
     FileQueryFilter filter = new FileQueryFilter(settings, query);
-    for (InputFile input : cache.byModule(moduleKey)) {
+    for (InputFile input : index.inputFiles(moduleKey)) {
       if (filter.accept(input)) {
         result.add(input);
       }
@@ -170,9 +152,18 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   @Override
-  // TODO deprecate
   public List<File> files(FileQuery query) {
     return InputFiles.toFiles(inputFiles(query));
+  }
+
+  @Override
+  public void start() {
+    index();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
@@ -182,11 +173,11 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     this.sourceDirs = existingDirs(sourceDirs);
     this.testDirs = existingDirs(testDirs);
     this.binaryDirs = existingDirs(binaryDirs);
-    indexer.index(this);
+    index();
   }
 
-  void index() {
-    indexer.index(this);
+  public void index() {
+    index.index(this);
   }
 
   private List<File> existingDirs(List<File> dirs) {

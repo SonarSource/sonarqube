@@ -78,6 +78,7 @@ public interface ModuleFileSystem extends BatchComponent {
   /**
    * Search for files. Never return null.
    */
+  // TODO deprecate
   List<File> files(FileQuery query);
 
   /**

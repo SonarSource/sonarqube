@@ -71,11 +71,13 @@ public class CacheTest {
     cache.put(group, "ncloc", 123f);
     assertThat(cache.get(group, "ncloc")).isEqualTo(123f);
     assertThat(cache.keySet(group)).containsOnly("ncloc");
+    assertThat(cache.containsKey(group, "ncloc")).isTrue();
     assertThat(cache.get("ncloc")).isNull();
     assertThat(cache.get(group)).isNull();
     cache.remove(group, "ncloc");
     assertThat(cache.get(group, "ncloc")).isNull();
     assertThat(cache.keySet(group)).isEmpty();
+    assertThat(cache.containsKey(group, "ncloc")).isFalse();
   }
 
   @Test
