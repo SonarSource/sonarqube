@@ -1,6 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   map.connect 'users/select_group', :controller => 'users', :action => 'select_group'
   map.connect 'users/set_groups', :controller => 'users', :action => 'set_groups'
+  map.connect 'users/create_modal_form', :controller => 'users', :action => 'create_modal_form'
   map.resources :users
 
   map.namespace :api do |api|

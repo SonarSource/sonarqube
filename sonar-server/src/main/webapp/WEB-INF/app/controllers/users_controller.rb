@@ -51,6 +51,41 @@ class UsersController < ApplicationController
 
   end
 
+  def create_modal
+    return unless request.post?
+    cookies.delete :auth_token
+    @errors = []
+    user = User.find_by_login(params[:user][:login])
+    if user && !user.active
+      if user.update_attributes(params[:user])
+        # case user: exist,inactive,no errors when update BUT TO REACTIVATE
+        @user = user
+        user.errors.full_messages.each{|msg| @errors<<msg}
+        render :partial => 'users/reactivate_modal_form', :status => 400
+      else
+        # case user: exist,inactive, WITH ERRORS when update
+        @user = user
+        @user.id = nil
+        user.errors.full_messages.each{|msg| @errors<<msg}
+        render :partial => 'users/create_modal_form', :status => 400
+      end
+    else
+        user=prepare_user
+        if user.save
+          # case user: don't exist, no errors when create
+          user.notify_creation_handlers
+          flash[:notice] = 'User is created.'
+          render :text => 'ok', :status => 200
+        else
+          # case user: don't exist, WITH ERRORS when create
+          # case user: exist and ACTIVE, whith or without errors when create
+          @user = user
+          user.errors.full_messages.each{|msg| @errors<<msg}
+          render :partial => 'users/create_modal_form', :status => 400
+        end
+    end
+  end
+
   def signup
     access_denied unless request.post? && Property.value('sonar.allowUsersToSignUp')=='true'
 
@@ -72,6 +107,26 @@ class UsersController < ApplicationController
     else
       @user = User.new
     end
+  end
+
+  def create_modal_form
+    init_users_list
+    if params[:id]
+      @user = User.find(params[:id])
+    else
+      @user = User.new
+    end
+    render :partial => 'users/create_modal_form'
+  end
+
+  def reactivate_modal_form
+    init_users_list
+    if params[:id]
+      @user = User.find(params[:id])
+    else
+      @user = User.new
+    end
+    render :partial => 'users/reactivate_modal_form'
   end
 
   def new
@@ -127,6 +182,19 @@ class UsersController < ApplicationController
       flash[:error] = "A user with login #{params[:user][:login]} does not exist."
     end
     to_index(user.errors, nil)
+  end
+
+  def reactivate_modal
+    user = User.find_by_login(params[:user][:login])
+    if user
+      user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
+      user.notify_creation_handlers
+      flash[:notice] = 'User was successfully reactivated.'
+      render :text => 'ok', :status => 200
+    else
+      flash[:error] = "A user with login #{params[:user][:login]} does not exist."
+      render :text => 'login unknown', :status => 200
+    end
   end
 
   def destroy

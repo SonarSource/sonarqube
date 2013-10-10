@@ -1,0 +1,28 @@
+<% action_name = 'reactivate_modal'
+   title = 'Reactivate user?'
+   submit_button_label = 'Reactivate user'
+%>
+<% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :id =>'user_modal_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+  <fieldset>
+    <div class="modal-head">
+        <h2><%= title %></h2>
+    </div>
+    <div class="modal-body">
+      <%= f.hidden_field :login %>
+
+              <p class="error">
+                  A user with login "<%= @user.login -%>" already exists in the database but is deactivated.<br/>
+                  <br/>
+                  Do you really want to reactivate this user?
+              </p>
+    </div>
+    <div class="modal-foot">
+           <%= submit_tag submit_button_label %>
+           <%= link_to 'Cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
+    </div>
+  </fieldset>
+
+  <script>
+    $j("#user_modal_form").modalForm();
+  </script>
+<% end %>
