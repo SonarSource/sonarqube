@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.scan.filesystem.InputFile;
 
 import javax.annotation.Nullable;
@@ -78,7 +79,7 @@ public class InputFileBuilder {
   }
 
   public InputFileBuilder sourceDir(@Nullable String path) {
-    return attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH, path);
+    return attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.separatorsToUnix(path));
   }
 
   public DefaultInputFile build() {
