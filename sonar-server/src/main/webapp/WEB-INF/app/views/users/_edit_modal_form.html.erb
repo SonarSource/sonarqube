@@ -1,7 +1,7 @@
 <%
        action_name = 'update_modal'
        title = 'Edit user'
-       submit_button_label = 'Update'
+       submit_button_label = 'Save'
 %>
 <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :id =>'user_modal_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
