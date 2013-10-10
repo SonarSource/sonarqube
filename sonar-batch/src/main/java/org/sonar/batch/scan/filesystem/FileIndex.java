@@ -49,17 +49,17 @@ import java.util.Set;
  */
 public class FileIndex implements BatchComponent {
 
-  private static class IndexStatus {
+  private static class Progress {
     private int count = 0;
-    private final Set<String> orphans;
+    private final Set<String> removedRelativePaths;
 
-    IndexStatus(Set<String> orphans) {
-      this.orphans = orphans;
+    Progress(Set<String> removedRelativePaths) {
+      this.removedRelativePaths = removedRelativePaths;
     }
 
     void markAsIndexed(String relativePath) {
       count++;
-      orphans.remove(relativePath);
+      removedRelativePaths.remove(relativePath);
     }
   }
 
@@ -85,40 +85,67 @@ public class FileIndex implements BatchComponent {
     logger.info("Index files");
     // TODO log configuration too (replace FileSystemLogger)
 
-    IndexStatus status = new IndexStatus(cache.fileRelativePaths(fileSystem.moduleKey()));
+    Progress progress = new Progress(cache.fileRelativePaths(fileSystem.moduleKey()));
 
-    for (File sourceDir : fileSystem.sourceDirs()) {
-      indexDirectory(fileSystem, status, sourceDir, InputFile.TYPE_SOURCE);
+    if (fileSystem.sourceFiles().isEmpty()) {
+      // index directories
+      for (File sourceDir : fileSystem.sourceDirs()) {
+        indexDirectory(fileSystem, progress, sourceDir, InputFile.TYPE_SOURCE);
+      }
+    } else {
+      // index only given files
+      indexFiles(fileSystem, progress, fileSystem.sourceDirs(), fileSystem.sourceFiles(), InputFile.TYPE_SOURCE);
     }
-    for (File testDir : fileSystem.testDirs()) {
-      indexDirectory(fileSystem, status, testDir, InputFile.TYPE_TEST);
+
+    if (fileSystem.testFiles().isEmpty()) {
+      // index directories
+      for (File testDir : fileSystem.testDirs()) {
+        indexDirectory(fileSystem, progress, testDir, InputFile.TYPE_TEST);
+      }
+    } else {
+      // index only given files
+      indexFiles(fileSystem, progress, fileSystem.testDirs(), fileSystem.testFiles(), InputFile.TYPE_TEST);
     }
 
-    // TODO index additional sources and test files
-
-    for (String relativePath : status.orphans) {
+    // Remove files that have been removed since previous indexation
+    for (String relativePath : progress.removedRelativePaths) {
       cache.remove(fileSystem.moduleKey(), relativePath);
     }
 
-    logger.info(String.format("%d files indexed", status.count));
+    logger.info(String.format("%d files indexed", progress.count));
+  }
+
+  private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceDirs, List<File> sourceFiles, String type) {
+    for (File sourceFile : sourceFiles) {
+      PathResolver.RelativePath sourceDirPath = pathResolver.relativePath(sourceDirs, sourceFile);
+      if (sourceDirPath == null) {
+        LoggerFactory.getLogger(getClass()).warn(String.format("File %s is not declared in give source directories", sourceFile.getAbsoluteFile()));
+      } else {
+        indexFile(fileSystem, progress, sourceDirPath.dir(), sourceFile, type);
+      }
+    }
   }
 
   Iterable<InputFile> inputFiles(String moduleKey) {
     return cache.byModule(moduleKey);
   }
 
-  private void indexDirectory(ModuleFileSystem fileSystem, IndexStatus status, File sourceDir, String type) {
+  private void indexDirectory(ModuleFileSystem fileSystem, Progress status, File sourceDir, String type) {
     Collection<File> files = FileUtils.listFiles(sourceDir, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
-      String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
-      if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
-        InputFile input = newInputFile(fileSystem, sourceDir, type, file, relativePath);
-        if (input != null && accept(input)) {
-          cache.put(fileSystem.moduleKey(), input);
-        }
-      }
-      status.markAsIndexed(relativePath);
+      indexFile(fileSystem, status, sourceDir, file, type);
     }
+  }
+
+  private void indexFile(ModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
+    String relativePath = pathResolver.relativePath(fileSystem.baseDir(), file);
+    if (!cache.containsFile(fileSystem.moduleKey(), relativePath)) {
+      InputFile input = newInputFile(fileSystem, sourceDir, type, file, relativePath);
+      if (input != null && accept(input)) {
+        cache.put(fileSystem.moduleKey(), input);
+      }
+    }
+    status.markAsIndexed(relativePath);
   }
 
   @CheckForNull

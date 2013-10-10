@@ -112,8 +112,8 @@ public class DefaultModuleFileSystemTest {
     assertThat(fs.sourceDirs()).hasSize(2);
     assertThat(fs.testDirs()).hasSize(1);
     assertThat(fs.binaryDirs()).hasSize(1);
-    assertThat(fs.additionalSourceFiles()).containsOnly(additionalFile);
-    assertThat(fs.additionalTestFiles()).containsOnly(additionalTest);
+    assertThat(fs.sourceFiles()).containsOnly(additionalFile);
+    assertThat(fs.testFiles()).containsOnly(additionalTest);
   }
 
   @Test

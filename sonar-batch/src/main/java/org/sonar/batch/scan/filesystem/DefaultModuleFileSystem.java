@@ -53,8 +53,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   private List<File> sourceDirs = Lists.newArrayList();
   private List<File> testDirs = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();
-  private List<File> additionalSourceFiles = Lists.newArrayList();
-  private List<File> additionalTestFiles = Lists.newArrayList();
+  private List<File> sourceFiles = Lists.newArrayList();
+  private List<File> testFiles = Lists.newArrayList();
 
   public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer) {
     this(module.getKey(), settings, index, initializer);
@@ -71,8 +71,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     this.sourceDirs = initializer.sourceDirs();
     this.testDirs = initializer.testDirs();
     this.binaryDirs = initializer.binaryDirs();
-    this.additionalSourceFiles = initializer.additionalSourceFiles();
-    this.additionalTestFiles = initializer.additionalTestFiles();
+    this.sourceFiles = initializer.additionalSourceFiles();
+    this.testFiles = initializer.additionalTestFiles();
   }
 
   @Override
@@ -111,12 +111,12 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     return workingDir;
   }
 
-  List<File> additionalSourceFiles() {
-    return additionalSourceFiles;
+  List<File> sourceFiles() {
+    return sourceFiles;
   }
 
-  List<File> additionalTestFiles() {
-    return additionalTestFiles;
+  List<File> testFiles() {
+    return testFiles;
   }
 
   @Override
