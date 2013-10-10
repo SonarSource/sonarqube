@@ -41,15 +41,6 @@
             <% end %>
           <% end %>
         </div>
-        <% if density %>
-          <h3><%= message('widget.rules.rules_compliance') -%></h3>
-          <div>
-            <span class="big">
-              <%= format_measure(density, :url => url_for_drilldown('weighted_violations', {:highlight => 'weighted_violations'})) -%>
-            </span>
-            <%= dashboard_configuration.selected_period? ? format_variation(density) : trend_icon(density) -%>
-          </div>
-        <% end %>
       </div>
     </td>
 
