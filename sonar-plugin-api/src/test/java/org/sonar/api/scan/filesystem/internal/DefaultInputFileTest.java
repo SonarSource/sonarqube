@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -70,7 +71,7 @@ public class DefaultInputFileTest {
 
     assertThat(input.name()).isEqualTo("Foo.java");
     assertThat(input.file()).isEqualTo(file);
-    assertThat(input.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(sourceDir.getAbsolutePath());
+    assertThat(input.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(FilenameUtils.separatorsToUnix(sourceDir.getAbsolutePath()));
     assertThat(input.relativePath()).isEqualTo("src/main/java/Foo.java");
     assertThat(input.path()).isEqualTo(file.getCanonicalPath());
   }
