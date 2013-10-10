@@ -102,7 +102,7 @@ public class TechnicalDebtDensityDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.TECHNICAL_DEBT_DENSITY, 0.03125d)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.TECHNICAL_DEBT_DENSITY, 31.3d)));
   }
 
 }
