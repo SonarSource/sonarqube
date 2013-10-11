@@ -35,6 +35,11 @@ import java.util.Map;
  */
 public class DefaultInputFile implements InputFile {
 
+  /**
+   * We're not sure that this is the correct way, so not in API yet.
+   */
+  public static String ATTRIBUTE_COMPONENT_KEY = "CMP_KEY";
+
   private final String absolutePath;
   private final String path;
   private final Map<String, String> attributes;

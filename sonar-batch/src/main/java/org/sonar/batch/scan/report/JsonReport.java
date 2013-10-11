@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.batch.scan;
+package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
@@ -39,11 +38,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.Locale;
 import java.util.Set;
 
@@ -61,15 +56,24 @@ public class JsonReport implements BatchComponent {
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
   private final IssueCache issueCache;
-  private EventBus eventBus;
+  private final EventBus eventBus;
+  private final ComponentSelector componentSelector;
 
-  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache, EventBus eventBus) {
+  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
+                    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory) {
+    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create());
+  }
+
+  @VisibleForTesting
+  JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
+                    EventBus eventBus, ComponentSelector componentSelector) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.ruleI18nManager = ruleI18nManager;
     this.issueCache = issueCache;
     this.eventBus = eventBus;
+    this.componentSelector = componentSelector;
   }
 
   public void execute() {
@@ -90,7 +94,7 @@ public class JsonReport implements BatchComponent {
       writeJson(output);
 
     } catch (IOException e) {
-      throw new SonarException("Unable to write report results in file " + exportFile.getAbsolutePath(), e);
+      throw new IllegalStateException("Unable to write report results in file " + exportFile.getAbsolutePath(), e);
     } finally {
       Closeables.closeQuietly(output);
     }
@@ -106,9 +110,9 @@ public class JsonReport implements BatchComponent {
       json.name("version").value(server.getVersion());
 
       Set<RuleKey> ruleKeys = newHashSet();
-      Set<String> componentKeys = newHashSet();
-      writeJsonIssues(json, ruleKeys, componentKeys);
-      writeJsonComponents(json, componentKeys);
+      componentSelector.init();
+      writeJsonIssues(json, ruleKeys);
+      writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
       json.endObject().flush();
 
@@ -119,10 +123,10 @@ public class JsonReport implements BatchComponent {
     }
   }
 
-  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> componentKeys) throws IOException {
+  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys) throws IOException {
     json.name("issues").beginArray();
     for (DefaultIssue issue : getIssues()) {
-      if (issue.resolution() == null) {
+      if (issue.resolution() == null && componentSelector.register(issue)) {
         json
             .beginObject()
             .name("key").value(issue.key())
@@ -147,21 +151,18 @@ public class JsonReport implements BatchComponent {
           json.name("closeDate").value(DateUtils.formatDateTime(issue.closeDate()));
         }
         json.endObject();
-        componentKeys.add(issue.componentKey());
         ruleKeys.add(issue.ruleKey());
       }
     }
     json.endArray();
   }
 
-  private void writeJsonComponents(JsonWriter json, Set<String> componentKeys) throws IOException {
+  private void writeJsonComponents(JsonWriter json) throws IOException {
     json.name("components").beginArray();
-    for (String componentKey : componentKeys) {
+    for (String componentKey : componentSelector.componentKeys()) {
       json
           .beginObject()
           .name("key").value(componentKey)
-        // module
-        // path
           .endObject();
     }
     json.endArray();

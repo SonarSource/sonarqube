@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
@@ -44,7 +44,7 @@ import java.util.Collection;
 import java.util.Locale;
 
 /**
- * Used by Eclipse until version 3.1. Eclipse 3.2 uses issues exported by {@link org.sonar.batch.scan.JsonReport}.
+ * Used by Eclipse until version 3.1. Eclipse 3.2 uses issues exported by {@link org.sonar.batch.scan.report.JsonReport}.
  *
  * @since 3.4
  * @deprecated in 3.6. Replaced by issues.

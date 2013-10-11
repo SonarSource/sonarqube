@@ -28,6 +28,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
@@ -66,18 +69,21 @@ public class FileIndex implements BatchComponent {
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
-  private final PathResolver pathResolver = new PathResolver();
+  private final PathResolver pathResolver;
   private final List<InputFileFilter> filters;
   private final LanguageRecognizer languageRecognizer;
   private final InputFileCache cache;
   private final FileHashes fileHashes;
+  private final Project project;
 
   public FileIndex(List<InputFileFilter> filters, LanguageRecognizer languageRecognizer,
-                   InputFileCache cache, FileHashes fileHashes) {
+                   InputFileCache cache, FileHashes fileHashes, PathResolver pathResolver, Project project) {
     this.filters = filters;
     this.languageRecognizer = languageRecognizer;
     this.cache = cache;
     this.fileHashes = fileHashes;
+    this.pathResolver = pathResolver;
+    this.project = project;
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
@@ -168,7 +174,14 @@ public class FileIndex implements BatchComponent {
 
     // paths
     set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(sourceDir));
-    set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, pathResolver.relativePath(sourceDir, file));
+    String sourceRelativePath = pathResolver.relativePath(sourceDir, file);
+    set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
+
+    if (Java.KEY.equals(lang)) {
+      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + JavaFile.fromRelativePath(sourceRelativePath, false).getKey());
+    } else {
+      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + sourceRelativePath);
+    }
 
     // hash + status
     initStatus(file, fileSystem.sourceCharset(), path, attributes);

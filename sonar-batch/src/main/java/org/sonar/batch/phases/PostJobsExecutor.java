@@ -31,7 +31,7 @@ import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.DeprecatedJsonReport;
+import org.sonar.batch.scan.report.DeprecatedJsonReport;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 

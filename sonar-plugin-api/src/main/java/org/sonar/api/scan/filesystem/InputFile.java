@@ -30,18 +30,18 @@ public interface InputFile extends Serializable {
    * Canonical path of source directory.
    * Example: <code>/path/to/module/src/main/java</code> or <code>C:\path\to\module\src\main\java</code>
    */
-  String ATTRIBUTE_SOURCEDIR_PATH = "srcDirPath";
+  String ATTRIBUTE_SOURCEDIR_PATH = "SRC_DIR_PATH";
 
   /**
    * Relative path from source directory. File separator is the forward slash ('/'),
    * even on MSWindows.
    */
-  String ATTRIBUTE_SOURCE_RELATIVE_PATH = "srcRelPath";
+  String ATTRIBUTE_SOURCE_RELATIVE_PATH = "SRC_REL_PATH";
 
   /**
    * Detected language
    */
-  String ATTRIBUTE_LANGUAGE = "lang";
+  String ATTRIBUTE_LANGUAGE = "LANG";
 
   /**
    *

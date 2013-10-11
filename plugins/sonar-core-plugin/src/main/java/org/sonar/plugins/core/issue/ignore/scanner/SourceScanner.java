@@ -73,6 +73,7 @@ public final class SourceScanner implements Sensor {
   protected void parseDirs(Project project, boolean isTest) {
     Charset sourcesEncoding = fileSystem.sourceCharset();
 
+    // TODO use InputFile
     List<File> files;
     List<File> dirs;
     if (isTest) {
@@ -85,6 +86,7 @@ public final class SourceScanner implements Sensor {
 
     for (File inputFile : files) {
       try {
+        // TODO reuse InputFile.attribute(DefaultInputFile.COMPONENT_KEY ?
         String componentKey = resolveComponent(inputFile, dirs, project, isTest);
         if (componentKey != null) {
 

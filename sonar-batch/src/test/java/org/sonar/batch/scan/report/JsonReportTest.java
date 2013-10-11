@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
 import org.json.JSONException;
@@ -70,7 +70,7 @@ public class JsonReportTest {
 
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class));
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class JsonReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report.json"),
+    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report.json"),
         writer.toString(), false);
   }
 
@@ -118,7 +118,7 @@ public class JsonReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report-without-resolved-issues.json"),
+    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"),
         writer.toString(), false);
   }
 

@@ -29,7 +29,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.index.ScanPersister;
-import org.sonar.batch.scan.JsonReport;
+import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;

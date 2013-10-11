@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.scan.report;
 
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
@@ -35,6 +35,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.report.DeprecatedJsonReport;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.java.api.JavaClass;
 
@@ -48,6 +49,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class DeprecatedJsonReportTest {
+
   DeprecatedJsonReport deprecatedJsonReport;
   DefaultIndex sonarIndex = mock(DefaultIndex.class);
   Resource resource = JavaClass.create("KEY");
