@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -70,6 +71,9 @@ public class SourceScannerTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
   public void init() {
@@ -154,16 +158,17 @@ public class SourceScannerTest {
   }
 
   @Test
-  public void shouldAnalyseOtherProject() throws IOException {
-    File sourceFile = new File("Foo.php");
-    File testFile = new File("FooTest.php");
+  public void shouldAnalyseOtherProject() throws Exception {
+    File rootDir = temp.newFolder();
+    File sourceFile = new File(rootDir, "Foo.php");
+    File testFile = new File(rootDir, "FooTest.php");
 
     when(project.getLanguageKey()).thenReturn("php");
     when(fileSystem.files(Mockito.isA(FileQuery.class)))
       .thenReturn(Arrays.asList(sourceFile))
       .thenReturn(Arrays.asList(testFile));
-    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(new File("")));
-    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(new File("")));
+    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(rootDir));
+    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(rootDir));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
     scanner.analyse(project, null);
@@ -178,16 +183,17 @@ public class SourceScannerTest {
 
   @Test
   public void shouldAnalyseJavaProjectWithNonJavaFile() throws IOException {
-    File sourceFile = new File("src/main/java/Foo.java");
-    File otherFile = new File("other.js");
+    File rootDir = temp.newFolder();
+    File sourceFile = new File(rootDir, "src/main/java/Foo.java");
+    File otherFile = new File(rootDir, "other.js");
 
     when(project.getLanguageKey()).thenReturn("java");
     List<File> empty = Collections.emptyList();
     when(fileSystem.files(Mockito.isA(FileQuery.class)))
       .thenReturn(Arrays.asList(sourceFile, otherFile))
       .thenReturn(empty);
-    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(new File("src/main/java"), new File("")));
-    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(new File("src/test/java")));
+    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(new File(rootDir, "src/main/java"), rootDir));
+    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(new File(rootDir, "src/test/java")));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
     scanner.analyse(project, null);
