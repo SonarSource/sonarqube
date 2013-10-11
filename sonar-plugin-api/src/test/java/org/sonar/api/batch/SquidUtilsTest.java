@@ -31,7 +31,12 @@ public class SquidUtilsTest {
   public void convertJavaFileKeyFromSquidFormat() {
     assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String"));
     assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.java"));
+    assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.jav"));
+    assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.JAVA"));
+    assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.JAV"));
     assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String.java"));
+    assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String.JAVA"));
+    assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String.JAV"));
     assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String"));
   }
 
@@ -42,9 +47,8 @@ public class SquidUtilsTest {
     assertThat(new JavaPackage("singlepackage")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("singlepackage"));
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void shouldConvertToSquidKeyFormat() {
-    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("com.foo.Bar"))).isEqualTo(("com/foo/Bar.java"));
-    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("Bar"))).isEqualTo(("Bar.java"));
+    SquidUtils.convertToSquidKeyFormat(new JavaFile("com.foo.Bar"));
   }
 }

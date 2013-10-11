@@ -31,7 +31,9 @@ public class JavaTest {
     assertThat(language.getFileSuffixes()).isEqualTo(new String[] {".java", ".jav"});
 
     assertThat(Java.isJavaFile(new java.io.File("Example.java"))).isTrue();
+    assertThat(Java.isJavaFile(new java.io.File("Example.JAVA"))).isTrue();
     assertThat(Java.isJavaFile(new java.io.File("Example.jav"))).isTrue();
+    assertThat(Java.isJavaFile(new java.io.File("Example.Jav"))).isTrue();
     assertThat(Java.isJavaFile(new java.io.File("Example.notjava"))).isFalse();
   }
 

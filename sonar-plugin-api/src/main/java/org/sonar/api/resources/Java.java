@@ -72,7 +72,7 @@ public class Java extends AbstractLanguage {
   }
 
   public static boolean isJavaFile(java.io.File file) {
-    String suffix = "." + StringUtils.substringAfterLast(file.getName(), ".");
+    String suffix = "." + StringUtils.lowerCase(StringUtils.substringAfterLast(file.getName(), "."));
     return ArrayUtils.contains(SUFFIXES, suffix);
   }
 
