@@ -2,7 +2,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
-              <a href="<%=ApplicationController.root_context-%>/users/create_modal_form" class="open-modal link-action">Add new user</a>
+              <a href="<%=ApplicationController.root_context-%>/users/create_form" class="open-modal link-action">Add new user</a>
           </li>
       </ul>
     <% end %>
@@ -32,14 +32,9 @@
                 <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
               </td>
               <td class="left" valign="top">
-                <%= link_to "Edit", { :id => user.id, :action => 'edit'}, {:id => "edit-#{u user.login}", :class => 'link-action'} %>
+                <a id="edit-<%= user.name -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
                 &nbsp;
-
-                <a id="edit-modal-azaz" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_modal_form/<%= user.id -%>">Edit_modal</a>
-                &nbsp;
-                <%= link_to "Change password", { :id => user.id, :action => 'change_password'}, {:id => "change-password-#{u user.login}", :class => 'link-action'} %>
-                &nbsp;
-                <%= link_to "Change password_modal", { :id => user.id, :action => 'change_password_modal_form'}, {:id => "change-password-modal-#{u user.login}", :class => 'open-modal link-action'} %>
+               <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} %>
                 &nbsp;
                 <%= link_to "Delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user?", :method => 'delete',
                                                                                :id => "delete-#{u user.login}", :class => 'link-action link-red'} %>
@@ -49,91 +44,6 @@
         </tbody>
       </table>
       <script>TableKit.Sortable.init('users');</script>
-    </td>
-    <td class="sep"> </td>
-    <td valign="top" align="right" width="210">
-      <%
-      action_name = 'create'
-      title = 'Add new user'
-      submit_button_label = 'Create'
-      if @user.id
-        if @user.active
-          action_name = 'update'
-          title = 'Edit user'
-          submit_button_label = 'Update'
-          if params[:action] == 'change_password'
-            action_name = 'update_password'
-            title = 'Change password'
-          end
-        else
-          action_name = 'reactivate'
-          title = 'Reactivate user?'
-          submit_button_label = 'Reactivate user'
-        end
-      end
-      %>
-
-        <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :method => @user.id.nil?? :post : :put } do |f| %>
-      <table class="admintable" width="100%">
-        <tr>
-          <td class="left" valign="top"><h1><%= title %></h1></td>
-        </tr>
-
-      <% if @user && !@user.active %>
-        <%= f.hidden_field :login %>
-        <tr>
-          <td>
-            <p class="error">
-              A user with login "<%= @user.login -%>" already exists in the database but is deactivated.<br/>
-              <br/>
-              Do you really want to reactivate this user?
-            </p>
-          </td>
-        <tr>
-      <% else %>
-        <tr>
-          <td class="left" valign="top">Login:
-            <% if @user.id %>
-              <%= @user.login %>
-              <%= f.hidden_field :login %>
-            <% else %>
-              <br/><%= f.text_field :login, :size => 30, :maxLength => 40 %>
-            <% end %>
-          </td>
-        </tr>
-        <% if params[:action] != 'change_password' %>
-        <tr>
-          <td class="left" valign="top">Name:<br/><%= f.text_field :name, :size => 30, :maxLength => 200 %></td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">Email:<br/><%= f.text_field :email, :size => 30, :maxLength => 100 %></td>
-        </tr>
-        <% end %>
-        <% if !@user.id %>
-        <tr>
-          <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
-        </tr>
-        <% elsif params[:action] == 'change_password' %>
-        <tr>
-          <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
-        </tr>
-        <% end %>
-      <% end %>
-
-        <tr>
-          <td class="left"  nowrap="nowrap" valign="top" colspan="2">
-            <%= submit_tag submit_button_label %>
-            <%= link_to 'Cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
-          </td>
-        </tr>
-      </table>
-      <% end %>
     </td>
   </tr>
 </table>

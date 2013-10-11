@@ -27,33 +27,6 @@ class UsersController < ApplicationController
   def create
     return unless request.post?
     cookies.delete :auth_token
-
-    user = User.find_by_login(params[:user][:login])
-    if user && !user.active
-      # users is deativated, this is a special case:
-      # 1- first, we save the given information, in case the user is reactivated (to not ask for it twice)
-       if user.update_attributes(params[:user])
-        # 2- if info correctly saved, then we display a message to ask wether the user should be reactivated or not
-        @user = user
-        init_users_list
-        render :index
-      else
-        to_index(user.errors, nil)
-      end
-    else
-      user=prepare_user
-      if user.save
-        user.notify_creation_handlers
-        flash[:notice] = 'User is created.'
-      end
-      to_index(user.errors, nil)
-    end
-
-  end
-
-  def create_modal
-    return unless request.post?
-    cookies.delete :auth_token
     @errors = []
     user = User.find_by_login(params[:user][:login])
     if user && !user.active
@@ -61,13 +34,13 @@ class UsersController < ApplicationController
         # case user: exist,inactive,no errors when update BUT TO REACTIVATE
         @user = user
         user.errors.full_messages.each{|msg| @errors<<msg}
-        render :partial => 'users/reactivate_modal_form', :status => 400
+        render :partial => 'users/reactivate_form', :status => 400
       else
         # case user: exist,inactive, WITH ERRORS when update
         @user = user
         @user.id = nil
         user.errors.full_messages.each{|msg| @errors<<msg}
-        render :partial => 'users/create_modal_form', :status => 400
+        render :partial => 'users/create_form', :status => 400
       end
     else
         user=prepare_user
@@ -81,7 +54,7 @@ class UsersController < ApplicationController
           # case user: exist and ACTIVE, whith or without errors when create
           @user = user
           user.errors.full_messages.each{|msg| @errors<<msg}
-          render :partial => 'users/create_modal_form', :status => 400
+          render :partial => 'users/create_form', :status => 400
         end
     end
   end
@@ -109,125 +82,75 @@ class UsersController < ApplicationController
     end
   end
 
-  def create_modal_form
+  def create_form
     init_users_list
     if params[:id]
       @user = User.find(params[:id])
     else
       @user = User.new
     end
-    render :partial => 'users/create_modal_form'
+    render :partial => 'users/create_form'
   end
 
-  def reactivate_modal_form
+  def reactivate_form
     init_users_list
     if params[:id]
       @user = User.find(params[:id])
     else
       @user = User.new
     end
-    render :partial => 'users/reactivate_modal_form'
+    render :partial => 'users/reactivate_form'
   end
 
   def new
     render :action => 'new', :layout => 'nonav'
   end
 
-  def edit
-    redirect_to(:action => 'index', :id => params[:id])
-  end
-
-  def edit_modal_form
+  def edit_form
     init_users_list
     @user = User.find(params[:id])
-    render :partial => 'users/edit_modal_form', :status =>200
+    render :partial => 'users/edit_form', :status =>200
   end
 
-  def change_password
-    init_users_list
-    @user = User.find(params[:id])
-    render :action => 'index', :id => params[:id]
-  end
 
-  def change_password_modal_form
+  def change_password_form
     init_users_list
     @user = User.find(params[:id])
-    render :partial => 'users/change_password_modal_form', :status =>200
+    render :partial => 'users/change_password_form', :status =>200
   end
 
   def update_password
     user = User.find(params[:id])
-
-    if params[:user][:password].blank?
-      flash[:error] = 'Password required.'
-      redirect_to(:action => 'change_password', :id => params[:id])
-    elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
-      flash[:notice] = 'Password was successfully updated.'
-      to_index(user.errors, nil)
-    else
-      flash[:error] = user.errors.full_messages.join("<br/>\n")
-      redirect_to(:action => 'change_password', :id => params[:id])
-    end
-
-  end
-
-  def update
-    user = User.find(params[:id])
-
-    if user.login!=params[:user][:login]
-      flash[:error] = 'Login can not be changed.'
-
-    elsif user.update_attributes(params[:user])
-      flash[:notice] = 'User was successfully updated.'
-    end
-
-    to_index(user.errors, nil)
-  end
-
-  def update_password_modal
-    user = User.find(params[:id])
     @user = user
     if params[:user][:password].blank?
       @errors = 'Password required.'
-      render :partial => 'users/change_password_modal_form', :status => 400
+      render :partial => 'users/change_password_form', :status => 400
     elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
       flash[:notice] = 'Password was successfully updated.'
       render :text => 'ok', :status => 200
     else
       @errors = user.errors.full_messages.join("<br/>\n")
-      render :partial => 'users/change_password_modal_form', :status => 400
+      render :partial => 'users/change_password_form', :status => 400
     end
   end
 
-  def update_modal
+  def update
     user = User.find(params[:id])
     @user = user
     @errors = []
     if user.login!=params[:user][:login]
       @errors  = 'Login can not be changed.'
-      render :partial => 'users/edit_modal_form', :status => 400
+      render :partial => 'users/edit_form', :status => 400
     elsif user.update_attributes(params[:user])
       flash[:notice] = 'User was successfully updated.'
       render :text => 'ok', :status => 200
     else
       @errors  = user.errors.full_messages.join("<br/>\n")
-      render :partial => 'users/edit_modal_form', :status => 400
+      render :partial => 'users/edit_form', :status => 400
     end
   end
 
   def reactivate
-    user = User.find_by_login(params[:user][:login])
-    if user
-      user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
-      user.notify_creation_handlers
-      flash[:notice] = 'User was successfully reactivated.'
-    else
-      flash[:error] = "A user with login #{params[:user][:login]} does not exist."
-    end
-    to_index(user.errors, nil)
-  end
-
-  def reactivate_modal
     user = User.find_by_login(params[:user][:login])
     if user
       user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))

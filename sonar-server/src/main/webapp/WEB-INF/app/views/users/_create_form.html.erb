@@ -1,12 +1,7 @@
-<%
-   action_name = 'create_modal'
-   title = 'Add new user'
-   submit_button_label = 'Create'
-%>
-<% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :id =>'user_modal_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+<% form_for :user, @user, :url => { :id => @user.id, :action => 'create' }, :html => { :id =>'user_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
     <div class="modal-head">
-      <h2><%= title %></h2>
+      <h2>Add new user</h2>
     </div>
     <div class="modal-body">
       <% if @errors
@@ -35,12 +30,12 @@
 
     </div>
       <div class="modal-foot">
-          <%= submit_tag submit_button_label %>
+          <%= submit_tag 'Create' %>
           <%= link_to 'Cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
       </div>
   </fieldset>
 <% end %>
 
 <script>
-  $j("#user_modal_form").modalForm();
+  $j("#user_form").modalForm();
 </script>

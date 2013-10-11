@@ -1,11 +1,7 @@
-<% action_name = 'reactivate_modal'
-   title = 'Reactivate user?'
-   submit_button_label = 'Reactivate user'
-%>
-<% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :id =>'user_modal_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+<% form_for :user, @user, :url => { :id => @user.id, :action => 'reactivate' }, :html => { :id =>'user_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
     <div class="modal-head">
-        <h2><%= title %></h2>
+        <h2>Reactivate user?</h2>
     </div>
     <div class="modal-body">
       <%= f.hidden_field :login %>
@@ -17,12 +13,12 @@
               </p>
     </div>
     <div class="modal-foot">
-           <%= submit_tag submit_button_label %>
+           <%= submit_tag 'Reactivate user' %>
            <%= link_to 'Cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
     </div>
   </fieldset>
 
   <script>
-    $j("#user_modal_form").modalForm();
+    $j("#user_form").modalForm();
   </script>
 <% end %>
