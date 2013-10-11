@@ -40,14 +40,15 @@ public class BulkChangeQueryTest {
       .actions("assign")
       .actionParameter("assign", "assignee", "geoffrey")
       .comment("My bulk comment")
-    ;
+      .sendNotifications(false);
 
-    assertThat(query.urlParams()).hasSize(4).includes(
+    assertThat(query.urlParams()).hasSize(5).includes(
       entry("issues", "ABCD,EFGH"),
       entry("actions", "assign"),
       entry("assign.assignee", "geoffrey"),
-      entry("comment", "My bulk comment")
-    );
+      entry("comment", "My bulk comment"),
+      entry("sendNotifications", "false")
+      );
   }
 
   @Test

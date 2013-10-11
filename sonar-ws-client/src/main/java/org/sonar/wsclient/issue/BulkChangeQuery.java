@@ -63,6 +63,11 @@ public class BulkChangeQuery {
     return this;
   }
 
+  public BulkChangeQuery sendNotifications(boolean sendNotifications) {
+    params.put("sendNotifications", String.valueOf(sendNotifications));
+    return this;
+  }
+
   private BulkChangeQuery addParam(String key, String[] values) {
     if (values != null) {
       params.put(key, EncodingUtils.toQueryParam(values));
