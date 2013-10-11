@@ -21,6 +21,18 @@
 -->
 <sqale>
   <chc>
+    <key>REUSABILITY</key>
+    <name>Reusability</name>
+    <chc>
+      <key>MODULARITY</key>
+      <name>Modularity</name>
+    </chc>
+    <chc>
+      <key>TRANSPORTABILITY</key>
+      <name>Transportability</name>
+    </chc>
+  </chc>
+  <chc>
     <key>PORTABILITY</key>
     <name>Portability</name>
     <chc>
@@ -136,24 +148,16 @@
       <name>Logic</name>
     </chc>
     <chc>
+      <key>RESOURCE_RELIABILITY</key>
+      <name>Resource</name>
+    </chc>
+    <chc>
       <key>SYNCHRONIZATION_RELIABILITY</key>
       <name>Synchronization</name>
     </chc>
     <chc>
       <key>UNIT_TESTS</key>
-      <name>Unit tests</name>
-    </chc>
-  </chc>
-  <chc>
-    <key>REUSABILITY</key>
-    <name>Reusability</name>
-    <chc>
-      <key>MODULARITY</key>
-      <name>Modularity</name>
-    </chc>
-    <chc>
-      <key>TRANSPORTABILITY</key>
-      <name>Transportability</name>
+      <name>Unit tests coverage</name>
     </chc>
   </chc>
   <chc>
