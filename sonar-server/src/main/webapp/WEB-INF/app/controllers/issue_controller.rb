@@ -206,7 +206,12 @@ class IssueController < ApplicationController
     require_parameters :id
     @issue_results = Api.issues.find(params[:id])
     @issue = @issue_results.first()
-    @requirement = Internal.technical_debt.requirement(@issue.ruleKey)
+
+    rule_id = @issue_results.rule(@issue).id
+    @requirement = Characteristic.first(
+        :conditions => ['quality_models.name=? AND characteristics.rule_id=? AND characteristics.enabled=?', 'SQALE', rule_id, true],
+        :include => [:quality_model, {:parents => :parents}, :characteristic_properties]
+    )
     render :partial => 'issue/technicaldebt'
   end
 

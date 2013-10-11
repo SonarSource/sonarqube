@@ -97,4 +97,20 @@ class Characteristic < ActiveRecord::Base
       default_value
     end
   end
+
+
+  ### For Requirement
+
+  def function
+    property(CharacteristicProperty::PROPERTY_REMEDIATION_FUNCTION)
+  end
+
+  def factor
+    property(CharacteristicProperty::PROPERTY_REMEDIATION_FACTOR)
+  end
+
+  def offset
+    property(CharacteristicProperty::PROPERTY_OFFSET)
+  end
+
 end
