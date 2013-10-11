@@ -53,7 +53,7 @@ public class LanguageRecognizer implements BatchComponent, Startable {
         String extension = sanitizeExtension(suffix);
 
         String s = byExtensions.get(extension);
-        if (s != null) {
+        if (s != null && !StringUtils.equals(s, language.getKey())) {
           throw new IllegalStateException(String.format(
             "File extension '%s' is declared by two languages: %s and %s", extension, s, language.getKey()
           ));

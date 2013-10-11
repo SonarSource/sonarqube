@@ -82,6 +82,31 @@ public class LanguageRecognizerTest {
     }
   }
 
+  @Test
+  public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
+    Language[] languages = new Language[]{new Language() {
+      @Override
+      public String getKey() {
+        return "abap";
+      }
+
+      @Override
+      public String getName() {
+        return "ABAP";
+      }
+
+      @Override
+      public String[] getFileSuffixes() {
+        return new String[]{"abap", "ABAP"};
+      }
+    }};
+
+    LanguageRecognizer recognizer = new LanguageRecognizer(languages);
+    recognizer.start();
+    assertThat(recognizer.of(temp.newFile("abc.abap"))).isEqualTo("abap");
+
+  }
+
   static class Cobol implements Language {
     @Override
     public String getKey() {
@@ -98,4 +123,6 @@ public class LanguageRecognizerTest {
       return new String[]{"cbl", "cob"};
     }
   }
+
+
 }
