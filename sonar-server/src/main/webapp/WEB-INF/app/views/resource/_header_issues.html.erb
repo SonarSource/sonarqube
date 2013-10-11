@@ -60,6 +60,10 @@
         <td><%= image_tag 'priority/INFO.png' -%></td>
         <td class="name"><%= message('info') -%>:</td>
         <td class="value"><%= format_measure('info_violations', :default => 0) -%></td>
+
+        <td class="sep"> </td>
+        <td class="name"><%= message('technical_debt') -%>:</td>
+        <td class="value"><%= format_measure('sqale_index', :default => 0) -%> <%= message('days').downcase -%></td>
       </tr>
     </table>
   <% end %>
