@@ -31,31 +31,53 @@ class ManualRulesController < ApplicationController
   end
 
   def edit
-    @rules = Rule.manual_rules()
-    @rule=Rule.manual_rule(params['id'].to_i)
-    bad_request('Missing rule id') unless @rule
-    render :action => 'index'
+    verify_post_request
+    access_denied unless is_admin?
+    begin
+      # Update rule
+      rule=Rule.manual_rule(params['id'].to_i)
+      bad_request('Unknown rule') unless rule
+      rule.name=(params[:name])
+      rule.description=params[:description]
+      rule.save!
+    rescue Exception => e
+      @error= e.message
+    end
+    @rule = rule
+    if @error
+      render :partial => 'manual_rules/edit_form', :status => 400
+    else
+      flash[:notice] = 'Manual rule saved'
+      render :text => 'ok', :status => 200
+    end
+
   end
 
   def create
     verify_post_request
     access_denied unless is_admin?
     begin
-      if params[:id].to_i>0
-        # Update rule
-        rule=Rule.manual_rule(params['id'].to_i)
-        bad_request('Unknown rule') unless rule
-        rule.name=(params[:name])
-        rule.description=params[:description]
-        rule.save!
-      else
         # Create rule
         Rule.create_manual_rule(params)
-      end
     rescue Exception => e
-      flash[:error]= e.message
+      @error= e.message
     end
-    redirect_to :action => 'index'
+    if @error
+      render :partial => 'manual_rules/create_form', :status => 400
+    else
+      flash[:notice] = 'Manual rule created'
+      render :text => 'ok', :status => 200
+    end
+  end
+
+  def create_form
+    @rule = Rule.new
+    render :partial => 'manual_rules/create_form'
+  end
+
+  def edit_form
+    @rule=Rule.manual_rule(params['id'].to_i)
+      render :partial => 'manual_rules/edit_form', :status => 200
   end
 
   def delete

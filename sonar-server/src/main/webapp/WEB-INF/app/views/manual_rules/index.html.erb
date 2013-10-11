@@ -1,7 +1,17 @@
+<div class="line-block">
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a href="<%=ApplicationController.root_context-%>/manual_rules/create_form" class="open-modal link-action">Create Manual Rule</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1 class="marginbottom10"><%= message('manual_rules.page') -%></h1>
+</div>
+
 <table width="100%">
   <tr>
     <td valign="top">
-      <h1 class="marginbottom10"><%= message('manual_rules.page') -%></h1>
       <table class="data width100" id="manual-rules">
         <thead>
         <tr>
@@ -23,8 +33,8 @@
               <span class="note"><%= h rule.description -%></span>
             </td>
             <td class="right thin nowrap">
-              <%= link_to 'Edit', {:action => 'edit', :id => rule.id}, {:id => "edit_#{u(rule.key)}", :class => 'link-action'} %>
-              &nbsp;
+              <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form/<%= h rule.id -%>">Edit</a>
+                &nbsp;
               <%= link_to 'Delete', {:action => 'delete', :id => rule.id}, {:confirm => message('are_you_sure'), :id => "delete_#{u(rule.key)}", :class => 'link-action link-red', :method => 'delete'} %>
             </td>
           </tr>
@@ -32,38 +42,5 @@
         </tbody>
       </table>
     </td>
-    <% if is_admin? %>
-      <td class="sep"></td>
-      <td valign="top" align="right" width="210">
-        <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST" id="manual-rules-form">
-          <table class="admintable" width="100%">
-            <input type="hidden" name="id" value="<%= @rule.id -%>"/>
-            <tr>
-              <td class="left"><h1 class="marginbottom10"><%= @rule && @rule.id.nil? ? 'Create Manual Rule' : 'Edit Manual Rule' -%></h1></td>
-            </tr>
-            <tr>
-              <td class="left" valign="top">
-                Name:<br/><input type="text" name="name" value="<%= h @rule.name -%>"/>
-                <br/>
-                <span class="desc">Ex. : Performance</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="left" valign="top">
-                Description:<br/>
-                <textarea rows="5" cols="25" name="description"><%= h(@rule.description) -%></textarea>
-                <br/>
-              </td>
-            </tr>
-            <tr>
-              <td class="left" valign="top">
-                <input type="submit" value="<%= @rule.id.nil? ? message('create') : message('edit') -%>"/>
-                <%= link_to 'Cancel', { :controller => 'manual_rules', :action => 'index'}, { :class => 'action' } %><br/>
-              </td>
-            </tr>
-          </table>
-        </form>
-      </td>
-    <% end %>
   </tr>
 </table>
