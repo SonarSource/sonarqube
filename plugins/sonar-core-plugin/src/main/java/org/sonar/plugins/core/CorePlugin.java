@@ -135,12 +135,6 @@ import java.util.List;
     defaultValue = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
-    key = "sonar.dryRun.export.path",
-    defaultValue = "dryRun.json",
-    name = "Preview Results Export File",
-    type = PropertyType.STRING,
-    global = false, project = false),
-  @Property(
     key = "sonar.report.export.path",
     defaultValue = "sonar-report.json",
     name = "Report Results Export File",

@@ -50,7 +50,6 @@ import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.report.ComponentSelectorFactory;
-import org.sonar.batch.scan.report.DeprecatedJsonReport;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
@@ -122,10 +121,8 @@ public class ModuleScanContainer extends ComponentContainer {
       new ProfileProvider(),
 
       // report
-      DeprecatedJsonReport.class,
       JsonReport.class,
       ComponentSelectorFactory.class,
-
 
       // issues
       IssuableFactory.class,

@@ -31,7 +31,6 @@ import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.report.DeprecatedJsonReport;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
@@ -44,16 +43,14 @@ public class PostJobsExecutor implements BatchComponent {
   private final Project project;
   private final DefaultModuleFileSystem fs;
   private final MavenPluginExecutor mavenExecutor;
-  private final DeprecatedJsonReport localModeExporter;
   private final EventBus eventBus;
 
   public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor,
-                          DeprecatedJsonReport localModeExporter, EventBus eventBus) {
+                          EventBus eventBus) {
     this.selector = selector;
     this.project = project;
     this.fs = fs;
     this.mavenExecutor = mavenExecutor;
-    this.localModeExporter = localModeExporter;
     this.eventBus = eventBus;
   }
 
@@ -62,7 +59,6 @@ public class PostJobsExecutor implements BatchComponent {
 
     eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), true));
     execute(context, postJobs);
-    exportLocalModeResults();
     eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), false));
   }
 
@@ -91,9 +87,5 @@ public class PostJobsExecutor implements BatchComponent {
         mavenExecutor.execute(project, fs, handler);
       }
     }
-  }
-
-  private void exportLocalModeResults() {
-    localModeExporter.execute();
   }
 }
