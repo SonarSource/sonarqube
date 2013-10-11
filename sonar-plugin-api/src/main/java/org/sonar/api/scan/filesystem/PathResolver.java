@@ -22,9 +22,10 @@ package org.sonar.api.scan.filesystem;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.utils.PathUtils;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -55,10 +56,10 @@ public class PathResolver implements BatchComponent {
     return result;
   }
 
+  @CheckForNull
   public RelativePath relativePath(Collection<File> dirs, File file) {
     List<String> stack = Lists.newArrayList();
-    String path = FilenameUtils.normalize(file.getAbsolutePath());
-    File cursor = new File(path);
+    File cursor = file;
     while (cursor != null) {
       File parentDir = parentDir(dirs, cursor);
       if (parentDir != null) {
@@ -70,12 +71,13 @@ public class PathResolver implements BatchComponent {
     return null;
   }
 
+  @CheckForNull
   public String relativePath(File dir, File file) {
     List<String> stack = Lists.newArrayList();
-    String path = FilenameUtils.normalize(file.getAbsolutePath());
-    File cursor = new File(path);
+    String dirPath = PathUtils.canonicalPath(dir);
+    File cursor = file;
     while (cursor != null) {
-      if (containsFile(dir, cursor)) {
+      if (dirPath.equals(PathUtils.canonicalPath(cursor))) {
         return Joiner.on("/").join(stack);
       }
       stack.add(0, cursor.getName());
@@ -84,17 +86,14 @@ public class PathResolver implements BatchComponent {
     return null;
   }
 
+  @CheckForNull
   private File parentDir(Collection<File> dirs, File cursor) {
     for (File dir : dirs) {
-      if (FilenameUtils.equalsNormalizedOnSystem(dir.getAbsolutePath(), cursor.getAbsolutePath())) {
+      if (PathUtils.canonicalPath(dir).equals(PathUtils.canonicalPath(cursor))) {
         return dir;
       }
     }
     return null;
-  }
-
-  private boolean containsFile(File dir, File cursor) {
-    return FilenameUtils.equalsNormalizedOnSystem(dir.getAbsolutePath(), cursor.getAbsolutePath());
   }
 
   public static final class RelativePath {

@@ -79,6 +79,17 @@ public class PathResolverTest {
   }
 
   @Test
+  public void relative_path_from_not_normalized_dir() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File rootDir = new File(temp.newFolder(), "foo/..");
+    File org = new File(rootDir, "org");
+    File hello = new File(org, "hello");
+    File world = new File(hello, "World.java");
+
+    assertThat(resolver.relativePath(rootDir, world)).isEqualTo("org/hello/World.java");
+  }
+
+  @Test
   public void relative_path_from_multiple_dirs() throws IOException {
     PathResolver resolver = new PathResolver();
     File dir1 = temp.newFolder("D1");
@@ -90,6 +101,21 @@ public class PathResolverTest {
 
     PathResolver.RelativePath relativePath = resolver.relativePath(Arrays.asList(dir1, dir2), world);
     assertThat(relativePath.dir().getCanonicalPath()).isEqualTo(dir2.getCanonicalPath());
+    assertThat(relativePath.path()).isEqualTo("org/hello/World.java");
+  }
+
+  @Test
+  public void relative_path_from_not_normalized_dirs() throws IOException {
+    PathResolver resolver = new PathResolver();
+
+    File rootDir = new File(temp.newFolder(), "foo/..");
+    File org = new File(rootDir, "org");
+    File hello = new File(org, "hello");
+    File world = new File(hello, "World.java");
+
+    PathResolver.RelativePath relativePath = resolver.relativePath(Arrays.asList(rootDir), world);
+    assertThat(relativePath).isNotNull();
+    assertThat(relativePath.dir()).isEqualTo(rootDir);
     assertThat(relativePath.path()).isEqualTo("org/hello/World.java");
   }
 

@@ -119,7 +119,9 @@ public class FileIndex implements BatchComponent {
     for (File sourceFile : sourceFiles) {
       PathResolver.RelativePath sourceDirPath = pathResolver.relativePath(sourceDirs, sourceFile);
       if (sourceDirPath == null) {
-        LoggerFactory.getLogger(getClass()).warn(String.format("File %s is not declared in give source directories", sourceFile.getAbsoluteFile()));
+        LoggerFactory.getLogger(getClass()).warn(String.format(
+          "File '%s' is not declared in source directories %s", sourceFile.getAbsoluteFile(), StringUtils.join(sourceDirs, ", ")
+        ));
       } else {
         indexFile(fileSystem, progress, sourceDirPath.dir(), sourceFile, type);
       }
@@ -139,14 +141,18 @@ public class FileIndex implements BatchComponent {
 
   private void indexFile(ModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
     String path = pathResolver.relativePath(fileSystem.baseDir(), file);
-    if (!cache.containsFile(fileSystem.moduleKey(), path)) {
-      // Not indexed yet
-      InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
-      if (input != null && accept(input)) {
-        cache.put(fileSystem.moduleKey(), input);
+    if (path == null) {
+      LoggerFactory.getLogger(getClass()).warn(String.format("File '%s' is not in basedir '%s'", file.getAbsolutePath(), fileSystem.baseDir()));
+    } else {
+      if (!cache.containsFile(fileSystem.moduleKey(), path)) {
+        // Not indexed yet
+        InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
+        if (input != null && accept(input)) {
+          cache.put(fileSystem.moduleKey(), input);
+        }
       }
-    }
     status.markAsIndexed(path);
+    }
   }
 
   @CheckForNull
