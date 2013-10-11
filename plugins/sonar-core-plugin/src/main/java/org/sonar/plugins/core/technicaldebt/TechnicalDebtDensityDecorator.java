@@ -36,6 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public final class TechnicalDebtDensityDecorator implements Decorator {
 
+  private static final int DECIMALS_PRECISION = 5;
+
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -59,8 +61,8 @@ public final class TechnicalDebtDensityDecorator implements Decorator {
     Measure ncloc = context.getMeasure(CoreMetrics.NCLOC);
 
     if (technicalDebt != null && ncloc != null && ncloc.getValue() > 0d) {
-      double value = technicalDebt.getValue() / ncloc.getValue() * 1000;
-      context.saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT_DENSITY, value));
+      double value = technicalDebt.getValue() / ncloc.getValue();
+      context.saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT_DENSITY, value, DECIMALS_PRECISION));
     }
   }
 
