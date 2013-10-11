@@ -2,7 +2,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
-              <a href="<%=ApplicationController.root_context-%>/groups/create_modal_form" class="open-modal link-action">Add new group</a>
+              <a href="<%=ApplicationController.root_context-%>/groups/create_form" class="open-modal link-action">Add new group</a>
           </li>
       </ul>
     <% end %>
@@ -32,10 +32,7 @@
               <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, {:id => "select-#{u group.name}", :class => 'link-action'} %>)
             </td>
             <td class="operations" style="text-align: right">
-              <%= link_to "Edit", { :action => 'index', :id => group.id},
-                                  { :method => :get, :id => "edit-#{u group.name}", :class => 'link-action'} %>
-              &nbsp;
-              <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_modal_form/<%= h group.id %>">Edit_modal</a>
+              <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_form/<%= h group.id %>">Edit</a>
               &nbsp;
               <%= link_to "Delete", { :action => 'destroy', :id => group.id},
                                     {:confirm => "Are you sure that you want to delete this group? Members will not be deleted.", :class => 'link-action link-red', :method => 'get', :id => "delete-#{u group.name}"} %>
@@ -45,41 +42,6 @@
         </tbody>
       </table>
        <script>TableKit.Sortable.init('groups');</script>
-    </td>
-    <td class="sep"> </td>
-    <td valign="top" align="right" width="210">
-      <%
-        action_name = 'create'
-        title="Add new group"
-        if @group.id
-          action_name = 'update'
-          title='Edit group'
-        end
-      %>
-      <table class="admintable left"  width="100%">
-        <% form_for :group, @group, :url => { :action => action_name, :id => @group.id} do |f| %>
-        <tbody>
-        <tr>
-          <td><h1><%= title %></h1></td>
-        </tr>
-        <tr>
-          <td class="left">
-            Name:<br/>
-            <%= f.text_field :name, :size => 25 %><br/>
-            <span class="desc">Ex: my-group</span></td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">Description:<br/><%= f.text_area :description, :rows => 3, :cols => 25 %></td>
-        </tr>
-        <tr>
-          <td class="left"  nowrap="nowrap" valign="top" colspan="2">
-            <%= submit_tag @group.id.nil? ? 'Create':'Update' %>
-            <%= link_to 'Cancel', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
-          </td>
-        </tr>
-      </tbody>
-      <% end %>
-      </table>
     </td>
   </tr>
 </table>

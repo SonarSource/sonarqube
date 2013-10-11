@@ -1,11 +1,7 @@
-<%
-   action_name = 'create_modal'
-   title="Add new group"
-%>
-<% form_for :group, @group, :url => { :action => action_name, :id => @group.id}, :html => { :id =>'group_modal_form'} do |f| %>
+<% form_for :group, @group, :url => { :action => 'update', :id => @group.id}, :html => { :id =>'group_form'} do |f| %>
   <fieldset>
       <div class="modal-head">
-          <h2><%= title %></h2>
+          <h2>Edit group&nbsp;<%= @group.name -%></h2>
       </div>
 
       <div class="modal-body">
@@ -17,7 +13,7 @@
                end
             %>
           <div class="modal-field">
-            <label for="group[]">Name:<em class="mandatory">*</em></label>
+              <label for="group[]">Name:<em class="mandatory">*</em></label>
               <%= f.text_field :name, :size => 25 %><br/>
               <span class="desc">Ex: my-group</span>
           </div>
@@ -28,11 +24,11 @@
       </div>
 
       <div class="modal-foot">
-          <%= submit_tag 'Create' %>
+          <%= submit_tag 'Save' -%>
           <%= link_to 'Cancel', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
       </div>
   </fieldset>
 <% end %>
 <script>
-  $j("#group_modal_form").modalForm();
+  $j("#group_form").modalForm();
 </script>

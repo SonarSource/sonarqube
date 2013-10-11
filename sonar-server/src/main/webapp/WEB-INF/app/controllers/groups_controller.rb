@@ -31,35 +31,26 @@ class GroupsController < ApplicationController
     end
   end
 
-  def create_modal_form
+  def create_form
     @groups = Group.find(:all, :order => 'name')
     if params[:id]
       @group = Group.find(params[:id])
     else
       @group = Group.new
     end
-    render :partial => 'groups/create_modal_form'
+    render :partial => 'groups/create_form'
   end
 
-  def edit_modal_form
+  def edit_form
     if params[:id]
       @group = Group.find(params[:id])
     else
       @group = Group.new
     end
-    render :partial => 'groups/edit_modal_form'
+    render :partial => 'groups/edit_form'
   end
 
   def create
-	  group = Group.new(params[:group])
-	  if group.save
-      flash[:notice] = 'Group is created.'
-    end
-
-	  to_index(group.errors, nil)
-  end
-
-  def create_modal
     group = Group.new(params[:group])
     if group.save
       flash[:notice] = 'The new group is created.'
@@ -68,20 +59,11 @@ class GroupsController < ApplicationController
       @group = group
       @errors = []
       group.errors.full_messages.each{|msg| @errors<<msg}
-      render :partial => 'groups/create_modal_form', :status => 400
+      render :partial => 'groups/create_form', :status => 400
     end
   end
 
   def update
-    group = Group.find(params[:id])
-    if group.update_attributes(params[:group])
-      flash[:notice] = 'Group is updated.'
-    end
-	
-    to_index(group.errors, nil)
-  end
-
-  def update_modal
     group = Group.find(params[:id])
     if group.update_attributes(params[:group])
       flash[:notice] = 'Group is updated.'
@@ -90,7 +72,7 @@ class GroupsController < ApplicationController
       @group = group
       @errors = []
       group.errors.full_messages.each{|msg| @errors<<msg}
-      render :partial => 'groups/edit_modal_form', :status => 400
+      render :partial => 'groups/edit_form', :status => 400
     end
   end
 
