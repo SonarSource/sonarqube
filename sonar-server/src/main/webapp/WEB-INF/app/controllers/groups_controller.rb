@@ -30,14 +30,46 @@ class GroupsController < ApplicationController
       @group = Group.new
     end
   end
-  
+
+  def create_modal_form
+    @groups = Group.find(:all, :order => 'name')
+    if params[:id]
+      @group = Group.find(params[:id])
+    else
+      @group = Group.new
+    end
+    render :partial => 'groups/create_modal_form'
+  end
+
+  def edit_modal_form
+    if params[:id]
+      @group = Group.find(params[:id])
+    else
+      @group = Group.new
+    end
+    render :partial => 'groups/edit_modal_form'
+  end
+
   def create
 	  group = Group.new(params[:group])
 	  if group.save
       flash[:notice] = 'Group is created.'
     end
-    
+
 	  to_index(group.errors, nil)
+  end
+
+  def create_modal
+    group = Group.new(params[:group])
+    if group.save
+      flash[:notice] = 'The new group is created.'
+      render :text => 'ok', :status => 200
+    else
+      @group = group
+      @errors = []
+      group.errors.full_messages.each{|msg| @errors<<msg}
+      render :partial => 'groups/create_modal_form', :status => 400
+    end
   end
 
   def update
@@ -47,6 +79,19 @@ class GroupsController < ApplicationController
     end
 	
     to_index(group.errors, nil)
+  end
+
+  def update_modal
+    group = Group.find(params[:id])
+    if group.update_attributes(params[:group])
+      flash[:notice] = 'Group is updated.'
+      render :text => 'ok', :status => 200
+    else
+      @group = group
+      @errors = []
+      group.errors.full_messages.each{|msg| @errors<<msg}
+      render :partial => 'groups/edit_modal_form', :status => 400
+    end
   end
 
   def destroy

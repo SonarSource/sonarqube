@@ -1,7 +1,18 @@
+<div class="line-block">
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a href="<%=ApplicationController.root_context-%>/groups/create_modal_form" class="open-modal link-action">Add new group</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1 class="marginbottom10">Groups</h1>
+</div>
+
+
 <table width="100%">
   <tr>
     <td valign="top">
-      <h1 class="marginbottom10">Groups</h1>
 
       <table class="data width100 sortable" id="groups">
         <thead>
@@ -23,6 +34,8 @@
             <td class="operations" style="text-align: right">
               <%= link_to "Edit", { :action => 'index', :id => group.id},
                                   { :method => :get, :id => "edit-#{u group.name}", :class => 'link-action'} %>
+              &nbsp;
+              <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_modal_form/<%= h group.id %>">Edit_modal</a>
               &nbsp;
               <%= link_to "Delete", { :action => 'destroy', :id => group.id},
                                     {:confirm => "Are you sure that you want to delete this group? Members will not be deleted.", :class => 'link-action link-red', :method => 'get', :id => "delete-#{u group.name}"} %>
