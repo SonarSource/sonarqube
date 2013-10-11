@@ -1,36 +1,18 @@
 <%
-   technical_debt = measure('sqale_index')
-   technical_debt_density = measure('technical_debt_density')
-   unless technical_debt && technical_debt.value
+   index = measure('sqale_index')
+   unless index && index.value
 %>
     <h3><%= message('widget.technical_debt.name') -%></h3>
     <span style="color: #777777; font-size: 93%; font-style:italic"><%= message('widget.technical_debt.no_info_available') -%></span>
 <%
    else
 %>
-    <table width="100%">
-      <tr>
-        <td valign="top" width="48%" nowrap>
-          <div class="dashbox">
-            <h3><%= message('widget.technical_debt.name') -%></h3>
-            <p>
-              <a href="<%= url_for_drilldown('sqale_index') -%>">
-                <span class="big"><%= number_with_precision(technical_debt.value, :precision => 1) -%></span>&nbsp;<%= message('widget.technical_debt.days') -%></a>
-              <%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%>
-            </p>
-          </div>
-        </td>
-        <td width="10"> </td>
-        <td valign="top">
-          <div class="dashbox">
-            <h3><%= message('widget.technical_debt.technical_debt_density') -%></h3>
-            <p>
-              <a href="<%= url_for_drilldown('technical_debt_density') -%>">
-                <span class="big"><%= number_with_precision(technical_debt_density.value, :precision => 1) -%></span></a>
-              <%= dashboard_configuration.selected_period? ? format_variation(technical_debt_density) : trend_icon(technical_debt_density) -%>
-            </p>
-          </div>
-        </td>
-      </tr>
-    </table>
+    <div class="dashbox marginright10">
+      <h3><%= message('widget.technical_debt.name') -%></h3>
+      <p>
+        <a href="<%= url_for_drilldown('sqale_index') -%>">
+          <span class="big"><%= number_with_precision(index.value, :precision => 1) -%></span>&nbsp;<%= message('widget.technical_debt.days') -%></a>
+        <%= dashboard_configuration.selected_period? ? format_variation(index) : trend_icon(index) -%>
+      </p>
+    </div>
 <% end %>
