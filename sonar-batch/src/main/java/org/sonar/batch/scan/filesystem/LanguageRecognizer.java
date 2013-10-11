@@ -19,48 +19,68 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.Maps;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Detect language of source files. Simplistic, based on file extensions.
  */
 public class LanguageRecognizer implements BatchComponent, Startable {
 
-  /**
-   * Lower-case extension -> language
-   */
-  private Map<String, String> byExtensions = Maps.newHashMap();
+  static final String NO_EXTENSION = "<UNSET>";
 
+  private final Project project;
   private final Language[] languages;
 
-  public LanguageRecognizer(Language[] languages) {
+  /**
+   * Lower-case extension -> languages
+   */
+  private SetMultimap<String, String> langsByExtension = HashMultimap.create();
+
+  public LanguageRecognizer(Project project, Language[] languages) {
+    this.project = project;
     this.languages = languages;
   }
 
   @Override
   public void start() {
     for (Language language : languages) {
-      for (String suffix : language.getFileSuffixes()) {
-        String extension = sanitizeExtension(suffix);
+      if (language.getFileSuffixes().length == 0) {
+        langsByExtension.put(NO_EXTENSION, language.getKey());
 
-        String s = byExtensions.get(extension);
-        if (s != null && !StringUtils.equals(s, language.getKey())) {
-          throw new IllegalStateException(String.format(
-            "File extension '%s' is declared by two languages: %s and %s", extension, s, language.getKey()
-          ));
+      } else {
+        for (String suffix : language.getFileSuffixes()) {
+          String extension = sanitizeExtension(suffix);
+          langsByExtension.put(extension, language.getKey());
         }
-        byExtensions.put(extension, language.getKey());
       }
     }
+
+    for (String extension : langsByExtension.keySet()) {
+      Set<String> langs = langsByExtension.get(extension);
+      if (langs.size() > 1) {
+        warnConflict(extension, langs);
+      }
+    }
+  }
+
+  @VisibleForTesting
+  void warnConflict(String extension, Set<String> langs) {
+    LoggerFactory.getLogger(LanguageRecognizer.class).warn(String.format(
+      "File extension '%s' is declared by several plugins: %s", extension, StringUtils.join(langs, ", ")
+    ));
   }
 
   @Override
@@ -68,14 +88,13 @@ public class LanguageRecognizer implements BatchComponent, Startable {
     // do nothing
   }
 
-  // TODO what about cobol files without extension ?
   @CheckForNull
   String of(File file) {
-    String extension = FilenameUtils.getExtension(file.getName());
-    if (StringUtils.isNotBlank(extension)) {
-      return byExtensions.get(StringUtils.lowerCase(extension));
-    }
-    return null;
+    // multi-language is not supported yet. Filter on project language
+    String extension = sanitizeExtension(FilenameUtils.getExtension(file.getName()));
+    extension = StringUtils.defaultIfBlank(extension, NO_EXTENSION);
+    Set<String> langs = langsByExtension.get(extension);
+    return langs.contains(project.getLanguageKey()) ? project.getLanguageKey() : null;
   }
 
   static String sanitizeExtension(String suffix) {

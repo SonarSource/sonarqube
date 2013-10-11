@@ -151,9 +151,8 @@ public class FileIndex implements BatchComponent {
 
   @CheckForNull
   private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String path) {
-    // File extension must be kept case-sensitive
     String lang = languageRecognizer.of(file);
-    if (lang == null) {
+    if (lang==null) {
       return null;
     }
 

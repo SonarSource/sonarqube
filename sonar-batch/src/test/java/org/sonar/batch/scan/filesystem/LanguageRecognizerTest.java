@@ -22,11 +22,14 @@ package org.sonar.batch.scan.filesystem;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.resources.Java;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.*;
 
 public class LanguageRecognizerTest {
 
@@ -43,13 +46,18 @@ public class LanguageRecognizerTest {
 
   @Test
   public void search_by_file_extension() throws Exception {
-    Language[] languages = new Language[]{Java.INSTANCE, new Cobol()};
-    LanguageRecognizer recognizer = new LanguageRecognizer(languages);
+    Language[] languages = new Language[]{new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")};
+    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
 
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("Foo.java"))).isEqualTo(Java.KEY);
-    assertThat(recognizer.of(temp.newFile("abc.cbl"))).isEqualTo("cobol");
-    assertThat(recognizer.of(temp.newFile("abc.CBL"))).isEqualTo("cobol");
+    assertThat(recognizer.of(temp.newFile("Foo.java"))).isEqualTo("java");
+    assertThat(recognizer.of(temp.newFile("Foo.JAVA"))).isEqualTo("java");
+    assertThat(recognizer.of(temp.newFile("Foo.jav"))).isEqualTo("java");
+    assertThat(recognizer.of(temp.newFile("Foo.Jav"))).isEqualTo("java");
+
+    // multi-language is not supported yet -> filter on project language
+    assertThat(recognizer.of(temp.newFile("abc.cbl"))).isNull();
+    assertThat(recognizer.of(temp.newFile("abc.CBL"))).isNull();
     assertThat(recognizer.of(temp.newFile("abc.php"))).isNull();
     assertThat(recognizer.of(temp.newFile("abc"))).isNull();
     recognizer.stop();
@@ -57,72 +65,77 @@ public class LanguageRecognizerTest {
 
   @Test
   public void fail_if_conflict_of_file_extensions() throws Exception {
-    Language[] languages = new Language[]{Java.INSTANCE, new Language() {
-      @Override
-      public String getKey() {
-        return "java2";
-      }
+    Language[] languages = new Language[]{new MockLanguage("java", "java"), new MockLanguage("java2", "java", "java2")};
 
-      @Override
-      public String getName() {
-        return "Java2";
-      }
+    LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java"), languages));
+    recognizer.start();
 
+    verify(recognizer).warnConflict(eq("java"), argThat(new ArgumentMatcher<Set<String>>() {
       @Override
-      public String[] getFileSuffixes() {
-        return new String[]{"java2", "java"};
+      public boolean matches(Object o) {
+        Set<String> set = (Set<String>) o;
+        return set.contains("java") && set.contains("java2") && set.size() == 2;
       }
-    }};
-
-    try {
-      new LanguageRecognizer(languages).start();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("File extension 'java' is declared by two languages: java and java2");
-    }
+    }));
   }
+
 
   @Test
   public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
-    Language[] languages = new Language[]{new Language() {
-      @Override
-      public String getKey() {
-        return "abap";
-      }
+    Language[] languages = new Language[]{new MockLanguage("abap", "abap", "ABAP")};
 
-      @Override
-      public String getName() {
-        return "ABAP";
-      }
-
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[]{"abap", "ABAP"};
-      }
-    }};
-
-    LanguageRecognizer recognizer = new LanguageRecognizer(languages);
+    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("abap"), languages);
     recognizer.start();
     assertThat(recognizer.of(temp.newFile("abc.abap"))).isEqualTo("abap");
+  }
+
+  @Test
+  public void language_with_no_extension() throws Exception {
+    // abap here is associated to files without extension
+    Language[] languages = new Language[]{new MockLanguage("java", "java"), new MockLanguage("abap")};
+
+    // files without extension are detected only on abap projects
+    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
+    recognizer.start();
+    assertThat(recognizer.of(temp.newFile("abc"))).isNull();
+    recognizer.stop();
+
+    recognizer = new LanguageRecognizer(newProject("abap"), languages);
+    recognizer.start();
+    assertThat(recognizer.of(temp.newFile("abc"))).isEqualTo("abap");
+    recognizer.stop();
 
   }
 
-  static class Cobol implements Language {
+  private Project newProject(String language) {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(language);
+    return project;
+  }
+
+
+  static class MockLanguage implements Language {
+    private final String key;
+    private final String[] extensions;
+
+    MockLanguage(String key, String... extensions) {
+      this.key = key;
+      this.extensions = extensions;
+    }
+
     @Override
     public String getKey() {
-      return "cobol";
+      return key;
     }
 
     @Override
     public String getName() {
-      return "Cobol";
+      return key;
     }
 
     @Override
     public String[] getFileSuffixes() {
-      return new String[]{"cbl", "cob"};
+      return extensions;
     }
   }
-
-
 }
