@@ -429,6 +429,7 @@ table.data > thead > tr > th {
   font-size: 93%;
   padding: 4px 7px 4px 3px;
   font-weight: bold;
+  vertical-align: top;
 }
 
 table.data > tfoot > tr > td {
@@ -2440,7 +2441,7 @@ textarea.width100 {
 }
 
 .property > th, .property > td {
-  vertical-align: baseline;
+  vertical-align: top;
   padding: 10px;
 }
 
@@ -2449,8 +2450,7 @@ textarea.width100 {
 }
 
 .property table.data {
-  width: auto;
-  min-width: 480px;
+  width: 480px;
 }
 
 .property textarea {
