@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.issues;
 
-import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@UserRole(UserRole.USER)
-@WidgetCategory("Technical Debt")
-public final class TechnicalDebtWidget extends CoreWidget {
+@WidgetCategory({"Issues", "Technical Debt"})
+public class IssuesWidget extends CoreWidget {
 
-  public TechnicalDebtWidget() {
-    super("technical_debt", "Technical Debt", "/org/sonar/plugins/core/widgets/technical_debt.html.erb");
+  public IssuesWidget() {
+    super("rules", "Issues and Technical Debt", "/org/sonar/plugins/core/widgets/issues/issues.html.erb");
   }
 }

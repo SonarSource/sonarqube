@@ -1,5 +1,6 @@
 <%
    issues = @snapshot.measure('violations')
+   technical_debt = @snapshot.measure('sqale_index')
    blocker_issues = @snapshot.measure('blocker_violations')
    critical_issues = @snapshot.measure('critical_violations')
    major_issues = @snapshot.measure('major_violations')
@@ -9,7 +10,7 @@
 %>
 <table width="100%">
   <tr>
-    <td valign="top">
+    <td width="50%" valign="top">
       <div class="dashbox">
         <h3><%= message('widget.rules.issues') -%></h3>
         <div class="marginbottom10">
@@ -34,16 +35,26 @@
             <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
               <br/>
                 <span style="font-weight: bold">
-                  <%= message('widget.rules.removed') -%>&nbsp;
+                  <%= message('widget.rules.removed') -%>&nbsp;·
                   <span class="varb"><%= number_with_precision(estimated_cleared_issues, :precision => 0) -%></span>
                 </span>
             <% end %>
           <% end %>
         </div>
+        <% if technical_debt %>
+          <h3><%= message('widget.rules.technical_debt') -%></h3>
+          <div>
+            <span class="big">
+              <a href="<%= url_for_drilldown('sqale_index') -%>"><%= format_measure(technical_debt) -%></a>
+            </span>
+            <span><%= message('widget.rules.technical_debt.days') -%></span>
+            <span><%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%></span>
+          </div>
+        <% end %>
       </div>
     </td>
 
-    <td valign="top" nowrap>
+    <td width="50%" valign="top" nowrap>
       <%
          values = [blocker_issues, critical_issues, major_issues, minor_issues, info_issues]
          if dashboard_configuration.selected_period?
@@ -63,6 +74,7 @@
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(blocker_issues) : trend_icon(blocker_issues, :empty => true) -%>
           </td>
+          <td>&nbsp;</td>
           <td align="left" style="padding-bottom:2px; padding-top:2px;">
             <% if max > 0 %>
               <% if dashboard_configuration.selected_period? %>
@@ -83,6 +95,7 @@
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(critical_issues) : trend_icon(critical_issues, :empty => true) -%>
           </td>
+          <td>&nbsp;</td>
           <td align="left" style="padding-bottom:2px; padding-top:2px;">
             <% if max > 0 %>
               <% if dashboard_configuration.selected_period? %>
@@ -103,6 +116,7 @@
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(major_issues) : trend_icon(major_issues, :empty => true) -%>
           </td>
+          <td>&nbsp;</td>
           <td align="left" style="padding-bottom:2px; padding-top:2px;">
             <% if max > 0 %>
               <% if dashboard_configuration.selected_period? %>
@@ -123,6 +137,7 @@
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(minor_issues) : trend_icon(minor_issues, :empty => true) -%>
           </td>
+          <td>&nbsp;</td>
           <td align="left" style="padding-bottom:2px; padding-top:2px;">
             <% if max > 0 %>
               <% if dashboard_configuration.selected_period? %>
@@ -143,6 +158,7 @@
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(info_issues) : trend_icon(info_issues, :empty => true) -%>
           </td>
+          <td>&nbsp;</td>
           <td align="left" style="padding-bottom:2px; padding-top:2px;">
             <% if max > 0 %>
               <% if dashboard_configuration.selected_period? %>
