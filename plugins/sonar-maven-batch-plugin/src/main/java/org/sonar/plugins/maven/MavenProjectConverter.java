@@ -33,12 +33,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.task.TaskExtension;
-import org.sonar.api.utils.PathUtils;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,8 +54,13 @@ public class MavenProjectConverter implements TaskExtension {
     Map<String, MavenProject> paths = Maps.newHashMap();
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
 
-    configureModules(poms, paths, defs);
-    rebuildModuleHierarchy(paths, defs);
+    try {
+      configureModules(poms, paths, defs);
+
+      rebuildModuleHierarchy(paths, defs);
+    } catch (IOException e) {
+      throw new IllegalStateException("Cannot configure project", e);
+    }
 
     ProjectDefinition rootProject = defs.get(root);
     if (rootProject == null) {
@@ -65,7 +69,7 @@ public class MavenProjectConverter implements TaskExtension {
     return rootProject;
   }
 
-  private void rebuildModuleHierarchy(Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) {
+  private void rebuildModuleHierarchy(Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) throws IOException {
     for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
       MavenProject pom = entry.getValue();
       for (Object m : pom.getModules()) {
@@ -86,26 +90,26 @@ public class MavenProjectConverter implements TaskExtension {
     }
   }
 
-  private void configureModules(List<MavenProject> poms, Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) {
+  private void configureModules(List<MavenProject> poms, Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) throws IOException {
     for (MavenProject pom : poms) {
-      paths.put(PathUtils.canonicalPath(pom.getFile()), pom);
+      paths.put(pom.getFile().getCanonicalPath(), pom);
       ProjectDefinition def = ProjectDefinition.create();
       merge(pom, def);
       defs.put(pom, def);
     }
   }
 
-  private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) {
+  private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) throws IOException {
     if (modulePath.exists() && modulePath.isDirectory()) {
       for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
         String pomFileParentDir = new File(entry.getKey()).getParent();
-        if (pomFileParentDir.equals(PathUtils.canonicalPath(modulePath))) {
+        if (pomFileParentDir.equals(modulePath.getCanonicalPath())) {
           return entry.getValue();
         }
       }
       return null;
     }
-    return paths.get(PathUtils.canonicalPath(modulePath));
+    return paths.get(modulePath.getCanonicalPath());
   }
 
   @VisibleForTesting
@@ -114,12 +118,12 @@ public class MavenProjectConverter implements TaskExtension {
     // IMPORTANT NOTE : reference on properties from POM model must not be saved,
     // instead they should be copied explicitly - see SONAR-2896
     definition
-        .setProperties(pom.getModel().getProperties())
-        .setKey(key)
-        .setVersion(pom.getVersion())
-        .setName(pom.getName())
-        .setDescription(pom.getDescription())
-        .addContainerExtension(pom);
+      .setProperties(pom.getModel().getProperties())
+      .setKey(key)
+      .setVersion(pom.getVersion())
+      .setName(pom.getName())
+      .setDescription(pom.getDescription())
+      .addContainerExtension(pom);
     guessJavaVersion(pom, definition);
     guessEncoding(pom, definition);
     convertMavenLinksToProperties(definition, pom);
@@ -234,7 +238,7 @@ public class MavenProjectConverter implements TaskExtension {
         try {
           file = new File(basedir, path).getCanonicalFile();
         } catch (IOException e) {
-          throw new SonarException("Unable to resolve path '" + path + "'", e);
+          throw new IllegalStateException("Unable to resolve path '" + path + "'", e);
         }
       }
       return file;

@@ -51,7 +51,7 @@ public class MavenProjectConverterTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private MavenProjectConverter mavenProjectConverter = new MavenProjectConverter();
+  MavenProjectConverter mavenProjectConverter = new MavenProjectConverter();
 
   /**
    * See SONAR-2681
