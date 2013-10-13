@@ -24,8 +24,16 @@ import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 class Connectors {
+
+  private static final int DISABLED_PORT = -1;
+  static final String HTTP_PROTOCOL = "HTTP/1.1";
+  static final String AJP_PROTOCOL = "AJP/1.3";
 
   static void configure(Tomcat tomcat, Props props) {
     tomcat.getServer().setAddress(props.of("sonar.web.host", "0.0.0.0"));
@@ -34,23 +42,17 @@ class Connectors {
   }
 
   private static void configureConnectors(Tomcat tomcat, Props props) {
-    Connector http = newHttpConnector(props);
-    Connector https = newHttpsConnector(props);
+    List<Connector> connectors = new ArrayList<Connector>();
+    connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
+    connectors.removeAll(Collections.singleton(null));
 
-    if (http == null) {
-      if (https == null) {
-        throw new IllegalStateException("Both HTTP and HTTPS connectors are disabled");
-      }
-      // Enable only HTTPS
-      tomcat.setConnector(https);
-      tomcat.getService().addConnector(https);
-    } else {
-      // Both HTTP and HTTPS are enabled
-      tomcat.setConnector(http);
-      tomcat.getService().addConnector(http);
-      if (https != null) {
-        tomcat.getService().addConnector(https);
-      }
+    if (connectors.isEmpty()) {
+      throw new IllegalStateException("HTTP connectors are disabled");
+    }
+
+    tomcat.setConnector(connectors.get(0));
+    for (Connector connector : connectors) {
+      tomcat.getService().addConnector(connector);
     }
   }
 
@@ -67,10 +69,10 @@ class Connectors {
   @Nullable
   private static Connector newHttpConnector(Props props) {
     Connector connector = null;
-    if (props.booleanOf("sonar.web.http.enable", true)) {
-      connector = newConnector(props, "http");
-      // Not named "sonar.web.http.port" to keep backward-compatibility
-      int port = props.intOf("sonar.web.port", 9000);
+    // Not named "sonar.web.http.port" to keep backward-compatibility
+    int port = props.intOf("sonar.web.port", 9000);
+    if (port > DISABLED_PORT) {
+      connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
       info("HTTP connector is enabled on port " + port);
     }
@@ -78,11 +80,23 @@ class Connectors {
   }
 
   @Nullable
+  private static Connector newAjpConnector(Props props) {
+    Connector connector = null;
+    int port = props.intOf("sonar.web.ajp.port", DISABLED_PORT);
+    if (port > DISABLED_PORT) {
+      connector = newConnector(props, AJP_PROTOCOL, "ajp");
+      connector.setPort(port);
+      info("AJP connector is enabled on port " + port);
+    }
+    return connector;
+  }
+
+  @Nullable
   private static Connector newHttpsConnector(Props props) {
     Connector connector = null;
-    if (props.booleanOf("sonar.web.https.enable")) {
-      connector = newConnector(props, "https");
-      int port = props.intOf("sonar.web.https.port", 9443);
+    int port = props.intOf("sonar.web.https.port", DISABLED_PORT);
+    if (port > DISABLED_PORT) {
+      connector = newConnector(props, HTTP_PROTOCOL, "https");
       connector.setPort(port);
       connector.setSecure(true);
       connector.setScheme("https");
@@ -101,8 +115,8 @@ class Connectors {
     return connector;
   }
 
-  private static Connector newConnector(Props props, String scheme) {
-    Connector connector = new Connector("HTTP/1.1");
+  private static Connector newConnector(Props props, String protocol, String scheme) {
+    Connector connector = new Connector(protocol);
     connector.setURIEncoding("UTF-8");
     configurePool(props, connector, scheme);
     configureCompression(connector);

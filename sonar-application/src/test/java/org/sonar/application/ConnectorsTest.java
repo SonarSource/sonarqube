@@ -69,25 +69,62 @@ public class ConnectorsTest {
   }
 
   @Test
-  public void fail_if_both_http_and_https_are_disabled() {
+  public void different_thread_pools_for_connectors() throws Exception {
     Properties p = new Properties();
-    p.setProperty("sonar.web.http.enable", "false");
-    p.setProperty("sonar.web.https.enable", "false");
+    p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.web.http.minThreads", "2");
+    p.setProperty("sonar.web.ajp.port", "9010");
+    p.setProperty("sonar.web.ajp.minThreads", "4");
+    p.setProperty("sonar.web.https.port", "9443");
+    p.setProperty("sonar.web.https.minThreads", "5");
+    Props props = new Props(p);
+
+    Connectors.configure(tomcat, props);
+
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getPort() == 9000 && c.getProperty("minSpareThreads").equals(2);
+      }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getPort() == 9010 && c.getProperty("minSpareThreads").equals(4);
+      }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getPort() == 9443 && c.getProperty("minSpareThreads").equals(5);
+      }
+    }));
+  }
+
+  @Test
+  public void fail_if_http_connectors_are_disabled() {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.port", "-1");
+    p.setProperty("sonar.web.https.port", "-1");
     Props props = new Props(p);
 
     try {
       Connectors.configure(tomcat, props);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Both HTTP and HTTPS connectors are disabled");
+      assertThat(e.getMessage()).isEqualTo("HTTP connectors are disabled");
     }
   }
 
   @Test
   public void only_https_is_enabled() {
     Properties p = new Properties();
-    p.setProperty("sonar.web.http.enable", "false");
-    p.setProperty("sonar.web.https.enable", "true");
+    p.setProperty("sonar.web.port", "-1");
+    p.setProperty("sonar.web.ajp.port", "-1");
+    p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
     Connectors.configure(tomcat, props);
@@ -95,17 +132,18 @@ public class ConnectorsTest {
     verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
-        Connector c = (Connector)o;
-        return c.getScheme().equals("https") && c.getPort()==9443;
+        Connector c = (Connector) o;
+        return c.getScheme().equals("https") && c.getPort() == 9443;
       }
     }));
   }
 
   @Test
-  public void both_http_and_https_are_enabled() {
+  public void all_connectors_are_enabled() {
     Properties p = new Properties();
-    p.setProperty("sonar.web.http.enable", "true");
-    p.setProperty("sonar.web.https.enable", "true");
+    p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.web.ajp.port", "9010");
+    p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
     Connectors.configure(tomcat, props);
@@ -113,15 +151,39 @@ public class ConnectorsTest {
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
-        Connector c = (Connector)o;
-        return c.getScheme().equals("http") && c.getPort()==9000;
+        Connector c = (Connector) o;
+        return c.getScheme().equals("http") && c.getPort() == 9000 && c.getProtocol().equals(Connectors.HTTP_PROTOCOL);
       }
     }));
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
-        Connector c = (Connector)o;
-        return c.getScheme().equals("https") && c.getPort()==9443;
+        Connector c = (Connector) o;
+        return c.getScheme().equals("http") && c.getPort() == 9010 && c.getProtocol().equals(Connectors.AJP_PROTOCOL);
+      }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("https") && c.getPort() == 9443 && c.getProtocol().equals(Connectors.HTTP_PROTOCOL);
+      }
+    }));
+  }
+
+  @Test
+  public void ajp_connector_is_enabled() {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.ajp.port", "9010");
+    Props props = new Props(p);
+
+    Connectors.configure(tomcat, props);
+
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("http") && c.getPort() == 9010 && c.getProtocol().equals(Connectors.AJP_PROTOCOL);
       }
     }));
   }
