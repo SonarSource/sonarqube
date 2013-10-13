@@ -21,47 +21,114 @@ package org.sonar.application;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 class Connectors {
-
-  static final String PROPERTY_SHUTDOWN_TOKEN = "sonar.web.shutdown.token";
-  static final String PROPERTY_SHUTDOWN_PORT = "sonar.web.shutdown.port";
-  static final String PROPERTY_MIN_THREADS = "sonar.web.connections.minThreads";
-  static final String PROPERTY_MAX_THREADS = "sonar.web.connections.maxThreads";
-  static final String PROPERTY_ACCEPT_COUNT = "sonar.web.connections.acceptCount";
 
   static void configure(Tomcat tomcat, Props props) {
     tomcat.getServer().setAddress(props.of("sonar.web.host", "0.0.0.0"));
     configureShutdown(tomcat, props);
-
-    Connector connector = new Connector("HTTP/1.1");
-    connector.setPort(props.intOf("sonar.web.port", 9000));
-    connector.setURIEncoding("UTF-8");
-    configurePool(props, connector);
-    configureCompression(connector);
-    tomcat.setConnector(connector);
-    tomcat.getService().addConnector(connector);
+    configureConnectors(tomcat, props);
   }
 
-  private static void configureShutdown(Tomcat tomcat, Props props) {
-    String shutdownToken = props.of(PROPERTY_SHUTDOWN_TOKEN);
-    Integer shutdownPort = props.intOf(PROPERTY_SHUTDOWN_PORT);
-    if (shutdownToken != null && !"".equals(shutdownToken) && shutdownPort != null) {
-      tomcat.getServer().setPort(shutdownPort);
-      tomcat.getServer().setShutdown(shutdownToken);
+  private static void configureConnectors(Tomcat tomcat, Props props) {
+    Connector http = newHttpConnector(props);
+    Connector https = newHttpsConnector(props);
+
+    if (http == null) {
+      if (https == null) {
+        throw new IllegalStateException("Both HTTP and HTTPS connectors are disabled");
+      }
+      // Enable only HTTPS
+      tomcat.setConnector(https);
+      tomcat.getService().addConnector(https);
+    } else {
+      // Both HTTP and HTTPS are enabled
+      tomcat.setConnector(http);
+      tomcat.getService().addConnector(http);
+      if (https != null) {
+        tomcat.getService().addConnector(https);
+      }
     }
   }
 
-  private static void configurePool(Props props, Connector connector) {
+  private static void configureShutdown(Tomcat tomcat, Props props) {
+    String shutdownToken = props.of("sonar.web.shutdown.token");
+    Integer shutdownPort = props.intOf("sonar.web.shutdown.port");
+    if (shutdownToken != null && !"".equals(shutdownToken) && shutdownPort != null) {
+      tomcat.getServer().setPort(shutdownPort);
+      tomcat.getServer().setShutdown(shutdownToken);
+      info("Shutdown command is enabled on port " + shutdownPort);
+    }
+  }
+
+  @Nullable
+  private static Connector newHttpConnector(Props props) {
+    Connector connector = null;
+    if (props.booleanOf("sonar.web.http.enable", true)) {
+      connector = newConnector(props, "http");
+      // Not named "sonar.web.http.port" to keep backward-compatibility
+      int port = props.intOf("sonar.web.port", 9000);
+      connector.setPort(port);
+      info("HTTP connector is enabled on port " + port);
+    }
+    return connector;
+  }
+
+  @Nullable
+  private static Connector newHttpsConnector(Props props) {
+    Connector connector = null;
+    if (props.booleanOf("sonar.web.https.enable")) {
+      connector = newConnector(props, "https");
+      int port = props.intOf("sonar.web.https.port", 9443);
+      connector.setPort(port);
+      connector.setSecure(true);
+      connector.setScheme("https");
+      setConnectorAttribute(connector, "keyAlias", props.of("sonar.web.https.keyAlias"));
+      String keyPassword = props.of("sonar.web.https.keyPass", "changeit");
+      setConnectorAttribute(connector, "keyPass", keyPassword);
+      setConnectorAttribute(connector, "keystorePass", props.of("sonar.web.https.keystorePass", keyPassword));
+      setConnectorAttribute(connector, "keystoreFile", props.of("sonar.web.https.keystoreFile"));
+      setConnectorAttribute(connector, "keystoreType", props.of("sonar.web.https.keystoreType", "JKS"));
+      setConnectorAttribute(connector, "keystoreProvider", props.of("sonar.web.https.keystoreProvider"));
+      setConnectorAttribute(connector, "clientAuth", false);
+      setConnectorAttribute(connector, "sslProtocol", "TLS");
+      setConnectorAttribute(connector, "SSLEnabled", true);
+      info("HTTPS connector is enabled on port " + port);
+    }
+    return connector;
+  }
+
+  private static Connector newConnector(Props props, String scheme) {
+    Connector connector = new Connector("HTTP/1.1");
+    connector.setURIEncoding("UTF-8");
+    configurePool(props, connector, scheme);
+    configureCompression(connector);
+    return connector;
+  }
+
+  private static void configurePool(Props props, Connector connector, String scheme) {
     connector.setProperty("acceptorThreadCount", String.valueOf(2));
-    connector.setProperty("minSpareThreads", String.valueOf(props.intOf(PROPERTY_MIN_THREADS, 5)));
-    connector.setProperty("maxThreads", String.valueOf(props.intOf(PROPERTY_MAX_THREADS, 50)));
-    connector.setProperty("acceptCount", String.valueOf(props.intOf(PROPERTY_ACCEPT_COUNT, 25)));
+    connector.setProperty("minSpareThreads", String.valueOf(props.intOf("sonar.web." + scheme + ".minThreads", 5)));
+    connector.setProperty("maxThreads", String.valueOf(props.intOf("sonar.web." + scheme + ".maxThreads", 50)));
+    connector.setProperty("acceptCount", String.valueOf(props.intOf("sonar.web." + scheme + ".acceptCount", 25)));
   }
 
   private static void configureCompression(Connector connector) {
     connector.setProperty("compression", "on");
     connector.setProperty("compressionMinSize", "1024");
     connector.setProperty("compressableMimeType", "text/html,text/xml,text/plain,text/css,application/json,application/javascript");
+  }
+
+  private static void setConnectorAttribute(Connector c, String key, @Nullable Object value) {
+    if (value != null) {
+      c.setAttribute(key, value);
+    }
+  }
+
+  private static void info(String message) {
+    LoggerFactory.getLogger(Connectors.class).info(message);
   }
 }

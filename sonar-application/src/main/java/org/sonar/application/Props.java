@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * TODO support env substitution
+ * TODO support env substitution and encryption
  */
 class Props {
   private final Properties props;
@@ -50,6 +50,11 @@ class Props {
   boolean booleanOf(String key) {
     String s = of(key);
     return s != null && Boolean.parseBoolean(s);
+  }
+
+  boolean booleanOf(String key, boolean defaultValue) {
+    String s = of(key);
+    return s != null ? Boolean.parseBoolean(s) : defaultValue;
   }
 
   Integer intOf(String key) {

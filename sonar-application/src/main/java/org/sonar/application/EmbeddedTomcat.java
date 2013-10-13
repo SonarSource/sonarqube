@@ -19,7 +19,10 @@
  */
 package org.sonar.application;
 
+import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 
@@ -67,7 +70,6 @@ class EmbeddedTomcat {
     Logging.configure(tomcat, env);
     Connectors.configure(tomcat, props);
     Webapp.configure(tomcat, env, props);
-
     tomcat.start();
     addShutdownHook();
     tomcat.getServer().await();
@@ -117,6 +119,10 @@ class EmbeddedTomcat {
   }
 
   int port() {
-    return tomcat.getService().findConnectors()[0].getLocalPort();
+    Connector[] connectors = tomcat.getService().findConnectors();
+    if (connectors.length > 0) {
+      return connectors[0].getLocalPort();
+    }
+    return -1;
   }
 }

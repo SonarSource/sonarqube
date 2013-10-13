@@ -28,7 +28,7 @@ class Webapp {
   private static final String RAILS_ENV = "rails.env";
 
   static void configure(Tomcat tomcat, Env env, Props props) {
-    String ctx = props.of("sonar.web.context", "/");
+    String ctx = getContext(props);
     try {
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
@@ -38,6 +38,14 @@ class Webapp {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp", e);
     }
+  }
+
+  static String getContext(Props props) {
+    String context = props.of("sonar.web.context", "");
+    if (!"".equals(context) && !context.startsWith("/")) {
+      throw new IllegalStateException("Value of sonar.web.context must start with a forward slash: " + context);
+    }
+    return context;
   }
 
   static void configureRailsMode(Props props, Context context) {

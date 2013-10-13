@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -46,7 +47,7 @@ public class WebappTest {
     when(tomcat.addContext("", webDir.getAbsolutePath())).thenThrow(new NullPointerException());
 
     try {
-      Webapp.configure(tomcat, env, mock(Props.class));
+      Webapp.configure(tomcat, env, new Props(new Properties()));
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to configure webapp");
@@ -75,5 +76,24 @@ public class WebappTest {
 
     verify(context).addParameter("jruby.max.runtimes", "1");
     verify(context).addParameter("rails.env", "production");
+  }
+
+  @Test
+  public void context_must_start_with_slash() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.context", "foo");
+
+    try {
+      Webapp.getContext(new Props(p));
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Value of sonar.web.context must start with a forward slash: foo");
+    }
+  }
+
+  @Test
+  public void default_context_is_root() throws Exception {
+    String context = Webapp.getContext(new Props(new Properties()));
+    assertThat(context).isEqualTo("");
   }
 }

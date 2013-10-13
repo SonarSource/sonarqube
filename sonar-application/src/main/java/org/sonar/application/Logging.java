@@ -20,7 +20,11 @@
 package org.sonar.application;
 
 import ch.qos.logback.access.tomcat.LogbackValve;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
@@ -38,6 +42,8 @@ class Logging {
 
   static void configure(Tomcat tomcat, Env env) {
     tomcat.setSilent(false);
+    tomcat.getService().addLifecycleListener(new StartupLogger(LoggerFactory.getLogger(Logging.class)));
+
     LogbackValve valve = new LogbackValve();
     valve.setQuiet(true);
     File confFile = env.file(CONF_PATH);
@@ -47,4 +53,20 @@ class Logging {
     valve.setFilename(confFile.getAbsolutePath());
     tomcat.getHost().getPipeline().addValve(valve);
   }
+
+  static class StartupLogger implements LifecycleListener {
+    private Logger logger;
+
+    StartupLogger(Logger logger) {
+      this.logger = logger;
+    }
+
+    @Override
+    public void lifecycleEvent(LifecycleEvent event) {
+      if ("after_start".equals(event.getType())) {
+        logger.info("Web server is up");
+      }
+    }
+  }
+
 }

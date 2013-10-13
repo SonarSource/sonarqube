@@ -20,11 +20,14 @@
 package org.sonar.application;
 
 import ch.qos.logback.access.tomcat.LogbackValve;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.Valve;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -64,5 +67,19 @@ public class LoggingTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("File is missing: " + confFile.getAbsolutePath());
     }
+  }
+
+  @Test
+  public void log_when_started() {
+    Logger logger = mock(Logger.class);
+    Logging.StartupLogger listener = new Logging.StartupLogger(logger);
+
+    LifecycleEvent event = new LifecycleEvent(mock(Lifecycle.class), "before_init", null);
+    listener.lifecycleEvent(event);
+    verifyZeroInteractions(logger);
+
+    event = new LifecycleEvent(mock(Lifecycle.class), "after_start", null);
+    listener.lifecycleEvent(event);
+    verify(logger).info("Web server is up");
   }
 }
