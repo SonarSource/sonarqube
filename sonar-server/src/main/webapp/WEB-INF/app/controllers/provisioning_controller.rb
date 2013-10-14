@@ -51,8 +51,8 @@ class ProvisioningController < ApplicationController
 
       redirect_to :action => 'index'
     rescue Exception => e
-      flash[:error]= Api::Utils.message(e.message)
-      render :partial => 'create_form', :key => @key, :name => @name, :status => 400
+      flash.now[:error]= Api::Utils.message(e.message)
+      render :partial => 'create_form', :id => @id, :key => @key, :name => @name, :status => 400
     end
   end
 
@@ -63,12 +63,17 @@ class ProvisioningController < ApplicationController
     render :partial => 'create_form'
   end
 
+  def delete_form
+    @id = params[:id]
+    render :partial => 'delete_form'
+  end
+
   def delete
     access_denied unless has_role?("provisioning")
 
     @id = params[:id].to_i
     Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@id)
-    flash[:notice]= Api::Utils.message('resource_viewer.resource_deleted')
+    flash.now[:notice]= Api::Utils.message('resource_viewer.resource_deleted')
     redirect_to :action => 'index'
   end
 

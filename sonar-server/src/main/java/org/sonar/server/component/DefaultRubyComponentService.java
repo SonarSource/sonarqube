@@ -22,6 +22,7 @@ package org.sonar.server.component;
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
+import org.sonar.api.i18n.I18n;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
@@ -33,6 +34,7 @@ import org.sonar.server.util.RubyUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DefaultRubyComponentService implements RubyComponentService {
@@ -40,11 +42,13 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
   private final ResourceIndexerDao resourceIndexerDao;
+  private final I18n i18n;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao, I18n i18n) {
     this.resourceDao = resourceDao;
     this.finder = finder;
     this.resourceIndexerDao = resourceIndexerDao;
+    this.i18n = i18n;
   }
 
   @Override
@@ -55,9 +59,9 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public void createComponent(String kee, String name, String scope, String qualifier) {
     ComponentDto component = (ComponentDto)resourceDao.findByKey(kee);
     if (component != null) {
-      throw new BadRequestException("Could not create resource, key already exists: "+kee);
+      throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
     }
-    checkKeyFormat(kee);
+    checkKeyFormat(qualifier, kee);
 
     resourceDao.insertOrUpdate(
       new ResourceDto()
@@ -69,7 +73,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setCreatedAt(new Date()));
     component = (ComponentDto)resourceDao.findByKey(kee);
     if (component == null) {
-      throw new BadRequestException("Resource not created: "+kee);
+      throw new BadRequestException(String.format("%s not created: %s", null, kee));
     }
     resourceIndexerDao.indexResource(component.getId());
   }
@@ -79,7 +83,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     if (resource == null) {
       throw new NotFoundException();
     }
-    checkKeyFormat(key);
+    checkKeyFormat(resource.getQualifier(), key);
 
     resourceDao.insertOrUpdate(resource.setKey(key).setName(name));
   }
@@ -122,9 +126,13 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return builder.build();
   }
 
-  private static void checkKeyFormat(String kee) {
+  private void checkKeyFormat(String qualifier, String kee) {
     if (!ComponentKeys.isValidModuleKey(kee)) {
-      throw new BadRequestException("Could not create resource, malformed key: "+kee);
+      throw new BadRequestException(formatMessage("Malformed key for %s: %s", qualifier, kee));
     }
+  }
+
+  private String formatMessage(String message, String qualifier, String key) {
+    return String.format(message, i18n.message(Locale.getDefault(), "qualifier."+qualifier, "Project"), key);
   }
 }

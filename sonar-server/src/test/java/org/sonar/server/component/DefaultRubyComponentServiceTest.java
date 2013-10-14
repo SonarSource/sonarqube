@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.component.Component;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
@@ -51,6 +52,7 @@ public class DefaultRubyComponentServiceTest {
   private ResourceDao resourceDao;
   private DefaultComponentFinder finder;
   private ResourceIndexerDao resourceIndexerDao;
+  private I18n i18n;
   private DefaultRubyComponentService componentService;
 
   @Before
@@ -58,7 +60,8 @@ public class DefaultRubyComponentServiceTest {
     resourceDao = mock(ResourceDao.class);
     finder = mock(DefaultComponentFinder.class);
     resourceIndexerDao = mock(ResourceIndexerDao.class);
-    componentService = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao);
+    i18n = mock(I18n.class);
+    componentService = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao, i18n);
   }
 
   @Test

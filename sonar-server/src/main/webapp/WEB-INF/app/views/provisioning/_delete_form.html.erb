@@ -1,0 +1,25 @@
+<form id="delete-project-form" method="DELETE" action="<%= ApplicationController.root_context -%>/provisioning/delete">
+  <input type="hidden" name="id" value="<%= @id -%>">
+  <input type="hidden" name="_method" value="delete">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message 'qualifiers.delete.TRK' -%></h2>
+    </div>
+    <div class="modal-body">
+      <div class="info">
+        <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+        <%= message 'qualifiers.delete_confirm.TRK' -%>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" value="<%= message 'qualifiers.delete.TRK' -%>" id="confirm-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="confirm-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+
+<script>
+  $j("#delete-project-form").modalForm({success: function (data) {
+    window.location = baseUrl + '/provisioning';
+  }});
+</script>
