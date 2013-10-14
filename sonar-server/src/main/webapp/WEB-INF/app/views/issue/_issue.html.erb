@@ -114,7 +114,7 @@
       <% end %>
 
       <%
-         transitions = Internal.issues.listTransitions(issue)
+         transitions = Internal.issues.listTransitions(issue).to_a
 
          # Display only the first transition
          if !transitions.empty? && transitions.first
@@ -129,7 +129,7 @@
          plugin_actions = Internal.issues.listActions(issue)
          shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
          if shouldDisplayDropDown
-           transitions.remove(0) if transitions.size > 1
+           transitions.delete(0) if transitions.size > 1
       %>
         <div class="dropdown">
           <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
