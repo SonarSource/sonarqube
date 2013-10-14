@@ -34,11 +34,13 @@
         <td class="value">
           <%= format(new, '', 'line_coverage') -%>&nbsp;<%= format_ratio(new, '', 'lines_to_cover', 'uncovered_lines') -%>
         </td>
+        <% if measure('branch_coverage') %>
         <td class="sep"></td>
         <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
         <td class="value">
           <%= format(new, '', 'branch_coverage') -%>&nbsp;<%= format_ratio(new, '', 'conditions_to_cover', 'uncovered_conditions') -%>
         </td>
+        <% end %>
       <% end -%>
     </tr>
 
