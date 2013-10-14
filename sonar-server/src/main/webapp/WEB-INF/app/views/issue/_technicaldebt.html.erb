@@ -1,6 +1,9 @@
 <% function = @requirement.function %>
-
 <div class="<%= function.linear? ? '' : 'marginbottom10' %>">
+  <%= @requirement.parent.parent.name %>&nbsp;&gt;&nbsp;<%= @requirement.parent.name %>
+</div>
+
+<div>
   <% if function.constant? %>
     <%= message('issue.technical_debt.constant_resource') -%>
   <% elsif function.linearWithThreshold? or function.linearWithOffset? %>
@@ -22,6 +25,3 @@
   <% end %>
 </div>
 
-<div class="note">
-  <%= @requirement.parent.parent.name %>&nbsp;&gt;&nbsp;<%= @requirement.parent.name %>
-</div>
