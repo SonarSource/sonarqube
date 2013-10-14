@@ -20,19 +20,18 @@
 
 package org.sonar.server.component;
 
-import org.sonar.server.exceptions.NotFoundException;
-
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.core.resource.ResourceDto;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.resource.ResourceIndexerDao;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.component.Component;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultRubyComponentServiceTest {
 
@@ -138,6 +141,16 @@ public class DefaultRubyComponentServiceTest {
     verify(resource).setKey(newKey);
     verify(resource).setName(newName);
     verify(resourceDao).insertOrUpdate(resource);
+  }
+
+  @Test(expected=BadRequestException.class)
+  public void should_throw_if_malformed_key_in_update() {
+    final long componentId = 1234l;
+    final String newKey = "new/key";
+    final String newName = "newName";
+    ResourceDto resource = mock(ResourceDto.class);
+    when(resourceDao.getResource(componentId)).thenReturn(resource);
+    componentService.updateComponent(componentId, newKey, newName);
   }
 
   @Test

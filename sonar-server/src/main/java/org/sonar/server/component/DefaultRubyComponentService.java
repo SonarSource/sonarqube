@@ -19,12 +19,11 @@
  */
 package org.sonar.server.component;
 
-import org.sonar.core.component.ComponentKeys;
-
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceIndexerDao;
@@ -58,9 +57,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     if (component != null) {
       throw new BadRequestException("Could not create resource, key already exists: "+kee);
     }
-    if (!ComponentKeys.isValidModuleKey(kee)) {
-      throw new BadRequestException("Could not create resource, malformed key: "+kee);
-    }
+    checkKeyFormat(kee);
 
     resourceDao.insertOrUpdate(
       new ResourceDto()
@@ -82,6 +79,8 @@ public class DefaultRubyComponentService implements RubyComponentService {
     if (resource == null) {
       throw new NotFoundException();
     }
+    checkKeyFormat(key);
+
     resourceDao.insertOrUpdate(resource.setKey(key).setName(name));
   }
 
@@ -123,4 +122,9 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return builder.build();
   }
 
+  private static void checkKeyFormat(String kee) {
+    if (!ComponentKeys.isValidModuleKey(kee)) {
+      throw new BadRequestException("Could not create resource, malformed key: "+kee);
+    }
+  }
 }
