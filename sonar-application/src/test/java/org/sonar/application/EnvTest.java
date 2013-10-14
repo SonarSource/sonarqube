@@ -34,6 +34,12 @@ public class EnvTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
+  public void testName() throws Exception {
+    File file = new File(getClass().getResource("/org/sonar/application/LoggingTest/logback-access.xml").toURI());
+    assertThat(file.exists()).isTrue();
+  }
+
+  @Test
   public void files() throws Exception {
     File home = temp.newFolder();
     File confFile = new File(home, "conf/sonar.properties");

@@ -19,9 +19,7 @@
  */
 package org.sonar.application;
 
-import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -67,7 +65,7 @@ class EmbeddedTomcat {
     tomcat.getHost().setDeployOnStartup(true);
 
     Props props = Props.create(env);
-    Logging.configure(tomcat, env);
+    Logging.configure(tomcat, env, props);
     Connectors.configure(tomcat, props);
     Webapp.configure(tomcat, env, props);
     tomcat.start();

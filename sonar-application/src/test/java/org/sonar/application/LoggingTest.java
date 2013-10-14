@@ -24,12 +24,15 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.Valve;
 import org.apache.catalina.startup.Tomcat;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -37,36 +40,26 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class LoggingTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
-  public void configure_access_logs() throws Exception {
+  public void enable_access_logs_by_Default() throws Exception {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
+    Props props = new Props(new Properties());
     Env env = mock(Env.class);
-    final File propsFile = new File(getClass().getResource("/org/sonar/application/LoggingTest/logback-access.xml").toURI());
-    when(env.file(Logging.CONF_PATH)).thenReturn(propsFile);
-    Logging.configure(tomcat, env);
+    when(env.file(Logging.ACCESS_RELATIVE_PATH)).thenReturn(temp.newFile("logback-access.xml"));
+    Logging.configure(tomcat, env, props);
 
     verify(tomcat.getHost().getPipeline()).addValve(argThat(new ArgumentMatcher<Valve>() {
       @Override
       public boolean matches(Object o) {
         LogbackValve v = (LogbackValve) o;
-        return v.getFilename().equals(propsFile.getAbsolutePath());
+        String confFile = v.getFilename();
+        return confFile.endsWith("logback-access.xml");
       }
     }));
-  }
-
-  @Test
-  public void fail_if_missing_conf_file() throws Exception {
-    Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
-    Env env = mock(Env.class);
-    final File confFile = new File("target/does_not_exist/logback-access.xml");
-    when(env.file(Logging.CONF_PATH)).thenReturn(confFile);
-
-    try {
-      Logging.configure(tomcat, env);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("File is missing: " + confFile.getAbsolutePath());
-    }
   }
 
   @Test

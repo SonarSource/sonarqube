@@ -4,7 +4,7 @@
 
   Log HTTP requests in the file logs/access.log
 
-  See http://logback.qos.ch/access.html#configuration
+  See http://logback.qos.ch/access.html#configuration and Tomcat configuration in sonar-application.
 
 -->
 

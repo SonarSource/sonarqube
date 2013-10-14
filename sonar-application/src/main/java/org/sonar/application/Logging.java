@@ -27,12 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.io.File;
 import java.util.logging.LogManager;
 
 class Logging {
 
-  static final String CONF_PATH = "conf/logback-access.xml";
+  static final String ACCESS_RELATIVE_PATH = "web/WEB-INF/config/logback-access.xml";
+  static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
 
   static void init() {
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
@@ -40,18 +40,20 @@ class Logging {
     SLF4JBridgeHandler.install();
   }
 
-  static void configure(Tomcat tomcat, Env env) {
+  static void configure(Tomcat tomcat, Env env, Props props) {
     tomcat.setSilent(false);
     tomcat.getService().addLifecycleListener(new StartupLogger(LoggerFactory.getLogger(Logging.class)));
 
-    LogbackValve valve = new LogbackValve();
-    valve.setQuiet(true);
-    File confFile = env.file(CONF_PATH);
-    if (!confFile.exists()) {
-      throw new IllegalStateException("File is missing: " + confFile.getAbsolutePath());
+    configureLogbackAccess(tomcat, env, props);
+  }
+
+  private static void configureLogbackAccess(Tomcat tomcat, Env env, Props props) {
+    if (props.booleanOf(PROPERTY_ENABLE_ACCESS_LOGS, true)) {
+      LogbackValve valve = new LogbackValve();
+      valve.setQuiet(true);
+      valve.setFilename(env.file(ACCESS_RELATIVE_PATH).getAbsolutePath());
+      tomcat.getHost().getPipeline().addValve(valve);
     }
-    valve.setFilename(confFile.getAbsolutePath());
-    tomcat.getHost().getPipeline().addValve(valve);
   }
 
   static class StartupLogger implements LifecycleListener {
