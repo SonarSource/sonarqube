@@ -21,6 +21,7 @@ package org.sonar.plugins.core.technicaldebt;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.PropertyType;
 import org.sonar.api.batch.*;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.measures.CoreMetrics;
@@ -113,6 +114,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     return ImmutableList.of(
       PropertyDefinition.builder(TechnicalDebtConverter.PROPERTY_HOURS_IN_DAY)
         .name("Number of working hours in a day")
+        .type(PropertyType.INTEGER)
         .defaultValue("8")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .build()
