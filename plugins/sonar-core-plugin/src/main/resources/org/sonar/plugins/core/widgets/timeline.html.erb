@@ -40,7 +40,7 @@
        end
        metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
      end
-     
+
      # Create JS structures to print out in the HTML page
      js_data = "["
      js_snapshots = "["
@@ -92,7 +92,7 @@
      js_data = js_data.chomp(',') + "]"
      js_snapshots = js_snapshots.chomp(',') + "]"
      js_metrics = js_metrics.chomp(',') + "]"
-  
+
      # Prepare also event structure if required
      unless widget_properties["hideEvents"]
        events = {}
@@ -142,6 +142,8 @@
        js_events = js_events.chomp(',') + "]"
      end
   end
+
+
 %>
 
 <% if widget_properties["chartTitle"] %>
@@ -149,17 +151,18 @@
 <% end %>
 
 
-<% 
+<%
    unless metric_data_map.values.empty?
-   
-     if metric_data_map.values[0].size == 1 
+
+     if metric_data_map.values[0].size == 1
 %>
 
   <span class="empty_widget"><%= message('widget.timeline.timeline_not_displayed') -%></span>
 
 <%   else %>
+  <% timeline = 'timeline' + widget.id.to_s %>
 
-  <div id="timeline-chart-<%= widget.id -%>"></div>
+  <div id="timeline-chart-<%= widget.id -%>" style="height: <%= chartHeight %>px">&nbsp;</div>
   <script type="text/javascript+protovis">
     function d(y, m, d, h, min, s) {
       return new Date(y, m, d, h, min, s);
@@ -168,16 +171,16 @@
     var snapshots = <%= js_snapshots -%>;
     var metrics = <%= js_metrics -%>;
     var events = <%= js_events ? js_events : "null" -%>;
-    var timeline = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
+    var <%= timeline -%> = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
       .height(<%= chartHeight -%>)
       .data(data)
       .snapshots(snapshots)
       .metrics(metrics)
       .events(events);
-    timeline.render();
+    <%= timeline -%>.render();
 
     autoResize(200, function() {
-      timeline.render();
+      <%= timeline -%>.render();
     });
   </script>
 
