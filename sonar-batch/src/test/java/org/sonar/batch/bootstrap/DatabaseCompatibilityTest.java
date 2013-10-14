@@ -41,6 +41,8 @@ public class DatabaseCompatibilityTest {
   ServerMetadata server;
   Settings settings;
 
+  private AnalysisMode mode;
+
   @Before
   public void init() {
     server = mock(ServerMetadata.class);
@@ -51,7 +53,8 @@ public class DatabaseCompatibilityTest {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:postgresql://localhost/foo");
     settings.setProperty(DatabaseProperties.PROP_USER, "bar");
     settings.setProperty(CoreProperties.SERVER_ID, "123456");
-    settings.setProperty(CoreProperties.DRY_RUN, false);
+
+    mode = mock(AnalysisMode.class);
 
     databaseVersion = mock(DatabaseVersion.class);
   }
@@ -63,7 +66,7 @@ public class DatabaseCompatibilityTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
 
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
   }
 
   @Test
@@ -73,7 +76,7 @@ public class DatabaseCompatibilityTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Database must be upgraded.");
 
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
   }
 
   @Test
@@ -85,7 +88,7 @@ public class DatabaseCompatibilityTest {
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (bar / *****)");
     thrown.expectMessage("- Server side: check the configuration at http://localhost:9000/system");
 
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
   }
 
   @Test
@@ -97,7 +100,7 @@ public class DatabaseCompatibilityTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (sonar / *****)");
 
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
   }
 
   @Test
@@ -106,22 +109,22 @@ public class DatabaseCompatibilityTest {
 
     thrown.expect(IllegalStateException.class);
 
-    new DatabaseCompatibility(mock(DatabaseVersion.class), server, settings).start();
+    new DatabaseCompatibility(mock(DatabaseVersion.class), server, settings, mode).start();
   }
 
   @Test
   public void shouldDoNothingIfUpToDate() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
     // no error
   }
 
   @Test
-  public void should_not_verify_compatibility_if_dry_run() {
+  public void should_not_verify_compatibility_if_preview() {
     settings.setProperty(CoreProperties.SERVER_ID, "11111111");
-    settings.setProperty(CoreProperties.DRY_RUN, true);
+    when(mode.isPreview()).thenReturn(true);
 
-    new DatabaseCompatibility(databaseVersion, server, settings).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
 
     // no failure
   }

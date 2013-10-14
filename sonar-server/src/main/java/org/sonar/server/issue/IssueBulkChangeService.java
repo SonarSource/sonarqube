@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
@@ -30,7 +32,6 @@ import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.exceptions.BadRequestException;
@@ -50,10 +51,10 @@ public class IssueBulkChangeService {
   private final DefaultIssueFinder issueFinder;
   private final IssueStorage issueStorage;
   private final IssueNotifications issueNotifications;
-  private final DryRunCache dryRunCache;
+  private final PreviewCache dryRunCache;
   private final List<Action> actions;
 
-  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions, DryRunCache dryRunCache) {
+  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions, PreviewCache dryRunCache) {
     this.issueFinder = issueFinder;
     this.issueStorage = issueStorage;
     this.issueNotifications = issueNotifications;

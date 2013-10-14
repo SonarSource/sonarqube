@@ -28,6 +28,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BatchSettings;
 import org.sonar.batch.bootstrap.ServerClient;
 
@@ -44,14 +45,14 @@ import static org.sonar.batch.bootstrap.BatchSettings.BATCH_BOOTSTRAP_PROPERTIES
 public class ModuleSettings extends Settings {
 
   private final Configuration deprecatedCommonsConf;
-  private boolean dryRun;
   private final ServerClient client;
+  private AnalysisMode analysisMode;
 
-  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, ServerClient client) {
+  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, ServerClient client, AnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.client = client;
+    this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    this.dryRun = "true".equals(batchSettings.getString(CoreProperties.DRY_RUN));
 
     LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
     this.deprecatedCommonsConf = deprecatedCommonsConf;
@@ -77,7 +78,7 @@ public class ModuleSettings extends Settings {
   }
 
   private void downloadSettings(String moduleKey) {
-    String url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?project=" + moduleKey + "&dryRun=" + dryRun;
+    String url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?project=" + moduleKey + "&dryRun=" + analysisMode.isPreview();
     String jsonText = client.request(url);
     List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
     for (Map<String, String> jsonProperty : json) {
@@ -124,9 +125,9 @@ public class ModuleSettings extends Settings {
 
   @Override
   protected void doOnGetProperties(String key) {
-    if (this.dryRun && key.endsWith(".secured") && !key.contains(".license")) {
+    if (analysisMode.isPreview() && key.endsWith(".secured") && !key.contains(".license")) {
       throw new SonarException("Access to the secured property '" + key
-        + "' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
+        + "' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
     }
   }
 }

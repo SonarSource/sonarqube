@@ -32,8 +32,10 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.InputFiles;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -55,16 +57,18 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   private List<File> binaryDirs = Lists.newArrayList();
   private List<File> sourceFiles = Lists.newArrayList();
   private List<File> testFiles = Lists.newArrayList();
+  private AnalysisMode analysisMode;
 
-  public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer) {
-    this(module.getKey(), settings, index, initializer);
+  public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
+    this(module.getKey(), settings, index, initializer, analysisMode);
   }
 
   @VisibleForTesting
-  DefaultModuleFileSystem(String moduleKey, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer) {
+  DefaultModuleFileSystem(String moduleKey, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
     this.moduleKey = moduleKey;
     this.settings = settings;
     this.index = index;
+    this.analysisMode = analysisMode;
     this.baseDir = initializer.baseDir();
     this.workingDir = initializer.workingDir();
     this.buildDir = initializer.buildDir();
@@ -141,7 +145,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
     List<InputFile> result = Lists.newArrayList();
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
     for (InputFile input : index.inputFiles(moduleKey)) {
       if (filter.accept(input)) {
         result.add(input);
@@ -188,7 +192,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     }
     return builder.build();
   }
-
 
   @Override
   public boolean equals(Object o) {

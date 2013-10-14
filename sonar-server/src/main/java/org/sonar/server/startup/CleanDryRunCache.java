@@ -19,16 +19,16 @@
  */
 package org.sonar.server.startup;
 
-import org.sonar.core.dryrun.DryRunCache;
+import org.sonar.core.preview.PreviewCache;
 
 /**
  * @since 4.0
  */
 public class CleanDryRunCache {
 
-  private DryRunCache dryRunCache;
+  private PreviewCache dryRunCache;
 
-  public CleanDryRunCache(DryRunCache dryRunCache) {
+  public CleanDryRunCache(PreviewCache dryRunCache) {
     this.dryRunCache = dryRunCache;
   }
 

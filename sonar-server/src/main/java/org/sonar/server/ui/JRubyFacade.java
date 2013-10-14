@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ui;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -46,7 +48,6 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.api.web.Widget;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
@@ -496,8 +497,8 @@ public final class JRubyFacade {
     }
   }
 
-  public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
-    return get(DryRunCache.class).getDatabaseForDryRun(projectId);
+  public byte[] createDatabaseForPreview(@Nullable Long projectId) {
+    return get(PreviewCache.class).getDatabaseForPreview(projectId);
   }
 
   public String getPeriodLabel(int periodIndex) {

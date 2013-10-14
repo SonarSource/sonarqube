@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
@@ -36,7 +38,6 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.core.dryrun.DryRunCache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,11 +57,11 @@ import static org.mockito.Mockito.verify;
 
 public class BackupTest {
 
-  private DryRunCache dryRunCache;
+  private PreviewCache dryRunCache;
 
   @Before
   public void prepare() {
-    this.dryRunCache = mock(DryRunCache.class);
+    this.dryRunCache = mock(PreviewCache.class);
   }
 
   @Test

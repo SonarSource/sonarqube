@@ -25,8 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileCache;
 
 import java.io.File;
@@ -47,10 +45,12 @@ public class JdbcDriverHolderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   ClassLoader initialThreadClassloader;
+  private AnalysisMode mode;
 
   @Before
   public void before() {
     initialThreadClassloader = Thread.currentThread().getContextClassLoader();
+    mode = mock(AnalysisMode.class);
   }
 
   @After
@@ -72,7 +72,7 @@ public class JdbcDriverHolderTest {
     when(server.request("/deploy/jdbc-driver.txt")).thenReturn("ojdbc14.jar|fakemd5");
     when(server.request("/deploy/ojdbc14.jar")).thenReturn("fakecontent");
 
-    JdbcDriverHolder holder = new JdbcDriverHolder(cache, new Settings(), server);
+    JdbcDriverHolder holder = new JdbcDriverHolder(cache, mode, server);
     holder.start();
 
     assertThat(holder.getClassLoader().getResource("foo/foo.txt")).isNotNull();
@@ -85,11 +85,11 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void should_be_disabled_if_dry_run() {
+  public void should_be_disabled_if_preview() {
     FileCache cache = mock(FileCache.class);
-    Settings settings = new Settings().setProperty(CoreProperties.DRY_RUN, true);
+    when(mode.isPreview()).thenReturn(true);
     ServerClient server = mock(ServerClient.class);
-    JdbcDriverHolder holder = new JdbcDriverHolder(cache, settings, server);
+    JdbcDriverHolder holder = new JdbcDriverHolder(cache, mode, server);
 
     holder.start();
 

@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +37,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -96,7 +97,7 @@ public class IssueServiceTest {
     when(issueQueryResult.first()).thenReturn(issue);
 
     issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder,
-      mock(DryRunCache.class));
+      mock(PreviewCache.class));
   }
 
   @Test

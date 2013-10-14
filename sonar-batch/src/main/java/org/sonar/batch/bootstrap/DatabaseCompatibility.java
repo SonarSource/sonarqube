@@ -34,15 +34,17 @@ public class DatabaseCompatibility implements BatchComponent {
   private DatabaseVersion version;
   private Settings settings;
   private ServerMetadata server;
+  private AnalysisMode analysisMode;
 
-  public DatabaseCompatibility(DatabaseVersion version, ServerMetadata server, Settings settings) {
+  public DatabaseCompatibility(DatabaseVersion version, ServerMetadata server, Settings settings, AnalysisMode mode) {
     this.version = version;
     this.server = server;
     this.settings = settings;
+    this.analysisMode = mode;
   }
 
   public void start() {
-    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
+    if (!analysisMode.isPreview()) {
       checkCorrectServerId();
       checkDatabaseStatus();
     }

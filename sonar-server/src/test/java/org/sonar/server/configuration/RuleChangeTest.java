@@ -19,15 +19,15 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.api.rules.ActiveRuleParamChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -36,7 +36,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null, mock(DryRunCache.class));
+    profilesManager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
   }
 
   @Test

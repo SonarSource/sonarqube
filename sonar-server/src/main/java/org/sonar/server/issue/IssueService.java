@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
@@ -32,7 +34,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
@@ -66,7 +67,7 @@ public class IssueService implements ServerComponent {
   private final ResourceDao resourceDao;
   private final AuthorizationDao authorizationDao;
   private final UserFinder userFinder;
-  private final DryRunCache dryRunCache;
+  private final PreviewCache dryRunCache;
 
   public IssueService(DefaultIssueFinder finder,
     IssueWorkflow workflow,
@@ -78,7 +79,7 @@ public class IssueService implements ServerComponent {
     ResourceDao resourceDao,
     AuthorizationDao authorizationDao,
     UserFinder userFinder,
-    DryRunCache dryRunCache) {
+    PreviewCache dryRunCache) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;

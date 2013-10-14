@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.core.purge.PurgeProfiler;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -44,6 +42,7 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.HibernateUserFinder;
@@ -79,6 +78,7 @@ public class BootstrapContainer extends ComponentContainer {
     add(
       new PropertiesConfiguration(),
       BootstrapSettings.class,
+      AnalysisMode.class,
       PluginDownloader.class,
       BatchPluginRepository.class,
       BatchSettings.class,
@@ -90,25 +90,23 @@ public class BootstrapContainer extends ComponentContainer {
       TempDirectories.class,
       HttpDownloader.class,
       UriReader.class,
-      new FileCacheProvider()
-    );
+      new FileCacheProvider());
   }
 
   private void addDatabaseComponents() {
     add(
-      DryRunDatabase.class,
+      PreviewDatabase.class,
       JdbcDriverHolder.class,
       BatchDatabase.class,
       MyBatis.class,
       DatabaseVersion.class,
-      //TODO check that it still works (see @Freddy)
+      // TODO check that it still works (see @Freddy)
       DatabaseCompatibility.class,
       DefaultDatabaseConnector.class,
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
       DaoUtils.getDaoClasses(),
-      PurgeProfiler.class
-    );
+      PurgeProfiler.class);
   }
 
   /**
@@ -134,8 +132,7 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousVersion.class,
       PastMeasuresLoader.class,
       PastSnapshotFinder.class,
-      DefaultModelFinder.class
-    );
+      DefaultModelFinder.class);
   }
 
   @Override

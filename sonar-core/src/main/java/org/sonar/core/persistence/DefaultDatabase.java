@@ -27,10 +27,13 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.DialectUtils;
+import org.sonar.core.persistence.dialect.H2;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -104,13 +107,17 @@ public class DefaultDatabase implements Database {
   private void initDialect() {
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
     if (dialect == null) {
-      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property "+ SONAR_JDBC_URL + ".");
+      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property " + SONAR_JDBC_URL + ".");
     }
-    if (H2.ID.equals(dialect.getId()) && !settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
-    }
+    checkH2Database();
     if (!properties.containsKey(SONAR_JDBC_DRIVER_CLASS_NAME)) {
       properties.setProperty(SONAR_JDBC_DRIVER_CLASS_NAME, dialect.getDefaultDriverClassName());
+    }
+  }
+
+  protected void checkH2Database() {
+    if (H2.ID.equals(dialect.getId())) {
+      LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
     }
   }
 

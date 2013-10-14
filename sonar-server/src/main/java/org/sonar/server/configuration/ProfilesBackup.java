@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -36,7 +38,6 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.ArrayList;
@@ -62,9 +63,9 @@ public class ProfilesBackup implements Backupable {
 
   private Collection<RulesProfile> profiles;
   private DatabaseSession session;
-  private DryRunCache dryRunCache;
+  private PreviewCache dryRunCache;
 
-  public ProfilesBackup(DatabaseSession session, DryRunCache dryRunCache) {
+  public ProfilesBackup(DatabaseSession session, PreviewCache dryRunCache) {
     this.session = session;
     this.dryRunCache = dryRunCache;
   }

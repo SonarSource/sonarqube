@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -34,6 +33,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -62,6 +62,7 @@ public class JsonReportTest {
   RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
   Settings settings;
   IssueCache issueCache = mock(IssueCache.class);
+  private AnalysisMode mode;
 
   @Before
   public void setUp() {
@@ -69,62 +70,63 @@ public class JsonReportTest {
     when(server.getVersion()).thenReturn("3.6");
 
     settings = new Settings();
-    settings.setProperty(CoreProperties.DRY_RUN, true);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector());
+    mode = mock(AnalysisMode.class);
+    when(mode.isPreview()).thenReturn(true);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode);
   }
 
   @Test
   public void should_write_json() throws Exception {
     DefaultIssue issue = new DefaultIssue()
-        .setKey("200")
-        .setComponentKey("struts:org.apache.struts.Action")
-        .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-        .setMessage("There are 2 cycles")
-        .setSeverity("MINOR")
-        .setStatus(Issue.STATUS_OPEN)
-        .setResolution(null)
-        .setLine(1)
-        .setEffortToFix(3.14)
-        .setReporter("julien")
-        .setAssignee("simon")
-        .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
-          .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
-          .setNew(false);
+      .setKey("200")
+      .setComponentKey("struts:org.apache.struts.Action")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setMessage("There are 2 cycles")
+      .setSeverity("MINOR")
+      .setStatus(Issue.STATUS_OPEN)
+      .setResolution(null)
+      .setLine(1)
+      .setEffortToFix(3.14)
+      .setReporter("julien")
+      .setAssignee("simon")
+      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
+      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
+      .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
     JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report.json"),
-        writer.toString(), false);
+      writer.toString(), false);
   }
 
   @Test
   public void should_exclude_resolved_issues() throws Exception {
     DefaultIssue issue = new DefaultIssue()
-        .setKey("200")
-        .setComponentKey("struts:org.apache.struts.Action")
-        .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-        .setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
-        .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
-        .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-26"))
-        .setNew(false);
+      .setKey("200")
+      .setComponentKey("struts:org.apache.struts.Action")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
+      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
+      .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-26"))
+      .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
     JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"),
-        writer.toString(), false);
+      writer.toString(), false);
   }
 
   @Test
   public void should_ignore_components_without_issue() throws JSONException {
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue> emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
@@ -138,7 +140,7 @@ public class JsonReportTest {
 
     Rule rule = Rule.create("squid", "AvoidCycles");
     when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue> emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
     when(fileSystem.workingDir()).thenReturn(sonarDirectory);

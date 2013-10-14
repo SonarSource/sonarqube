@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
@@ -33,18 +32,11 @@ public class UnsupportedProperties implements BatchComponent {
 
   public void start() {
     verify("sonar.light", "The property 'sonar.light' is no longer supported. Please use 'sonar.dynamicAnalysis'");
-    verifyIncrementalPreviewMode();
   }
 
   private void verify(String key, String message) {
     if (settings.hasKey(key)) {
       throw MessageException.of(message);
-    }
-  }
-
-  private void verifyIncrementalPreviewMode() {
-    if (settings.getBoolean(CoreProperties.INCREMENTAL_PREVIEW) && !settings.getBoolean(CoreProperties.DRY_RUN)) {
-      throw MessageException.of("Incremental mode is only supported with preview mode");
     }
   }
 }

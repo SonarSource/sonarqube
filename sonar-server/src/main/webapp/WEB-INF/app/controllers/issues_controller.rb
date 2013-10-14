@@ -160,7 +160,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
-    issues_query_params = params.clone.merge({'pageSize' => -1})
+    issues_query_params = criteria_params.clone.merge({'pageSize' => -1})
     # SONAR-4654 pagination parameters should be remove when loading issues for bulk change
     issues_query_params.delete('pageIndex')
     if params[:id]

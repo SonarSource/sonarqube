@@ -21,11 +21,10 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.InputFileFilter;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +34,7 @@ class FileQueryFilter {
 
   private final List<InputFileFilter> filters;
 
-  FileQueryFilter(Settings settings, FileQuery query) {
+  FileQueryFilter(AnalysisMode analysisMode, FileQuery query) {
     filters = Lists.newArrayList();
     for (String pattern : query.inclusions()) {
       filters.add(new InclusionFilter(pattern));
@@ -48,7 +47,7 @@ class FileQueryFilter {
     }
 
     // TODO speed-up the following algorithm. Cache ?
-    if (settings.getBoolean(CoreProperties.INCREMENTAL_PREVIEW)) {
+    if (analysisMode.isIncremental()) {
       Collection<String> status = query.attributes().get(InputFile.ATTRIBUTE_STATUS);
       if (status == null || status.isEmpty()) {
         // TODO should be not(SAME) instead of is(ADDED, CHANGED)

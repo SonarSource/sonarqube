@@ -35,6 +35,7 @@ import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -53,11 +54,13 @@ public class BatchPluginRepository implements PluginRepository {
   private Settings settings;
   private PluginClassloaders classLoaders;
   private TempDirectories workingDirectories;
+  private final AnalysisMode analysisMode;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, TempDirectories workingDirectories, Settings settings) {
+  public BatchPluginRepository(PluginDownloader pluginDownloader, TempDirectories workingDirectories, Settings settings, AnalysisMode analysisMode) {
     this.pluginDownloader = pluginDownloader;
     this.workingDirectories = workingDirectories;
     this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   public void start() {
@@ -66,7 +69,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
-    PluginFilter filter = new PluginFilter(settings);
+    PluginFilter filter = new PluginFilter(settings, analysisMode);
     PluginInstaller extractor = new PluginInstaller();
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
@@ -119,20 +122,32 @@ public class BatchPluginRepository implements PluginRepository {
   static class PluginFilter {
     Set<String> whites = Sets.newHashSet(), blacks = Sets.newHashSet();
 
-    PluginFilter(Settings settings) {
+    PluginFilter(Settings settings, AnalysisMode mode) {
       if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
         whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
       }
       if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
         blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
       }
-      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      if (mode.isPreview()) {
         // These default values are not supported by Settings because the class CorePlugin
         // is not loaded yet.
-        whites.addAll(propertyValues(settings,
-            CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE));
-        blacks.addAll(propertyValues(settings,
-            CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE));
+        if (settings.hasKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)) {
+          LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead", CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS));
+          whites.addAll(propertyValues(settings,
+            CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
+        } else {
+          whites.addAll(propertyValues(settings,
+            CoreProperties.PREVIEW_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
+        }
+        if (settings.hasKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)) {
+          LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead", CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS));
+          blacks.addAll(propertyValues(settings,
+            CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
+        } else {
+          blacks.addAll(propertyValues(settings,
+            CoreProperties.PREVIEW_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
+        }
       }
       if (!whites.isEmpty()) {
         LOG.info("Include plugins: " + Joiner.on(", ").join(whites));

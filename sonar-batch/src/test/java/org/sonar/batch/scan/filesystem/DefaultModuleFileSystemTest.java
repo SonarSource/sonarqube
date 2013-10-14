@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +32,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +41,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class DefaultModuleFileSystemTest {
 
@@ -52,12 +57,18 @@ public class DefaultModuleFileSystemTest {
   Settings settings = new Settings();
   FileIndex fileIndex = mock(FileIndex.class);
   ModuleFileSystemInitializer initializer = mock(ModuleFileSystemInitializer.class, Mockito.RETURNS_DEEP_STUBS);
+  private AnalysisMode mode;
+
+  @Before
+  public void before() {
+    mode = mock(AnalysisMode.class);
+  }
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
-    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
-    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
-    DefaultModuleFileSystem bar = new DefaultModuleFileSystem("bar", settings, fileIndex, initializer);
+    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem bar = new DefaultModuleFileSystem("bar", settings, fileIndex, initializer, mode);
 
     assertThat(foo1.moduleKey()).isEqualTo("foo");
     assertThat(foo1.equals(foo1)).isTrue();
@@ -70,7 +81,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void default_source_encoding() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
     assertThat(fs.isDefaultSourceCharset()).isTrue();
@@ -79,7 +90,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void source_encoding_is_set() {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "Cp1124");
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.forName("Cp1124"));
 
@@ -103,8 +114,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.additionalSourceFiles()).thenReturn(Arrays.asList(additionalFile));
     when(initializer.additionalTestFiles()).thenReturn(Arrays.asList(additionalTest));
 
-
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
     assertThat(fs.workingDir().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
@@ -123,7 +133,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.workingDir()).thenReturn(basedir);
     when(initializer.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     File existingDir = temp.newFolder("new_folder");
     File notExistingDir = new File(existingDir, "not_exist");
@@ -144,7 +154,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_search_input_files() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     File mainFile = temp.newFile();
     InputFile mainInput = DefaultInputFile.create(mainFile, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
@@ -161,7 +171,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_index() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem("foo", settings, fileIndex, initializer, mode);
 
     verifyZeroInteractions(fileIndex);
 

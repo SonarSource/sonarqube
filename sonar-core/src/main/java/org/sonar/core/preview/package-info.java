@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonar.core.dryrun;
+package org.sonar.core.preview;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

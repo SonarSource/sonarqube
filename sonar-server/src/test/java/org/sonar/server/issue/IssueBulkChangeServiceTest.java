@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,7 +32,6 @@ import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.exceptions.BadRequestException;
@@ -79,7 +80,7 @@ public class IssueBulkChangeServiceTest {
 
     actions = newArrayList();
 
-    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions, mock(DryRunCache.class));
+    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions, mock(PreviewCache.class));
   }
 
   @Test

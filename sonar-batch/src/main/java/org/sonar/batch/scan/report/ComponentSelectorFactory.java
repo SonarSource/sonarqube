@@ -20,22 +20,21 @@
 package org.sonar.batch.scan.report;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 
 public class ComponentSelectorFactory implements BatchComponent {
 
   private final InputFileCache fileCache;
-  private final Settings settings;
+  private final AnalysisMode mode;
 
-  public ComponentSelectorFactory(InputFileCache fileCache, Settings settings) {
+  public ComponentSelectorFactory(InputFileCache fileCache, AnalysisMode mode) {
     this.fileCache = fileCache;
-    this.settings = settings;
+    this.mode = mode;
   }
 
   public ComponentSelector create() {
-    if (settings.getBoolean(CoreProperties.INCREMENTAL_PREVIEW)) {
+    if (mode.isIncremental()) {
       return new IncrementalComponentSelector(fileCache);
     }
     return new DefaultComponentSelector();

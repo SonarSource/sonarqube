@@ -19,10 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -36,21 +34,21 @@ public class ExtensionInstaller {
 
   private final BatchPluginRepository pluginRepository;
   private final EnvironmentInformation env;
-  private final Settings settings;
+  private final AnalysisMode analysisMode;
 
-  public ExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation env, Settings settings) {
+  public ExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation env, AnalysisMode analysisMode) {
     this.pluginRepository = pluginRepository;
     this.env = env;
-    this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
-    boolean dryRun = isDryRun();
+    boolean preview = analysisMode.isPreview();
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
       for (Object extension : plugin.getExtensions()) {
-        doInstall(container, matcher, metadata, dryRun, extension);
+        doInstall(container, matcher, metadata, preview, extension);
       }
     }
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
@@ -58,10 +56,10 @@ public class ExtensionInstaller {
       Object object = provider.provide();
       if (object instanceof Iterable) {
         for (Object extension : (Iterable) object) {
-          doInstall(container, matcher, null, dryRun, extension);
+          doInstall(container, matcher, null, preview, extension);
         }
       } else {
-        doInstall(container, matcher, null, dryRun, object);
+        doInstall(container, matcher, null, preview, object);
       }
     }
     return this;
@@ -69,7 +67,7 @@ public class ExtensionInstaller {
 
   private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, boolean dryRun, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
-      && (!dryRun || ExtensionUtils.supportsDryRun(extension))
+      && (!dryRun || ExtensionUtils.supportsPreview(extension))
       && matcher.accept(extension)) {
       container.addExtension(metadata, extension);
     } else {
@@ -77,7 +75,4 @@ public class ExtensionInstaller {
     }
   }
 
-  private boolean isDryRun() {
-    return settings.getBoolean(CoreProperties.DRY_RUN);
-  }
 }

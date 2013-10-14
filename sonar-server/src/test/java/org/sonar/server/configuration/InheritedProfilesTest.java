@@ -19,12 +19,12 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -35,7 +35,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null, mock(DryRunCache.class));
+    profilesManager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
   }
 
   @Test

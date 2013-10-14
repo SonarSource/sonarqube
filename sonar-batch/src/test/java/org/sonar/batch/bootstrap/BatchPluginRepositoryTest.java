@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -46,6 +47,12 @@ public class BatchPluginRepositoryTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private BatchPluginRepository repository;
+  private AnalysisMode mode;
+
+  @Before
+  public void before() {
+    mode = mock(AnalysisMode.class);
+  }
 
   @After
   public void tearDown() {
@@ -64,7 +71,7 @@ public class BatchPluginRepositoryTest {
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
 
-    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -88,7 +95,7 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
-    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -110,7 +117,7 @@ public class BatchPluginRepositoryTest {
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
 
-    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -137,7 +144,7 @@ public class BatchPluginRepositoryTest {
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
-    repository = new BatchPluginRepository(downloader, tempDirs, settings);
+    repository = new BatchPluginRepository(downloader, tempDirs, settings, mode);
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -158,32 +165,32 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(new Settings());
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(new Settings(), mode);
     assertThat(filter.accepts("pmd")).isTrue();
   }
 
   @Test
   public void whiteListShouldTakePrecedenceOverBlackList() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
-        .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("pmd")).isTrue();
   }
 
   @Test
   public void corePluginShouldAlwaysBeInWhiteList() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("core")).isTrue();
   }
 
   @Test
   public void corePluginShouldNeverBeInBlackList() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("core")).isTrue();
   }
 
@@ -191,16 +198,16 @@ public class BatchPluginRepositoryTest {
   @Test
   public void englishPackPluginShouldNeverBeInBlackList() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "l10nen,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "l10nen,findbugs");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("l10nen")).isTrue();
   }
 
   @Test
   public void shouldCheckWhitelist() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("checkstyle")).isTrue();
     assertThat(filter.accepts("pmd")).isTrue();
     assertThat(filter.accepts("cobertura")).isFalse();
@@ -209,21 +216,33 @@ public class BatchPluginRepositoryTest {
   @Test
   public void shouldCheckBlackListIfNoWhiteList() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("checkstyle")).isFalse();
     assertThat(filter.accepts("pmd")).isFalse();
     assertThat(filter.accepts("cobertura")).isTrue();
   }
 
   @Test
-  public void should_concatenate_dry_run_filters() {
+  public void should_concatenate_preview_filters() {
     Settings settings = new Settings()
-        .setProperty(CoreProperties.DRY_RUN, true)
-        .setProperty(CoreProperties.DRY_RUN_INCLUDE_PLUGINS, "cockpit")
-        .setProperty(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, "views")
-        .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings);
+      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "cockpit")
+      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "views")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd");
+    when(mode.isPreview()).thenReturn(true);
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
+    assertThat(filter.whites).containsOnly("cockpit");
+    assertThat(filter.blacks).containsOnly("views", "checkstyle", "pmd");
+  }
+
+  @Test
+  public void should_concatenate_deprecated_dry_run_filters() {
+    Settings settings = new Settings()
+      .setProperty(CoreProperties.DRY_RUN_INCLUDE_PLUGINS, "cockpit")
+      .setProperty(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, "views")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd");
+    when(mode.isPreview()).thenReturn(true);
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.whites).containsOnly("cockpit");
     assertThat(filter.blacks).containsOnly("views", "checkstyle", "pmd");
   }

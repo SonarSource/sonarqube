@@ -19,13 +19,14 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.thoughtworks.xstream.XStream;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -83,7 +84,7 @@ public class PropertiesBackup implements Backupable {
     // default permissions properties should not be exported as they reference permission_templates entries in the DB
     return !CoreProperties.SERVER_ID.equals(propertyKey)
       && !propertyKey.startsWith(PERMISSION_PROPERTIES_PREFIX)
-      && !DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY.equals(propertyKey);
+      && !PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY.equals(propertyKey);
   }
 
   private boolean shouldNotBeErased(String propertyKey) {

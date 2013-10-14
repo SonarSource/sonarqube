@@ -21,12 +21,12 @@ package org.sonar.batch.scan;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -42,15 +42,16 @@ public class ProjectLockTest {
   ProjectTree projectTree = mock(ProjectTree.class);
   Settings settings;
   Project project;
+  private AnalysisMode mode;
 
   @Before
   public void setUp() {
-    settings = new Settings();
-    setDryRunMode(false);
+    mode = mock(AnalysisMode.class);
+
     project = new Project("my-project-key");
     when(projectTree.getRootProject()).thenReturn(project);
 
-    projectLock = new ProjectLock(semaphores, projectTree, settings);
+    projectLock = new ProjectLock(semaphores, projectTree, mode);
   }
 
   @Test
@@ -69,8 +70,7 @@ public class ProjectLockTest {
 
   @Test
   public void shouldNotAcquireSemaphoreInDryRunMode() {
-    setDryRunMode(true);
-    settings = new Settings().setProperty(CoreProperties.DRY_RUN, true);
+    when(mode.isPreview()).thenReturn(true);
     projectLock.start();
     verifyZeroInteractions(semaphores);
   }
@@ -82,14 +82,10 @@ public class ProjectLockTest {
   }
 
   @Test
-  public void shouldNotReleaseSemaphoreInDryRunMode() {
-    setDryRunMode(true);
+  public void shouldNotReleaseSemaphoreInPreviewMode() {
+    when(mode.isPreview()).thenReturn(true);
     projectLock.stop();
     verifyZeroInteractions(semaphores);
-  }
-
-  private void setDryRunMode(boolean isInDryRunMode) {
-    settings.setProperty(CoreProperties.DRY_RUN, isInDryRunMode);
   }
 
 }

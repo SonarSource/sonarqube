@@ -25,7 +25,6 @@ import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
@@ -33,12 +32,17 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Locale;
 import java.util.Set;
 
@@ -58,15 +62,16 @@ public class JsonReport implements BatchComponent {
   private final IssueCache issueCache;
   private final EventBus eventBus;
   private final ComponentSelector componentSelector;
+  private AnalysisMode analysisMode;
 
   public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
-                    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory) {
-    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create());
+    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode) {
+    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create(), mode);
   }
 
   @VisibleForTesting
   JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
-                    EventBus eventBus, ComponentSelector componentSelector) {
+    EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -74,10 +79,11 @@ public class JsonReport implements BatchComponent {
     this.issueCache = issueCache;
     this.eventBus = eventBus;
     this.componentSelector = componentSelector;
+    this.analysisMode = analysisMode;
   }
 
   public void execute() {
-    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+    if (analysisMode.isPreview()) {
       eventBus.fireEvent(new BatchStepEvent("JSON report", true));
       exportResults();
       eventBus.fireEvent(new BatchStepEvent("JSON report", false));
@@ -128,19 +134,19 @@ public class JsonReport implements BatchComponent {
     for (DefaultIssue issue : getIssues()) {
       if (issue.resolution() == null && componentSelector.register(issue)) {
         json
-            .beginObject()
-            .name("key").value(issue.key())
-            .name("component").value(issue.componentKey())
-            .name("line").value(issue.line())
-            .name("message").value(issue.message())
-            .name("severity").value(issue.severity())
-            .name("rule").value(issue.ruleKey().toString())
-            .name("status").value(issue.status())
-            .name("resolution").value(issue.resolution())
-            .name("isNew").value(issue.isNew())
-            .name("reporter").value(issue.reporter())
-            .name("assignee").value(issue.assignee())
-            .name("effortToFix").value(issue.effortToFix());
+          .beginObject()
+          .name("key").value(issue.key())
+          .name("component").value(issue.componentKey())
+          .name("line").value(issue.line())
+          .name("message").value(issue.message())
+          .name("severity").value(issue.severity())
+          .name("rule").value(issue.ruleKey().toString())
+          .name("status").value(issue.status())
+          .name("resolution").value(issue.resolution())
+          .name("isNew").value(issue.isNew())
+          .name("reporter").value(issue.reporter())
+          .name("assignee").value(issue.assignee())
+          .name("effortToFix").value(issue.effortToFix());
         if (issue.creationDate() != null) {
           json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
         }
@@ -161,9 +167,9 @@ public class JsonReport implements BatchComponent {
     json.name("components").beginArray();
     for (String componentKey : componentSelector.componentKeys()) {
       json
-          .beginObject()
-          .name("key").value(componentKey)
-          .endObject();
+        .beginObject()
+        .name("key").value(componentKey)
+        .endObject();
     }
     json.endArray();
   }
@@ -172,12 +178,12 @@ public class JsonReport implements BatchComponent {
     json.name("rules").beginArray();
     for (RuleKey ruleKey : ruleKeys) {
       json
-          .beginObject()
-          .name("key").value(ruleKey.toString())
-          .name("rule").value(ruleKey.rule())
-          .name("repository").value(ruleKey.repository())
-          .name("name").value(getRuleName(ruleKey))
-          .endObject();
+        .beginObject()
+        .name("key").value(ruleKey.toString())
+        .name("rule").value(ruleKey.rule())
+        .name("repository").value(ruleKey.repository())
+        .name("name").value(getRuleName(ruleKey))
+        .endObject();
     }
     json.endArray();
   }

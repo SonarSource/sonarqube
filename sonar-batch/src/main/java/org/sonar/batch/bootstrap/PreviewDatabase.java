@@ -37,8 +37,8 @@ import java.net.SocketTimeoutException;
 /**
  * @since 3.4
  */
-public class DryRunDatabase implements BatchComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabase.class);
+public class PreviewDatabase implements BatchComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(PreviewDatabase.class);
 
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
@@ -46,32 +46,44 @@ public class DryRunDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = USER;
 
-  private static final int DEFAULT_DRY_RUN_READ_TIMEOUT_SEC = 60;
+  private static final int DEFAULT_PREVIEW_READ_TIMEOUT_SEC = 60;
 
   private final Settings settings;
   private final ServerClient server;
   private final TempDirectories tempDirectories;
+  private final AnalysisMode mode;
 
-  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories) {
+  public PreviewDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, AnalysisMode mode) {
     this.settings = settings;
     this.server = server;
     this.tempDirectories = tempDirectories;
+    this.mode = mode;
   }
 
   public void start() {
-    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LOG.info("Preview");
-      File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
+    if (mode.isPreview()) {
+      File databaseFile = tempDirectories.getFile("", "preview.h2.db");
 
-      // SONAR-4488 Allow to increase dryRun timeout
-      int readTimeoutSec = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC);
-      readTimeoutSec = (readTimeoutSec == 0) ? DEFAULT_DRY_RUN_READ_TIMEOUT_SEC : readTimeoutSec;
-
+      int readTimeoutSec = getReadTimeout();
       downloadDatabase(databaseFile, readTimeoutSec * 1000);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
       replaceSettings(databasePath);
     }
+  }
+
+  // SONAR-4488 Allow to increase dryRun timeout
+  private int getReadTimeout() {
+    int readTimeoutSec;
+    if (settings.hasKey(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC)) {
+      LOG.warn(String.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC));
+      readTimeoutSec = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC);
+    } else if (settings.hasKey(CoreProperties.PREVIEW_READ_TIMEOUT_SEC)) {
+      readTimeoutSec = settings.getInt(CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
+    } else {
+      readTimeoutSec = DEFAULT_PREVIEW_READ_TIMEOUT_SEC;
+    }
+    return readTimeoutSec;
   }
 
   private void downloadDatabase(File toFile, int readTimeout) {
@@ -98,9 +110,9 @@ public class DryRunDatabase implements BatchComponent {
     Throwable rootCause = Throwables.getRootCause(e);
     if (rootCause instanceof SocketTimeoutException) {
       // Pico will unwrap the first runtime exception
-      throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
-        + CoreProperties.DRY_RUN_READ_TIMEOUT_SEC + " (in seconds)",
-          readTimeout), e));
+      throw new SonarException(new SonarException(String.format("Preview database read timed out after %s ms. You can try to increase read timeout with property -D"
+        + CoreProperties.PREVIEW_READ_TIMEOUT_SEC + " (in seconds)",
+        readTimeout), e));
     }
     if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
       // Pico will unwrap the first runtime exception
@@ -110,11 +122,11 @@ public class DryRunDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-        .removeProperty("sonar.jdbc.schema")
-        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-        .setProperty(DatabaseProperties.PROP_USER, USER)
-        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-        .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
+      .removeProperty("sonar.jdbc.schema")
+      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+      .setProperty(DatabaseProperties.PROP_USER, USER)
+      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+      .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
   }
 }

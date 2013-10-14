@@ -20,6 +20,8 @@
 
 package org.sonar.server.rules;
 
+import org.sonar.core.preview.PreviewCache;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -32,7 +34,6 @@ import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.StringReader;
@@ -51,9 +52,9 @@ public final class ProfilesConsole implements ServerComponent {
   private XMLProfileSerializer xmlProfileSerializer;
   private List<ProfileExporter> exporters = newArrayList();
   private List<ProfileImporter> importers = newArrayList();
-  private DryRunCache dryRunCache;
+  private PreviewCache dryRunCache;
 
-  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, DryRunCache dryRunCache) {
+  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, PreviewCache dryRunCache) {
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
@@ -64,7 +65,7 @@ public final class ProfilesConsole implements ServerComponent {
 
   public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer,
     ProfileExporter[] exporters,
-    ProfileImporter[] importers, DryRunCache dryRunCache) {
+    ProfileImporter[] importers, PreviewCache dryRunCache) {
     this(sessionFactory, xmlProfileParser, xmlProfileSerializer, dryRunCache);
     this.exporters.addAll(Arrays.asList(exporters));
     this.importers.addAll(Arrays.asList(importers));

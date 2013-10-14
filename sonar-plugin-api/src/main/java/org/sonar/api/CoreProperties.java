@@ -255,14 +255,24 @@ public interface CoreProperties {
 
   /**
    * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}
    */
   String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE}
+   */
   String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
 
   /**
    * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS}
    */
   String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE}
+   */
   String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
 
   /**
@@ -435,6 +445,7 @@ public interface CoreProperties {
 
   /**
    * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#ANALYSIS_MODE}
    */
   String DRY_RUN = "sonar.dryRun";
 
@@ -462,8 +473,14 @@ public interface CoreProperties {
 
   /**
    * @since 3.7
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_READ_TIMEOUT_SEC}
    */
   String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
+
+  /**
+   * @since 4.0
+   */
+  String PREVIEW_READ_TIMEOUT_SEC = "sonar.preview.readTimeout";
 
   /**
    * @since 4.0
@@ -473,5 +490,32 @@ public interface CoreProperties {
   /**
    * @since 4.0
    */
-  String INCREMENTAL_PREVIEW = "sonar.incrementalPreview";
+  String ANALYSIS_MODE = "sonar.analysis.mode";
+
+  /**
+   * @since 4.0
+   */
+  String ANALYSIS_MODE_ANALYSIS = "analysis";
+
+  /**
+   * @since 4.0
+   */
+  String ANALYSIS_MODE_PREVIEW = "preview";
+
+  /**
+   * @since 4.0
+   */
+  String ANALYSIS_MODE_INCREMENTAL = "incremental";
+
+  /**
+   * @since 4.0
+   */
+  String PREVIEW_INCLUDE_PLUGINS = "sonar.preview.includePlugins";
+  String PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
+
+  /**
+   * @since 4.0
+   */
+  String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
+  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
 }

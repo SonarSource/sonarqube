@@ -21,8 +21,8 @@ package org.sonar.batch.issue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
   IssuePersister persister;
   private ScanIssueStorage storage;
   private List<DefaultIssue> issues;
-  private Settings settings;
+  private AnalysisMode mode;
 
   @Before
   public void prepare() {
@@ -48,8 +48,8 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     when(issueCache.all()).thenReturn(issues);
     storage = mock(ScanIssueStorage.class);
 
-    settings = new Settings();
-    persister = new IssuePersister(issueCache, storage, settings);
+    mode = mock(AnalysisMode.class);
+    persister = new IssuePersister(issueCache, storage, mode);
   }
 
   @Test
@@ -60,8 +60,8 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_not_persist_issues_in_dry_run() throws Exception {
-    settings.setProperty("sonar.dryRun", true);
+  public void should_not_persist_issues_in_preview_mode() throws Exception {
+    when(mode.isPreview()).thenReturn(true);
 
     persister.persist();
 

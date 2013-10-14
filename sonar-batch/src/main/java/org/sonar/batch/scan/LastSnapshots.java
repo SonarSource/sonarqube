@@ -20,8 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
@@ -29,18 +27,19 @@ import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 
 import javax.persistence.Query;
 
 public class LastSnapshots implements BatchComponent {
 
-  private final Settings settings;
+  private final AnalysisMode analysisMode;
   private final DatabaseSession session;
   private final ServerClient server;
 
-  public LastSnapshots(Settings settings, DatabaseSession session, ServerClient server) {
-    this.settings = settings;
+  public LastSnapshots(AnalysisMode analysisMode, DatabaseSession session, ServerClient server) {
+    this.analysisMode = analysisMode;
     this.session = session;
     this.server = server;
   }
@@ -48,7 +47,7 @@ public class LastSnapshots implements BatchComponent {
   public String getSource(Resource resource) {
     String source = "";
     if (ResourceUtils.isFile(resource)) {
-      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      if (analysisMode.isPreview()) {
         source = loadSourceFromWs(resource);
       } else {
         source = loadSourceFromDb(resource);

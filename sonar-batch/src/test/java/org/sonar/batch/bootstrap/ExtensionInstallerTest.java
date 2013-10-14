@@ -21,13 +21,13 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ClassUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -42,18 +42,24 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
+  private AnalysisMode mode;
   PluginMetadata metadata = mock(PluginMetadata.class);
 
   Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(metadata,
-        new SonarPlugin() {
-          public List<?> getExtensions() {
-            return Arrays.asList(extensions);
-          }
+      new SonarPlugin() {
+        public List<?> getExtensions() {
+          return Arrays.asList(extensions);
         }
-        );
+      }
+      );
     return result;
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    mode = mock(AnalysisMode.class);
   }
 
   @Test
@@ -61,7 +67,7 @@ public class ExtensionInstallerTest {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, Bar.class));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
     installer.install(container, new FooMatcher());
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -73,7 +79,7 @@ public class ExtensionInstallerTest {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 
     installer.install(container, new FooMatcher());
 
@@ -86,7 +92,7 @@ public class ExtensionInstallerTest {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 
     installer.install(container, new TrueMatcher());
 
@@ -100,7 +106,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
 
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 
     installer.install(container, new TrueMatcher());
 

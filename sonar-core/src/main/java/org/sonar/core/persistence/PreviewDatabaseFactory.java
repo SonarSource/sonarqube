@@ -33,8 +33,8 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.sql.SQLException;
 
-public class DryRunDatabaseFactory implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabaseFactory.class);
+public class PreviewDatabaseFactory implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(PreviewDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -45,7 +45,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
   private final Database database;
 
-  public DryRunDatabaseFactory(Database database) {
+  public PreviewDatabaseFactory(Database database) {
     this.database = database;
   }
 
@@ -66,9 +66,9 @@ public class DryRunDatabaseFactory implements ServerComponent {
         long size = dbFile.length();
         long duration = System.currentTimeMillis() - startup;
         if (projectId == null) {
-          LOG.debug("Dry Run Database created in " + duration + " ms, size is " + size + " bytes");
+          LOG.debug("Preview Database created in " + duration + " ms, size is " + size + " bytes");
         } else {
-          LOG.debug("Dry Run Database for project " + projectId + " created in " + duration + " ms, size is " + size + " bytes");
+          LOG.debug("Preview Database for project " + projectId + " created in " + duration + " ms, size is " + size + " bytes");
         }
       }
       return dbFile;

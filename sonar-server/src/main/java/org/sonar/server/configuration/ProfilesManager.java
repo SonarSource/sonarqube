@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,7 +32,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -39,9 +40,9 @@ import java.util.List;
 public class ProfilesManager extends BaseDao {
 
   private RulesDao rulesDao;
-  private DryRunCache dryRunCache;
+  private PreviewCache dryRunCache;
 
-  public ProfilesManager(DatabaseSession session, RulesDao rulesDao, DryRunCache dryRunCache) {
+  public ProfilesManager(DatabaseSession session, RulesDao rulesDao, PreviewCache dryRunCache) {
     super(session);
     this.rulesDao = rulesDao;
     this.dryRunCache = dryRunCache;

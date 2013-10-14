@@ -58,7 +58,7 @@ public class ExtensionUtils {
     return false;
   }
 
-  public static boolean supportsDryRun(Object extension) {
+  public static boolean supportsPreview(Object extension) {
     return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
   }
 

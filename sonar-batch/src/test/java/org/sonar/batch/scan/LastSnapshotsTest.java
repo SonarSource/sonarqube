@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.scan;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -36,19 +36,28 @@ import java.net.URISyntaxException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  private AnalysisMode mode;
+
+  @Before
+  public void before() {
+    mode = mock(AnalysisMode.class);
+  }
 
   @Test
   public void should_get_source_of_last_snapshot() {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
 
-    LastSnapshots lastSnapshots = new LastSnapshots(new Settings(), getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     assertThat(lastSnapshots.getSource(newFile())).isEqualTo("this is bar");
     verifyZeroInteractions(server);
@@ -59,21 +68,20 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
     setupData("no_last_snapshot");
     ServerClient server = mock(ServerClient.class);
 
-    LastSnapshots lastSnapshots = new LastSnapshots(new Settings(), getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     assertThat(lastSnapshots.getSource(newFile())).isEqualTo("");
     verifyZeroInteractions(server);
   }
 
   @Test
-  public void should_download_source_from_ws_if_dry_run() {
+  public void should_download_source_from_ws_if_preview_mode() {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false))).thenReturn("downloaded source of Bar.c");
 
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.DRY_RUN, true);
-    LastSnapshots lastSnapshots = new LastSnapshots(settings, getSession(), server);
+    when(mode.isPreview()).thenReturn(true);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Bar.c");
@@ -86,23 +94,21 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.DRY_RUN, true);
-    LastSnapshots lastSnapshots = new LastSnapshots(settings, getSession(), server);
+    when(mode.isPreview()).thenReturn(true);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     thrown.expect(HttpDownloader.HttpException.class);
     lastSnapshots.getSource(newFile());
   }
 
   @Test
-  public void should_return_empty_source_if_dry_run_and_no_last_snapshot() throws URISyntaxException {
+  public void should_return_empty_source_if_preview_mode_and_no_last_snapshot() throws URISyntaxException {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false))).thenThrow(new HttpDownloader.HttpException(new URI(""), 404));
 
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.DRY_RUN, true);
-    LastSnapshots lastSnapshots = new LastSnapshots(settings, getSession(), server);
+    when(mode.isPreview()).thenReturn(true);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("");
@@ -114,7 +120,7 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
 
-    LastSnapshots lastSnapshots = new LastSnapshots(new Settings(), getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     String source = lastSnapshots.getSource(new Project("my-project"));
     assertThat(source).isEqualTo("");

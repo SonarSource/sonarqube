@@ -30,6 +30,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
 
@@ -48,35 +49,37 @@ public class UpdateStatusJob implements BatchComponent {
   private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;
+  private AnalysisMode analysisMode;
 
   public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session,
-    ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
+    ResourcePersister resourcePersister, Project project, Snapshot snapshot, AnalysisMode analysisMode) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
     this.project = project;
     this.snapshot = snapshot;
     this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   public void execute() {
     disablePreviousSnapshot();
     enableCurrentSnapshot();
-    evictDryRunDB();
+    evictPreviewDB();
   }
 
   @VisibleForTesting
-  void evictDryRunDB() {
-    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-      // If this is a dryRun analysis then we should not evict dryRun database
+  void evictPreviewDB() {
+    if (analysisMode.isPreview()) {
+      // If this is a preview analysis then we should not evict remote preview database
       return;
     }
     String url = "/batch_bootstrap/evict?project=" + project.getId();
     try {
-      LOG.debug("Evict dryRun database");
+      LOG.debug("Evict preview database");
       server.request(url);
     } catch (Exception e) {
-      throw new SonarException("Unable to evict dryRun database: " + url, e);
+      throw new SonarException("Unable to evict preview database: " + url, e);
     }
   }
 
@@ -103,7 +106,7 @@ public class UpdateStatusJob implements BatchComponent {
 
   @VisibleForTesting
   void logSuccess(Logger logger) {
-    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+    if (analysisMode.isPreview()) {
       logger.info("ANALYSIS SUCCESSFUL");
 
     } else {

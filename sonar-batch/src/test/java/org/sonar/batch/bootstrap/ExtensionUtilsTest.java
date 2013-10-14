@@ -81,10 +81,10 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldSupportDryRun() {
-    assertThat(ExtensionUtils.supportsDryRun(BatchService.class)).isTrue();
-    assertThat(ExtensionUtils.supportsDryRun(new BatchService())).isTrue();
-    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class)).isFalse();
-    assertThat(ExtensionUtils.supportsDryRun(new PersistentService())).isFalse();
+    assertThat(ExtensionUtils.supportsPreview(BatchService.class)).isTrue();
+    assertThat(ExtensionUtils.supportsPreview(new BatchService())).isTrue();
+    assertThat(ExtensionUtils.supportsPreview(PersistentService.class)).isFalse();
+    assertThat(ExtensionUtils.supportsPreview(new PersistentService())).isFalse();
   }
 
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)

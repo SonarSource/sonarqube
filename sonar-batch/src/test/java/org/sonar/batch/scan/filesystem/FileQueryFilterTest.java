@@ -19,23 +19,30 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.InputFileFilter;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FileQueryFilterTest {
 
-  Settings settings = new Settings();
+  private AnalysisMode mode;
+
+  @Before
+  public void before() {
+    mode = mock(AnalysisMode.class);
+  }
 
   @Test
   public void wrap_query_on_attributes() throws Exception {
     FileQuery query = FileQuery.onSource();
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
 
     assertThat(filter.filters()).hasSize(1);
     InputFileFilter typeFilter = filter.filters().get(0);
@@ -47,7 +54,7 @@ public class FileQueryFilterTest {
   @Test
   public void wrap_query_on_inclusions() throws Exception {
     FileQuery query = FileQuery.on().withInclusions("Foo*.java");
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
 
     assertThat(filter.filters()).hasSize(1);
     InputFileFilter inclusionFilter = filter.filters().get(0);
@@ -58,7 +65,7 @@ public class FileQueryFilterTest {
   @Test
   public void wrap_query_on_exclusions() throws Exception {
     FileQuery query = FileQuery.on().withExclusions("Foo*.java");
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
 
     assertThat(filter.filters()).hasSize(1);
     InputFileFilter exclusionFilter = filter.filters().get(0);
@@ -69,16 +76,16 @@ public class FileQueryFilterTest {
   @Test
   public void all_files_by_default() throws Exception {
     FileQuery query = FileQuery.on();
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
     assertThat(filter.filters()).isEmpty();
   }
 
   @Test
   public void only_changed_files_by_default_if_incremental_mode() throws Exception {
-    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+    when(mode.isIncremental()).thenReturn(true);
 
     FileQuery query = FileQuery.on();
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
 
     assertThat(filter.filters()).hasSize(1);
     AttributeFilter statusFilter = (AttributeFilter) filter.filters().get(0);
@@ -88,10 +95,10 @@ public class FileQueryFilterTest {
 
   @Test
   public void get_all_files_even_if_incremental_mode() throws Exception {
-    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+    when(mode.isIncremental()).thenReturn(true);
 
     FileQuery query = FileQuery.on().on(InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME);
-    FileQueryFilter filter = new FileQueryFilter(settings, query);
+    FileQueryFilter filter = new FileQueryFilter(mode, query);
 
     assertThat(filter.filters()).hasSize(1);
     AttributeFilter statusFilter = (AttributeFilter) filter.filters().get(0);

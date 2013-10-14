@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.phases;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
@@ -27,6 +28,8 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
+import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.ResourceCache;
@@ -41,8 +44,17 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
+
+  private AnalysisMode mode;
+  private BootstrapSettings bootstrapSettings;
+
+  @Before
+  public void setUp() {
+    mode = mock(AnalysisMode.class);
+  }
 
   @Test
   public void shouldUnflagPenultimateLastSnapshot() {
@@ -67,7 +79,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     project.setId(1);
     UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
       new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
-      project, loadSnapshot(snapshotId));
+      project, loadSnapshot(snapshotId), mode);
     job.execute();
 
     checkTables(fixture, "snapshots");
@@ -85,7 +97,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -94,12 +106,12 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_log_successful_dry_run_analysis() throws Exception {
+  public void should_log_successful_preview_analysis() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty("sonar.dryRun", true);
+    when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -113,22 +125,22 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Project project = new Project("struts");
     ServerClient serverClient = mock(ServerClient.class);
     UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
-    job.evictDryRunDB();
+    job.evictPreviewDB();
     verify(serverClient).request(contains("/batch_bootstrap/evict"));
   }
 
   @Test
-  public void should_not_evict_cache_for_dry_run_analysis() throws Exception {
+  public void should_not_evict_cache_for_preview_analysis() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty("sonar.dryRun", true);
+    when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
     ServerClient serverClient = mock(ServerClient.class);
     UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
-    job.evictDryRunDB();
+    job.evictPreviewDB();
     verify(serverClient, never()).request(anyString());
   }
 }

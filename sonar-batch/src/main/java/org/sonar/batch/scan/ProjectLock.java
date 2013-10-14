@@ -22,12 +22,11 @@ package org.sonar.batch.scan;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 public class ProjectLock {
 
@@ -35,16 +34,16 @@ public class ProjectLock {
 
   private final Semaphores semaphores;
   private final ProjectTree projectTree;
-  private final Settings settings;
+  private final AnalysisMode analysisMode;
 
-  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, Settings settings) {
+  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, AnalysisMode analysisMode) {
     this.semaphores = semaphores;
     this.projectTree = projectTree;
-    this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   public void start() {
-    if (!isInDryRunMode() && StringUtils.isNotBlank(getProject().getKey())) {
+    if (!analysisMode.isPreview() && StringUtils.isNotBlank(getProject().getKey())) {
       Semaphores.Semaphore semaphore = acquire();
       if (!semaphore.isLocked()) {
         LOG.error(getErrorMessage(semaphore));
@@ -62,7 +61,7 @@ public class ProjectLock {
   }
 
   public void stop() {
-    if (!isInDryRunMode()) {
+    if (!analysisMode.isPreview()) {
       release();
     }
   }
@@ -83,9 +82,5 @@ public class ProjectLock {
 
   private Project getProject() {
     return projectTree.getRootProject();
-  }
-
-  private boolean isInDryRunMode() {
-    return settings.getBoolean(CoreProperties.DRY_RUN);
   }
 }

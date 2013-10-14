@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.core.preview.PreviewCache;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.core.util.QuickWriter;
@@ -30,7 +32,6 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -55,7 +56,7 @@ public class Backup {
     backupables = new ArrayList<Backupable>();
   }
 
-  public Backup(DatabaseSession session, PersistentSettings persistentSettings, DryRunCache dryRunCache) {
+  public Backup(DatabaseSession session, PersistentSettings persistentSettings, PreviewCache dryRunCache) {
     this();
     this.session = session;
 

@@ -34,8 +34,8 @@ import java.sql.SQLException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
-  DryRunDatabaseFactory localDatabaseFactory;
+public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
+  PreviewDatabaseFactory localDatabaseFactory;
   BasicDataSource dataSource;
 
   @Rule
@@ -43,7 +43,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() throws Exception {
-    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase());
+    localDatabaseFactory = new PreviewDatabaseFactory(getDatabase());
   }
 
   @After

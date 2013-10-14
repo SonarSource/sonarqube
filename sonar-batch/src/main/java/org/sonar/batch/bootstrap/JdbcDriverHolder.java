@@ -22,8 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.home.cache.FileCache;
 
@@ -43,20 +41,20 @@ public class JdbcDriverHolder {
   private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
 
   private ServerClient serverClient;
-  private Settings settings;
+  private AnalysisMode analysisMode;
   private FileCache fileCache;
 
   // initialized in start()
   private JdbcDriverClassLoader classLoader = null;
 
-  public JdbcDriverHolder(FileCache fileCache, Settings settings, ServerClient serverClient) {
+  public JdbcDriverHolder(FileCache fileCache, AnalysisMode analysisMode, ServerClient serverClient) {
     this.serverClient = serverClient;
-    this.settings = settings;
+    this.analysisMode = analysisMode;
     this.fileCache = fileCache;
   }
 
   public void start() {
-    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
+    if (!analysisMode.isPreview()) {
       try {
         LOG.info("Install JDBC driver");
         String[] nameAndHash = downloadJdbcDriverIndex();
@@ -150,7 +148,7 @@ public class JdbcDriverHolder {
   static class JdbcDriverClassLoader extends URLClassLoader {
 
     public JdbcDriverClassLoader(URL jdbcDriver, ClassLoader parent) {
-      super(new URL[]{jdbcDriver}, parent);
+      super(new URL[] {jdbcDriver}, parent);
     }
 
     public void clearReferencesJdbc() {

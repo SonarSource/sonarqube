@@ -21,9 +21,8 @@ package org.sonar.batch.issue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.index.ScanPersister;
 
 /**
@@ -35,18 +34,18 @@ public class IssuePersister implements ScanPersister {
 
   private final IssueCache issueCache;
   private final ScanIssueStorage storage;
-  private Settings settings;
+  private AnalysisMode analysisMode;
 
-  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage, Settings settings) {
+  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage, AnalysisMode analysisMode) {
     this.issueCache = issueCache;
     this.storage = storage;
-    this.settings = settings;
+    this.analysisMode = analysisMode;
   }
 
   @Override
   public void persist() {
-    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LOG.debug("IssuePersister skipped in dryRun");
+    if (analysisMode.isPreview()) {
+      LOG.debug("IssuePersister skipped in preview mode");
       return;
     }
     Iterable<DefaultIssue> issues = issueCache.all();

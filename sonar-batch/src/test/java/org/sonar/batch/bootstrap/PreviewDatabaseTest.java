@@ -41,11 +41,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class DryRunDatabaseTest {
+public class PreviewDatabaseTest {
   Settings settings;
   ServerClient server = mock(ServerClient.class);
   TempDirectories tempDirectories = mock(TempDirectories.class);
   File databaseFile;
+  private AnalysisMode mode;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -55,32 +56,42 @@ public class DryRunDatabaseTest {
 
   @Before
   public void setUp() throws Exception {
-    databaseFile = temp.newFile("dryrun.h2.db");
-    when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
+    databaseFile = temp.newFile("preview.h2.db");
+    when(tempDirectories.getFile("", "preview.h2.db")).thenReturn(databaseFile);
     settings = new Settings();
-    settings.setProperty(CoreProperties.DRY_RUN, true);
     settings.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "group:project");
+
+    mode = mock(AnalysisMode.class);
+    when(mode.isPreview()).thenReturn(true);
   }
 
   @Test
-  public void should_be_disabled_if_not_dry_run() {
-    settings.setProperty(CoreProperties.DRY_RUN, false);
-    new DryRunDatabase(settings, server, tempDirectories).start();
+  public void should_be_disabled_if_not_preview() {
+    when(mode.isPreview()).thenReturn(false);
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
 
     verifyZeroInteractions(tempDirectories, server);
   }
 
   @Test
   public void should_download_database() {
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
   }
 
   @Test
-  public void should_download_database_with_overriden_timeout() {
+  public void should_download_database_with_deprecated_overriden_timeout() {
     settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, 80);
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+
+    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
+  }
+
+  @Test
+  public void should_download_database_with_overriden_timeout() {
+    settings.setProperty(CoreProperties.PREVIEW_READ_TIMEOUT_SEC, 80);
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
   }
@@ -88,14 +99,14 @@ public class DryRunDatabaseTest {
   @Test
   public void should_download_database_on_branch() {
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project:mybranch", databaseFile, 60000);
   }
 
   @Test
   public void should_replace_database_settings() {
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
 
     assertThat(settings.getString(DatabaseProperties.PROP_DIALECT)).isEqualTo("h2");
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
@@ -111,7 +122,7 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
 
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
   }
 
   @Test
@@ -119,9 +130,9 @@ public class DryRunDatabaseTest {
     doThrow(new SonarException(new SocketTimeoutException())).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("DryRun database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.dryRun.readTimeout (in seconds)");
+    thrown.expectMessage("Preview database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.preview.readTimeout (in seconds)");
 
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
   }
 
   @Test
@@ -131,14 +142,14 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");
 
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
   }
 
   @Test
   public void project_should_be_optional() {
     // on non-scan tasks
     settings.removeProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-    new DryRunDatabase(settings, server, tempDirectories).start();
+    new PreviewDatabase(settings, server, tempDirectories, mode).start();
     verify(server).download("/batch_bootstrap/db", databaseFile, 60000);
   }
 }

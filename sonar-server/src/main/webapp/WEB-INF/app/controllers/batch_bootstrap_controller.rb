@@ -30,7 +30,7 @@ class BatchBootstrapController < Api::ApiController
     return render_unauthorized("You're not authorized to execute a dry run analysis. Please contact your SonarQube administrator.") if !has_dryrun_role
     project = load_project()
     return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_role?(:user, project)
-    db_content = java_facade.createDatabaseForDryRun(project && project.id)
+    db_content = java_facade.createDatabaseForPreview(project && project.id)
 
     send_data String.from_java_bytes(db_content)
   end
@@ -44,7 +44,7 @@ class BatchBootstrapController < Api::ApiController
     return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_scan_role && !has_role?(:user, project)
 
     if project
-      Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis, project.root_project.id)
+      Property.set(Java::OrgSonarCorePreview::PreviewCache::SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis, project.root_project.id)
       render_success('dryRun DB evicted')
     else
       render_bad_request('missing projectId')
