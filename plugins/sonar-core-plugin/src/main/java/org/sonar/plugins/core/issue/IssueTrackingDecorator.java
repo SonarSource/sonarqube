@@ -66,13 +66,13 @@ public class IssueTrackingDecorator implements Decorator {
   private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-      LastSnapshots lastSnapshots, SonarIndex index,
-      IssueHandlers handlers, IssueWorkflow workflow,
-      IssueUpdater updater,
-      Project project,
-      ResourcePerspectives perspectives,
-      RulesProfile rulesProfile,
-      RuleFinder ruleFinder) {
+                                LastSnapshots lastSnapshots, SonarIndex index,
+                                IssueHandlers handlers, IssueWorkflow workflow,
+                                IssueUpdater updater,
+                                Project project,
+                                ResourcePerspectives perspectives,
+                                RulesProfile rulesProfile,
+                                RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -131,7 +131,8 @@ public class IssueTrackingDecorator implements Decorator {
     }
   }
 
-  private void mergeMatched(IssueTrackingResult result) {
+  @VisibleForTesting
+  protected void mergeMatched(IssueTrackingResult result) {
     for (DefaultIssue issue : result.matched()) {
       IssueDto ref = result.matching(issue);
 
@@ -168,9 +169,8 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
       Long technicalDebt = ref.getTechnicalDebt();
-      if (technicalDebt != null) {
-        updater.setPastTechnicalDebt(issue, TechnicalDebt.fromLong(technicalDebt), changeContext);
-      }
+      TechnicalDebt previousTechnicalDebt = technicalDebt != null ? TechnicalDebt.fromLong(technicalDebt) : null;
+      updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
     }
   }
 

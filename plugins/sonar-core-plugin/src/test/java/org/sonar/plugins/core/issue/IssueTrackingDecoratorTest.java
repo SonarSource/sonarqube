@@ -36,6 +36,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -49,6 +50,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
@@ -56,6 +58,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
 
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
@@ -499,5 +502,39 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
         return "ABCDE".equals(dead.key()) && !dead.isNew() && dead.isEndOfLife();
       }
     }));
+  }
+
+  @Test
+  public void merge_matched_issue() throws Exception {
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+    DefaultIssue issue = new DefaultIssue();
+
+    IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
+    when(trackingResult.matched()).thenReturn(newArrayList(issue));
+    when(trackingResult.matching(eq(issue))).thenReturn(previousIssue);
+    decorator.mergeMatched(trackingResult);
+
+    verify(updater).setPastSeverity(eq(issue), eq("MAJOR"), any(IssueChangeContext.class));
+    verify(updater).setPastLine(eq(issue), eq(10));
+    verify(updater).setPastMessage(eq(issue), eq("Message"), any(IssueChangeContext.class));
+    verify(updater).setPastEffortToFix(eq(issue), eq(1.5), any(IssueChangeContext.class));
+    verify(updater).setPastTechnicalDebt(eq(issue), eq(TechnicalDebt.of(1, 0, 0)), any(IssueChangeContext.class));
+  }
+
+  @Test
+  public void merge_matched_issue_on_manual_severity() throws Exception {
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+    DefaultIssue issue = new DefaultIssue();
+
+    IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
+    when(trackingResult.matched()).thenReturn(newArrayList(issue));
+    when(trackingResult.matching(eq(issue))).thenReturn(previousIssue);
+    decorator.mergeMatched(trackingResult);
+
+    assertThat(issue.manualSeverity()).isTrue();
+    assertThat(issue.severity()).isEqualTo("MAJOR");
+    verify(updater, never()).setPastSeverity(eq(issue), anyString(), any(IssueChangeContext.class));
   }
 }
