@@ -123,6 +123,24 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     return testFiles;
   }
 
+  /**
+   * Should not be used - only for old plugins
+   */
+  @Deprecated
+  void addSourceDir(File dir) {
+    sourceDirs.add(dir);
+    index();
+  }
+
+  /**
+   * Should not be used - only for old plugins
+   */
+  @Deprecated
+  void addTestDir(File dir) {
+    testDirs.add(dir);
+    index();
+  }
+
   @Override
   public Charset sourceCharset() {
     final Charset charset;
