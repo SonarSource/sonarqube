@@ -40,8 +40,16 @@ public final class PlatformLifecycleListener implements ServletContextListener {
       // - the second listener for jruby on rails is started even if this listener fails. It generates
       // unexpected errors
       LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
-      Platform.getInstance().stop();
+      stopQuietly();
       System.exit(1);
+    }
+  }
+
+  private void stopQuietly() {
+    try {
+      Platform.getInstance().stop();
+    } catch (Exception e) {
+      // ignored, but an error during startup generally prevents pico to be correctly stopped
     }
   }
 
