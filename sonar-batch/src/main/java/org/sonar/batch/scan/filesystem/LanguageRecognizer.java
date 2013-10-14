@@ -39,8 +39,6 @@ import java.util.Set;
  */
 public class LanguageRecognizer implements BatchComponent, Startable {
 
-  static final String NO_EXTENSION = "<UNSET>";
-
   private final Project project;
   private final Language[] languages;
 
@@ -48,6 +46,13 @@ public class LanguageRecognizer implements BatchComponent, Startable {
    * Lower-case extension -> languages
    */
   private SetMultimap<String, String> langsByExtension = HashMultimap.create();
+
+  /**
+   * Some plugins, like web and cobol, can analyze all the source files, whatever
+   * their file extension. This behavior is kept for backward-compatibility,
+   * but it should be fixed with future multi-language support.
+   */
+  private boolean ignoreFileExtension = false;
 
   public LanguageRecognizer(Project project, Language[] languages) {
     this.project = project;
@@ -57,8 +62,8 @@ public class LanguageRecognizer implements BatchComponent, Startable {
   @Override
   public void start() {
     for (Language language : languages) {
-      if (language.getFileSuffixes().length == 0) {
-        langsByExtension.put(NO_EXTENSION, language.getKey());
+      if (language.getFileSuffixes().length == 0 && language.getKey().equals(project.getLanguageKey())) {
+        ignoreFileExtension = true;
 
       } else {
         for (String suffix : language.getFileSuffixes()) {
@@ -90,9 +95,11 @@ public class LanguageRecognizer implements BatchComponent, Startable {
 
   @CheckForNull
   String of(File file) {
+    if (ignoreFileExtension) {
+      return project.getLanguageKey();
+    }
     // multi-language is not supported yet. Filter on project language
     String extension = sanitizeExtension(FilenameUtils.getExtension(file.getName()));
-    extension = StringUtils.defaultIfBlank(extension, NO_EXTENSION);
     Set<String> langs = langsByExtension.get(extension);
     return langs.contains(project.getLanguageKey()) ? project.getLanguageKey() : null;
   }

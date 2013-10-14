@@ -91,20 +91,24 @@ public class LanguageRecognizerTest {
 
   @Test
   public void language_with_no_extension() throws Exception {
-    // abap here is associated to files without extension
+    // abap does not declare any file extensions.
+    // When analyzing an ABAP project, then all source files must be parsed.
     Language[] languages = new Language[]{new MockLanguage("java", "java"), new MockLanguage("abap")};
 
-    // files without extension are detected only on abap projects
+    // No side-effect on non-ABAP projects
     LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
     recognizer.start();
     assertThat(recognizer.of(temp.newFile("abc"))).isNull();
+    assertThat(recognizer.of(temp.newFile("abc.abap"))).isNull();
+    assertThat(recognizer.of(temp.newFile("abc.java"))).isEqualTo("java");
     recognizer.stop();
 
     recognizer = new LanguageRecognizer(newProject("abap"), languages);
     recognizer.start();
     assertThat(recognizer.of(temp.newFile("abc"))).isEqualTo("abap");
+    assertThat(recognizer.of(temp.newFile("abc.txt"))).isEqualTo("abap");
+    assertThat(recognizer.of(temp.newFile("abc.java"))).isEqualTo("abap");
     recognizer.stop();
-
   }
 
   private Project newProject(String language) {
