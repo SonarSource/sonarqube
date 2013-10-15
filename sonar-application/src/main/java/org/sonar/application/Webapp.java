@@ -26,6 +26,7 @@ class Webapp {
 
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
+  private static final String PROPERTY_CONTEXT = "sonar.web.context";
 
   static void configure(Tomcat tomcat, Env env, Props props) {
     String ctx = getContext(props);
@@ -41,9 +42,11 @@ class Webapp {
   }
 
   static String getContext(Props props) {
-    String context = props.of("sonar.web.context", "");
-    if (!"".equals(context) && !context.startsWith("/")) {
-      throw new IllegalStateException("Value of sonar.web.context must start with a forward slash: " + context);
+    String context = props.of(PROPERTY_CONTEXT, "");
+    if ("/".equals(context)) {
+      context = "";
+    } else if (!"".equals(context) && !context.startsWith("/")) {
+      throw new IllegalStateException(String.format("Value of '%s' must start with a forward slash: '%s'", PROPERTY_CONTEXT, context));
     }
     return context;
   }

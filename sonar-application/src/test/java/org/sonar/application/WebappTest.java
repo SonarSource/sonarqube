@@ -87,8 +87,16 @@ public class WebappTest {
       Webapp.getContext(new Props(p));
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Value of sonar.web.context must start with a forward slash: foo");
+      assertThat(e.getMessage()).isEqualTo("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
     }
+  }
+
+  @Test
+  public void root_context_must_be_blank() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.context", "/");
+
+    assertThat(Webapp.getContext(new Props(p))).isEqualTo("");
   }
 
   @Test
