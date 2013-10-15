@@ -120,6 +120,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   static class PluginFilter {
+    private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
     Set<String> whites = Sets.newHashSet(), blacks = Sets.newHashSet();
 
     PluginFilter(Settings settings, AnalysisMode mode) {
@@ -133,7 +134,7 @@ public class BatchPluginRepository implements PluginRepository {
         // These default values are not supported by Settings because the class CorePlugin
         // is not loaded yet.
         if (settings.hasKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)) {
-          LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS));
+          LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS));
           whites.addAll(propertyValues(settings,
             CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
         } else {
@@ -141,7 +142,7 @@ public class BatchPluginRepository implements PluginRepository {
             CoreProperties.PREVIEW_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
         }
         if (settings.hasKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)) {
-          LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS));
+          LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS));
           blacks.addAll(propertyValues(settings,
             CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
         } else {
