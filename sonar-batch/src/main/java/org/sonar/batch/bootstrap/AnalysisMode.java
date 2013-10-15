@@ -50,7 +50,7 @@ public class AnalysisMode implements BatchComponent {
 
   private void init(BootstrapSettings bootstrapSettings) {
     if (bootstrapSettings.properties().containsKey(CoreProperties.DRY_RUN)) {
-      LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
+      LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
       preview = "true".equals(bootstrapSettings.property(CoreProperties.DRY_RUN));
       incremental = false;
     } else {

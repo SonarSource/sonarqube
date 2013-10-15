@@ -257,22 +257,26 @@ public interface CoreProperties {
    * @since 3.4
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}
    */
+  @Deprecated
   String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
   /**
    * @since 3.4
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE}
    */
+  @Deprecated
   String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
 
   /**
    * @since 3.4
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS}
    */
+  @Deprecated
   String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
   /**
    * @since 3.4
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE}
    */
+  @Deprecated
   String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
 
   /**
@@ -445,7 +449,6 @@ public interface CoreProperties {
 
   /**
    * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#ANALYSIS_MODE}
    */
   String DRY_RUN = "sonar.dryRun";
 
@@ -475,6 +478,7 @@ public interface CoreProperties {
    * @since 3.7
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_READ_TIMEOUT_SEC}
    */
+  @Deprecated
   String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
 
   /**
