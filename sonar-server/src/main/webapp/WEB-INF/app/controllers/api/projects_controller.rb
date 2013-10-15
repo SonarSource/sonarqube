@@ -82,7 +82,7 @@ class Api::ProjectsController < Api::ApiController
     key = params[:key]
     name = params[:name]
 
-    Internal.component_api.createComponent(key, name, 'PRJ', 'TRK')
+    Internal.component_api.createComponent(key, name, 'TRK')
     Internal.permissions.applyDefaultPermissionTemplate(key)
     result = Project.by_key(key)
 

@@ -19,9 +19,8 @@
  */
 package org.sonar.wsclient.project.internal;
 
-import org.sonar.wsclient.unmarshallers.JsonUtils;
-
 import org.sonar.wsclient.project.Project;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.util.Map;
 
@@ -52,14 +51,8 @@ public class DefaultProject implements Project {
   }
 
   @Override
-  public String scope() {
-    return JsonUtils.getString(json, "sc");
-  }
-
-  @Override
   public String qualifier() {
     return JsonUtils.getString(json, "qu");
   }
-
 
 }

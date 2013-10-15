@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
@@ -52,11 +53,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   @Override
-  public Component findByKey(String key) {
+  public Component<?> findByKey(String key) {
     return resourceDao.findByKey(key);
   }
 
-  public void createComponent(String kee, String name, String scope, String qualifier) {
+  public void createComponent(String kee, String name, String qualifier) {
     ComponentDto component = (ComponentDto)resourceDao.findByKey(kee);
     if (component != null) {
       throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
@@ -68,7 +69,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setKey(kee)
         .setName(name)
         .setLongName(name)
-        .setScope(scope)
+        .setScope(Scopes.PROJECT)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));
     component = (ComponentDto)resourceDao.findByKey(kee);

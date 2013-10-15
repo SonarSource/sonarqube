@@ -43,7 +43,7 @@ class ProvisioningController < ApplicationController
       bad_request('provisioning.missing.name') if @name.blank?
 
       if @id.nil? or @id.empty?
-        Internal.component_api.createComponent(@key, @name, 'PRJ', 'TRK')
+        Internal.component_api.createComponent(@key, @name, 'TRK')
         Internal.permissions.applyDefaultPermissionTemplate(@key)
       else
         Internal.component_api.updateComponent(@id.to_i, @key, @name)

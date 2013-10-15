@@ -76,14 +76,13 @@ public class DefaultRubyComponentServiceTest {
   public void should_create_component_and_index_it() {
     String componentKey = "new-project";
     String componentName = "New Project";
-    String scope = Scopes.PROJECT;
     String qualifier = Qualifiers.PROJECT;
     long componentId = Long.MAX_VALUE;
     ComponentDto component = mock(ComponentDto.class);
     when(component.getId()).thenReturn(componentId);
     when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
 
-    componentService.createComponent(componentKey, componentName, scope, qualifier);
+    componentService.createComponent(componentKey, componentName, qualifier);
 
     ArgumentCaptor<ResourceDto> resourceCaptor = ArgumentCaptor.forClass(ResourceDto.class);
     verify(resourceDao).insertOrUpdate(resourceCaptor.capture());
@@ -91,7 +90,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(created.getKey()).isEqualTo(componentKey);
     assertThat(created.getName()).isEqualTo(componentName);
     assertThat(created.getLongName()).isEqualTo(componentName);
-    assertThat(created.getScope()).isEqualTo(scope);
+    assertThat(created.getScope()).isEqualTo(Scopes.PROJECT);
     assertThat(created.getQualifier()).isEqualTo(qualifier);
     verify(resourceDao, times(2)).findByKey(componentKey);
     verify(resourceIndexerDao).indexResource(componentId);
@@ -101,27 +100,25 @@ public class DefaultRubyComponentServiceTest {
   public void should_thow_if_create_fails() {
     String componentKey = "new-project";
     String componentName = "New Project";
-    String scope = Scopes.PROJECT;
     String qualifier = Qualifiers.PROJECT;
     when(resourceDao.findByKey(componentKey)).thenReturn(null);
 
-    componentService.createComponent(componentKey, componentName, scope, qualifier);
+    componentService.createComponent(componentKey, componentName, qualifier);
   }
 
   @Test(expected = BadRequestException.class)
   public void should_throw_if_component_already_exists() {
     String componentKey = "new-project";
     String componentName = "New Project";
-    String scope = Scopes.PROJECT;
     String qualifier = Qualifiers.PROJECT;
     when(resourceDao.findByKey(componentKey)).thenReturn(mock(ComponentDto.class));
 
-    componentService.createComponent(componentKey, componentName, scope, qualifier);
+    componentService.createComponent(componentKey, componentName, qualifier);
   }
 
   @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
-    componentService.createComponent("1234", "New Project", Scopes.PROJECT, Qualifiers.PROJECT);
+    componentService.createComponent("1234", "New Project", Qualifiers.PROJECT);
   }
 
   @Test(expected = NotFoundException.class)

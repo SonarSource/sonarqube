@@ -30,8 +30,6 @@ public interface Project {
 
   String name();
 
-  String scope();
-
   String qualifier();
 
 }
