@@ -21,9 +21,10 @@ package org.sonar.application;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,14 +34,23 @@ import static org.fest.assertions.Fail.fail;
 
 public class StartServerTest {
 
-  Env env = new Env(locateFakeConfFile());
-  StartServer starter = new StartServer(env);
+  Env env;
+  StartServer starter;
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
-  @After
-  public void clean_generated_dirs() throws IOException {
-    FileUtils.deleteQuietly(env.file("temp"));
-    FileUtils.deleteQuietly(env.file("logs"));
+  public void prepare_app() throws IOException {
+    File confFile = new File("src/test/fake-app/conf/sonar.properties");
+    if (!confFile.exists()) {
+      confFile = new File("sonar-application/src/test/fake-app/conf/sonar.properties");
+    }
+
+    File rootDir = temp.newFolder();
+    FileUtils.copyDirectory(confFile.getParentFile().getParentFile(), rootDir);
+    env = new Env(new File(rootDir, "conf/sonar.properties"));
+    starter = new StartServer(env);
   }
 
   @Test
@@ -121,14 +131,6 @@ public class StartServerTest {
   public void ignore_stop_if_not_running() throws Exception {
     starter.stop();
     starter.stop();
-  }
-
-  private File locateFakeConfFile() {
-    File confFile = new File("src/test/fake-app/conf/sonar.properties");
-    if (!confFile.exists()) {
-      confFile = new File("sonar-application/src/test/fake-app/conf/sonar.properties");
-    }
-    return confFile;
   }
 
   static class BackgroundThread extends Thread {
