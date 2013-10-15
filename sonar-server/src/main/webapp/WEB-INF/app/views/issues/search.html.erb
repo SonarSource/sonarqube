@@ -12,6 +12,8 @@
 
 <script type="text/javascript">
   function onBulkIssues(issues_query_params){
+    // SONAR-4723 pagination parameters should be removed after applying bulk change
+    delete issues_query_params.pageIndex;
     window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
   }
 </script>
