@@ -2,12 +2,12 @@
  Functions used in resource viewers
  */
 
-function loadResourceViewer(resourceId, tab, display_title, elt) {
+function loadResourceViewer(resourceId, tab, display_title, period, elt) {
   if (display_title == undefined) {
     display_title = true;
   }
 
-  var url = baseUrl + '/resource/index/' + resourceId + '?tab=' + tab + '&display_title=' + display_title;
+  var url = baseUrl + '/resource/index/' + resourceId + '?tab=' + tab + '&display_title=' + display_title + '&period=' + period;
   openAccordionItem(url, elt, true);
 
   return false;

@@ -40,7 +40,7 @@
     <ul class="tabs2">
       <% @extensions.each do |extension| %>
         <li>
-          <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>, this)"
+          <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>,'<%= params[:period] -%>', this)"
              class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>
         </li>
       <% end %>
