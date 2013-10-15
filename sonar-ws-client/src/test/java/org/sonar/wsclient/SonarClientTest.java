@@ -24,6 +24,7 @@ import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.project.internal.DefaultProjectClient;
+import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -38,6 +39,7 @@ public class SonarClientTest {
     assertThat(client.userClient()).isNotNull().isInstanceOf(DefaultUserClient.class);
     assertThat(client.permissionClient()).isNotNull().isInstanceOf(DefaultPermissionClient.class);
     assertThat(client.projectClient()).isNotNull().isInstanceOf(DefaultProjectClient.class);
+    assertThat(client.systemClient()).isNotNull().isInstanceOf(DefaultSystemClient.class);
   }
 
   @Test

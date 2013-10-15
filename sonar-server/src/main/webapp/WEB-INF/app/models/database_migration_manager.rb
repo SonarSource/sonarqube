@@ -93,21 +93,21 @@ class DatabaseMigrationManager
   
   def start_migration
     # Use an exclusive block of code to ensure that only 1 thread will be able to proceed with the migration
-    can_start_migration = false
+    requires_migration = false
     Thread.exclusive do
-      if requires_migration?
-        @status = MIGRATION_RUNNING
-        @message = "Database migration is running"
-        can_start_migration = true
-      end
+      requires_migration = requires_migration?
     end
     
-    if can_start_migration
+    if requires_migration
       Thread.new do
         begin
+          @status = MIGRATION_RUNNING
+          @message = "Database migration is running"
           Thread.current[:name] = "Database Upgrade"
           @start_time = Time.now
+
           DatabaseVersion.upgrade_and_start
+
           @status = MIGRATION_SUCCEEDED
           @message = "Migration succeeded."
         rescue Exception => e

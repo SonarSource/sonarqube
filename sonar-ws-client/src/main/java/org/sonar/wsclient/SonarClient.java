@@ -28,6 +28,8 @@ import org.sonar.wsclient.permissions.PermissionClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.project.ProjectClient;
 import org.sonar.wsclient.project.internal.DefaultProjectClient;
+import org.sonar.wsclient.system.SystemClient;
+import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.UserClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
@@ -99,6 +101,10 @@ public class SonarClient {
    */
   public ProjectClient projectClient() {
     return new DefaultProjectClient(requestFactory);
+  }
+
+  public SystemClient systemClient() {
+    return new DefaultSystemClient(requestFactory);
   }
 
   /**

@@ -25,7 +25,6 @@ class Api::ServerController < Api::ApiController
   before_filter :set_cache_buster, :only => 'index'
 
   # execute database setup
-  verify :method => :post, :only => [:setup, :index_projects]
   skip_before_filter :check_database_version, :setup
 
   def key
@@ -65,24 +64,43 @@ class Api::ServerController < Api::ApiController
   end
 
   def setup
+    verify_post_request
+    manager=DatabaseMigrationManager.instance
     begin
       # Ask the DB migration manager to start the migration
       # => No need to check for authorizations (actually everybody can run the upgrade)
-      # nor concurrent calls (this is handled directly by DatabaseMigrationManager)  
-      DatabaseMigrationManager.instance.start_migration
-      
-      current_status = DatabaseMigrationManager.instance.is_sonar_access_allowed? ? "ok" : "ko"
-      
-      hash={:status => current_status,
-            :migration_status => DatabaseMigrationManager.instance.status,
-            :message => DatabaseMigrationManager.instance.message}
+      # nor concurrent calls (this is handled directly by DatabaseMigrationManager)
+      manager.start_migration
+
+      operational=manager.is_sonar_access_allowed?
+      current_status = operational ? "ok" : "ko"
+      hash={
+        # deprecated fields
+        :status => current_status,
+        :migration_status => manager.status,
+
+        # correct fields
+        :operational => operational,
+        :state => manager.status
+      }
+      hash[:message]=manager.message if manager.message
+      hash[:startedAt]=manager.migration_start_time if manager.migration_start_time
+
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
         format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
         format.text { render :text => hash[:status] }
       end
     rescue => e
-      hash={:status => 'ko', :msg => e.message}
+      hash={
+        # deprecated fields
+        :status => 'ko',
+        :msg => e.message,
+
+        # correct fields
+        :message => e.message,
+        :state => manager.status
+      }
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
         format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
@@ -92,6 +110,7 @@ class Api::ServerController < Api::ApiController
   end
 
   def index_projects
+    verify_post_request
     access_denied unless has_role?(:admin)
     logger.info 'Indexing projects'
     Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
