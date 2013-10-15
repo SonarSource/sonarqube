@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
 
+  private static final String DESCRIPTION = "description";
+
   @Override
   protected Rule parse(Object json) {
     Rule rule = new Rule();
@@ -46,7 +48,7 @@ public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
         .setKey(utils.getString(json, "key"))
         .setConfigKey(utils.getString(json, "config_key"))
         .setRepository(utils.getString(json, "plugin"))
-        .setDescription(utils.getString(json, "description"))
+        .setDescription(utils.getString(json, DESCRIPTION))
         .setSeverity(utils.getString(json, "priority"))
         .setActive("ACTIVE".equals(utils.getString(json, "status")));
   }
@@ -80,7 +82,7 @@ public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
 
     RuleParam param = new RuleParam();
     param.setName(utils.getString(json, "name"))
-        .setDescription(utils.getString(json, "description"))
+        .setDescription(utils.getString(json, DESCRIPTION))
         .setValue(utils.getString(json, "value"));
     return param;
   }

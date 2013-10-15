@@ -20,13 +20,13 @@
 package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rule.RuleKey;
@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -52,13 +53,12 @@ public class TechnicalDebtCalculatorTest {
   private TechnicalDebtModel technicalDebtModel;
   private Functions functions;
   private TechnicalDebtCalculator remediationCostCalculator;
-  private TechnicalDebtConverter converter;
 
   @Before
   public void initMocks() {
     technicalDebtModel = mock(TechnicalDebtModel.class);
     functions = mock(Functions.class);
-    converter = mock(TechnicalDebtConverter.class);
+    TechnicalDebtConverter converter = mock(TechnicalDebtConverter.class);
     remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, functions, converter);
   }
 
@@ -73,7 +73,7 @@ public class TechnicalDebtCalculatorTest {
     Violation violation3 = buildViolation("rule2", "repo2", NOW);
     Violation violation4 = buildViolation("unmatchable", "repo2", NOW);
 
-    List<Violation> violations = Lists.newArrayList(violation1, violation2, violation3, violation4);
+    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
 
     when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
     when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
@@ -132,11 +132,11 @@ public class TechnicalDebtCalculatorTest {
     Violation violation3 = buildViolation("rule2", "repo2", YESTERDAY);
     Violation violation4 = buildViolation("rule2", "repo2", LAST_MONTH);
 
-    List<Violation> violations = Lists.newArrayList(violation1, violation2, violation3, violation4);
+    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
 
     when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
     when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(Lists.newArrayList(requirement1, requirement2));
+    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(requirement1, requirement2));
 
     when(functions.costInHours(any(TechnicalDebtRequirement.class), any(Collection.class))).thenReturn(1.0);
 
@@ -152,6 +152,35 @@ public class TechnicalDebtCalculatorTest {
   }
 
   @Test
+  public void compute_totals_costs_from_children() throws Exception {
+    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(Characteristic.create());
+    TechnicalDebtRequirement requirement1 = new TechnicalDebtRequirement(Characteristic.create(), parentCharacteristic);;
+
+    Violation violation1 = buildViolation("rule1", "repo1", NOW);
+    Violation violation2 = buildViolation("rule1", "repo1", NOW);
+    Violation violation3 = buildViolation("rule2", "repo2", YESTERDAY);
+    Violation violation4 = buildViolation("rule2", "repo2", LAST_MONTH);
+
+    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
+
+    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
+    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(requirement1));
+
+    when(functions.costInHours(any(TechnicalDebtRequirement.class), any(Collection.class))).thenReturn(1.0);
+
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getViolations()).thenReturn(violations);
+
+    Measure measure = new Measure().setCharacteristic(requirement1.toCharacteristic()).setValue(5.0);
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(newArrayList(measure));
+
+    remediationCostCalculator.compute(context);
+
+    assertThat(remediationCostCalculator.getTotal()).isEqualTo(6.0);
+    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement1)).isEqualTo(6.0);
+  }
+
+  @Test
   public void technical_debt_from_one_issue() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
@@ -163,7 +192,7 @@ public class TechnicalDebtCalculatorTest {
   }
 
   @Test
-  public void no_technical_debt_from_one_issue_if_reauirement_not_found() throws Exception {
+  public void no_technical_debt_from_one_issue_if_requirement_not_found() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(null);
 

@@ -38,6 +38,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
   private static final String METRIC5 = "metric5";
   private static final String METRIC6 = "metric6";
   private static final String METRIC7 = "metric7";
+  private static final String COVERAGE = "coverage";
 
   @Override
   public String getName() {
@@ -57,7 +58,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     Widget timelineWidget = dashboard.addWidget("timeline", 1);
     timelineWidget.setProperty(METRIC1, "complexity");
     timelineWidget.setProperty(METRIC2, "violations_density");
-    timelineWidget.setProperty(METRIC3, "coverage");
+    timelineWidget.setProperty(METRIC3, COVERAGE);
 
     Widget sizeTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
     sizeTimeMachineWidget.setProperty(METRIC1, "ncloc");
@@ -99,7 +100,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     complexityTimeMachineWidget.setProperty(METRIC4, "file_complexity");
 
     Widget testsTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
-    testsTimeMachineWidget.setProperty(METRIC1, "coverage");
+    testsTimeMachineWidget.setProperty(METRIC1, COVERAGE);
     testsTimeMachineWidget.setProperty(METRIC2, "line_coverage");
     testsTimeMachineWidget.setProperty(METRIC3, "branch_coverage");
     testsTimeMachineWidget.setProperty(METRIC4, "test_success_density");

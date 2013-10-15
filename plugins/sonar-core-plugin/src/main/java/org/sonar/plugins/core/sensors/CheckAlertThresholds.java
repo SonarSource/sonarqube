@@ -40,6 +40,7 @@ import java.util.Locale;
 public class CheckAlertThresholds implements Decorator {
 
   private static final String VARIATION_METRIC_PREFIX = "new_";
+  private static final String VARIATION = "variation";
 
   private final Snapshot snapshot;
   private final RulesProfile profile;
@@ -139,7 +140,7 @@ public class CheckAlertThresholds implements Decorator {
     stringBuilder.append(metric);
 
     if (alertPeriod != null && !alert.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
-      String variation = i18n.message(getLocale(), "variation", "variation").toLowerCase();
+      String variation = i18n.message(getLocale(), VARIATION, VARIATION).toLowerCase();
       stringBuilder.append(" ").append(variation);
     }
 

@@ -31,24 +31,27 @@ import org.sonar.api.resources.ResourceTypeTree;
 public final class DefaultResourceTypes extends ExtensionProvider implements BatchExtension, ServerExtension {
 
   private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
+  private static final String CONFIGURABLE = "configurable";;
+  private static final String UPDATABLE_KEY = "updatable_key";
 
   @Override
   public ResourceTypeTree provide() {
+
     return ResourceTypeTree.builder()
         .addType(ResourceType.builder(Qualifiers.PROJECT)
             .setProperty("deletable", true)
             .setProperty("supportsGlobalDashboards", true)
             .setProperty("modifiable_history", true)
             .setProperty("hasRolePolicy", true)
-            .setProperty("updatable_key", true)
+            .setProperty(UPDATABLE_KEY, true)
             .setProperty(SUPPORTS_MEASURE_FILTERS, true)
             .setProperty("comparable", true)
-            .setProperty("configurable", true)
+            .setProperty(CONFIGURABLE, true)
             .build())
         .addType(ResourceType.builder(Qualifiers.MODULE)
-            .setProperty("updatable_key", true)
+            .setProperty(UPDATABLE_KEY, true)
             .setProperty(SUPPORTS_MEASURE_FILTERS, true)
-            .setProperty("configurable", true)
+            .setProperty(CONFIGURABLE, true)
             .build())
         .addType(ResourceType.builder(Qualifiers.DIRECTORY)
             .setProperty(SUPPORTS_MEASURE_FILTERS, true)

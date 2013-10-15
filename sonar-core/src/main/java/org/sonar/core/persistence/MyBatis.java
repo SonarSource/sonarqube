@@ -206,7 +206,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       new XMLMapperBuilder(input, configuration, mapperName, configuration.getSqlFragments()).parse();
       configuration.addLoadedResource(mapperName);
     } catch (Exception e) {
-      throw new RuntimeException("Unable to load mapper " + mapperName, e);
+      throw new IllegalArgumentException("Unable to load mapper " + mapperName, e);
     } finally {
       Closeables.closeQuietly(input);
     }

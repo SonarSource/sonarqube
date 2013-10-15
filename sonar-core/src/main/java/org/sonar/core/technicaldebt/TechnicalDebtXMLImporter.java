@@ -90,7 +90,8 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) throws XMLStreamException {
+  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
+    throws XMLStreamException {
     Characteristic characteristic = Characteristic.create();
     SMInputCursor cursor = chcCursor.childElementCursor();
 

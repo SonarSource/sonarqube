@@ -38,10 +38,13 @@ import java.util.Map;
  */
 public class IssueJsonParser {
 
+  private static final String ISSUES = "issues";
+  private static final String TOTAL = "total";
+
   public Issues parseIssues(String json) {
     DefaultIssues result = new DefaultIssues();
     Map jsonRoot = (Map) JSONValue.parse(json);
-    List<Map> jsonIssues = (List<Map>) jsonRoot.get("issues");
+    List<Map> jsonIssues = (List<Map>) jsonRoot.get(ISSUES);
     if (jsonIssues != null) {
       for (Map jsonIssue : jsonIssues) {
         result.add(new DefaultIssue(jsonIssue));
@@ -132,11 +135,11 @@ public class IssueJsonParser {
 
     Map jsonRoot = (Map) JSONValue.parse(json);
     Map issuesChanged = (Map) jsonRoot.get("issuesChanged");
-    result.setTotalIssuesChanged(JsonUtils.getInteger(issuesChanged, "total"));
+    result.setTotalIssuesChanged(JsonUtils.getInteger(issuesChanged, TOTAL));
 
     Map issuesNotChanged = (Map) jsonRoot.get("issuesNotChanged");
-    result.setTotalIssuesNotChanged(JsonUtils.getInteger(issuesNotChanged, "total"));
-    JSONArray issuesJson = JsonUtils.getArray(issuesNotChanged, "issues");
+    result.setTotalIssuesNotChanged(JsonUtils.getInteger(issuesNotChanged, TOTAL));
+    JSONArray issuesJson = JsonUtils.getArray(issuesNotChanged, ISSUES);
     if (issuesJson != null) {
       result.setIssuesNotChanged(issuesJson);
     }
