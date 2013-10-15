@@ -33,7 +33,7 @@ public class NewProject {
     params = new HashMap<String, Object>();
   }
 
-  public static final NewProject create() {
+  public static NewProject create() {
     return new NewProject();
   }
 
