@@ -161,15 +161,10 @@
             <fileset>
               <directory>${basedir}/src/main/webapp/deploy</directory>
               <includes>
-                <include>gwt/**/*</include>
-                <include>maven/**/*</include>
-                <include>jdbc-driver.jar</include>
-                <include>plugins/**/*</include>
+                <include>**/*</include>
               </includes>
               <excludes>
-                <exclude>maven/README.txt</exclude>
-                <exclude>maven/index.html</exclude>
-                <exclude>**/.svn/**/*</exclude>
+                <exclude>readme.txt</exclude>
               </excludes>
             </fileset>
           </filesets>
