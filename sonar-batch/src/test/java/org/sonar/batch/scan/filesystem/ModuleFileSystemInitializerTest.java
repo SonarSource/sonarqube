@@ -21,22 +21,23 @@ package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.bootstrap.TempDirectories;
+import org.sonar.api.utils.TempUtils;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ModuleFileSystemInitializerTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
 
   PathResolver pathResolver = new PathResolver();
 
@@ -46,7 +47,7 @@ public class ModuleFileSystemInitializerTest {
     File workDir = temp.newFolder("work");
     ProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir);
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, new TempDirectories(), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, mock(TempUtils.class), pathResolver);
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.workingDir().getCanonicalPath()).isEqualTo(workDir.getCanonicalPath());
@@ -72,7 +73,7 @@ public class ModuleFileSystemInitializerTest {
       .addTestDirs("src/test/java", "src/test/unknown")
       .addBinaryDir("target/classes");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, new TempDirectories(), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempUtils.class), pathResolver);
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());

@@ -30,6 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.TempUtils;
 
 import java.io.File;
 import java.net.SocketTimeoutException;
@@ -50,19 +51,19 @@ public class PreviewDatabase implements BatchComponent {
 
   private final Settings settings;
   private final ServerClient server;
-  private final TempDirectories tempDirectories;
+  private final TempUtils tempUtils;
   private final AnalysisMode mode;
 
-  public PreviewDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, AnalysisMode mode) {
+  public PreviewDatabase(Settings settings, ServerClient server, TempUtils tempUtils, AnalysisMode mode) {
     this.settings = settings;
     this.server = server;
-    this.tempDirectories = tempDirectories;
+    this.tempUtils = tempUtils;
     this.mode = mode;
   }
 
   public void start() {
     if (mode.isPreview()) {
-      File databaseFile = tempDirectories.getFile("", "preview.h2.db");
+      File databaseFile = tempUtils.createTempFile("preview", ".h2.db");
 
       int readTimeoutSec = getReadTimeout();
       downloadDatabase(databaseFile, readTimeoutSec * 1000);

@@ -21,7 +21,6 @@ package org.sonar.batch.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import com.persistit.Exchange;
 import com.persistit.Persistit;
 import com.persistit.Volume;
@@ -31,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.utils.TempUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -48,14 +48,16 @@ public class Caches implements BatchComponent, Startable {
   private File tempDir;
   private Persistit persistit;
   private Volume volume;
+  private final TempUtils tempUtils;
 
-  public Caches() {
+  public Caches(TempUtils tempUtils) {
+    this.tempUtils = tempUtils;
     initPersistit();
   }
 
   private void initPersistit() {
     try {
-      tempDir = Files.createTempDir();
+      tempDir = tempUtils.createTempDirectory("caches");
       persistit = new Persistit();
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
       Properties props = new Properties();

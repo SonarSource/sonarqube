@@ -20,24 +20,45 @@
 
 package org.sonar.plugins.core.issue;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.batch.bootstrap.BatchTempUtils;
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.db.IssueDto;
 
+import java.io.IOException;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class InitialOpenIssuesStackTest {
 
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+
+  public static Caches createCacheOnTemp(TemporaryFolder temp) {
+    BootstrapSettings bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Collections.emptyMap()));
+    try {
+      bootstrapSettings.properties().put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return new Caches(new BatchTempUtils(bootstrapSettings));
+  }
+
   InitialOpenIssuesStack stack;
-  Caches caches = new Caches();
+  Caches caches;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
+    caches = createCacheOnTemp(temp);
     caches.start();
     stack = new InitialOpenIssuesStack(caches);
   }

@@ -21,19 +21,25 @@ package org.sonar.batch.index;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 
 public class ComponentDataPersisterTest extends AbstractDaoTestCase {
 
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+
   SnapshotCache snapshots = new SnapshotCache();
   ComponentDataCache data;
-  Caches caches = new Caches();
+  Caches caches;
 
   @Before
-  public void start() {
+  public void start() throws Exception {
+    caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
 
@@ -59,6 +65,6 @@ public class ComponentDataPersisterTest extends AbstractDaoTestCase {
     ComponentDataPersister persister = new ComponentDataPersister(data, snapshots, dataDao, getMyBatis());
     persister.persist();
 
-    checkTables("should_persist_component_data", new String[]{"id", "created_at", "updated_at"}, "snapshot_data");
+    checkTables("should_persist_component_data", new String[] {"id", "created_at", "updated_at"}, "snapshot_data");
   }
 }

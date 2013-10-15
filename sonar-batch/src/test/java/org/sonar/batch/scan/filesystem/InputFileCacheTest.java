@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.CachesTest;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,10 +37,11 @@ public class InputFileCacheTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Caches caches = new Caches();
+  Caches caches;
 
   @Before
-  public void start() {
+  public void start() throws Exception {
+    caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
 

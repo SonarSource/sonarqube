@@ -30,6 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.TempUtils;
 
 import java.io.File;
 import java.net.SocketTimeoutException;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class PreviewDatabaseTest {
   Settings settings;
   ServerClient server = mock(ServerClient.class);
-  TempDirectories tempDirectories = mock(TempDirectories.class);
+  TempUtils tempUtils = mock(TempUtils.class);
   File databaseFile;
   private AnalysisMode mode;
 
@@ -57,7 +58,7 @@ public class PreviewDatabaseTest {
   @Before
   public void setUp() throws Exception {
     databaseFile = temp.newFile("preview.h2.db");
-    when(tempDirectories.getFile("", "preview.h2.db")).thenReturn(databaseFile);
+    when(tempUtils.createTempFile("preview", ".h2.db")).thenReturn(databaseFile);
     settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "group:project");
 
@@ -68,14 +69,14 @@ public class PreviewDatabaseTest {
   @Test
   public void should_be_disabled_if_not_preview() {
     when(mode.isPreview()).thenReturn(false);
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
-    verifyZeroInteractions(tempDirectories, server);
+    verifyZeroInteractions(tempUtils, server);
   }
 
   @Test
   public void should_download_database() {
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
   }
@@ -83,7 +84,7 @@ public class PreviewDatabaseTest {
   @Test
   public void should_download_database_with_deprecated_overriden_timeout() {
     settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, 80);
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
   }
@@ -91,7 +92,7 @@ public class PreviewDatabaseTest {
   @Test
   public void should_download_database_with_overriden_timeout() {
     settings.setProperty(CoreProperties.PREVIEW_READ_TIMEOUT_SEC, 80);
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
   }
@@ -99,14 +100,14 @@ public class PreviewDatabaseTest {
   @Test
   public void should_download_database_on_branch() {
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project:mybranch", databaseFile, 60000);
   }
 
   @Test
   public void should_replace_database_settings() {
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     assertThat(settings.getString(DatabaseProperties.PROP_DIALECT)).isEqualTo("h2");
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
@@ -122,7 +123,7 @@ public class PreviewDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
 
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
   }
 
   @Test
@@ -132,7 +133,7 @@ public class PreviewDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("Preview database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.preview.readTimeout (in seconds)");
 
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
   }
 
   @Test
@@ -142,14 +143,14 @@ public class PreviewDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");
 
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
   }
 
   @Test
   public void project_should_be_optional() {
     // on non-scan tasks
     settings.removeProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-    new PreviewDatabase(settings, server, tempDirectories, mode).start();
+    new PreviewDatabase(settings, server, tempUtils, mode).start();
     verify(server).download("/batch_bootstrap/db", databaseFile, 60000);
   }
 }

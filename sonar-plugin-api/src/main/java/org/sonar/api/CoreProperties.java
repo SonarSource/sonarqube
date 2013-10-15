@@ -522,4 +522,10 @@ public interface CoreProperties {
    */
   String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
   String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
+
+  /**
+   * @since 4.0
+   */
+  String WORKING_DIRECTORY = "sonar.working.directory";
+  String WORKING_DIRECTORY_DEFAULT_VALUE = ".sonar";
 }

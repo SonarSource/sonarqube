@@ -22,6 +22,10 @@ package org.sonar.api.utils;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * @deprecated since 4.0 use {@link TempUtils}
+ */
+@Deprecated
 public final class TempFileUtils {
 
   private TempFileUtils() {

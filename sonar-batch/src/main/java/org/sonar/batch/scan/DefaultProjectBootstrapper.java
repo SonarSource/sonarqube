@@ -82,12 +82,6 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     );
 
   /**
-   * @since 1.4
-   */
-  private static final String PROPERTY_WORK_DIRECTORY = "sonar.working.directory";
-  private static final String DEF_VALUE_WORK_DIRECTORY = ".sonar";
-
-  /**
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
@@ -151,9 +145,9 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
 
   @VisibleForTesting
   protected File initRootProjectWorkDir(File baseDir) {
-    String workDir = settings.property(PROPERTY_WORK_DIRECTORY);
+    String workDir = settings.property(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
-      return new File(baseDir, DEF_VALUE_WORK_DIRECTORY);
+      return new File(baseDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     }
 
     File customWorkDir = new File(workDir);

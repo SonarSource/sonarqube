@@ -19,17 +19,45 @@
  */
 package org.sonar.batch.index;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.batch.bootstrap.BatchTempUtils;
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class CachesTest {
-  Caches caches = new Caches();
+
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+
+  public static Caches createCacheOnTemp(TemporaryFolder temp) {
+    BootstrapSettings bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Collections.emptyMap()));
+    try {
+      bootstrapSettings.properties().put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return new Caches(new BatchTempUtils(bootstrapSettings));
+  }
+
+  Caches caches;
+
+  @Before
+  public void prepare() throws Exception {
+    caches = createCacheOnTemp(temp);
+  }
 
   @After
   public void stop() {

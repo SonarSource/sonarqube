@@ -24,11 +24,14 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.CachesTest;
 
 import javax.annotation.Nullable;
 
@@ -39,10 +42,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueCacheTest {
 
-  Caches caches = new Caches();
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+
+  Caches caches;
 
   @Before
-  public void start() {
+  public void start() throws Exception {
+    caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
 

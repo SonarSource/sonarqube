@@ -21,16 +21,22 @@ package org.sonar.batch.index;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ComponentDataCacheTest {
 
-  Caches caches = new Caches();
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+
+  Caches caches;
 
   @Before
-  public void start() {
+  public void start() throws Exception {
+    caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
 
