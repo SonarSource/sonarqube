@@ -28,7 +28,9 @@ class ProvisioningController < ApplicationController
     access_denied unless has_role?("provisioning")
     params['qualifiers'] = 'TRK'
 
-    @query_result = Internal.component_api.findProvisionedProjects(params)
+    @query_result = Api::Utils.insensitive_sort(
+      Internal.component_api.findProvisionedProjects(params)
+    ) { |p| p.key }
   end
 
   def create_or_update
