@@ -243,7 +243,7 @@
             </goals>
             <configuration>
               <appendAssemblyId>false</appendAssemblyId>
-              <finalName>sonar-${project.version}</finalName>
+              <finalName>sonarqube-${project.version}</finalName>
               <descriptors>
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
@@ -258,8 +258,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="md5"/>
-                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="sha"/>
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5"/>
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha"/>
               </target>
             </configuration>
             <goals>
@@ -284,7 +284,7 @@
                   <minsize>55000000</minsize>
                   <maxsize>60400000</maxsize>
                   <files>
-                    <file>${project.build.directory}/sonar-${project.version}.zip</file>
+                    <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>
                 </requireFilesSize>
               </rules>
