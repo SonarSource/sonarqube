@@ -33,6 +33,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,6 +73,7 @@ public class NotificationService implements ServerComponent {
   private final long delayBeforeReportingStatusInSeconds;
   private final DefaultNotificationManager manager;
   private final NotificationDispatcher[] dispatchers;
+  private final DatabaseSessionFactory databaseSessionFactory;
 
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
@@ -79,7 +81,8 @@ public class NotificationService implements ServerComponent {
   /**
    * Constructor for {@link NotificationService}
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
+    this.databaseSessionFactory = databaseSessionFactory;
     delayInSeconds = settings.getLong(PROPERTY_DELAY);
     delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
@@ -89,8 +92,8 @@ public class NotificationService implements ServerComponent {
   /**
    * Default constructor when no channels.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager) {
-    this(settings, manager, new NotificationDispatcher[0]);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DatabaseSessionFactory databaseSessionFactory) {
+    this(settings, manager, databaseSessionFactory, new NotificationDispatcher[0]);
     LOG.warn("There is no dispatcher - all notifications will be ignored!");
   }
 
@@ -102,6 +105,9 @@ public class NotificationService implements ServerComponent {
           processQueue();
         } catch (Exception e) {
           LOG.error("Error in NotificationService", e);
+        } finally {
+          // Free Hibernate session
+          databaseSessionFactory.clear();
         }
       }
     }, 0, delayInSeconds, TimeUnit.SECONDS);

@@ -27,6 +27,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -63,7 +64,7 @@ public class NotificationServiceTest {
 
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager,
+    service = new NotificationService(settings, manager, mock(DatabaseSessionFactory.class),
       new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe});
   }
 
@@ -200,7 +201,7 @@ public class NotificationServiceTest {
   public void shouldReturnNoDispatcher() {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager);
+    service = new NotificationService(settings, manager, mock(DatabaseSessionFactory.class));
     assertThat(service.getDispatchers()).hasSize(0);
   }
 
