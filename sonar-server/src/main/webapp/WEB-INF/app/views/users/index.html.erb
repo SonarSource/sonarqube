@@ -35,8 +35,16 @@
                 <a id="edit-<%= user.name -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
                 &nbsp;
                <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} %>
-                &nbsp;
-                <a id="delete-<%= user.name -%>" class="open-modal  link-action link-red" href="<%=ApplicationController.root_context-%>/users/delete_form/<%= user.id -%>">Delete</a>
+              </td>
+              <td>
+                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/users/delete/#{user.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete_#{user.id}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'Delete user '+user.name,
+                                   :confirm_msg => 'Warning : are you sure to delete this user?',
+                                   :confirm_msg_params => [user.name]
+                -%>
               </td>
             </tr>
           <% end %>

@@ -163,33 +163,22 @@ class UsersController < ApplicationController
     end
   end
 
-  def delete_form
-    user = User.find(params[:id])
-    if user
-      @user=user
-      render :partial => 'users/delete_form'
-    else
-      redirect_to(:action => 'index', :id => nil)
-    end
-  end
-
-  def destroy
+  def delete
     begin
       user = User.find(params[:id])
-      @user =user
       Api.users.deactivate(user.login)
-      flash[:notice] = 'User is deleted.'
-      render :text => 'ok', :status => 200
+
     rescue NativeException => exception
-      @errors = []
+
       if exception.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
         error = exception.cause
-        @errors = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
-       else
-        @errors << 'Error when deleting this user.'
-       end
-      render :partial => 'users/delete_form',:status => 400
+        flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
+      else
+        flash[:error] = 'Error when deleting this user.'
+      end
     end
+
+    redirect_to(:action => 'index', :id => nil)
   end
 
   def select_group
