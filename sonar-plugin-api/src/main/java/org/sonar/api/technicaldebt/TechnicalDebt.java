@@ -110,8 +110,4 @@ public class TechnicalDebt implements Serializable {
     return result;
   }
 
-  @Override
-  public String toString() {
-    return super.toString();
-  }
 }
