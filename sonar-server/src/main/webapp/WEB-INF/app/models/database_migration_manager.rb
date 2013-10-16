@@ -110,7 +110,7 @@ class DatabaseMigrationManager
 
           @status = MIGRATION_SUCCEEDED
           @message = "Migration succeeded."
-        rescue Exception, java.lang.Exception => e
+        rescue Exception => e
           @status = MIGRATION_FAILED
           @message = "Migration failed: " + Api::Utils.exception_message(e) + ".<br/> Please check logs."
           Api::Utils.java_facade.logError("Fail to upgrade database\n#{Api::Utils.exception_message(e, :backtrace => true)}")
