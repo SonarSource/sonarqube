@@ -34,8 +34,16 @@
             </td>
             <td class="right thin nowrap">
               <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form/<%= h rule.id -%>">Edit</a>
-                &nbsp;
-              <%= link_to 'Delete', {:action => 'delete', :id => rule.id}, {:confirm => message('are_you_sure'), :id => "delete_#{u(rule.key)}", :class => 'link-action link-red', :method => 'delete'} %>
+            </td>
+            <td>
+                <%= link_to_action message('deleteNew'), "#{ApplicationController.root_context}/manual_rules/delete/#{rule.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete_#{rule.id}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'Delete rule '+rule.name,
+                                   :confirm_msg => 'Warning : are you sure to delete this rule?',
+                                   :confirm_msg_params => [rule.name]
+                -%>
             </td>
           </tr>
         <% end %>

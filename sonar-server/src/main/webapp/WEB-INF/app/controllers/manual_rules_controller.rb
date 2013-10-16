@@ -20,7 +20,6 @@
 class ManualRulesController < ApplicationController
 
   before_filter :admin_required
-  verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
   SECTION=Navigation::SECTION_CONFIGURATION
 
@@ -81,6 +80,7 @@ class ManualRulesController < ApplicationController
   end
 
   def delete
+    verify_post_request
     access_denied unless is_admin?
     rule=Rule.manual_rule(params['id'].to_i)
     bad_request('Missing rule id') unless rule
