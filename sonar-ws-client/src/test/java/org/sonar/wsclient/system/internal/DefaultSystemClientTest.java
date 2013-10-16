@@ -88,7 +88,7 @@ public class DefaultSystemClientTest {
     );
 
     DefaultSystemClient client = new DefaultSystemClient(requestFactory);
-    Migration migration = client.migrate(50L, 5L);
+    Migration migration = client.migrate(500L, 5L);
 
     assertThat(migration.status()).isEqualTo(Migration.Status.MIGRATION_SUCCEEDED);
     assertThat(migration.operationalWebapp()).isTrue();
