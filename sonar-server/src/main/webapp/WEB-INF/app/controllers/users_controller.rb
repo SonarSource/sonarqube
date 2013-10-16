@@ -167,9 +167,8 @@ class UsersController < ApplicationController
     begin
       user = User.find(params[:id])
       Api.users.deactivate(user.login)
-
+      flash[:notice] = 'User is deleted.'
     rescue NativeException => exception
-
       if exception.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
         error = exception.cause
         flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
