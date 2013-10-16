@@ -495,7 +495,7 @@
     <profile>
       <id>postgresql</id>
       <properties>
-        <sonar.jdbc.url>jdbc:postgresql://localhost/sonar</sonar.jdbc.url>
+        <sonar.jdbc.url>jdbc:postgresql://localhost:15432/sonar</sonar.jdbc.url>
       </properties>
       <build>
         <plugins>
@@ -532,7 +532,7 @@
     <profile>
       <id>mysql</id>
       <properties>
-        <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
+        <sonar.jdbc.url>jdbc:mysql://localhost:13306/sonar?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
       </properties>
       <build>
         <plugins>
