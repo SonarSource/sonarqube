@@ -1,27 +1,4 @@
-<% function = @requirement.function %>
-<div class="<%= function.linear? ? '' : 'marginbottom10' %>">
-  <%= @requirement.parent.parent.name %>&nbsp;&gt;&nbsp;<%= @requirement.parent.name %>
-</div>
-
 <div>
-  <% if function.constant? %>
-    <%= message('issue.technical_debt.constant_resource') -%>
-  <% elsif function.linearWithThreshold? or function.linearWithOffset? %>
-    <%
-       case @requirement.offset.text_value
-         when CharacteristicProperty::DAY
-           value = message('issue.technical_debt.x_days', :params => @requirement.offset.value)
-         when CharacteristicProperty::HOUR
-           value = message('issue.technical_debt.x_hours', :params => @requirement.offset.value)
-         when CharacteristicProperty::MINUTE
-           value = message('issue.technical_debt.x_minutes', :params => @requirement.offset.value)
-       end
-    %>
-    <% if function.linearWithThreshold? %>
-      <%= message('issue.technical_debt.linear_threshold', :params => value) -%>
-    <% else %>
-      <%= message('issue.technical_debt.linear_offset', :params => value) -%>
-    <% end %>
-  <% end %>
+  <%= @requirement.parent.parent.name %>&nbsp;&gt;&nbsp;<%= @requirement.parent.name %>
 </div>
 
