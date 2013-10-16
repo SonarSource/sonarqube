@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.slf4j.LoggerFactory;
 
 class Webapp {
 
@@ -55,6 +56,7 @@ class Webapp {
     if (props.booleanOf("sonar.web.dev")) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
+      LoggerFactory.getLogger(Webapp.class).warn("\n\n\n------ DEVELOPMENT MODE IS ENABLED ------\n\n\n");
     } else {
       context.addParameter(RAILS_ENV, "production");
       context.addParameter(JRUBY_MAX_RUNTIMES, "1");
