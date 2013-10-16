@@ -129,7 +129,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Deprecated
   void addSourceDir(File dir) {
     sourceDirs.add(dir);
-    index();
   }
 
   /**
@@ -138,7 +137,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Deprecated
   void addTestDir(File dir) {
     testDirs.add(dir);
-    index();
   }
 
   @Override
