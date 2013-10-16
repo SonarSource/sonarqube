@@ -34,8 +34,7 @@
             <td class="operations" style="text-align: right">
               <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_form/<%= h group.id %>">Edit</a>
               &nbsp;
-              <%= link_to "Delete", { :action => 'destroy', :id => group.id},
-                                    {:confirm => "Are you sure that you want to delete this group? Members will not be deleted.", :class => 'link-action link-red', :method => 'get', :id => "delete-#{u group.name}"} %>
+              <a id="delete-<%= u group.name -%>" class="open-modal  link-action link-red" href="<%=ApplicationController.root_context-%>/groups/delete_form/<%= group.id -%>">Delete</a>
             </td>
           </tr>
         <% end %>
