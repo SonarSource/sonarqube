@@ -277,7 +277,7 @@ class ViolationConverter implements Callable<Object> {
   }
 
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
-    private static final Map<Integer, String> SEVERITIES = ImmutableMap.of(1, Severity.INFO, 2, Severity.MINOR, 3, Severity.MAJOR, 4, Severity.CRITICAL, 5, Severity.BLOCKER);
+    private static final Map<Integer, String> SEVERITIES = ImmutableMap.of(0, Severity.INFO, 1, Severity.MINOR, 2, Severity.MAJOR, 3, Severity.CRITICAL, 4, Severity.BLOCKER);
 
 
     @Override
