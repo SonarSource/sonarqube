@@ -76,28 +76,14 @@ class GroupsController < ApplicationController
     end
   end
 
-  def delete_form
-    group = Group.find(params[:id])
-    if group
-      @group = group
-      render :partial => 'groups/delete_form'
-    else
-      redirect_to(:action => 'index', :id => nil)
-    end
-  end
-
-  def destroy
+  def delete
     group = Group.find(params[:id])
     if group.destroy
       flash[:notice] = 'Group is deleted.'
-      render :text => 'deleted', :status => 200
-    else
-      @errors == []
-      @errors << 'Error when deleting this group.'
-      render :partial => 'groups/delete_form', :status => 400
     end
-end
-  
+    to_index(group.errors, nil)
+  end
+
   def select_user
     @group = Group.find(params[:id])
   end
