@@ -19,7 +19,6 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.Nullable;

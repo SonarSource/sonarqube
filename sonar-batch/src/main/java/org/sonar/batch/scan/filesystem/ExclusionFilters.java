@@ -26,8 +26,8 @@ import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchComponent {
   private final FileExclusions exclusionSettings;

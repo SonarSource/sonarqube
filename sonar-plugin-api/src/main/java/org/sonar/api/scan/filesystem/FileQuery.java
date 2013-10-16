@@ -24,6 +24,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import javax.annotation.Nullable;
 import java.io.FileFilter;
@@ -36,8 +37,6 @@ import java.util.Set;
  * @since 3.5
  */
 public class FileQuery {
-
-  // TODO REFACTOR - better builders, for example FileQuery.ALL
 
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
@@ -73,7 +72,6 @@ public class FileQuery {
     return attributes.asMap();
   }
 
-  @Deprecated
   public Collection<FileType> types() {
     return Collections2.transform(attributes.get(InputFile.ATTRIBUTE_TYPE), new Function<String, FileType>() {
       @Override
@@ -109,12 +107,10 @@ public class FileQuery {
     return this;
   }
 
-  // TODO deprecate
   public Collection<FileFilter> filters() {
     throw new UnsupportedOperationException("TODO");
   }
 
-  // TODO deprecate ?
   public FileQuery withFilters(FileFilter... filters) {
     throw new UnsupportedOperationException("TODO");
   }

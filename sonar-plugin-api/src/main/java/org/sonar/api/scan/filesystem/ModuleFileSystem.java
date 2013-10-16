@@ -19,7 +19,6 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
 
 import javax.annotation.CheckForNull;
@@ -31,13 +30,6 @@ import java.util.List;
  * @since 3.5
  */
 public interface ModuleFileSystem extends BatchComponent {
-
-  /**
-   * Unique module key
-   *
-   * @since 4.0
-   */
-  String moduleKey();
 
   /**
    * Base directory.
@@ -78,12 +70,6 @@ public interface ModuleFileSystem extends BatchComponent {
    * Search for files. Never return null.
    */
   List<File> files(FileQuery query);
-
-  /**
-   * @since 4.0
-   */
-  @Beta
-  Iterable<InputFile> inputFiles(FileQuery query);
 
   /**
    * Charset of source and test files. If it's not defined, then

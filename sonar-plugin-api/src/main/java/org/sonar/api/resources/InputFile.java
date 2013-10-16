@@ -25,9 +25,7 @@ import java.io.InputStream;
 
 /**
  * @since 2.6
- * @deprecated in 4.0. Replaced by {@link org.sonar.api.scan.filesystem.InputFile}
  */
-@Deprecated
 public interface InputFile {
   /**
    * The source base directory, different than the project basedir.

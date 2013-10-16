@@ -21,7 +21,6 @@ package org.sonar.api.scan.filesystem.internal;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;

@@ -26,13 +26,12 @@ import java.io.File;
 /**
  * Extension point to exclude some files from project scan. Some use-cases :
  * <ul>
- *   <li>exclude the files that are older than x days</li>
- *   <li>exclude the files which names start with Generated</li>
+ * <li>exclude the files that are older than x days</li>
+ * <li>exclude the files which names start with Generated</li>
  * </ul>
+ *
  * @since 3.5
- * @deprecated in 4.0. Replaced by {@link InputFileFilter}.
  */
-@Deprecated
 public interface FileSystemFilter extends BatchExtension {
 
   /**

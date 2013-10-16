@@ -20,6 +20,8 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.scan.filesystem.*;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 import java.io.File;
 

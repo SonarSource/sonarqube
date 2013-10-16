@@ -31,11 +31,11 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
@@ -138,27 +138,24 @@ public class FileIndex implements BatchComponent {
     return cache.byModule(moduleKey);
   }
 
-  private void indexDirectory(ModuleFileSystem fileSystem, Progress status, File sourceDir, String type) {
+  private void indexDirectory(DefaultModuleFileSystem fileSystem, Progress status, File sourceDir, String type) {
     Collection<File> files = FileUtils.listFiles(sourceDir, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
       indexFile(fileSystem, status, sourceDir, file, type);
     }
   }
 
-  private void indexFile(ModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
+  private void indexFile(DefaultModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
     String path = pathResolver.relativePath(fileSystem.baseDir(), file);
     if (path == null) {
       LoggerFactory.getLogger(getClass()).warn(String.format("File '%s' is not in basedir '%s'", file.getAbsolutePath(), fileSystem.baseDir()));
     } else {
-      if (!cache.containsFile(fileSystem.moduleKey(), path)) {
-        // Not indexed yet
         InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
         if (input != null && accept(input)) {
           cache.put(fileSystem.moduleKey(), input);
+          status.markAsIndexed(path);
         }
       }
-    status.markAsIndexed(path);
-    }
   }
 
   @CheckForNull

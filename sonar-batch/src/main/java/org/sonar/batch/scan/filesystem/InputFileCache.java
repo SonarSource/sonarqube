@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 

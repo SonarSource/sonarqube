@@ -23,7 +23,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 import java.io.File;

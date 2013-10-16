@@ -29,8 +29,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFiles;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFiles;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
@@ -80,7 +80,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     this.testFiles = initializer.additionalTestFiles();
   }
 
-  @Override
   public String moduleKey() {
     return moduleKey;
   }
@@ -161,7 +160,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   /**
    * @since 4.0
    */
-  @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
     if (dirsChanged) {
       index();

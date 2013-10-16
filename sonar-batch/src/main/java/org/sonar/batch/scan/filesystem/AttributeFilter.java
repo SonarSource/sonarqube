@@ -20,8 +20,8 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 import java.util.Collection;
 

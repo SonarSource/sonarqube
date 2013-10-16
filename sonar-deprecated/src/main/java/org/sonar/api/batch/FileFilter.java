@@ -24,7 +24,7 @@ import org.sonar.api.scan.filesystem.FileSystemFilter;
 import java.io.File;
 
 /**
- * @deprecated in 3.5. Replaced by {@link org.sonar.api.scan.filesystem.InputFileFilter}
+ * @deprecated in 3.5. Replaced by {@link org.sonar.api.scan.filesystem.FileSystemFilter}
  */
 @Deprecated
 public abstract class FileFilter implements java.io.FileFilter, FileSystemFilter {

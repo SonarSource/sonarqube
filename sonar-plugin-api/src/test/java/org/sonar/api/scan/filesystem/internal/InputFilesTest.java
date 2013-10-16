@@ -17,26 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.api.scan.filesystem.internal;
 
 import com.google.common.collect.Lists;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
+import org.sonar.api.scan.filesystem.internal.InputFiles;
 
 import java.io.File;
-import java.util.List;
 
-/**
- * @since 4.0
- */
-public class InputFiles {
-  InputFiles() {
-    // static methods only
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  public static List<File> toFiles(Iterable<InputFile> inputFiles) {
-    List<File> files = Lists.newArrayList();
-    for (InputFile inputFile : inputFiles) {
-      files.add(inputFile.file());
-    }
-    return files;
+public class InputFilesTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Test
+  public void test_toFiles() throws Exception {
+    File file1 = temp.newFile();
+    File file2 = temp.newFile();
+    InputFile input1 = new InputFileBuilder(file1, "src/main/java/Foo.java").build();
+    InputFile input2 = new InputFileBuilder(file2, "src/main/java/Bar.java").build();
+
+    assertThat(InputFiles.toFiles(Lists.newArrayList(input1, input2))).containsOnly(file1, file2);
   }
 }
