@@ -36,7 +36,7 @@
               <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form/<%= h rule.id -%>">Edit</a>
             </td>
             <td>
-                <%= link_to_action message('deleteNew'), "#{ApplicationController.root_context}/manual_rules/delete/#{rule.id}",
+                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete/#{rule.id}",
                                    :class => 'link-action link-red',
                                    :id => "delete_#{rule.id}",
                                    :confirm_button => message('delete'),
