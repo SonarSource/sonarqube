@@ -73,8 +73,8 @@ public class TechnicalDebtModelRepositoryTest {
 
     // assert
     Collection<String> contributingPluginList = modelFinder.getContributingPluginList();
-    assertThat(contributingPluginList.size()).isEqualTo(1);
-    assertThat(contributingPluginList).containsOnly("csharp");
+    assertThat(contributingPluginList.size()).isEqualTo(2);
+    assertThat(contributingPluginList).containsOnly("technical-debt", "csharp");
   }
 
   @Test

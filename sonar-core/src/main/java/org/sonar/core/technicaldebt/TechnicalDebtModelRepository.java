@@ -83,6 +83,8 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
   protected void findAvailableXMLFiles() {
     if (contributingPluginKeyToClassLoader == null) {
       contributingPluginKeyToClassLoader = Maps.newTreeMap();
+      // Add default model
+      contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
         String pluginKey = metadata.getKey();
         ClassLoader classLoader = pluginRepository.getPlugin(pluginKey).getClass().getClassLoader();
@@ -90,8 +92,6 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
           contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
         }
       }
-      // Add default model
-      contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
     }
     contributingPluginKeyToClassLoader = Collections.unmodifiableMap(contributingPluginKeyToClassLoader);
   }
@@ -102,13 +102,12 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
   }
 
   /**
-   * Returns the list of plugins that can contribute to the technical debt model (without the default model).
+   * Returns the list of plugins that can contribute to the technical debt model.
    *
    * @return the list of plugin keys
    */
   public Collection<String> getContributingPluginList() {
     Collection<String> contributingPlugins = newArrayList(contributingPluginKeyToClassLoader.keySet());
-    contributingPlugins.remove(DEFAULT_MODEL);
     return contributingPlugins;
   }
 

@@ -34,6 +34,8 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class TechnicalDebtManager implements ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtManager.class);
@@ -132,7 +134,9 @@ public class TechnicalDebtManager implements ServerExtension {
   }
 
   private Collection<String> getContributingPluginListWithoutSqale() {
-    return languageModelFinder.getContributingPluginList();
+    Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
+    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
+    return pluginList;
   }
 
 }
