@@ -234,7 +234,7 @@ class ResourceController < ApplicationController
       end
     end
 
-    # And sort them 
+    # And sort them
     @duplication_groups.each do |group|
       group.sort! do |dup1, dup2|
         r1 = dup1[:resource]
@@ -351,7 +351,7 @@ class ResourceController < ApplicationController
 
   def filter_lines_by_date
     if @period && @snapshot.period_datetime(@period)
-      @filtered=true
+      @filtered=@scm_available
       to=Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000)
       if to && @lines
         @lines.each do |line|
