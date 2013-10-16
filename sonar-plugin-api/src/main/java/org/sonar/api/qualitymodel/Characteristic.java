@@ -255,7 +255,7 @@ public final class Characteristic implements Comparable<Characteristic> {
     return order;
   }
 
-  Characteristic setOrder(int i) {
+  public Characteristic setOrder(int i) {
     this.order = i;
     return this;
   }
