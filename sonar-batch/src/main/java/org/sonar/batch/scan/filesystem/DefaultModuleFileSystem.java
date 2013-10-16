@@ -58,6 +58,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   private List<File> sourceFiles = Lists.newArrayList();
   private List<File> testFiles = Lists.newArrayList();
   private AnalysisMode analysisMode;
+  private boolean dirsChanged = false;
 
   public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
     this(module.getKey(), settings, index, initializer, analysisMode);
@@ -129,6 +130,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Deprecated
   void addSourceDir(File dir) {
     sourceDirs.add(dir);
+    dirsChanged = true;
   }
 
   /**
@@ -137,6 +139,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   @Deprecated
   void addTestDir(File dir) {
     testDirs.add(dir);
+    dirsChanged = true;
   }
 
   @Override
@@ -160,6 +163,10 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
    */
   @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
+    if (dirsChanged) {
+      index();
+      dirsChanged = false;
+    }
     List<InputFile> result = Lists.newArrayList();
     FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
     for (InputFile input : index.inputFiles(moduleKey)) {

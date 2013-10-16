@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
 
 import javax.annotation.CheckForNull;
@@ -54,14 +55,12 @@ public interface ModuleFileSystem extends BatchComponent {
    * Source directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/main/java
    */
-  // TODO mark as dangerous to use
   List<File> sourceDirs();
 
   /**
    * Test directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/test/java
    */
-  // TODO mark as dangerous to use
   List<File> testDirs();
 
   /**
@@ -78,12 +77,12 @@ public interface ModuleFileSystem extends BatchComponent {
   /**
    * Search for files. Never return null.
    */
-  // TODO deprecate
   List<File> files(FileQuery query);
 
   /**
    * @since 4.0
    */
+  @Beta
   Iterable<InputFile> inputFiles(FileQuery query);
 
   /**
