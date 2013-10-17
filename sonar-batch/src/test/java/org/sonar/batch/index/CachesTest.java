@@ -26,9 +26,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BatchTempUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TempFolderProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class CachesTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return new Caches(new BatchTempUtils(bootstrapSettings));
+    return new Caches(new TempFolderProvider().provide(bootstrapSettings));
   }
 
   Caches caches;

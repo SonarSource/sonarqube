@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.server.platform;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.core.utils.AbstractTempUtils;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.File;
 import java.io.IOException;
 
-public class BatchTempUtils extends AbstractTempUtils {
+public class TempFolderProvider extends ProviderAdapter {
 
-  public BatchTempUtils(BootstrapSettings bootstrapSettings) {
-    String workingDirPath = bootstrapSettings.property(CoreProperties.WORKING_DIRECTORY, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath);
-    File tempDir = new File(workingDir, "tmp");
+  public TempFolder provide(ServerFileSystem fs) {
+    File tempDir = new File(fs.getTempDir(), "tmp");
     try {
       FileUtils.forceMkdir(tempDir);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
     }
-    setTempDir(tempDir);
+    return new DefaultTempFolder(tempDir);
   }
 
 }

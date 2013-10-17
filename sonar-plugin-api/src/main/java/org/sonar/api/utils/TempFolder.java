@@ -36,25 +36,20 @@ import java.io.File;
  * @since 4.0
  *
  */
-public interface TempUtils extends TaskComponent, ServerComponent {
+public interface TempFolder extends TaskComponent, ServerComponent {
 
   /**
    * Create a directory in temp folder with a random unique name.
    */
-  File createTempDirectory();
-
-  /**
-   * Create a directory in temp folder with a random unique name and using the provided prefix when possible.
-   */
-  File createTempDirectory(@Nullable String prefix);
+  File newDir();
 
   /**
    * Create a directory in temp folder using provided name.
    */
-  File createDirectory(String name);
+  File newDir(String name);
 
-  File createTempFile();
+  File newFile();
 
-  File createTempFile(@Nullable String prefix, @Nullable String suffix);
+  File newFile(@Nullable String prefix, @Nullable String suffix);
 
 }

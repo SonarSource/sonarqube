@@ -148,7 +148,6 @@ import org.sonar.server.ui.SecurityRealmFactory;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.server.util.ServerTempUtils;
 
 import javax.servlet.ServletContext;
 
@@ -240,7 +239,7 @@ public final class Platform {
     rootContainer.addSingleton(PreviewDatabaseFactory.class);
     rootContainer.addSingleton(SemaphoreUpdater.class);
     rootContainer.addSingleton(SemaphoresImpl.class);
-    rootContainer.addSingleton(ServerTempUtils.class);
+    rootContainer.addSingleton(new TempFolderProvider());
     rootContainer.startComponents();
   }
 

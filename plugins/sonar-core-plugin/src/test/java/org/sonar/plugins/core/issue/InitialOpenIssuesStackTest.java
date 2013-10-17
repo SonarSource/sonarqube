@@ -27,9 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BatchTempUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TempFolderProvider;
 import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.db.IssueDto;
 
@@ -50,7 +50,7 @@ public class InitialOpenIssuesStackTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return new Caches(new BatchTempUtils(bootstrapSettings));
+    return new Caches(new TempFolderProvider().provide(bootstrapSettings));
   }
 
   InitialOpenIssuesStack stack;

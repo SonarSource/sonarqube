@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util;
+package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class ServerTempUtilsTest {
+public class TempFolderProviderTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -41,16 +42,15 @@ public class ServerTempUtilsTest {
 
   @Test
   public void createTempFolder() throws Exception {
-    ServerFileSystem fs = mock(ServerFileSystem.class);
-    File serverTempFolder = temp.newFolder();
-    when(fs.getTempDir()).thenReturn(serverTempFolder);
-    ServerTempUtils tempUtils = new ServerTempUtils(fs);
-    tempUtils.createTempDirectory();
-    tempUtils.createTempFile();
-    assertThat(new File(serverTempFolder, "tmp")).exists();
-    assertThat(new File(serverTempFolder, "tmp").list()).hasSize(2);
+    File workingDir = temp.newFolder();
+    TempFolder tempFolder = new TempFolderProvider().provide(new BootstrapSettings(
+      new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()))));
+    tempFolder.newDir();
+    tempFolder.newFile();
+    assertThat(new File(workingDir, "tmp")).exists();
+    assertThat(new File(workingDir, "tmp").list()).hasSize(2);
 
-    tempUtils.stop();
-    assertThat(new File(serverTempFolder, "tmp")).doesNotExist();
+    ((DefaultTempFolder) tempFolder).stop();
+    assertThat(new File(workingDir, "tmp")).doesNotExist();
   }
 }

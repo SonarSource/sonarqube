@@ -30,7 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
 import java.net.SocketTimeoutException;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class PreviewDatabaseTest {
   Settings settings;
   ServerClient server = mock(ServerClient.class);
-  TempUtils tempUtils = mock(TempUtils.class);
+  TempFolder tempUtils = mock(TempFolder.class);
   File databaseFile;
   private AnalysisMode mode;
 
@@ -58,7 +58,7 @@ public class PreviewDatabaseTest {
   @Before
   public void setUp() throws Exception {
     databaseFile = temp.newFile("preview.h2.db");
-    when(tempUtils.createTempFile("preview", ".h2.db")).thenReturn(databaseFile);
+    when(tempUtils.newFile("preview", ".h2.db")).thenReturn(databaseFile);
     settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "group:project");
 

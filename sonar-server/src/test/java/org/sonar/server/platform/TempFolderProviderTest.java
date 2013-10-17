@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.server.platform;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class BatchTempUtilsTest {
+public class TempFolderProviderTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -40,15 +43,16 @@ public class BatchTempUtilsTest {
 
   @Test
   public void createTempFolder() throws Exception {
-    File workingDir = temp.newFolder();
-    BatchTempUtils tempUtils = new BatchTempUtils(new BootstrapSettings(
-      new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()))));
-    tempUtils.createTempDirectory();
-    tempUtils.createTempFile();
-    assertThat(new File(workingDir, "tmp")).exists();
-    assertThat(new File(workingDir, "tmp").list()).hasSize(2);
+    ServerFileSystem fs = mock(ServerFileSystem.class);
+    File serverTempFolder = temp.newFolder();
+    when(fs.getTempDir()).thenReturn(serverTempFolder);
+    TempFolder tempUtils = new TempFolderProvider().provide(fs);
+    tempUtils.newDir();
+    tempUtils.newFile();
+    assertThat(new File(serverTempFolder, "tmp")).exists();
+    assertThat(new File(serverTempFolder, "tmp").list()).hasSize(2);
 
-    tempUtils.stop();
-    assertThat(new File(workingDir, "tmp")).doesNotExist();
+    ((DefaultTempFolder) tempUtils).stop();
+    assertThat(new File(serverTempFolder, "tmp")).doesNotExist();
   }
 }

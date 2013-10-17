@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @deprecated since 4.0 use {@link TempUtils}
+ * @deprecated since 4.0 use {@link TempFolder}
  */
 @Deprecated
 public final class TempFileUtils {

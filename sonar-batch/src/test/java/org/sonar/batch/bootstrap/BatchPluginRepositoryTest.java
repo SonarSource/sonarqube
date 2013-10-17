@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.plugins.RemotePluginFile;
 import org.sonar.test.TestUtils;
@@ -64,9 +64,9 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPlugin() throws IOException {
-    TempUtils tempDirs = mock(TempUtils.class);
+    TempFolder tempDirs = mock(TempFolder.class);
     File toDir = temp.newFolder();
-    when(tempDirs.createDirectory("plugins/checkstyle")).thenReturn(toDir);
+    when(tempDirs.newDir("plugins/checkstyle")).thenReturn(toDir);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
@@ -84,11 +84,11 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPluginExtension() throws IOException {
-    TempUtils tempDirs = mock(TempUtils.class);
+    TempFolder tempDirs = mock(TempFolder.class);
     File toDir1 = temp.newFolder();
     File toDir2 = temp.newFolder();
-    when(tempDirs.createDirectory("plugins/checkstyle")).thenReturn(toDir1);
-    when(tempDirs.createDirectory("plugins/checkstyleextensions")).thenReturn(toDir2);
+    when(tempDirs.newDir("plugins/checkstyle")).thenReturn(toDir1);
+    when(tempDirs.newDir("plugins/checkstyleextensions")).thenReturn(toDir2);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
@@ -109,9 +109,9 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPluginDeprecatedExtensions() throws IOException {
-    TempUtils tempDirs = mock(TempUtils.class);
+    TempFolder tempDirs = mock(TempFolder.class);
     File toDir = temp.newFolder();
-    when(tempDirs.createDirectory("plugins/checkstyle")).thenReturn(toDir);
+    when(tempDirs.newDir("plugins/checkstyle")).thenReturn(toDir);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     checkstyle.getFiles().add(new RemotePluginFile("checkstyle-ext.xml", "fakemd5"));
 
@@ -131,11 +131,11 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldExcludePluginAndItsExtensions() throws IOException {
-    BatchTempUtils tempDirs = mock(BatchTempUtils.class);
+    TempFolder tempDirs = mock(TempFolder.class);
     File toDir1 = temp.newFolder();
     File toDir2 = temp.newFolder();
-    when(tempDirs.createDirectory("plugins/checkstyle")).thenReturn(toDir1);
-    when(tempDirs.createDirectory("plugins/checkstyleextensions")).thenReturn(toDir2);
+    when(tempDirs.newDir("plugins/checkstyle")).thenReturn(toDir1);
+    when(tempDirs.newDir("plugins/checkstyleextensions")).thenReturn(toDir2);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 

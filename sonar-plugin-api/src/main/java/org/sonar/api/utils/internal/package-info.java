@@ -17,25 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util;
+@ParametersAreNonnullByDefault
+package org.sonar.api.utils.internal;
 
-import org.apache.commons.io.FileUtils;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.core.utils.AbstractTempUtils;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import java.io.File;
-import java.io.IOException;
-
-public class ServerTempUtils extends AbstractTempUtils {
-
-  public ServerTempUtils(ServerFileSystem fs) {
-    File tempDir = new File(fs.getTempDir(), "tmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
-    }
-    setTempDir(tempDir);
-  }
-
-}

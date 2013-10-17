@@ -30,7 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
 import java.io.Serializable;
@@ -48,16 +48,16 @@ public class Caches implements BatchComponent, Startable {
   private File tempDir;
   private Persistit persistit;
   private Volume volume;
-  private final TempUtils tempUtils;
+  private final TempFolder tempFolder;
 
-  public Caches(TempUtils tempUtils) {
-    this.tempUtils = tempUtils;
+  public Caches(TempFolder tempFolder) {
+    this.tempFolder = tempFolder;
     initPersistit();
   }
 
   private void initPersistit() {
     try {
-      tempDir = tempUtils.createTempDirectory("caches");
+      tempDir = tempFolder.newDir("caches");
       persistit = new Persistit();
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
       Properties props = new Properties();

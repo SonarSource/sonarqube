@@ -26,6 +26,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.core.config.Logback;
 
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class BootstrapContainerTest {
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(Logback.class)).isNotNull();
-    assertThat(container.getComponentByType(BatchTempUtils.class)).isNotNull();
+    assertThat(container.getComponentByType(TempFolder.class)).isNotNull();
   }
 
   @Test

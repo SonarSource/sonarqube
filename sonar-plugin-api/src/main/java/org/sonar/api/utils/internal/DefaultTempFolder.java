@@ -17,36 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.utils;
+package org.sonar.api.utils.internal;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 
 import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 
-public abstract class AbstractTempUtils implements TempUtils, Startable {
+public class DefaultTempFolder implements TempFolder, Startable {
 
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
-  private File tempDir;
+  private final File tempDir;
 
-  protected void setTempDir(File tempDir) {
+  public DefaultTempFolder(File tempDir) {
     this.tempDir = tempDir;
   }
 
   @Override
-  public File createTempDirectory() {
-    return createTempDirectory(null);
-  }
-
-  @Override
-  public File createTempDirectory(@Nullable String prefix) {
-    return createTempDir(tempDir, prefix);
+  public File newDir() {
+    return createTempDir(tempDir, "");
   }
 
   /**
@@ -67,7 +63,7 @@ public abstract class AbstractTempUtils implements TempUtils, Startable {
   }
 
   @Override
-  public File createDirectory(String name) {
+  public File newDir(String name) {
     File dir = new File(tempDir, name);
     try {
       FileUtils.forceMkdir(dir);
@@ -78,12 +74,12 @@ public abstract class AbstractTempUtils implements TempUtils, Startable {
   }
 
   @Override
-  public File createTempFile() {
-    return createTempFile(null, null);
+  public File newFile() {
+    return newFile(null, null);
   }
 
   @Override
-  public File createTempFile(@Nullable String prefix, @Nullable String suffix) {
+  public File newFile(@Nullable String prefix, @Nullable String suffix) {
     return createTempFile(tempDir, prefix, suffix);
   }
 
@@ -91,7 +87,7 @@ public abstract class AbstractTempUtils implements TempUtils, Startable {
    * Inspired by guava waiting for JDK 7 Files#createTempFile
    */
   private static File createTempFile(File baseDir, String prefix, String suffix) {
-    String baseName = prefix + System.currentTimeMillis() + "-";
+    String baseName = StringUtils.defaultIfEmpty(prefix, "") + System.currentTimeMillis() + "-";
 
     try {
       for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {

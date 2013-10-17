@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ModuleFileSystemInitializerTest {
     File workDir = temp.newFolder("work");
     ProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir);
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, mock(TempUtils.class), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, mock(TempFolder.class), pathResolver);
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.workingDir().getCanonicalPath()).isEqualTo(workDir.getCanonicalPath());
@@ -73,7 +73,7 @@ public class ModuleFileSystemInitializerTest {
       .addTestDirs("src/test/java", "src/test/unknown")
       .addBinaryDir("target/classes");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempUtils.class), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());

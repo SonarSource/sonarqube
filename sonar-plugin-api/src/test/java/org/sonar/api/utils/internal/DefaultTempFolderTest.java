@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.utils;
+package org.sonar.api.utils.internal;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class AbstractTempUtilsTest {
+public class DefaultTempFolderTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -39,10 +39,10 @@ public class AbstractTempUtilsTest {
   @Test
   public void createTempFolderAndFile() throws Exception {
     File tempFolder = temp.newFolder();
-    AbstractTempUtils tempUtils = new CustomTempUtils(tempFolder);
-    File dir = tempUtils.createTempDirectory();
+    DefaultTempFolder tempUtils = new DefaultTempFolder(tempFolder);
+    File dir = tempUtils.newDir();
     assertThat(dir).exists().isDirectory();
-    File file = tempUtils.createTempFile();
+    File file = tempUtils.newFile();
     assertThat(file).exists().isFile();
 
     tempUtils.stop();
@@ -52,20 +52,12 @@ public class AbstractTempUtilsTest {
   @Test
   public void createTempFolderWithName() throws Exception {
     File tempFolder = temp.newFolder();
-    AbstractTempUtils tempUtils = new CustomTempUtils(tempFolder);
-    File dir = tempUtils.createDirectory("sample");
+    DefaultTempFolder tempUtils = new DefaultTempFolder(tempFolder);
+    File dir = tempUtils.newDir("sample");
     assertThat(dir).exists().isDirectory();
     assertThat(new File(tempFolder, "sample")).isEqualTo(dir);
 
     tempUtils.stop();
     assertThat(tempFolder).doesNotExist();
-  }
-
-  private static class CustomTempUtils extends AbstractTempUtils {
-
-    public CustomTempUtils(File tempDir) {
-      setTempDir(tempDir);
-    }
-
   }
 }

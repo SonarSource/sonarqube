@@ -30,7 +30,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.core.plugins.PluginClassloaders;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;
@@ -54,10 +54,10 @@ public class BatchPluginRepository implements PluginRepository {
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
   private PluginClassloaders classLoaders;
-  private TempUtils tempDirectories;
+  private TempFolder tempDirectories;
   private final AnalysisMode analysisMode;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, TempUtils tempDirectories, Settings settings, AnalysisMode analysisMode) {
+  public BatchPluginRepository(PluginDownloader pluginDownloader, TempFolder tempDirectories, Settings settings, AnalysisMode analysisMode) {
     this.pluginDownloader = pluginDownloader;
     this.tempDirectories = tempDirectories;
     this.settings = settings;
@@ -77,7 +77,7 @@ public class BatchPluginRepository implements PluginRepository {
       if (filter.accepts(remote.getKey())) {
         List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
-        File targetDir = tempDirectories.createDirectory("plugins/" + remote.getKey());
+        File targetDir = tempDirectories.newDir("plugins/" + remote.getKey());
         LOG.debug("Installing plugin {} into {}", remote.getKey(), targetDir.getAbsolutePath());
         PluginMetadata metadata = extractor.install(pluginFiles.get(0), remote.isCore(), extensionFiles, targetDir);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {

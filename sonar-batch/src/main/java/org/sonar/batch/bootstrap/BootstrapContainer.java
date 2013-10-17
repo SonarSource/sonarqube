@@ -87,7 +87,7 @@ public class BootstrapContainer extends ComponentContainer {
       Logback.class,
       ServerMetadata.class,
       org.sonar.batch.ServerMetadata.class,
-      BatchTempUtils.class,
+      new TempFolderProvider(),
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider());

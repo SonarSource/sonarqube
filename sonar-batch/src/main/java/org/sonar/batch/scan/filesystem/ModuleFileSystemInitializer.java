@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.TempUtils;
+import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ModuleFileSystemInitializer implements BatchComponent {
   private List<File> additionalSourceFiles;
   private List<File> additionalTestFiles;
 
-  public ModuleFileSystemInitializer(ProjectDefinition module, TempUtils tempUtils, PathResolver pathResolver) {
+  public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();
     buildDir = module.getBuildDir();
     initWorkingDir(module, tempUtils);
@@ -50,10 +50,10 @@ public class ModuleFileSystemInitializer implements BatchComponent {
     initTests(module, pathResolver);
   }
 
-  private void initWorkingDir(ProjectDefinition module, TempUtils tempUtils) {
+  private void initWorkingDir(ProjectDefinition module, TempFolder tempUtils) {
     workingDir = module.getWorkDir();
     if (workingDir == null) {
-      workingDir = tempUtils.createTempDirectory("work");
+      workingDir = tempUtils.newDir("work");
     } else {
       try {
         FileUtils.forceMkdir(workingDir);
