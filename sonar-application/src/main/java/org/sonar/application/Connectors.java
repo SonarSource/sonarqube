@@ -33,7 +33,6 @@ class Connectors {
 
   private static final int DISABLED_PORT = -1;
   static final String HTTP_PROTOCOL = "HTTP/1.1";
-  static final String AJP_PROTOCOL = "AJP/1.3";
 
   static void configure(Tomcat tomcat, Props props) {
     tomcat.getServer().setAddress(props.of("sonar.web.host", "0.0.0.0"));
@@ -43,7 +42,7 @@ class Connectors {
 
   private static void configureConnectors(Tomcat tomcat, Props props) {
     List<Connector> connectors = new ArrayList<Connector>();
-    connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
+    connectors.addAll(Arrays.asList(newHttpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
 
     if (connectors.isEmpty()) {
@@ -75,18 +74,6 @@ class Connectors {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
       info("HTTP connector is enabled on port " + port);
-    }
-    return connector;
-  }
-
-  @Nullable
-  private static Connector newAjpConnector(Props props) {
-    Connector connector = null;
-    int port = props.intOf("sonar.web.ajp.port", DISABLED_PORT);
-    if (port > DISABLED_PORT) {
-      connector = newConnector(props, AJP_PROTOCOL, "ajp");
-      connector.setPort(port);
-      info("AJP connector is enabled on port " + port);
     }
     return connector;
   }
