@@ -62,7 +62,7 @@ public class PluginDownloader implements ServerComponent, Startable {
   public void start() {
     try {
       FileUtils.forceMkdir(downloadDir);
-      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[]{TMP_SUFFIX}, false);
+      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[] {TMP_SUFFIX}, false);
       for (File tempFile : tempFiles) {
         FileUtils.deleteQuietly(tempFile);
       }
@@ -74,6 +74,7 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   @Override
   public void stop() {
+    // Nothing to do
   }
 
   public void cancelDownloads() {
@@ -92,7 +93,7 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   public List<String> getDownloads() {
     List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[]{"jar"}, false);
+    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] {"jar"}, false);
     for (File file : files) {
       names.add(file.getName());
     }
