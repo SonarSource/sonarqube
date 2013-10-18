@@ -1,4 +1,4 @@
-<% form_for :user, @user, :url => { :id => @user.id, :action => 'update'}, :html => { :id =>'user_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+<% form_for :user, @user, :url => { :id => @user.id, :action => 'update'}, :html => { :id =>'user_edit_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
       <div class="modal-head">
           <h2>Edit user &nbsp;<%= @user.login %></h2>
@@ -35,5 +35,5 @@
 <% end %>
 
 <script>
-  $j("#user_form").modalForm();
+  $j("#user_edit_form").modalForm();
 </script>

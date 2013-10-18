@@ -2,7 +2,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
-              <a href="<%=ApplicationController.root_context-%>/users/create_form" class="open-modal link-action">Add new user</a>
+              <a id="create-link-user" href="<%=ApplicationController.root_context-%>/users/create_form" id="create-link-user" class="open-modal link-action">Add new user</a>
           </li>
       </ul>
     <% end %>
@@ -32,14 +32,14 @@
                 <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
               </td>
               <td class="left" valign="top">
-                <a id="edit-<%= user.name -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
+                <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
                 &nbsp;
                <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} %>
               </td>
               <td>
                 <%= link_to_action message('delete'), "#{ApplicationController.root_context}/users/delete/#{user.id}",
                                    :class => 'link-action link-red',
-                                   :id => "delete_#{user.id}",
+                                   :id => "delete-#{user.login}",
                                    :confirm_button => message('delete'),
                                    :confirm_title => 'Delete user '+user.name,
                                    :confirm_msg => 'Warning : are you sure to delete this user?',

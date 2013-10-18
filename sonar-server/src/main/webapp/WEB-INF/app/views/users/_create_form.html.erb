@@ -1,4 +1,4 @@
-<% form_for :user, @user, :url => { :id => @user.id, :action => 'create' }, :html => { :id =>'user_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+<% form_for :user, @user, :url => { :id => @user.id, :action => 'create' }, :html => { :id =>'user_create_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
     <div class="modal-head">
       <h2>Add new user</h2>
@@ -37,5 +37,5 @@
 <% end %>
 
 <script>
-  $j("#user_form").modalForm();
+  $j("#user_create_form").modalForm();
 </script>
