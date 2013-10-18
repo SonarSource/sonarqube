@@ -39,8 +39,8 @@
                                    :class => 'link-action link-red',
                                    :id => "delete-#{user.login}",
                                    :confirm_button => message('delete'),
-                                   :confirm_title => 'Delete user '+user.name,
-                                   :confirm_msg => 'Warning : are you sure to delete this user?',
+                                   :confirm_title => 'Delete user: '+user.login,
+                                   :confirm_msg => 'Warning : are you sure to delete the user "' + user.name+'"?' ,
                                    :confirm_msg_params => [user.name]
                 -%>
               </td>
