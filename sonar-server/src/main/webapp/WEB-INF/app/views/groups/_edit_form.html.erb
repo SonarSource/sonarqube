@@ -1,7 +1,7 @@
 <% form_for :group, @group, :url => { :action => 'update', :id => @group.id}, :html => { :id =>'group_form'} do |f| %>
   <fieldset>
       <div class="modal-head">
-          <h2>Edit group&nbsp;<%= @group.name -%></h2>
+          <h2>Edit group: <%= @group.name -%></h2>
       </div>
 
       <div class="modal-body">
