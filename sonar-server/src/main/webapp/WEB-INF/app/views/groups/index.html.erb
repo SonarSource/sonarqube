@@ -2,7 +2,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
-              <a href="<%=ApplicationController.root_context-%>/groups/create_form" class="open-modal link-action">Add new group</a>
+              <a id="link-create-group" href="<%=ApplicationController.root_context-%>/groups/create_form" class="open-modal link-action">Add new group</a>
           </li>
       </ul>
     <% end %>
@@ -37,7 +37,7 @@
             <td>
                 <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
                                    :class => 'link-action link-red',
-                                   :id => "delete_#{group.id}",
+                                   :id => "delete-#{group.name}",
                                    :confirm_button => message('delete'),
                                    :confirm_title => 'Delete group '+group.name,
                                    :confirm_msg => 'Are you sure that you want to delete this group? Members will not be deleted.?',
