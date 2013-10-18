@@ -33,9 +33,7 @@
             </td>
             <td class="operations" style="text-align: right">
               <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_form/<%= h group.id %>">Edit</a>
-            </td>
-            <td>
-                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
                                    :class => 'link-action link-red',
                                    :id => "delete-#{group.name}",
                                    :confirm_button => message('delete'),
