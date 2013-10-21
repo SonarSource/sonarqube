@@ -67,7 +67,7 @@ public class DefaultTempFolder implements TempFolder {
     try {
       FileUtils.forceMkdir(dir);
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to create temp directory in " + dir, e);
+      throw new IllegalStateException("Failed to create temp directory in " + dir, e);
     }
     return dir;
   }

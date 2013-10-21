@@ -60,4 +60,30 @@ public class DefaultTempFolderTest {
     new TempFolderCleaner(tempFolder).stop();
     assertThat(rootTempFolder).doesNotExist();
   }
+
+  @Test
+  public void createTempFolderWithInvalidName() throws Exception {
+    File rootTempFolder = temp.newFolder();
+    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    String tooLong = "tooooolong";
+    for (int i = 0; i < 50; i++) {
+      tooLong += "tooooolong";
+    }
+    throwable.expect(IllegalStateException.class);
+    throwable.expectMessage("Failed to create temp directory");
+    tempFolder.newDir(tooLong);
+  }
+
+  @Test
+  public void createNewFileWithInvalidName() throws Exception {
+    File rootTempFolder = temp.newFolder();
+    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    String tooLong = "tooooolong";
+    for (int i = 0; i < 50; i++) {
+      tooLong += "tooooolong";
+    }
+    throwable.expect(IllegalStateException.class);
+    throwable.expectMessage("Failed to create temp file");
+    tempFolder.newFile(tooLong, ".txt");
+  }
 }
