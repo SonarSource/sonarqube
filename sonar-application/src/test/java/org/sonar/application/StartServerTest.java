@@ -114,7 +114,7 @@ public class StartServerTest {
             starter.start();
             fail();
           } catch (IllegalStateException e) {
-            assertThat(e.getMessage()).isEqualTo("Tomcat is already started");
+            assertThat(e.getMessage()).isEqualTo("Server is already started");
             started = true;
             break;
           }

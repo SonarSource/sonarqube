@@ -9,7 +9,7 @@
 <configuration debug="false">
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
-  <appender name="SONAR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>${SONAR_HOME}/logs/sonar.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <param name="FileNamePattern" value="${SONAR_HOME}/logs/sonar.%i.log"/>
@@ -27,21 +27,23 @@
     </encoder>
   </appender>
 
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>
+        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <logger name="console" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
   <!-- Display Rails warnings and errors  -->
-  <logger name="rails" additivity="false">
+  <logger name="rails">
     <level value="WARN"/>
-    <appender-ref ref="SONAR_FILE"/>
   </logger>
-  <!--
-   Profiling of HTTP and SQL requests in Rails:
-   
-  <logger name="rails" additivity="false">
-    <level value="DEBUG"/>
-  </logger>
-  
-   Example of command-line to get the HTTP requests with execution time greater than 10s :
-   grep 'rails  Completed in [0-9]\{5,\}ms' < sonar.log
-  -->
 
   <logger name="org.hibernate.cache.ReadWriteCache">
     <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
@@ -82,7 +84,7 @@
 
   <root>
     <level value="INFO"/>
-    <appender-ref ref="SONAR_FILE"/>
+    <appender-ref ref="LOGFILE"/>
   </root>
 
 </configuration>

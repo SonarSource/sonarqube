@@ -42,9 +42,12 @@ class Logging {
 
   static void configure(Tomcat tomcat, Env env, Props props) {
     tomcat.setSilent(false);
-    tomcat.getService().addLifecycleListener(new StartupLogger(LoggerFactory.getLogger(Logging.class)));
-
+    tomcat.getService().addLifecycleListener(new LifecycleLogger(console()));
     configureLogbackAccess(tomcat, env, props);
+  }
+
+  static Logger console() {
+    return LoggerFactory.getLogger("console");
   }
 
   private static void configureLogbackAccess(Tomcat tomcat, Env env, Props props) {
@@ -56,17 +59,20 @@ class Logging {
     }
   }
 
-  static class StartupLogger implements LifecycleListener {
+  static class LifecycleLogger implements LifecycleListener {
     private Logger logger;
 
-    StartupLogger(Logger logger) {
+    LifecycleLogger(Logger logger) {
       this.logger = logger;
     }
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
       if ("after_start".equals(event.getType())) {
-        logger.info("Web server is up");
+        logger.info("Web server is started");
+
+      } else if ("after_destroy".equals(event.getType())) {
+        logger.info("Web server is stopped");
       }
     }
   }

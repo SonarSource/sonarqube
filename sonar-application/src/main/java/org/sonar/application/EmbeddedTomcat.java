@@ -42,7 +42,7 @@ class EmbeddedTomcat {
 
   void start() throws IOException, LifecycleException {
     if (tomcat != null || hook != null) {
-      throw new IllegalStateException("Tomcat is already started");
+      throw new IllegalStateException("Server is already started");
     }
 
     // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs

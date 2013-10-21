@@ -31,11 +31,8 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -63,9 +60,9 @@ public class LoggingTest {
   }
 
   @Test
-  public void log_when_started() {
+  public void log_when_started_and_stopped() {
     Logger logger = mock(Logger.class);
-    Logging.StartupLogger listener = new Logging.StartupLogger(logger);
+    Logging.LifecycleLogger listener = new Logging.LifecycleLogger(logger);
 
     LifecycleEvent event = new LifecycleEvent(mock(Lifecycle.class), "before_init", null);
     listener.lifecycleEvent(event);
@@ -73,6 +70,10 @@ public class LoggingTest {
 
     event = new LifecycleEvent(mock(Lifecycle.class), "after_start", null);
     listener.lifecycleEvent(event);
-    verify(logger).info("Web server is up");
+    verify(logger).info("Web server is started");
+
+    event = new LifecycleEvent(mock(Lifecycle.class), "after_destroy", null);
+    listener.lifecycleEvent(event);
+    verify(logger).info("Web server is stopped");
   }
 }
