@@ -26,6 +26,7 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -88,6 +89,7 @@ public class BootstrapContainer extends ComponentContainer {
       ServerMetadata.class,
       org.sonar.batch.ServerMetadata.class,
       new TempFolderProvider(),
+      TempFolderCleaner.class,
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider());

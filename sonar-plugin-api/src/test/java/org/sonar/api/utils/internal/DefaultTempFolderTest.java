@@ -38,26 +38,26 @@ public class DefaultTempFolderTest {
 
   @Test
   public void createTempFolderAndFile() throws Exception {
-    File tempFolder = temp.newFolder();
-    DefaultTempFolder tempUtils = new DefaultTempFolder(tempFolder);
-    File dir = tempUtils.newDir();
+    File rootTempFolder = temp.newFolder();
+    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    File dir = tempFolder.newDir();
     assertThat(dir).exists().isDirectory();
-    File file = tempUtils.newFile();
+    File file = tempFolder.newFile();
     assertThat(file).exists().isFile();
 
-    tempUtils.stop();
-    assertThat(tempFolder).doesNotExist();
+    new TempFolderCleaner(tempFolder).stop();
+    assertThat(rootTempFolder).doesNotExist();
   }
 
   @Test
   public void createTempFolderWithName() throws Exception {
-    File tempFolder = temp.newFolder();
-    DefaultTempFolder tempUtils = new DefaultTempFolder(tempFolder);
-    File dir = tempUtils.newDir("sample");
+    File rootTempFolder = temp.newFolder();
+    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    File dir = tempFolder.newDir("sample");
     assertThat(dir).exists().isDirectory();
-    assertThat(new File(tempFolder, "sample")).isEqualTo(dir);
+    assertThat(new File(rootTempFolder, "sample")).isEqualTo(dir);
 
-    tempUtils.stop();
-    assertThat(tempFolder).doesNotExist();
+    new TempFolderCleaner(tempFolder).stop();
+    assertThat(rootTempFolder).doesNotExist();
   }
 }

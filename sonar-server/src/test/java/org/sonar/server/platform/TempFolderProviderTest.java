@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.File;
 
@@ -46,13 +45,11 @@ public class TempFolderProviderTest {
     ServerFileSystem fs = mock(ServerFileSystem.class);
     File serverTempFolder = temp.newFolder();
     when(fs.getTempDir()).thenReturn(serverTempFolder);
-    TempFolder tempUtils = new TempFolderProvider().provide(fs);
+    TempFolderProvider tempFolderProvider = new TempFolderProvider();
+    TempFolder tempUtils = tempFolderProvider.provide(fs);
     tempUtils.newDir();
     tempUtils.newFile();
     assertThat(new File(serverTempFolder, "tmp")).exists();
     assertThat(new File(serverTempFolder, "tmp").list()).hasSize(2);
-
-    ((DefaultTempFolder) tempUtils).stop();
-    assertThat(new File(serverTempFolder, "tmp")).doesNotExist();
   }
 }

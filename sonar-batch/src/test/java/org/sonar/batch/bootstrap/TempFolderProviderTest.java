@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.File;
 
@@ -43,14 +42,12 @@ public class TempFolderProviderTest {
   @Test
   public void createTempFolder() throws Exception {
     File workingDir = temp.newFolder();
-    TempFolder tempFolder = new TempFolderProvider().provide(new BootstrapSettings(
+    TempFolderProvider tempFolderProvider = new TempFolderProvider();
+    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapSettings(
       new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()))));
     tempFolder.newDir();
     tempFolder.newFile();
-    assertThat(new File(workingDir, "tmp")).exists();
-    assertThat(new File(workingDir, "tmp").list()).hasSize(2);
-
-    ((DefaultTempFolder) tempFolder).stop();
-    assertThat(new File(workingDir, "tmp")).doesNotExist();
+    assertThat(new File(workingDir, ".sonartmp")).exists();
+    assertThat(new File(workingDir, ".sonartmp").list()).hasSize(2);
   }
 }

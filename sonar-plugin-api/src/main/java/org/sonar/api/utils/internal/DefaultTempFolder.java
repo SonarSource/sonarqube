@@ -21,7 +21,6 @@ package org.sonar.api.utils.internal;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 import org.sonar.api.utils.TempFolder;
 
 import javax.annotation.Nullable;
@@ -29,7 +28,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 
-public class DefaultTempFolder implements TempFolder, Startable {
+public class DefaultTempFolder implements TempFolder {
 
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
@@ -104,13 +103,7 @@ public class DefaultTempFolder implements TempFolder, Startable {
       + baseName + "0" + suffix + " to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + suffix + ")");
   }
 
-  @Override
-  public void start() {
-    // Nothing to do
-  }
-
-  @Override
-  public void stop() {
+  public void clean() {
     FileUtils.deleteQuietly(tempDir);
   }
 

@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.api.utils.internal;
 
-import org.apache.commons.io.FileUtils;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.CoreProperties;
+import org.picocontainer.Startable;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 
-import java.io.File;
-import java.io.IOException;
+public class TempFolderCleaner implements TaskComponent, ServerComponent, Startable {
 
-public class TempFolderProvider extends ProviderAdapter {
+  private TempFolder defaultTempFolder;
 
-  public TempFolder provide(BootstrapSettings bootstrapSettings) {
-    String workingDirPath = bootstrapSettings.property(CoreProperties.WORKING_DIRECTORY, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath);
-    File tempDir = new File(workingDir, ".sonartmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
-    }
-    return new DefaultTempFolder(tempDir);
+  public TempFolderCleaner(TempFolder defaultTempFolder) {
+    this.defaultTempFolder = defaultTempFolder;
   }
 
+  @Override
+  public void start() {
+    // Nothing to do
+  }
+
+  @Override
+  public void stop() {
+    ((DefaultTempFolder) defaultTempFolder).clean();
+  }
 }

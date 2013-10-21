@@ -35,6 +35,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
@@ -239,7 +240,8 @@ public final class Platform {
     rootContainer.addSingleton(PreviewDatabaseFactory.class);
     rootContainer.addSingleton(SemaphoreUpdater.class);
     rootContainer.addSingleton(SemaphoresImpl.class);
-    rootContainer.addSingleton(new TempFolderProvider());
+    rootContainer.addPicoAdapter(new TempFolderProvider());
+    rootContainer.addSingleton(TempFolderCleaner.class);
     rootContainer.startComponents();
   }
 
