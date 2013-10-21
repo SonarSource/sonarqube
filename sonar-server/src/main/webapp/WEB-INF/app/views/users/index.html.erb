@@ -19,7 +19,7 @@
             <th class="left sortfirstasc">Name</th>
             <th class="left">Email</th>
             <th class="left nosort">Groups</th>
-            <th class="left nosort" nowrap>Operations</th>
+            <th class="right nosort" nowrap>Operations</th>
           </tr>
         </thead>
         <tbody >
@@ -31,10 +31,11 @@
               <td class="left" valign="top">
                 <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
               </td>
-              <td class="left" valign="top">
+              <td class="right" valign="top">
                 <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
                 &nbsp;
-                <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} %>
+                <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} -%>
+                &nbsp;
                 <%= link_to_action message('delete'), "#{ApplicationController.root_context}/users/delete/#{user.id}",
                                    :class => 'link-action link-red',
                                    :id => "delete-#{user.login}",

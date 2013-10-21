@@ -31,13 +31,14 @@
             <td class="left">
               <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, {:id => "select-#{u group.name}", :class => 'link-action'} %>)
             </td>
-            <td class="operations" style="text-align: right">
-              <a id='edit-<%= h group.name %>' method='get' class='open-modal link-action' href="<%=ApplicationController.root_context-%>/groups/edit_form/<%= h group.id %>">Edit</a>
+            <td class="operations">
+              <a id='edit-<%= h group.name -%>' method='get' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/<%= h group.id -%>">Edit</a>
+              &nbsp;
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
                                    :class => 'link-action link-red',
                                    :id => "delete-#{group.name}",
                                    :confirm_button => message('delete'),
-                                   :confirm_title => 'Delete group: '+group.name,
+                                   :confirm_title => 'Delete group: ' + group.name,
                                    :confirm_msg => 'Are you sure that you want to delete this group? Members will not be deleted.',
                                    :confirm_msg_params => [group.name]
                 -%>
