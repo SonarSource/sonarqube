@@ -32,8 +32,8 @@ class GroupsController < ApplicationController
   end
 
   def create_form
-    @groups = Group.find(:all, :order => 'name')
     if params[:id]
+      # TODO is it used ?
       @group = Group.find(params[:id])
     else
       @group = Group.new
@@ -45,12 +45,14 @@ class GroupsController < ApplicationController
     if params[:id]
       @group = Group.find(params[:id])
     else
+      # TODO is it used ?
       @group = Group.new
     end
     render :partial => 'groups/edit_form'
   end
 
   def create
+    verify_post_request
     group = Group.new(params[:group])
     if group.save
       flash[:notice] = 'The new group is created.'
@@ -64,6 +66,7 @@ class GroupsController < ApplicationController
   end
 
   def update
+    verify_post_request
     group = Group.find(params[:id])
     if group.update_attributes(params[:group])
       flash[:notice] = 'Group is updated.'
@@ -77,6 +80,7 @@ class GroupsController < ApplicationController
   end
 
   def delete
+    verify_post_request
     group = Group.find(params[:id])
     if group.destroy
       flash[:notice] = 'Group is deleted.'
@@ -97,11 +101,11 @@ class GroupsController < ApplicationController
     redirect_to(:action => 'index')
   end
 
-  def to_index(errors, id)
-    if !errors.empty?
-      flash[:error] = errors.full_messages.join("<br/>\n")
-    end
 
+  private
+
+  def to_index(errors, id)
+    flash[:error] = errors.full_messages.join("<br/>\n") unless errors.empty?
     redirect_to(:action => 'index', :id => id)
   end
 

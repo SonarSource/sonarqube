@@ -83,8 +83,8 @@ class UsersController < ApplicationController
   end
 
   def create_form
-    init_users_list
     if params[:id]
+      # TODO is it really used ?
       @user = User.find(params[:id])
     else
       @user = User.new
@@ -93,7 +93,6 @@ class UsersController < ApplicationController
   end
 
   def reactivate_form
-    init_users_list
     if params[:id]
       @user = User.find(params[:id])
     else
@@ -107,14 +106,12 @@ class UsersController < ApplicationController
   end
 
   def edit_form
-    init_users_list
     @user = User.find(params[:id])
     render :partial => 'users/edit_form', :status => 200
   end
 
 
   def change_password_form
-    init_users_list
     @user = User.find(params[:id])
     render :partial => 'users/change_password_form', :status => 200
   end

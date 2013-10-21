@@ -252,10 +252,12 @@ class ApplicationController < ActionController::Base
   #
   # SETTINGS
   #
+  # TODO - remove from ApplicationController
   def by_category_name(categories)
     Api::Utils.insensitive_sort(categories) { |category| category_name(category) }
   end
 
+  # TODO - remove from ApplicationController
   def by_subcategory_name(category, subcategories)
     Api::Utils.insensitive_sort(subcategories) { |subcategory|
       if (subcategory == category)
@@ -267,11 +269,13 @@ class ApplicationController < ActionController::Base
     }
   end
 
+  # TODO - remove from ApplicationController
   def category_name(category)
     # Try with lowercase key then with original key for backward compatibility
     message("property.category.#{category.key}", :default => message("property.category.#{category.originalKey}", :default => category.originalKey))
   end
 
+  # TODO - remove from ApplicationController
   def subcategory_name(category, subcategory)
     if (category.key == subcategory.key)
       # If subcategory == category then it is the default one
@@ -283,6 +287,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # TODO - remove from ApplicationController
   def processProperties(definitions_per_category)
     @categories = by_category_name(definitions_per_category.keys)
 
