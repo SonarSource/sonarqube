@@ -150,18 +150,18 @@ public class FileIndex implements BatchComponent {
     if (path == null) {
       LoggerFactory.getLogger(getClass()).warn(String.format("File '%s' is not in basedir '%s'", file.getAbsolutePath(), fileSystem.baseDir()));
     } else {
-        InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
-        if (input != null && accept(input)) {
-          cache.put(fileSystem.moduleKey(), input);
-          status.markAsIndexed(path);
-        }
+      InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
+      if (input != null && accept(input)) {
+        cache.put(fileSystem.moduleKey(), input);
+        status.markAsIndexed(path);
       }
+    }
   }
 
   @CheckForNull
   private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String path) {
     String lang = languageRecognizer.of(file);
-    if (lang==null) {
+    if (lang == null) {
       return null;
     }
 

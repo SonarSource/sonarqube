@@ -21,7 +21,6 @@ package org.sonar.api.batch;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 

@@ -20,6 +20,7 @@
 package org.sonar.server.db.migrations.violation;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 
@@ -68,8 +69,8 @@ public class ViolationConvertersTest {
     try {
       new ViolationConverters(new Settings()).doExecute(new FakeTimerTask(), callables);
       fail();
-    } catch (ExecutionException e) {
-      assertThat(e.getCause().getMessage()).isEqualTo("Need to cry");
+    } catch (Exception e) {
+      assertThat(ExceptionUtils.getRootCause(e).getMessage()).isEqualTo("Need to cry");
     }
 
   }

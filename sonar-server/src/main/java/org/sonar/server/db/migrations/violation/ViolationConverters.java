@@ -26,7 +26,10 @@ import org.sonar.core.persistence.Database;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 class ViolationConverters {
 
@@ -38,7 +41,7 @@ class ViolationConverters {
     this.settings = settings;
   }
 
-  void execute(Referentials referentials, Database db) throws ExecutionException, InterruptedException {
+  void execute(Referentials referentials, Database db) {
     Progress progress = new Progress(referentials.totalViolations());
 
     List<Callable<Object>> converters = Lists.newArrayList();
@@ -49,7 +52,7 @@ class ViolationConverters {
     doExecute(progress, converters);
   }
 
-  void doExecute(TimerTask progress, List<Callable<Object>> converters) throws InterruptedException, ExecutionException {
+  void doExecute(TimerTask progress, List<Callable<Object>> converters) {
     Timer timer = new Timer(Progress.THREAD_NAME);
     timer.schedule(progress, Progress.DELAY_MS, Progress.DELAY_MS);
     try {
@@ -59,6 +62,8 @@ class ViolationConverters {
       for (Future result : results) {
         result.get();
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to start migration threads", e);
     } finally {
       progress.cancel();
       timer.cancel();
