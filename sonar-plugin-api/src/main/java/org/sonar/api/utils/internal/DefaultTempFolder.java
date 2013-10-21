@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 public class DefaultTempFolder implements TempFolder {
 
@@ -56,9 +57,8 @@ public class DefaultTempFolder implements TempFolder {
         return tempDir;
       }
     }
-    throw new IllegalStateException("Failed to create directory within "
-      + TEMP_DIR_ATTEMPTS + " attempts (tried "
-      + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
+    throw new IllegalStateException(MessageFormat.format("Failed to create directory within {0} attempts (tried {1} to {2})", TEMP_DIR_ATTEMPTS, baseName + 0, baseName
+      + (TEMP_DIR_ATTEMPTS - 1)));
   }
 
   @Override
@@ -98,9 +98,8 @@ public class DefaultTempFolder implements TempFolder {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create temp file", e);
     }
-    throw new IllegalStateException("Failed to create temp file within "
-      + TEMP_DIR_ATTEMPTS + " attempts (tried "
-      + baseName + "0" + suffix + " to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + suffix + ")");
+    throw new IllegalStateException(MessageFormat.format("Failed to create temp file within {0} attempts (tried {1} to {2})", TEMP_DIR_ATTEMPTS, baseName + 0 + suffix, baseName
+      + (TEMP_DIR_ATTEMPTS - 1) + suffix));
   }
 
   public void clean() {
