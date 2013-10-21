@@ -35,7 +35,6 @@ class Connectors {
   static final String HTTP_PROTOCOL = "HTTP/1.1";
 
   static void configure(Tomcat tomcat, Props props) {
-    tomcat.getServer().setAddress(props.of("sonar.web.host", "0.0.0.0"));
     configureShutdown(tomcat, props);
     configureConnectors(tomcat, props);
   }
@@ -105,6 +104,7 @@ class Connectors {
   private static Connector newConnector(Props props, String protocol, String scheme) {
     Connector connector = new Connector(protocol);
     connector.setURIEncoding("UTF-8");
+    connector.setProperty("address", props.of("sonar.web.host"));
     configurePool(props, connector, scheme);
     configureCompression(connector);
     return connector;
