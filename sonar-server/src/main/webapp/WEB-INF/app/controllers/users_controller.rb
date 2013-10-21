@@ -33,29 +33,29 @@ class UsersController < ApplicationController
       if user.update_attributes(params[:user])
         # case user: exist,inactive,no errors when update BUT TO REACTIVATE
         @user = user
-        user.errors.full_messages.each{|msg| @errors<<msg}
+        user.errors.full_messages.each { |msg| @errors<<msg }
         render :partial => 'users/reactivate_form', :status => 400
       else
         # case user: exist,inactive, WITH ERRORS when update
         @user = user
         @user.id = nil
-        user.errors.full_messages.each{|msg| @errors<<msg}
+        user.errors.full_messages.each { |msg| @errors<<msg }
         render :partial => 'users/create_form', :status => 400
       end
     else
-        user=prepare_user
-        if user.save
-          # case user: don't exist, no errors when create
-          user.notify_creation_handlers
-          flash[:notice] = 'User is created.'
-          render :text => 'ok', :status => 200
-        else
-          # case user: don't exist, WITH ERRORS when create
-          # case user: exist and ACTIVE, whith or without errors when create
-          @user = user
-          user.errors.full_messages.each{|msg| @errors<<msg}
-          render :partial => 'users/create_form', :status => 400
-        end
+      user=prepare_user
+      if user.save
+        # case user: don't exist, no errors when create
+        user.notify_creation_handlers
+        flash[:notice] = 'User is created.'
+        render :text => 'ok', :status => 200
+      else
+        # case user: don't exist, WITH ERRORS when create
+        # case user: exist and ACTIVE, whith or without errors when create
+        @user = user
+        user.errors.full_messages.each { |msg| @errors<<msg }
+        render :partial => 'users/create_form', :status => 400
+      end
     end
   end
 
@@ -109,14 +109,14 @@ class UsersController < ApplicationController
   def edit_form
     init_users_list
     @user = User.find(params[:id])
-    render :partial => 'users/edit_form', :status =>200
+    render :partial => 'users/edit_form', :status => 200
   end
 
 
   def change_password_form
     init_users_list
     @user = User.find(params[:id])
-    render :partial => 'users/change_password_form', :status =>200
+    render :partial => 'users/change_password_form', :status => 200
   end
 
   def update_password
@@ -139,13 +139,13 @@ class UsersController < ApplicationController
     @user = user
     @errors = []
     if user.login!=params[:user][:login]
-      @errors  = 'Login can not be changed.'
+      @errors = 'Login can not be changed.'
       render :partial => 'users/edit_form', :status => 400
     elsif user.update_attributes(params[:user])
       flash[:notice] = 'User was successfully updated.'
       render :text => 'ok', :status => 200
     else
-      @errors  = user.errors.full_messages.join("<br/>\n")
+      @errors = user.errors.full_messages.join("<br/>\n")
       render :partial => 'users/edit_form', :status => 400
     end
   end
