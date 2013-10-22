@@ -29,9 +29,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFiles;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
 import javax.annotation.CheckForNull;
@@ -125,6 +125,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
 
   /**
    * Should not be used - only for old plugins
+   * @deprecated since 4.0
    */
   @Deprecated
   void addSourceDir(File dir) {
@@ -134,6 +135,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
 
   /**
    * Should not be used - only for old plugins
+   * @deprecated since 4.0
    */
   @Deprecated
   void addTestDir(File dir) {
