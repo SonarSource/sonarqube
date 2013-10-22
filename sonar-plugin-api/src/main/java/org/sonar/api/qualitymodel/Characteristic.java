@@ -174,7 +174,7 @@ public final class Characteristic implements Comparable<Characteristic> {
     return this;
   }
 
-  Characteristic removeChild(Characteristic child) {
+  public Characteristic removeChild(Characteristic child) {
     children.remove(child);
     return this;
   }
@@ -217,7 +217,7 @@ public final class Characteristic implements Comparable<Characteristic> {
    * Enabled children sorted by insertion order
    */
   public List<Characteristic> getChildren(boolean onlyEnabled) {
-    if (onlyEnabled) {
+    if (!onlyEnabled) {
       return children;
     }
     List<Characteristic> result = Lists.newArrayList();
