@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class DefaultInputFile implements InputFile {
   /**
    * We're not sure that this is the correct way, so not in API yet.
    */
-  public static String ATTRIBUTE_COMPONENT_KEY = "CMP_KEY";
+  public static final String ATTRIBUTE_COMPONENT_KEY = "CMP_KEY";
 
   private final String absolutePath;
   private final String path;
