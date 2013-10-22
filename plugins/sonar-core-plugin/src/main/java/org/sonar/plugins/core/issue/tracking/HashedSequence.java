@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.core.issue.tracking;
 
-import java.util.Collection;
-
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+
+import java.util.Collection;
 
 /**
  * Wraps a {@link Sequence} to assign hash codes to elements.
@@ -32,6 +32,12 @@ public final class HashedSequence<S extends Sequence> implements Sequence {
   final S base;
   final int[] hashes;
   final Multimap<Integer, Integer> linesByHash;
+
+  private HashedSequence(S base, int[] hashes, Multimap<Integer, Integer> linesByHash) {
+    this.base = base;
+    this.hashes = hashes;
+    this.linesByHash = linesByHash;
+  }
 
   public static <S extends Sequence> HashedSequence<S> wrap(S base, SequenceComparator<S> cmp) {
     int size = base.length();
@@ -43,12 +49,6 @@ public final class HashedSequence<S extends Sequence> implements Sequence {
       linesByHash.put(hashes[i], i + 1);
     }
     return new HashedSequence<S>(base, hashes, linesByHash);
-  }
-
-  private HashedSequence(S base, int[] hashes, Multimap<Integer, Integer> linesByHash) {
-    this.base = base;
-    this.hashes = hashes;
-    this.linesByHash = linesByHash;
   }
 
   public int length() {

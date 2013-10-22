@@ -25,7 +25,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -51,6 +56,8 @@ import java.util.Collection;
 @DependsUpon(DecoratorBarriers.ISSUES_ADDED)
 @DependedUpon(DecoratorBarriers.ISSUES_TRACKED)
 public class IssueTrackingDecorator implements Decorator {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IssueTrackingDecorator.class);
 
   private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
@@ -212,20 +219,19 @@ public class IssueTrackingDecorator implements Decorator {
   }
 
   private void relocateManualIssue(DefaultIssue newIssue, IssueDto oldIssue, SourceHashHolder sourceHashHolder) {
-    Logger logger = LoggerFactory.getLogger(IssueTrackingDecorator.class);
-    logger.debug("Trying to relocate manual issue {}", oldIssue.getKee());
+    LOG.debug("Trying to relocate manual issue {}", oldIssue.getKee());
 
     Integer previousLine = oldIssue.getLine();
     if (previousLine == null) {
-      logger.debug("Cannot relocate issue at resource level");
+      LOG.debug("Cannot relocate issue at resource level");
       return;
     }
 
     Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(previousLine);
-    logger.debug("Found the following lines with same hash: {}", newLinesWithSameHash);
+    LOG.debug("Found the following lines with same hash: {}", newLinesWithSameHash);
     if (newLinesWithSameHash.isEmpty()) {
       if (previousLine > sourceHashHolder.getHashedSource().length()) {
-        logger.debug("Old issue line {} is out of new source, closing and removing line number", previousLine);
+        LOG.debug("Old issue line {} is out of new source, closing and removing line number", previousLine);
         newIssue.setLine(null);
         updater.setStatus(newIssue, Issue.STATUS_CLOSED, changeContext);
         updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);
@@ -235,7 +241,7 @@ public class IssueTrackingDecorator implements Decorator {
       }
     } else if (newLinesWithSameHash.size() == 1) {
       Integer newLine = newLinesWithSameHash.iterator().next();
-      logger.debug("Relocating issue to line {}", newLine);
+      LOG.debug("Relocating issue to line {}", newLine);
 
       newIssue.setLine(newLine);
       updater.setPastLine(newIssue, previousLine);

@@ -53,12 +53,12 @@ public final class IgnoreIssuesConfiguration {
   public static final String PATTERNS_ALLFILE_KEY = EXCLUSION_KEY_PREFIX + ALLFILE_SUFFIX;
   public static final String FILE_REGEXP = "fileRegexp";
 
+  static final int LARGE_SIZE = 40;
+  static final int SMALL_SIZE = 10;
+
   private IgnoreIssuesConfiguration() {
     // static configuration declaration only
   }
-
-  static final int LARGE_SIZE = 40;
-  static final int SMALL_SIZE = 10;
 
   public static List<PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
