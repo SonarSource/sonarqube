@@ -95,4 +95,21 @@ public class DefaultSystemClientTest {
     assertThat(migration.message()).isEqualTo("done");
     assertThat(migration.startedAt()).isNull();
   }
+
+  @Test
+  public void fail_if_missing_state() {
+    // should never occur
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    when(requestFactory.post(eq("/api/server/setup"), anyMap())).thenReturn(
+      "{\"status\": \"ko\", \"message\": \"done\"}"
+    );
+
+    DefaultSystemClient client = new DefaultSystemClient(requestFactory);
+    try {
+      client.migrate(500L, 5L);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("State is not set");
+    }
+  }
 }

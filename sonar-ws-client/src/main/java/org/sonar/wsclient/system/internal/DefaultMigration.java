@@ -36,12 +36,16 @@ public class DefaultMigration implements Migration {
 
   @Override
   public boolean operationalWebapp() {
-    return JsonUtils.getBoolean(json, "operational");
+    return JsonUtils.getBoolean(json, "operational")==Boolean.TRUE;
   }
 
   @Override
   public Status status() {
-    return Status.valueOf(JsonUtils.getString(json, "state"));
+    String state = JsonUtils.getString(json, "state");
+    if (state == null) {
+      throw new IllegalStateException("State is not set");
+    }
+    return Status.valueOf(state);
   }
 
   @Override
