@@ -1,0 +1,71 @@
+<%
+   container_id = 'bubble-chart-widget' + widget.id.to_s
+   xMetric = widget_properties["xMetric"]
+   yMetric = widget_properties["yMetric"]
+   sizeMetric = widget_properties["sizeMetric"]
+   xLog = !!widget_properties["xLogarithmic"]
+   yLog = !!widget_properties["yLogarithmic"]
+   chartHeight = widget_properties["chartHeight"]
+   chartTitle = widget_properties["chartTitle"]
+%>
+
+<% if chartTitle %>
+    <h3><%= h(chartTitle) -%></h3>
+<% end %>
+
+<div class="bubble-chart-widget" id="<%= container_id %>">
+
+</div>
+
+<script>
+    if (window.d3 != null) {
+
+        var bubbleChartData = [
+        <%
+           filter = MeasureFilter.new
+           filter.criteria = {:qualifiers => ['FIL', 'CLA'], :baseId => @project.id}
+           filter.metrics = [xMetric.name, yMetric.name, sizeMetric.name]
+           filter.execute(self, :user => current_user)
+           filter.rows.each  do |row|
+             x = row.measure(xMetric)
+             y = row.measure(yMetric)
+             size = row.measure(sizeMetric)
+        %>
+            {
+                id: <%= row.resource.id -%>,
+                key: '<%= row.resource.key -%>',
+                name: '<%= row.resource.name -%>',
+                longName: '<%= row.resource.long_name -%>',
+
+                xMetric: <%= x ? x.value : 0 -%>,
+                xMetricFormatted: <%= x ? x.value : '"-"' -%>,
+
+                yMetric: <%= y ? y.value : 0 -%>,
+                yMetricFormatted: <%= y ? y.value : '"-"' -%>,
+
+                sizeMetric: <%= size ? size.value : 0 -%>,
+                sizeMetricFormatted: <%= size ? size.value : '"-"' -%>
+            },
+        <% end %>
+        ];
+
+        var bubbleChartMetrics = {
+            x: '<%= xMetric.short_name -%>',
+            y: '<%= yMetric.short_name -%>',
+            size: '<%= sizeMetric.short_name -%>'
+        };
+
+
+        var bubbleChart = new SonarWidgets.BubbleChart();
+        bubbleChart
+            .data(bubbleChartData)
+            .metrics(bubbleChartMetrics)
+            .xLog(<%= xLog %>)
+            .yLog(<%= yLog %>)
+            .height(<%= chartHeight %>)
+            .render('#<%= container_id %>');
+    } else {
+        document.write('<h3>Your browser is out of date and does not support this widget.</h3>');
+    }
+</script>
+

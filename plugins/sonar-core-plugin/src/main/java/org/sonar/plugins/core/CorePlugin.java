@@ -93,26 +93,7 @@ import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
 import org.sonar.plugins.core.timemachine.VariationDecorator;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
-import org.sonar.plugins.core.widgets.AlertsWidget;
-import org.sonar.plugins.core.widgets.ComplexityWidget;
-import org.sonar.plugins.core.widgets.CoverageWidget;
-import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
-import org.sonar.plugins.core.widgets.DescriptionWidget;
-import org.sonar.plugins.core.widgets.DocumentationCommentsWidget;
-import org.sonar.plugins.core.widgets.DuplicationsWidget;
-import org.sonar.plugins.core.widgets.EventsWidget;
-import org.sonar.plugins.core.widgets.HotspotMetricWidget;
-import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
-import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
-import org.sonar.plugins.core.widgets.ItCoverageWidget;
-import org.sonar.plugins.core.widgets.MeasureFilterListWidget;
-import org.sonar.plugins.core.widgets.MeasureFilterTreemapWidget;
-import org.sonar.plugins.core.widgets.SizeWidget;
-import org.sonar.plugins.core.widgets.TechnicalDebtPyramidWidget;
-import org.sonar.plugins.core.widgets.TimeMachineWidget;
-import org.sonar.plugins.core.widgets.TimelineWidget;
-import org.sonar.plugins.core.widgets.TreemapWidget;
-import org.sonar.plugins.core.widgets.WelcomeWidget;
+import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.FalsePositiveIssuesWidget;
 import org.sonar.plugins.core.widgets.issues.IssueFilterWidget;
@@ -301,6 +282,7 @@ public final class CorePlugin extends SonarPlugin {
       EventsWidget.class,
       CustomMeasuresWidget.class,
       TimelineWidget.class,
+      BubbleChartWidget.class,
       TimeMachineWidget.class,
       HotspotMetricWidget.class,
       TreemapWidget.class,

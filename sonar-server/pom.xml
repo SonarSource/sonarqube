@@ -246,7 +246,9 @@
                 <include>**/protovis-sonar-min.js</include>
                 <include>**/jquery.min.js</include>
                 <include>**/jquery-ui.min.js</include>
+                <include>**/third-party/d3.v3.min.js</include>
                 <include>**/select2.min.js</include>
+                <include>**/bubble-chart.js</include>
                 <include>**/application-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>
