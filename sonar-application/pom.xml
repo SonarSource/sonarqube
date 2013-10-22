@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.0-SNAPSHOT</version>
+    <version>4.0-RC1</version>
   </parent>
 
   <artifactId>sonar-application</artifactId>
@@ -258,8 +257,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5"/>
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha"/>
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5" />
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha" />
               </target>
             </configuration>
             <goals>
