@@ -27,6 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class EnvTest {
 
@@ -48,7 +49,7 @@ public class EnvTest {
     FileUtils.touch(confFile);
     FileUtils.touch(logFile);
 
-    Env env = new Env(confFile);
+    Env env = new Env(confFile.toURL());
 
     assertThat(env.rootDir()).isDirectory().exists().isEqualTo(home);
     assertThat(env.file("conf/sonar.properties")).isFile().exists().isEqualTo(confFile);
@@ -65,7 +66,7 @@ public class EnvTest {
     FileUtils.touch(confFile);
     FileUtils.touch(logFile);
 
-    Env env = new Env(confFile);
+    Env env = new Env(confFile.toURL());
 
     File data = env.freshDir("data/h2");
     assertThat(data).isDirectory().exists();
@@ -80,7 +81,19 @@ public class EnvTest {
 
   @Test
   public void temp_dir_should_be_writable() throws Exception {
-    new Env(temp.newFile()).verifyWritableTempDir();
+    new Env(temp.newFile().toURL()).verifyWritableTempDir();
     // do not fail
+  }
+
+  @Test
+  public void fail_if_conf_file_not_found() throws Exception {
+    try {
+      // note that "new Env(null)" would be exact, but let's
+      // keep "new Env()" for increasing code coverage :-)
+      new Env();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage(Env.ERROR_MESSAGE);
+    }
   }
 }
