@@ -36,6 +36,6 @@ import org.sonar.api.web.WidgetPropertyType;
 })
 public class BubbleChartWidget extends CoreWidget {
   public BubbleChartWidget() {
-    super("timeline", "Timeline", "/org/sonar/plugins/core/widgets/bubbleChart.html.erb");
+    super("bubble_chart", "Bubble Chart", "/org/sonar/plugins/core/widgets/bubbleChart.html.erb");
   }
 }
