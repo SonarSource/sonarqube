@@ -24,17 +24,23 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 class Env {
 
+  static final String ERROR_MESSAGE = "Do not copy-paste the configuration files (conf directory) from the old version. Update the content of the new files instead.";
   private final File confFile;
 
-  Env(File confFile) {
-    this.confFile = confFile;
+  // visible for testing
+  Env(URL confUrl) throws URISyntaxException {
+    if (confUrl == null) {
+      throw new IllegalStateException(ERROR_MESSAGE);
+    }
+    this.confFile = new File(confUrl.toURI());
   }
 
   Env() throws URISyntaxException {
-    this(new File(Env.class.getResource("/sonar.properties").toURI()));
+    this(Env.class.getResource("/sonar.properties"));
   }
 
   File rootDir() {

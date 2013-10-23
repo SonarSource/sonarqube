@@ -41,7 +41,7 @@ public class StartServerTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
-  public void prepare_app() throws IOException {
+  public void prepare_app() throws Exception {
     File confFile = new File("src/test/fake-app/conf/sonar.properties");
     if (!confFile.exists()) {
       confFile = new File("sonar-application/src/test/fake-app/conf/sonar.properties");
@@ -49,7 +49,7 @@ public class StartServerTest {
 
     File rootDir = temp.newFolder();
     FileUtils.copyDirectory(confFile.getParentFile().getParentFile(), rootDir);
-    env = new Env(new File(rootDir, "conf/sonar.properties"));
+    env = new Env(new File(rootDir, "conf/sonar.properties").toURL());
     starter = new StartServer(env);
   }
 
