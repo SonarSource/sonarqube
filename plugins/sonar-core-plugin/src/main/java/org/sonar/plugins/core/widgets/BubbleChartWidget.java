@@ -28,11 +28,11 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetProperties({
     @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
     @WidgetProperty(key = "xMetric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-    @WidgetProperty(key = "yMetric", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-    @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+    @WidgetProperty(key = "yMetric", type = WidgetPropertyType.METRIC, defaultValue = "violations", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+    @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = "sqale_index", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
     @WidgetProperty(key = "xLogarithmic", type = WidgetPropertyType.BOOLEAN),
     @WidgetProperty(key = "yLogarithmic", type = WidgetPropertyType.BOOLEAN),
-    @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "180")
+    @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "300")
 })
 public class BubbleChartWidget extends CoreWidget {
   public BubbleChartWidget() {
