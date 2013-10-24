@@ -1,7 +1,17 @@
+<div class="line-block">
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/create_form" id="create-link-metric" class="open-modal link-action">Add new metric</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1 class="marginbottom10"><%= message('manual_metrics.page') -%></h1>
+</div>
+
 <table width="100%">
   <tr>
     <td valign="top">
-      <h1 class="marginbottom10"><%= message('manual_metrics.page') -%></h1>
       <table class="sortable data width100" id="metrics">
         <thead>
           <tr>
@@ -14,94 +24,32 @@
           </tr>
         </thead>
         <tbody>
-      <% @metrics.each do |metric| %>
-        <tr>
-          <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>
-          <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
-          <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
-          <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
-          <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
-          <td class="right thin nowrap">
-          <% if is_admin? %>
-            <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'link-action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
-            &nbsp;
-            <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'link-action link-red', :id => "delete_#{h(metric.short_name)}"} %>
-          <% end %>
-          </td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-    <script>TableKit.Sortable.init('metrics');</script>
-  </td>
-<% if is_admin? %>
-  <td class="sep"> </td>
-  <td valign="top" align="right" width="210">
-    <table class="admintable"  width="100%">
-    <% if @reactivate_metric %>
-      <% form_for :metric, @reactivate_metric, :url => { :action => 'reactivate', :id => @reactivate_metric.id } do |f| %>
-      <tbody>
-        <tr>
-          <td>
-            <p class="error">
-              A metric named "<%= @reactivate_metric.short_name(false) -%>" already exists in the database but is deactivated.<br/>
-              <br/>
-              Do you really want to reactivate this metric?
-            </p>
-          </td>
-        <tr>
-        <tr>
-          <td class="left" valign="top">
-            <input type="hidden" name="reactivate" value="true"/>
-            <%= submit_tag 'Reactivate metric' %>
-            <%= link_to 'Cancel', { :controller => 'metrics', :action => 'index'}, { :class => 'action' } %><br/>
-          </td>
-        </tr>
-      </tbody>
-      <% end %>
-    <% else %>
-      <% form_for :metric, @metric, :url => { :action => 'save_from_web', :id => @metric.id } do |f| %>
-      <tbody>
-        <tr>
-          <td class="left"><h1 class="marginbottom10"><%= @metric && @metric.id.nil? ? 'Create Manual Metric' : 'Edit Manual Metric' -%></h1></td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">
-            Name:<br/><%= f.text_field :short_name %><br/>
-            <span class="desc">Ex. : Configuration management</span>
-          </td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">
-            Description:<br/>
-            <%= f.text_area :description, :size => 40, :cols => 25, :rows => 2 %><br/>
-            <span class="desc">Ex. : Respect level of the configuration management procedure (branch, label, ...), from 0% (worst) to 100% (best).</span>
-          </td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">
-            Domain:<br/>
-            <%= f.select( :domain, @domains, :include_blank => true) %>
-            <span class="desc">or</span> <input id="newdomain" name="newdomain" size="15" type="text">
-          </td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">
-            Type:<br/>
-            <%= f.select( :val_type, Metric.value_type_names.invert) %>
-          </td>
-        </tr>
-        <tr>
-          <td class="left" valign="top">
-            <%= submit_tag @metric.id.nil? ? message('create') : message('edit') %>
-            <%= link_to message('cancel'), { :controller => 'metrics', :action => 'index', :id => nil}, { :class => 'action' } %>
-          </td>
-        </tr>
-      </tbody>
-      <% end %>
-    <% end %>
-    </table>
-  </td>
-<% end %>
+        <% @metrics.each do |metric| %>
+          <tr>
+            <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>
+            <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
+            <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
+            <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
+            <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
+            <td class="right thin nowrap">
+            <% if is_admin? %>
+             <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>
+              &nbsp;
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/metrics/delete_from_web/#{metric.id}",
+                                 :class => 'link-action link-red',
+                                 :id => "delete_#{h(metric.short_name)}",
+                                 :confirm_button => message('delete'),
+                                 :confirm_title => 'Delete manual metric: '+ metric.key,
+                                 :confirm_msg => 'Warning : all the measures will be deleted.',
+                                 :confirm_msg_params => [metric.id]
+              -%>
+            <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <script>TableKit.Sortable.init('metrics');</script>
+    </td>
   </tr>
 </table>

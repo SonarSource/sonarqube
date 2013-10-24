@@ -1,0 +1,22 @@
+<% form_for :metric, @reactivate_metric, :url => { :action => 'reactivate', :id => @reactivate_metric.id }, :html => { :id =>'metric_reactivate_form', :method => 'post'} do |f| %>
+  <fieldset>
+      <div class="modal-head">
+          <h2>Reactivate Manual Metric: <%= @reactivate_metric.key -%></h2>
+      </div>
+      <div class="modal-body">
+          <p class="error">
+              A metric named "<%= @reactivate_metric.short_name(false) -%>" already exists in the database but is deactivated.<br/>
+              <br/>
+              Do you really want to reactivate this metric?
+          </p>
+      </div>
+      <div class="modal-foot">
+          <%= submit_tag 'Reactivate' %>
+          <%= link_to message('cancel'), { :controller => 'metrics', :action => 'index', :id => nil}, { :class => 'action' } %>
+      </div>
+  </fieldset>
+<% end %>
+
+<script>
+  $j("#metric_reactivate_form").modalForm();
+</script>

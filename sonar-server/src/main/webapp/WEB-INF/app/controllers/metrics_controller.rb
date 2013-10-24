@@ -35,6 +35,31 @@ class MetricsController < ApplicationController
     render :action => 'index'
   end
 
+ def create_form
+    prepare_metrics_and_domains
+
+    if params['id']
+      @metric=Metric.find(params['id'].to_i)
+      params['domain']=@metric.domain(false)
+    else
+      @metric=Metric.new
+    end
+    render :partial => 'metrics/create_form'
+  end
+
+  def edit_form
+    prepare_metrics_and_domains
+
+    @metric=Metric.find(params['id'].to_i)
+    params['domain']=@metric.domain(false)
+
+    render :partial => 'metrics/edit_form'
+  end
+
+  def reactivate_form
+    render :partial => 'metrics/reactivate_form'
+  end
+
   def save_from_web
     short_name = params[:metric][:short_name]
     metric_name = short_name.downcase.gsub(/\s/, '_')[0..59]
@@ -74,12 +99,17 @@ class MetricsController < ApplicationController
         end
       end
     rescue
-      flash[:error] = metric.errors.full_messages.join("<br/>\n")
+      @errors = []
+      @errors << metric.errors.full_messages.join("<br/>\n")
     end
     
     if @reactivate_metric
       prepare_metrics_and_domains
-      render :action => 'index'
+      render :partial => 'metrics/reactivate_form', :status => 400
+    elsif @errors
+      @metric = metric
+      @domains = metric.domain
+      render :partial => 'metrics/create_form', :status => 400
     else
       redirect_to :action => 'index', :domain => metric.domain(false)
     end
@@ -98,12 +128,15 @@ class MetricsController < ApplicationController
     redirect_to :action => 'index', :domain => metric.domain(false)
   end
 
+
   def delete_from_web
     metric = Metric.by_id(params[:id].to_i) if params[:id] && params[:id].size > 0
     if metric
       Metric.delete_with_manual_measures(params[:id].to_i)
       flash[:notice] = 'Successfully deleted.'
       Metric.clear_cache
+    else
+      flash[:error] = 'Sorry there was a problem with deleting'
     end
     redirect_to :action => 'index'
   end
