@@ -29,7 +29,12 @@ import org.sonar.api.resources.Project;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LanguageRecognizerTest {
 
@@ -46,7 +51,7 @@ public class LanguageRecognizerTest {
 
   @Test
   public void search_by_file_extension() throws Exception {
-    Language[] languages = new Language[]{new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")};
+    Language[] languages = new Language[] {new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")};
     LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
 
     recognizer.start();
@@ -65,7 +70,7 @@ public class LanguageRecognizerTest {
 
   @Test
   public void fail_if_conflict_of_file_extensions() throws Exception {
-    Language[] languages = new Language[]{new MockLanguage("java", "java"), new MockLanguage("java2", "java", "java2")};
+    Language[] languages = new Language[] {new MockLanguage("java", "java"), new MockLanguage("java2", "java", "java2")};
 
     LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java"), languages));
     recognizer.start();
@@ -79,10 +84,16 @@ public class LanguageRecognizerTest {
     }));
   }
 
+  @Test
+  public void should_not_fail_if_no_language() throws Exception {
+    LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java")));
+    recognizer.start();
+    assertThat(recognizer.of(temp.newFile("Foo.java"))).isNull();
+  }
 
   @Test
   public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
-    Language[] languages = new Language[]{new MockLanguage("abap", "abap", "ABAP")};
+    Language[] languages = new Language[] {new MockLanguage("abap", "abap", "ABAP")};
 
     LanguageRecognizer recognizer = new LanguageRecognizer(newProject("abap"), languages);
     recognizer.start();
@@ -93,7 +104,7 @@ public class LanguageRecognizerTest {
   public void language_with_no_extension() throws Exception {
     // abap does not declare any file extensions.
     // When analyzing an ABAP project, then all source files must be parsed.
-    Language[] languages = new Language[]{new MockLanguage("java", "java"), new MockLanguage("abap")};
+    Language[] languages = new Language[] {new MockLanguage("java", "java"), new MockLanguage("abap")};
 
     // No side-effect on non-ABAP projects
     LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
@@ -116,7 +127,6 @@ public class LanguageRecognizerTest {
     when(project.getLanguageKey()).thenReturn(language);
     return project;
   }
-
 
   static class MockLanguage implements Language {
     private final String key;
