@@ -53,113 +53,64 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
   SonarWidgets.BubbleChart.prototype.render = function (container) {
-    container = d3.select(container);
+    var widget = this,
+        containerS = container;
 
-    var widget = this;
+    container = d3.select(container);
 
     this.width(container.property('offsetWidth'));
 
-    var svg = container.append('svg'),
-        gWrap = svg.append('g'),
+    this.svg = container.append('svg');
+    this.gWrap = this.svg.append('g');
 
-        gxAxis = gWrap.append('g'),
-        gyAxis = gWrap.append('g'),
+    this.gxAxis = this.gWrap.append('g');
+    this.gyAxis = this.gWrap.append('g');
 
-        gGrid = gWrap.append('g'),
-        gxGrid = gGrid.append('g'),
-        gyGrid = gGrid.append('g'),
+    this.gGrid = this.gWrap.append('g');
+    this.gxGrid = this.gGrid.append('g');
+    this.gyGrid = this.gGrid.append('g');
 
-        plotWrap = gWrap.append('g'),
+    this.plotWrap = this.gWrap.append('g');
 
-        infoWrap = gWrap.append('g'),
-        infoName = infoWrap.append('text'),
-        infoMetrics = infoWrap.append('text');
+    this.infoWrap = this.gWrap.append('g');
+    this.infoName = this.infoWrap.append('text');
+    this.infoMetrics = this.infoWrap.append('text');
 
-    svg
-        .attr('width', this.width())
-        .attr('height', this.height());
-
-    gWrap
+    this.gWrap
         .attr('transform', trans(this.margin().left, this.margin().top));
 
 
-    var availableWidth = this.width() - this.margin().left - this.margin().right,
-        availableHeight = this.height() - this.margin().top - this.margin().bottom;
-
-
     // Configure scales
-    var x = this.xLog() ? d3.scale.log() : d3.scale.linear(),
-        y = this.yLog() ? d3.scale.log() : d3.scale.linear(),
-        size = d3.scale.linear();
+    this.x = this.xLog() ? d3.scale.log() : d3.scale.linear();
+    this.y = this.yLog() ? d3.scale.log() : d3.scale.linear();
+    this.size = d3.scale.linear();
 
-    x
+    this.x
         .domain(d3.extent(this.data(), function (d) {
           return d.xMetric
         }))
-        .range([0, availableWidth]);
+        .range([0, this.availableWidth]);
 
-    y
+    this.y
         .domain(d3.extent(this.data(), function (d) {
           return d.yMetric
         }))
-        .range([availableHeight, 0]);
+        .range([this.availableHeight, 0]);
 
-    size
+    this.size
         .domain(d3.extent(this.data(), function (d) {
           return d.sizeMetric
         }))
         .range([10, 50]);
 
 
-    // Avoid zero values when using log scale
-    if (this.xLog) {
-      var xDomain = x.domain();
-      x
-          .domain([xDomain[0] > 0 ? xDomain[0] : 0.1, xDomain[1]])
-          .clamp(true);
-    }
-
-    if (this.yLog) {
-      var yDomain = y.domain();
-      y
-          .domain([yDomain[0] > 0 ? yDomain[0] : 0.1, yDomain[1]])
-          .clamp(true);
-    }
-
-
-    // Adjust the scale domain so the circles don't cross the bounds
-    // X
-    var minX = d3.min(this.data(), function (d) {
-          return x(d.xMetric) - size(d.sizeMetric)
-        }),
-        maxX = d3.max(this.data(), function (d) {
-          return x(d.xMetric) + size(d.sizeMetric)
-        }),
-        dMinX = x.range()[0] - minX,
-        dMaxX = maxX - x.range()[1];
-    x.range([dMinX, availableWidth - dMaxX]);
-
-    // Y
-    var minY = d3.min(this.data(), function (d) {
-          return y(d.yMetric) - size(d.sizeMetric)
-        }),
-        maxY = d3.max(this.data(), function (d) {
-          return y(d.yMetric) + size(d.sizeMetric)
-        }),
-        dMinY = y.range()[1] - minY,
-        dMaxY = maxY - y.range()[0];
-    y.range([availableHeight - dMaxY, dMinY]);
-
-    x.nice();
-    y.nice();
-
-
-    // Render items
-    var items = plotWrap.selectAll('.item')
+    // Create bubbles
+    this.items = this.plotWrap.selectAll('.item')
         .data(this.data());
 
-    items
-        .enter().append('g')
+
+    // Render bubbles
+    this.items.enter().append('g')
         .attr('class', 'item')
         .attr('name', function (d) {
           return d.longName
@@ -167,10 +118,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('cursor', 'pointer')
         .append('circle')
         .attr('r', function (d) {
-          return size(d.sizeMetric)
-        })
-        .attr('transform', function (d) {
-          return trans(x(d.xMetric), y(d.yMetric));
+          return widget.size(d.sizeMetric)
         })
         .style('fill', function (d) {
           return d.sizeMetricFormatted !== '-' ?
@@ -185,15 +133,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         })
         .style('transition', 'all 0.2s ease');
 
-    items.exit().remove();
+    this.items.exit().remove();
 
-    items.sort(function (a, b) {
+    this.items.sort(function (a, b) {
       return b.sizeMetric - a.sizeMetric
     });
 
 
     // Set event listeners
-    items
+    this.items
         .on('click', function (d) {
           var url = baseUrl + '/resource/index/' + d.key + '?display_title=true&metric=ncloc';
           window.open(url, '', 'height=800,width=900,scrollbars=1,resizable=1');
@@ -202,8 +150,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           d3.select(this).select('circle')
               .style('fill-opacity', 0.8);
 
-          infoName.text(d.longName);
-          infoMetrics.text(
+          widget.infoName.text(d.longName);
+          widget.infoMetrics.text(
               widget.metrics().x + ': ' + d.xMetricFormatted + '; ' +
                   widget.metrics().y + ': ' + d.yMetricFormatted + '; ' +
                   widget.metrics().size + ': ' + d.sizeMetricFormatted);
@@ -212,104 +160,212 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           d3.select(this).select('circle')
               .style('fill-opacity', 0.2);
 
-          infoName.text('');
-          infoMetrics.text('');
+          widget.infoName.text('');
+          widget.infoMetrics.text('');
         });
 
 
-    // Render axis
+    // Configure axis
     // X
-    var xAxis = d3.svg.axis()
-        .scale(x)
+    this.xAxis = d3.svg.axis()
+        .scale(widget.x)
         .orient('bottom');
 
-    gxAxis.attr('transform', trans(0, availableHeight + this.margin().bottom - 40));
-
-    gxAxis.call(xAxis);
-
-    gxAxis.selectAll('path')
-        .style('fill', 'none')
-        .style('stroke', '#444');
-
-    gxAxis.selectAll('text')
-        .style('fill', '#444');
-
-    gxAxis.append('text')
+    this.gxAxisLabel = this.gxAxis.append('text')
         .text(this.metrics().x)
         .style('font-weight', 'bold')
-        .style('text-anchor', 'middle')
-        .attr('transform', trans(availableWidth / 2, 35));
+        .style('text-anchor', 'middle');
+
 
     // Y
-    var yAxis = d3.svg.axis()
-        .scale(y)
+    this.yAxis = d3.svg.axis()
+        .scale(widget.y)
         .orient('left');
 
-    gyAxis.attr('transform', trans(60 - this.margin().left, 0));
+    this.gyAxis.attr('transform', trans(60 - this.margin().left, 0));
 
-    gyAxis.call(yAxis);
-
-    gyAxis.selectAll('path')
-        .style('fill', 'none')
-        .style('stroke', '#444');
-
-    gyAxis.selectAll('text')
-        .style('fill', '#444');
-
-    gyAxis.append('text')
+    this.gyAxisLabel = this.gyAxis.append('text')
         .text(this.metrics().y)
         .style('font-weight', 'bold')
-        .style('text-anchor', 'middle')
-        .attr('transform', trans(-45, availableHeight / 2) + ' rotate(-90)');
+        .style('text-anchor', 'middle');
 
 
-    // Render grid
-    gxGrid.selectAll('.gridline').data(x.ticks()).enter()
-        .append('line')
-        .attr({
-          'class': 'gridline',
-          x1: function (d) {
-            return x(d)
-          },
-          x2: function (d) {
-            return x(d)
-          },
-          y1: y.range()[0],
-          y2: y.range()[1]
-        });
+    // Configure grid
+    this.gxGridLines = this.gxGrid.selectAll('line').data(widget.x.ticks()).enter()
+        .append('line');
 
-    gyGrid.selectAll('.gridline').data(y.ticks()).enter()
-        .append('line')
-        .attr({
-          'class': 'gridline',
-          x1: x.range()[0],
-          x2: x.range()[1],
-          y1: function (d) {
-            return y(d)
-          },
-          y2: function (d) {
-            return y(d)
-          }
-        });
+    this.gyGridLines = this.gyGrid.selectAll('line').data(widget.y.ticks()).enter()
+        .append('line');
 
-    gGrid.selectAll('.gridline')
+    this.gGrid.selectAll('line')
         .style('stroke', '#000')
         .style('stroke-opacity', 0.25);
 
 
-    // Render info
-    infoWrap
+    // Configure info placeholders
+    this.infoWrap
         .attr('transform', trans(-this.margin().left, -this.margin().top + 20));
 
-    infoName
+    this.infoName
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
 
-    infoMetrics
+    this.infoMetrics
         .attr('transform', trans(0, 20));
+
+
+    // Update widget
+    this.update(containerS);
 
     return this;
   };
+
+
+
+  SonarWidgets.BubbleChart.prototype.update = function(container) {
+    container = d3.select(container);
+
+    var widget = this,
+        width = container.property('offsetWidth');
+
+    this.width(width > 100 ? width : 100);
+
+
+    // Update svg canvas
+    this.svg
+        .attr('width', this.width())
+        .attr('height', this.height());
+
+
+    // Update available size
+    this.availableWidth = this.width() - this.margin().left - this.margin().right;
+    this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
+
+
+    // Update scales
+    this.x
+        .domain(d3.extent(this.data(), function (d) {
+          return d.xMetric
+        }))
+        .range([0, this.availableWidth]);
+
+    this.y
+        .domain(d3.extent(this.data(), function (d) {
+          return d.yMetric
+        }))
+        .range([this.availableHeight, 0]);
+
+
+    // Avoid zero values when using log scale
+    if (this.xLog) {
+      var xDomain = this.x.domain();
+      this.x
+          .domain([xDomain[0] > 0 ? xDomain[0] : 0.1, xDomain[1]])
+          .clamp(true);
+    }
+
+    if (this.yLog) {
+      var yDomain = this.y.domain();
+      this.y
+          .domain([yDomain[0] > 0 ? yDomain[0] : 0.1, yDomain[1]])
+          .clamp(true);
+    }
+
+
+    // Adjust the scale domain so the circles don't cross the bounds
+    // X
+    var minX = d3.min(this.data(), function (d) {
+          return widget.x(d.xMetric) - widget.size(d.sizeMetric)
+        }),
+        maxX = d3.max(this.data(), function (d) {
+          return widget.x(d.xMetric) + widget.size(d.sizeMetric)
+        }),
+        dMinX = this.x.range()[0] - minX,
+        dMaxX = maxX - this.x.range()[1];
+    this.x.range([dMinX, this.availableWidth - dMaxX]);
+
+    // Y
+    var minY = d3.min(this.data(), function (d) {
+          return widget.y(d.yMetric) - widget.size(d.sizeMetric)
+        }),
+        maxY = d3.max(this.data(), function (d) {
+          return widget.y(d.yMetric) + widget.size(d.sizeMetric)
+        }),
+        dMinY = this.y.range()[1] - minY,
+        dMaxY = maxY - this.y.range()[0];
+    this.y.range([this.availableHeight - dMaxY, dMinY]);
+
+    this.x.nice();
+    this.y.nice();
+
+
+    // Update bubbles position
+    this.items
+        .transition()
+        .attr('transform', function (d) {
+          return trans(widget.x(d.xMetric), widget.y(d.yMetric));
+        });
+
+
+    // Update axis
+    // X
+    this.gxAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 40));
+
+    this.gxAxis.transition().call(this.xAxis);
+
+    this.gxAxis.selectAll('path')
+        .style('fill', 'none')
+        .style('stroke', '#444');
+
+    this.gxAxis.selectAll('text')
+        .style('fill', '#444');
+
+    this.gxAxisLabel
+        .attr('transform', trans(this.availableWidth / 2, 35));
+
+    // Y
+    this.gyAxis.transition().call(this.yAxis);
+
+    this.gyAxis.selectAll('path')
+        .style('fill', 'none')
+        .style('stroke', '#444');
+
+    this.gyAxis.selectAll('text')
+        .style('fill', '#444');
+
+    this.gyAxisLabel
+        .attr('transform', trans(-45, this.availableHeight / 2) + ' rotate(-90)');
+
+
+    // Update grid
+    this.gxGridLines
+        .transition()
+        .attr({
+          x1: function (d) {
+            return widget.x(d)
+          },
+          x2: function (d) {
+            return widget.x(d)
+          },
+          y1: widget.y.range()[0],
+          y2: widget.y.range()[1]
+        });
+
+    this.gyGridLines
+        .transition()
+        .attr({
+          x1: widget.x.range()[0],
+          x2: widget.x.range()[1],
+          y1: function (d) {
+            return widget.y(d)
+          },
+          y2: function (d) {
+            return widget.y(d)
+          }
+        });
+  };
+
+
 
   SonarWidgets.BubbleChart.defaults = {
     width: 350,
@@ -320,6 +376,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     bubbleColor: '#4b9fd5',
     bubbleColorUndefined: '#b3b3b3'
   };
+
 
 
   // Some helper functions

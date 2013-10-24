@@ -66,6 +66,10 @@
     .yLog(<%= yLog %>)
     .height(<%= chartHeight %>)
     .render('#<%= container_id %>');
+
+  autoResize(500, function() {
+    bubbleChart.update('#<%= container_id %>');
+  });
 </script>
 <!--<![endif]-->
 
