@@ -24,10 +24,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class Connectors {
 
@@ -44,13 +41,25 @@ class Connectors {
     connectors.addAll(Arrays.asList(newHttpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
 
-    if (connectors.isEmpty()) {
-      throw new IllegalStateException("HTTP connectors are disabled");
-    }
+    verify(connectors);
 
     tomcat.setConnector(connectors.get(0));
     for (Connector connector : connectors) {
       tomcat.getService().addConnector(connector);
+    }
+  }
+
+  private static void verify(List<Connector> connectors) {
+    if (connectors.isEmpty()) {
+      throw new IllegalStateException("HTTP connectors are disabled");
+    }
+    Set<Integer> ports = new HashSet<Integer>();
+    for (Connector connector : connectors) {
+      int port = connector.getPort();
+      if (ports.contains(port)) {
+        throw new IllegalStateException(String.format("HTTP and HTTPS must not use the same port %d", port));
+      }
+      ports.add(port);
     }
   }
 
