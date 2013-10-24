@@ -40,7 +40,7 @@
                  :id => "delete_#{rule.key.parameterize}",
                  :confirm_button => message('delete'),
                  :confirm_title => 'Delete rule: '+rule.name,
-                 :confirm_msg => 'Are you sure?',
+                 :confirm_msg => 'Are you sure that you want to delete the rule '+rule.name,
                  :confirm_msg_params => [rule.name]
               -%>
             </td>
