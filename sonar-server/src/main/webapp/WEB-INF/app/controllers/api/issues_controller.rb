@@ -265,6 +265,7 @@ class Api::IssuesController < Api::ApiController
   # 'plan.plan' to plan all issues to an action plan or unlink.
   # 'do_transition.transition' to execute a transition on all issues.
   # 'comment' to add a comment on all issues.
+  # 'sendNotifications' to send notification for each modified issue (default is 'false')
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/bulk_change?issues=4a2881e7-825e-4140-a154-01f420c43d11,4a2881e7-825e-4140-a154-01f420c43d30&actions=assign,plan&assign.assignee=simon&plan.plan=3.7'
