@@ -31,6 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Set;
 
@@ -59,6 +60,13 @@ public class LanguageRecognizer implements BatchComponent, Startable {
     this.languages = languages;
   }
 
+  /**
+   * When no language plugin is installed
+   */
+  public LanguageRecognizer(Project project) {
+    this(project, new Language[0]);
+  }
+
   @Override
   public void start() {
     for (Language language : languages) {
@@ -85,7 +93,7 @@ public class LanguageRecognizer implements BatchComponent, Startable {
   void warnConflict(String extension, Set<String> langs) {
     LoggerFactory.getLogger(LanguageRecognizer.class).warn(String.format(
       "File extension '%s' is declared by several plugins: %s", extension, StringUtils.join(langs, ", ")
-    ));
+      ));
   }
 
   @Override
