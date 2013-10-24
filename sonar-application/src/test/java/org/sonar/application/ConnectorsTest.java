@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
 
@@ -166,6 +167,56 @@ public class ConnectorsTest {
       assertThat(e).hasMessage("HTTP and HTTPS must not use the same port 9000");
     }
   }
+
+  @Test
+  public void bind_to_all_addresses_by_default() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.web.https.port", "9443");
+
+    Connectors.configure(tomcat, new Props(p));
+
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("0.0.0.0");
+      }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("https") && c.getPort() == 9443 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("0.0.0.0");
+      }
+    }));
+  }
+
+  @Test
+  public void bind_to_specific_address() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.web.https.port", "9443");
+    p.setProperty("sonar.web.host", "1.2.3.4");
+
+    Connectors.configure(tomcat, new Props(p));
+
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("1.2.3.4");
+      }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getScheme().equals("https") && c.getPort() == 9443 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("1.2.3.4");
+      }
+    }));
+  }
+
 
   //---- shutdown port
 
