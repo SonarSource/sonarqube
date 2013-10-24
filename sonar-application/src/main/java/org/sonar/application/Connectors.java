@@ -113,7 +113,7 @@ class Connectors {
   private static Connector newConnector(Props props, String protocol, String scheme) {
     Connector connector = new Connector(protocol);
     connector.setURIEncoding("UTF-8");
-    connector.setProperty("address", props.of("sonar.web.host"));
+    connector.setProperty("address", props.of("sonar.web.host", "0.0.0.0"));
     configurePool(props, connector, scheme);
     configureCompression(connector);
     return connector;
