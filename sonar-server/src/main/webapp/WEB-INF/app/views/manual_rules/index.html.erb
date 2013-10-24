@@ -37,7 +37,7 @@
                 &nbsp;
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete/#{rule.id}",
                  :class => 'link-action link-red',
-                 :id => "delete_#{rule.id}",
+                 :id => "delete_#{u(rule.key)}",
                  :confirm_button => message('delete'),
                  :confirm_title => 'Delete rule: '+rule.name,
                  :confirm_msg => 'Are you sure?',
