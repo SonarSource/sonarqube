@@ -153,6 +153,19 @@ public class ConnectorsTest {
     }));
   }
 
+  @Test
+  public void http_and_https_ports_should_be_different() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.web.https.port", "9000");
+
+    try {
+      Connectors.configure(tomcat, new Props(p));
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("HTTP and HTTPS must not use the same port 9000");
+    }
+  }
 
   //---- shutdown port
 
