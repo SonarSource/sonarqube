@@ -229,7 +229,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     gxAxis.selectAll('path')
         .style('fill', 'none')
-        .style('stroke', '#000');
+        .style('stroke', '#444');
+
+    gxAxis.selectAll('text')
+        .style('fill', '#444');
 
     gxAxis.append('text')
         .text(this.metrics().x)
@@ -248,7 +251,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     gyAxis.selectAll('path')
         .style('fill', 'none')
-        .style('stroke', '#000');
+        .style('stroke', '#444');
+
+    gyAxis.selectAll('text')
+        .style('fill', '#444');
 
     gyAxis.append('text')
         .text(this.metrics().y)
