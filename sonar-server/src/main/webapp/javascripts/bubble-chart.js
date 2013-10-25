@@ -297,6 +297,26 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         dMaxY = maxY - this.y.range()[0];
     this.y.range([this.availableHeight - dMaxY, dMinY]);
 
+
+    // Format improvement for log scales
+    // X
+    if (this.xLog()) {
+      this.xAxis.tickFormat(function (d) {
+        var ticksCount = widget.availableWidth / 50;
+        return widget.x.tickFormat(ticksCount, d3.format(",d"))(d);
+      });
+    }
+
+    // Y
+    if (this.yLog()) {
+      this.yAxis.tickFormat(function (d) {
+        var ticksCount = widget.availableHeight / 30;
+        return widget.y.tickFormat(ticksCount, d3.format(",d"))(d);
+      });
+    }
+
+
+    // Make scale's domains nice
     this.x.nice();
     this.y.nice();
 
