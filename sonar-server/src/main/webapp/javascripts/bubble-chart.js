@@ -1,18 +1,20 @@
+/*global d3:false, baseUrl:false */
+
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 (function () {
 
-  SonarWidgets.BubbleChart = function () {
+  window.SonarWidgets.BubbleChart = function () {
     // Set default values
     this._data = [];
     this._metrics = [];
-    this._width = SonarWidgets.BubbleChart.defaults.width;
-    this._height = SonarWidgets.BubbleChart.defaults.height;
-    this._margin = SonarWidgets.BubbleChart.defaults.margin;
-    this._xLog = SonarWidgets.BubbleChart.defaults.xLog;
-    this._yLog = SonarWidgets.BubbleChart.defaults.yLog;
-    this._bubbleColor = SonarWidgets.BubbleChart.defaults.bubbleColor;
-    this._bubbleColorUndefined = SonarWidgets.BubbleChart.defaults.bubbleColorUndefined;
+    this._width = window.SonarWidgets.BubbleChart.defaults.width;
+    this._height = window.SonarWidgets.BubbleChart.defaults.height;
+    this._margin = window.SonarWidgets.BubbleChart.defaults.margin;
+    this._xLog = window.SonarWidgets.BubbleChart.defaults.xLog;
+    this._yLog = window.SonarWidgets.BubbleChart.defaults.yLog;
+    this._bubbleColor = window.SonarWidgets.BubbleChart.defaults.bubbleColor;
+    this._bubbleColorUndefined = window.SonarWidgets.BubbleChart.defaults.bubbleColorUndefined;
 
     // Export global variables
     this.data = function (_) {
@@ -52,7 +54,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     };
   };
 
-  SonarWidgets.BubbleChart.prototype.render = function (container) {
+  window.SonarWidgets.BubbleChart.prototype.render = function (container) {
     var widget = this,
         containerS = container;
 
@@ -87,19 +89,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.x
         .domain(d3.extent(this.data(), function (d) {
-          return d.xMetric
+          return d.xMetric;
         }))
         .range([0, this.availableWidth]);
 
     this.y
         .domain(d3.extent(this.data(), function (d) {
-          return d.yMetric
+          return d.yMetric;
         }))
         .range([this.availableHeight, 0]);
 
     this.size
         .domain(d3.extent(this.data(), function (d) {
-          return d.sizeMetric
+          return d.sizeMetric;
         }))
         .range([10, 50]);
 
@@ -113,30 +115,30 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.items.enter().append('g')
         .attr('class', 'item')
         .attr('name', function (d) {
-          return d.longName
+          return d.longName;
         })
         .style('cursor', 'pointer')
         .append('circle')
         .attr('r', function (d) {
-          return widget.size(d.sizeMetric)
+          return widget.size(d.sizeMetric);
         })
         .style('fill', function (d) {
           return d.sizeMetricFormatted !== '-' ?
               widget.bubbleColor() :
-              widget.bubbleColorUndefined()
+              widget.bubbleColorUndefined();
         })
         .style('fill-opacity', 0.2)
         .style('stroke', function (d) {
           return d.sizeMetricFormatted !== '-' ?
               widget.bubbleColor() :
-              widget.bubbleColorUndefined()
+              widget.bubbleColorUndefined();
         })
         .style('transition', 'all 0.2s ease');
 
     this.items.exit().remove();
 
     this.items.sort(function (a, b) {
-      return b.sizeMetric - a.sizeMetric
+      return b.sizeMetric - a.sizeMetric;
     });
 
 
@@ -222,7 +224,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
 
-  SonarWidgets.BubbleChart.prototype.update = function(container) {
+  window.SonarWidgets.BubbleChart.prototype.update = function(container) {
     container = d3.select(container);
 
     var widget = this,
@@ -245,13 +247,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update scales
     this.x
         .domain(d3.extent(this.data(), function (d) {
-          return d.xMetric
+          return d.xMetric;
         }))
         .range([0, this.availableWidth]);
 
     this.y
         .domain(d3.extent(this.data(), function (d) {
-          return d.yMetric
+          return d.yMetric;
         }))
         .range([this.availableHeight, 0]);
 
@@ -275,10 +277,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Adjust the scale domain so the circles don't cross the bounds
     // X
     var minX = d3.min(this.data(), function (d) {
-          return widget.x(d.xMetric) - widget.size(d.sizeMetric)
+          return widget.x(d.xMetric) - widget.size(d.sizeMetric);
         }),
         maxX = d3.max(this.data(), function (d) {
-          return widget.x(d.xMetric) + widget.size(d.sizeMetric)
+          return widget.x(d.xMetric) + widget.size(d.sizeMetric);
         }),
         dMinX = this.x.range()[0] - minX,
         dMaxX = maxX - this.x.range()[1];
@@ -286,10 +288,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Y
     var minY = d3.min(this.data(), function (d) {
-          return widget.y(d.yMetric) - widget.size(d.sizeMetric)
+          return widget.y(d.yMetric) - widget.size(d.sizeMetric);
         }),
         maxY = d3.max(this.data(), function (d) {
-          return widget.y(d.yMetric) + widget.size(d.sizeMetric)
+          return widget.y(d.yMetric) + widget.size(d.sizeMetric);
         }),
         dMinY = this.y.range()[1] - minY,
         dMaxY = maxY - this.y.range()[0];
@@ -342,10 +344,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .transition()
         .attr({
           x1: function (d) {
-            return widget.x(d)
+            return widget.x(d);
           },
           x2: function (d) {
-            return widget.x(d)
+            return widget.x(d);
           },
           y1: widget.y.range()[0],
           y2: widget.y.range()[1]
@@ -357,17 +359,17 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           x1: widget.x.range()[0],
           x2: widget.x.range()[1],
           y1: function (d) {
-            return widget.y(d)
+            return widget.y(d);
           },
           y2: function (d) {
-            return widget.y(d)
+            return widget.y(d);
           }
         });
   };
 
 
 
-  SonarWidgets.BubbleChart.defaults = {
+  window.SonarWidgets.BubbleChart.defaults = {
     width: 350,
     height: 150,
     margin: { top: 60, right: 10, bottom: 50, left: 70 },
