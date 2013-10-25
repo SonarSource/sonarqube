@@ -21,7 +21,7 @@ class Group < ActiveRecord::Base
 
   ANYONE = 'anyone'
 
-  has_and_belongs_to_many :users
+  has_and_belongs_to_many :users, :uniq => true
   has_many :group_roles, :dependent => :delete_all
   
   validates_presence_of     :name

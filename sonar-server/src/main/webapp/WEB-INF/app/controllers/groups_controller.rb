@@ -102,6 +102,86 @@ class GroupsController < ApplicationController
   end
 
 
+  # Used for selection of group members
+  def search_users
+    require_parameters :group, :page, :pageSize
+
+    group_id = params[:group].to_i
+    selected = params[:selected]||'all'
+    query = params[:query]
+    page_id = params[:page].to_i
+    page_size = [params[:pageSize].to_i, 1000].min
+
+    conditions = ['users.active=?']
+    condition_values = [true]
+    if selected=='selected'
+      conditions << "groups_users.group_id=?"
+      condition_values << group_id
+    elsif selected=='deselected'
+      conditions << "groups_users.group_id is null"
+    end
+    if query
+      conditions << "users.name like ?"
+      condition_values << "%#{query}%"
+    end
+
+    users = User.find(:all, 
+      :select => 'users.id,users.name,groups_users.group_id', 
+      :joins => "left join groups_users on users.id=groups_users.user_id and groups_users.group_id=#{group_id}",
+      :conditions => [conditions.join(' and ')].concat(condition_values),
+      :offset => (page_id-1) * page_size,
+      :limit => page_size + 1,
+      :order => 'users.name')
+
+    more = false
+    if users.size>page_size
+      users = users[0...page_size]
+      more = true
+    end
+
+    respond_to do |format|
+      format.json { 
+        render :json => {
+          :more => more,
+          :results => users.map {|user| {:id => user.id, :value => user.name, :selected => (user.group_id != nil)}}
+        } 
+      }
+    end
+  end
+
+  def add_member
+    verify_post_request
+    require_parameters :group, :user
+
+    user = User.find(:first, :conditions => {:id => params[:user], :active => true})
+    group = Group.find(params[:group])
+    status = 400
+    if user && group
+      group.users << user
+      status = 200 if group.save
+    end
+    render :status => status, :text => '{}'
+  end
+
+  def remove_member
+    verify_post_request
+    require_parameters :group, :user
+
+    user_id = params[:user].to_i
+    group = Group.find(params[:group])
+    status = 400
+    if group
+      user = group.users.find(user_id)
+      if user
+        group.users.delete(user)
+        status = 200 if group.save
+      else
+        status = 200  
+      end
+    end
+    render :status => status, :text => '{}'
+  end
+
   private
 
   def to_index(errors, id)
