@@ -75,7 +75,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.plotWrap = this.gWrap.append('g');
 
     this.infoWrap = this.gWrap.append('g');
-    this.infoName = this.infoWrap.append('text');
+    this.infoDate = this.infoWrap.append('text');
     this.infoMetrics = this.infoWrap.append('text');
 
     this.gWrap
@@ -152,7 +152,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           d3.select(this).select('circle')
               .style('fill-opacity', 0.8);
 
-          widget.infoName.text(d.longName);
+          widget.infoDate.text(d.longName);
           widget.infoMetrics.text(
               widget.metrics().x + ': ' + d.xMetricFormatted + '; ' +
                   widget.metrics().y + ': ' + d.yMetricFormatted + '; ' +
@@ -162,7 +162,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           d3.select(this).select('circle')
               .style('fill-opacity', 0.2);
 
-          widget.infoName.text('');
+          widget.infoDate.text('');
           widget.infoMetrics.text('');
         });
 
@@ -208,7 +208,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.infoWrap
         .attr('transform', trans(-this.margin().left, -this.margin().top + 20));
 
-    this.infoName
+    this.infoDate
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
 

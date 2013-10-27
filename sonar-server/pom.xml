@@ -248,7 +248,8 @@
                 <include>**/jquery-ui.min.js</include>
                 <include>**/third-party/d3.v3.min.js</include>
                 <include>**/select2.min.js</include>
-                <include>**/bubble-chart.js</include>
+                <include>**/widgets/bubble-chart.js</include>
+                <include>**/widgets/timeline.js</include>
                 <include>**/application-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>

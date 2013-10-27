@@ -162,15 +162,15 @@
 <%   else %>
   <% timeline = 'timeline' + widget.id.to_s %>
 
-  <div id="timeline-chart-<%= widget.id -%>" style="height: <%= chartHeight %>px">&nbsp;</div>
-  <script type="text/javascript+protovis">
+  <div id="timeline-chart-<%= widget.id -%>"></div>
+  <script>
     function d(y, m, d, h, min, s) {
       return new Date(y, m, d, h, min, s);
     }
     var data = <%= js_data -%>;
     var snapshots = <%= js_snapshots -%>;
     var metrics = <%= js_metrics -%>;
-    var events = <%= js_events ? js_events : "null" -%>;
+    var events = <%= js_events ? js_events : "[]" -%>;
     var <%= timeline -%> = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
       .height(<%= chartHeight -%>)
       .data(data)

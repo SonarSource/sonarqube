@@ -2510,3 +2510,65 @@ textarea.width100 {
   line-height: 16px;
   padding: 4px 2px;
 }
+
+
+
+
+.sonar-d3 {
+
+}
+
+.sonar-d3 .axis path {
+  fill: none;
+  stroke: #444;
+}
+
+.sonar-d3 .tick line {
+  stroke: #444;
+}
+
+.sonar-d3 .tick text {
+  fill: #444;
+}
+
+.sonar-d3 .plot .line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.sonar-d3 .plot .line-marker {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 2;
+  opacity: 0;
+}
+
+.sonar-d3 .plot .scanner {
+  stroke: #000;
+  opacity: 0.25;
+  visibility: hidden;
+}
+
+.sonar-d3 .info {
+
+}
+
+.sonar-d3 .info-text {
+  font-size: 13px;
+}
+
+.sonar-d3 .info-text-bold {
+  font-weight: bold;
+}
+
+.sonar-d3 .info-text-small {
+  font-size: 11px;
+}
+
+.sonar-d3 .event-tick {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+  transition: all 0.3s ease;
+}
