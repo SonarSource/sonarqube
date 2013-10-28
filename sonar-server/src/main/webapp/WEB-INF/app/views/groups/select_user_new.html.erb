@@ -1,0 +1,14 @@
+<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'%>">Back to user groups</a></div>
+<h1>Group: <%= @group.name %></h1>
+<br/>
+<div id="main_content">
+    <div id="select-list-group-<%= @group.id -%>"></div>
+    <script>
+      var selectList = new SelectList({
+        el: '#select-list-group-<%= @group.id -%>',
+        searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
+        selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
+        deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>'
+      });
+    </script>
+</div>

@@ -247,9 +247,13 @@
                 <include>**/jquery.min.js</include>
                 <include>**/jquery-ui.min.js</include>
                 <include>**/third-party/d3.v3.min.js</include>
+                <include>**/third-party/underscore-min.js</include>
+                <include>**/third-party/backbone-min.js</include>
+                <include>**/third-party/jquery.ba-throttle-debounce.min.js</include>
                 <include>**/select2.min.js</include>
                 <include>**/widgets/bubble-chart.js</include>
                 <include>**/widgets/timeline.js</include>
+                <include>**/select-list.js</include>
                 <include>**/application-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>
@@ -268,6 +272,7 @@
                 <include>**/style-min.css</include>
                 <include>**/sonar-colorizer-min.css</include>
                 <include>**/dashboard-min.css</include>
+                <include>**/select-list-min.css</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/stylesheets/sonar.css</output>
             </aggregation>

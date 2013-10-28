@@ -91,6 +91,10 @@ class GroupsController < ApplicationController
   def select_user
     @group = Group.find(params[:id])
   end
+
+  def select_user_new
+    @group = Group.find(params[:id])
+  end
   
   def set_users
     @group = Group.find(params[:id])

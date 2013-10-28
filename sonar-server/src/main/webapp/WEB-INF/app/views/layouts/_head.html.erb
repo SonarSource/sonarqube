@@ -30,6 +30,7 @@
     <%= stylesheet_link_tag 'style', :media => 'all' %>
     <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
     <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
+    <%= stylesheet_link_tag 'select-list', :media => 'all' %>
     <%= yield :style -%>
     <%= javascript_include_tag 'prototype' %>
     <%= javascript_include_tag 'scriptaculous' %>
@@ -37,11 +38,15 @@
     <%= javascript_include_tag 'jquery.min' %>
     <%= javascript_include_tag 'jquery-ui.min' %>
     <%= javascript_include_tag 'third-party/d3.v3.min' %>
+    <%= javascript_include_tag 'third-party/underscore-min' %>
+    <%= javascript_include_tag 'third-party/backbone-min' %>
+    <%= javascript_include_tag 'third-party/jquery.ba-throttle-debounce.min.js' %>
     <%= javascript_include_tag 'select2.min' %>
     <%= javascript_include_tag 'protovis' %>
     <%= javascript_include_tag 'protovis-sonar' %>
     <%= javascript_include_tag 'widgets/bubble-chart' %>
     <%= javascript_include_tag 'widgets/timeline' %>
+    <%= javascript_include_tag 'select-list' %>
     <%= javascript_include_tag 'application' %>
     <%= javascript_include_tag 'dashboard' %>
     <%= javascript_include_tag 'duplication' %>
