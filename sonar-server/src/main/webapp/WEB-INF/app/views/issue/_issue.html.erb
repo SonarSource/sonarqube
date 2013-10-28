@@ -129,7 +129,8 @@
          plugin_actions = Internal.issues.listActions(issue)
          shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
          if shouldDisplayDropDown
-           transitions.delete(0) if transitions.size > 1
+           # Remove first transition because it was displayed previsously
+           transitions.delete_at(0) if transitions.size > 1
       %>
         <div class="dropdown">
           <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
