@@ -6,6 +6,7 @@
     <script>
       var selectList = new SelectList({
         el: '#select-list-group-<%= @group.id -%>',
+        width: 500,
         searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
         selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
         deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>',
