@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
@@ -49,10 +50,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InternalPermissionServiceTest {
 
@@ -67,15 +65,14 @@ public class InternalPermissionServiceTest {
 
   @Before
   public void setUpCommonStubbing() {
-    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermissions.SYSTEM_ADMIN);
-
     userDao = mock(UserDao.class);
     when(userDao.selectActiveUserByLogin("user")).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
     when(userDao.selectGroupByName("group")).thenReturn(new GroupDto().setId(2L).setName("group"));
 
     resourceDao = mock(ResourceDao.class);
-
     permissionFacade = mock(PermissionFacade.class);
+
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     service = new InternalPermissionService(userDao, resourceDao, permissionFacade);
   }
@@ -104,6 +101,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.addPermission(params);
 
@@ -127,6 +125,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.removePermission(params);
 
@@ -150,6 +149,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
     setUpGlobalGroupPermissions("group", "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.addPermission(params);
 
@@ -171,6 +171,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.addPermission(params);
 
@@ -194,6 +195,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.removePermission(params);
 
@@ -217,6 +219,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions(DefaultGroups.ANYONE, 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.removePermission(params);
 
@@ -240,6 +243,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user",  10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.addPermission(params);
 
@@ -263,6 +267,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
 
     service.addPermission(params);
 
@@ -311,10 +316,24 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void fail_on_insufficient_rights() throws Exception {
+  public void fail_on_insufficient_global_rights() throws Exception {
     try {
       params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-      MockUserSession.set().setLogin("unauthorized").setPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      MockUserSession.set().setLogin("unauthorized").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Insufficient privileges");
+    }
+  }
+
+  @Test
+  public void fail_on_insufficient_project_rights() throws Exception {
+    try {
+      when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+        new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+      params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
+      MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
+
       service.addPermission(params);
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Insufficient privileges");
@@ -332,7 +351,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void apply_permission_template() throws Exception {
+  public void apply_permission_template_on_many_projects() throws Exception {
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
     params.put("components", "1,2,3");
@@ -344,6 +363,45 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
   }
 
+  @Test(expected = ForbiddenException.class)
+  public void apply_permission_template_on_many_projects_without_permission() {
+    MockUserSession.set().setLogin("admin").setGlobalPermissions();
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1,2,3");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade, never()).applyPermissionTemplate(anyString(), anyLong());
+  }
+
+  @Test
+  public void apply_permission_template_on_one_project() throws Exception {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 1L);
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void apply_permission_template_on_one_project_without_permission() {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+  }
+
   @Test
   public void apply_default_permission_template_on_standard_project() {
     final String componentKey = "component";
@@ -353,6 +411,7 @@ public class InternalPermissionServiceTest {
     ComponentDto mockComponent = mock(ComponentDto.class);
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 1234L);
 
     when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);
@@ -377,7 +436,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void apply_default_permission_template_on_provisioned_project_with_permission() {
-    MockUserSession.set().setLogin("provisioning").setPermissions(GlobalPermissions.PROVISIONING);
+    MockUserSession.set().setLogin("provisioning").setGlobalPermissions(GlobalPermissions.PROVISIONING);
     final String componentKey = "component";
     final long componentId = 1234l;
     final String qualifier = Qualifiers.PROJECT;

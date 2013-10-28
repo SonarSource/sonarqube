@@ -19,16 +19,20 @@
  */
 package org.sonar.server.user;
 
-import javax.annotation.Nullable;
+import com.google.common.collect.HashMultimap;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MockUserSession extends UserSession {
 
   private MockUserSession() {
     globalPermissions = Collections.emptyList();
+    projectIdByPermission = HashMultimap.create();
   }
 
   public static MockUserSession set() {
@@ -56,8 +60,14 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
-  public MockUserSession setPermissions(String... globalPermissions) {
+  public MockUserSession setGlobalPermissions(String... globalPermissions) {
     this.globalPermissions = Arrays.asList(globalPermissions);
+    return this;
+  }
+
+  public MockUserSession addProjectPermissions(String projectPermission, Long... projectIds) {
+    this.projectPermissions.add(projectPermission);
+    this.projectIdByPermission.putAll(projectPermission, newArrayList(projectIds));
     return this;
   }
 }

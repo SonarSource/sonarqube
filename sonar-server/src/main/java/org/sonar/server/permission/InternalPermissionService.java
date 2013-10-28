@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
@@ -34,10 +35,10 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -86,7 +87,7 @@ public class InternalPermissionService implements ServerComponent {
 
     ResourceDto provisioned = resourceDao.selectProvisionedProject(componentKey);
     if (provisioned == null) {
-      UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+      checkProjectAdminPermission(component.getId());
     } else {
       UserSession.get().checkGlobalPermission(GlobalPermissions.PROVISIONING);
     }
@@ -96,9 +97,18 @@ public class InternalPermissionService implements ServerComponent {
 
   public void applyPermissionTemplate(Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
     query.validate();
+
+    // If only one project is selected, check user has admin permission on it, otherwise we are in the case of a bulk change and only system admin has permission to do it
+    if (query.getSelectedComponents().size() == 1) {
+      checkProjectAdminPermission(Long.parseLong(query.getSelectedComponents().get(0)));
+    } else {
+      checkProjectAdminPermission(null);
+      UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    }
+
     for (String component : query.getSelectedComponents()) {
       permissionFacade.applyPermissionTemplate(query.getTemplateKey(), Long.parseLong(component));
     }
@@ -106,7 +116,6 @@ public class InternalPermissionService implements ServerComponent {
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     permissionChangeQuery.validate();
     applyPermissionChange(permissionChange, permissionChangeQuery);
@@ -122,6 +131,8 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyGroupPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     Long componentId = getComponentId(permissionChangeQuery.component());
+    checkProjectAdminPermission(componentId);
+
     List<String> existingPermissions = permissionFacade.selectGroupPermissions(permissionChangeQuery.group(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
@@ -138,6 +149,8 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyUserPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     Long componentId = getComponentId(permissionChangeQuery.component());
+    checkProjectAdminPermission(componentId);
+
     List<String> existingPermissions = permissionFacade.selectUserPermissions(permissionChangeQuery.user(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
@@ -188,6 +201,16 @@ public class InternalPermissionService implements ServerComponent {
   private void badRequestIfNullResult(Object component, String objectType, String objectKey) {
     if (component == null) {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
+    }
+  }
+
+  private void checkProjectAdminPermission(@Nullable Long componentId) {
+    if (componentId == null) {
+      UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    } else {
+      if (!UserSession.get().hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !UserSession.get().hasProjectPermission(UserRole.ADMIN, componentId)) {
+        throw new ForbiddenException("Insufficient privileges");
+      }
     }
   }
 }
