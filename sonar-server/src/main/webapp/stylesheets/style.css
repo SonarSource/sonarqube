@@ -2547,7 +2547,6 @@ textarea.width100 {
 .sonar-d3 .plot .scanner {
   stroke: #000;
   opacity: 0.25;
-  visibility: hidden;
 }
 
 .sonar-d3 .info {

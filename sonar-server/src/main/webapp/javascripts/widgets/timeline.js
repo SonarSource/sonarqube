@@ -110,9 +110,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.plotWrap = this.gWrap.append('g')
         .attr('class', 'plot');
 
-    this.plotWrapFocus = this.gWrap.append('g')
-        .attr('class', 'plot');
-
     this.scanner = this.plotWrap.append('line');
 
     this.infoWrap = this.gWrap.append('g')
@@ -138,7 +135,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         }, d3.extent(this.events(), function(d) { return d.d; }));
 
     this.time = d3.time.scale().domain(d3.extent(timeDomain));
-    this.timeFocus = d3.time.scale().domain(d3.extent(timeDomain));
 
     this.y = this.data().map(function(_) {
       return d3.scale.linear()
@@ -190,8 +186,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Configure info
     this.infoWrap
-        .attr('transform', trans(0, -10))
-        .style('visibility', 'hidden');
+        .attr('transform', trans(0, -10));
 
     this.infoDate
         .attr('transform', trans(0, 0));
@@ -232,11 +227,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gevents.exit().remove();
 
 
-    // Set event listeners
-    this.svg.on('mousemove', function() {
-      var mx = d3.mouse(widget.plotWrap.node())[0],
-          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); }),
-          sx = widget.time(widget.data()[0][cl].x);
+    this.selectSnapshot = function(cl) {
+      var sx = widget.time(widget.data()[0][cl].x);
 
       widget.markers.forEach(function(marker) {
         marker.style('opacity', 0);
@@ -268,27 +260,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .text(widget.events()[i].l.map(function(d) { return d.n; }).join(', '));
         }
       });
+    };
 
-    });
 
-    this.svg
-        .on('mouseenter', function() {
-          widget.scanner.style('visibility', 'visible');
-          widget.infoWrap.style('visibility', 'visible');
-        })
-        .on('mouseleave', function() {
-          widget.markers.forEach(function(marker) {
-            marker.style('opacity', 0);
-          });
-
-          widget.scanner.style('visibility', 'hidden');
-          widget.infoWrap.style('visibility', 'hidden');
-
-          widget.gevents.attr('y2', -8);
-        });
-
-    this.svg.on('dblclick', function() {
-      console.log('dbclick');
+    // Set event listeners
+    this.svg.on('mousemove', function() {
+      var mx = d3.mouse(widget.plotWrap.node())[0],
+          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
+      widget.selectSnapshot(cl);
     });
 
 
@@ -354,6 +333,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gevents
         .transition()
         .attr('transform', function(d) { return trans(widget.time(d.d), widget.availableHeight + 10); });
+
+
+    // Select latest values if this it the first update
+    if (!this.firstUpdate) {
+      this.selectSnapshot(widget.data()[0].length - 1);
+
+      this.firstUpdate = true;
+    }
 
   };
 
