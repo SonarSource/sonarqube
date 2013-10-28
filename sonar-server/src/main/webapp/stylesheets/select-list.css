@@ -17,42 +17,65 @@
 }
 
   .select-list-list > li {
+    position: relative;
     display: block;
     margin-top: -1px;
-    padding: 5px 10px;
+    padding: 5px 10px 5px 30px;
     border-top: 1px solid #e0e0e0;
     color: #404040;
-    cursor: pointer;
     transition: all 0.3s ease;
-  }
-
-  .select-list-list > li:hover {
-    background-color: #f6f6f6;
-  }
-
-  .select-list-list > li:active {
-    background-color: #ececec;
   }
 
   .select-list-list > li.selected {
     background-color: #e9f8fd;
   }
 
-  .select-list-list > li.selected:hover {
-    background-color: #def2f9;
+  .select-list-list > li.selected > .select-list-list-checkbox:before {
+    border-color: #4b9fd5;
+    background-color: #4b9fd5;
+    opacity: 1;
   }
 
-  .select-list-list > li.selected:before {
-    content: ' ';
-    display: inline-block;
-    vertical-align: top;
-    width: 5px;
-    height: 5px;
-    margin: 4px 8px 0 0;
-    border: 1px solid #4b9fd5;
-    border-radius: 20px;
+  .select-list-list > li.selected > .select-list-list-checkbox:hover:before {
+    border-color: #4b9fd5;
     background-color: #4b9fd5;
+    opacity: 0.6;
   }
+
+.select-list-list-checkbox {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 26px;
+  cursor: pointer;
+}
+
+.select-list-list-checkbox.with-spinner {
+
+}
+
+.select-list-list-checkbox.with-spinner:before {
+  display: none;
+}
+
+.select-list-list-checkbox:before {
+  content: ' ';
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin: 8px 0 0 8px;
+  border: 1px solid #c5c5c5;
+  border-radius: 20px;
+  background-color: transparent;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.select-list-list-checkbox:hover:before {
+  border-color: #4b9fd5;
+  background-color: #4b9fd5;
+  opacity: 0.8;
+}
 
 .select-list-control {
   height: 40px;
@@ -95,14 +118,7 @@
   background-color: #e9f8fd;
 }
 
-.select-list-control-button:active,
-.select-list-control-button.active {
-  z-index: 2;
-  background-color: #e9f8fd;
-  border-color: #4b9fd5;
-}
-
-.select-list-control-button.active:before {
+.select-list-control-button[name=selected]:before {
   content: ' ';
   display: inline-block;
   vertical-align: top;
@@ -112,6 +128,13 @@
   border: 1px solid #4b9fd5;
   border-radius: 20px;
   background-color: #4b9fd5;
+}
+
+.select-list-control-button:active,
+.select-list-control-button.active {
+  z-index: 2;
+  background-color: #e9f8fd;
+  border-color: #4b9fd5;
 }
 
 .select-list-control-button + .select-list-control-button {

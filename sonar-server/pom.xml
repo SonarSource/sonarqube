@@ -250,6 +250,7 @@
                 <include>**/third-party/underscore-min.js</include>
                 <include>**/third-party/backbone-min.js</include>
                 <include>**/third-party/jquery.ba-throttle-debounce.min.js</include>
+                <include>**/third-party/spin-min.js</include>
                 <include>**/select2.min.js</include>
                 <include>**/widgets/bubble-chart.js</include>
                 <include>**/widgets/timeline.js</include>

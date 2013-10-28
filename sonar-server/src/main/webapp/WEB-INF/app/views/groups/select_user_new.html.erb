@@ -8,7 +8,16 @@
         el: '#select-list-group-<%= @group.id -%>',
         searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
         selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
-        deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>'
+        deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>',
+        labels: {
+          selected: 'Members',
+          deselected: 'Non-members',
+          all: 'All'
+        },
+        tooltips: {
+          select: 'Click to add this user to the group <%= @group.name -%>',
+          deselect: 'Click to remove this member from the group <%= @group.name -%>'
+        }
       });
     </script>
 </div>
