@@ -30,8 +30,10 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 abstract class PermissionTemplateUpdater {
@@ -51,7 +53,7 @@ abstract class PermissionTemplateUpdater {
   }
 
   void executeUpdate() {
-    checkUserCredentials();
+    checkSystemAdminUser();
     Long templateId = getTemplateId(templateName);
     validatePermission(permission);
     doExecute(templateId, permission);
@@ -78,10 +80,20 @@ abstract class PermissionTemplateUpdater {
     return groupDto.getId();
   }
 
-  static void checkUserCredentials() {
+  static void checkSystemAdminUser() {
+    checkProjectAdminUser(null);
+  }
+
+  static void checkProjectAdminUser(@Nullable Long projectId) {
     UserSession currentSession = UserSession.get();
     currentSession.checkLoggedIn();
-    currentSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    if (projectId == null) {
+      currentSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    } else {
+      if (!currentSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !currentSession.hasProjectPermission(UserRole.ADMIN, projectId)) {
+        throw new ForbiddenException("Insufficient privileges");
+      }
+    }
   }
 
   private void validatePermission(String permission) {

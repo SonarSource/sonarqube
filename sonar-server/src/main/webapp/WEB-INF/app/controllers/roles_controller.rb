@@ -22,16 +22,18 @@ class RolesController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  before_filter :admin_required
   verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
 
 
   # GET /roles/global
   def global
+    access_denied unless has_role?(:admin)
   end
 
   # GET /roles/projects
   def projects
+    access_denied unless has_role?(:admin)
+
     params['pageSize'] = 25
     params['qualifiers'] ||= 'TRK'
     @query_result = Internal.component_api.findWithUncompleteProjects(params)
@@ -52,13 +54,16 @@ class RolesController < ApplicationController
 
   # GET /roles/edit_users[?resource=<resource>]
   def edit_users
-    @project=Project.by_key(params[:resource]) if params[:resource].present?
+    @project = Project.by_key(params[:resource]) if params[:resource].present?
+    check_project_admin
     @role = params[:role]
     render :partial => 'edit_users'
   end
 
   # POST /roles/set_users?users=<users>&role=<role>[&resource=<resource>]
   def set_users
+    @project = Project.by_key(params[:resource]) if params[:resource].present?
+    check_project_admin
     bad_request('Missing role') if params[:role].blank?
     UserRole.grant_users(params[:users], params[:role], params[:resource])
     render :text => '', :status => 200
@@ -66,13 +71,16 @@ class RolesController < ApplicationController
 
   # GET /roles/edit_groups[?resource=<resource>]
   def edit_groups
-    @project=Project.by_key(params[:resource]) if params[:resource].present?
+    @project = Project.by_key(params[:resource]) if params[:resource].present?
+    check_project_admin
     @role = params[:role]
     render :partial => 'edit_groups'
   end
 
   # POST /roles/set_groups?users=<users>&role=<role>[&resource=<resource>]
   def set_groups
+    @project = Project.by_key(params[:resource]) if params[:resource].present?
+    check_project_admin
     bad_request('Missing role') if params[:role].blank?
     GroupRole.grant_groups(params[:groups], params[:role], params[:resource])
     render :text => '', :status => 200
@@ -80,12 +88,18 @@ class RolesController < ApplicationController
 
   # GET /roles/apply_template_form?criteria
   def apply_template_form
-    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
     @names = params[:names]
     @keys = params[:keys]
     @qualifiers = params[:qualifiers] || 'TRK'
     @results_count = params[:results_count].to_i || 0
     @components = params[:components]
+
+    if @components && @components.size == 1
+      project = Project.by_key(@components.first)
+      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates(project.key).sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
+    else
+      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
+    end
 
     render :partial => 'apply_template_form'
   end
@@ -104,6 +118,13 @@ class RolesController < ApplicationController
     Internal.permissions.applyPermissionTemplate(params)
 
     redirect_to :action => 'projects'
+  end
+
+
+  private
+
+  def check_project_admin
+    access_denied unless has_role?(:admin) || has_role?(:admin, @project)
   end
 
 end
