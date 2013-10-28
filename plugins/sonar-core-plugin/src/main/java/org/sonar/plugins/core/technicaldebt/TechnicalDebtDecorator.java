@@ -117,6 +117,7 @@ public final class TechnicalDebtDecorator implements Decorator {
         .type(PropertyType.INTEGER)
         .defaultValue("8")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
+        .deprecatedKey("sqale.hoursInDay")
         .build()
     );
   }
