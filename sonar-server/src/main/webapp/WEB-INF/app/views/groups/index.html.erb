@@ -24,20 +24,20 @@
           </tr>
         </thead>
         <tbody >
-        <% @groups.each do |group|%>
-          <tr id="group-<%= u group.name -%>">
+        <% @groups.each do |group| %>
+          <tr id="group-<%= group.name.parameterize -%>">
             <td class="left"><%= h group.name -%></td>
             <td class="left" style="word-break:break-all"><%= h group.description -%></td>
             <td class="left">
-              <span id="count-<%= u group.name -%>"><%= group.users.count -%></span>
-              (<a id="select-<%= u group.name -%>" class="link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
+              <span id="count-<%= group.name.parameterize -%>"><%= group.users.count -%></span>
+              (<a id="select-<%= group.name.parameterize -%>" class="link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
             </td>
             <td class="operations">
-              <a id='edit-<%= h group.name -%>' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/">Edit</a>
+              <a id='edit-<%= group.name.parameterize -%>' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/<%= group.id -%>">Edit</a>
               &nbsp;
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
                                    :class => 'link-action link-red',
-                                   :id => "delete-#{group.name}",
+                                   :id => "delete-#{group.name.parameterize}",
                                    :confirm_button => message('delete'),
                                    :confirm_title => 'Delete group: ' + group.name,
                                    :confirm_msg => 'Are you sure that you want to delete this group? Members will not be deleted.',

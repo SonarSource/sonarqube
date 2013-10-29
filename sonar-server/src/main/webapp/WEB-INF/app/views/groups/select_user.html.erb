@@ -1,10 +1,10 @@
 
-<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'%>">Back to user groups</a></div>
-<h1>Group: <%= @group.name %></h1>
+<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'-%>">Back to user groups</a></div>
+<h1>Group: <%= h @group.name -%></h1>
 <br/>
 <div id="main_content">
-  <form action="<%= url_for :action => 'set_users'%>" method="post">
-    <input name="id" value="<%= @group.id%>" type="hidden">
+  <form action="<%= url_for :action => 'set_users'-%>" method="post">
+    <input name="id" value="<%= @group.id -%>" type="hidden">
     <table>
       <tbody>
         <tr>

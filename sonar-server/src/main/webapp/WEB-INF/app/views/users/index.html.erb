@@ -24,17 +24,17 @@
         </thead>
         <tbody >
           <% @users.each do |user|%>
-            <tr id="user-<%= u user.login -%>">
-              <td class="left" valign="top"><%=user.login %></td>
-              <td class="left" valign="top"><%=user.name %></td>
-              <td class="left" valign="top"><%=user.email %></td>
+            <tr id="user-<%= user.login.parameterize -%>">
+              <td class="left" valign="top"><%=h user.login -%></td>
+              <td class="left" valign="top"><%= h user.name -%></td>
+              <td class="left" valign="top"><%= h user.email -%></td>
               <td class="left" valign="top">
-                <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
+                <%= h user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{user.login.parameterize}", :class => 'link-action'} %>)
               </td>
               <td class="right" valign="top">
                 <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
                 &nbsp;
-                <%= link_to "Change password", { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{u user.login}", :class => 'open-modal link-action'} -%>
+                <%= link_to 'Change password', { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{user.login.parameterize}", :class => 'open-modal link-action'} -%>
                 &nbsp;
                 <%= link_to_action message('delete'), "#{ApplicationController.root_context}/users/delete/#{user.id}",
                                    :class => 'link-action link-red',

@@ -1,5 +1,5 @@
 <div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'%>">Back to user groups</a></div>
-<h1>Group: <%= @group.name %></h1>
+<h1>Group: <%= h @group.name -%></h1>
 <br/>
 <div id="main_content">
     <div id="select-list-group-<%= @group.id -%>"></div>
@@ -16,8 +16,8 @@
           all: 'All'
         },
         tooltips: {
-          select: 'Click to add this user to the group <%= @group.name -%>',
-          deselect: 'Click to remove this member from the group <%= @group.name -%>'
+          select: 'Click to add this user to the group <%= h @group.name -%>',
+          deselect: 'Click to remove this member from the group <%= h @group.name -%>'
         }
       });
     </script>

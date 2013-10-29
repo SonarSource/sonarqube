@@ -1,9 +1,9 @@
 <div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'%>">Back to users</a></div>
-<h1>User: <%= @user.login %></h1>
+<h1>User: <%= h @user.login -%></h1>
 <br/>
 <div id="main_content">	  
   <form action="<%= url_for :action => 'set_groups'%>" method="post">
-    <input name="id" value="<%= @user.id%>" type="hidden">
+    <input name="id" value="<%= @user.id -%>" type="hidden">
     <table>
       <tbody>
         <tr>
@@ -11,7 +11,7 @@
             <h2>Not member of</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
               <% @user.available_groups.sort.each do |group| %>
-                <option value="<%= group.id -%>"><%= group.name %></option>
+                <option value="<%= group.id -%>"><%= h group.name -%></option>
               <% end %>
 
             </select>

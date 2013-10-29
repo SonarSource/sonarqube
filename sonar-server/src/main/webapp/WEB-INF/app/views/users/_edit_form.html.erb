@@ -1,7 +1,7 @@
 <% form_for :user, @user, :url => { :id => @user.id, :action => 'update'}, :html => { :id =>'user_edit_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
   <fieldset>
       <div class="modal-head">
-          <h2>Edit user: <%= @user.login %></h2>
+          <h2>Edit user: <%= h @user.login -%></h2>
       </div>
       <div class="modal-body">
         <% if @errors

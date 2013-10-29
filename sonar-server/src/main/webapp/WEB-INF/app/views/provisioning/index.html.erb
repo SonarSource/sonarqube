@@ -25,18 +25,19 @@
     <tbody>
     <% @query_result.each_with_index do |resource, index| %>
 
-      <tr id="entry-<%= h resource.key -%>" class="<%= cycle 'even', 'odd' -%>">
+      <tr id="entry-<%= resource.key.parameterize -%>" class="<%= cycle 'even', 'odd' -%>">
         <td>
           <%= link_to h(resource.key), {:controller => :project, :id => resource.id},
-              :id => "view-#{u resource.key}" %>
+              :id => "view-#{resource.key.parameterize}" %>
         </td>
-        <td><%= resource.name %></td>
-        <td><%= format_datetime(resource.created_at) %></td>
+        <td><%= h resource.name -%></td>
+        <td><%= format_datetime(resource.created_at) -%></td>
         <td class="operations">
           <%= link_to message('edit'), {:action => :create_form, :id => resource.id, :key => resource.key, :name => resource.name},
-              {:id => "edit-#{u resource.key}", :class => 'open-modal link-action'} %>
+              {:id => "edit-#{resource.key.parameterize}", :class => 'open-modal link-action'} -%>
+          &nbsp;
           <%= link_to message('delete'), {:action => :delete_form, :id => resource.id},
-              {:id => "delete-#{u resource.key}", :class => 'open-modal link-action link-red'} %>
+              {:id => "delete-#{resource.key.parameterize}", :class => 'open-modal link-action link-red'} -%>
         </td>
       </tr>
     <% end %>

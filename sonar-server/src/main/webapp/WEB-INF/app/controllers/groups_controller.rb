@@ -32,22 +32,13 @@ class GroupsController < ApplicationController
   end
 
   def create_form
-    if params[:id]
-      # TODO is it used ?
-      @group = Group.find(params[:id])
-    else
-      @group = Group.new
-    end
+    @group = Group.new
     render :partial => 'groups/create_form'
   end
 
   def edit_form
-    if params[:id]
-      @group = Group.find(params[:id])
-    else
-      # TODO is it used ?
-      @group = Group.new
-    end
+    require_parameters :id
+    @group = Group.find(params[:id])
     render :partial => 'groups/edit_form'
   end
 
@@ -67,20 +58,22 @@ class GroupsController < ApplicationController
 
   def update
     verify_post_request
-    group = Group.find(params[:id])
-    if group.update_attributes(params[:group])
+    require_parameters :id
+
+    @group = Group.find(params[:id])
+    if @group.update_attributes(params[:group])
       flash[:notice] = 'Group is updated.'
       render :text => 'ok', :status => 200
     else
-      @group = group
       @errors = []
-      group.errors.full_messages.each{|msg| @errors<<msg}
+      @group.errors.full_messages.each{|msg| @errors<<msg}
       render :partial => 'groups/edit_form', :status => 400
     end
   end
 
   def delete
     verify_post_request
+    require_parameters :id
     group = Group.find(params[:id])
     if group.destroy
       flash[:notice] = 'Group is deleted.'
