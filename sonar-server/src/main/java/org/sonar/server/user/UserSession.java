@@ -32,6 +32,7 @@ import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,9 +45,11 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class UserSession {
 
-  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
   public static final UserSession ANONYMOUS = new UserSession();
+
+  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
   private static final Logger LOG = LoggerFactory.getLogger(UserSession.class);
+  private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
 
   private Integer userId;
   private String login;
@@ -104,7 +107,7 @@ public class UserSession {
    */
   public UserSession checkGlobalPermission(String globalPermission) {
     if (!hasGlobalPermission(globalPermission)) {
-      throw new ForbiddenException("Insufficient privileges");
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }
