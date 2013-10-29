@@ -27,6 +27,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.*;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -48,6 +51,8 @@ public class InternalPermissionTemplateServiceTest {
 
   private PermissionDao permissionDao;
   private UserDao userDao;
+  private ResourceDao resourceDao;
+
   private InternalPermissionTemplateService permissionTemplateService;
 
   @Rule
@@ -55,10 +60,11 @@ public class InternalPermissionTemplateServiceTest {
 
   @Before
   public void setUp() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(Permission.SYSTEM_ADMIN);
     permissionDao = mock(PermissionDao.class);
     userDao = mock(UserDao.class);
-    permissionTemplateService = new InternalPermissionTemplateService(permissionDao, userDao);
+    resourceDao = mock(ResourceDao.class);
+    permissionTemplateService = new InternalPermissionTemplateService(permissionDao, userDao, resourceDao);
   }
 
   @Test
@@ -143,6 +149,27 @@ public class InternalPermissionTemplateServiceTest {
     when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
     List<PermissionTemplate> templates = permissionTemplateService.selectAllPermissionTemplates();
+
+    assertThat(templates).hasSize(2);
+    assertThat(templates).onProperty("id").containsOnly(1L, 2L);
+    assertThat(templates).onProperty("name").containsOnly("template1", "template2");
+    assertThat(templates).onProperty("description").containsOnly("template1", "template2");
+  }
+
+  @Test
+  public void should_retrieve_all_permission_templates_from_project() throws Exception {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+
+    PermissionTemplateDto template1 =
+      new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
+    PermissionTemplateDto template2 =
+      new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
+    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    List<PermissionTemplate> templates = permissionTemplateService.selectAllPermissionTemplates("org.sample.Sample");
 
     assertThat(templates).hasSize(2);
     assertThat(templates).onProperty("id").containsOnly(1L, 2L);

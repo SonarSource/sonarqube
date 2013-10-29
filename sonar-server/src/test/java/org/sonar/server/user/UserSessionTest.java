@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.Permission;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -27,6 +28,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,7 +49,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void getSession() throws Exception {
+  public void get_session() throws Exception {
     UserSession.set(new UserSession().setUserId(123).setLogin("karadoc").setLocale(Locale.FRENCH));
 
     UserSession session = UserSession.get();
@@ -59,7 +61,14 @@ public class UserSessionTest {
   }
 
   @Test
-  public void hasPermission() throws Exception {
+  public void login_should_not_be_empty() throws Exception {
+    UserSession session = new UserSession().setLogin("");
+    assertThat(session.login()).isNull();
+    assertThat(session.isLoggedIn()).isFalse();
+  }
+
+  @Test
+  public void has_global_permission() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
@@ -71,14 +80,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void login_should_not_be_empty() throws Exception {
-    UserSession session = new UserSession().setLogin("");
-    assertThat(session.login()).isNull();
-    assertThat(session.isLoggedIn()).isFalse();
-  }
-
-  @Test
-  public void checkPermission_ok() throws Exception {
+  public void check_global_Permission_ok() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
@@ -88,13 +90,42 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void checkPermission_ko() throws Exception {
+  public void check_global_Permission_ko() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
     when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
     session.checkGlobalPermission(Permission.DASHBOARD_SHARING);
+  }
+
+  @Test
+  public void has_project_permission() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
+    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(10L));
+
+    assertThat(session.hasProjectPermission(UserRole.USER, 10L)).isTrue();
+    assertThat(session.hasProjectPermission(UserRole.CODEVIEWER, 10L)).isFalse();
+    assertThat(session.hasProjectPermission(UserRole.ADMIN, 10L)).isFalse();
+  }
+
+  @Test
+  public void check_project_permission_ok() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
+    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(10L));
+
+    session.checkProjectPermission(UserRole.USER, 10L);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void check_project_permission_ko() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
+    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(11L));
+
+    session.checkProjectPermission(UserRole.USER, 10L);
   }
 
   static class SpyUserSession extends UserSession {

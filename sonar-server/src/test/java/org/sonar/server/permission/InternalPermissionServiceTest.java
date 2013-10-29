@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
@@ -59,7 +60,7 @@ public class InternalPermissionServiceTest {
 
   @Before
   public void setUpCommonStubbing() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(Permission.SYSTEM_ADMIN);
 
     UserDto targetedUser = new UserDto().setId(2L).setLogin("user").setActive(true);
     GroupDto targetedGroup = new GroupDto().setId(2L).setName("group");
@@ -142,7 +143,7 @@ public class InternalPermissionServiceTest {
     throwable.expect(ForbiddenException.class);
     params = buildPermissionChangeParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
 
-    MockUserSession.set().setLogin("unauthorized").setPermissions(Permission.QUALITY_PROFILE_ADMIN);
+    MockUserSession.set().setLogin("unauthorized").setGlobalPermissions(Permission.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
   }
@@ -189,6 +190,45 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 2L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void apply_permission_template_on_many_projects_without_permission() {
+    MockUserSession.set().setLogin("admin").setGlobalPermissions();
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1,2,3");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade, never()).applyPermissionTemplate(anyString(), anyLong());
+  }
+
+  @Test
+  public void apply_permission_template_on_one_project() throws Exception {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 1L);
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void apply_permission_template_on_one_project_without_permission() {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
+
+    params = Maps.newHashMap();
+    params.put("template_key", "my_template_key");
+    params.put("components", "1");
+
+    service.applyPermissionTemplate(params);
+
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
   }
 
   protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {

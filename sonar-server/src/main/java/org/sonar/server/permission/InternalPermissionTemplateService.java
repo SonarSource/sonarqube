@@ -27,12 +27,16 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -44,24 +48,30 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   private final PermissionDao permissionDao;
   private final UserDao userDao;
+  private final ResourceDao resourceDao;
 
-  public InternalPermissionTemplateService(PermissionDao permissionDao, UserDao userDao) {
+  public InternalPermissionTemplateService(PermissionDao permissionDao, UserDao userDao, ResourceDao resourceDao) {
     this.permissionDao = permissionDao;
     this.userDao = userDao;
+    this.resourceDao = resourceDao;
   }
 
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateName) {
-    PermissionTemplateUpdater.checkUserCredentials();
+    PermissionTemplateUpdater.checkSystemAdminUser();
     PermissionTemplateDto permissionTemplateDto = permissionDao.selectPermissionTemplate(templateName);
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
   public List<PermissionTemplate> selectAllPermissionTemplates() {
-    PermissionTemplateUpdater.checkUserCredentials();
+    return selectAllPermissionTemplates(null);
+  }
+
+  public List<PermissionTemplate> selectAllPermissionTemplates(@Nullable String componentKey) {
+    PermissionTemplateUpdater.checkProjectAdminUser(getComponentId(componentKey));
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
     List<PermissionTemplateDto> permissionTemplateDtos = permissionDao.selectAllPermissionTemplates();
-    if(permissionTemplateDtos != null) {
+    if (permissionTemplateDtos != null) {
       for (PermissionTemplateDto permissionTemplateDto : permissionTemplateDtos) {
         permissionTemplates.add(PermissionTemplate.create(permissionTemplateDto));
       }
@@ -70,10 +80,10 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description) {
-    PermissionTemplateUpdater.checkUserCredentials();
+    PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(null, name);
     PermissionTemplateDto permissionTemplateDto = permissionDao.createPermissionTemplate(name, description);
-    if(permissionTemplateDto.getId() == null) {
+    if (permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
       LOG.error(errorMsg);
       throw new ServerErrorException(errorMsg);
@@ -82,13 +92,13 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription) {
-    PermissionTemplateUpdater.checkUserCredentials();
+    PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(templateId, newName);
     permissionDao.updatePermissionTemplate(templateId, newName, newDescription);
   }
 
   public void deletePermissionTemplate(Long templateId) {
-    PermissionTemplateUpdater.checkUserCredentials();
+    PermissionTemplateUpdater.checkSystemAdminUser();
     permissionDao.deletePermissionTemplate(templateId);
   }
 
@@ -137,20 +147,31 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   private void validateTemplateName(Long templateId, String templateName) {
-    if(StringUtils.isNullOrEmpty(templateName)) {
+    if (StringUtils.isNullOrEmpty(templateName)) {
       String errorMsg = "Name can't be blank";
-      LOG.error(errorMsg);
       throw new BadRequestException(errorMsg);
     }
     List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
-    if(existingTemplates != null) {
+    if (existingTemplates != null) {
       for (PermissionTemplateDto existingTemplate : existingTemplates) {
-        if((templateId == null ||  !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {
+        if ((templateId == null || !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {
           String errorMsg = "A template with that name already exists";
-          LOG.error(errorMsg);
           throw new BadRequestException(errorMsg);
         }
       }
+    }
+  }
+
+  @Nullable
+  private Long getComponentId(String componentKey) {
+    if (componentKey == null) {
+      return null;
+    } else {
+      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
+      if (resourceDto == null) {
+        throw new BadRequestException("Project does not exists.");
+      }
+      return resourceDto.getId();
     }
   }
 }

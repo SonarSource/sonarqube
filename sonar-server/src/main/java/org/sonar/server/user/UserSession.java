@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.permission.Permission;
@@ -31,9 +32,13 @@ import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Part of the current HTTP session
@@ -48,6 +53,9 @@ public class UserSession {
   private String login;
   private Locale locale = Locale.ENGLISH;
   List<Permission> permissions = null;
+
+  HashMultimap<String, Long> projectIdByPermission = HashMultimap.create();
+  List<String> projectPermissions = newArrayList();
 
   UserSession() {
   }
@@ -93,7 +101,7 @@ public class UserSession {
   }
 
   /**
-   * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   * Ensures that user implies the specified global permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
   public UserSession checkGlobalPermission(Permission permission) {
     if (!hasGlobalPermission(permission)) {
@@ -123,6 +131,30 @@ public class UserSession {
       }
     }
     return permissions;
+  }
+
+  /**
+   * Ensures that user implies the specified project permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkProjectPermission(String projectPermission, Long componentId) {
+    if (!hasProjectPermission(projectPermission, componentId)) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
+    return this;
+  }
+
+  /**
+   * Does the user have the given project permission ?
+   */
+  public boolean hasProjectPermission(String permission, Long componentId) {
+    if (!projectPermissions.contains(permission)) {
+      Collection<Long> projectIds = authorizationDao().selectAuthorizedRootProjectsIds(userId, permission);
+      for (Long id : projectIds) {
+        projectIdByPermission.put(permission, id);
+      }
+      projectPermissions.add(permission);
+    }
+    return projectIdByPermission.get(permission).contains(componentId);
   }
 
   AuthorizationDao authorizationDao() {

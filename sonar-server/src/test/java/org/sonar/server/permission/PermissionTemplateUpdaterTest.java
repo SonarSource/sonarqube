@@ -50,7 +50,7 @@ public class PermissionTemplateUpdaterTest {
 
   @Before
   public void setUpCommonMocks() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(Permission.SYSTEM_ADMIN);
     userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
@@ -64,11 +64,11 @@ public class PermissionTemplateUpdaterTest {
 
     PermissionTemplateUpdater updater =
       new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionDao, userDao) {
-      @Override
-      void doExecute(Long templateId, String permission) {
-        permissionDao.addUserPermission(1L, 1L, UserRole.USER);
-      }
-    };
+        @Override
+        void doExecute(Long templateId, String permission) {
+          permissionDao.addUserPermission(1L, 1L, UserRole.USER);
+        }
+      };
     updater.executeUpdate();
 
     verify(permissionDao, times(1)).addUserPermission(1L, 1L, UserRole.USER);
@@ -116,10 +116,10 @@ public class PermissionTemplateUpdaterTest {
     MockUserSession.set();
 
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
-        @Override
-        void doExecute(Long templateId, String permission) {
-        }
-      };
+      @Override
+      void doExecute(Long templateId, String permission) {
+      }
+    };
     updater.executeUpdate();
   }
 
@@ -128,7 +128,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 
-    MockUserSession.set().setLogin("user").setPermissions(Permission.SCAN_EXECUTION);
+    MockUserSession.set().setLogin("user").setGlobalPermissions(Permission.SCAN_EXECUTION);
 
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
       @Override

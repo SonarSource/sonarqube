@@ -65,7 +65,7 @@ public class IssueCommentServiceTest {
 
   @Before
   public void setUpUser() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(Permission.SYSTEM_ADMIN);
   }
 
   @Before

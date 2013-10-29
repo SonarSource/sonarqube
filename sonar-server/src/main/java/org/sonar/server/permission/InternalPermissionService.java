@@ -24,11 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -63,9 +67,16 @@ public class InternalPermissionService implements ServerComponent {
 
   public void applyPermissionTemplate(Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
     query.validate();
+
+    // If only one project is selected, check user has admin permission on it, otherwise we are in the case of a bulk change and only system admin has permission to do it
+    if (query.getSelectedComponents().size() == 1) {
+      checkProjectAdminPermission(Long.parseLong(query.getSelectedComponents().get(0)));
+    } else {
+      checkProjectAdminPermission(null);
+    }
+
     for (String component : query.getSelectedComponents()) {
       applyPermissionTemplate(query.getTemplateKey(), component);
     }
@@ -146,5 +157,15 @@ public class InternalPermissionService implements ServerComponent {
   private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {
     return (ADD.equals(operation) && existingPermissions.contains(role)) ||
       (REMOVE.equals(operation) && !existingPermissions.contains(role));
+  }
+
+  private void checkProjectAdminPermission(@Nullable Long componentId) {
+    if (componentId == null) {
+      UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
+    } else {
+      if (!UserSession.get().hasGlobalPermission(Permission.SYSTEM_ADMIN) && !UserSession.get().hasProjectPermission(UserRole.ADMIN, componentId)) {
+        throw new ForbiddenException("Insufficient privileges");
+      }
+    }
   }
 }

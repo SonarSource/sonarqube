@@ -81,7 +81,7 @@ public class DefaultUserServiceTest {
   @Test
   public void self_deactivation_is_not_possible() throws Exception {
     try {
-      MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
+      MockUserSession.set().setLogin("simon").setGlobalPermissions(Permission.SYSTEM_ADMIN);
       service.deactivate("simon");
       fail();
     } catch (BadRequestException e) {
@@ -93,7 +93,7 @@ public class DefaultUserServiceTest {
   @Test
   public void user_deactivation_requires_admin_permission() throws Exception {
     try {
-      MockUserSession.set().setLogin("simon").setPermissions(Permission.QUALITY_PROFILE_ADMIN);
+      MockUserSession.set().setLogin("simon").setGlobalPermissions(Permission.QUALITY_PROFILE_ADMIN);
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
@@ -103,14 +103,14 @@ public class DefaultUserServiceTest {
 
   @Test
   public void deactivate_user() throws Exception {
-    MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("simon").setGlobalPermissions(Permission.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(dao).deactivateUserByLogin("julien");
   }
 
   @Test
   public void fail_to_deactivate_when_blank_login() throws Exception {
-    MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("simon").setGlobalPermissions(Permission.SYSTEM_ADMIN);
     try {
       service.deactivate("");
       fail();
