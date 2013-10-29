@@ -216,74 +216,29 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.sf.alchim</groupId>
-        <artifactId>yuicompressor-maven-plugin</artifactId>
-        <version>0.7.1</version>
+        <groupId>ro.isdc.wro4j</groupId>
+        <artifactId>wro4j-maven-plugin</artifactId>
+        <version>1.7.1</version>
         <executions>
           <execution>
+            <phase>compile</phase>
             <goals>
-              <goal>compress</goal>
+              <goal>run</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <nosuffix>false</nosuffix>
-          <failOnWarning>false</failOnWarning>
-          <jswarn>false</jswarn>
-          <sourceDirectory>src/main/webapp/javascripts</sourceDirectory>
-          <outputDirectory>${project.build.directory}/${project.build.finalName}/javascripts</outputDirectory>
-          <aggregations>
-            <aggregation>
-              <includes>
-                <!--
-                Order is important for jquery and prototype. Don't forget to also check the order
-                in layouts/_head.html.erb for the dev mode.
-                -->
-                <include>**/prototype-min.js</include>
-                <include>**/scriptaculous-min.js</include>
-                <include>**/tablekit-min.js</include>
-                <include>**/protovis-min.js</include>
-                <include>**/protovis-sonar-min.js</include>
-                <include>**/jquery.min.js</include>
-                <include>**/jquery-ui.min.js</include>
-                <include>**/third-party/d3.v3.min.js</include>
-                <include>**/third-party/underscore-min.js</include>
-                <include>**/third-party/backbone-min.js</include>
-                <include>**/third-party/jquery.ba-throttle-debounce.min.js</include>
-                <include>**/third-party/spin-min.js</include>
-                <include>**/select2.min.js</include>
-                <include>**/widgets/bubble-chart.js</include>
-                <include>**/widgets/timeline.js</include>
-                <include>**/select-list.js</include>
-                <include>**/application-min.js</include>
-                <include>**/dashboard-min.js</include>
-                <include>**/duplication-min.js</include>
-                <include>**/resource-min.js</include>
-                <include>**/issue-min.js</include>
-                <include>**/recent-history.js</include>
-              </includes>
-              <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
-            </aggregation>
-            <aggregation>
-              <includes>
-                <include>**/yui-reset-font-min.css</include>
-                <include>**/jquery-ui-min.css</include>
-                <include>**/select2-min.css</include>
-                <include>**/layout-min.css</include>
-                <include>**/style-min.css</include>
-                <include>**/sonar-colorizer-min.css</include>
-                <include>**/dashboard-min.css</include>
-                <include>**/select-list-min.css</include>
-              </includes>
-              <output>${project.build.directory}/${project.build.finalName}/stylesheets/sonar.css</output>
-            </aggregation>
-          </aggregations>
-          <excludes>
-            <exclude>**/gems/**/*.js</exclude>
-            <exclude>**/gems/**/*.css</exclude>
-          </excludes>
+          <targetGroups>sonar</targetGroups>
+          <minimize>true</minimize>
+          <cssDestinationFolder>${project.build.directory}/${project.build.finalName}/stylesheets</cssDestinationFolder>
+          <jsDestinationFolder>${project.build.directory}/${project.build.finalName}/javascripts</jsDestinationFolder>
+          <contextFolder>${basedir}/src/main/webapp/</contextFolder>
+          <wroFile>${basedir}/wro.xml</wroFile>
+          <wroManagerFactory>ro.isdc.wro.extensions.manager.standalone.GoogleStandaloneManagerFactory</wroManagerFactory>
+          <ignoreMissingResources>false</ignoreMissingResources>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
