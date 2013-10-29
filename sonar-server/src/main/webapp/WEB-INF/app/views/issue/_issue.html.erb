@@ -118,19 +118,17 @@
 
          # Display only the first transition
          if !transitions.empty? && transitions.first
-           transition = transitions.first
+           first_transition = transitions.first
       %>
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;
-        <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
+        <a href="#" onclick="return doIssueTransition(this, '<%= first_transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{first_transition.key}") -%></a>
       <% end %>
 
       <%
          plugin_actions = Internal.issues.listActions(issue)
          shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
          if shouldDisplayDropDown
-           # Remove first transition because it was displayed previsously
-           transitions.delete_at(0) if transitions.size > 1
       %>
         <div class="dropdown">
           <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
@@ -141,16 +139,16 @@
               </li>
             <% end %>
 
-            <%
-               # Display remaining transitions
-               transitions.each do |transition| %>
+            <% # Display remaining transitions
+               if transitions.size > 1
+                 transitions[1..-1].each do |transition| %>
               <li>
                 <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
               </li>
-            <% end %>
+            <%  end
+               end %>
 
-            <%
-               # Display actions defined by plugins
+            <% # Display actions defined by plugins
                plugin_actions.each do |action| %>
               <li>
                 <a href="#" onclick="return doPluginIssueAction(this, '<%= action.key -%>')" class="link-action spacer-right"><%= message("issue.action.#{action.key}.formlink") -%></a>
