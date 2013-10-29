@@ -120,7 +120,7 @@ class GroupsController < ApplicationController
     end
 
     users = User.find(:all, 
-      :select => 'users.id,users.name,groups_users.group_id', 
+      :select => 'users.id,users.name,users.login,groups_users.group_id',
       :joins => "left join groups_users on users.id=groups_users.user_id and groups_users.group_id=#{group_id}",
       :conditions => [conditions.join(' and ')].concat(condition_values),
       :offset => (page_id-1) * page_size,
@@ -137,7 +137,7 @@ class GroupsController < ApplicationController
       format.json { 
         render :json => {
           :more => more,
-          :results => users.map {|user| {:id => user.id, :value => user.name, :selected => (user.group_id != nil)}}
+          :results => users.map {|user| {:id => user.id, :name => user.name, :login => user.login, :selected => (user.group_id != nil)}}
         } 
       }
     end

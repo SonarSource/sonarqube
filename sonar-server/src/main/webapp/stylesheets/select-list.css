@@ -1,15 +1,18 @@
 .select-list-container {
   min-width: 500px;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 .select-list-control {
   margin-bottom: 10px;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 .select-list-list-container {
   border: 1px solid #bfbfbf;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -63,10 +66,12 @@
 
 .select-list-list-checkbox:before {
   content: ' ';
+  position: absolute;
   display: block;
+  top: 50%; left: 8px;
   width: 5px;
   height: 5px;
-  margin: 9px 0 0 8px;
+  margin-top: -3px;
   border: 1px solid #c5c5c5;
   border-radius: 20px;
   background-color: transparent;
@@ -84,7 +89,7 @@
 }
 
 .select-list-control {
-  height: 40px;
+  height: 30px;
 }
 
 .select-list-check-control {
@@ -115,6 +120,7 @@
   line-height: 30px;
   line-height: 28px\9;
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
   border: 1px solid #bfbfbf;
   text-align: center;
   cursor: pointer;
@@ -152,16 +158,16 @@
 .select-list-search-control {
   position: relative;
   float: right;
-  width: 33%;
   height: 30px;
 }
 
 .select-list-search-control input {
-  width: 100%;
+  width: 170px;
   height: 100%;
   line-height: 30px\9;
   padding: 0 40px 0 10px;
   border: 1px solid #bfbfbf;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
