@@ -167,7 +167,7 @@
 <%   else %>
   <% timeline = 'timeline' + widget.id.to_s %>
 
-  <div id="timeline-chart-<%= widget.id -%>"></div>
+  <div id="timeline-chart-<%= widget.id -%>" style="height: <%= chartHeight -%>px;"></div>
   <script>
     function d(y, m, d, h, min, s) {
       return new Date(y, m, d, h, min, s);
