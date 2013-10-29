@@ -19,19 +19,14 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.core.preview.PreviewCache;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -121,8 +116,10 @@ public class ProfilesManager extends BaseDao {
         activeRulesToRemove.add(activeRule);
       }
     }
+
     for (ActiveRule activeRule : activeRulesToRemove) {
-      ActiveRule activeRuleToRemove = getSession().getSingleResult(ActiveRule.class, "id", activeRule.getId());
+      // Do not use getSingleResult as it can generate an EntityNotFoundException
+      ActiveRule activeRuleToRemove = getSession().getEntity(ActiveRule.class, activeRule.getId());
       removeActiveRule(activeRuleToRemove);
     }
     getSession().commit();
