@@ -147,7 +147,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure the axis
     this.timeAxis = d3.svg.axis()
         .scale(this.time)
-        .orient('bottom');
+        .orient('bottom')
+        .tickFormat(function(d) {
+          var format = d.getMonth() === 0 ?
+              d3.time.format('%Y') :
+              d3.time.format('%b');
+
+          return format(d);
+        });
 
 
     // Configure lines and points
