@@ -7,7 +7,7 @@
       <%= f.hidden_field :login %>
 
               <p class="error">
-                  A user with login "<%= @user.login -%>" already exists in the database but is deactivated.<br/>
+                  A user with login "<%= h @user.login -%>" already exists in the database but is deactivated.<br/>
                   <br/>
                   Do you really want to reactivate this user?
               </p>

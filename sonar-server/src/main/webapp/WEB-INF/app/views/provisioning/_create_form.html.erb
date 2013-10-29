@@ -10,11 +10,11 @@
     <div class="modal-body">
       <div class="modal-field">
         <label for="key"><%= h message('key') -%> <em class="mandatory">*</em></label>
-        <input id="key" name="key" value="<%= @key -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
+        <input id="key" name="key" value="<%= h @key -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
       </div>
       <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
-        <input id="name" name="name" value="<%= @name -%>" type="text" size="50" maxlength="256" value=""/>
+        <input id="name" name="name" value="<%= h @name -%>" type="text" size="50" maxlength="256" value=""/>
       </div>
     </div>
     <div class="modal-foot">
