@@ -70,11 +70,12 @@ public class TechnicalDebtManager implements ServerExtension {
     Model defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
     Model model = loadOrCreateModelFromDb(defaultModel, messages, rulesCache);
     mergePlugins(model, defaultModel, messages, rulesCache);
+    messages.log(LOG);
     session.save(model);
     return model;
   }
 
-  public Model loadModel(){
+  public Model loadModel() {
     return modelFinder.findByName(TechnicalDebtModel.MODEL_NAME);
   }
 
@@ -96,10 +97,8 @@ public class TechnicalDebtManager implements ServerExtension {
   }
 
   public void mergePlugin(Model pluginModel, Model existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
-    messages.log(LOG);
     if (!messages.hasErrors()) {
       new TechnicalDebtMergeModel(existingModel).mergeWith(pluginModel, messages, rulesCache);
-      messages.log(LOG);
     }
   }
 
