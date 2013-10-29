@@ -251,6 +251,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        HttpsTrust.INSTANCE.trust(connection);
+
         // allow both GZip and Deflate (ZLib) encodings
         connection.setRequestProperty("Accept-Encoding", "gzip");
         if (!Strings.isNullOrEmpty(login)) {

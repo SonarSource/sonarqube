@@ -1,0 +1,102 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.api.utils;
+
+import org.junit.Test;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.TrustManager;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyManagementException;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class HttpsTrustTest {
+  @Test
+  public void trustAllHosts() throws Exception {
+    HttpsURLConnection connection = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection);
+
+    assertThat(connection.getHostnameVerifier()).isNotNull();
+    assertThat(connection.getHostnameVerifier().verify("foo", null)).isTrue();
+  }
+
+  @Test
+  public void singleHostnameVerifier() throws Exception {
+    HttpsURLConnection connection1 = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection1);
+    HttpsURLConnection connection2 = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection2);
+
+    assertThat(connection1.getHostnameVerifier()).isSameAs(connection2.getHostnameVerifier());
+  }
+
+  @Test
+  public void trustAllCerts() throws Exception {
+    HttpsURLConnection connection1 = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection1);
+
+    assertThat(connection1.getSSLSocketFactory()).isNotNull();
+    assertThat(connection1.getSSLSocketFactory().getDefaultCipherSuites()).isNotEmpty();
+  }
+
+  @Test
+  public void singleSslFactory() throws Exception {
+    HttpsURLConnection connection1 = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection1);
+    HttpsURLConnection connection2 = newHttpsConnection();
+    HttpsTrust.INSTANCE.trust(connection2);
+
+    assertThat(connection1.getSSLSocketFactory()).isSameAs(connection2.getSSLSocketFactory());
+  }
+
+  @Test
+  public void testAlwaysTrustManager() throws Exception {
+    HttpsTrust.AlwaysTrustManager manager = new HttpsTrust.AlwaysTrustManager();
+    assertThat(manager.getAcceptedIssuers()).isEmpty();
+    // does nothing
+    manager.checkClientTrusted(null, null);
+    manager.checkServerTrusted(null, null);
+  }
+
+  @Test
+  public void failOnError() throws Exception {
+    HttpsTrust.SslContext context = mock(HttpsTrust.SslContext.class);
+    KeyManagementException cause = new KeyManagementException("foo");
+    when(context.newFactory(any(TrustManager.class))).thenThrow(cause);
+
+    try {
+      new HttpsTrust(context);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to build SSL factory");
+      assertThat(e.getCause()).isSameAs(cause);
+    }
+  }
+
+  private HttpsURLConnection newHttpsConnection() throws IOException {
+    return (HttpsURLConnection) new URL("https://localhost").openConnection();
+  }
+}
