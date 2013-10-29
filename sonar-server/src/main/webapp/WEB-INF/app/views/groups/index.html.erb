@@ -30,7 +30,7 @@
             <td class="left" style="word-break:break-all"><%= h group.description -%></td>
             <td class="left">
               <span id="count-<%= group.name.parameterize -%>"><%= group.users.count -%></span>
-              (<a id="select-<%= group.name.parameterize -%>" class="link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
+              (<a id="select-<%= group.name.parameterize -%>" class="open-modal link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
             </td>
             <td class="operations">
               <a id='edit-<%= group.name.parameterize -%>' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/<%= group.id -%>">Edit</a>

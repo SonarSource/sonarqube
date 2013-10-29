@@ -1,0 +1,30 @@
+<div class="modal-head">
+    <h2>Group: <%= h @group.name -%></h2>
+</div>
+
+<div class="modal-body">
+    <div id="select-list-group-<%= @group.id -%>"></div>
+</div>
+
+<div class="modal-foot">
+    <%= link_to 'Close', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
+</div>
+
+<script>
+  var selectList = new SelectList({
+    el: '#select-list-group-<%= @group.id -%>',
+    width: '100%',
+    searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
+    selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
+    deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>',
+    labels: {
+      selected: 'Members',
+      deselected: 'Non-members',
+      all: 'All'
+    },
+    tooltips: {
+      select: 'Click to add this user to the group <%= h @group.name -%>',
+      deselect: 'Click to remove this member from the group <%= h @group.name -%>'
+    }
+  });
+</script>
