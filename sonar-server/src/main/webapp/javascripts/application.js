@@ -356,7 +356,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   var htmlClass = 'accordion-item';
   var currentElement = $j(elt).closest('.'+ htmlClass);
 
-  // Display loading image
+  // Create loading image
   var loadingImg = new Image();
   loadingImg.src = baseUrl + "/images/loading.gif";
   loadingImg.className = 'accordion-loading';
@@ -376,11 +376,17 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     }
     // Remove all accordion items after current element
     elementToRemove.remove();
-    loading.insertAfter(currentElement);
+    // Display loading image only if not already displayed (if previous call was not finished)
+    if (currentElement.next('.accordion-loading').length == 0) {
+      loading.insertAfter(currentElement);
+    }
   } else {
     // Current element is not in a working view, remove all working views
     $j('.'+ htmlClass).remove();
-    loading.insertAfter($j("#accordion-panel"));
+    // Display loading image only if not already displayed (if previous call was not finished)
+    if ($j("#accordion-panel").next('.accordion-loading').length == 0) {
+      loading.insertAfter($j("#accordion-panel"));
+    }
   }
 
   // Get content from url
