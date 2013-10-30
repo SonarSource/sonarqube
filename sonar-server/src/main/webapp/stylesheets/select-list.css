@@ -17,7 +17,7 @@
 }
 
 .select-list-list {
-
+  overflow-x: hidden;
 }
 
   .select-list-list > li {
@@ -46,6 +46,14 @@
     background-color: #4b9fd5;
     filter: alpha(opacity=60);
     opacity: 0.6;
+  }
+
+  .select-list-list > li.removed {
+    -webkit-transform: translateX(100%);
+       -moz-transform: translateX(100%);
+        -ms-transform: translateX(100%);
+         -o-transform: translateX(100%);
+            transform: translateX(100%);
   }
 
 .select-list-list-checkbox {

@@ -1,6 +1,8 @@
-/*global alert:false, Backbone:false, Spinner:false*/
+/*global Backbone:false, Spinner:false*/
 
 (function ($) {
+
+  var showError = null;
 
   /*
    * SelectList Collection
@@ -72,6 +74,20 @@
               this.settings.tooltips.select);
     },
 
+    remove: function(postpone) {
+      if (postpone) {
+        var that = this;
+        setTimeout(function() {
+          that.$el.addClass('removed');
+          setTimeout(function() {
+            Backbone.View.prototype.remove.call(that, arguments);
+          }, 500);
+        }, 500);
+      } else {
+        Backbone.View.prototype.remove.call(this, arguments);
+      }
+    },
+
     toggle: function() {
       var selected = this.model.get('selected'),
           that = this;
@@ -89,9 +105,7 @@
           .done(function() {
             that.model.set('selected', !selected);
           })
-          .fail(function() {
-            alert(that.settings.errorMessage);
-          });
+          .fail(showError);
     }
   });
 
@@ -132,6 +146,8 @@
     initialize: function(options) {
       this.listenTo(this.collection, 'add', this.renderListItem);
       this.listenTo(this.collection, 'reset', this.renderList);
+      this.listenTo(this.collection, 'remove', this.removeModel);
+      this.listenTo(this.collection, 'change:selected', this.confirmFilter);
       this.settings = options.settings;
     },
 
@@ -154,10 +170,17 @@
           .on('keyup', $.debounce(250, keyup));
 
       this.listItemViews = [];
+
+      showError = function() {
+        $('<div>')
+            .addClass('error').text(that.settings.errorMessage)
+            .insertBefore(that.$el);
+      };
     },
 
     renderList: function() {
       this.listItemViews.forEach(function(view) { view.remove(); });
+      this.listItemViews = [];
       this.collection.each(this.renderListItem, this);
       this.$listContainer.scrollTop(0);
     },
@@ -170,6 +193,17 @@
       this.listItemViews.push(itemView);
       this.$list.append(itemView.el);
       itemView.render();
+    },
+
+    confirmFilter: function(model) {
+      if (this.currentFilter !== 'all') {
+        this.collection.remove(model);
+      }
+    },
+
+    removeModel: function(model, collection, options) {
+      this.listItemViews[options.index].remove(true);
+      this.listItemViews.splice(options.index, 1);
     },
 
     filterBySelection: function(filter) {
@@ -193,9 +227,7 @@
           success: function() {
             that.hideFetchSpinner();
           },
-          error: function() {
-            alert(that.settings.errorMessage);
-          }
+          error: showError
         });
       }
     },
@@ -230,9 +262,7 @@
           success: function() {
             that.hideFetchSpinner();
           },
-          error: function() {
-            alert(that.settings.errorMessage);
-          }
+          error: showError
         });
       } else {
         this.filterBySelection();
