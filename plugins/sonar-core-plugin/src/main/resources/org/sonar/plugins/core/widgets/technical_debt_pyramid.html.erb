@@ -1,6 +1,7 @@
 <%
    technical_debt_model = 'SQALE'
    technical_debt = measure('sqale_index')
+   # Load root characteristics only
    characteristics = Characteristic.find(:all, :joins => :quality_model,
                                        :conditions => ['quality_models.name=? AND characteristics.depth=1 AND characteristics.rule_id IS NULL and characteristics.enabled=?', technical_debt_model, true],
                                        :order => 'characteristic_order DESC')
