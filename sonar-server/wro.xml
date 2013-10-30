@@ -25,6 +25,8 @@
     <js>/javascripts/third-party/spin.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
 
+    <js>/javascripts/protovis-sonar.js</js>
+
     <js>/javascripts/widgets/bubble-chart.js</js>
     <js>/javascripts/widgets/timeline.js</js>
 
