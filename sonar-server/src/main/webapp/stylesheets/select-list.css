@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+.select-list-list-container.loading .select-list-list {
+  display: none;
+}
+
 .select-list-list {
   overflow-x: hidden;
 }
@@ -24,28 +28,10 @@
     position: relative;
     display: block;
     margin-top: -1px;
-    padding: 5px 10px 5px 30px;
+    padding: 5px 10px;
     border-top: 1px solid #e0e0e0;
     color: #404040;
     transition: all 0.3s ease;
-  }
-
-  .select-list-list > li.selected {
-    background-color: #e9f8fd;
-  }
-
-  .select-list-list > li.selected > .select-list-list-checkbox:before {
-    border-color: #4b9fd5;
-    background-color: #4b9fd5;
-    filter: alpha(opacity=100);
-    opacity: 1;
-  }
-
-  .select-list-list > li.selected > .select-list-list-checkbox:hover:before {
-    border-color: #4b9fd5;
-    background-color: #4b9fd5;
-    filter: alpha(opacity=60);
-    opacity: 0.6;
   }
 
   .select-list-list > li.removed {
@@ -57,65 +43,27 @@
   }
 
 .select-list-list-checkbox {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 26px;
-  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
 }
 
-.select-list-list-checkbox.with-spinner {
-
-}
-
-.select-list-list-checkbox.with-spinner:before {
-  display: none;
-  visibility: hidden;
-}
-
-.select-list-list-checkbox:before {
-  content: ' ';
-  position: absolute;
-  display: block;
-  top: 50%; left: 8px;
-  width: 5px;
-  height: 5px;
-  margin-top: -3px;
-  border: 1px solid #c5c5c5;
-  border-radius: 20px;
-  background-color: transparent;
-  filter: alpha(opacity=40);
-  opacity: 0.4;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.select-list-list-checkbox:hover:before {
-  border-color: #4b9fd5;
-  background-color: #4b9fd5;
-  filter: alpha(opacity=80);
-  opacity: 0.8;
+.select-list-list-item {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .select-list-control {
-  height: 30px;
+  height: 27px;
 }
 
 .select-list-check-control {
   float: left;
 }
 
-.select-list-check-control.disabled .select-list-control-button {
-  background: transparent;
-  border-color: #aaa;
-  color: #aaa;
-}
-
-.select-list-check-control.disabled .select-list-control-button.active {
-  background-color: #f5fdff;
-}
-
-.select-list-check-control.disabled .select-list-control-button.active:before {
-  display: none;
+.select-list-check-control.disabled {
+  filter: alpha(opacity=60);
+  opacity: 0.6;
 }
 
 .select-list-control-button {
@@ -124,9 +72,8 @@
   display: inline-block;
   vertical-align: middle;
   width: 110px;
-  height: 30px;
-  line-height: 30px;
-  line-height: 28px\9;
+  height: 27px;
+  line-height: 25px;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   border: 1px solid #bfbfbf;
@@ -136,26 +83,13 @@
 }
 
 .select-list-control-button:hover {
-  background-color: #e9f8fd;
-}
-
-.select-list-control-button[name=selected]:before {
-  content: ' ';
-  display: inline-block;
-  vertical-align: top;
-  width: 5px;
-  height: 5px;
-  margin: 11px 8px 0 0;
-  border: 1px solid #4b9fd5;
-  border-radius: 20px;
-  background-color: #4b9fd5;
+  background-color: #f6f6f6;
 }
 
 .select-list-control-button:active,
 .select-list-control-button.active {
   z-index: 2;
-  background-color: #e9f8fd;
-  border-color: #4b9fd5;
+  background-color: #efefef;
 }
 
 .select-list-control-button + .select-list-control-button {
@@ -166,13 +100,13 @@
 .select-list-search-control {
   position: relative;
   float: right;
-  height: 30px;
+  height: 27px;
 }
 
 .select-list-search-control input {
   width: 170px;
   height: 100%;
-  line-height: 30px\9;
+  line-height: 27px\9;
   padding: 0 40px 0 10px;
   border: 1px solid #bfbfbf;
   -moz-box-sizing: border-box;
@@ -183,7 +117,6 @@
 .select-list-search-control input:focus {
   outline: none;
   box-shadow: none;
-  border-color: #4b9fd5;
 }
 
 .select-list-search-control input::-ms-clear {
@@ -194,9 +127,9 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
+  width: 23px;
+  height: 23px;
+  line-height: 24px;
   background-color: #e0e0e0;
   color: #fff;
   cursor: pointer;

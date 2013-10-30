@@ -22,7 +22,6 @@
     <js>/javascripts/third-party/underscore-min.js</js>
     <js>/javascripts/third-party/backbone-min.js</js>
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
-    <js>/javascripts/third-party/spin.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
 
     <js>/javascripts/protovis-sonar.js</js>

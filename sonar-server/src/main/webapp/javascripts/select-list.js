@@ -52,10 +52,13 @@
   var SelectListItemView = Backbone.View.extend({
     tagName: 'li',
 
-    checkboxTemplate: '<a class="select-list-list-checkbox"></a>',
+    template: function(d) {
+      return  '<input class="select-list-list-checkbox" type="checkbox">' +
+          '<div class="select-list-list-item">' + d + '</div>';
+    },
 
     events: {
-      'click .select-list-list-checkbox': 'toggle'
+      'change .select-list-list-checkbox': 'toggle'
     },
 
     initialize: function(options) {
@@ -64,25 +67,23 @@
     },
 
     render: function() {
-      this.$el.empty()
-          .append(this.checkboxTemplate)
-          .append(this.settings.format(this.model.toJSON()));
+      this.$el.html(this.template(this.settings.format(this.model.toJSON())));
       this.$el.toggleClass('selected', this.model.get('selected'));
-      this.$('.select-list-list-checkbox').attr('title',
-          this.model.get('selected') ?
-              this.settings.tooltips.deselect :
-              this.settings.tooltips.select);
+      this.$('.select-list-list-checkbox')
+          .prop('title',
+              this.model.get('selected') ?
+                  this.settings.tooltips.deselect :
+                  this.settings.tooltips.select)
+          .prop('checked', this.model.get('selected'));
     },
 
     remove: function(postpone) {
       if (postpone) {
         var that = this;
-        setTimeout(function() {
           that.$el.addClass('removed');
           setTimeout(function() {
             Backbone.View.prototype.remove.call(that, arguments);
           }, 500);
-        }, 500);
       } else {
         Backbone.View.prototype.remove.call(this, arguments);
       }
@@ -90,13 +91,9 @@
 
     toggle: function() {
       var selected = this.model.get('selected'),
-          that = this;
+          that = this,
+          url = selected ? this.settings.deselectUrl : this.settings.selectUrl;
 
-      this.$('.select-list-list-checkbox').addClass('with-spinner');
-      new Spinner(this.settings.spinnerSmall)
-          .spin(this.$('.select-list-list-checkbox')[0]);
-
-      var url = selected ? this.settings.deselectUrl : this.settings.selectUrl;
       $.ajax({
           url: url,
           type: 'POST',
@@ -279,14 +276,11 @@
     },
 
     showFetchSpinner: function() {
-      var options = $.extend(this.settings.spinnerBig, {
-        className: 'select-list-spinner'
-      });
-      new Spinner(options).spin(this.$el[0]);
+      this.$listContainer.addClass('loading');
     },
 
     hideFetchSpinner: function() {
-      this.$('.select-list-spinner').remove();
+      this.$listContainer.removeClass('loading');
     },
 
     scroll: function() {
@@ -368,45 +362,7 @@
       deselect: 'Click this to deselect item'
     },
 
-    errorMessage: 'Something gone wrong, try to reload the page and try again.',
-
-    spinnerSmall: {
-      lines: 9, // The number of lines to draw
-      length: 0, // The length of each line
-      width: 2, // The line thickness
-      radius: 4, // The radius of the inner circle
-      corners: 1, // Corner roundness (0..1)
-      rotate: 0, // The rotation offset
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#4b9fd5', // #rgb or #rrggbb or array of colors
-      speed: 2, // Rounds per second
-      trail: 60, // Afterglow percentage
-      shadow: false, // Whether to render a shadow
-      hwaccel: false, // Whether to use hardware acceleration
-      className: 'spinner', // The CSS class to assign to the spinner
-      zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: 'auto', // Top position relative to parent in px
-      left: 'auto' // Left position relative to parent in px
-    },
-
-    spinnerBig: {
-      lines: 9, // The number of lines to draw
-      length: 0, // The length of each line
-      width: 6, // The line thickness
-      radius: 16, // The radius of the inner circle
-      corners: 1, // Corner roundness (0..1)
-      rotate: 0, // The rotation offset
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#4b9fd5', // #rgb or #rrggbb or array of colors
-      speed: 2, // Rounds per second
-      trail: 60, // Afterglow percentage
-      shadow: false, // Whether to render a shadow
-      hwaccel: false, // Whether to use hardware acceleration
-      className: 'spinner', // The CSS class to assign to the spinner
-      zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: 'auto', // Top position relative to parent in px
-      left: 'auto' // Left position relative to parent in px
-    }
+    errorMessage: 'Something gone wrong, try to reload the page and try again.'
   };
 
 })(jQuery);
