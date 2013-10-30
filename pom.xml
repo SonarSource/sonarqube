@@ -977,7 +977,7 @@
         -->
         <groupId>org.jruby</groupId>
         <artifactId>jruby-complete</artifactId>
-        <version>1.7.3</version>
+        <version>1.7.6</version>
       </dependency>
       <dependency>
         <groupId>geronimo-spec</groupId>
