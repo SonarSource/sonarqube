@@ -33,7 +33,7 @@
             <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
             <td class="right thin nowrap">
             <% if is_admin? %>
-             <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>
+             <a id="edit_<%= h(metric.short_name)-%>" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>
               &nbsp;
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/metrics/delete_from_web/#{metric.id}",
                                  :class => 'link-action link-red',

@@ -25,7 +25,7 @@ class MetricsController < ApplicationController
 
   def index
     prepare_metrics_and_domains
-    
+
     if params['id']
       @metric=Metric.find(params['id'].to_i)
       params['domain']=@metric.domain(false)
@@ -36,7 +36,7 @@ class MetricsController < ApplicationController
   end
 
  def create_form
-    prepare_metrics_and_domains
+   prepare_metrics_and_domains
 
     if params['id']
       @metric=Metric.find(params['id'].to_i)
@@ -111,7 +111,7 @@ class MetricsController < ApplicationController
       @domains = metric.domain
       render :partial => 'metrics/create_form', :status => 400
     else
-      redirect_to :action => 'index', :domain => metric.domain(false)
+      render :text => 'ok', :status => 200
     end
   end
 
@@ -127,7 +127,6 @@ class MetricsController < ApplicationController
     end
     redirect_to :action => 'index', :domain => metric.domain(false)
   end
-
 
   def delete_from_web
     metric = Metric.by_id(params[:id].to_i) if params[:id] && params[:id].size > 0
