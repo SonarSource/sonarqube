@@ -14,6 +14,29 @@ require 'color'
 require 'rubygems'
 Gem::Deprecate.skip = (RAILS_ENV == 'production')
 
+# Needed to support rails 2.3 with latest gem provided by JRuby
+# See http://djellemah.com/blog/2013/02/27/rails-23-with-ruby-20/
+module Gem
+  def self.source_index
+    sources
+  end
+
+  def self.cache
+    sources
+  end
+
+  SourceIndex = Specification
+
+  class SourceList
+    # If you want vendor gems, this is where to start writing code.
+    def search( *args ); []; end
+    def each( &block ); end
+    include Enumerable
+  end
+end
+
+
+
 #
 # Limitation of Rails 2.3 and Rails Engines (plugins) when threadsafe! is enabled in production mode
 # See http://groups.google.com/group/rubyonrails-core/browse_thread/thread/9067bce01444fb24?pli=1
