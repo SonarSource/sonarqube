@@ -83,7 +83,7 @@ public class HttpsTrustTest {
 
   @Test
   public void failOnError() throws Exception {
-    HttpsTrust.SslContext context = mock(HttpsTrust.SslContext.class);
+    HttpsTrust.Ssl context = mock(HttpsTrust.Ssl.class);
     KeyManagementException cause = new KeyManagementException("foo");
     when(context.newFactory(any(TrustManager.class))).thenThrow(cause);
 

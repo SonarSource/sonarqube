@@ -31,9 +31,9 @@ import java.security.cert.X509Certificate;
  */
 class HttpsTrust {
 
-  static HttpsTrust INSTANCE = new HttpsTrust(new SslContext());
+  static HttpsTrust INSTANCE = new HttpsTrust(new Ssl());
 
-  static class SslContext {
+  static class Ssl {
     SSLSocketFactory newFactory(TrustManager... managers) throws NoSuchAlgorithmException, KeyManagementException {
       SSLContext context = SSLContext.getInstance("TLS");
       context.init(null, managers, new SecureRandom());
@@ -44,7 +44,7 @@ class HttpsTrust {
   private final SSLSocketFactory socketFactory;
   private final HostnameVerifier hostnameVerifier;
 
-  HttpsTrust(SslContext context) {
+  HttpsTrust(Ssl context) {
     this.socketFactory = createSocketFactory(context);
     this.hostnameVerifier = createHostnameVerifier();
   }
@@ -60,7 +60,7 @@ class HttpsTrust {
   /**
    * Trust all certificates
    */
-  private SSLSocketFactory createSocketFactory(SslContext context) {
+  private SSLSocketFactory createSocketFactory(Ssl context) {
     try {
       return context.newFactory(new AlwaysTrustManager());
     } catch (Exception e) {
