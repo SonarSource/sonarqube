@@ -15,7 +15,6 @@
     <js>/javascripts/third-party/prototype.js</js>
     <js>/javascripts/third-party/scriptaculous.js</js>
     <js>/javascripts/third-party/tablekit.js</js>
-    <js>/javascripts/third-party/protovis.js</js>
     <js>/javascripts/third-party/jquery.min.js</js>
     <js>/javascripts/third-party/jquery-ui.min.js</js>
     <js>/javascripts/third-party/d3.v3.min.js</js>
@@ -24,10 +23,9 @@
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
 
-    <js>/javascripts/protovis-sonar.js</js>
-
     <js>/javascripts/widgets/bubble-chart.js</js>
     <js>/javascripts/widgets/timeline.js</js>
+    <js>/javascripts/widgets/stack-area.js</js>
 
     <js>/javascripts/select-list.js</js>
     <js>/javascripts/application.js</js>
