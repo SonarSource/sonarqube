@@ -156,7 +156,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
           var metricLines = [
             { metric: widget.metrics().x, value: d.xMetricFormatted },
-            { metric: widget.metrics().y, value: '100000000' },
+            { metric: widget.metrics().y, value: d.yMetricFormatted },
             { metric: widget.metrics().size, value: d.sizeMetricFormatted }
           ];
 

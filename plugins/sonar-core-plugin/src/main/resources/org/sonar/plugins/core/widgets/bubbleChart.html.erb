@@ -35,26 +35,26 @@
     %>
     {
       id: <%= row.resource.id -%>,
-      key: '<%= row.resource.key -%>',
-      name: '<%= row.resource.name -%>',
-      longName: '<%= row.resource.long_name -%>',
+      key: '<%= escape_javascript row.resource.key -%>',
+      name: '<%= escape_javascript row.resource.name -%>',
+      longName: '<%= escape_javascript row.resource.long_name -%>',
 
       xMetric: <%= x ? x.value : 0 -%>,
-      xMetricFormatted: '<%= x ? x.formatted_value : "-" -%>',
+      xMetricFormatted: '<%= escape_javascript x ? x.formatted_value : "-" -%>',
 
       yMetric: <%= y ? y.value : 0 -%>,
-      yMetricFormatted: '<%= y ? y.formatted_value : "-" -%>',
+      yMetricFormatted: '<%= escape_javascript y ? y.formatted_value : "-" -%>',
 
       sizeMetric: <%= size ? size.value : 0 -%>,
-      sizeMetricFormatted: '<%= size ? size.formatted_value : "-" -%>'
+      sizeMetricFormatted: '<%= escape_javascript size ? size.formatted_value : "-" -%>'
     },
     <% end %>
   ];
 
   var bubbleChartMetrics = {
-    x: '<%= xMetric.short_name -%>',
-    y: '<%= yMetric.short_name -%>',
-    size: '<%= sizeMetric.short_name -%>'
+    x: '<%= escape_javascript xMetric.short_name -%>',
+    y: '<%= escape_javascript yMetric.short_name -%>',
+    size: '<%= escape_javascript sizeMetric.short_name -%>'
   };
 
 
