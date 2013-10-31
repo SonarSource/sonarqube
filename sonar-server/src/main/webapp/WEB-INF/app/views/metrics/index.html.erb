@@ -24,6 +24,11 @@
           </tr>
         </thead>
         <tbody>
+        <% if @metrics.empty? %>
+          <tr class="even">
+              <td colspan="6"><%= message('no_results') -%></td>
+          </tr>
+        <% end %>
         <% @metrics.each do |metric| %>
           <tr>
             <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>

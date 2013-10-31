@@ -12,7 +12,7 @@
               <label for="user[login]">Name <em class="mandatory">*</em></label><%= f.text_field :short_name %><br/>
           </div>
           <div class="modal-field">
-              <label for="user[login]"> Description</label><%= f.text_area :description, :size => 40, :cols => 50, :rows => 2 %><br/>
+              <label for="user[login]"> Description</label><%= f.text_area :description, :size => 40, :cols => 50, :rows => 5 %><br/>
           </div>
           <div class="modal-field">
               <label for="user[login]">Domain</label><%= f.select( :domain, @domains, :include_blank => true) %>
