@@ -1,9 +1,16 @@
+<div class="line-block">
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a id="create-link-action_plans" href="<%=ApplicationController.root_context-%>/action_plans/create_form/<%= h(@resource.id) -%>"  class="open-modal link-action">Add new action plan</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1><%= message('action_plans.page_title') -%></h1>
+</div>
 <table width="100%" id="action-plans">
   <tr>
     <td valign="top">
-
-      <h1><%= message('action_plans.page_title') -%></h1>
-
       <table class="width100 data sortable actionPlans" id="open-action-plans">
         <thead>
         <tr>
@@ -40,7 +47,7 @@
             <td id="desc"><%= h(plan.description()) -%></td>
             <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
             <td class="thin nowrap right">
-              <%= link_to message('edit'), {:action => 'edit', :id => @resource.id, :plan_key => plan.key()}, :class => 'link-action' -%>
+              <%= link_to message('edit'), {:action => 'edit_form', :id => @resource.id, :plan_key => plan.key()}, :class => 'open-modal link-action' -%>
               &nbsp;
               <%
                  close_confirmation_message = {}
@@ -51,7 +58,14 @@
               <%= link_to message('close'),
                           {:action => 'change_status', :id => @resource.id, :plan_key => plan.key()}, {:method => 'POST', :class => 'link-action'}.merge(close_confirmation_message) -%>
               &nbsp;
-              <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_key => plan.key()}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'link-action link-red'} -%>
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete_#{h(plan.key)}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'Delete action plan: '+ h(plan.name()),
+                                   :confirm_msg => message('action_plans.confirm_delete'),
+                                   :confirm_msg_params => ''
+              -%>
             </td>
           </tr>
         <% end %>
@@ -101,20 +115,20 @@
                 <%= link_to message('action_plans.reopen'),
                             {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'link-action'} -%>
                 &nbsp;
-                <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'link-action link-red'} -%>
+                  <%= link_to_action message('delete'), "#{ApplicationController.root_context}/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
+                                     :class => 'link-action link-red',
+                                     :id => "delete_#{h(plan.key)}",
+                                     :confirm_button => message('delete'),
+                                     :confirm_title => 'Delete action plan: '+ h(plan.name()),
+                                     :confirm_msg => message('action_plans.confirm_delete'),
+                                     :confirm_msg_params => ''
+                  -%>
               </td>
             </tr>
           <% end %>
           </tbody>
         </table>
       <% end %>
-
-    </td>
-    <td class="sep"></td>
-    <td width="210" valign="top" align="right">
-      <div id="admin_form">
-        <%= render :partial => 'new' %>
-      </div>
     </td>
   </tr>
 </table>

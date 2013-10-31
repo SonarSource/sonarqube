@@ -27,36 +27,58 @@ class ActionPlansController < ApplicationController
     load_action_plans()
   end
 
-  def edit
+  def create_form
+    load_action_plans()
+    render :partial => 'action_plans/create_form'
+  end
+
+  def edit_form
     @action_plan = find_by_key(params[:plan_key])
     load_action_plans()
-    render 'index'
+    render :partial => 'action_plans/edit_form'
+  end
+
+  def edit
+    verify_post_request
+    options = {'project' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
+
+    action_plan_result = Internal.issues.updateActionPlan(params[:plan_key], options)
+
+    if action_plan_result.ok()
+      @action_plan = action_plan_result.get()
+      flash[:notice] = 'Successfully edited.'
+      render :text => 'ok', :status => 200
+    else
+      @errors = []
+      @errors << action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+      @action_plan = find_by_key(params[:plan_key])
+      load_action_plans()
+      render :partial => 'action_plans/edit_form', :status => 400
+    end
   end
 
   def save
     verify_post_request
     options = {'project' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
 
-    exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
-    if exiting_action_plan
-      action_plan_result = Internal.issues.updateActionPlan(params[:plan_key], options)
-    else
-      action_plan_result = Internal.issues.createActionPlan(options)
-    end
+    action_plan_result = Internal.issues.createActionPlan(options)
 
     if action_plan_result.ok()
       @action_plan = action_plan_result.get()
-      redirect_to :action => 'index', :id => @resource.id
+      flash[:notice] = 'Successfully created.'
+      render :text => 'ok', :status => 200
     else
-      flash[:error] = action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+      @errors = []
+      @errors << action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
       load_action_plans()
-      render 'index'
+      render :partial => 'action_plans/create_form', :status => 400
     end
   end
 
   def delete
     verify_post_request
     Internal.issues.deleteActionPlan(params[:plan_key])
+    flash[:notice] = 'Successfully deleted.'
     redirect_to :action => 'index', :id => @resource.id
   end
 

@@ -1,0 +1,41 @@
+<form action="<%= url_for :action => 'edit' -%>" method="POST" id="edit-action-plan-form">
+    <input type="hidden" name="id" value="<%= @resource.id -%>"/>
+    <input type="hidden" name="plan_key" value="<%= @action_plan.key() if @action_plan -%>"/>
+
+    <fieldset>
+        <div class="modal-head">
+            <h2><%= message('action_plans.edit_action_plan') -%>: <%= @action_plan ? @action_plan.name() : params[:name] -%></h2>
+        </div>
+        <div class="modal-body">
+            <% if @errors %>
+              <p class="error"><%= @errors -%></p>
+            <% end %>
+
+            <div class="modal-field">
+                <label for="user[login]"><%= message('action_plans.col.name') -%> <em class="mandatory">*</em></label>
+                <input type="text" name="name" id="name" value="<%= @action_plan ? @action_plan.name() : params[:name] -%>"/><br/>
+            </div>
+            <div class="modal-field">
+                <label for="user[login]"> <%= message('action_plans.col.due_for') -%> </label>
+                <input type="text" name="deadline" id="deadline" value="<%= @action_plan && @action_plan.deadLine() ? Api::Utils.format_date(@action_plan.deadLine()) : params[:deadline] -%>"/>
+                <br/>
+                <span class="note"><%= message('action_plans.date_format_help') -%></span>
+                <br/>
+            </div>
+            <div class="modal-field">
+                <label for="user[login]"><%= message('action_plans.col.description') -%> </label>
+                <textarea rows="5" cols="80" name="description" id="description" class="width100"><%= @action_plan ? @action_plan.description() : params['description'] -%></textarea>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+            <input type="submit" value="<%= h(message('edit')) -%>"/>
+            <%= link_to message('cancel'), { :controller => 'action_plans', :action => 'index', :id => @resource.id}, { :class => 'action' } %>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+  $j("#edit-action-plan-form").modalForm();
+</script>
+
