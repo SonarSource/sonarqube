@@ -25,7 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -46,10 +48,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InternalRubyIssueServiceTest {
 
@@ -290,11 +289,23 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void test_changelog() throws Exception {
+  public void test_changelog_from_issue_key() throws Exception {
     IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs> emptyList(), Collections.<User> emptyList());
-    when(changelogService.changelog(eq("ABCDE"), any(UserSession.class))).thenReturn(changelog);
+    when(changelogService.changelog(eq("ABCDE"))).thenReturn(changelog);
 
     IssueChangelog result = service.changelog("ABCDE");
+
+    assertThat(result).isSameAs(changelog);
+  }
+
+  @Test
+  public void test_changelog_from_issue() throws Exception {
+    Issue issue = new DefaultIssue().setKey("ABCDE");
+
+    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs> emptyList(), Collections.<User> emptyList());
+    when(changelogService.changelog(eq(issue))).thenReturn(changelog);
+
+    IssueChangelog result = service.changelog(issue);
 
     assertThat(result).isSameAs(changelog);
   }

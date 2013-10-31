@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.issue;
 
+import javax.annotation.CheckForNull;
+
 /**
  * @since 4.1
  */
@@ -26,8 +28,10 @@ public interface IssueChangeDiff {
 
   String key();
 
+  @CheckForNull
   String newValue();
 
+  @CheckForNull
   String oldValue();
 
 }

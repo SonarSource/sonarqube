@@ -119,8 +119,11 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueChangelog changelog(String issueKey) {
-    // TODO verify security
-    return changelogService.changelog(issueKey, UserSession.get());
+    return changelogService.changelog(issueKey);
+  }
+
+  public IssueChangelog changelog(Issue issue) {
+    return changelogService.changelog(issue);
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {

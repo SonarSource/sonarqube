@@ -19,16 +19,21 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
@@ -37,25 +42,38 @@ public class IssueChangelogService implements ServerComponent {
 
   private final IssueChangeDao changeDao;
   private final UserFinder userFinder;
+  private final DefaultIssueFinder finder;
 
-  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder) {
+  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, DefaultIssueFinder finder) {
     this.changeDao = changeDao;
     this.userFinder = userFinder;
+    this.finder = finder;
   }
 
-  public IssueChangelog changelog(String issueKey, UserSession userSession) {
-    // TODO verify security
-    List<FieldDiffs> changes = changeDao.selectChangelogByIssue(issueKey);
+  public IssueChangelog changelog(String issueKey) {
+    Issue issue = loadIssue(issueKey).first();
+    return changelog(issue);
+  }
+
+  public IssueChangelog changelog(Issue issue) {
+    List<FieldDiffs> changes = changeDao.selectChangelogByIssue(issue.key());
 
     // Load users
-    List<String> logins = Lists.newArrayList();
+    List<String> logins = newArrayList();
     for (FieldDiffs change : changes) {
       if (change.userLogin() != null) {
         logins.add(change.userLogin());
       }
     }
     Collection<User> users = userFinder.findByLogins(logins);
-
     return new IssueChangelog(changes, users);
+  }
+
+  public IssueQueryResult loadIssue(String issueKey) {
+    IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(newArrayList(issueKey)).requiredRole(UserRole.USER).build());
+    if (result.issues().size() != 1) {
+      throw new NotFoundException("Issue not found: " + issueKey);
+    }
+    return result;
   }
 }
