@@ -13,19 +13,10 @@
       <td class="thin left top" nowrap><%= h(user.name()) if user -%></td>
       <td class="left top">
         <%
-           change.diffs.entrySet().each_with_index do |entry, index|
-             key = entry.getKey()
-             diff = entry.getValue()
+           Internal.issues.formatChangelog(change).each_with_index do |message, index|
         %>
           <% if index>0 %><br/><% end %>
-          <% if diff.newValue.present? %>
-            <%= message('issue.changelog.changed_to', :params => [message(key), diff.newValue()]) -%>
-          <% else %>
-            <%= message('issue.changelog.removed', :params => [message(key)]) -%>
-          <% end %>
-          <% if diff.oldValue.present? %>
-            (<%= message('issue.changelog.was', :params => [diff.oldValue]) -%>)
-          <% end %>
+          <%= message -%>
         <% end %>
       </td>
     </tr>

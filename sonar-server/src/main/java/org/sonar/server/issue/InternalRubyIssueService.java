@@ -32,6 +32,7 @@ import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.SonarException;
@@ -81,12 +82,13 @@ public class InternalRubyIssueService implements ServerComponent {
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
+  private final IssueChangelogFormatter issueChangelogFormatter;
 
   public InternalRubyIssueService(IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
-    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
+    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService, IssueChangelogFormatter issueChangelogFormatter) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -96,6 +98,7 @@ public class InternalRubyIssueService implements ServerComponent {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+    this.issueChangelogFormatter = issueChangelogFormatter;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -124,6 +127,10 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public IssueChangelog changelog(Issue issue) {
     return changelogService.changelog(issue);
+  }
+
+  public List<String> formatChangelog(FieldDiffs diffs){
+    return issueChangelogFormatter.format(UserSession.get().locale(), diffs);
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {

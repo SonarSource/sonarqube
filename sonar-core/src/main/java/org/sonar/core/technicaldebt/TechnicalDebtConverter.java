@@ -65,6 +65,13 @@ public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
     }
   }
 
+  public double toDays(TechnicalDebt technicalDebt) {
+    double resultDays = technicalDebt.days();
+    resultDays += Double.valueOf(technicalDebt.hours()) / hoursInDay;
+    resultDays += Double.valueOf(technicalDebt.minutes()) / (hoursInDay * 60.0);
+    return resultDays;
+  }
+
   public TechnicalDebt fromMinutes(Long inMinutes){
     int oneHourInMinute = 60;
     int days = 0;

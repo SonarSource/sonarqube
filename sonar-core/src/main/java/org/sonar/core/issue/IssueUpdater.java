@@ -48,6 +48,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
+  public static final String TECHNICAL_DEBT = "technicalDebt";
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {
@@ -203,6 +204,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     TechnicalDebt oldValue = issue.technicalDebt();
     if (!Objects.equal(value, oldValue)) {
       issue.setTechnicalDebt(value);
+      issue.setFieldChange(context, TECHNICAL_DEBT, oldValue.toLong(), value.toLong());
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;

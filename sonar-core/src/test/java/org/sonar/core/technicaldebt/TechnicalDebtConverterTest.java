@@ -19,14 +19,13 @@
  */
 package org.sonar.core.technicaldebt;
 
-import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.technicaldebt.TechnicalDebt;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class TechnicalDebtConverterTest {
 
@@ -41,17 +40,17 @@ public class TechnicalDebtConverterTest {
   }
 
   @Test
-  public void convert_to_days() {
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS)), is(6.0));
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6.0 / 12.0));
-    assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(1.0 / 12.0));
+  public void convert_work_unit_to_days() {
+    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS))).isEqualTo(6.0);
+    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS))).isEqualTo(6.0 / 12.0);
+    assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES))).isEqualTo(1.0 / 12.0);
   }
 
   @Test
-  public void concert_to_minutes() {
-    assertThat(converter.toMinutes(WorkUnit.create(2.0, WorkUnit.DAYS)), is(2 * 12 * 60L));
-    assertThat(converter.toMinutes(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6 * 60L));
-    assertThat(converter.toMinutes(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(60L));
+  public void concert_work_unit_to_minutes() {
+    assertThat(converter.toMinutes(WorkUnit.create(2.0, WorkUnit.DAYS))).isEqualTo(2 * 12 * 60L);
+    assertThat(converter.toMinutes(WorkUnit.create(6.0, WorkUnit.HOURS))).isEqualTo(6 * 60L);
+    assertThat(converter.toMinutes(WorkUnit.create(60.0, WorkUnit.MINUTES))).isEqualTo(60L);
   }
 
   @Test
@@ -68,10 +67,20 @@ public class TechnicalDebtConverterTest {
     checkValues(converter.fromMinutes(790L), 10L, 1L, 1L);
   }
 
+  @Test
+  public void convert_technical_debt_to_days() {
+    assertThat(converter.toDays(TechnicalDebt.of(0, 0, 6))).isEqualTo(6.0);
+    assertThat(converter.toDays(TechnicalDebt.of(0, 6, 0))).isEqualTo(0.5);
+    assertThat(converter.toDays(TechnicalDebt.of(360, 0, 0))).isEqualTo(0.5);
+    assertThat(converter.toDays(TechnicalDebt.of(45, 0, 0))).isEqualTo(0.0625);
+
+    assertThat(converter.toDays(TechnicalDebt.of(45, 6, 1))).isEqualTo(1.5625);
+  }
+  
   private void checkValues(TechnicalDebt technicalDebt, Long expectedMinutes, Long expectedHours, Long expectedDays) {
-    Assertions.assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
-    Assertions.assertThat(technicalDebt.hours()).isEqualTo(expectedHours);
-    Assertions.assertThat(technicalDebt.days()).isEqualTo(expectedDays);
+    assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
+    assertThat(technicalDebt.hours()).isEqualTo(expectedHours);
+    assertThat(technicalDebt.days()).isEqualTo(expectedDays);
   }
 
 }

@@ -371,8 +371,11 @@ public class IssueUpdaterTest {
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.technicalDebt()).isEqualTo(TechnicalDebt.of(15, 0, 0));
-
     assertThat(issue.mustSendNotifications()).isFalse();
+
+    FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
+    assertThat(diff.oldValue()).isEqualTo(TechnicalDebt.of(10, 0, 0).toLong());
+    assertThat(diff.newValue()).isEqualTo(TechnicalDebt.of(15, 0, 0).toLong());
   }
 
   @Test
