@@ -2,7 +2,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
-              <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/create_form" id="create-link-metric" class="open-modal link-action">Add new metric</a>
+              <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/create_form" class="open-modal link-action">Add new metric</a>
           </li>
       </ul>
     <% end %>
@@ -33,7 +33,7 @@
             <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
             <td class="right thin nowrap">
             <% if is_admin? %>
-             <a id="edit_<%= h(metric.short_name)-%>" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>
+             <a id="edit_<%= metric.key.parameterize -%>" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>
               &nbsp;
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/metrics/delete_from_web/#{metric.id}",
                                  :class => 'link-action link-red',
