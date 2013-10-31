@@ -11,6 +11,7 @@
     <css>/stylesheets/sonar-colorizer.css</css>
     <css>/stylesheets/dashboard.css</css>
     <css>/stylesheets/select-list.css</css>
+    <css>/stylesheets/navigator.css</css>
 
     <js>/javascripts/third-party/prototype.js</js>
     <js>/javascripts/third-party/scriptaculous.js</js>
@@ -20,6 +21,7 @@
     <js>/javascripts/third-party/d3.v3.min.js</js>
     <js>/javascripts/third-party/underscore-min.js</js>
     <js>/javascripts/third-party/backbone-min.js</js>
+    <js>/javascripts/third-party/backbone.marionette.min.js</js>
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
 
@@ -28,6 +30,10 @@
     <js>/javascripts/widgets/stack-area.js</js>
 
     <js>/javascripts/select-list.js</js>
+
+    <js>/javascripts/navigator/filters.js</js>
+    <js>/javascripts/navigator/app.js</js>
+
     <js>/javascripts/application.js</js>
     <js>/javascripts/dashboard.js</js>
     <js>/javascripts/duplication.js</js>

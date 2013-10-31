@@ -31,6 +31,7 @@
     <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
     <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
     <%= stylesheet_link_tag 'select-list', :media => 'all' %>
+    <%= stylesheet_link_tag 'navigator', :media => 'all' %>
     <%= yield :style -%>
     <%= javascript_include_tag 'third-party/prototype' %>
     <%= javascript_include_tag 'third-party/scriptaculous' %>
@@ -40,12 +41,19 @@
     <%= javascript_include_tag 'third-party/d3.v3.min' %>
     <%= javascript_include_tag 'third-party/underscore-min' %>
     <%= javascript_include_tag 'third-party/backbone-min' %>
+    <%= javascript_include_tag 'third-party/backbone.marionette.min' %>
     <%= javascript_include_tag 'third-party/jquery.ba-throttle-debounce.min.js' %>
     <%= javascript_include_tag 'third-party/select2.min' %>
+
     <%= javascript_include_tag 'widgets/bubble-chart' %>
     <%= javascript_include_tag 'widgets/timeline' %>
     <%= javascript_include_tag 'widgets/stack-area' %>
+
     <%= javascript_include_tag 'select-list' %>
+
+    <%= javascript_include_tag 'navigator/filters' %>
+    <%= javascript_include_tag 'navigator/app' %>
+
     <%= javascript_include_tag 'application' %>
     <%= javascript_include_tag 'dashboard' %>
     <%= javascript_include_tag 'duplication' %>

@@ -1,0 +1,84 @@
+<div class="navigator">
+
+  <div class="navigator-filters">
+    <%= render :partial => 'issues/sidebar2' -%>
+  </div>
+
+
+  <div class="navigator-results">
+    <%= render :partial => 'search' -%>
+  </div>
+</div>
+
+<script type="text/javascript">
+  function onBulkIssues(issues_query_params){
+    // SONAR-4723 pagination parameters should be removed after applying bulk change
+    delete issues_query_params.pageIndex;
+    window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
+  }
+</script>
+
+<script id="filterTemplate" type="text/template">
+  <div class="navigator-filter-label">{{ name }}</div>
+  <div class="navigator-filter-body">{{ body }}</div>
+</script>
+
+<script id="filterBarTemplate" type="text/template">
+  <form action="<%= ApplicationController.root_context -%>/issues/search" method="get">
+    <div class="navigator-filters-favorite">
+      <a class="navigator-filters-favorite-toggle" onclick="showDropdownMenu('favorite-filters'); return false;"></a>
+
+      <div id="favorite-filters" class="dropdown-menu" style="max-width: none; display: none; font-size: 12px;">
+        <div style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+          <ul>
+            <li><a href="#">First filter set</a></li>
+            <li><a href="#">Second filter set</a></li>
+            <li><a href="#">Third filter set</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <ul>
+            <li><a href="#">Manage</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="navigator-filters-list"></div>
+  </form>
+</script>
+
+<script id="selectFilterTemplate" type="text/template">
+  <select multiple="multiple" name="{{ property }}">
+    {[ _.each(choices, function(choice) { ]}
+    <option value="{[ print(choice[1]); ]}">{[ print(choice[0]); ]}</option>
+    {[ }); ]}
+  </select>
+</script>
+
+<script id="ajaxSelectFilterTemplate" type="text/template">
+  <input type="hidden" name="{{ property }}">
+</script>
+
+<script id="rangeFilterTemplate" type="text/template">
+  <input class="navigator-filter-range-input" type="text"
+         name="{{ propertyFrom }}" placeholder="From">
+  <input class="navigator-filter-range-input" type="text"
+         name="{{ propertyTo }}" placeholder="To">
+</script>
+
+<script>
+  _.templateSettings = {
+    interpolate: /\{\{(.+?)\}\}/g,
+    evaluate: /\{\[(.+?)\]\}/g
+  };
+
+  _.extend(window.SS, {
+    severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
+    statuses: <%= @options_for_statuses.to_json.html_safe -%>,
+    resolutions: <%= @options_for_resolutions.to_json.html_safe -%>
+  });
+
+  window.SS.NavigatorApp.start();
+</script>

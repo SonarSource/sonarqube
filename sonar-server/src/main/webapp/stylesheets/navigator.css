@@ -1,0 +1,81 @@
+/*
+ * Colors
+ */
+.navigator .select2-container .select2-choice,
+.navigator .select2-container-multi .select2-choices {
+  border: 1px solid #aaa;
+  border-radius: 0;
+  background: #ffffff;
+}
+.navigator .select2-container-active .select2-choice,
+.navigator .select2-container-active .select2-choices {
+  box-shadow: none;
+}
+.navigator .select2-container-multi .select2-choices {
+  white-space: nowrap;
+}
+.navigator .select2-container-multi .select2-choices li {
+  float: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+.navigator-filters {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #cdcdcd;
+  background: #efefef;
+  font-size: 0;
+}
+.navigator-filters-favorite {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 15px;
+  padding-right: 14px;
+  border-right: 1px solid #cdcdcd;
+}
+.navigator-filters-favorite-toggle {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: url(../images/star.png) no-repeat left center;
+  cursor: pointer;
+}
+.navigator-filters-list {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+}
+input.navigator-filters-search[type=submit] {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 20px;
+}
+.navigator-filter {
+  display: inline-block;
+  vertical-align: top;
+}
+.navigator-filter + .navigator-filter {
+  margin-left: 20px;
+}
+.navigator-filter-label {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  color: #666;
+  font-size: 14px;
+}
+.navigator-filter-label:after {
+  content: ":";
+}
+.navigator-filter-body {
+  display: inline-block;
+  vertical-align: middle;
+  color: #000;
+  font-size: 14px;
+}
+.navigator-filter-body input {
+  font-size: 12px;
+}
+.navigator-filter-range-input {
+  width: 80px;
+}
