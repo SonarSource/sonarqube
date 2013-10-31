@@ -25,7 +25,7 @@
   var bubbleChartData = [
     <%
        filter = MeasureFilter.new
-       filter.criteria = {:qualifiers => ['FIL', 'CLA'], :baseId => @project.id}
+       filter.criteria = {:scopes => ['FIL'], :baseId => @project.id}
        filter.metrics = [xMetric.name, yMetric.name, sizeMetric.name]
        filter.execute(self, :user => current_user)
        filter.rows.each  do |row|
