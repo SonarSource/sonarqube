@@ -40,13 +40,13 @@
       longName: '<%= row.resource.long_name -%>',
 
       xMetric: <%= x ? x.value : 0 -%>,
-      xMetricFormatted: <%= x ? x.value : '"-"' -%>,
+      xMetricFormatted: '<%= x ? x.formatted_value : "-" -%>',
 
       yMetric: <%= y ? y.value : 0 -%>,
-      yMetricFormatted: <%= y ? y.value : '"-"' -%>,
+      yMetricFormatted: '<%= y ? y.formatted_value : "-" -%>',
 
       sizeMetric: <%= size ? size.value : 0 -%>,
-      sizeMetricFormatted: <%= size ? size.value : '"-"' -%>
+      sizeMetricFormatted: '<%= size ? size.formatted_value : "-" -%>'
     },
     <% end %>
   ];

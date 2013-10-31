@@ -62,7 +62,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.width(container.property('offsetWidth'));
 
-    this.svg = container.append('svg');
+    this.svg = container.append('svg')
+        .attr('class', 'sonar-d3');
     this.gWrap = this.svg.append('g');
 
     this.gxAxis = this.gWrap.append('g');
@@ -76,7 +77,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.infoWrap = this.gWrap.append('g');
     this.infoDate = this.infoWrap.append('text');
-    this.infoMetrics = this.infoWrap.append('text');
 
     this.gWrap
         .attr('transform', trans(this.margin().left, this.margin().top));
@@ -103,7 +103,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .domain(d3.extent(this.data(), function (d) {
           return d.sizeMetric;
         }))
-        .range([10, 50]);
+        .range([5, 45]);
 
 
     // Create bubbles
@@ -153,10 +153,22 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .style('fill-opacity', 0.8);
 
           widget.infoDate.text(d.longName);
-          widget.infoMetrics.text(
-              widget.metrics().x + ': ' + d.xMetricFormatted + '; ' +
-                  widget.metrics().y + ': ' + d.yMetricFormatted + '; ' +
-                  widget.metrics().size + ': ' + d.sizeMetricFormatted);
+
+          var metricLines = [
+            { metric: widget.metrics().x, value: d.xMetricFormatted },
+            { metric: widget.metrics().y, value: '100000000' },
+            { metric: widget.metrics().size, value: d.sizeMetricFormatted }
+          ];
+
+          var lastX = 0;
+          widget.infoMetrics = widget.infoWrap.selectAll('.metric')
+              .data(metricLines)
+              .text(function(d) { return d.metric + ': ' + d.value; })
+              .attr('transform', function(d, i) {
+                var posX = lastX;
+                lastX += widget.infoMetricWidth[i];
+                return trans(posX, 20);
+              });
         })
         .on('mouseleave', function () {
           d3.select(this).select('circle')
@@ -212,8 +224,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
 
-    this.infoMetrics
-        .attr('transform', trans(0, 20));
+    var metricLines = [widget.metrics().x, widget.metrics().y, widget.metrics().size];
+    widget.infoMetrics = widget.infoWrap.selectAll('.metric')
+        .data(metricLines);
+    widget.infoMetrics.enter().append('text').attr('class', 'metric info-text-small')
+        .text(function(d) { return d; });
+    widget.infoMetricWidth = [];
+    widget.infoMetrics.each(function() {
+      widget.infoMetricWidth.push(this.getComputedTextLength() + 80);
+    });
+    widget.infoMetrics.text('');
 
 
     // Update widget
