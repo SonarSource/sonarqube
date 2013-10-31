@@ -208,6 +208,38 @@ public class IssueJsonParserTest {
     assertThat(issue.technicalDebt().minutes()).isEqualTo(10);
   }
 
+
+  @Test
+  public void should_parse_changelog() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog.json"));
+    List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
+
+    assertThat(changes).hasSize(2);
+    IssueChange change1 = changes.get(0);
+    assertThat(change1.user()).isEqualTo("julien");
+    assertThat(change1.createdAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change1.updatedAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change1.diffs()).hasSize(1);
+    IssueChangeDiff diffChange1 = change1.diffs().get(0);
+    assertThat(diffChange1.key()).isEqualTo("actionPlan");
+    assertThat(diffChange1.newValue()).isEqualTo("1.0");
+    assertThat(diffChange1.oldValue()).isNull();
+
+    IssueChange change2 = changes.get(1);
+    assertThat(change2.user()).isEqualTo("simon");
+    assertThat(change2.createdAt().getTime()).isEqualTo(1383202239000l);
+    assertThat(change2.updatedAt().getTime()).isEqualTo(1383202239000l);
+    assertThat(change2.diffs()).hasSize(2);
+    IssueChangeDiff diff1Change2 = change2.diffs().get(0);
+    assertThat(diff1Change2.key()).isEqualTo("severity");
+    assertThat(diff1Change2.newValue()).isEqualTo("INFO");
+    assertThat(diff1Change2.oldValue()).isEqualTo("BLOCKER");
+    IssueChangeDiff diff2Change2 = change2.diffs().get(1);
+    assertThat(diff2Change2.key()).isEqualTo("status");
+    assertThat(diff2Change2.newValue()).isEqualTo("REOPEN");
+    assertThat(diff2Change2.oldValue()).isEqualTo("RESOLVED");
+  }
+
   @Test
   public void should_parse_bulk_change() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/bulk-change.json"));

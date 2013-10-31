@@ -1,0 +1,33 @@
+{
+  "changelog": [
+    {
+      "user": "julien",
+      "createdAt": "2013-10-31T07:50:35+0100",
+      "updatedAt": "2013-10-31T07:50:35+0100",
+      "diffs": [
+        {
+          "key": "actionPlan",
+          "newValue": "1.0"
+        }
+      ]
+    },
+    {
+      "user": "simon",
+      "createdAt": "2013-10-31T07:50:39+0100",
+      "updatedAt": "2013-10-31T07:50:39+0100",
+      "diffs": [
+        {
+          "key": "severity",
+          "newValue": "INFO",
+          "oldValue": "BLOCKER"
+        },
+        {
+          "key": "status",
+          "newValue": "REOPEN",
+          "oldValue": "RESOLVED"
+        }
+      ]
+    }
+  ]
+}
+

@@ -47,6 +47,28 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
+  # since 4.1
+  #
+  # GET /api/issues/changelog?issue=<key>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/api/issues/changelog?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
+  #
+  def changelog
+    require_parameters :issue
+    issue_key = params[:issue]
+    changelog = Internal.issues.changelog(issue_key)
+
+    hash = {}
+    hash[:changelog] = Issue.changelog_to_hash(changelog)
+
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar') }
+    end
+  end
+
+  #
   # GET /api/issues/transitions?issue=<key>
   #
   # -- Example

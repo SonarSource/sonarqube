@@ -24,6 +24,7 @@ import org.json.simple.JSONValue;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.issue.BulkChange;
+import org.sonar.wsclient.issue.IssueChange;
 import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
@@ -120,6 +121,18 @@ public class IssueJsonParser {
     return transitions;
   }
 
+  List<IssueChange> parseChangelog(String json) {
+    List<IssueChange> changes = new ArrayList<IssueChange>();
+    Map jRoot = (Map) JSONValue.parse(json);
+    List<Map> jChanges = (List<Map>) jRoot.get("changelog");
+    if (jChanges != null) {
+      for (Map jChange : jChanges) {
+        changes.add(new DefaultIssueChange(jChange));
+      }
+    }
+    return changes;
+  }
+
   List<String> parseActions(String json) {
     List<String> actions = new ArrayList<String>();
     Map jRoot = (Map) JSONValue.parse(json);
@@ -144,6 +157,6 @@ public class IssueJsonParser {
       result.setIssuesNotChanged(issuesJson);
     }
 
-    return  result;
+    return result;
   }
 }

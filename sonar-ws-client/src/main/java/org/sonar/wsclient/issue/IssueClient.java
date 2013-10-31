@@ -72,4 +72,11 @@ public interface IssueClient {
    */
   BulkChange bulkChange(BulkChangeQuery query);
 
+  /**
+   * @since 4.1
+   *
+   * @return the list of changes of an issue
+   */
+  List<IssueChange> changes(String issueKey);
+
 }

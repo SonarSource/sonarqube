@@ -19,13 +19,14 @@
 #
 
 class Issue
+
   def self.to_hash(issue)
     hash = {
-      :key => issue.key,
-      :component => issue.componentKey,
-      :project => issue.projectKey,
-      :rule => issue.ruleKey.toString(),
-      :status => issue.status
+        :key => issue.key,
+        :component => issue.componentKey,
+        :project => issue.projectKey,
+        :rule => issue.ruleKey.toString(),
+        :status => issue.status
     }
     hash[:resolution] = issue.resolution if issue.resolution
     hash[:severity] = issue.severity if issue.severity
@@ -49,11 +50,37 @@ class Issue
 
   def self.comment_to_hash(comment)
     {
-      :key => comment.key(),
-      :login => comment.userLogin(),
-      :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
-      :createdAt => Api::Utils.format_datetime(comment.createdAt())
+        :key => comment.key(),
+        :login => comment.userLogin(),
+        :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
+        :createdAt => Api::Utils.format_datetime(comment.createdAt())
     }
+  end
+
+  def self.changelog_to_hash(changelog)
+    hash = []
+    changelog.changes.each do |change|
+      user = changelog.user(change)
+
+      hash_change = {}
+      hash_change[:user] = user.login() if user
+      hash_change[:createdAt] = Api::Utils.format_datetime(change.createdAt()) if change.createdAt()
+      hash_change[:updatedAt] = Api::Utils.format_datetime(change.updatedAt()) if change.updatedAt()
+      hash_change[:diffs] = []
+
+      change.diffs.entrySet().each do |entry|
+        key = entry.getKey()
+        diff = entry.getValue()
+        hash_diff = {}
+        hash_diff[:key] = key
+        hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
+        hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
+        hash_change[:diffs] << hash_diff
+      end
+
+      hash << hash_change
+    end
+    hash
   end
 
   def self.technical_debt_to_hash(technical_debt)

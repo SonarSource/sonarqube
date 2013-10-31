@@ -118,6 +118,13 @@ public class DefaultIssueClient implements IssueClient {
     return parser.parseBulkChange(json);
   }
 
+  @Override
+  public List<IssueChange> changes(String issueKey) {
+    Map<String, Object> queryParams = EncodingUtils.toMap("issue", issueKey);
+    String json = requestFactory.post("/api/issues/changelog", queryParams);
+    return parser.parseChangelog(json);
+  }
+
   private Issue jsonToIssue(String json) {
     Map jsonRoot = (Map) JSONValue.parse(json);
     return new DefaultIssue((Map) jsonRoot.get("issue"));
