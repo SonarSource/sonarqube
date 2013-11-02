@@ -42,7 +42,7 @@ public class CodeRecognizer {
   }
 
   public final List<String> extractCodeLines(List<String> lines) {
-    ArrayList<String> codeLines = new ArrayList<String>();
+    List<String> codeLines = new ArrayList<String>();
     for (String line : lines) {
       if (recognition(line) >= threshold) {
         codeLines.add(line);
