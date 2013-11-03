@@ -141,10 +141,12 @@ public class FieldDiffs implements Serializable {
       this.newValue = newValue;
     }
 
+    @CheckForNull
     public T oldValue() {
       return oldValue;
     }
 
+    @CheckForNull
     public T newValue() {
       return newValue;
     }

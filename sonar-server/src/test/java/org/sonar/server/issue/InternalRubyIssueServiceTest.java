@@ -39,6 +39,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -571,6 +572,13 @@ public class InternalRubyIssueServiceTest {
     params.put("plan.plan", "3.7");
     service.bulkChange(params, "My comment", true);
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
+  }
+
+  @Test
+  public void format_changelog() {
+    FieldDiffs fieldDiffs = new FieldDiffs();
+    service.formatChangelog(fieldDiffs);
+    verify(issueChangelogFormatter).format(any(Locale.class), eq(fieldDiffs));
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {

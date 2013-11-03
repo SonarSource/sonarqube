@@ -20,6 +20,7 @@
 package org.sonar.wsclient.issue.internal;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
@@ -238,6 +239,25 @@ public class IssueJsonParserTest {
     assertThat(diff2Change2.key()).isEqualTo("status");
     assertThat(diff2Change2.newValue()).isEqualTo("REOPEN");
     assertThat(diff2Change2.oldValue()).isEqualTo("RESOLVED");
+  }
+
+  @Test
+  @Ignore
+  public void should_parse_changelog_with_technical_debt() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog-with-technical-debt.json"));
+    List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
+
+    assertThat(changes).hasSize(1);
+    IssueChange change = changes.get(0);
+    assertThat(change.user()).isEqualTo("julien");
+    assertThat(change.createdAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change.updatedAt().getTime()).isEqualTo(1383202235000l);
+
+    assertThat(change.diffs()).hasSize(1);
+    IssueChangeDiff diffChange1 = change.diffs().get(0);
+    assertThat(diffChange1.key()).isEqualTo("technicalDebt");
+    assertThat(diffChange1.newValue()).isEqualTo("1.0");
+    assertThat(diffChange1.oldValue()).isNull();
   }
 
   @Test

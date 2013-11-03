@@ -54,6 +54,9 @@ class Internal
     component(Java::OrgSonarServerPermission::InternalPermissionTemplateService.java_class)
   end
 
+  def self.technical_debt
+    component(Java::OrgSonarServerTechnicaldebt::InternalRubyTechnicalDebtService.java_class)
+  end
 
   private
 

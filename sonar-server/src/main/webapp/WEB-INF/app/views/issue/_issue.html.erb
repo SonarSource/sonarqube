@@ -39,18 +39,8 @@
     <% if issue.technicalDebt %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
-      <% technical_debt = issue.technicalDebt
-           days = technical_debt.days
-           hours = technical_debt.hours
-           minutes = technical_debt.minutes
-           message = ''
-           message += message('issue.technical_debt.x_days', :params => days) + ' ' if days > 0
-           message += message('issue.technical_debt.x_hours', :params => hours) + ' ' if hours > 0
-           # Do not display minutes if days is not null to not have too much information
-           message += message('issue.technical_debt.x_minutes', :params => minutes) if minutes > 0 && days == 0
-      %>
       <%= message('issue.technical_debt') -%>&nbsp;<a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
-           id="toggle-issue-technicaldebt"><%= message -%></a>
+           id="toggle-issue-technicaldebt"><%= Internal.technical_debt.format(issue.technicalDebt) -%></a>
         &nbsp;
     <% end %>
   </div>

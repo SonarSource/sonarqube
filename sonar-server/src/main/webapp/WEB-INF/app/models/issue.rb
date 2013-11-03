@@ -73,8 +73,13 @@ class Issue
         diff = entry.getValue()
         hash_diff = {}
         hash_diff[:key] = key
-        hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
-        hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
+        if key == 'technicalDebt'
+          hash_diff[:newValue] = technical_debt_to_hash(Internal.technical_debt.toTechnicalDebt(diff.newValue())) if diff.newValue.present?
+          hash_diff[:oldValue] = technical_debt_to_hash(Internal.technical_debt.toTechnicalDebt(diff.oldValue())) if diff.oldValue.present?
+        else
+          hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
+          hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
+        end
         hash_change[:diffs] << hash_diff
       end
 

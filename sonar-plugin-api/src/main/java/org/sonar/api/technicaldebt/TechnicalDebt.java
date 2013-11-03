@@ -69,15 +69,15 @@ public class TechnicalDebt implements Serializable {
     return days * DAY + hours * HOUR + minutes * MINUTE;
   }
 
-  public long days() {
+  public int days() {
     return days;
   }
 
-  public long hours() {
+  public int hours() {
     return hours;
   }
 
-  public long minutes() {
+  public int minutes() {
     return minutes;
   }
 

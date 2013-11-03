@@ -55,16 +55,16 @@ public class TechnicalDebtConverterTest {
 
   @Test
   public void convert_simple_values() {
-    checkValues(converter.fromMinutes(15L), 15L, 0L, 0L);
-    checkValues(converter.fromMinutes(120L), 0L, 2L, 0L);
-    checkValues(converter.fromMinutes(720L), 0L, 0L, 1L);
+    checkValues(converter.fromMinutes(15L), 15, 0, 0);
+    checkValues(converter.fromMinutes(120L), 0, 2, 0);
+    checkValues(converter.fromMinutes(720L), 0, 0, 1);
   }
 
   @Test
   public void convert_complex_values() {
-    checkValues(converter.fromMinutes(70L), 10L, 1L, 0L);
-    checkValues(converter.fromMinutes(730L), 10L, 0L, 1L);
-    checkValues(converter.fromMinutes(790L), 10L, 1L, 1L);
+    checkValues(converter.fromMinutes(70L), 10, 1, 0);
+    checkValues(converter.fromMinutes(730L), 10, 0, 1);
+    checkValues(converter.fromMinutes(790L), 10, 1, 1);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class TechnicalDebtConverterTest {
     assertThat(converter.toDays(TechnicalDebt.of(45, 6, 1))).isEqualTo(1.5625);
   }
   
-  private void checkValues(TechnicalDebt technicalDebt, Long expectedMinutes, Long expectedHours, Long expectedDays) {
+  private void checkValues(TechnicalDebt technicalDebt, int expectedMinutes, int expectedHours, int expectedDays) {
     assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
     assertThat(technicalDebt.hours()).isEqualTo(expectedHours);
     assertThat(technicalDebt.days()).isEqualTo(expectedDays);
