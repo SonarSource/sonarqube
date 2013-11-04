@@ -29,9 +29,9 @@ public interface IssueChangeDiff {
   String key();
 
   @CheckForNull
-  String newValue();
+  Object newValue();
 
   @CheckForNull
-  String oldValue();
+  Object oldValue();
 
 }

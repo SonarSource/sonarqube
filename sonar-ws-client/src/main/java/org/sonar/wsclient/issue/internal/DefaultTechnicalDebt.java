@@ -28,6 +28,9 @@ import java.util.Map;
  * @since 4.0
  */
 public class DefaultTechnicalDebt implements TechnicalDebt {
+
+  public static final String KEY = "technicalDebt";
+
   private final Map json;
 
   DefaultTechnicalDebt(Map json) {

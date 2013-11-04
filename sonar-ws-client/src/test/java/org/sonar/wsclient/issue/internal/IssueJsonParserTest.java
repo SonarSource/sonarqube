@@ -20,7 +20,6 @@
 package org.sonar.wsclient.issue.internal;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
@@ -242,7 +241,6 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  @Ignore
   public void should_parse_changelog_with_technical_debt() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog-with-technical-debt.json"));
     List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
@@ -254,10 +252,42 @@ public class IssueJsonParserTest {
     assertThat(change.updatedAt().getTime()).isEqualTo(1383202235000l);
 
     assertThat(change.diffs()).hasSize(1);
-    IssueChangeDiff diffChange1 = change.diffs().get(0);
-    assertThat(diffChange1.key()).isEqualTo("technicalDebt");
-    assertThat(diffChange1.newValue()).isEqualTo("1.0");
-    assertThat(diffChange1.oldValue()).isNull();
+    IssueChangeDiff changeDiff = change.diffs().get(0);
+    assertThat(changeDiff.key()).isEqualTo("technicalDebt");
+
+    TechnicalDebt newTechnicalDebt = (TechnicalDebt) changeDiff.newValue();
+    assertThat(newTechnicalDebt.days()).isEqualTo(2);
+    assertThat(newTechnicalDebt.hours()).isEqualTo(1);
+    assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
+
+    TechnicalDebt oldTechnicalDebt = (TechnicalDebt) changeDiff.oldValue();
+    assertThat(oldTechnicalDebt.days()).isEqualTo(3);
+    assertThat(oldTechnicalDebt.hours()).isEqualTo(0);
+    assertThat(oldTechnicalDebt.minutes()).isEqualTo(10);
+  }
+
+  @Test
+  public void should_parse_changelog_with_only_new_technical_debt() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog-with-only-new-technical-debt.json"));
+    List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
+
+    assertThat(changes).hasSize(1);
+    IssueChange change = changes.get(0);
+    assertThat(change.user()).isEqualTo("julien");
+    assertThat(change.createdAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change.updatedAt().getTime()).isEqualTo(1383202235000l);
+
+    assertThat(change.diffs()).hasSize(1);
+    IssueChangeDiff changeDiff = change.diffs().get(0);
+    assertThat(changeDiff.key()).isEqualTo("technicalDebt");
+
+    TechnicalDebt newTechnicalDebt = (TechnicalDebt) changeDiff.newValue();
+    assertThat(newTechnicalDebt.days()).isEqualTo(2);
+    assertThat(newTechnicalDebt.hours()).isEqualTo(1);
+    assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
+
+    TechnicalDebt oldTechnicalDebt = (TechnicalDebt) changeDiff.oldValue();
+    assertThat(oldTechnicalDebt).isNull();
   }
 
   @Test

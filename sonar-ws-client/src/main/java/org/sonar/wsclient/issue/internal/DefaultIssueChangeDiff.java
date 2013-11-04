@@ -42,13 +42,30 @@ public class DefaultIssueChangeDiff implements IssueChangeDiff {
   }
 
   @CheckForNull
-  public String newValue() {
-    return JsonUtils.getString(json, "newValue");
+  public Object newValue() {
+    return parseValue("newValue");
+
   }
 
   @CheckForNull
-  public String oldValue() {
-    return JsonUtils.getString(json, "oldValue");
+  public Object oldValue() {
+    return parseValue("oldValue");
+  }
+
+  private Object parseValue(String attribute) {
+    if (DefaultTechnicalDebt.KEY.equals(key())) {
+      return parseDefaultTechnicalDebt(attribute);
+    } else {
+      return JsonUtils.getString(json, attribute);
+    }
+  }
+
+  private DefaultTechnicalDebt parseDefaultTechnicalDebt(String attribute){
+    Map technicalDebt = (Map) json.get(attribute);
+    if (technicalDebt != null) {
+      return new DefaultTechnicalDebt(technicalDebt);
+    }
+    return null;
   }
 
 }

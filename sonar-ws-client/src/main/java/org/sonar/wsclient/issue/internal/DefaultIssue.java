@@ -79,7 +79,7 @@ public class DefaultIssue implements Issue {
 
   @CheckForNull
   public TechnicalDebt technicalDebt() {
-    Map technicalDebt = (Map) json.get("technicalDebt");
+    Map technicalDebt = (Map) json.get(DefaultTechnicalDebt.KEY);
     if (technicalDebt != null) {
       return new DefaultTechnicalDebt(technicalDebt);
     }
