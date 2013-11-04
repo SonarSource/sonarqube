@@ -42,6 +42,14 @@
             transform: translateX(100%);
   }
 
+.select-list-list > li.added {
+  -webkit-transform: translateX(-100%);
+     -moz-transform: translateX(-100%);
+      -ms-transform: translateX(-100%);
+       -o-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+
 .select-list-list-checkbox {
   display: inline-block;
   vertical-align: middle;
@@ -64,6 +72,10 @@
 .select-list-check-control.disabled {
   filter: alpha(opacity=60);
   opacity: 0.6;
+}
+
+.select-list-check-control.disabled .select-list-control-button {
+  background-color: #fff !important;
 }
 
 .select-list-control-button {

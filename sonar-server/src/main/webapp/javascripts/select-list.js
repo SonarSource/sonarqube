@@ -80,7 +80,7 @@
     remove: function(postpone) {
       if (postpone) {
         var that = this;
-          that.$el.addClass('removed');
+          that.$el.addClass(this.model.get('selected') ? 'added' : 'removed');
           setTimeout(function() {
             Backbone.View.prototype.remove.call(that, arguments);
           }, 500);
