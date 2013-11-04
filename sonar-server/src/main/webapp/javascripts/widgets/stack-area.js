@@ -134,7 +134,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure info
     this.infoWrap
         .attr('class', 'info')
-        .attr('transform', trans(0, -30));
+        .attr('transform', trans(0, -45));
 
     this.infoDate
         .attr('class', 'info-text info-text-bold')
@@ -326,7 +326,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.StackArea.defaults = {
     width: 350,
     height: 150,
-    margin: { top: 50, right: 10, bottom: 40, left: 40 }
+    margin: { top: 65, right: 10, bottom: 40, left: 40 }
   };
 
 

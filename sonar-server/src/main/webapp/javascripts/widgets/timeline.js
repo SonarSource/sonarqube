@@ -187,7 +187,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Configure info
     this.infoWrap
-        .attr('transform', trans(0, -10));
+        .attr('transform', trans(0, -30));
 
     this.infoDate
         .attr('transform', trans(0, 0));
@@ -350,7 +350,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.Timeline.defaults = {
     width: 350,
     height: 150,
-    margin: { top: 30, right: 10, bottom: 40, left: 10 }
+    margin: { top: 50, right: 10, bottom: 40, left: 10 }
   };
 
 
