@@ -28,9 +28,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -126,13 +124,14 @@ public class MeasureFilterFactoryTest {
   public void age_conditions() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
     Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "ageMaxDays", "50",
-        "ageMinDays", "3"
-        );
+      "ageMaxDays", "50",
+      "ageMinDays", "3"
+    );
     MeasureFilter filter = factory.create(props);
 
-    long msFrom = System.currentTimeMillis() - filter.getFromDate().getTime();
-    long msTo = System.currentTimeMillis() - filter.getToDate().getTime();
+    long today = org.apache.commons.lang.time.DateUtils.truncate(new Date(), Calendar.DATE).getTime();
+    long msFrom = today - filter.getFromDate().getTime();
+    long msTo = today - filter.getToDate().getTime();
     assertThat(millisecondsToDays(msFrom)).isEqualTo(50);
     assertThat(millisecondsToDays(msTo)).isEqualTo(3);
   }
