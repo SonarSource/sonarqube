@@ -26,7 +26,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,7 +54,7 @@ public class PastSnapshotFinderByDate implements BatchExtension {
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, date, snapshot).setModeParameter(format.format(date));
   }
 
-  @Nullable
+  @CheckForNull
   private Snapshot findSnapshot(Integer projectId, Date date) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)

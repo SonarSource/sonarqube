@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.PeriodsDefinition;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -37,15 +37,15 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
   public void shouldSaveConfigurationInSnapshotsTable() {
     setupData("shared");
 
-    PeriodsDefinition periodsDefinition = mock(PeriodsDefinition.class);
+    TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
     PastSnapshot vs1 = new PastSnapshot("days", DateUtils.parseDate("2009-01-25"), getSession().getSingleResult(Snapshot.class, "id", 100))
       .setModeParameter("30").setIndex(1);
     PastSnapshot vs3 = new PastSnapshot("version", DateUtils.parseDate("2008-12-13"), getSession().getSingleResult(Snapshot.class, "id", 300))
       .setModeParameter("1.2.3").setIndex(3);
-    when(periodsDefinition.projectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
+    when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 
-    TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(periodsDefinition, projectSnapshot, getSession());
+    TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(timeMachineConfiguration, projectSnapshot, getSession());
     persister.persistConfiguration();
 
     checkTables("shouldSaveConfigurationInSnapshotsTable", "snapshots");
