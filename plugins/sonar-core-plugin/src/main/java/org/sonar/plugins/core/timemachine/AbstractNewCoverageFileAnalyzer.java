@@ -31,7 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.core.DryRunIncompatible;
 
@@ -51,8 +51,8 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
     structs = Lists.newArrayList();
-    for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-      structs.add(new PeriodStruct(pastSnapshot));
+    for (Period period : timeMachineConfiguration.periods()) {
+      structs.add(new PeriodStruct(period.getIndex(), period.getTargetDate()));
     }
   }
 
@@ -66,7 +66,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   public abstract Metric getCoveredConditionsByLineMetric();
 
-  public abstract  Metric getNewLinesToCoverMetric();
+  public abstract Metric getNewLinesToCoverMetric();
 
   public abstract Metric getNewUncoveredLinesMetric();
 
@@ -147,7 +147,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     Measure newUncoveredConditions = new Measure(getNewUncoveredConditionsMetric());
 
     for (PeriodStruct struct : structs) {
-      if(struct.hasNewCode()) {
+      if (struct.hasNewCode()) {
         newLines.setVariation(struct.index, (double) struct.getNewLines());
         newUncoveredLines.setVariation(struct.index, (double) (struct.getNewLines() - struct.getNewCoveredLines()));
         newConditions.setVariation(struct.index, (double) struct.getNewConditions());
@@ -176,11 +176,6 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     Integer newConditions;
     Integer newCoveredConditions;
 
-    PeriodStruct(PastSnapshot pastSnapshot) {
-      this.index = pastSnapshot.getIndex();
-      this.date = pastSnapshot.getTargetDate();
-    }
-
     PeriodStruct(int index, Date date) {
       this.index = index;
       this.date = date;
@@ -205,12 +200,12 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     }
 
     void addLine(boolean covered) {
-      if(newLines == null) {
+      if (newLines == null) {
         newLines = 0;
       }
       newLines += 1;
       if (covered) {
-        if(newCoveredLines == null) {
+        if (newCoveredLines == null) {
           newCoveredLines = 0;
         }
         newCoveredLines += 1;
@@ -218,12 +213,12 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     }
 
     void addConditions(int count, int countCovered) {
-      if(newConditions == null) {
+      if (newConditions == null) {
         newConditions = 0;
       }
       newConditions += count;
       if (count > 0) {
-        if(newCoveredConditions == null) {
+        if (newCoveredConditions == null) {
           newCoveredConditions = 0;
         }
         newCoveredConditions += countCovered;

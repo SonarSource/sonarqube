@@ -144,7 +144,7 @@ public class PastSnapshotFinderTest {
   public void should_find_by_date() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
-    when(finderByDate.findByDate(null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
+    when(finderByDate.findByDate((Snapshot)null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 

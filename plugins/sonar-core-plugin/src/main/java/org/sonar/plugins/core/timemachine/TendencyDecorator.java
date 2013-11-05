@@ -31,7 +31,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
@@ -45,13 +45,11 @@ public class TendencyDecorator implements Decorator {
   private TimeMachine timeMachine;
   private TimeMachineQuery query;
   private TendencyAnalyser analyser;
-  private TimeMachineConfiguration configuration;
   private List<Metric> metrics;
 
-  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder, TimeMachineConfiguration configuration) {
+  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder) {
     this.timeMachine = timeMachine;
     this.analyser = new TendencyAnalyser();
-    this.configuration = configuration;
     this.metrics = Lists.newLinkedList();
     for (Metric metric : metricFinder.findAll()) {
       if (metric.isNumericType()) {
@@ -60,11 +58,10 @@ public class TendencyDecorator implements Decorator {
     }
   }
 
-  TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, TimeMachineConfiguration configuration) {
+  TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser) {
     this.timeMachine = timeMachine;
     this.query = query;
     this.analyser = analyser;
-    this.configuration = configuration;
   }
 
   @DependsUpon
@@ -73,13 +70,13 @@ public class TendencyDecorator implements Decorator {
   }
 
   protected TimeMachineQuery initQuery(Project project) {
-    int days = configuration.getTendencyPeriodInDays();
+    int days = PeriodsDefinition.CORE_TENDENCY_DEPTH_DEFAULT_VALUE;
 
     // resource is set after
     query = new TimeMachineQuery(null)
-        .setFrom(DateUtils.addDays(project.getAnalysisDate(), -days))
-        .setToCurrentAnalysis(true)
-        .setMetrics(metrics);
+      .setFrom(DateUtils.addDays(project.getAnalysisDate(), -days))
+      .setToCurrentAnalysis(true)
+      .setMetrics(metrics);
     return query;
   }
 

@@ -35,6 +35,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.*;
+import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.index.*;
 import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
@@ -154,6 +155,9 @@ public class ProjectScanContainer extends ComponentContainer {
       LinearWithOffsetFunction.class,
       LinearWithThresholdFunction.class,
       Functions.class,
+
+      // Differential periods
+      PeriodsDefinition.class,
 
       ProjectSettingsReady.class);
   }
