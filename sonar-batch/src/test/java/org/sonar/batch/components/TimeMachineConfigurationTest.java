@@ -49,12 +49,12 @@ public class TimeMachineConfigurationTest {
     PastSnapshot projectPastSnapshot = new PastSnapshot("mode", targetDate);
     PastSnapshot modulePastSnapshot = new PastSnapshot("mode", targetDate);
 
-    when(periodsDefinition.projectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
+    when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
     //when(pastSnapshotFinderByDate.findByDate(anyInt(), any(Date.class))).thenReturn(modulePastSnapshot);
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);
     assertThat(timeMachineConfiguration.periods()).hasSize(1);
-    assertThat(timeMachineConfiguration.modulePastSnapshots()).hasSize(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
   }
 
   @Test
@@ -70,14 +70,14 @@ public class TimeMachineConfigurationTest {
 
     PastSnapshot modulePastSnapshot = new PastSnapshot("mode", targetDate);
 
-    when(periodsDefinition.projectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
+    when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
     //when(pastSnapshotFinderByDate.findByDate(anyInt(), any(Date.class))).thenReturn(modulePastSnapshot);
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);
-    assertThat(timeMachineConfiguration.modulePastSnapshots()).hasSize(1);
-    assertThat(timeMachineConfiguration.modulePastSnapshots().get(0).getIndex()).isEqualTo(1);
-    assertThat(timeMachineConfiguration.modulePastSnapshots().get(0).getMode()).isEqualTo("mode");
-    assertThat(timeMachineConfiguration.modulePastSnapshots().get(0).getModeParameter()).isEqualTo("modeParam");
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getIndex()).isEqualTo(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getMode()).isEqualTo("mode");
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getModeParameter()).isEqualTo("modeParam");
   }
 
   @Test
@@ -88,7 +88,7 @@ public class TimeMachineConfigurationTest {
 
     PastSnapshot projectPastSnapshot = new PastSnapshot("mode", targetDate);
 
-    when(periodsDefinition.projectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
+    when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
     //when(pastSnapshotFinderByDate.findByDate(eq(projectId), eq(targetDate))).thenReturn(null);
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);

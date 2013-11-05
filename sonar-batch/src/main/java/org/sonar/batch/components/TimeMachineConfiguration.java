@@ -28,8 +28,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
-import javax.persistence.Query;
-import java.util.Date;
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
@@ -55,28 +54,29 @@ public class TimeMachineConfiguration implements BatchExtension {
   private void initModulePastSnapshots() {
     periods = newLinkedList();
     modulePastSnapshots = newLinkedList();
-    for (PastSnapshot projectPastSnapshot : periodsDefinition.projectPastSnapshots()) {
-      Date snapshotDate = getSnapshotDate(projectPastSnapshot.getProjectSnapshot());
+    for (PastSnapshot projectPastSnapshot : periodsDefinition.getRootProjectPastSnapshots()) {
+      Snapshot snapshot = findSnapshot(projectPastSnapshot.getProjectSnapshot());
 
       PastSnapshot pastSnapshot = new PastSnapshot(projectPastSnapshot.getMode(), projectPastSnapshot.getTargetDate(), projectPastSnapshot.getProjectSnapshot());
       pastSnapshot.setIndex(projectPastSnapshot.getIndex());
-      pastSnapshot.setMode(projectPastSnapshot.getMode());
       pastSnapshot.setModeParameter(projectPastSnapshot.getModeParameter());
       modulePastSnapshots.add(pastSnapshot);
-      periods.add(new Period(projectPastSnapshot.getIndex(), projectPastSnapshot.getTargetDate(), snapshotDate));
+      periods.add(new Period(pastSnapshot.getIndex(), pastSnapshot.getTargetDate(), snapshot != null ? snapshot.getCreatedAt() : null));
       log(pastSnapshot);
     }
   }
 
-  private Date getSnapshotDate(Snapshot projectSnapshot) {
-    Query query = session
-      .createNativeQuery("select s.created_at from snapshots s where s.project_id=:projectId and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.islast=:islast");
-    query.setParameter("projectId", project.getId());
-    query.setParameter("rootSnapshotId", projectSnapshot.getId());
-    query.setParameter("islast", Boolean.TRUE);
+  @CheckForNull
+  private Snapshot findSnapshot(Snapshot projectSnapshot) {
+    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId and (rootId=:rootSnapshotId or id=:rootSnapshotId) and last=:last";
+    List<Snapshot> snapshots = session.createQuery(hql)
+      .setParameter("resourceId", project.getId())
+      .setParameter("rootSnapshotId", projectSnapshot.getId())
+      .setParameter("last", Boolean.TRUE)
+      .setMaxResults(1)
+      .getResultList();
 
-    Date date = session.getSingleResult(query, null);
-    return date;
+    return snapshots.isEmpty() ? null : snapshots.get(0);
   }
 
   private void log(PastSnapshot pastSnapshot) {
@@ -93,10 +93,7 @@ public class TimeMachineConfiguration implements BatchExtension {
     return periods;
   }
 
-  /**
-   * Only used by VariationDecorator
-   */
-  public List<PastSnapshot> modulePastSnapshots() {
+  public List<PastSnapshot> getProjectPastSnapshots() {
     return modulePastSnapshots;
   }
 }

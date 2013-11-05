@@ -44,7 +44,7 @@ public class VariationDecorator implements Decorator {
 
 
   public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration timeMachineConfiguration) {
-    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.modulePastSnapshots());
+    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.getProjectPastSnapshots());
   }
 
   VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {

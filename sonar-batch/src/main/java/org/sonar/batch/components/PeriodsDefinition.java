@@ -28,7 +28,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.ProjectTree;
 
 import javax.persistence.Query;
-
 import java.util.Date;
 import java.util.List;
 
@@ -90,7 +89,7 @@ public class PeriodsDefinition implements BatchComponent {
   /**
    * @return past snapshots of root project
    */
-  public List<PastSnapshot> projectPastSnapshots() {
+   List<PastSnapshot> getRootProjectPastSnapshots() {
     return projectPastSnapshots;
   }
 
