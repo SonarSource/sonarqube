@@ -35,6 +35,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueChangelogFormatter implements ServerComponent {
 
+  private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
+
   private final I18nManager i18nManager;
   private final TechnicalDebtFormatter technicalDebtFormatter;
 
@@ -50,9 +52,9 @@ public class IssueChangelogFormatter implements ServerComponent {
       String key = entry.getKey();
       IssueChangelogDiffFormat diffFormat = format(locale, key, entry.getValue());
       if (diffFormat.newValue() != null) {
-        message.append(i18nManager.message(locale, "issue.changelog.changed_to", null, i18nManager.message(locale, "issue.changelog.field." + key, null), diffFormat.newValue()));
+        message.append(i18nManager.message(locale, "issue.changelog.changed_to", null, i18nManager.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
       } else {
-        message.append(i18nManager.message(locale, "issue.changelog.removed", null, i18nManager.message(locale, "issue.changelog.field." + key, null)));
+        message.append(i18nManager.message(locale, "issue.changelog.removed", null, i18nManager.message(locale, ISSUE_CHANGELOG_FIELD + key, null)));
       }
       if (diffFormat.oldValue() != null) {
         message.append(" (");
@@ -68,8 +70,8 @@ public class IssueChangelogFormatter implements ServerComponent {
     Serializable newValue = diff.newValue();
     Serializable oldValue = diff.oldValue();
 
-    String newValueString = newValue != null && !newValue.equals("") ? diff.newValue().toString() : null;
-    String oldValueString = oldValue != null && !oldValue.equals("") ? diff.oldValue().toString() : null;
+    String newValueString = newValue != null && !newValue.equals("") ? newValue.toString() : null;
+    String oldValueString = oldValue != null && !oldValue.equals("") ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
         newValueString = technicalDebtFormatter.format(locale, TechnicalDebt.fromLong(Long.parseLong(newValueString)));

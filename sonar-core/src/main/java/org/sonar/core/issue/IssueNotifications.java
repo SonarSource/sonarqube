@@ -39,6 +39,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -125,8 +126,10 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
         for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
           String type = entry.getKey();
           FieldDiffs.Diff diff = entry.getValue();
-          notification.setFieldValue("old." + type, diff.oldValue() != null ? diff.oldValue().toString() : null);
-          notification.setFieldValue("new." + type, diff.newValue() != null ? diff.newValue().toString() : null);
+          Serializable newValue = diff.newValue();
+          Serializable oldValue = diff.oldValue();
+          notification.setFieldValue("old." + type, oldValue != null ? oldValue.toString() : null);
+          notification.setFieldValue("new." + type, newValue != null ? newValue.toString() : null);
         }
       }
     }
