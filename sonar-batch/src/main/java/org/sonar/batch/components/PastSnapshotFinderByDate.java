@@ -41,12 +41,8 @@ public class PastSnapshotFinderByDate implements BatchExtension {
   }
 
   PastSnapshot findByDate(Snapshot projectSnapshot, Date date) {
-    Snapshot snapshot = null;
-    if (projectSnapshot != null) {
-      snapshot = findSnapshot(projectSnapshot.getResourceId(), date);
-    }
-    SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
-    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, date, snapshot).setModeParameter(format.format(date));
+    Integer projectId = projectSnapshot != null ? projectSnapshot.getResourceId() : null;
+    return findByDate(projectId, date);
   }
 
   PastSnapshot findByDate(Integer projectId, Date date) {
