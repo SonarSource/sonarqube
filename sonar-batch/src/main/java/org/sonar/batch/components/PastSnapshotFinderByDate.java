@@ -43,18 +43,27 @@ public class PastSnapshotFinderByDate implements BatchExtension {
   PastSnapshot findByDate(Snapshot projectSnapshot, Date date) {
     Snapshot snapshot = null;
     if (projectSnapshot != null) {
-      snapshot = findSnapshot(projectSnapshot, date);
+      snapshot = findSnapshot(projectSnapshot.getResourceId(), date);
+    }
+    SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, date, snapshot).setModeParameter(format.format(date));
+  }
+
+  PastSnapshot findByDate(Integer projectId, Date date) {
+    Snapshot snapshot = null;
+    if (projectId != null) {
+      snapshot = findSnapshot(projectId, date);
     }
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, date, snapshot).setModeParameter(format.format(date));
   }
 
   @Nullable
-  private Snapshot findSnapshot(Snapshot projectSnapshot, Date date) {
+  private Snapshot findSnapshot(Integer projectId, Date date) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", date)
-        .setParameter("resourceId", projectSnapshot.getResourceId())
+        .setParameter("resourceId", projectId)
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setParameter("lib", Qualifiers.LIBRARY)
         .setMaxResults(1)

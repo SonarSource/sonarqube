@@ -19,82 +19,47 @@
  */
 package org.sonar.batch.components;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
-import javax.persistence.Query;
-
-import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newLinkedList;
 
 public class TimeMachineConfiguration implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(TimeMachineConfiguration.class);
 
-  private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
-  private static final int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
-
   private Project project;
-  private final Settings settings;
-  private List<PastSnapshot> projectPastSnapshots;
-  private DatabaseSession session;
+  private final PeriodsDefinition periodsDefinition;
 
-  public TimeMachineConfiguration(DatabaseSession session, Project project, Settings settings,
-                                  PastSnapshotFinder pastSnapshotFinder) {
-    this.session = session;
+  private List<Period> periods;
+  private List<PastSnapshot> modulePastSnapshots;
+
+  public TimeMachineConfiguration(Project project, PeriodsDefinition periodsDefinition, PastSnapshotFinderByDate pastSnapshotFinderByDate) {
     this.project = project;
-    this.settings = settings;
-    initPastSnapshots(pastSnapshotFinder, getRootProject(project).getQualifier());
+    this.periodsDefinition = periodsDefinition;
+    initModulePastSnapshots(pastSnapshotFinderByDate);
   }
 
-  private Project getRootProject(Project project) {
-    if (!project.isRoot()) {
-      return getRootProject(project.getRoot());
-    }
-    return project;
-  }
-
-  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder, String rootQualifier) {
-    Snapshot projectSnapshot = buildProjectSnapshot();
-
-    projectPastSnapshots = Lists.newLinkedList();
-    if (projectSnapshot != null) {
-      for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
-        PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, rootQualifier, settings, index);
-        // SONAR-4700 Add a past snapshot only if it exists
-        if (pastSnapshot != null && pastSnapshot.getProjectSnapshot() != null) {
-          log(pastSnapshot);
-          projectPastSnapshots.add(pastSnapshot);
-        }
+  private void initModulePastSnapshots(PastSnapshotFinderByDate pastSnapshotFinderByDate) {
+    periods = newLinkedList();
+    modulePastSnapshots = newLinkedList();
+    for (PastSnapshot projectPastSnapshot : periodsDefinition.projectPastSnapshots()) {
+      PastSnapshot pastSnapshot = pastSnapshotFinderByDate.findByDate(project.getId(), projectPastSnapshot.getTargetDate());
+      if (pastSnapshot != null) {
+        pastSnapshot.setIndex(projectPastSnapshot.getIndex());
+        pastSnapshot.setMode(projectPastSnapshot.getMode());
+        pastSnapshot.setModeParameter(projectPastSnapshot.getModeParameter());
+        modulePastSnapshots.add(pastSnapshot);
+        periods.add(new Period(projectPastSnapshot.getIndex(), pastSnapshot.getTargetDate(), pastSnapshot.getDate()));
+        log(pastSnapshot);
       }
     }
-  }
-
-  private Snapshot buildProjectSnapshot() {
-    Query query = session
-      .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
-    query.setParameter("resourceKey", project.getKey());
-    query.setParameter("lib", Qualifiers.LIBRARY);
-    query.setParameter("enabled", Boolean.TRUE);
-
-    Snapshot snapshot = null;
-    Number projectId = session.getSingleResult(query, null);
-    if (projectId != null) {
-      snapshot = new Snapshot();
-      snapshot.setResourceId(projectId.intValue());
-      snapshot.setCreatedAt(project.getAnalysisDate());
-      snapshot.setBuildDate(new Date());
-      snapshot.setVersion(project.getAnalysisVersion());
-    }
-    return snapshot;
   }
 
   private void log(PastSnapshot pastSnapshot) {
@@ -107,11 +72,14 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
-  public int getTendencyPeriodInDays() {
-    return CORE_TENDENCY_DEPTH_DEFAULT_VALUE;
+  public List<Period> periods() {
+    return periods;
   }
 
-  public List<PastSnapshot> getProjectPastSnapshots() {
-    return projectPastSnapshots;
+  /**
+   * Only used by VariationDecorator
+   */
+  public List<PastSnapshot> modulePastSnapshots() {
+    return modulePastSnapshots;
   }
 }

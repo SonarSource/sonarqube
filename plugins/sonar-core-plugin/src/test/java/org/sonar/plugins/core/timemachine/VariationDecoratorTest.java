@@ -52,8 +52,8 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldComputeVariations() {
-    TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
-    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), conf);
+    TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
+    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), timeMachineConfiguration);
 
     assertThat(decorator.shouldComputeVariation(new Project("foo"))).isTrue();
     assertThat(decorator.shouldComputeVariation(new File("foo/bar.c"))).isFalse();

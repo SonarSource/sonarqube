@@ -29,19 +29,19 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.components.PeriodsDefinition;
 
 import java.util.List;
 
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class TimeMachineConfigurationPersister implements Decorator {
 
-  private TimeMachineConfiguration configuration;
+  private PeriodsDefinition periodsDefinition;
   private Snapshot projectSnapshot;
   private DatabaseSession session;
 
-  public TimeMachineConfigurationPersister(TimeMachineConfiguration configuration, Snapshot projectSnapshot, DatabaseSession session) {
-    this.configuration = configuration;
+  public TimeMachineConfigurationPersister(PeriodsDefinition periodsDefinition, Snapshot projectSnapshot, DatabaseSession session) {
+    this.periodsDefinition = periodsDefinition;
     this.projectSnapshot = projectSnapshot;
     this.session = session;
   }
@@ -53,7 +53,7 @@ public final class TimeMachineConfigurationPersister implements Decorator {
   }
 
   void persistConfiguration() {
-    List<PastSnapshot> pastSnapshots = configuration.getProjectPastSnapshots();
+    List<PastSnapshot> pastSnapshots = periodsDefinition.projectPastSnapshots();
     for (PastSnapshot pastSnapshot : pastSnapshots) {
       Snapshot snapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
       updatePeriodParams(snapshot, pastSnapshot);

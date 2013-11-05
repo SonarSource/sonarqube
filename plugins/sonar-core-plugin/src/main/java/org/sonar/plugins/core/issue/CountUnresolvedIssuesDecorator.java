@@ -20,45 +20,25 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasureUtils;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Computes metrics related to number of issues.
@@ -100,7 +80,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       CoreMetrics.OPEN_ISSUES,
       CoreMetrics.REOPENED_ISSUES,
       CoreMetrics.CONFIRMED_ISSUES
-      );
+    );
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -232,9 +212,9 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       for (Rule rule : rules) {
         RuleMeasure measure = RuleMeasure.createForRule(metric, rule, null);
         measure.setSeverity(severity);
-        for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-          int variationIndex = pastSnapshot.getIndex();
-          int count = countIssuesAfterDate(issuesPerRule.get(rule), pastSnapshot.getTargetDate());
+        for (Period period : timeMachineConfiguration.periods()) {
+          int variationIndex = period.getIndex();
+          int count = countIssuesAfterDate(issuesPerRule.get(rule), period.getTargetDate());
           double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRule.get(rule)) + count;
           measure.setVariation(variationIndex, sum);
         }
@@ -244,11 +224,11 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
   }
 
   private void saveNewIssues(DecoratorContext context, Measure measure, Collection<Issue> issues) {
-    for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-      int variationIndex = pastSnapshot.getIndex();
+    for (Period period : timeMachineConfiguration.periods()) {
+      int variationIndex = period.getIndex();
       Collection<Measure> children = context.getChildrenMeasures(measure.getMetric());
       // SONAR-3647 Use real snapshot date and not target date in order to stay consistent with other measure variations
-      Date datePlusOneSecond = pastSnapshot.getDate() != null ? DateUtils.addSeconds(pastSnapshot.getDate(), 1) : null;
+      Date datePlusOneSecond = period.getDate() != null ? DateUtils.addSeconds(period.getDate(), 1) : null;
       int count = countIssuesAfterDate(issues, datePlusOneSecond);
       double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + count;
       measure.setVariation(variationIndex, sum);
