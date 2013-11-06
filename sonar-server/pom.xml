@@ -126,6 +126,11 @@
       <artifactId>jruby-rack</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>${elasticsearch.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
       <version>7.0.42</version>

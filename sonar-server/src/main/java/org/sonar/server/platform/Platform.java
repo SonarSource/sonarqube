@@ -93,6 +93,8 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
+import org.sonar.server.search.SearchIndex;
+import org.sonar.server.search.SearchNode;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
@@ -210,6 +212,7 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
+    coreContainer.addSingleton(SearchNode.class);
     coreContainer.startComponents();
   }
 
@@ -219,6 +222,7 @@ public final class Platform {
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
 
+    servicesContainer.addSingleton(SearchIndex.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
