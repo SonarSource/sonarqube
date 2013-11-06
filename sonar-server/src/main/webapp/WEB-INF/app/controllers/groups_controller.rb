@@ -81,11 +81,13 @@ class GroupsController < ApplicationController
     to_index(group.errors, nil)
   end
 
+  # TO BE REMOVED ?
   def select_user
     @group = Group.find(params[:id])
     render :partial => 'groups/select_user'
   end
 
+  # TO BE REMOVED ?
   def set_users
     @group = Group.find(params[:id])
     if  @group.set_users(params[:users])
