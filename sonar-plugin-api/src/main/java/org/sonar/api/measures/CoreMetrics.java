@@ -2055,6 +2055,24 @@ public final class CoreMetrics {
     .setQualitative(true)
     .create();
 
+  /**
+   * @since 4.1
+   */
+  public static final String NEW_TECHNICAL_DEBT_KEY = "new_technical_debt";
+
+  /**
+   * @since 4.1
+   */
+  public static final Metric NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.FLOAT)
+    .setDescription("Technical Debt of new code")
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
 
   // --------------------------------------------------------------------------------------------------------------------
   //

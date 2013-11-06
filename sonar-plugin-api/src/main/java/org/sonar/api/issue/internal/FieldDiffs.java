@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class FieldDiffs implements Serializable {
 
   public static final Splitter FIELDS_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
+  private String issueKey;
   private String userLogin;
   private Date createdAt, updatedAt;
   private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
@@ -78,6 +80,14 @@ public class FieldDiffs implements Serializable {
     return this;
   }
 
+  public String issueKey() {
+    return issueKey;
+  }
+
+  public FieldDiffs setIssueKey(String issueKey) {
+    this.issueKey = issueKey;
+    return this;
+  }
 
   @SuppressWarnings("unchecked")
   public FieldDiffs setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {

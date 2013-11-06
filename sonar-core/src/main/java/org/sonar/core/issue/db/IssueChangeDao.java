@@ -69,6 +69,19 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public List<FieldDiffs> selectChangelogByIssues(Collection<String> issueKeys) {
+    SqlSession session = mybatis.openSession();
+    try {
+      List<FieldDiffs> result = Lists.newArrayList();
+      for (IssueChangeDto dto : selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_FIELD_CHANGE)) {
+        result.add(dto.toFieldDiffs());
+      }
+      return result;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   @CheckForNull
   public DefaultIssueComment selectCommentByKey(String commentKey) {
     SqlSession session = mybatis.openSession();

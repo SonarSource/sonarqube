@@ -164,10 +164,10 @@ public final class IssueChangeDto {
   }
 
   public FieldDiffs toFieldDiffs() {
-    FieldDiffs diffs = FieldDiffs.parse(changeData);
-    diffs.setUserLogin(userLogin);
-    diffs.setCreatedAt(createdAt);
-    diffs.setUpdatedAt(updatedAt);
-    return diffs;
+    return FieldDiffs.parse(changeData)
+      .setUserLogin(userLogin)
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt)
+      .setIssueKey(issueKey);
   }
 }

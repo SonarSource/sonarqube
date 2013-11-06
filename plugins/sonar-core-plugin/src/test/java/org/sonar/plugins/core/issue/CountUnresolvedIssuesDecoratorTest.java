@@ -118,7 +118,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_count_issues() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createissues());
+    when(issuable.issues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -143,7 +143,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_not_count_issues_if_measure_already_exists() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createissues());
+    when(issuable.issues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
     when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
@@ -180,7 +180,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_count_issues_by_severity() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createissues());
+    when(issuable.issues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -285,7 +285,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS)));
   }
 
-  List<Issue> createissues() {
+  List<Issue> createIssues() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_OPEN));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_REOPENED));

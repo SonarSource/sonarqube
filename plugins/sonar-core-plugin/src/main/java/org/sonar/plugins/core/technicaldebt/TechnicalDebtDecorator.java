@@ -46,7 +46,7 @@ import java.util.Map;
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public final class TechnicalDebtDecorator implements Decorator {
 
-  public static final int DECIMALS_PRECISION = 5;
+  private static final int DECIMALS_PRECISION = 5;
   private TechnicalDebtCalculator costCalculator;
 
   public TechnicalDebtDecorator(TechnicalDebtCalculator costCalculator) {

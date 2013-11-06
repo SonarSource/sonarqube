@@ -46,7 +46,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectCommentsByIssues() {
+  public void select_comments_by_issues() {
     setupData("shared");
 
     SqlSession session = getMyBatis().openSession();
@@ -66,7 +66,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectCommentsByIssuesOnHugeNumberOfIssues() {
+  public void select_comments_by_issues_on_huge_number_of_issues() {
     setupData("shared");
 
     SqlSession session = getMyBatis().openSession();
@@ -82,7 +82,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectCommentByKey() {
+  public void select_comment_by_key() {
     setupData("shared");
 
     DefaultIssueComment comment = dao.selectCommentByKey("FGHIJ");
@@ -95,7 +95,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectIssueChangelog() {
+  public void select_issue_changelog_from_issue_key() {
     setupData("shared");
 
     List<FieldDiffs> changelog = dao.selectChangelogByIssue("1000");
@@ -106,7 +106,24 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectCommentsByIssues_empty_input() {
+  public void select_issue_changelog_from_issue_keys() {
+    setupData("shared");
+
+    List<FieldDiffs> result = dao.selectChangelogByIssues(newArrayList("1001"));
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).diffs()).hasSize(1);
+    assertThat(result.get(0).issueKey()).isEqualTo("1001");
+    assertThat(result.get(0).get("actionPlan").newValue()).isEqualTo("1.1");
+    assertThat(result.get(0).get("actionPlan").oldValue()).isEqualTo("1.0");
+
+    assertThat(result.get(1).diffs()).hasSize(1);
+    assertThat(result.get(1).issueKey()).isEqualTo("1001");
+    assertThat(result.get(1).get("severity").newValue()).isEqualTo("BLOCKER");
+    assertThat(result.get(1).get("severity").oldValue()).isEqualTo("MAJOR");
+  }
+
+  @Test
+  public void select_comments_by_issues_empty_input() {
     // no need to connect to db
     SqlSession session = mock(SqlSession.class);
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
