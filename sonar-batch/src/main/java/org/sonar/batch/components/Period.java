@@ -20,6 +20,9 @@
 
 package org.sonar.batch.components;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class Period {
@@ -28,7 +31,7 @@ public class Period {
   private Date targetDate;
   private Date date;
 
-  public Period(int index, Date targetDate, Date date) {
+  public Period(int index, Date targetDate, @Nullable Date date) {
     this.index = index;
     this.targetDate = targetDate;
     this.date = date;
@@ -42,6 +45,7 @@ public class Period {
     return targetDate;
   }
 
+  @CheckForNull
   public Date getDate() {
     return date;
   }
