@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.technicaldebt;
+package org.sonar.api.issue.internal;
 
 import java.io.Serializable;
 
-public class TechnicalDebt implements Serializable {
+public class WorkDayDuration implements Serializable {
 
   private static final int DAY = 10000;
   private static final int HOUR = 100;
@@ -31,14 +31,14 @@ public class TechnicalDebt implements Serializable {
   private int hours;
   private int minutes;
 
-  private TechnicalDebt(int minutes, int hours, int days) {
+  private WorkDayDuration(int minutes, int hours, int days) {
     this.minutes = minutes;
     this.hours = hours;
     this.days = days;
   }
 
-  private TechnicalDebt(long technicalDebtInLong) {
-    long time = technicalDebtInLong;
+  private WorkDayDuration(long durationInLong) {
+    long time = durationInLong;
     Long currentTime = time / DAY;
     if (currentTime > 0) {
       this.days = currentTime.intValue();
@@ -57,12 +57,12 @@ public class TechnicalDebt implements Serializable {
     }
   }
 
-  public static TechnicalDebt of(int minutes, int hours, int days) {
-    return new TechnicalDebt(minutes, hours, days);
+  public static WorkDayDuration of(int minutes, int hours, int days) {
+    return new WorkDayDuration(minutes, hours, days);
   }
 
-  public static TechnicalDebt fromLong(long technicalDebtInLong) {
-    return new TechnicalDebt(technicalDebtInLong);
+  public static WorkDayDuration fromLong(long durationInLong) {
+    return new WorkDayDuration(durationInLong);
   }
 
   public long toLong() {
@@ -89,14 +89,14 @@ public class TechnicalDebt implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TechnicalDebt technicalDebt = (TechnicalDebt) o;
-    if (days != technicalDebt.days) {
+    WorkDayDuration workDayDuration = (WorkDayDuration) o;
+    if (days != workDayDuration.days) {
       return false;
     }
-    if (hours != technicalDebt.hours) {
+    if (hours != workDayDuration.hours) {
       return false;
     }
-    if (minutes != technicalDebt.minutes) {
+    if (minutes != workDayDuration.minutes) {
       return false;
     }
     return true;

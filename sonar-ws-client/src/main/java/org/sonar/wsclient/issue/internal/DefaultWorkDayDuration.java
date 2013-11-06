@@ -17,17 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
+
+import org.sonar.wsclient.issue.WorkDayDuration;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
+
+import java.util.Map;
 
 /**
  * @since 4.0
  */
-public interface TechnicalDebt {
+public class DefaultWorkDayDuration implements WorkDayDuration {
 
-  Integer days();
+  private final Map json;
 
-  Integer minutes();
+  DefaultWorkDayDuration(Map json) {
+    this.json = json;
+  }
 
-  Integer hours();
+  public Integer days() {
+    return JsonUtils.getInteger(json, "days");
+  }
+
+  public Integer hours() {
+    return JsonUtils.getInteger(json, "hours");
+  }
+
+  public Integer minutes() {
+    return JsonUtils.getInteger(json, "minutes");
+  }
 
 }

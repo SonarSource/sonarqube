@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 
 import java.util.Locale;
 
@@ -48,13 +48,13 @@ public class InternalRubyTechnicalDebtServiceTest {
 
   @Test
   public void format() {
-    TechnicalDebt technicalDebt = TechnicalDebt.of(5, 0, 0);
+    WorkDayDuration technicalDebt = WorkDayDuration.of(5, 0, 0);
     service.format(technicalDebt);
     verify(technicalDebtFormatter).format(any(Locale.class), eq(technicalDebt));
   }
 
   @Test
   public void to_technical_debt() {
-    assertThat(service.toTechnicalDebt("500")).isEqualTo(TechnicalDebt.of(0, 5, 0));
+    assertThat(service.toTechnicalDebt("500")).isEqualTo(WorkDayDuration.of(0, 5, 0));
   }
 }

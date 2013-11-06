@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.core.i18n.I18nManager;
 
 import java.util.Locale;
@@ -54,13 +54,13 @@ public class TechnicalDebtFormatterTest {
     when(i18nManager.message(DEFAULT_LOCALE, "issue.technical_debt.x_hours", null, 2)).thenReturn("2 hours");
     when(i18nManager.message(DEFAULT_LOCALE, "issue.technical_debt.x_minutes", null, 1)).thenReturn("1 minutes");
 
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(0, 0, 5))).isEqualTo("5 days");
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(0, 2, 0))).isEqualTo("2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(1, 0, 0))).isEqualTo("1 minutes");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 5))).isEqualTo("5 days");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 2, 0))).isEqualTo("2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 0, 0))).isEqualTo("1 minutes");
 
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(0, 2, 5))).isEqualTo("5 days 2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(1, 2, 0))).isEqualTo("2 hours 1 minutes");
-    assertThat(formatter.format(DEFAULT_LOCALE, TechnicalDebt.of(1, 2, 5))).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 2, 5))).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 2, 0))).isEqualTo("2 hours 1 minutes");
+    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 2, 5))).isEqualTo("5 days 2 hours");
   }
 
 

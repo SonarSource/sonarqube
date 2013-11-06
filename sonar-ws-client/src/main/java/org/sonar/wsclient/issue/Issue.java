@@ -53,7 +53,7 @@ public interface Issue {
   Double effortToFix();
 
   @CheckForNull
-  TechnicalDebt technicalDebt();
+  WorkDayDuration technicalDebt();
 
   String status();
 

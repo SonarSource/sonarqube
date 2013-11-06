@@ -22,7 +22,7 @@ package org.sonar.core.technicaldebt;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -69,15 +69,15 @@ public class TechnicalDebtConverterTest {
 
   @Test
   public void convert_technical_debt_to_days() {
-    assertThat(converter.toDays(TechnicalDebt.of(0, 0, 6))).isEqualTo(6.0);
-    assertThat(converter.toDays(TechnicalDebt.of(0, 6, 0))).isEqualTo(0.5);
-    assertThat(converter.toDays(TechnicalDebt.of(360, 0, 0))).isEqualTo(0.5);
-    assertThat(converter.toDays(TechnicalDebt.of(45, 0, 0))).isEqualTo(0.0625);
+    assertThat(converter.toDays(WorkDayDuration.of(0, 0, 6))).isEqualTo(6.0);
+    assertThat(converter.toDays(WorkDayDuration.of(0, 6, 0))).isEqualTo(0.5);
+    assertThat(converter.toDays(WorkDayDuration.of(360, 0, 0))).isEqualTo(0.5);
+    assertThat(converter.toDays(WorkDayDuration.of(45, 0, 0))).isEqualTo(0.0625);
 
-    assertThat(converter.toDays(TechnicalDebt.of(45, 6, 1))).isEqualTo(1.5625);
+    assertThat(converter.toDays(WorkDayDuration.of(45, 6, 1))).isEqualTo(1.5625);
   }
   
-  private void checkValues(TechnicalDebt technicalDebt, int expectedMinutes, int expectedHours, int expectedDays) {
+  private void checkValues(WorkDayDuration technicalDebt, int expectedMinutes, int expectedHours, int expectedDays) {
     assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
     assertThat(technicalDebt.hours()).isEqualTo(expectedHours);
     assertThat(technicalDebt.days()).isEqualTo(expectedDays);

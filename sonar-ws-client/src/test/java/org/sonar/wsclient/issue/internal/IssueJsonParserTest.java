@@ -255,12 +255,12 @@ public class IssueJsonParserTest {
     IssueChangeDiff changeDiff = change.diffs().get(0);
     assertThat(changeDiff.key()).isEqualTo("technicalDebt");
 
-    TechnicalDebt newTechnicalDebt = (TechnicalDebt) changeDiff.newValue();
+    WorkDayDuration newTechnicalDebt = (WorkDayDuration) changeDiff.newValue();
     assertThat(newTechnicalDebt.days()).isEqualTo(2);
     assertThat(newTechnicalDebt.hours()).isEqualTo(1);
     assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
 
-    TechnicalDebt oldTechnicalDebt = (TechnicalDebt) changeDiff.oldValue();
+    WorkDayDuration oldTechnicalDebt = (WorkDayDuration) changeDiff.oldValue();
     assertThat(oldTechnicalDebt.days()).isEqualTo(3);
     assertThat(oldTechnicalDebt.hours()).isEqualTo(0);
     assertThat(oldTechnicalDebt.minutes()).isEqualTo(10);
@@ -281,12 +281,12 @@ public class IssueJsonParserTest {
     IssueChangeDiff changeDiff = change.diffs().get(0);
     assertThat(changeDiff.key()).isEqualTo("technicalDebt");
 
-    TechnicalDebt newTechnicalDebt = (TechnicalDebt) changeDiff.newValue();
+    WorkDayDuration newTechnicalDebt = (WorkDayDuration) changeDiff.newValue();
     assertThat(newTechnicalDebt.days()).isEqualTo(2);
     assertThat(newTechnicalDebt.hours()).isEqualTo(1);
     assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
 
-    TechnicalDebt oldTechnicalDebt = (TechnicalDebt) changeDiff.oldValue();
+    WorkDayDuration oldTechnicalDebt = (WorkDayDuration) changeDiff.oldValue();
     assertThat(oldTechnicalDebt).isNull();
   }
 

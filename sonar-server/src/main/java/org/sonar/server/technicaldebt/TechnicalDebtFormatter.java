@@ -21,7 +21,7 @@
 package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.core.i18n.I18nManager;
 
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class TechnicalDebtFormatter implements ServerComponent {
     this.i18nManager = i18nManager;
   }
 
-  public String format(Locale locale, TechnicalDebt technicalDebt) {
+  public String format(Locale locale, WorkDayDuration technicalDebt) {
     StringBuilder message = new StringBuilder();
     if (technicalDebt.days() > 0) {
       message.append(i18nManager.message(locale, "issue.technical_debt.x_days", null, technicalDebt.days()));

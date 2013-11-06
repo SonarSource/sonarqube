@@ -21,7 +21,7 @@
 package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.server.user.UserSession;
 
 public class InternalRubyTechnicalDebtService implements ServerComponent {
@@ -32,12 +32,12 @@ public class InternalRubyTechnicalDebtService implements ServerComponent {
     this.technicalDebtFormatter = technicalDebtFormatter;
   }
 
-  public String format(TechnicalDebt technicalDebt){
+  public String format(WorkDayDuration technicalDebt){
     return technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
-  public TechnicalDebt toTechnicalDebt(String technicalDebtInLong){
-    return TechnicalDebt.fromLong(Long.parseLong(technicalDebtInLong));
+  public WorkDayDuration toTechnicalDebt(String technicalDebtInLong){
+    return WorkDayDuration.fromLong(Long.parseLong(technicalDebtInLong));
   }
 
 }

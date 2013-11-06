@@ -28,8 +28,8 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
@@ -305,7 +305,7 @@ public class DefaultIssueFinderTest {
 
     assertThat(results.issues()).hasSize(1);
     DefaultIssue result = (DefaultIssue) results.issues().iterator().next();
-    assertThat(result.technicalDebt()).isEqualTo(TechnicalDebt.of(10, 0, 0));
+    assertThat(result.technicalDebt()).isEqualTo(WorkDayDuration.of(10, 0, 0));
   }
 
 }
