@@ -20,8 +20,8 @@
 package org.sonar.batch.components;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -38,62 +38,72 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
   @Before
   public void before() {
+    setupData("shared");
     periodsDefinition = mock(PeriodsDefinition.class);
   }
 
   @Test
-  @Ignore
-  public void get_module_past_snapshot() {
-    Integer projectId = 1;
-    Date targetDate = new Date();
-
-    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", targetDate);
-    PastSnapshot modulePastSnapshot = new PastSnapshot("mode", targetDate);
+  public void get_project_past_snapshot() {
+    Snapshot projectSnapshot = new Snapshot();
+    projectSnapshot.setId(1010);
+    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
 
     when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
-    //when(pastSnapshotFinderByDate.findByDate(anyInt(), any(Date.class))).thenReturn(modulePastSnapshot);
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:project").setId(1), periodsDefinition);
     assertThat(timeMachineConfiguration.periods()).hasSize(1);
+    assertThat(timeMachineConfiguration.periods().get(0).getDate()).isNotNull();
     assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getProjectSnapshot().getId()).isEqualTo(1010);
   }
 
   @Test
-  @Ignore
-  public void complete_module_past_snapshot_from_project_past_snapshot() {
-    Integer projectId = 1;
-    Date targetDate = new Date();
+  public void get_module_past_snapshot() {
+    Snapshot projectSnapshot = new Snapshot();
+    projectSnapshot.setId(1010);
+    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
 
-    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", targetDate);
+    when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
+
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:module").setId(2), periodsDefinition);
+    assertThat(timeMachineConfiguration.periods()).hasSize(1);
+    assertThat(timeMachineConfiguration.periods().get(0).getDate()).isNotNull();
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getProjectSnapshot().getId()).isEqualTo(1010);
+  }
+
+  @Test
+  public void complete_past_snapshot_from_project_past_snapshot() {
+    Snapshot projectSnapshot = new Snapshot();
+    projectSnapshot.setId(1010);
+
+    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
     projectPastSnapshot.setIndex(1);
     projectPastSnapshot.setMode("mode");
     projectPastSnapshot.setModeParameter("modeParam");
 
-    PastSnapshot modulePastSnapshot = new PastSnapshot("mode", targetDate);
-
     when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
-    //when(pastSnapshotFinderByDate.findByDate(anyInt(), any(Date.class))).thenReturn(modulePastSnapshot);
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), (Project) new Project("my:project").setId(1), periodsDefinition);
     assertThat(timeMachineConfiguration.getProjectPastSnapshots()).hasSize(1);
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getProjectSnapshot().getId()).isEqualTo(1010);
     assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getIndex()).isEqualTo(1);
     assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getMode()).isEqualTo("mode");
     assertThat(timeMachineConfiguration.getProjectPastSnapshots().get(0).getModeParameter()).isEqualTo("modeParam");
   }
 
   @Test
-  @Ignore
-  public void get_no_module_past_snapshot() {
-    Integer projectId = 1;
-    Date targetDate = new Date();
+  public void get_no_date_on_new_project() {
+    Snapshot projectSnapshot = new Snapshot();
+    projectSnapshot.setId(1010);
 
-    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", targetDate);
+    PastSnapshot projectPastSnapshot = new PastSnapshot("mode", new Date(), projectSnapshot);
 
     when(periodsDefinition.getRootProjectPastSnapshots()).thenReturn(newArrayList(projectPastSnapshot));
-    //when(pastSnapshotFinderByDate.findByDate(eq(projectId), eq(targetDate))).thenReturn(null);
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(null, (Project) new Project("my:project").setId(projectId), periodsDefinition);
-    assertThat(timeMachineConfiguration.periods()).isEmpty();
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), new Project("my:project"), periodsDefinition);
+    assertThat(timeMachineConfiguration.periods()).hasSize(1);
+    assertThat(timeMachineConfiguration.periods().get(0).getDate()).isNull();
   }
 
 }

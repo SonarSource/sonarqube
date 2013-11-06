@@ -67,6 +67,10 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
+  /**
+   * Only used to get the real date of the snapshot on the current period.
+   * The date is used to calculate new_violations measures
+   */
   @CheckForNull
   private Snapshot findSnapshot(Snapshot projectSnapshot) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId and (rootId=:rootSnapshotId or id=:rootSnapshotId)";
@@ -75,7 +79,6 @@ public class TimeMachineConfiguration implements BatchExtension {
       .setParameter("rootSnapshotId", projectSnapshot.getId())
       .setMaxResults(1)
       .getResultList();
-
     return snapshots.isEmpty() ? null : snapshots.get(0);
   }
 
