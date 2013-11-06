@@ -27,6 +27,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
@@ -57,11 +58,11 @@ public class SearchIndex {
   }
 
   public void put(String index, String type, String id, BytesStream source) {
-    client.prepareIndex(index, type, id).setSource(source.bytes()).execute();
+    client.prepareIndex(index, type, id).setSource(source.bytes()).execute().actionGet();
   }
 
   public void put(String index, String type, String id, BytesStream source, String parent) {
-    client.prepareIndex(index, type, id).setParent(parent).setSource(source.bytes()).execute();
+    client.prepareIndex(index, type, id).setParent(parent).setSource(source.bytes()).execute().actionGet();
   }
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources) {
@@ -99,22 +100,22 @@ public class SearchIndex {
     IndicesAdminClient indices = client.admin().indices();
     try {
       if (! indices.exists(new IndicesExistsRequest(index)).get().isExists()) {
-        indices.prepareCreate(index).get();
+        indices.prepareCreate(index).execute().actionGet();
       }
     } catch (Exception e) {
       LOG.error("While checking for index existence", e);
     }
-    indices.preparePutMapping(index).setType(type).setSource(mapping).execute();
+    indices.putMapping(Requests.putMappingRequest(index).type(type).source(mapping)).actionGet();
   }
 
   public void stats(String index) {
     LOG.info(
       String.format(
         "Index %s contains %d elements", index,
-        client.prepareSearch(index).setQuery(QueryBuilders.matchAllQuery()).get().getHits().totalHits()));
+        client.prepareSearch(index).setQuery(QueryBuilders.matchAllQuery()).execute().actionGet().getHits().totalHits()));
   }
 
   public SearchResponse find(SearchQuery query) {
-    return query.toBuilder(client).get();
+    return query.toBuilder(client).execute().actionGet();
   }
 }
