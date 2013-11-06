@@ -29,6 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
@@ -68,11 +69,10 @@ public class TimeMachineConfiguration implements BatchExtension {
 
   @CheckForNull
   private Snapshot findSnapshot(Snapshot projectSnapshot) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId and (rootId=:rootSnapshotId or id=:rootSnapshotId) and last=:last";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId and (rootId=:rootSnapshotId or id=:rootSnapshotId)";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("resourceId", project.getId())
       .setParameter("rootSnapshotId", projectSnapshot.getId())
-      .setParameter("last", Boolean.TRUE)
       .setMaxResults(1)
       .getResultList();
 

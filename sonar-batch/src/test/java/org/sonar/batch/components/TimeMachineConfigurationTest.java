@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Date;
 
@@ -31,7 +32,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TimeMachineConfigurationTest {
+public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
   private PeriodsDefinition periodsDefinition;
 
