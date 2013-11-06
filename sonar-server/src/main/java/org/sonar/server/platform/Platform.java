@@ -354,6 +354,7 @@ public final class Platform {
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanDryRunCache.class);
+    startupContainer.addSingleton(IndexRules.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
