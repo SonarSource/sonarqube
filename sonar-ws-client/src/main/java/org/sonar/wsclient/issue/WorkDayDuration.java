@@ -17,33 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue.internal;
-
-import org.sonar.wsclient.issue.TechnicalDebt;
-import org.sonar.wsclient.unmarshallers.JsonUtils;
-
-import java.util.Map;
+package org.sonar.wsclient.issue;
 
 /**
  * @since 4.0
  */
-public class DefaultTechnicalDebt implements TechnicalDebt {
-  private final Map json;
+public interface WorkDayDuration {
 
-  DefaultTechnicalDebt(Map json) {
-    this.json = json;
-  }
+  Integer days();
 
-  public Integer days() {
-    return JsonUtils.getInteger(json, "days");
-  }
+  Integer minutes();
 
-  public Integer hours() {
-    return JsonUtils.getInteger(json, "hours");
-  }
-
-  public Integer minutes() {
-    return JsonUtils.getInteger(json, "minutes");
-  }
+  Integer hours();
 
 }

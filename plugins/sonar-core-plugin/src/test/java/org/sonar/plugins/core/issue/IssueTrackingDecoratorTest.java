@@ -29,6 +29,7 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -36,7 +37,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -519,7 +519,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     verify(updater).setPastLine(eq(issue), eq(10));
     verify(updater).setPastMessage(eq(issue), eq("Message"), any(IssueChangeContext.class));
     verify(updater).setPastEffortToFix(eq(issue), eq(1.5), any(IssueChangeContext.class));
-    verify(updater).setPastTechnicalDebt(eq(issue), eq(TechnicalDebt.of(1, 0, 0)), any(IssueChangeContext.class));
+    verify(updater).setPastTechnicalDebt(eq(issue), eq(WorkDayDuration.of(1, 0, 0)), any(IssueChangeContext.class));
   }
 
   @Test

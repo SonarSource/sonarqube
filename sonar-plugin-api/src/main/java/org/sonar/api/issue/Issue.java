@@ -21,7 +21,6 @@ package org.sonar.api.issue;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 
 import javax.annotation.CheckForNull;
 
@@ -102,12 +101,6 @@ public interface Issue extends Serializable {
    */
   @CheckForNull
   Double effortToFix();
-
-  /**
-   * Elapsed time in minutes to fix the issue
-   */
-  @CheckForNull
-  TechnicalDebt technicalDebt();
 
   /**
    * See constant values in {@link Issue}.

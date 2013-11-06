@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.core.technicaldebt.functions.Functions;
 
 import java.util.Collection;
@@ -58,7 +58,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
     this.converter = converter;
   }
 
-  public TechnicalDebt calculTechnicalDebt(Issue issue) {
+  public WorkDayDuration calculTechnicalDebt(Issue issue) {
     TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (requirement != null) {
       return converter.fromMinutes(functions.costInMinutes(requirement, issue));

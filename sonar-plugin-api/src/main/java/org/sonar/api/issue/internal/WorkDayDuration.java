@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.technicaldebt;
+package org.sonar.api.issue.internal;
 
 import java.io.Serializable;
 
-public class TechnicalDebt implements Serializable {
+public class WorkDayDuration implements Serializable {
 
   private static final int DAY = 10000;
   private static final int HOUR = 100;
@@ -31,13 +31,13 @@ public class TechnicalDebt implements Serializable {
   private int hours;
   private int minutes;
 
-  private TechnicalDebt(int minutes, int hours, int days) {
+  private WorkDayDuration(int minutes, int hours, int days) {
     this.minutes = minutes;
     this.hours = hours;
     this.days = days;
   }
 
-  private TechnicalDebt(long technicalDebtInLong) {
+  private WorkDayDuration(long technicalDebtInLong) {
     long time = technicalDebtInLong;
     Long currentTime = time / DAY;
     if (currentTime > 0) {
@@ -57,12 +57,12 @@ public class TechnicalDebt implements Serializable {
     }
   }
 
-  public static TechnicalDebt of(int minutes, int hours, int days) {
-    return new TechnicalDebt(minutes, hours, days);
+  public static WorkDayDuration of(int minutes, int hours, int days) {
+    return new WorkDayDuration(minutes, hours, days);
   }
 
-  public static TechnicalDebt fromLong(long technicalDebtInLong) {
-    return new TechnicalDebt(technicalDebtInLong);
+  public static WorkDayDuration fromLong(long technicalDebtInLong) {
+    return new WorkDayDuration(technicalDebtInLong);
   }
 
   public long toLong() {
@@ -89,7 +89,7 @@ public class TechnicalDebt implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TechnicalDebt technicalDebt = (TechnicalDebt) o;
+    WorkDayDuration technicalDebt = (WorkDayDuration) o;
     if (days != technicalDebt.days) {
       return false;
     }

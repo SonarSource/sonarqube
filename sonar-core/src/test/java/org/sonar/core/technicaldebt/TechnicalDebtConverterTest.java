@@ -23,7 +23,7 @@ import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -68,7 +68,7 @@ public class TechnicalDebtConverterTest {
     checkValues(converter.fromMinutes(790L), 10L, 1L, 1L);
   }
 
-  private void checkValues(TechnicalDebt technicalDebt, Long expectedMinutes, Long expectedHours, Long expectedDays) {
+  private void checkValues(WorkDayDuration technicalDebt, Long expectedMinutes, Long expectedHours, Long expectedDays) {
     Assertions.assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
     Assertions.assertThat(technicalDebt.hours()).isEqualTo(expectedHours);
     Assertions.assertThat(technicalDebt.days()).isEqualTo(expectedDays);

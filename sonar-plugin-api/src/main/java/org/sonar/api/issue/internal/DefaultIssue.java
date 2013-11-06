@@ -34,7 +34,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -58,7 +57,7 @@ public class DefaultIssue implements Issue {
   private String message;
   private Integer line;
   private Double effortToFix;
-  private TechnicalDebt technicalDebt;
+  private WorkDayDuration technicalDebt;
   private String status;
   private String resolution;
   private String reporter;
@@ -189,11 +188,11 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public TechnicalDebt technicalDebt() {
+  public WorkDayDuration technicalDebt() {
     return technicalDebt;
   }
 
-  public DefaultIssue setTechnicalDebt(@Nullable TechnicalDebt t) {
+  public DefaultIssue setTechnicalDebt(@Nullable WorkDayDuration t) {
     this.technicalDebt = t;
     return this;
   }

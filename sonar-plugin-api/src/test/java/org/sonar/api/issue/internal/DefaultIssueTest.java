@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -49,7 +48,7 @@ public class DefaultIssueTest {
       .setMessage("a message")
       .setLine(7)
       .setEffortToFix(1.2d)
-      .setTechnicalDebt(TechnicalDebt.of(1, 0, 0))
+      .setTechnicalDebt(WorkDayDuration.of(1, 0, 0))
       .setActionPlanKey("BCDE")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
@@ -77,7 +76,7 @@ public class DefaultIssueTest {
     assertThat(issue.message()).isEqualTo("a message");
     assertThat(issue.line()).isEqualTo(7);
     assertThat(issue.effortToFix()).isEqualTo(1.2d);
-    assertThat(issue.technicalDebt()).isEqualTo(TechnicalDebt.of(1, 0, 0));
+    assertThat(issue.technicalDebt()).isEqualTo(WorkDayDuration.of(1, 0, 0));
     assertThat(issue.actionPlanKey()).isEqualTo("BCDE");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);

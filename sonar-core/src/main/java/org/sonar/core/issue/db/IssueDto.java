@@ -24,8 +24,8 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.TechnicalDebt;
 import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
@@ -422,7 +422,7 @@ public final class IssueDto implements Serializable {
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
-    issue.setTechnicalDebt(technicalDebt != null ? TechnicalDebt.fromLong(technicalDebt) : null);
+    issue.setTechnicalDebt(technicalDebt != null ? WorkDayDuration.fromLong(technicalDebt) : null);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);

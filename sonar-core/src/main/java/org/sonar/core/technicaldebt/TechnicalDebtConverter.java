@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.api.technicaldebt.TechnicalDebt;
+import org.sonar.api.issue.internal.WorkDayDuration;
 
 public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
 
@@ -65,7 +65,7 @@ public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
     }
   }
 
-  public TechnicalDebt fromMinutes(Long inMinutes){
+  public WorkDayDuration fromMinutes(Long inMinutes){
     int oneHourInMinute = 60;
     int days = 0;
     int hours = 0;
@@ -86,7 +86,7 @@ public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
 
     minutes = inMinutes.shortValue();
 
-    return TechnicalDebt.of(minutes, hours, days);
+    return WorkDayDuration.of(minutes, hours, days);
   }
 
 }
