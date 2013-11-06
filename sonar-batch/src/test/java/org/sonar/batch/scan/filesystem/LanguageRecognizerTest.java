@@ -69,22 +69,6 @@ public class LanguageRecognizerTest {
   }
 
   @Test
-  public void fail_if_conflict_of_file_extensions() throws Exception {
-    Language[] languages = new Language[] {new MockLanguage("java", "java"), new MockLanguage("java2", "java", "java2")};
-
-    LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java"), languages));
-    recognizer.start();
-
-    verify(recognizer).warnConflict(eq("java"), argThat(new ArgumentMatcher<Set<String>>() {
-      @Override
-      public boolean matches(Object o) {
-        Set<String> set = (Set<String>) o;
-        return set.contains("java") && set.contains("java2") && set.size() == 2;
-      }
-    }));
-  }
-
-  @Test
   public void should_not_fail_if_no_language() throws Exception {
     LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java")));
     recognizer.start();
