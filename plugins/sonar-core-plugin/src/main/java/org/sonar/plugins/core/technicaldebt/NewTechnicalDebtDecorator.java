@@ -43,11 +43,10 @@ import org.sonar.core.issue.IssueChangelogFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
+import javax.annotation.Nullable;
+
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -102,13 +101,13 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, Multimap<Issue, FieldDiffs> changelogList, Date periodDate){
+  private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, Multimap<Issue, FieldDiffs> changelogList, @Nullable Date periodDate){
     double value = 0;
     for (Issue issue : issues) {
       WorkDayDuration currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
       List<FieldDiffs> technicalDebtChangelog = changesOnField(IssueUpdater.TECHNICAL_DEBT, changelogList.get(issue));
       if (technicalDebtChangelog.isEmpty()) {
-        if (issue.creationDate().after(periodDate)) {
+        if (isAfter(issue.creationDate(), periodDate)) {
           value += technicalDebtConverter.toDays(currentTechnicalDebt);
         }
       } else {
@@ -123,14 +122,12 @@ public final class NewTechnicalDebtDecorator implements Decorator {
 
     // Changelog have to be sorted from oldest to newest to catch oldest value just before the period date -> By default it's sorted from newest to oldest
     for (FieldDiffs fieldDiffs : Lists.reverse(technicalDebtChangelog)) {
-      if (fieldDiffs.createdAt().after(periodDate)) {
+      if (isAfter(fieldDiffs.createdAt(), periodDate)) {
         WorkDayDuration pastTechnicalDebt = newValue(IssueUpdater.TECHNICAL_DEBT, fieldDiffs);
-        // Can new technical debt be null ? It shouldn't but...
         double pastTechnicalDebtValue = technicalDebtConverter.toDays(pastTechnicalDebt);
         return currentTechnicalDebtValue - pastTechnicalDebtValue;
       }
     }
-    // FIXME is it possible to have null?
     return null;
   }
 
@@ -152,6 +149,10 @@ public final class NewTechnicalDebtDecorator implements Decorator {
       }
     }
     return null;
+  }
+
+  private boolean isAfter(Date currentDate, @Nullable Date pastDate) {
+    return pastDate == null || (currentDate != null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

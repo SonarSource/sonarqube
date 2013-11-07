@@ -143,6 +143,48 @@ public class NewTechnicalDebtDecoratorTest {
   }
 
   @Test
+  public void save_on_one_issue_with_changelog_having_null_value() {
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
+    // Changes should be sorted from newest to oldest
+    changelogList.putAll(issue, newArrayList(
+      new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
+      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
+      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+    ));
+    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 4.0)));
+  }
+
+  @Test
+  public void save_on_one_issue_with_changelog_and_periods_have_no_dates() {
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
+
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
+    // Changes should be sorted from newest to oldest
+    changelogList.putAll(issue, newArrayList(
+      new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
+      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
+      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+    ));
+    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 4.0)));
+  }
+
+  @Test
   public void save_on_issues_with_changelog() {
     Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
     Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt);
@@ -180,6 +222,38 @@ public class NewTechnicalDebtDecoratorTest {
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 5.0)));
+  }
+
+  @Test
+  public void save_on_one_issue_without_technical_debt_and_without_changelog() {
+    when(issuable.issues()).thenReturn(newArrayList(
+      (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(null))
+    );
+
+    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
+    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 0.0)));
+  }
+
+  @Test
+  public void save_on_one_issue_without_changelog_and_periods_have_no_dates() {
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
+
+    when(issuable.issues()).thenReturn(newArrayList(
+      (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt))
+    );
+
+    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
+    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is null, period2 is null
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 5.0)));
   }
 
   @Test

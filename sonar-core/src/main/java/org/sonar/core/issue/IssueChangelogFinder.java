@@ -25,7 +25,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -37,7 +37,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueChangelogFinder implements BatchComponent {
+public class IssueChangelogFinder implements BatchExtension {
 
   private final IssueChangeDao dao;
 

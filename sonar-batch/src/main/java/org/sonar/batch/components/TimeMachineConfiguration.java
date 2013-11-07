@@ -62,6 +62,7 @@ public class TimeMachineConfiguration implements BatchExtension {
       pastSnapshot.setIndex(projectPastSnapshot.getIndex());
       pastSnapshot.setModeParameter(projectPastSnapshot.getModeParameter());
       modulePastSnapshots.add(pastSnapshot);
+      // When no snapshot is found, date of the period is null
       periods.add(new Period(pastSnapshot.getIndex(), pastSnapshot.getTargetDate(), snapshot != null ? snapshot.getCreatedAt() : null));
       log(pastSnapshot);
     }

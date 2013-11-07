@@ -101,16 +101,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     }
   }
 
-  public static List<?> extensions() {
-    ImmutableList.Builder<Object> extensions = ImmutableList.builder();
-    extensions.addAll(definitions());
-    extensions.add(
-      TechnicalDebtDecorator.class, TechnicalDebtCalculator.class
-    );
-    return extensions.build();
-  }
-
-  private static List<PropertyDefinition> definitions() {
+  public static List<PropertyDefinition> definitions() {
     return ImmutableList.of(
       PropertyDefinition.builder(TechnicalDebtConverter.PROPERTY_HOURS_IN_DAY)
         .name("Number of working hours in a day")
