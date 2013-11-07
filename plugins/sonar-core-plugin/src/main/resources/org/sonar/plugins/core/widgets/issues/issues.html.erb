@@ -1,18 +1,21 @@
 <%
    issues = @snapshot.measure('violations')
-   technical_debt = @snapshot.measure('sqale_index')
    blocker_issues = @snapshot.measure('blocker_violations')
    critical_issues = @snapshot.measure('critical_violations')
    major_issues = @snapshot.measure('major_violations')
    minor_issues = @snapshot.measure('minor_violations')
    info_issues = @snapshot.measure('info_violations')
    new_issues = @snapshot.measure('new_violations')
+
+   technical_debt = @snapshot.measure('sqale_index')
+   new_technical_debt = @snapshot.measure('new_technical_debt')
 %>
 <table width="100%">
   <tr>
     <td width="50%" valign="top">
       <div class="dashbox">
         <h3><%= message('widget.rules.issues') -%></h3>
+
         <div class="marginbottom10">
             <span class="big">
               <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
@@ -43,12 +46,35 @@
         </div>
         <% if technical_debt %>
           <h3><%= message('widget.rules.technical_debt') -%></h3>
+
           <div>
             <span class="big">
               <a href="<%= url_for_drilldown('sqale_index') -%>"><%= format_measure(technical_debt) -%></a>
             </span>
             <span><%= message('widget.rules.technical_debt.days') -%></span>
             <span><%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%></span>
+            <%
+               if @dashboard_configuration.selected_period?
+                 technical_debt_variation = variation_value(technical_debt)
+                 new_technical_debt_variation = variation_value(new_technical_debt)
+                 estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
+            %>
+              <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
+                <br/>
+                <span style="font-weight: bold">
+                  <%= message('widget.rules.added') -%>&nbsp;
+                  <a href="<%= url_for_drilldown('sqale_index') -%>" class="varw">
+                    <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+                </span>
+              <% end %>
+              <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
+                <br/>
+                <span style="font-weight: bold">
+                  <%= message('widget.rules.removed') -%>&nbsp;
+                  <span class="varb"><%= number_with_precision(estimated_cleared_technical_debt, :precision => 0) -%></span>
+                </span>
+              <% end %>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -58,15 +84,15 @@
       <%
          values = [blocker_issues, critical_issues, major_issues, minor_issues, info_issues]
          if dashboard_configuration.selected_period?
-           values = values.map{|m| m ? (m.variation(dashboard_configuration.period_index)||0) : 0}
+           values = values.map { |m| m ? (m.variation(dashboard_configuration.period_index)||0) : 0 }
          else
-           values = values.map{|m| m ? (m.value||0) : 0}
+           values = values.map { |m| m ? (m.value||0) : 0 }
          end
-         max = values.map{|val| val.abs}.max
+         max = values.map { |val| val.abs }.max
       %>
       <table class="clear width100">
         <tr>
-          <td><%= image_tag 'priority/BLOCKER.png'%></td>
+          <td><%= image_tag 'priority/BLOCKER.png' %></td>
           <td> &nbsp;<%= link_to message('blocker'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'} %></td>
           <td style="padding: 0 5px;" align="right">
             <%= format_measure(blocker_issues) -%>
@@ -87,7 +113,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/CRITICAL.png'  %></td>
+          <td><%= image_tag 'priority/CRITICAL.png' %></td>
           <td> &nbsp;<%= link_to message('critical'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'} %></td>
           <td style="padding: 0 5px;" align="right">
             <%= format_measure(critical_issues) -%>
@@ -108,7 +134,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/MAJOR.png'  %></td>
+          <td><%= image_tag 'priority/MAJOR.png' %></td>
           <td> &nbsp;<%= link_to message('major'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'} %></td>
           <td style="padding: 0 5px;" align="right">
             <%= format_measure(major_issues) -%>
@@ -129,7 +155,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/MINOR.png'  %></td>
+          <td><%= image_tag 'priority/MINOR.png' %></td>
           <td> &nbsp;<%= link_to message('minor'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'} %></td>
           <td style="padding: 0 5px;" align="right">
             <%= format_measure(minor_issues) -%>
@@ -150,7 +176,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/INFO.png'  %></td>
+          <td><%= image_tag 'priority/INFO.png' %></td>
           <td> &nbsp;<%= link_to message('info'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'} %></td>
           <td style="padding: 0 5px;" align="right">
             <%= format_measure(info_issues) -%>
