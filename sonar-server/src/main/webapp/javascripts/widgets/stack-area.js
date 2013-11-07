@@ -65,9 +65,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gtimeAxis = this.gWrap.append('g')
         .attr('class', 'axis x');
 
-    this.gyAxis = this.gWrap.append('g')
-        .attr('class', 'axis y');
-
     this.plotWrap = this.gWrap.append('g')
         .attr('class', 'plot');
 
@@ -112,17 +109,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .orient('bottom')
         .ticks(5);
 
-    this.yAxis = d3.svg.axis()
-        .scale(this.y)
-        .orient('left')
-        .ticks(5);
-
 
     // Configure the area
     this.area = d3.svg.area()
         .x(function(d) { return widget.time(d.x); })
         .y0(function(d) { return widget.y(d.y0); })
         .y1(function(d) { return widget.y(d.y0 + d.y); });
+
+    this.areaLine = d3.svg.line()
+        .x(function(d) { return widget.time(d.x); })
+        .y(function(d) { return widget.y(d.y0 + d.y); });
 
 
     // Configure scanner
@@ -286,9 +282,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gtimeAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 30));
     this.gtimeAxis.transition().call(this.timeAxis);
 
-    this.gyAxis.attr('transform', trans(-10, 0));
-    this.gyAxis.transition().call(this.yAxis);
-
 
     // Update area
     this.garea = this.plotWrap.selectAll('.area')
@@ -298,6 +291,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('class', 'area')
         .attr('d', function(d) { return widget.area(d); })
         .style("fill", function(d, i) { return widget.color(i); });
+
+    this.gareaLine = this.plotWrap.selectAll('.area-line')
+        .data(this.stackData)
+        .enter()
+        .insert('path')
+        .attr('class', 'area-line')
+        .attr('d', function(d) { return widget.areaLine(d); })
+        .style('fill', 'none')
+        .style('stroke', '#808080');
 
 
     // Update scanner
