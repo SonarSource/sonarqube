@@ -1,0 +1,60 @@
+<div id="modal_window">
+  <script >
+    var idToShow;
+    function showPercentage(){
+        $j('#showPercent_' + idToShow).hide();
+        idToShow = $j('#metricSelect').val();
+        $j('#showPercent_' + idToShow).show();
+      }
+  </script>
+    <form action="<%= url_for :action => 'create' -%>" method="POST" id="measure_create_form">
+      <fieldset>
+        <div class="modal-head">
+          <h2><%= message('manual_measures.add_measure_title') -%></h2>
+        </div>
+
+        <div class="modal-body">
+            <% if @errors
+                 @errors.each do |error|
+            %>
+                <p class="error"><%= h error -%></p>
+              <% end
+                 end
+              %>
+          <input type="hidden" name="id" value="<%= @resource.id -%>"/>
+
+          <div class="modal-field">
+            <label for="measures[]"><%= message('manual_measures.col.metric') -%> <em class="mandatory">*</em></label>
+            <select name="metric" id="metricSelect" onChange="showPercentage()">
+              <%= options_grouped_by_domain(@manual_metrics, nil, :include_empty => true) -%>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label for="measures[]"><%= message('manual_measures.col.value') -%> <em class="mandatory">*</em></label>
+            <input type="text" name="val" id="valueText" value=""/>
+            <%  @manual_metrics.each do |metric|
+               if  metric.value_type==Metric::VALUE_TYPE_PERCENT %>
+                <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"> % </span>
+              <% else %>
+                <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"></span>
+              <% end
+                end %>
+          </div>
+          <div class="modal-field">
+            <label for="measures[]"><%= message('manual_measures.col.description') -%> </label>
+            <textarea rows="5" cols="50" name="desc" class="width100"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <%= submit_tag 'create'%>
+          <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
+        </div>
+    </fieldset>
+  </form>
+
+  <script>
+    $j("#measure_create_form").modalForm();
+  </script>
+
+</div>

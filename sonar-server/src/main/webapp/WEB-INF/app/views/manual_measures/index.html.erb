@@ -10,14 +10,15 @@
   }
 </style>
 
-<div class="line-block marginbottom10">
-  <ul class="operations">
-    <li class="last">
-      <%= image_tag 'add.png' -%>
-      <a href="<%= ApplicationController.root_context -%>/manual_measures/new/<%= @resource.id -%>" id="addMeasureLink"><%= message('manual_measures.add_measure_link') -%></a>
+<div class="line-block">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+
+      <a id="addMeasureLink" href="<%=ApplicationController.root_context-%>/manual_measures/create_form/1" class="open-modal link-action"><%= message('manual_measures.add_measure_link') -%></a>
+
     </li>
   </ul>
-  <h1><%= message('manual_measures.page') -%></h1>
+    <h1 class="marginbottom10"><%= message('manual_measures.page') -%></h1>
 </div>
 
 <% has_pendings=false %>
@@ -60,12 +61,16 @@
         <%= l(measure.updated_at) -%>
       </td>
       <td class="thin nowrap">
-        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :id => @resource.id -%>" class="link-action"><%= message('edit')
+        <a href="<%= url_for :controller => 'manual_measures', :action => 'edit_form', :metric => measure.metric.key, :id => @resource.id -%>" class="open-modal link-action"><%= message('edit')
         -%></a>
         &nbsp;
-        <%= link_to message('delete'), {:action => 'delete', :metric => measure.metric.key, :id => @resource.id}, {:method => 'POST',
-                                                                                                                   :confirm => "This measure will be deleted during next project
-                                                                                                                   analysis", :class => 'link-action link-red'} -%>
+        <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_measures/delete/#{ @resource.id}?metric=#{measure.metric.key}",
+                           :class => 'link-action link-red',
+                           :id => "delete_#{measure.metric.key}",
+                           :confirm_button => message('delete'),
+                           :confirm_title => 'Delete measure: '+measure.metric.key,
+                           :confirm_msg => 'Are you sure that you want to delete the measure '+measure.metric.key+'?'
+        -%>
       </td>
     </tr>
   <% end %>

@@ -27,35 +27,81 @@ class ManualMeasuresController < ApplicationController
     load_measures()
   end
 
-  def new
-    if params[:metric].present?
-      @metric=Metric.by_key(params[:metric])
-      @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id]) || ManualMeasure.new
-    else
+  def create_form
+      load_measures()
+      already_defined_metrics=@measures.map {|m| m.metric}
+      @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
+      #puts '********************************'+@manual_metrics.to_json
+      @manual_metrics.each do |metric|
+        puts '**' + metric.name
+      end
       @metric=nil
       @measure=nil
+
+    render :partial => 'manual_measures/create_form'
+  end
+
+  def edit_form
+    @metric=Metric.by_key(params[:metric])
+    @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id]) || ManualMeasure.new
+
+    render :partial => 'manual_measures/edit_form'
+
+  end
+
+  def create
+    verify_post_request
+    if params[:metric]==''
+      load_measures()
+      already_defined_metrics=@measures.map {|m| m.metric}
+      @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
+
+      @errors = []
+      @errors << 'Metric must be selected.'
+      render :partial => 'manual_measures/create_form', :status => 400
+
+    else
+      @metric=Metric.by_key(params[:metric])
+      @measure=ManualMeasure.new(:resource => @resource, :user_login => current_user.login, :metric_id => @metric.id)
+
+      @measure.typed_value=params[:val]
+      @measure.description=params[:desc]
+      @measure.user_login=current_user.login
+
+      if @measure.valid?
+        @measure.save
+        flash[:notice] = 'Measure successfully created.'
+        render :text => 'ok', :status => 200
+      else
+
+        load_measures()
+        already_defined_metrics=@measures.map {|m| m.metric}
+        @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
+
+        @errors = []
+        @measure.errors.full_messages.each{|msg| @errors<<msg}
+        render :partial => 'manual_measures/create_form', :status => 400
+      end
     end
   end
 
-  def save
+  def edit
     verify_post_request
     @metric=Metric.by_key(params[:metric])
     @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id])
-    if @measure.nil?
-      @measure=ManualMeasure.new(:resource => @resource, :user_login => current_user.login, :metric_id => @metric.id)
-    end
+
     @measure.typed_value=params[:val]
     @measure.description=params[:desc]
     @measure.user_login=current_user.login
+
     if @measure.valid?
       @measure.save
-      if (params[:redirect_to_new]=='true')
-        redirect_to :action => 'new', :id => params[:id]
-      else
-        redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
-      end
+      flash[:notice] = 'Measure successfully edited.'
+      render :text => 'ok', :status => 200
     else
-      render :action => :new, :metric => @metric.id, :id => params[:id]
+      @errors = []
+      @measure.errors.full_messages.each{|msg| @errors<<msg}
+      render :partial => 'manual_measures/edit_form', :status => 400
     end
   end
 
@@ -63,7 +109,8 @@ class ManualMeasuresController < ApplicationController
     verify_post_request
     metric=Metric.by_key(params[:metric])
     ManualMeasure.destroy_all(['resource_id=? and metric_id=?', @resource.id, metric.id])
-    redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
+    flash[:notice] = 'Measure successfully deleted.'
+    redirect_to :action => 'index', :id => params[:id]
   end
 
   private

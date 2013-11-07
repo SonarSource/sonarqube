@@ -1,0 +1,48 @@
+<form action="<%= url_for :action => 'edit' -%>" method="POST" id="measure_edit_form">
+    <fieldset>
+        <div class="modal-head">
+            <h2>Edit manual measure: <%= @metric.key -%></h2>
+        </div>
+
+        <div class="modal-body">
+            <% if @errors
+                 @errors.each do |error|
+            %>
+                <p class="error"><%= h error -%></p>
+              <% end
+                 end
+              %>
+            <input type="hidden" name="id" value="<%= @resource.id -%>"/>
+
+            <div class="modal-field">
+              <input type="hidden" name="metric" id="metrictSelect" value="<%= @metric.key -%>" />
+            </div>
+
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.value') -%> <em class="mandatory">*</em></label>
+              <input type="text" name="val" id="valueText" value="<%= @measure ? @measure.editable_value : '' -%>"/>
+              <% if @metric.value_type==Metric::VALUE_TYPE_PERCENT %>
+                <span> % </span>
+              <% end %>
+            </div>
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.description') -%> </label>
+              <textarea rows="5" cols="50" name="desc" class="width100"><%= @measure.description -%></textarea>
+            </div>
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.last_change') -%> </label>
+              <span class="note"><%= message('manual_measures.col.last_change_label', :params => [@measure.username, l(@measure.updated_at)]) -%></span>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+          <%= submit_tag 'save'%>
+          <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+  $j("#measure_edit_form").modalForm();
+</script>
+
