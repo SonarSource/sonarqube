@@ -278,6 +278,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .range([this.availableHeight, 0]);
 
 
+    if (this.x.domain()[0] === 0 && this.x.domain()[1] === 0) {
+      this.x.domain([0, 1]);
+    }
+
+    if (this.y.domain()[0] === 0 && this.y.domain()[1] === 0) {
+      this.y.domain([0, 1]);
+    }
+
+
     // Avoid zero values when using log scale
     if (this.xLog) {
       var xDomain = this.x.domain();
@@ -302,8 +311,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         maxX = d3.max(this.data(), function (d) {
           return widget.x(d.xMetric) + widget.size(d.sizeMetric);
         }),
-        dMinX = this.x.range()[0] - minX,
-        dMaxX = maxX - this.x.range()[1];
+        dMinX = minX < 0 ? this.x.range()[0] - minX : this.x.range()[0],
+        dMaxX = maxX > this.x.range()[1] ? maxX - this.x.range()[1] : 0;
     this.x.range([dMinX, this.availableWidth - dMaxX]);
 
     // Y
@@ -313,8 +322,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         maxY = d3.max(this.data(), function (d) {
           return widget.y(d.yMetric) + widget.size(d.sizeMetric);
         }),
-        dMinY = this.y.range()[1] - minY,
-        dMaxY = maxY - this.y.range()[0];
+        dMinY = minY < 0 ? this.y.range()[1] - minY: this.y.range()[1],
+        dMaxY = maxY > this.y.range()[0] ? maxY - this.y.range()[0] : 0;
     this.y.range([this.availableHeight - dMaxY, dMinY]);
 
 
