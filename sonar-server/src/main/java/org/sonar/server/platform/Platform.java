@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.rule.RuleRegistry;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -354,7 +356,7 @@ public final class Platform {
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanDryRunCache.class);
-    startupContainer.addSingleton(IndexRules.class);
+    startupContainer.addSingleton(RuleRegistry.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

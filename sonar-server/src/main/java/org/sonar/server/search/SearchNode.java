@@ -61,6 +61,7 @@ public class SearchNode {
   public void start() {
     LOG.info("Starting {} in {}", this.getClass().getSimpleName(), nodeDir);
     nodeSettingsBuilder
+      .put("node.name", "sonarqube")
       .put("node.path.conf", nodeDir)
       .put("node.path.data", nodeDir)
       .put("node.path.work", nodeDir)

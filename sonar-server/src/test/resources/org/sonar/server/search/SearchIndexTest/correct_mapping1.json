@@ -1,0 +1,9 @@
+{
+  "type1": {
+    "properties": {
+      "value": {
+        "type": "string"
+      }
+    }
+  }
+}

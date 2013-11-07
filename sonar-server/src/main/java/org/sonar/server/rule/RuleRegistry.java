@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.startup;
+package org.sonar.server.rule;
 
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.io.BytesStream;
@@ -28,6 +28,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.search.SearchIndex;
 
 import java.io.IOException;
@@ -38,25 +39,29 @@ import java.util.Locale;
  * Fill search index with rules
  * @since 4.1
  */
-public final class IndexRules {
+public final class RuleRegistry {
 
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";
 
   private SearchIndex searchIndex;
-  private DatabaseSession session;
+  private DatabaseSessionFactory sessionFactory;
   private RuleI18nManager ruleI18nManager;
 
-  public IndexRules(SearchIndex searchIndex, DatabaseSession session, RuleI18nManager ruleI18nManager) {
+  public RuleRegistry(SearchIndex searchIndex, DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager) {
     this.searchIndex = searchIndex;
-    this.session = session;
+    this.sessionFactory = sessionFactory;
     this.ruleI18nManager = ruleI18nManager;
   }
 
   public void start() {
+    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/com/sonar/search/rule_mapping.json");
+  }
+
+  public void bulkRegisterRules() {
+    DatabaseSession session = sessionFactory.getSession();
 
     try {
-      searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/com/sonar/search/rule_mapping.json");
       List<String> ids = Lists.newArrayList();
       List<BytesStream> docs = Lists.newArrayList();
       for (Rule rule: session.getResults(Rule.class)) {
