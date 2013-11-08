@@ -76,6 +76,11 @@ public class TechnicalDebtConverterTest {
 
     assertThat(converter.toDays(WorkDayDuration.of(45, 6, 1))).isEqualTo(1.5625);
   }
+
+  @Test
+  public void return_zero_if_null_when_convert_technical_debt_to_days() {
+    assertThat(converter.toDays((WorkDayDuration) null)).isEqualTo(0.0);
+  }
   
   private void checkValues(WorkDayDuration technicalDebt, int expectedMinutes, int expectedHours, int expectedDays) {
     assertThat(technicalDebt.minutes()).isEqualTo(expectedMinutes);
