@@ -144,7 +144,7 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(field)) {
         Serializable newValue = entry.getValue().newValue();
-        return (WorkDayDuration) newValue;
+        return newValue != null && !"".equals(newValue) ? (WorkDayDuration.fromLong(Long.parseLong((String) newValue))) : null;
       }
     }
     return null;
