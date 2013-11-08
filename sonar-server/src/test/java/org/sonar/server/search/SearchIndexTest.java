@@ -21,9 +21,13 @@
 package org.sonar.server.search;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,4 +108,20 @@ public class SearchIndexTest {
     searchIndex.addMappingFromClasspath("unchecked", "unchecked", resourcePath);
   }
 
+  @Test
+  public void should_iterate_over_big_dataset() throws Exception {
+    final int numberOfDocuments = 10000;
+
+    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/search/SearchIndexTest/correct_mapping1.json");
+    String[] ids = new String[numberOfDocuments];
+    BytesStream[] sources = new BytesStream[numberOfDocuments];
+    for (int i=0; i<numberOfDocuments; i++) {
+      ids[i] = Integer.toString(i);
+      sources[i] = XContentFactory.jsonBuilder().startObject().field("value", Integer.toString(i)).endObject();
+    }
+    searchIndex.bulkIndex("index", "type1", ids, sources);
+
+    List<String> docIds = searchIndex.findDocumentIds(SearchQuery.create());
+    assertThat(docIds).hasSize(numberOfDocuments);
+  }
 }

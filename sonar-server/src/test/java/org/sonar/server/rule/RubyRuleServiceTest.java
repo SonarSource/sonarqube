@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 
 import java.util.Locale;
 
@@ -34,7 +33,8 @@ import static org.mockito.Mockito.when;
 public class RubyRuleServiceTest {
 
   RuleI18nManager i18n = mock(RuleI18nManager.class);
-  RubyRuleService facade = new RubyRuleService(i18n);
+  RuleRegistry ruleRegistry = mock(RuleRegistry.class);
+  RubyRuleService facade = new RubyRuleService(i18n, ruleRegistry);
 
   @Test
   public void should_get_localized_rule_name() {

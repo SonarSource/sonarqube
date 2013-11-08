@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.rule.RuleRegistry;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -93,6 +91,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RubyRuleService;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.search.SearchIndex;
@@ -305,6 +304,7 @@ public final class Platform {
     servicesContainer.addSingleton(TransitionAction.class);
 
     // rules
+    servicesContainer.addSingleton(RuleRegistry.class);
     servicesContainer.addSingleton(RubyRuleService.class);
 
     // technical debt
@@ -356,7 +356,6 @@ public final class Platform {
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanDryRunCache.class);
-    startupContainer.addSingleton(RuleRegistry.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

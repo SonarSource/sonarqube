@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.Rule;
@@ -27,15 +29,19 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Map;
+
 /**
  * Used through ruby code <pre>Internal.rules</pre>
  */
 public class RubyRuleService implements ServerComponent, Startable {
 
   private final RuleI18nManager i18n;
+  private final RuleRegistry ruleRegistry;
 
-  public RubyRuleService(RuleI18nManager i18n) {
+  public RubyRuleService(RuleI18nManager i18n, RuleRegistry ruleRegistry) {
     this.i18n = i18n;
+    this.ruleRegistry = ruleRegistry;
   }
 
   @CheckForNull
@@ -53,6 +59,22 @@ public class RubyRuleService implements ServerComponent, Startable {
       desc = rule.getDescription();
     }
     return desc;
+  }
+
+  public Integer[] findIds(Map options) {
+    Map<String, String> params = Maps.newHashMap();
+    translateNonBlankKey(options, params, "status", "status");
+    //translateNonNullKey(options, params, "plugins", "repositoryKey");
+    //translateNonNullKey(options, params, "repositories", "repositoryKey");
+    translateNonBlankKey(options, params, "language", "language");
+    translateNonBlankKey(options, params, "searchtext", "nameOrKey");
+    return ruleRegistry.findIds(params).toArray(new Integer[0]);
+  }
+
+  private static void translateNonBlankKey(Map options, Map<String, String> params, String optionKey, String paramKey) {
+    if(StringUtils.isNotBlank("" + options.get(optionKey))) {
+      params.put(paramKey, options.get(optionKey).toString());
+    }
   }
 
   @Override

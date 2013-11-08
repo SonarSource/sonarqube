@@ -20,7 +20,8 @@
 
 package org.sonar.server.rule;
 
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -30,10 +31,12 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.search.SearchIndex;
+import org.sonar.server.search.SearchQuery;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Fill search index with rules
@@ -69,7 +72,7 @@ public class RuleRegistry {
         XContentBuilder document = XContentFactory.jsonBuilder()
             .startObject()
             .field("id", rule.getId())
-            .field("key", rule.ruleKey())
+            .field("key", rule.getKey())
             .field("language", rule.getLanguage())
             .field("name", ruleI18nManager.getName(rule, Locale.getDefault()))
             .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault()))
@@ -97,5 +100,30 @@ public class RuleRegistry {
     } catch(IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
     }
+  }
+
+  /**
+   * @param create
+   * @return
+   */
+  public List<Integer> findIds(Map<String, String> query) {
+    Map<String, String> params = Maps.newHashMap(query);
+
+    SearchQuery searchQuery = SearchQuery.create();
+    searchQuery.index(INDEX_RULES).type(TYPE_RULE).scrollSize(500);
+
+    if (params.containsKey("nameOrKey")) {
+      searchQuery.searchString(query.get("nameOrKey"));
+      params.remove("nameOrKey");
+    }
+    for(String key: params.keySet()) {
+      searchQuery.field(key, params.get(key));
+    }
+
+    List<Integer> result = Lists.newArrayList();
+    for(String docId: searchIndex.findDocumentIds(searchQuery)) {
+      result.add(Integer.parseInt(docId));
+    }
+    return result;
   }
 }

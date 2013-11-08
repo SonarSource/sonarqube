@@ -29,26 +29,4 @@ public class SearchQueryTest {
   public void should_return_empty_query() {
     assertThat(SearchQuery.create().getQueryString()).isEmpty();
   }
-
-  @Test
-  public void should_handle_custom_query() {
-    assertThat(SearchQuery.create("polop").getQueryString()).isEqualTo("polop");
-  }
-
-  @Test
-  public void should_add_fields() {
-    assertThat(SearchQuery.create()
-      .field("field1", "value1")
-      .field("field2", "value2")
-      .getQueryString()).isEqualTo("field1:value1 AND field2:value2");
-  }
-
-  @Test
-  public void should_add_fields_to_custom_query() {
-    assertThat(SearchQuery.create("polop")
-      .field("field1", "value1")
-      .field("field2", "value2")
-      .getQueryString()).isEqualTo("polop AND field1:value1 AND field2:value2");
-  }
-
 }

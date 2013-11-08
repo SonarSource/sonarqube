@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.ElasticSearchParseException;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -26,14 +27,18 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class SearchIndex {
@@ -111,7 +116,27 @@ public class SearchIndex {
     }
   }
 
-  public SearchResponse find(SearchQuery query) {
-    return query.toBuilder(client).execute().actionGet();
+  public List<String> findDocumentIds(SearchQuery searchQuery) {
+    List<String> result = Lists.newArrayList();
+    final int scrollTime = 100;
+
+    SearchResponse scrollResp = searchQuery.toBuilder(client).addField("_id")
+            .setSearchType(SearchType.SCAN)
+            .setScroll(new TimeValue(scrollTime))
+            .setSize(searchQuery.scrollSize()).execute().actionGet();
+    //Scroll until no hits are returned
+    while (true) {
+        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();
+        for (SearchHit hit : scrollResp.getHits()) {
+            result.add(hit.getId());
+        }
+        //Break condition: No hits are returned
+        if (scrollResp.getHits().getHits().length == 0) {
+            break;
+        }
+    }
+
+    return result;
   }
+
 }
