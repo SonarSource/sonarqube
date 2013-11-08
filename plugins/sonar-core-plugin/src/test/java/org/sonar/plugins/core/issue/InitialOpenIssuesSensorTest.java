@@ -22,8 +22,8 @@ package org.sonar.plugins.core.issue;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -35,7 +35,9 @@ public class InitialOpenIssuesSensorTest {
 
   InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
   IssueDao issueDao = mock(IssueDao.class);
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
+  IssueChangeDao issueChangeDao = mock(IssueChangeDao.class);
+
+  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao, issueChangeDao);
 
   @Test
   public void should_select_module_open_issues() {
@@ -44,6 +46,15 @@ public class InitialOpenIssuesSensorTest {
     sensor.analyse(project, null);
 
     verify(issueDao).selectNonClosedIssuesByModule(eq(1), any(ResultHandler.class));
+  }
+
+  @Test
+  public void should_select_module_open_issues_changelog() {
+    Project project = new Project("key");
+    project.setId(1);
+    sensor.analyse(project, null);
+
+    verify(issueChangeDao).selectChangelogOnNonClosedIssuesByModuleAndType(eq(1), any(ResultHandler.class));
   }
 
   @Test

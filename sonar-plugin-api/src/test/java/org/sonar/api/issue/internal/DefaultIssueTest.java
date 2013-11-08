@@ -32,6 +32,7 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.fest.assertions.MapAssert.entry;
+import static org.mockito.Mockito.mock;
 
 public class DefaultIssueTest {
 
@@ -207,5 +208,13 @@ public class DefaultIssueTest {
     } catch (Exception e) {
       fail("Unexpected exception: " + e);
     }
+  }
+
+  @Test
+  public void all_changes_contain_current_change() throws Exception {
+    IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
+    DefaultIssue issue = new DefaultIssue().setKey("AAA").setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
+
+    assertThat(issue.changes()).hasSize(1);
   }
 }

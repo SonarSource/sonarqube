@@ -21,6 +21,7 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -30,12 +31,10 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -69,14 +68,14 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<FieldDiffs> selectChangelogByIssues(Collection<String> issueKeys) {
+  public void selectChangelogOnNonClosedIssuesByModuleAndType(Integer componentId, ResultHandler handler) {
     SqlSession session = mybatis.openSession();
     try {
-      List<FieldDiffs> result = Lists.newArrayList();
-      for (IssueChangeDto dto : selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_FIELD_CHANGE)) {
-        result.add(dto.toFieldDiffs());
-      }
-      return result;
+      Map<String, Object> params = newHashMap();
+      params.put("componentId", componentId);
+      params.put("changeType", IssueChangeDto.TYPE_FIELD_CHANGE);
+      session.select("org.sonar.core.issue.db.IssueChangeMapper.selectChangelogOnNonClosedIssuesByModuleAndType", params, handler);
+
     } finally {
       MyBatis.closeQuietly(session);
     }

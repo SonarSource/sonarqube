@@ -31,6 +31,7 @@ import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.TempFolderProvider;
 import org.sonar.batch.index.Caches;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.io.IOException;
@@ -69,48 +70,74 @@ public class InitialOpenIssuesStackTest {
   }
 
   @Test
-  public void should_get_and_remove() {
+  public void get_and_remove_issues() {
     IssueDto issueDto = new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1");
     stack.addIssue(issueDto);
 
-    List<IssueDto> issueDtos = stack.selectAndRemove("org.struts.Action");
+    List<IssueDto> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
     assertThat(issueDtos).hasSize(1);
     assertThat(issueDtos.get(0).getKee()).isEqualTo("ISSUE-1");
 
-    assertThat(stack.selectAll()).isEmpty();
+    assertThat(stack.selectAllIssues()).isEmpty();
   }
 
   @Test
-  public void should_get_and_remove_with_many_issues_on_same_resource() {
+  public void get_and_remove_with_many_issues_on_same_resource() {
     stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
     stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-2"));
 
-    List<IssueDto> issueDtos = stack.selectAndRemove("org.struts.Action");
+    List<IssueDto> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
     assertThat(issueDtos).hasSize(2);
 
-    assertThat(stack.selectAll()).isEmpty();
+    assertThat(stack.selectAllIssues()).isEmpty();
   }
 
   @Test
-  public void should_do_nothing_if_resource_not_found() {
+  public void get_and_remove_do_nothing_if_resource_not_found() {
     stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
 
-    List<IssueDto> issueDtos = stack.selectAndRemove("Other");
+    List<IssueDto> issueDtos = stack.selectAndRemoveIssues("Other");
     assertThat(issueDtos).hasSize(0);
 
-    assertThat(stack.selectAll()).hasSize(1);
+    assertThat(stack.selectAllIssues()).hasSize(1);
   }
 
   @Test
-  public void should_clear() {
+  public void select_changelog() {
+    stack.addChangelog(new IssueChangeDto().setKey("CHANGE-1").setIssueKey("ISSUE-1"));
+    stack.addChangelog(new IssueChangeDto().setKey("CHANGE-2").setIssueKey("ISSUE-1"));
+
+    List<IssueChangeDto> issueChangeDtos = stack.selectChangelog("ISSUE-1");
+    assertThat(issueChangeDtos).hasSize(2);
+    assertThat(issueChangeDtos.get(0).getKey()).isEqualTo("CHANGE-1");
+    assertThat(issueChangeDtos.get(1).getKey()).isEqualTo("CHANGE-2");
+  }
+
+  @Test
+  public void return_empty_changelog() {
+    assertThat(stack.selectChangelog("ISSUE-1")).isEmpty();
+  }
+
+  @Test
+  public void clear_issues() {
     stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
 
-    assertThat(stack.selectAll()).hasSize(1);
+    assertThat(stack.selectAllIssues()).hasSize(1);
 
     // issues are not removed
-    assertThat(stack.selectAll()).hasSize(1);
+    assertThat(stack.selectAllIssues()).hasSize(1);
 
     stack.clear();
-    assertThat(stack.selectAll()).hasSize(0);
+    assertThat(stack.selectAllIssues()).hasSize(0);
+  }
+
+  @Test
+  public void clear_issues_changelog() {
+    stack.addChangelog(new IssueChangeDto().setKey("CHANGE-1").setIssueKey("ISSUE-1"));
+
+    assertThat(stack.selectChangelog("ISSUE-1")).hasSize(1);
+
+    stack.clear();
+    assertThat(stack.selectChangelog("ISSUE-1")).isNull();
   }
 }

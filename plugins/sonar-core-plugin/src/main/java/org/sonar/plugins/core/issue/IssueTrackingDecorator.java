@@ -43,6 +43,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
@@ -110,7 +111,7 @@ public class IssueTrackingDecorator implements Decorator {
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
     // all the issues that are not closed in db before starting this module scan, including manual issues
-    Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getEffectiveKey());
+    Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemoveIssues(resource.getEffectiveKey());
 
     SourceHashHolder sourceHashHolder = new SourceHashHolder(index, lastSnapshots, resource);
 
@@ -160,6 +161,12 @@ public class IssueTrackingDecorator implements Decorator {
         issue.setAttributes(KeyValueFormat.parse(ref.getIssueAttributes()));
       }
 
+      // populate existing changelog
+      Collection<IssueChangeDto> issueChangeDtos = initialOpenIssues.selectChangelog(issue.key());
+      for (IssueChangeDto issueChangeDto : issueChangeDtos) {
+        issue.addChange(issueChangeDto.toFieldDiffs());
+      }
+
       // fields to update with current values
       if (ref.isManualSeverity()) {
         issue.setManualSeverity(true);
@@ -188,7 +195,7 @@ public class IssueTrackingDecorator implements Decorator {
   }
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
-    for (IssueDto deadDto : initialOpenIssues.selectAll()) {
+    for (IssueDto deadDto : initialOpenIssues.selectAllIssues()) {
       DefaultIssue dead = deadDto.toDefaultIssue();
       updateUnmatchedIssue(dead, true);
       issues.add(dead);

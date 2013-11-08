@@ -40,6 +40,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -113,7 +114,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     // INPUT : one issue, no open issues during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(issue));
     List<IssueDto> dbIssues = Collections.emptyList();
-    when(initialOpenIssues.selectAndRemove("struts:Action.java")).thenReturn(dbIssues);
+    when(initialOpenIssues.selectAndRemoveIssues("struts:Action.java")).thenReturn(dbIssues);
 
     decorator.doDecorate(file);
 
@@ -486,7 +487,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
     IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
-    when(initialOpenIssues.selectAll()).thenReturn(Arrays.asList(deadIssue));
+    when(initialOpenIssues.selectAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
     decorator.doDecorate(project);
 
@@ -537,4 +538,21 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     assertThat(issue.severity()).isEqualTo("MAJOR");
     verify(updater, never()).setPastSeverity(eq(issue), anyString(), any(IssueChangeContext.class));
   }
+
+  @Test
+  public void merge_issue_changelog_with_previous_changelog() throws Exception {
+    when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD")));
+
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setLine(10).setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+    DefaultIssue issue = new DefaultIssue();
+
+    IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
+    when(trackingResult.matched()).thenReturn(newArrayList(issue));
+    when(trackingResult.matching(eq(issue))).thenReturn(previousIssue);
+    decorator.mergeMatched(trackingResult);
+
+    assertThat(issue.changes()).hasSize(1);
+  }
+
 }

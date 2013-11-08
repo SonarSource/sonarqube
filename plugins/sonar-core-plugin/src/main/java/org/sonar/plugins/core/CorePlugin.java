@@ -26,7 +26,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.core.issue.IssueChangelogFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.timemachine.Periods;
@@ -277,7 +276,6 @@ public final class CorePlugin extends SonarPlugin {
       UnresolvedIssuesStatusesWidget.class,
       IssueFilterWidget.class,
       org.sonar.api.issue.NoSonarFilter.class,
-      IssueChangelogFinder.class,
 
       // issue notifications
       SendIssueNotificationsPostJob.class,
@@ -396,7 +394,7 @@ public final class CorePlugin extends SonarPlugin {
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build()
-      );
+    );
   }
 
 }

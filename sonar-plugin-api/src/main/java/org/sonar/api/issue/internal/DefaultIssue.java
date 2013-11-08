@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -40,6 +39,8 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -77,6 +78,9 @@ public class DefaultIssue implements Issue {
 
   // Current changes
   private FieldDiffs currentChange = null;
+
+  // all changes
+  private List<FieldDiffs> changes = null;
 
   // true if the the issue did not exist in the previous scan.
   private boolean isNew = true;
@@ -393,17 +397,39 @@ public class DefaultIssue implements Issue {
       }
       currentChange.setDiff(field, oldValue, newValue);
     }
+    addChange(currentChange);
     return this;
   }
+
 
   @CheckForNull
   public FieldDiffs currentChange() {
     return currentChange;
   }
 
+  public DefaultIssue addChange(FieldDiffs change) {
+    if (changes == null) {
+      changes = newArrayList();
+    }
+    changes.add(change);
+    return this;
+  }
+
+  public DefaultIssue setChanges(List<FieldDiffs> changes) {
+    this.changes = changes;
+    return this;
+  }
+
+  public List<FieldDiffs> changes() {
+    if (changes == null) {
+      return Collections.emptyList();
+    }
+    return ImmutableList.copyOf(changes);
+  }
+
   public DefaultIssue addComment(DefaultIssueComment comment) {
     if (comments == null) {
-      comments = Lists.newArrayList();
+      comments = newArrayList();
     }
     comments.add(comment);
     return this;

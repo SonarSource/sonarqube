@@ -25,6 +25,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 
@@ -38,10 +40,12 @@ public class InitialOpenIssuesSensor implements Sensor {
 
   private final InitialOpenIssuesStack initialOpenIssuesStack;
   private final IssueDao issueDao;
+  private final IssueChangeDao issueChangeDao;
 
-  public InitialOpenIssuesSensor(InitialOpenIssuesStack initialOpenIssuesStack, IssueDao issueDao) {
+  public InitialOpenIssuesSensor(InitialOpenIssuesStack initialOpenIssuesStack, IssueDao issueDao, IssueChangeDao issueChangeDao) {
     this.initialOpenIssuesStack = initialOpenIssuesStack;
     this.issueDao = issueDao;
+    this.issueChangeDao = issueChangeDao;
   }
 
   @Override
@@ -61,6 +65,14 @@ public class InitialOpenIssuesSensor implements Sensor {
         IssueDto dto = (IssueDto) rc.getResultObject();
         dto.setSelectedAt(now);
         initialOpenIssuesStack.addIssue(dto);
+      }
+    });
+
+    issueChangeDao.selectChangelogOnNonClosedIssuesByModuleAndType(project.getId(), new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext rc) {
+        IssueChangeDto dto = (IssueChangeDto) rc.getResultObject();
+        initialOpenIssuesStack.addChangelog(dto);
       }
     });
   }

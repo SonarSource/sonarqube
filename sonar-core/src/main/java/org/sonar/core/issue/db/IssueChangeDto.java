@@ -27,12 +27,13 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @since 3.6
  */
-public final class IssueChangeDto {
+public final class IssueChangeDto implements Serializable {
 
   public static final String TYPE_FIELD_CHANGE = "diff";
   public static final String TYPE_COMMENT = "comment";

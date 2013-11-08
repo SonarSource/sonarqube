@@ -20,44 +20,66 @@
 
 package org.sonar.plugins.core.issue;
 
-import com.google.common.collect.Lists;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class InitialOpenIssuesStack implements BatchExtension {
 
-  private final Cache<String, IssueDto> cache;
+  private final Cache<String, IssueDto> issuesCache;
+  private final Cache<String, ArrayList<IssueChangeDto>> issuesChangelogCache;
 
   public InitialOpenIssuesStack(Caches caches) {
-    cache = caches.createCache("last-open-issues");
+    issuesCache = caches.createCache("last-open-issues");
+    issuesChangelogCache = caches.createCache("issues-changelog");
   }
 
   public InitialOpenIssuesStack addIssue(IssueDto issueDto) {
-    cache.put(issueDto.getComponentKey(), issueDto.getKee(), issueDto);
+    issuesCache.put(issueDto.getComponentKey(), issueDto.getKee(), issueDto);
     return this;
   }
 
-  public List<IssueDto> selectAndRemove(String componentKey) {
-    Iterable<IssueDto> issues = cache.values(componentKey);
-    List<IssueDto> result = Lists.newArrayList();
+  public List<IssueDto> selectAndRemoveIssues(String componentKey) {
+    Iterable<IssueDto> issues = issuesCache.values(componentKey);
+    List<IssueDto> result = newArrayList();
     for (IssueDto issue : issues) {
       result.add(issue);
     }
-    cache.clear(componentKey);
+    issuesCache.clear(componentKey);
     return result;
   }
 
-  public Iterable<IssueDto> selectAll() {
-    return cache.allValues();
+  public Iterable<IssueDto> selectAllIssues() {
+    return issuesCache.allValues();
+  }
+
+  public InitialOpenIssuesStack addChangelog(IssueChangeDto issueChangeDto) {
+    ArrayList<IssueChangeDto> changeDtos = issuesChangelogCache.get(issueChangeDto.getIssueKey());
+    if (changeDtos == null) {
+      changeDtos = newArrayList();
+    }
+    changeDtos.add(issueChangeDto);
+    issuesChangelogCache.put(issueChangeDto.getIssueKey(), changeDtos);
+    return this;
+  }
+
+  public List<IssueChangeDto> selectChangelog(String issueKey) {
+    List<IssueChangeDto> changeDtos = issuesChangelogCache.get(issueKey);
+    return changeDtos != null ? changeDtos : Collections.emptyList();
   }
 
   public void clear() {
-    cache.clearAll();
+    issuesCache.clearAll();
+    issuesChangelogCache.clearAll();
   }
 }

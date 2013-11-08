@@ -49,6 +49,22 @@ public class FieldDiffsTest {
   }
 
   @Test
+  public void test_diff_by_key() throws Exception {
+    diffs.setDiff("severity", "BLOCKER", "INFO");
+    diffs.setDiff("resolution", "OPEN", "FIXED");
+
+    assertThat(diffs.diffs()).hasSize(2);
+
+    FieldDiffs.Diff diff = diffs.diffs().get("severity");
+    assertThat(diff.oldValue()).isEqualTo("BLOCKER");
+    assertThat(diff.newValue()).isEqualTo("INFO");
+
+    diff = diffs.diffs().get("resolution");
+    assertThat(diff.oldValue()).isEqualTo("OPEN");
+    assertThat(diff.newValue()).isEqualTo("FIXED");
+  }
+
+  @Test
   public void should_keep_old_value() throws Exception {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("severity", null, "MAJOR");

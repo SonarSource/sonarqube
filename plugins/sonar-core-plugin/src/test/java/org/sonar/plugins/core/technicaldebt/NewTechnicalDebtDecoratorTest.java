@@ -43,7 +43,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.issue.IssueChangelogFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import java.util.Calendar;
@@ -51,7 +50,6 @@ import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -71,9 +69,6 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Mock
   DecoratorContext context;
-
-  @Mock
-  IssueChangelogFinder changelogFinder;
 
   @Mock
   TechnicalDebtConverter technicalDebtConverter;
@@ -109,7 +104,7 @@ public class NewTechnicalDebtDecoratorTest {
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo, fiveDaysAgo), new Period(2, tenDaysAgo, tenDaysAgo)));
 
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, changelogFinder, technicalDebtConverter);
+    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, technicalDebtConverter);
   }
 
   @Test
@@ -124,17 +119,16 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_with_changelog() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    // Changes should be sorted from newest to oldest
-    changelogList.putAll(issue, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
@@ -144,17 +138,14 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_with_changelog_having_null_value() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
     when(issuable.issues()).thenReturn(newArrayList(issue));
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    // Changes should be sorted from newest to oldest
-    changelogList.putAll(issue, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
@@ -166,17 +157,14 @@ public class NewTechnicalDebtDecoratorTest {
   public void save_on_one_issue_with_changelog_and_periods_have_no_dates() {
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
 
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
     when(issuable.issues()).thenReturn(newArrayList(issue));
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    // Changes should be sorted from newest to oldest
-    changelogList.putAll(issue, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", null, fiveDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, null).setCreatedAt(fourDaysAgo),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
@@ -186,22 +174,20 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_issues_with_changelog() {
-    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
-    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt);
+    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
+    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    changelogList.putAll(issue1, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-    changelogList.putAll(issue2, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
@@ -215,9 +201,6 @@ public class NewTechnicalDebtDecoratorTest {
       (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt))
     );
 
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
-
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
@@ -229,9 +212,6 @@ public class NewTechnicalDebtDecoratorTest {
     when(issuable.issues()).thenReturn(newArrayList(
       (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(null))
     );
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
@@ -247,9 +227,6 @@ public class NewTechnicalDebtDecoratorTest {
       (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt))
     );
 
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
-
     decorator.decorate(resource, context);
 
     // remember : period1 is null, period2 is null
@@ -263,9 +240,6 @@ public class NewTechnicalDebtDecoratorTest {
       new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt)
     ));
 
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
-
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
@@ -274,24 +248,22 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_issues_with_changelog_and_issues_without_changelog() {
-    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt);
-    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt);
+    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
+    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
+      )
+    );
     Issue issue3 = new DefaultIssue().setKey("C").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt);
     Issue issue4 = new DefaultIssue().setKey("D").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2, issue3, issue4));
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
-    changelogList.putAll(issue1, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-    changelogList.putAll(issue2, newArrayList(
-      new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(rightNow),
-      new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
-    ));
-
-    when(changelogFinder.findByIssues(anyCollection())).thenReturn(changelogList);
 
     decorator.decorate(resource, context);
 
