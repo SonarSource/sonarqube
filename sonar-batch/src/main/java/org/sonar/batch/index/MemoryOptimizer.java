@@ -57,9 +57,6 @@ public class MemoryOptimizer implements SensorExecutionHandler, DecoratorExecuti
     if (PersistenceMode.DATABASE.equals(measure.getPersistenceMode())) {
       MeasureData data = model.getMeasureData();
       if (data != null && data.getId() != null) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Remove data measure from memory: " + measure.getMetricKey() + ", id=" + measure.getId());
-        }
         measure.unsetData();
         dataIdByMeasureId.put(measure.getId(), data.getId());
       }
