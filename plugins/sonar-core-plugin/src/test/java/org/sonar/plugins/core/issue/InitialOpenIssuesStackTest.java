@@ -128,7 +128,7 @@ public class InitialOpenIssuesStackTest {
     assertThat(stack.selectAllIssues()).hasSize(1);
 
     stack.clear();
-    assertThat(stack.selectAllIssues()).hasSize(0);
+    assertThat(stack.selectAllIssues()).isEmpty();
   }
 
   @Test
@@ -138,6 +138,6 @@ public class InitialOpenIssuesStackTest {
     assertThat(stack.selectChangelog("ISSUE-1")).hasSize(1);
 
     stack.clear();
-    assertThat(stack.selectChangelog("ISSUE-1")).isNull();
+    assertThat(stack.selectChangelog("ISSUE-1")).isEmpty();
   }
 }
