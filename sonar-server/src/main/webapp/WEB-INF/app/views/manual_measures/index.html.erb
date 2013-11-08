@@ -14,7 +14,7 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
 
-      <a id="addMeasureLink" href="<%=ApplicationController.root_context-%>/manual_measures/create_form/1" class="open-modal link-action"><%= message('manual_measures.add_measure_link') -%></a>
+      <a id="addMeasureLink" href="<%=ApplicationController.root_context-%>/manual_measures/create_form/<%= @resource.id -%>" class="open-modal link-action"><%= message('manual_measures.add_measure_link') -%></a>
 
     </li>
   </ul>
