@@ -39,7 +39,7 @@ import java.util.Locale;
  * Fill search index with rules
  * @since 4.1
  */
-public final class RuleRegistry {
+public class RuleRegistry {
 
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";

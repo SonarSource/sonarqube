@@ -27,35 +27,47 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.rule.RuleRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   private RegisterRules task;
   private ProfilesManager profilesManager;
+  private RuleRegistry ruleRegistry;
 
   @Before
   public void init() {
     profilesManager = mock(ProfilesManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null, profilesManager);
+    ruleRegistry = mock(RuleRegistry.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null, profilesManager, ruleRegistry);
   }
 
   @Test
   public void should_save_new_repositories() {
     setupData("shared");
     task.start();
+
+    verify(ruleRegistry).bulkRegisterRules();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
     assertThat(result.size(), is(2));
@@ -255,7 +267,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void volume_testing() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null, profilesManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null, profilesManager, ruleRegistry);
     setupData("shared");
     task.start();
 
@@ -267,7 +279,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void should_fail_with_rule_without_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -289,7 +301,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   public void should_fail_with_rule_with_blank_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("");
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -306,7 +318,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   public void should_fail_with_rule_without_description() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -327,7 +339,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void should_fail_with_rule_without_name_in_bundle() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
     // the rule has no name, it should fail

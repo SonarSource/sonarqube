@@ -39,6 +39,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.rule.RuleRegistry;
 
 import java.util.*;
 
@@ -52,18 +53,20 @@ public final class RegisterRules {
   private final ProfilesManager profilesManager;
   private final List<RuleRepository> repositories;
   private final RuleI18nManager ruleI18nManager;
+  private final RuleRegistry ruleRegistry;
 
   private DatabaseSession session;
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager) {
+  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry) {
     this.sessionFactory = sessionFactory;
     this.profilesManager = profilesManager;
     this.repositories = newArrayList(repos);
     this.ruleI18nManager = ruleI18nManager;
+    this.ruleRegistry = ruleRegistry;
   }
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager) {
-    this(sessionFactory, new RuleRepository[0], ruleI18nManager, profilesManager);
+  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry) {
+    this(sessionFactory, new RuleRepository[0], ruleI18nManager, profilesManager, ruleRegistry);
   }
 
   public void start() {
@@ -77,6 +80,8 @@ public final class RegisterRules {
     disableDeprecatedRepositories(existingRules);
 
     session.commit();
+
+    ruleRegistry.bulkRegisterRules();
   }
 
   private List<Rule> findAllRules() {
