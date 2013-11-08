@@ -110,7 +110,7 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     return value;
   }
 
-  private Double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, List<FieldDiffs> technicalDebtChangelog, Date periodDate) {
+  private double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, List<FieldDiffs> technicalDebtChangelog, Date periodDate) {
     double currentTechnicalDebtValue = technicalDebtConverter.toDays(currentTechnicalDebt);
 
     // Changelog have to be sorted from oldest to newest to catch oldest value just before the period date
@@ -127,7 +127,7 @@ public final class NewTechnicalDebtDecorator implements Decorator {
         return currentTechnicalDebtValue - pastTechnicalDebtValue;
       }
     }
-    return null;
+    return 0d;
   }
 
   private List<FieldDiffs> changesOnField(final String field, Collection<FieldDiffs> fieldDiffs) {

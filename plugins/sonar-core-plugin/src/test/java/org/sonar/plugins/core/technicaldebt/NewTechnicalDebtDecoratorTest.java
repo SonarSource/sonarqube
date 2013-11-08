@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.core.technicaldebt;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ObjectUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +116,21 @@ public class NewTechnicalDebtDecoratorTest {
   }
 
   @Test
+  public void save_on_one_issue_with_one_changelog() {
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs().setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo)
+      )
+    );
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 3.0)));
+  }
+
+  @Test
   public void save_on_one_issue_with_changelog() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
@@ -127,8 +140,6 @@ public class NewTechnicalDebtDecoratorTest {
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
-
-    Multimap<Issue, FieldDiffs> changelogList = ArrayListMultimap.create();
 
     decorator.decorate(resource, context);
 
@@ -170,6 +181,23 @@ public class NewTechnicalDebtDecoratorTest {
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 4.0)));
+  }
+
+  @Test
+  public void save_on_one_issue_with_changelog_having_not_only_technical_debt_changes() {
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+      newArrayList(
+        new FieldDiffs()
+          .setDiff("actionPlan", "1.0", "1.1").setCreatedAt(fourDaysAgo)
+          .setDiff("technicalDebt", oneDaysDebt, twoDaysDebt).setCreatedAt(fourDaysAgo)
+      )
+    );
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 3.0)));
   }
 
   @Test
@@ -248,6 +276,7 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_issues_with_changelog_and_issues_without_changelog() {
+    // issue1 and issue2 have changelog
     Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", twoDaysDebt, fiveDaysDebt).setCreatedAt(rightNow),
@@ -261,6 +290,8 @@ public class NewTechnicalDebtDecoratorTest {
         new FieldDiffs().setDiff("technicalDebt", null, oneDaysDebt).setCreatedAt(nineDaysAgo)
       )
     );
+
+    // issue3 and issue4 have no changelog
     Issue issue3 = new DefaultIssue().setKey("C").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt);
     Issue issue4 = new DefaultIssue().setKey("D").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2, issue3, issue4));
