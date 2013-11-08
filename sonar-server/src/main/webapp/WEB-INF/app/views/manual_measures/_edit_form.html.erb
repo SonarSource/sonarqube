@@ -1,7 +1,7 @@
 <form action="<%= url_for :action => 'edit' -%>" method="POST" id="measure_edit_form">
     <fieldset>
         <div class="modal-head">
-            <h2>Edit manual measure: <%= @metric.key -%></h2>
+            <h2>Edit manual measure: <%= h @metric.name -%></h2>
         </div>
 
         <div class="modal-body">
@@ -28,10 +28,6 @@
             <div class="modal-field">
               <label for="measures[]"><%= message('manual_measures.col.description') -%> </label>
               <textarea rows="5" cols="50" name="desc" class="width100"><%= @measure.description -%></textarea>
-            </div>
-            <div class="modal-field">
-              <label for="measures[]"><%= message('manual_measures.col.last_change') -%> </label>
-              <span class="note"><%= message('manual_measures.col.last_change_label', :params => [@measure.username, l(@measure.updated_at)]) -%></span>
             </div>
         </div>
 

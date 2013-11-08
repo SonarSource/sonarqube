@@ -12,8 +12,18 @@
         <div class="modal-head">
           <h2><%= message('manual_measures.add_measure_title') -%></h2>
         </div>
-
-        <div class="modal-body">
+        <% if @manual_metrics.empty? %>
+          <div class="modal-body">
+            <div class="info">
+              <img style="vertical-align: text-bottom" src="/dev/images/information.png">
+              <%= message('manual_measures.no_more_available_metric') -%>
+              <%  if has_role?(:admin)  %>
+                <%= link_to message('manual_measures.to_define_new_manual_metric_il_require'), :controller => 'metrics', :action => 'index' -%>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="modal-body">
             <% if @errors
                  @errors.each do |error|
             %>
@@ -21,33 +31,37 @@
               <% end
                  end
               %>
-          <input type="hidden" name="id" value="<%= @resource.id -%>"/>
+            <input type="hidden" name="id" value="<%= @resource.id -%>"/>
 
-          <div class="modal-field">
-            <label for="measures[]"><%= message('manual_measures.col.metric') -%> <em class="mandatory">*</em></label>
-            <select name="metric" id="metricSelect" onChange="showPercentage()">
-              <%= options_grouped_by_domain(@manual_metrics, nil, :include_empty => true) -%>
-            </select>
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.metric') -%> <em class="mandatory">*</em></label>
+              <select name="metric" id="metricSelect" onChange="showPercentage()">
+                <%= options_grouped_by_domain(@manual_metrics, nil, :include_empty => true) -%>
+              </select>
+              &nbsp;
+              <%= link_to message('manual_measures.manage_metrics_link'), :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
+            </div>
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.value') -%> <em class="mandatory">*</em></label>
+              <input type="text" name="val" id="valueText" value=""/>
+              <%  @manual_metrics.each do |metric|
+                 if  metric.value_type==Metric::VALUE_TYPE_PERCENT %>
+                  <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"> % </span>
+                <% else %>
+                  <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"></span>
+                <% end
+                  end %>
+            </div>
+            <div class="modal-field">
+              <label for="measures[]"><%= message('manual_measures.col.description') -%> </label>
+              <textarea rows="5" cols="50" name="desc" class="width100"></textarea>
+            </div>
           </div>
-          <div class="modal-field">
-            <label for="measures[]"><%= message('manual_measures.col.value') -%> <em class="mandatory">*</em></label>
-            <input type="text" name="val" id="valueText" value=""/>
-            <%  @manual_metrics.each do |metric|
-               if  metric.value_type==Metric::VALUE_TYPE_PERCENT %>
-                <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"> % </span>
-              <% else %>
-                <span id="showPercent_<%= metric.key.parameterize -%>" style="display:none"></span>
-              <% end
-                end %>
-          </div>
-          <div class="modal-field">
-            <label for="measures[]"><%= message('manual_measures.col.description') -%> </label>
-            <textarea rows="5" cols="50" name="desc" class="width100"></textarea>
-          </div>
-        </div>
-
+         <% end %>
         <div class="modal-foot">
-          <%= submit_tag 'create'%>
+          <% if ! @manual_metrics.empty? %>
+            <%= submit_tag 'create' %>
+          <% end %>
           <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
         </div>
     </fieldset>
