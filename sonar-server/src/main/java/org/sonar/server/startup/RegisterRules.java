@@ -53,6 +53,8 @@ public final class RegisterRules {
   private final List<RuleRepository> repositories;
   private final RuleI18nManager ruleI18nManager;
 
+  private DatabaseSession session;
+
   public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager) {
     this.sessionFactory = sessionFactory;
     this.profilesManager = profilesManager;
@@ -65,39 +67,39 @@ public final class RegisterRules {
   }
 
   public void start() {
-    DatabaseSession session = sessionFactory.getSession();
-    RulesByRepository existingRules = new RulesByRepository(findAllRules(session));
+    session = sessionFactory.getSession();
+    RulesByRepository existingRules = new RulesByRepository(findAllRules());
 
-    List<Rule> registeredRules = registerRules(existingRules, session);
+    List<Rule> registeredRules = registerRules(existingRules);
 
     LOG.info("Removing deprecated rules");
-    disableDeprecatedRules(existingRules, registeredRules, session);
-    disableDeprecatedRepositories(existingRules, session);
+    disableDeprecatedRules(existingRules, registeredRules);
+    disableDeprecatedRepositories(existingRules);
 
     session.commit();
   }
 
-  private List<Rule> findAllRules(DatabaseSession session) {
+  private List<Rule> findAllRules() {
     // the hardcoded repository "manual" is used for manual violations
     return session.createQuery("from " + Rule.class.getSimpleName() + " r WHERE r.pluginName<>:repository")
       .setParameter("repository", "manual")
       .getResultList();
   }
 
-  private List<Rule> registerRules(RulesByRepository existingRules, DatabaseSession session) {
+  private List<Rule> registerRules(RulesByRepository existingRules) {
     TimeProfiler profiler = new TimeProfiler();
     List<Rule> registeredRules = newArrayList();
     for (RuleRepository repository : repositories) {
       profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
-      registeredRules.addAll(registerRepositoryRules(repository, existingRules, session));
+      registeredRules.addAll(registerRepositoryRules(repository, existingRules));
       profiler.stop();
     }
     // Template rules have to be registered after all rules in order for their parent to be updated.
-    registeredRules.addAll(registerTemplateRules(registeredRules, existingRules, session));
+    registeredRules.addAll(registerTemplateRules(registeredRules, existingRules));
     return registeredRules;
   }
 
-  private List<Rule> registerRepositoryRules(RuleRepository repository, RulesByRepository existingRules, DatabaseSession session) {
+  private List<Rule> registerRepositoryRules(RuleRepository repository, RulesByRepository existingRules) {
     List<Rule> registeredRules = newArrayList();
     Map<String, Rule> ruleByKey = newHashMap();
     for (Rule rule : repository.createRules()) {
@@ -111,19 +113,19 @@ public final class RegisterRules {
     for (Rule persistedRule : existingRules.get(repository.getKey())) {
       Rule rule = ruleByKey.get(persistedRule.getKey());
       if (rule != null) {
-        updateExistingRule(persistedRule, rule, session);
+        updateExistingRule(persistedRule, rule);
         session.saveWithoutFlush(persistedRule);
         ruleByKey.remove(rule.getKey());
       }
     }
-    saveNewRules(ruleByKey.values(), session);
+    saveNewRules(ruleByKey.values());
     return registeredRules;
   }
 
   /**
    * Template rules do not exists in rule repositories, only in database, they have to be updated from their parent.
    */
-  private List<Rule> registerTemplateRules(List<Rule> registeredRules, RulesByRepository existingRules, DatabaseSession session) {
+  private List<Rule> registerTemplateRules(List<Rule> registeredRules, RulesByRepository existingRules) {
     List<Rule> templateRules = newArrayList();
     for (Rule persistedRule : existingRules.rules()) {
       Rule parent = persistedRule.getParent();
@@ -170,7 +172,7 @@ public final class RegisterRules {
     }
   }
 
-  private void updateExistingRule(Rule persistedRule, Rule rule, DatabaseSession session) {
+  private void updateExistingRule(Rule persistedRule, Rule rule) {
     LOG.debug("Update existing rule " + rule);
 
     persistedRule.setName(rule.getName());
@@ -183,7 +185,7 @@ public final class RegisterRules {
     persistedRule.setUpdatedAt(new Date());
 
     // delete deprecated params
-    deleteDeprecatedParameters(persistedRule, rule, session);
+    deleteDeprecatedParameters(persistedRule, rule);
 
     // add new params and update existing params
     updateParameters(persistedRule, rule);
@@ -203,7 +205,7 @@ public final class RegisterRules {
     }
   }
 
-  private void deleteDeprecatedParameters(Rule persistedRule, Rule rule, DatabaseSession session) {
+  private void deleteDeprecatedParameters(Rule persistedRule, Rule rule) {
     if (persistedRule.getParams() != null && persistedRule.getParams().size() > 0) {
       for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext(); ) {
         RuleParam persistedParam = it.next();
@@ -218,7 +220,7 @@ public final class RegisterRules {
     }
   }
 
-  private void saveNewRules(Collection<Rule> rules, DatabaseSession session) {
+  private void saveNewRules(Collection<Rule> rules) {
     for (Rule rule : rules) {
       LOG.debug("Save new rule " + rule);
       rule.setCreatedAt(new Date());
@@ -226,15 +228,15 @@ public final class RegisterRules {
     }
   }
 
-  private void disableDeprecatedRules(RulesByRepository existingRules, List<Rule> registeredRules, DatabaseSession session) {
+  private void disableDeprecatedRules(RulesByRepository existingRules, List<Rule> registeredRules) {
     for (Rule rule : existingRules.rules()) {
       if (!registeredRules.contains(rule)) {
-        disable(rule, session);
+        disable(rule);
       }
     }
   }
 
-  private void disableDeprecatedRepositories(RulesByRepository existingRules, DatabaseSession session) {
+  private void disableDeprecatedRepositories(RulesByRepository existingRules) {
     for (final String repositoryKey : existingRules.repositories()) {
       if (!Iterables.any(repositories, new Predicate<RuleRepository>() {
         public boolean apply(RuleRepository input) {
@@ -242,13 +244,13 @@ public final class RegisterRules {
         }
       })) {
         for (Rule rule : existingRules.get(repositoryKey)) {
-          disable(rule, session);
+          disable(rule);
         }
       }
     }
   }
 
-  private void disable(Rule rule, DatabaseSession session) {
+  private void disable(Rule rule) {
     if (!rule.getStatus().equals(Rule.STATUS_REMOVED)) {
       LOG.info("Removing rule " + rule.ruleKey());
       profilesManager.removeActivatedRules(rule);
