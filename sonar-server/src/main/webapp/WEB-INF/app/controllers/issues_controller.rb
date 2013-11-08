@@ -22,7 +22,7 @@ require 'set'
 class IssuesController < ApplicationController
 
   before_filter :init_options
-  before_filter :load_fav_filters, :only => [:index, :search, :filter, :manage, :favourites, :toggle_fav]
+  before_filter :load_fav_filters, :only => [:index, :search, :search2, :filter, :manage, :favourites, :toggle_fav]
 
   PAGE_SIZE = 100
 
@@ -54,7 +54,7 @@ class IssuesController < ApplicationController
     end
   end
 
-  # GET /issues/search
+  # GET /issues/search2
   def search2
     @issues_query_params = criteria_params
     @first_search = issues_query_params_sanitized.empty?

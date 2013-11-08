@@ -29,23 +29,14 @@
       <a class="navigator-filters-favorite-toggle" onclick="showDropdownMenu('favorite-filters'); return false;"></a>
 
       <div id="favorite-filters" class="dropdown-menu" style="max-width: none; display: none; font-size: 12px;">
-        <div style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-          <ul>
-            <li><a href="#">First filter set</a></li>
-            <li><a href="#">Second filter set</a></li>
-            <li><a href="#">Third filter set</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <ul>
-            <li><a href="#">Manage</a></li>
-          </ul>
-        </div>
+        <%= render :partial => 'issues/filter_favourites2' -%>
       </div>
     </div>
 
     <div class="navigator-filters-list"></div>
+    <div class="navigator-filters-actions">
+      <select class="navigator-disabled-filters"></select>
+    </div>
   </form>
 </script>
 

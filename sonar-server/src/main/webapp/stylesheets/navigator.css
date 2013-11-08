@@ -45,10 +45,11 @@
   vertical-align: middle;
   font-size: 0;
 }
-input.navigator-filters-search[type=submit] {
+.navigator-filters-actions {
   display: inline-block;
   vertical-align: middle;
   margin-left: 20px;
+  font-size: 14px;
 }
 .navigator-filter {
   display: inline-block;
@@ -56,6 +57,9 @@ input.navigator-filters-search[type=submit] {
 }
 .navigator-filter + .navigator-filter {
   margin-left: 20px;
+}
+.navigator-filter-disabled {
+  display: none;
 }
 .navigator-filter-label {
   display: inline-block;
@@ -72,9 +76,6 @@ input.navigator-filters-search[type=submit] {
   vertical-align: middle;
   color: #000;
   font-size: 14px;
-}
-.navigator-filter-body input {
-  font-size: 12px;
 }
 .navigator-filter-range-input {
   width: 80px;

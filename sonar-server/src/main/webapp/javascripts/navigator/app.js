@@ -1,4 +1,4 @@
-/* global $j:false, Backbone:false */
+/* global $j:false, Backbone:false, baseUrl:false */
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
@@ -21,11 +21,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Project',
           property: 'componentRoots',
           type: window.SS.AjaxSelectFilterView,
+          enabled: true,
           select2 : {
             allowClear: true,
             ajax: {
               quietMillis: 300,
-              url: '/dev/api/resources/search?f=s2&q=TRK&display_key=true',
+              url: baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true',
               data: function (term, page) { return { s: term, p: page }; },
               results: function (data) { return { more: data.more, results: data.results }; }
             }
@@ -36,6 +37,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Severity',
           property: 'severities[]',
           type: window.SS.SelectFilterView,
+          enabled: true,
           choices: window.SS.severities
         }),
 
@@ -43,6 +45,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Status',
           property: 'statuses[]',
           type: window.SS.SelectFilterView,
+          enabled: true,
           choices: window.SS.statuses
         }),
 
@@ -50,6 +53,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Resolution',
           property: 'resolutions[]',
           type: window.SS.SelectFilterView,
+          enabled: false,
           choices: window.SS.resolutions
         }),
 
@@ -57,6 +61,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Assignee',
           property: 'assignees',
           type: window.SS.AjaxSelectFilterView,
+          enabled: true,
           select2: {
             allowClear: true,
             query:
@@ -64,7 +69,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
                   if (query.term.length === 0) {
                     query.callback({results: [{id:'<unassigned>',text:'Unassigned'}]});
                   } else if (query.term.length >= 2) {
-                    $j.ajax('/dev/api/users/search?f=s2', {
+                    $j.ajax(baseUrl + '/api/users/search?f=s2', {
                       data: {s: query.term},
                       dataType: 'jsonp'
                     }).done(function(data) {
@@ -79,7 +84,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           name: 'Created',
           propertyFrom: 'createdAfter',
           propertyTo: 'createdBefore',
-          type: window.SS.RangeFilterView
+          type: window.SS.RangeFilterView,
+          enabled: false
         })
     ]);
 

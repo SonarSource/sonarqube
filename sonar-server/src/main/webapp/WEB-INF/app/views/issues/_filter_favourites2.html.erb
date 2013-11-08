@@ -1,0 +1,21 @@
+<% if logged_in? %>
+<div style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+  <ul>
+    <% if !@favourite_filters.empty? %>
+      <% @favourite_filters.each do |filter| %>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/issues/filter/<%= filter.id -%>"><%= h filter.name -%></a>
+        </li>
+      <% end %>
+    <% else %>
+      <li>No favorite filters</li>
+    <% end %>
+  </ul>
+</div>
+
+<div>
+  <ul>
+    <li><a href="<%= ApplicationController.root_context -%>/issues/manage" class="link-action"><%= message('manage') %></a></li>
+  </ul>
+</div>
+<% end %>
