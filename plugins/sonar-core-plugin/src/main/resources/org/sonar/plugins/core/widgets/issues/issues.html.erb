@@ -63,7 +63,7 @@
                 <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for_drilldown('sqale_index') -%>" class="varw">
+                  <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw">
                     <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
                 </span>
               <% end %>
