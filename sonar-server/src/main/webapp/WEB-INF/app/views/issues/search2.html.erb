@@ -18,45 +18,92 @@
   }
 </script>
 
-<script id="filterTemplate" type="text/template">
+<script id="baseFilterTemplate" type="text/template">
   <div class="navigator-filter-label">{{ name }}</div>
-  <div class="navigator-filter-body">{{ body }}</div>
+  <div class="navigator-filter-value {[ if (defaultValue) { ]}default{[ } ]}">{{ value }}</div>
+</script>
+
+<script id="detailsFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    No details
+  </div>
 </script>
 
 <script id="filterBarTemplate" type="text/template">
-  <form action="<%= ApplicationController.root_context -%>/issues/search" method="get">
-    <div class="navigator-filters-favorite">
-      <a class="navigator-filters-favorite-toggle" onclick="showDropdownMenu('favorite-filters'); return false;"></a>
-
-      <div id="favorite-filters" class="dropdown-menu" style="max-width: none; display: none; font-size: 12px;">
-        <%= render :partial => 'issues/filter_favourites2' -%>
-      </div>
-    </div>
-
-    <div class="navigator-filters-list"></div>
-    <div class="navigator-filters-actions">
-      <select class="navigator-disabled-filters"></select>
-    </div>
-  </form>
+  <div class="navigator-filters-list"></div>
 </script>
 
 <script id="selectFilterTemplate" type="text/template">
-  <select multiple="multiple" name="{{ property }}">
-    {[ _.each(choices, function(choice) { ]}
-    <option value="{[ print(choice[1]); ]}">{[ print(choice[0]); ]}</option>
+  <ul class="navigator-filter-select-list">
+    {[ _.each(choices, function(value, key) { ]}
+      <li>
+        <label>
+          <input type="checkbox" name="{{ property }}" value="{{ key }}">
+          <span>{{ value }}</span>
+        </label>
+      </li>
     {[ }); ]}
-  </select>
+  </ul>
 </script>
 
-<script id="ajaxSelectFilterTemplate" type="text/template">
-  <input type="hidden" name="{{ property }}">
+<script id="projectFilterTemplate" type="text/template">
+  <div class="navigator-filter-search">
+      <input type="text">
+  </div>
+</script>
+
+<script id="projectSuggestionsFilterTemplate" type="text/template">
+  {[ if (suggestions.length > 0) { ]}
+    {[ _.each(suggestions, function(s) { ]}
+      <li>
+        <label>
+          <input type="checkbox" name="{{ property }}" value="{{ s.id }}">
+          <span>{{ s.text }}</span>
+        </label>
+      </li>
+    {[ }); ]}
+  {[ } else { ]}
+    <li><label>Start typing to get results</label></li>
+  {[ } ]}
+</script>
+
+<script id="projectSuggestionTemplate" type="text/template">
+  <label>
+    <input type="checkbox" value="{{ id }}" {[ if (selected) { ]}checked{[ } ]}>
+    <span>{{ text }}</span>
+  </label>
+</script>
+
+<script id="projectNoSuggestionsTemplate" type="text/template">
+  No results
 </script>
 
 <script id="rangeFilterTemplate" type="text/template">
-  <input class="navigator-filter-range-input" type="text"
-         name="{{ propertyFrom }}" placeholder="From">
-  <input class="navigator-filter-range-input" type="text"
-         name="{{ propertyTo }}" placeholder="To">
+  <div class="navigator-filter-details-inner">
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyFrom }}">
+    <label>to</label>
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyTo }}">
+  </div>
+</script>
+
+<script id="favoriteFilterTemplate" type="text/template">
+  <div class="navigator-filter-favorite"></div>
+</script>
+
+<script id="detailsFavoriteFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ _.each(choices, function(value, key) { ]}
+    <li>
+      <label data-id="{{ key }}">{{ value }}</label>
+    </li>
+    {[ }); ]}
+    <li class="line"></li>
+    <li class="manage">
+      <label>Manage</label>
+    </li>
+  </ul>
 </script>
 
 <script>
@@ -68,7 +115,8 @@
   _.extend(window.SS, {
     severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
     statuses: <%= @options_for_statuses.to_json.html_safe -%>,
-    resolutions: <%= @options_for_resolutions.to_json.html_safe -%>
+    resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,
+    favorites: <%= render :partial => 'issues/filter_favourites2' -%>
   });
 
   window.SS.NavigatorApp.start();

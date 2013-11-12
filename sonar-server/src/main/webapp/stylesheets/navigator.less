@@ -1,53 +1,19 @@
 @import "mixins";
 @import "variables";
 
+@navigatorHeight: 36px;
+@navigatorHover: darken(@grey, 5%);
+@navigatorFilterPadding: 7px;
+
 .navigator {
-
-  .select2-container .select2-choice,
-  .select2-container-multi .select2-choices {
-    border: 1px solid #aaa;
-    border-radius: 0;
-    background: @white;
-  }
-
-  .select2-container-active .select2-choice,
-  .select2-container-active .select2-choices {
-    box-shadow: none;
-  }
-
-  .select2-container-multi .select2-choices {
-    white-space: nowrap;
-  }
-
-  .select2-container-multi .select2-choices li {
-    float: none;
-    display: inline-block;
-    vertical-align: middle;
-  }
 
 }
 
 .navigator-filters {
   margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid @darkGrey;
+  border-bottom: 1px solid @darkGrey;
   background: @grey;
   font-size: 0;
-}
-
-.navigator-filters-favorite {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 15px;
-  padding-right: 14px;
-  border-right: 1px solid #cdcdcd;
-}
-
-.navigator-filters-favorite-toggle {
-  display: block;
-  .size(16px, 16px);
-  background: url(../images/star.png) no-repeat left center;
-  cursor: pointer;
 }
 
 .navigator-filters-list {
@@ -60,16 +26,30 @@
   display: inline-block;
   vertical-align: middle;
   margin-left: 20px;
-  font-size: 14px;
+  font-size: @baseFontSize;
 }
 
 .navigator-filter {
   display: inline-block;
   vertical-align: top;
-}
+  height: @navigatorHeight;
+  line-height: @navigatorHeight;
+  padding: 0 @navigatorFilterPadding;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.3s ease;
 
-.navigator-filter + .navigator-filter {
-  margin-left: 20px;
+  &:hover {
+    background-color: @navigatorHover;
+  }
+
+  &.active {
+    position: relative;
+    padding: 0 @navigatorFilterPadding - 1px;
+    border-left: 1px solid #cdcdcd;
+    border-right: 1px solid #cdcdcd;
+    background: #fff;
+  }
 }
 
 .navigator-filter-disabled {
@@ -80,21 +60,98 @@
   display: inline-block;
   vertical-align: middle;
   margin-right: 5px;
-  color: #666;
-  font-size: 14px;
+  color: #333;
+  font-size: @baseFontSize;
 
   &:after { content: ":"; }
 }
 
-.navigator-filter-body {
+.navigator-filter-value {
   display: inline-block;
   vertical-align: middle;
-  color: #000;
-  font-size: 14px;
+  max-width: 120px;
+  color: #333;
+  font-size: @baseFontSize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.default {
+    color: #666;
+  }
 }
 
 .navigator-filter-range-input {
-  width: 80px;
+  width: 120px;
+}
+
+.navigator-filter-details {
+  display: none;
+  position: absolute;
+  z-index: 1200;
+  min-width: 100px;
+  border: 1px solid #cdcdcd;
+  background: #fff;
+  font-size: @baseFontSize;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    display: block;
+  }
+}
+
+.navigator-filter-details-inner {
+  padding: 5px @navigatorFilterPadding;
+}
+
+.navigator-filter-select-list {
+  min-width: 150px;
+  max-height: 182px;
+  padding: 5px 0;
+  overflow-y: auto;
+
+  label {
+    display: block;
+    padding: 5px @navigatorFilterPadding;
+    transition: background 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: darken(#fff, 7%);
+    }
+  }
+
+  input[type=checkbox] {
+    position: relative;
+    top: -1px;
+    cursor: pointer;
+  }
+
+  .single {
+    padding: 5px @navigatorFilterPadding;
+  }
+
+  .line {
+    height: 1px;
+    margin: 5px 0;
+    background: #cdcdcd;
+  }
+}
+
+.navigator-filter-search {
+  margin: @navigatorFilterPadding;
+
+  input {
+    .size(100%, 26px);
+    padding: 0 7px;
+    border: 1px solid #cdcdcd;
+    .box-sizing(border-box);
+  }
+}
+
+.navigator-filter-favorite {
+  .size(16px, @navigatorHeight);
+  background: url('../images/star.png') no-repeat center center;
 }
 
 .navigator-results {
