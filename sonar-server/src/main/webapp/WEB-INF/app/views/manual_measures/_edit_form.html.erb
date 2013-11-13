@@ -1,7 +1,7 @@
 <form action="<%= url_for :action => 'edit' -%>" method="POST" id="measure_edit_form">
     <fieldset>
         <div class="modal-head">
-            <h2>Edit manual measure: <%= h @metric.name -%></h2>
+            <h2>Edit manual measure: <%= h @metric.short_name -%></h2>
         </div>
 
         <div class="modal-body">
