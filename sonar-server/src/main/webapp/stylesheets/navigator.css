@@ -121,6 +121,9 @@
   margin: 5px 0;
   background: #cdcdcd;
 }
+.navigator-filter-select-list + .navigator-filter-select-list {
+  border-top: 1px solid #cdcdcd;
+}
 .navigator-filter-search {
   margin: 10px;
 }
