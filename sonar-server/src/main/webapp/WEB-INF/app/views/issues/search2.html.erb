@@ -46,35 +46,20 @@
   </ul>
 </script>
 
-<script id="projectFilterTemplate" type="text/template">
+<script id="ajaxSelectFilterTemplate" type="text/template">
   <div class="navigator-filter-search">
       <input type="text">
   </div>
 </script>
 
-<script id="projectSuggestionsFilterTemplate" type="text/template">
-  {[ if (suggestions.length > 0) { ]}
-    {[ _.each(suggestions, function(s) { ]}
-      <li>
-        <label>
-          <input type="checkbox" name="{{ property }}" value="{{ s.id }}">
-          <span>{{ s.text }}</span>
-        </label>
-      </li>
-    {[ }); ]}
-  {[ } else { ]}
-    <li><label>Start typing to get results</label></li>
-  {[ } ]}
-</script>
-
-<script id="projectSuggestionTemplate" type="text/template">
+<script id="ajaxSelectSuggestionTemplate" type="text/template">
   <label>
     <input type="checkbox" value="{{ id }}" {[ if (selected) { ]}checked{[ } ]}>
     <span>{{ text }}</span>
   </label>
 </script>
 
-<script id="projectNoSuggestionsTemplate" type="text/template">
+<script id="ajaxSelectNoSuggestionsTemplate" type="text/template">
   No results
 </script>
 
@@ -94,15 +79,31 @@
 
 <script id="detailsFavoriteFilterTemplate" type="text/template">
   <ul class="navigator-filter-select-list">
-    {[ _.each(choices, function(value, key) { ]}
-    <li>
-      <label data-id="{{ key }}">{{ value }}</label>
-    </li>
-    {[ }); ]}
-    <li class="line"></li>
+    {[ if (_.keys(choices).length > 0) { ]}
+      {[ _.each(choices, function(value, key) { ]}
+      <li>
+        <label data-id="{{ key }}">{{ value }}</label>
+      </li>
+      {[ }); ]}
+      <li class="line"></li>
+    {[ } ]}
     <li class="manage">
       <label>Manage</label>
     </li>
+  </ul>
+</script>
+
+<script id="moreCriteriaFilterTemplate" type="text/template">
+  <strong>+</strong> More Criteria
+</script>
+
+<script id="detailsMoreCriteriaFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ _.each(filters, function(filter) { ]}
+    <li>
+      <label data-id="{{ filter.cid }}">{[ print(filter.get('name')); ]}</label>
+    </li>
+    {[ }); ]}
   </ul>
 </script>
 

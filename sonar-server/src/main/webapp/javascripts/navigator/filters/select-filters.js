@@ -24,6 +24,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
   var SelectFilterView = window.SS.BaseFilterView.extend({
+    className: 'navigator-filter navigator-filter-more-criteria',
 
     initialize: function() {
       window.SS.BaseFilterView.prototype.initialize.call(this, {

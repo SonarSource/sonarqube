@@ -3,10 +3,14 @@
 
 @navigatorHeight: 36px;
 @navigatorHover: darken(@grey, 5%);
-@navigatorFilterPadding: 7px;
+@navigatorFilterPadding: 10px;
 
 .navigator {
 
+}
+
+.navigator-filter-shown {
+  overflow: hidden;
 }
 
 .navigator-filters {
@@ -106,6 +110,7 @@
 
 .navigator-filter-select-list {
   min-width: 150px;
+  max-width: 300px;
   max-height: 182px;
   padding: 5px 0;
   overflow-y: auto;
@@ -115,6 +120,9 @@
     padding: 5px @navigatorFilterPadding;
     transition: background 0.3s ease;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:hover {
       background-color: darken(#fff, 7%);
@@ -149,9 +157,27 @@
   }
 }
 
+.navigator-filter-load-more {
+  display: none;
+  height: 26px;
+  line-height: 26px;
+  background-color: @grey;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background-color: darken(@grey, 7%);
+  }
+}
+
 .navigator-filter-favorite {
   .size(16px, @navigatorHeight);
   background: url('../images/star.png') no-repeat center center;
+}
+
+.navigator-filter-more-criteria {
+  font-size: @baseFontSize;
 }
 
 .navigator-results {

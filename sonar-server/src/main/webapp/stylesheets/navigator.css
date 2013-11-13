@@ -4,6 +4,9 @@
 /*
  * Colors
  */
+.navigator-filter-shown {
+  overflow: hidden;
+}
 .navigator-filters {
   margin-bottom: 10px;
   border-bottom: 1px solid #cdcdcd;
@@ -26,7 +29,7 @@
   vertical-align: top;
   height: 36px;
   line-height: 36px;
-  padding: 0 7px;
+  padding: 0 10px;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -36,7 +39,7 @@
 }
 .navigator-filter.active {
   position: relative;
-  padding: 0 6px;
+  padding: 0 9px;
   border-left: 1px solid #cdcdcd;
   border-right: 1px solid #cdcdcd;
   background: #fff;
@@ -84,19 +87,23 @@
   display: block;
 }
 .navigator-filter-details-inner {
-  padding: 5px 7px;
+  padding: 5px 10px;
 }
 .navigator-filter-select-list {
   min-width: 150px;
+  max-width: 300px;
   max-height: 182px;
   padding: 5px 0;
   overflow-y: auto;
 }
 .navigator-filter-select-list label {
   display: block;
-  padding: 5px 7px;
+  padding: 5px 10px;
   transition: background 0.3s ease;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .navigator-filter-select-list label:hover {
   background-color: #ededed;
@@ -107,7 +114,7 @@
   cursor: pointer;
 }
 .navigator-filter-select-list .single {
-  padding: 5px 7px;
+  padding: 5px 10px;
 }
 .navigator-filter-select-list .line {
   height: 1px;
@@ -115,7 +122,7 @@
   background: #cdcdcd;
 }
 .navigator-filter-search {
-  margin: 7px;
+  margin: 10px;
 }
 .navigator-filter-search input {
   width: 100%;
@@ -125,8 +132,23 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+.navigator-filter-load-more {
+  display: none;
+  height: 26px;
+  line-height: 26px;
+  background-color: #efefef;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.navigator-filter-load-more:hover {
+  background-color: #dddddd;
+}
 .navigator-filter-favorite {
   width: 16px;
   height: 36px;
   background: url('../images/star.png') no-repeat center center;
+}
+.navigator-filter-more-criteria {
+  font-size: 13px;
 }

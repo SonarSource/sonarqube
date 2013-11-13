@@ -36,6 +36,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    modelEvents: {
+      'change:enabled': 'focus',
+      'change:filters': 'render' // for more criteria filter
+    },
+
+
     initialize: function(options) {
       Backbone.Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
@@ -73,6 +79,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    focus: function() {
+      this.render();
+      this.showDetails();
+    },
+
+
     toggleDetails: function(e) {
       e.stopPropagation();
       if (this.$el.hasClass('active')) {
@@ -91,6 +103,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.detailsView.$el.css({ top: top, left: left }).addClass('active');
       this.$el.addClass('active');
+      $j('body').addClass('navigator-filter-shown');
       this.detailsView.onShow();
     },
 
@@ -104,6 +117,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     hideDetails: function() {
       this.detailsView.$el.removeClass('active');
       this.$el.removeClass('active');
+      $j('body').removeClass('navigator-filter-shown');
       this.detailsView.onHide();
     },
 
@@ -144,11 +158,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    ui: {
-      disabledFilters: '.navigator-disabled-filters'
-    },
-
-
     getItemView: function(item) {
       return item.get('type') || BaseFilterView;
     },
@@ -163,10 +172,19 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     initialize: function() {
       Backbone.Marionette.CompositeView.prototype.initialize.apply(this, arguments);
+
       var that = this;
       $('body').on('click', function() {
         that.hideDetails();
       });
+
+      var disabledFilters = this.collection.where({ enabled: false });
+      this.moreCriteriaFilter = new window.SS.Filter({
+        type: window.SS.MoreCriteriaFilterView,
+        enabled: true,
+        filters: disabledFilters
+      });
+      this.collection.add(this.moreCriteriaFilter);
     },
 
 
@@ -179,6 +197,21 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (_.isObject(this.showedView)) {
         this.showedView.hideDetails();
       }
+    },
+
+
+    enableFilter: function(id) {
+      var filter = this.collection.get(id),
+          filterView = filter.view;
+
+      filterView.$el.detach().insertBefore(this.$('.navigator-filter-more-criteria'));
+      filter.set('enabled', 'true');
+
+      var disabledFilters = this.collection.where({ enabled: false });
+      if (disabledFilters.length === 0) {
+        this.moreCriteriaFilter.set({ enabled: false }, { silent: true });
+      }
+      this.moreCriteriaFilter.set('filters', disabledFilters);
     },
 
 
@@ -196,7 +229,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         }
 
       });
-      this.applyQuery($j.param(query));
+      this.applyQuery($j.param(query, true));
     },
 
 

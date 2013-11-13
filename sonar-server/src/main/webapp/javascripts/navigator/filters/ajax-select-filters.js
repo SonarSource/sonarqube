@@ -4,12 +4,51 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 (function() {
 
-  var AssigneeSuggestions = Backbone.Collection.extend({
+  var PAGE_SIZE = 100;
+
+
+
+  var Suggestions = Backbone.Collection.extend({
+
+    initialize: function() {
+      this.more = false;
+      this.page = 0;
+    },
+
 
     parse: function(r) {
+      this.more = r.more;
       return r.results;
     },
 
+
+    fetch: function(options) {
+      this.data = _.extend({
+            p: 1,
+            ps: PAGE_SIZE
+          }, options.data || {});
+
+      var settings = _.extend({}, options, { data: this.data });
+
+      Backbone.Collection.prototype.fetch.call(this, settings);
+    },
+
+
+    fetchNextPage: function(options) {
+      if (this.more) {
+        this.data.p += 1;
+
+        var settings = _.extend({ remove: false }, options, { data: this.data });
+
+        this.fetch(settings);
+      }
+    }
+
+  });
+
+
+
+  var UserSuggestions = Suggestions.extend({
 
     url: function() {
       return baseUrl + '/api/users/search?f=s2';
@@ -19,12 +58,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var ProjectSuggestions = Backbone.Collection.extend({
-
-    parse: function(r) {
-      return r.results;
-    },
-
+  var ProjectSuggestions = Suggestions.extend({
 
     url: function() {
       return baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
@@ -35,7 +69,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
   var AjaxSelectSuggestionView = Backbone.Marionette.ItemView.extend({
-    template: '#projectSuggestionTemplate',
+    template: '#ajaxSelectSuggestionTemplate',
     tagName: 'li',
 
 
@@ -44,8 +78,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    changeSelection: function() {
-      this.options.detailsView.updateSelection();
+    changeSelection: function(e) {
+      var c = $j(e.target);
+      if (c.is(':checked')) {
+        this.options.detailsView.addSuggestion(c.val(), c.next().text());
+      } else {
+        this.options.detailsView.removeSuggestion(c.val());
+      }
     },
 
 
@@ -66,7 +105,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
   var AjaxSelectNoSuggestionsView = Backbone.Marionette.ItemView.extend({
-    template: '#projectNoSuggestionsTemplate',
+    template: '#ajaxSelectNoSuggestionsTemplate',
     tagName: 'li',
     className: 'single'
   });
@@ -80,6 +119,26 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     className: 'navigator-filter-select-list',
 
 
+    onRender: function() {
+      this.$el.scrollTop(0);
+
+      var that = this,
+          scroll = function() { that.scroll(); },
+          throttledScroll = _.throttle(scroll, 1000);
+      this.$el.off('scroll').on('scroll', throttledScroll);
+    },
+
+
+    scroll: function() {
+      var scrollBottom = this.$el.scrollTop() >=
+          this.$el[0].scrollHeight - this.$el.outerHeight();
+
+      if (scrollBottom) {
+        this.collection.fetchNextPage();
+      }
+    },
+
+
     itemViewOptions: function() {
       return {
         detailsView: this.options.detailsView
@@ -91,7 +150,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
   var AjaxSelectDetailsFilterView = window.SS.DetailsFilterView.extend({
-    template: '#projectFilterTemplate',
+    template: '#ajaxSelectFilterTemplate',
 
 
     initialize: function() {
@@ -117,7 +176,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     onRender: function() {
       this.bindSearchEvent();
-      this.suggestionsView.$el.appendTo(this.$el);
+
+      this.listenTo(this.suggestions, 'reset', this.toggleLoadMore);
+      this.listenTo(this.suggestions, 'add', this.toggleLoadMore);
+
+      this.suggestionsView.$el.insertAfter(this.$('.navigator-filter-search'));
       this.suggestions.reset([]);
     },
 
@@ -128,10 +191,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     search: function() {
-      var query = this.$('.navigator-filter-search input').val();
-      if (query.length > 1) {
+      this.query = this.$('.navigator-filter-search input').val();
+      if (this.query.length > 1) {
         this.suggestions.fetch({
-          data: { s: query },
+          data: {
+            s: this.query,
+            ps: PAGE_SIZE
+          },
           reset: true
         });
       } else {
@@ -140,19 +206,42 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    updateSelection: function() {
-      var value = this.$('input[type=checkbox]:checked').map(function () {
-            return $j(this).val();
-          }).get(),
-
-          textValue = this.$('input[type=checkbox]:checked').map(function () {
-            return $j(this).next().text();
-          }).get();
+    addSuggestion: function(key, text) {
+      var value = this.model.get('value') || [],
+          textValue = this.model.get('textValue') || [];
+      value.push(key);
+      textValue.push(text);
 
       this.model.set({
         value: value,
         textValue: textValue
-      });
+      }, { silent: true });
+
+      this.model.trigger('change:value');
+    },
+
+
+    removeSuggestion: function(key) {
+      var value = this.model.get('value') || [],
+          textValue = this.model.get('textValue') || [],
+          index = _.indexOf(value, key);
+
+      if (index !== -1) {
+        value.splice(index, 1);
+        textValue.splice(index, 1);
+
+        this.model.set({
+          value: value,
+          textValue: textValue
+        }, { silent: true });
+      }
+
+      this.model.trigger('change:value');
+    },
+
+
+    toggleLoadMore: function() {
+      this.$('.navigator-filter-load-more').toggle(this.suggestions.more);
     },
 
 
@@ -224,12 +313,52 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     initialize: function() {
       AjaxSelectDetailsFilterView.prototype.initialize.apply(this, arguments);
 
-      this.suggestions = new AssigneeSuggestions();
+      this.suggestions = new UserSuggestions();
       this.suggestionsView = new AjaxSelectSuggestionsView({
         collection: this.suggestions,
         model: this.model,
         detailsView: this
       });
+    },
+
+
+    isUnassignedSelected: function() {
+      return (this.model.get('value') || []).indexOf('<unassigned>') !== -1;
+    },
+
+
+    onRender: function() {
+      this.bindSearchEvent();
+
+      this.listenTo(this.suggestions, 'reset', this.toggleLoadMore);
+      this.listenTo(this.suggestions, 'add', this.toggleLoadMore);
+
+      this.suggestionsView.$el.insertAfter(this.$('.navigator-filter-search'));
+      this.suggestions.reset([{
+        id: '<unassigned>',
+        text: 'Unassigned',
+        selected: this.isUnassignedSelected()
+      }]);
+    },
+
+
+    search: function() {
+      this.query = this.$('.navigator-filter-search input').val();
+      if (this.query.length > 1) {
+        this.suggestions.fetch({
+          data: {
+            s: this.query,
+            ps: PAGE_SIZE
+          },
+          reset: true
+        });
+      } else {
+        this.suggestions.reset([{
+          id: '<unassigned>',
+          text: 'Unassigned',
+          selected: this.isUnassignedSelected()
+        }]);
+      }
     }
 
   });
@@ -248,13 +377,43 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
+  var DetailsReporterFilterView = AjaxSelectDetailsFilterView.extend({
+
+    initialize: function() {
+      AjaxSelectDetailsFilterView.prototype.initialize.apply(this, arguments);
+
+      this.suggestions = new UserSuggestions();
+      this.suggestionsView = new AjaxSelectSuggestionsView({
+        collection: this.suggestions,
+        model: this.model,
+        detailsView: this
+      });
+    }
+
+  });
+
+
+
+  var ReporterFilterView = AjaxSelectFilterView.extend({
+
+    initialize: function() {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
+        detailsView: DetailsReporterFilterView
+      });
+    }
+
+  });
+
+
+
   /*
    * Export public classes
    */
 
   _.extend(window.SS, {
     ProjectFilterView: ProjectFilterView,
-    AssigneeFilterView: AssigneeFilterView
+    AssigneeFilterView: AssigneeFilterView,
+    ReporterFilterView: ReporterFilterView
   });
 
 })();
