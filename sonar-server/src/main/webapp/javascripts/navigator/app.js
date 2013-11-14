@@ -34,7 +34,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         property: 'componentRoots',
         type: window.SS.ProjectFilterView,
         enabled: true,
-        optional: false,
+        optional: false
       }),
 
       new window.SS.Filter({
