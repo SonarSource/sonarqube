@@ -18,6 +18,14 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     template: '#detailsFilterTemplate',
     className: 'navigator-filter-details',
 
+
+    initialize: function() {
+      this.$el.on('click', function(e) {
+        e.stopPropagation();
+      });
+    },
+
+
     onShow: function() {},
     onHide: function() {}
   });
