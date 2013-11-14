@@ -36,34 +36,27 @@
   <div class="navigator-filters-list"></div>
 </script>
 
+<script id="selectFilterItemTemplate" type="text/template">
+  <li>
+    <label>
+      <input type="checkbox" name="{{ property }}" value="{{ item.id }}"
+             {[ if (checked) { ]}checked{[ } ]}>
+      <span>{{ item.text }}</span>
+    </label>
+  </li>
+</script>
+
 <script id="selectFilterTemplate" type="text/template">
-  <ul class="navigator-filter-select-list">
-    {[ _.each(choices, function(value, key) { ]}
-      <li>
-        <label>
-          <input type="checkbox" name="{{ property }}" value="{{ key }}">
-          <span>{{ value }}</span>
-        </label>
-      </li>
-    {[ }); ]}
-  </ul>
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
 </script>
 
 <script id="ajaxSelectFilterTemplate" type="text/template">
   <div class="navigator-filter-search">
       <input type="text">
   </div>
-</script>
-
-<script id="ajaxSelectSuggestionTemplate" type="text/template">
-  <label>
-    <input type="checkbox" value="{{ id }}" {[ if (selected) { ]}checked{[ } ]}>
-    <span>{{ text }}</span>
-  </label>
-</script>
-
-<script id="ajaxSelectNoSuggestionsTemplate" type="text/template">
-  No results
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
 </script>
 
 <script id="rangeFilterTemplate" type="text/template">

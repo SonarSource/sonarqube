@@ -47,7 +47,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     modelEvents: {
       'change:enabled': 'focus',
-      'change:filters': 'render' // for more criteria filter
+      'change:value': 'renderBase',
+
+      // for more criteria filter
+      'change:filters': 'render'
     },
 
 
@@ -56,13 +59,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       var detailsView = options.detailsView || DetailsFilterView;
       this.detailsView = new detailsView({
-        model: this.model
+        model: this.model,
+        filterView: this
       });
-      this.detailsView.render = this.renderDetails;
 
       this.model.view = this;
-
-      this.listenTo(this.model, 'change:value', this.renderBase);
     },
 
 
@@ -75,7 +76,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       this.renderBase();
 
       this.attachDetailsView();
-      this.detailsView.render.call(this.detailsView);
+      this.detailsView.render();
 
       this.$el.toggleClass(
           'navigator-filter-disabled',
@@ -137,11 +138,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     renderValue: function() {
       return this.model.get('value') || 'unset';
-    },
-
-
-    renderDetails: function() {
-      Backbone.Marionette.ItemView.prototype.render.apply(this, arguments);
     },
 
 

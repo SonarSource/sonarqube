@@ -65,260 +65,72 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var AjaxSelectSuggestionView = Backbone.Marionette.ItemView.extend({
-    template: '#ajaxSelectSuggestionTemplate',
-    tagName: 'li',
-
-
-    events: {
-      'change input[type=checkbox]': 'changeSelection'
-    },
-
-
-    changeSelection: function(e) {
-      var c = $j(e.target);
-      if (c.is(':checked')) {
-        this.options.detailsView.addSuggestion(c.val(), c.next().text());
-      } else {
-        this.options.detailsView.removeSuggestion(c.val());
-      }
-    },
-
-
-    isModelSelected: function() {
-      var value = this.options.detailsView.model.get('value');
-      return (_.isArray(value) && _.indexOf(value, this.model.get('id')) !== -1);
-    },
-
-
-    serializeData: function() {
-      return _.extend({}, this.model.toJSON(), {
-        selected: this.isModelSelected()
-      });
-    }
-
-  });
-
-
-
-  var AjaxSelectNoSuggestionsView = Backbone.Marionette.ItemView.extend({
-    template: '#ajaxSelectNoSuggestionsTemplate',
-    tagName: 'li',
-    className: 'single'
-  });
-
-
-
-  var AjaxSelectSuggestionsView = Backbone.Marionette.CollectionView.extend({
-    itemView: AjaxSelectSuggestionView,
-    emptyView: AjaxSelectNoSuggestionsView,
-    tagName: 'ul',
-    className: 'navigator-filter-select-list',
-
-
-    onRender: function() {
-      this.$el.scrollTop(0);
-
-      var that = this,
-          scroll = function() { that.scroll(); },
-          throttledScroll = _.throttle(scroll, 1000);
-      this.$el.off('scroll').on('scroll', throttledScroll);
-    },
-
-
-    scroll: function() {
-      var scrollBottom = this.$el.scrollTop() >=
-          this.$el[0].scrollHeight - this.$el.outerHeight();
-
-      if (scrollBottom) {
-        this.collection.fetchNextPage();
-      }
-    },
-
-
-    itemViewOptions: function() {
-      return {
-        detailsView: this.options.detailsView
-      };
-    }
-
-  });
-
-
-
-  var AjaxSelectSelectedItemsView = AjaxSelectSuggestionsView.extend({
-    emptyView: null,
-
-
-    collectionEvents: {
-      'reset': 'toggleVisibility'
-    },
-
-
-    toggleVisibility: function() {
-      this.$el.toggle(this.collection.length > 0);
-    }
-
-  });
-
-
-
-  var AjaxSelectDetailsFilterView = window.SS.DetailsFilterView.extend({
+  var AjaxSelectDetailsFilterView = window.SS.DetailsSelectFilterView.extend({
     template: '#ajaxSelectFilterTemplate',
 
 
+    events: function() {
+      return _.extend({},
+          window.SS.DetailsSelectFilterView.prototype.events.call(this),
+          {
+            'keyup .navigator-filter-search input': 'search'
+          }
+      );
+    },
+
+
     initialize: function() {
-      window.SS.DetailsFilterView.prototype.initialize.apply(this, arguments);
-      this.initSuggestions();
-      this.initSelected();
-    },
+      window.SS.DetailsSelectFilterView.prototype.initialize.apply(this, arguments);
 
-
-    initSuggestions: function() {
-
-    },
-
-
-    initSelected: function() {
-      this.selectedItems = new Backbone.Collection();
-      this.selectedItemsView = new AjaxSelectSelectedItemsView({
-        collection: this.selectedItems,
-        model: this.model,
-        detailsView: this
-      });
-    },
-
-
-    bindSearchEvent: function() {
-      var that = this,
-          keyup = function() { that.search(); };
-
-      this.$('.navigator-filter-search input')
-          .on('keyup', $j.debounce(250, keyup));
     },
 
 
     onRender: function() {
-      this.bindSearchEvent();
-
-      this.suggestionsView.$el.insertAfter(this.$('.navigator-filter-search'));
-      this.suggestions.reset([]);
-
-      this.selectedItemsView.$el.insertAfter(this.$('.navigator-filter-search'));
-      this.selectedItems.reset([]);
-    },
-
-
-    onShow: function() {
-      var that = this,
-          selectedValues = _.map(this.model.get('value') || [], function(d, i) {
-            return {
-              id: d,
-              text: that.model.get('textValue')[i]
-            };
-          });
-
-      this.selectedItems.reset(selectedValues);
-
-      this.$('.navigator-filter-search input').focus();
-    },
-
-
-    onHide: function() {
-      this.$('.navigator-filter-search input').val('');
-      this.suggestions.reset([]);
+      this.resetChoices();
     },
 
 
     search: function() {
+      var that = this;
       this.query = this.$('.navigator-filter-search input').val();
       if (this.query.length > 1) {
-        this.suggestions.fetch({
+        this.options.filterView.choices.fetch({
           data: {
             s: this.query,
             ps: PAGE_SIZE
           },
-          reset: true
+          success: function() {
+            var choices = that.options.filterView.choices.reject(function(item) {
+              return that.options.filterView.selection.findWhere({ id: item.get('id') });
+            });
+            that.options.filterView.choices.reset(choices);
+            that.updateLists();
+          }
         });
       } else {
-        this.suggestions.reset([]);
+        this.resetChoices();
+        this.updateLists();
       }
     },
 
 
-    addSuggestion: function(key, text) {
-      var value = this.model.get('value') || [],
-          textValue = this.model.get('textValue') || [];
-      value.push(key);
-      textValue.push(text);
-
-      this.model.set({
-        value: value,
-        textValue: textValue
-      }, { silent: true });
-
-      this.model.trigger('change:value');
+    resetChoices: function() {
+      this.options.filterView.choices.reset([]);
     },
 
 
-    removeSuggestion: function(key) {
-      var value = this.model.get('value') || [],
-          textValue = this.model.get('textValue') || [],
-          index = _.indexOf(value, key);
-
-      if (index !== -1) {
-        value.splice(index, 1);
-        textValue.splice(index, 1);
-
-        this.model.set({
-          value: value,
-          textValue: textValue
-        }, { silent: true });
-      }
-
-      this.model.trigger('change:value');
+    onShow: function() {
+      this.$('.navigator-filter-search input').focus();
     }
 
   });
 
 
 
-  var AjaxSelectFilterView = window.SS.BaseFilterView.extend({
-
-    initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: AjaxSelectDetailsFilterView
-      });
-    },
-
-
-    renderValue: function() {
-      var value = this.model.get('textValue');
-      return this.isDefaultValue() ? 'All' : value.join(', ');
-    },
-
+  var AjaxSelectFilterView = window.SS.SelectFilterView.extend({
 
     isDefaultValue: function() {
-      var value = this.model.get('value');
-      return !(_.isArray(value) && value.length > 0);
-    }
-
-  });
-
-
-
-  var DetailsProjectFilterView = AjaxSelectDetailsFilterView.extend({
-
-    initialize: function() {
-      AjaxSelectDetailsFilterView.prototype.initialize.apply(this, arguments);
-
-      this.suggestions = new ProjectSuggestions();
-      this.suggestionsView = new AjaxSelectSuggestionsView({
-        collection: this.suggestions,
-        model: this.model,
-        detailsView: this,
-        hideSelected: true
-      });
+      return this.selection.length === 0;
     }
 
   });
@@ -329,74 +141,29 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     initialize: function() {
       window.SS.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: DetailsProjectFilterView
+        detailsView: AjaxSelectDetailsFilterView
       });
+
+      this.selection = new ProjectSuggestions();
+      this.choices = new ProjectSuggestions();
     }
 
   });
 
 
 
-  var DetailsAssigneeFilterView = AjaxSelectDetailsFilterView.extend({
+  var AssigneeDetailsFilterView = AjaxSelectDetailsFilterView.extend({
 
-    initSuggestions: function() {
-      this.suggestions = new UserSuggestions();
-      this.suggestionsView = new AjaxSelectSuggestionsView({
-        collection: this.suggestions,
-        model: this.model,
-        detailsView: this,
-        hideSelected: true
-      });
-    },
-
-
-    isUnassignedSelected: function() {
-      return (this.model.get('value') || []).indexOf('<unassigned>') !== -1;
-    },
-
-
-    onRender: function() {
-      this.bindSearchEvent();
-
-      this.suggestionsView.$el.insertAfter(this.$('.navigator-filter-search'));
-      this.suggestions.reset([{
+    resetChoices: function() {
+      this.options.filterView.choices.reset([{
         id: '<unassigned>',
-        text: 'Unassigned',
-        selected: this.isUnassignedSelected()
-      }]);
-
-      this.selectedItemsView.$el.insertAfter(this.$('.navigator-filter-search'));
-      this.selectedItems.reset([]);
-    },
-
-
-    onHide: function() {
-      this.$('.navigator-filter-search input').val('');
-      this.suggestions.reset([{
-        id: '<unassigned>',
-        text: 'Unassigned',
-        selected: this.isUnassignedSelected()
+        text: 'Unassigned'
       }]);
     },
 
 
-    search: function() {
-      this.query = this.$('.navigator-filter-search input').val();
-      if (this.query.length > 1) {
-        this.suggestions.fetch({
-          data: {
-            s: this.query,
-            ps: PAGE_SIZE
-          },
-          reset: true
-        });
-      } else {
-        this.suggestions.reset([{
-          id: '<unassigned>',
-          text: 'Unassigned',
-          selected: this.isUnassignedSelected()
-        }]);
-      }
+    onShow: function() {
+      this.$('.navigator-filter-search input').focus();
     }
 
   });
@@ -407,24 +174,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     initialize: function() {
       window.SS.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: DetailsAssigneeFilterView
+        detailsView: AssigneeDetailsFilterView
       });
-    }
 
-  });
-
-
-
-  var DetailsReporterFilterView = AjaxSelectDetailsFilterView.extend({
-
-    initSuggestions: function() {
-      this.suggestions = new UserSuggestions();
-      this.suggestionsView = new AjaxSelectSuggestionsView({
-        collection: this.suggestions,
-        model: this.model,
-        detailsView: this,
-        hideSelected: true
-      });
+      this.selection = new UserSuggestions();
+      this.choices = new UserSuggestions();
     }
 
   });
@@ -435,8 +189,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     initialize: function() {
       window.SS.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: DetailsReporterFilterView
+        detailsView: AjaxSelectDetailsFilterView
       });
+
+      this.selection = new UserSuggestions();
+      this.choices = new UserSuggestions();
     }
 
   });
