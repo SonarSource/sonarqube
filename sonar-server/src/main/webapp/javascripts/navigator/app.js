@@ -23,6 +23,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         new window.SS.Filter({
           type: window.SS.FavoriteFilterView,
           enabled: true,
+          optional: false,
           choices: window.SS.favorites
         })]);
     }
@@ -32,7 +33,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         name: 'Project',
         property: 'componentRoots',
         type: window.SS.ProjectFilterView,
-        enabled: true
+        enabled: true,
+        optional: false,
       }),
 
       new window.SS.Filter({
@@ -40,6 +42,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         property: 'severities[]',
         type: window.SS.SelectFilterView,
         enabled: true,
+        optional: false,
         choices: {
           'BLOCKER': 'Blocker',
           'CRITICAL': 'Critical',
@@ -54,6 +57,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         property: 'statuses[]',
         type: window.SS.SelectFilterView,
         enabled: true,
+        optional: false,
         choices: {
           'OPEN': 'Open',
           'CONFIRMED': 'Confirmed',
@@ -68,6 +72,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         property: 'resolutions[]',
         type: window.SS.SelectFilterView,
         enabled: false,
+        optional: true,
         choices: {
           'FALSE-POSITIVE': 'False positive',
           'FIXED': 'Fixed',
@@ -79,14 +84,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         name: 'Assignee',
         property: 'assignees',
         type: window.SS.AssigneeFilterView,
-        enabled: true
+        enabled: true,
+        optional: false
       }),
 
       new window.SS.Filter({
         name: 'Reporter',
         property: 'reporters',
         type: window.SS.ReporterFilterView,
-        enabled: false
+        enabled: false,
+        optional: true
       }),
 
       new window.SS.Filter({
@@ -94,7 +101,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         propertyFrom: 'createdAfter',
         propertyTo: 'createdBefore',
         type: window.SS.DateRangeFilterView,
-        enabled: false
+        enabled: false,
+        optional: true
       })
     ]);
 

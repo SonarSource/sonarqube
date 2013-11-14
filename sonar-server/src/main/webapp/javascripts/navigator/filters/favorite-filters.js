@@ -30,6 +30,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   var FavoriteFilterView = window.SS.SelectFilterView.extend({
     template: '#favoriteFilterTemplate',
+    className: 'navigator-filter navigator-filter-favorite',
 
 
     initialize: function() {

@@ -31,7 +31,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     events: function() {
       return {
-        'click': 'toggleDetails'
+        'click': 'toggleDetails',
+        'click .navigator-filter-disable': 'disable'
       };
     },
 
@@ -71,6 +72,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       this.$el.toggleClass(
           'navigator-filter-disabled',
           !this.model.get('enabled'));
+
+      this.$el.toggleClass(
+          'navigator-filter-optional',
+          this.model.get('optional'));
     },
 
 
@@ -98,7 +103,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     showDetails: function() {
       this.registerShowedDetails();
 
-      var top = this.$el.offset().top + this.$el.outerHeight(),
+      var top = this.$el.offset().top + this.$el.outerHeight() - 1,
           left = this.$el.offset().left;
 
       this.detailsView.$el.css({ top: top, left: left }).addClass('active');
@@ -137,6 +142,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    disable: function() {
+      this.model.set('enabled', false);
+    },
+
+
     serializeData: function() {
       return _.extend({}, this.model.toJSON(), {
         value: this.renderValue(),
@@ -154,7 +164,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     collectionEvents: {
-      'change:value': 'changeFilters'
+      'change:value': 'changeFilters',
+      'change:enabled': 'changeEnabled'
     },
 
 
@@ -174,7 +185,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       Backbone.Marionette.CompositeView.prototype.initialize.apply(this, arguments);
 
       var that = this;
-      $('body').on('click', function() {
+      $j('body').on('click', function() {
         that.hideDetails();
       });
 
@@ -182,6 +193,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       this.moreCriteriaFilter = new window.SS.Filter({
         type: window.SS.MoreCriteriaFilterView,
         enabled: true,
+        optional: false,
         filters: disabledFilters
       });
       this.collection.add(this.moreCriteriaFilter);
@@ -190,6 +202,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     render: function() {
       Backbone.Marionette.CompositeView.prototype.render.apply(this, arguments);
+
+      if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0) {
+        this.$el.addClass('navigator-filter-list-favorite');
+      }
     },
 
 
@@ -205,19 +221,33 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           filterView = filter.view;
 
       filterView.$el.detach().insertBefore(this.$('.navigator-filter-more-criteria'));
-      filter.set('enabled', 'true');
+      filter.set('enabled', true);
+    },
 
-      var disabledFilters = this.collection.where({ enabled: false });
+
+    changeEnabled: function() {
+      var disabledFilters = this.collection
+          .where({ enabled: false })
+          .reject(function(filter) {
+            return filter.get('type') === window.SS.MoreCriteriaFilterView;
+          });
+
       if (disabledFilters.length === 0) {
         this.moreCriteriaFilter.set({ enabled: false }, { silent: true });
+      } else {
+        this.moreCriteriaFilter.set({ enabled: true }, { silent: true });
       }
       this.moreCriteriaFilter.set('filters', disabledFilters);
+
+      this.changeFilters();
     },
 
 
     changeFilters: function() {
-      var query = _.clone(this.options.extra);
-      this.collection.each(function(item) {
+      var query = _.clone(this.options.extra),
+          enabledFilters = this.collection.where({ enabled: true });
+
+      _.each(enabledFilters, function(item) {
         var value = item.get('value');
 
         if (value) {

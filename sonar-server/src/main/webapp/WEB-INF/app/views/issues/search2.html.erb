@@ -21,6 +21,9 @@
 <script id="baseFilterTemplate" type="text/template">
   <div class="navigator-filter-label">{{ name }}</div>
   <div class="navigator-filter-value {[ if (defaultValue) { ]}default{[ } ]}">{{ value }}</div>
+  {[ if (optional) { ]}
+  <div class="navigator-filter-disable">&times;</div>
+  {[ } ]}
 </script>
 
 <script id="detailsFilterTemplate" type="text/template">
@@ -74,7 +77,7 @@
 </script>
 
 <script id="favoriteFilterTemplate" type="text/template">
-  <div class="navigator-filter-favorite"></div>
+  <div class="navigator-filter-favorite-toggle"></div>
 </script>
 
 <script id="detailsFavoriteFilterTemplate" type="text/template">

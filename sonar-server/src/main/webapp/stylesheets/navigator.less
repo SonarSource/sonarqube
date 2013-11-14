@@ -26,6 +26,12 @@
   font-size: 0;
 }
 
+.navigator-filter-list-favorite {
+  position: relative;
+  padding-left: 36px;
+  overflow: hidden;
+}
+
 .navigator-filters-actions {
   display: inline-block;
   vertical-align: middle;
@@ -38,7 +44,9 @@
   vertical-align: top;
   height: @navigatorHeight;
   line-height: @navigatorHeight;
+  margin: -1px 0 0;
   padding: 0 @navigatorFilterPadding;
+  border: 1px solid transparent;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -48,16 +56,17 @@
   }
 
   &.active {
-    position: relative;
-    padding: 0 @navigatorFilterPadding - 1px;
-    border-left: 1px solid #cdcdcd;
-    border-right: 1px solid #cdcdcd;
+    border-color: @darkGrey;
     background: #fff;
   }
 }
 
 .navigator-filter-disabled {
   display: none;
+}
+
+.navigator-filter-optional {
+  padding-right: 0;
 }
 
 .navigator-filter-label {
@@ -85,6 +94,21 @@
   }
 }
 
+.navigator-filter-disable {
+  display: inline-block;
+  vertical-align: middle;
+  .square(20px);
+  line-height: 20px;
+  margin: 0 0 0 5px;
+  font-size: 18px;
+  text-align: center;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background-color: darken(@navigatorHover, 7%);
+  }
+}
+
 .navigator-filter-range-input {
   width: 120px;
 }
@@ -94,7 +118,7 @@
   position: absolute;
   z-index: 1200;
   min-width: 100px;
-  border: 1px solid #cdcdcd;
+  border: 1px solid @darkGrey;
   background: #fff;
   font-size: @baseFontSize;
   transition: opacity 0.3s ease;
@@ -142,12 +166,12 @@
   .line {
     height: 1px;
     margin: 5px 0;
-    background: #cdcdcd;
+    background: @darkGrey;
   }
 }
 
 .navigator-filter-select-list + .navigator-filter-select-list {
-  border-top: 1px solid #cdcdcd;
+  border-top: 1px solid @darkGrey;
 }
 
 .navigator-filter-search {
@@ -156,7 +180,7 @@
   input {
     .size(100%, 26px);
     padding: 0 7px;
-    border: 1px solid #cdcdcd;
+    border: 1px solid @darkGrey;
     .box-sizing(border-box);
   }
 }
@@ -176,6 +200,11 @@
 }
 
 .navigator-filter-favorite {
+  position: absolute;
+  top: 0; left: 0;
+}
+
+.navigator-filter-favorite-toggle {
   .size(16px, @navigatorHeight);
   background: url('../images/star.png') no-repeat center center;
 }

@@ -25,6 +25,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   var MoreCriteriaFilterView = window.SS.SelectFilterView.extend({
     template: '#moreCriteriaFilterTemplate',
+    className: 'navigator-filter navigator-filter-more-criteria',
 
 
     initialize: function() {
