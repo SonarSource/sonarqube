@@ -28,7 +28,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           container = this.$(selector),
           t = _.template($j(this.itemTemplate).html());
 
-      container.empty().toggle(collection.length > 0);
+      container.empty().toggleClass('hidden', collection.length === 0);
       collection.each(function(item) {
         container.append(t(_.extend(
             {
