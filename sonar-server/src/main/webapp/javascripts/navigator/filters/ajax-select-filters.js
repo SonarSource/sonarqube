@@ -131,7 +131,30 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     isDefaultValue: function() {
       return this.selection.length === 0;
-    }
+    },
+
+
+    restore: function(value) {
+      if (this.choices && this.selection && value) {
+        var that = this;
+        this.selection.reset([]);
+
+        var requests = _.map(value, function(v) {
+          return that.createRequest(v);
+        });
+
+        $j.when.apply($j, requests).done(function () {
+          that.detailsView.updateLists();
+          that.model.set({
+            value: value,
+            enabled: true
+          });
+        });
+      }
+    },
+
+
+    createRequest: function() {}
 
   });
 
@@ -146,6 +169,23 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new ProjectSuggestions();
       this.choices = new ProjectSuggestions();
+    },
+
+
+    createRequest: function(v) {
+      var that = this;
+      return $j
+          .ajax({
+            url: baseUrl + '/api/resources',
+            type: 'GET',
+            data: { resource: v }
+          })
+          .done(function (r) {
+            that.selection.add(new Backbone.Model({
+              id: r[0].key,
+              text: r[0].name
+            }));
+          });
     }
 
   });
@@ -179,6 +219,23 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new UserSuggestions();
       this.choices = new UserSuggestions();
+    },
+
+
+    createRequest: function(v) {
+      var that = this;
+      return $j
+          .ajax({
+            url: baseUrl + '/api/users/search',
+            type: 'GET',
+            data: { logins: v }
+          })
+          .done(function (r) {
+            that.selection.add(new Backbone.Model({
+              id: r.users[0].login,
+              text: r.users[0].name + ' (' + r.users[0].login + ')'
+            }));
+          });
     }
 
   });
@@ -194,6 +251,23 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new UserSuggestions();
       this.choices = new UserSuggestions();
+    },
+
+
+    createRequest: function(v) {
+      var that = this;
+      return $j
+          .ajax({
+            url: baseUrl + '/api/users/search',
+            type: 'GET',
+            data: { logins: v }
+          })
+          .done(function (r) {
+            that.selection.add(new Backbone.Model({
+              id: r.users[0].login,
+              text: r.users[0].name + ' (' + r.users[0].login + ')'
+            }));
+          });
     }
 
   });

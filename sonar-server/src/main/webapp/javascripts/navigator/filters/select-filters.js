@@ -118,6 +118,31 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     isDefaultValue: function() {
       return this.selection.length === 0 || this.choices.length === 0;
+    },
+
+
+    restore: function(value) {
+      if (this.choices && this.selection && value) {
+        var that = this;
+        this.choices.add(this.selection.models);
+        this.selection.reset([]);
+
+        _.each(value, function(v) {
+          var cModel = that.choices.findWhere({ id: v });
+
+          if (cModel) {
+            that.selection.add(cModel);
+            that.choices.remove(cModel);
+          }
+        });
+
+        this.detailsView.updateLists();
+
+        this.model.set({
+          value: value,
+          enabled: true
+        });
+      }
     }
 
   });

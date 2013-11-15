@@ -95,7 +95,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     focus: function() {
       this.render();
-      this.showDetails();
+//      this.showDetails();
     },
 
 
@@ -146,7 +146,19 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    disable: function() {
+    restoreFromJSON: function(j) {
+      var value = j[this.model.get('property')];
+      this.restore(value);
+    },
+
+
+    restore: function(value) {
+      this.model.set('value', value);
+    },
+
+
+    disable: function(e) {
+      e.stopPropagation();
       this.model.set('enabled', false);
     },
 
@@ -210,6 +222,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0) {
         this.$el.addClass('navigator-filter-list-favorite');
       }
+
+      var that = this;
+      if (this.options.restoreData) {
+        this.collection.each(function(item) {
+          item.view.restoreFromJSON(that.options.restoreData);
+        });
+      }
     },
 
 
@@ -264,6 +283,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       });
       this.applyQuery($j.param(query, true));
+
+      window.SS.NavigatorApp.router.navigate('filter=' + JSON.stringify(query));
     },
 
 

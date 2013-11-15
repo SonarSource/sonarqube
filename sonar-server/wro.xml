@@ -37,6 +37,7 @@
     <js>/javascripts/navigator/filters/range-filters.js</js>
     <js>/javascripts/navigator/filters/favorite-filters.js</js>
     <js>/javascripts/navigator/filters/more-criteria-filters.js</js>
+    <js>/javascripts/navigator/router.js</js>
     <js>/javascripts/navigator/app.js</js>
 
     <js>/javascripts/application.js</js>
