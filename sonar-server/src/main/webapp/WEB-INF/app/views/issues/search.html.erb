@@ -32,6 +32,12 @@
 
 <script id="filterBarTemplate" type="text/template">
   <form method="get" action="<%= ApplicationController.root_context -%>/issues/search">
+    <% if @filter && @filter.id %>
+      <input type="hidden" name="id" value="<%= h @filter.id.to_s -%>">
+    <% end %>
+    <input type="hidden" name="sort" value="<%= h @issues_query.sort -%>"/>
+    <input type="hidden" name="asc" value="<%= h @issues_query.asc -%>"/>
+
     <div class="navigator-filters-list"></div>
     <button class="navigator-filter-submit">Search</button>
   </form>
@@ -85,7 +91,7 @@
     <li class="line"></li>
     {[ } ]}
     <li class="manage">
-      <label>Manage</label>
+      <label id="manage-favorites">Manage</label>
     </li>
   </ul>
 </script>

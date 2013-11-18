@@ -115,7 +115,14 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       this.selection.each(function(item) {
         var option = $j('<option>')
             .prop('value', item.get('id'))
-            .prop('selected', true);
+            .prop('selected', true)
+            .text(item.get('text'));
+        option.appendTo(input);
+      });
+      this.choices.each(function(item) {
+        var option = $j('<option>')
+            .prop('value', item.get('id'))
+            .text(item.get('text'));
         option.appendTo(input);
       });
       input.appendTo(this.$el);
