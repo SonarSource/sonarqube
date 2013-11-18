@@ -157,12 +157,34 @@ public class FieldDiffs implements Serializable {
     }
 
     @CheckForNull
+    public Long oldValueLong() {
+      return toLong(oldValue);
+    }
+
+    @CheckForNull
     public T newValue() {
       return newValue;
     }
 
+    @CheckForNull
+    public Long newValueLong() {
+      return toLong(newValue);
+    }
+
     void setNewValue(T t) {
       this.newValue = t;
+    }
+
+    @CheckForNull
+    private Long toLong(Serializable value) {
+      if (value != null && !"".equals(value)) {
+        try {
+          return Long.valueOf((String) value);
+        } catch (ClassCastException e) {
+          return (Long) value;
+        }
+      }
+      return null;
     }
 
     @Override

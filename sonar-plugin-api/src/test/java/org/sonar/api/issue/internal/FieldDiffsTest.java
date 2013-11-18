@@ -49,6 +49,24 @@ public class FieldDiffsTest {
   }
 
   @Test
+  public void diff_with_long_values() throws Exception {
+    diffs.setDiff("technicalDebt", 50l, "100");
+
+    FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
+    assertThat(diff.oldValueLong()).isEqualTo(50l);
+    assertThat(diff.newValueLong()).isEqualTo(100l);
+  }
+
+  @Test
+  public void diff_with_empty_long_values() throws Exception {
+    diffs.setDiff("technicalDebt", null, "");
+
+    FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
+    assertThat(diff.oldValueLong()).isNull();
+    assertThat(diff.newValueLong()).isNull();
+  }
+
+  @Test
   public void test_diff_by_key() throws Exception {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("resolution", "OPEN", "FIXED");

@@ -20,7 +20,9 @@
 
 package org.sonar.plugins.core.technicaldebt;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
@@ -42,10 +44,10 @@ import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import javax.annotation.Nullable;
 
-import java.io.Serializable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 /**
  * Decorator that computes the technical debt metric
@@ -85,7 +87,7 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   private void saveMeasures(DecoratorContext context, Collection<Issue> issues) {
     Measure measure = new Measure(CoreMetrics.NEW_TECHNICAL_DEBT);
     for (Period period : timeMachineConfiguration.periods()) {
-      Date periodDate = period.getDate() != null ? DateUtils.addSeconds(period.getDate(), 1) : null;
+      Date periodDate = period.getDate();
       double value = calculateNewTechnicalDebtValue(issues, periodDate);
       Collection<Measure> children = context.getChildrenMeasures(measure.getMetric());
       double sum = MeasureUtils.sumOnVariation(true, period.getIndex(), children) + value;
@@ -98,31 +100,23 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     double value = 0;
     for (Issue issue : issues) {
       WorkDayDuration currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
-      List<FieldDiffs> technicalDebtChangelog = changesOnField(IssueUpdater.TECHNICAL_DEBT, ((DefaultIssue) issue).changes());
-      if (technicalDebtChangelog.isEmpty()) {
-        if (isAfter(issue.creationDate(), periodDate)) {
-          value += technicalDebtConverter.toDays(currentTechnicalDebt);
-        }
+
+      Date periodDatePlusOneSecond = periodDate != null ? DateUtils.addSeconds(periodDate, 1) : null;
+      if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
+        value += technicalDebtConverter.toDays(currentTechnicalDebt);
       } else {
-        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, technicalDebtChangelog, periodDate);
+        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, issue, periodDate);
       }
     }
     return value;
   }
 
-  private double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, List<FieldDiffs> technicalDebtChangelog, Date periodDate) {
+  private double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, Issue issue, Date periodDate) {
     double currentTechnicalDebtValue = technicalDebtConverter.toDays(currentTechnicalDebt);
 
-    // Changelog have to be sorted from oldest to newest to catch oldest value just before the period date
-    Collections.sort(technicalDebtChangelog, new Comparator<FieldDiffs>() {
-      @Override
-      public int compare(FieldDiffs fieldDiffs, FieldDiffs fieldDiffs2) {
-        return fieldDiffs.createdAt().compareTo(fieldDiffs2.createdAt());
-      }
-    });
-    for (FieldDiffs fieldDiffs : technicalDebtChangelog) {
-      if (isAfter(fieldDiffs.createdAt(), periodDate)) {
-        WorkDayDuration pastTechnicalDebt = newValue(IssueUpdater.TECHNICAL_DEBT, fieldDiffs);
+    for (Map.Entry<Date, WorkDayDuration> history : technicalDebtHistory(issue).entrySet()) {
+      if (isAfterOrEqual(history.getKey(), periodDate)) {
+        WorkDayDuration pastTechnicalDebt = history.getValue();
         double pastTechnicalDebtValue = technicalDebtConverter.toDays(pastTechnicalDebt);
         return currentTechnicalDebtValue - pastTechnicalDebtValue;
       }
@@ -130,28 +124,65 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     return 0d;
   }
 
-  private List<FieldDiffs> changesOnField(final String field, Collection<FieldDiffs> fieldDiffs) {
+  private Map<Date, WorkDayDuration> technicalDebtHistory(Issue issue) {
+    Map<Date, WorkDayDuration> technicalDebtHistory = newLinkedHashMap();
+    List<FieldDiffs> technicalDebtChangelog = changesOnField(((DefaultIssue) issue).changes());
+
+    if (!technicalDebtChangelog.isEmpty()) {
+      // Changelog have to be sorted from oldest to newest to catch oldest value just before the period date. Null date should be the latest as this happen
+      // when technical debt has changed since previous analysis.
+      Ordering<FieldDiffs> ordering = Ordering.natural().nullsLast().onResultOf(new Function<FieldDiffs, Date>() {
+        public Date apply(FieldDiffs diff) {
+          return diff.createdAt();
+        }
+      });
+      List<FieldDiffs> technicalDebtChangelogSorted = ordering.immutableSortedCopy(technicalDebtChangelog);
+
+      technicalDebtHistory.put(issue.creationDate(), oldValue(technicalDebtChangelogSorted.iterator().next()));
+      for (FieldDiffs fieldDiffs : technicalDebtChangelogSorted) {
+        technicalDebtHistory.put(fieldDiffs.createdAt(), newValue(fieldDiffs));
+      }
+
+    }
+    return technicalDebtHistory;
+  }
+
+  private List<FieldDiffs> changesOnField(Collection<FieldDiffs> fieldDiffs) {
     List<FieldDiffs> diffs = newArrayList();
     for (FieldDiffs fieldDiff : fieldDiffs) {
-      if (fieldDiff.diffs().containsKey(field)) {
+      if (fieldDiff.diffs().containsKey(IssueUpdater.TECHNICAL_DEBT)) {
         diffs.add(fieldDiff);
       }
     }
     return diffs;
   }
 
-  private WorkDayDuration newValue(final String field, FieldDiffs fieldDiffs) {
+  private WorkDayDuration newValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
-      if (entry.getKey().equals(field)) {
-        Serializable newValue = entry.getValue().newValue();
-        return newValue != null && !"".equals(newValue) ? (WorkDayDuration.fromLong(Long.parseLong((String) newValue))) : null;
+      if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
+        Long newValue = entry.getValue().newValueLong();
+        return newValue != null ? WorkDayDuration.fromLong(newValue) : null;
       }
     }
     return null;
   }
 
-  private boolean isAfter(Date currentDate, @Nullable Date pastDate) {
-    return pastDate == null || (currentDate != null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
+  private WorkDayDuration oldValue(FieldDiffs fieldDiffs) {
+    for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
+      if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
+        Long value = entry.getValue().oldValueLong();
+        return value != null ? WorkDayDuration.fromLong(value) : null;
+      }
+    }
+    return null;
+  }
+
+  private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {
+    return pastDate == null || (currentDate!= null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
+  }
+
+  private boolean isAfterOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
+    return currentDate == null || pastDate == null || (DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) >= 0);
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

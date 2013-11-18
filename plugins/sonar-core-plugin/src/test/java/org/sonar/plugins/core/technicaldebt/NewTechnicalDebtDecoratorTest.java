@@ -116,10 +116,11 @@ public class NewTechnicalDebtDecoratorTest {
   }
 
   @Test
-  public void save_on_one_issue_with_one_changelog() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+  public void save_on_one_issue_with_one_new_changelog() {
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(fourDaysAgo)
+        // changelog created at is null because it has just been created on the current analysis
+        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(null)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -127,16 +128,15 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 3.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 1.0)));
   }
 
   @Test
   public void save_on_one_issue_with_changelog() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(rightNow),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(fourDaysAgo),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(null),
+        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(fourDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -149,9 +149,9 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_with_changelog_having_null_value() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(null),
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), null).setCreatedAt(fourDaysAgo),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
       )
@@ -161,16 +161,16 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 4.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 5.0)));
   }
 
   @Test
   public void save_on_one_issue_with_changelog_and_periods_have_no_dates() {
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
 
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(null),
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), null).setCreatedAt(fourDaysAgo),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
       )
@@ -180,12 +180,12 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 4.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 5.0)));
   }
 
   @Test
   public void save_on_one_issue_with_changelog_having_not_only_technical_debt_changes() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs()
           .setDiff("actionPlan", "1.0", "1.1").setCreatedAt(fourDaysAgo)
@@ -197,19 +197,19 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 3.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 4.0)));
   }
 
   @Test
   public void save_on_issues_with_changelog() {
-    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(rightNow),
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(fourDaysAgo),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
       )
     );
-    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
+    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(tenDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(rightNow),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
@@ -220,7 +220,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 5.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 7.0)));
   }
 
   @Test
@@ -277,14 +277,14 @@ public class NewTechnicalDebtDecoratorTest {
   @Test
   public void save_on_issues_with_changelog_and_issues_without_changelog() {
     // issue1 and issue2 have changelog
-    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(fiveDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
+    Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreatedAt(rightNow),
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(fourDaysAgo),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
       )
     );
-    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(fiveDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
+    Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(tenDaysAgo).setTechnicalDebt(twoDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreatedAt(rightNow),
         new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreatedAt(nineDaysAgo)
@@ -299,7 +299,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 12.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0, 14.0)));
   }
 
   @Test
@@ -315,8 +315,8 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.NEW_TECHNICAL_DEBT)));
   }
 
-  private String fromWorkDayDuration(WorkDayDuration workDayDuration){
-    return Long.toString(workDayDuration.toLong());
+  private Long fromWorkDayDuration(WorkDayDuration workDayDuration){
+    return workDayDuration.toLong();
   }
 
 
