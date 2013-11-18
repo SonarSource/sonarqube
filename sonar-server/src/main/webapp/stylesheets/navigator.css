@@ -18,6 +18,10 @@
   vertical-align: middle;
   font-size: 0;
 }
+.navigator-filter-submit {
+  margin-left: 15px;
+  font-size: 13px;
+}
 .navigator-filter-list-favorite {
   position: relative;
   padding-left: 36px;

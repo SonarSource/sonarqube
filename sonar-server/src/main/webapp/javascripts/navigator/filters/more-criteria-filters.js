@@ -40,6 +40,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    renderInput: function() {},
+
+
     isDefaultValue: function() {
       return false;
     }

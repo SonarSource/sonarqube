@@ -134,8 +134,19 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    renderInput: function() {
+      var value = this.model.get('value') || [],
+          input = $j('<input>')
+          .prop('name', this.model.get('property'))
+          .prop('type', 'hidden')
+          .css('display', 'none')
+          .val(value.join());
+      input.appendTo(this.$el);
+    },
+
+
     restore: function(value) {
-      if (this.choices && this.selection && value) {
+      if (this.choices && this.selection && value.length > 0) {
         var that = this;
         this.selection.reset([]);
 
@@ -219,6 +230,36 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new UserSuggestions();
       this.choices = new UserSuggestions();
+    },
+
+
+    restore: function(value) {
+      if (this.choices && this.selection && value.length > 0) {
+        var that = this;
+        this.selection.reset([]);
+
+        if (_.indexOf(value, '<unassigned>') !== -1) {
+          this.selection.add(new Backbone.Model({
+            id: '<unassigned>',
+            text: 'Unassigned'
+          }));
+          this.choices.reset([]);
+          value = _.reject(value, function(k) { return k === '<unassigned>'; });
+        }
+
+
+        var requests = _.map(value, function(v) {
+          return that.createRequest(v);
+        });
+
+        $j.when.apply($j, requests).done(function () {
+          that.detailsView.updateLists();
+          that.model.set({
+            value: value,
+            enabled: true
+          });
+        });
+      }
     },
 
 

@@ -54,29 +54,6 @@ class IssuesController < ApplicationController
     end
   end
 
-  # GET /issues/search2
-  def search2
-    @issues_query_params = criteria_params
-    @first_search = issues_query_params_sanitized.empty?
-    @unchanged = issues_query_params_sanitized.empty?
-
-    init_params
-    if params[:id]
-      @filter = find_filter(params[:id].to_i)
-      @first_search = false
-      issue_filter_result = Internal.issues.execute(params[:id].to_i, @issues_query_params)
-    else
-      issue_filter_result = Internal.issues.execute(@issues_query_params)
-    end
-    @issues_query = issue_filter_result.query
-    @issues_result = issue_filter_result.result
-
-    if request.xhr?
-      @ajax_mode = true
-      render :partial => 'search_ajax'
-    end
-  end
-
   # Load existing filter
   # GET /issues/filter/<filter id>
   def filter

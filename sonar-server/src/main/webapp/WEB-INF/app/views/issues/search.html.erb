@@ -1,12 +1,10 @@
-<div xmlns="http://www.w3.org/1999/html">
-  <div id="issue-filter-sidebar" class="page-split-left">
-    <%= render :partial => 'issues/sidebar' -%>
-  </div>
+<div class="navigator">
 
-  <div class="page-split-right">
-    <div id="content">
-      <%= render :partial => 'search' -%>
-    </div>
+  <div class="navigator-filters"></div>
+
+
+  <div class="navigator-results">
+    <%= render :partial => 'search' -%>
   </div>
 </div>
 
@@ -16,4 +14,120 @@
     delete issues_query_params.pageIndex;
     window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
   }
+</script>
+
+<script id="baseFilterTemplate" type="text/template">
+  <div class="navigator-filter-label">{{ name }}</div>
+  <div class="navigator-filter-value {[ if (defaultValue) { ]}default{[ } ]}">{{ value }}</div>
+  {[ if (optional) { ]}
+  <div class="navigator-filter-disable">&times;</div>
+  {[ } ]}
+</script>
+
+<script id="detailsFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    No details
+  </div>
+</script>
+
+<script id="filterBarTemplate" type="text/template">
+  <form method="get" action="<%= ApplicationController.root_context -%>/issues/search">
+    <div class="navigator-filters-list"></div>
+    <button class="navigator-filter-submit">Search</button>
+  </form>
+</script>
+
+<script id="selectFilterItemTemplate" type="text/template">
+  <li>
+    <label>
+      <input type="checkbox" value="{{ item.id }}"
+      {[ if (checked) { ]}checked{[ } ]}>
+      <span>{{ item.text }}</span>
+    </label>
+  </li>
+</script>
+
+<script id="selectFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
+</script>
+
+<script id="ajaxSelectFilterTemplate" type="text/template">
+  <div class="navigator-filter-search">
+    <input type="text">
+  </div>
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
+</script>
+
+<script id="rangeFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyFrom }}">
+    <label>to</label>
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyTo }}">
+  </div>
+</script>
+
+<script id="favoriteFilterTemplate" type="text/template">
+  <div class="navigator-filter-favorite-toggle"></div>
+</script>
+
+<script id="detailsFavoriteFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ if (_.keys(choices).length > 0) { ]}
+    {[ _.each(choices, function(value, key) { ]}
+    <li>
+      <label data-id="{{ key }}">{{ value }}</label>
+    </li>
+    {[ }); ]}
+    <li class="line"></li>
+    {[ } ]}
+    <li class="manage">
+      <label>Manage</label>
+    </li>
+  </ul>
+</script>
+
+<script id="moreCriteriaFilterTemplate" type="text/template">
+  <strong>+</strong> More Criteria
+</script>
+
+<script id="detailsMoreCriteriaFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ _.each(filters, function(filter) { ]}
+    <li>
+      <label data-id="{{ filter.cid }}">{[ print(filter.get('name')); ]}</label>
+    </li>
+    {[ }); ]}
+  </ul>
+</script>
+
+<script>
+  _.templateSettings = {
+    interpolate: /\{\{(.+?)\}\}/g,
+    evaluate: /\{\[(.+?)\]\}/g
+  };
+
+  _.extend(window.SS, {
+    severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
+    statuses: <%= @options_for_statuses.to_json.html_safe -%>,
+    resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,
+    favorites: <%= render :partial => 'issues/filter_favourites2' -%>
+  });
+
+  var queryParams = [
+    { key: 'componentRoots', value: <%= @issues_query.componentRoots.to_json %> },
+    { key: 'severities[]', value: <%= @issues_query.severities.to_json %> },
+    { key: 'statuses[]', value: <%= @issues_query.statuses.to_json %> },
+    { key: 'resolutions[]', value: <%= @issues_query.resolutions.to_json %> },
+    { key: 'assignees', value: <%= @issues_query.assignees.to_json %> },
+    { key: 'reporters', value: <%= @issues_query.reporters.to_json %> },
+    { key: 'createdAfter', value: '<%= Api::Utils.format_date(@issues_query.createdAfter) %>' },
+    { key: 'createdBefore', value: '<%= Api::Utils.format_date(@issues_query.createdBefore) %>' }
+  ];
+
+  window.SS.NavigatorApp.start();
+  window.SS.NavigatorApp.filterBarView.restoreFromQuery(queryParams);
 </script>

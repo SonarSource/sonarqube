@@ -1,4 +1,4 @@
-/* global _:false, $j:false, Backbone:false, baseUrl:false */
+/* global _:false, $j:false, Backbone:false */
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
@@ -90,7 +90,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     renderBase: function() {
       Backbone.Marionette.ItemView.prototype.render.apply(this, arguments);
+      if (this.model.get('enabled')) {
+        this.renderInput();
+      }
     },
+
+
+    renderInput: function() {},
 
 
     focus: function() {
@@ -146,9 +152,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    restoreFromJSON: function(j) {
-      var value = j[this.model.get('property')];
-      this.restore(value);
+    restoreFromQuery: function(q) {
+      var param = _.findWhere(q, { key: this.model.get('property') });
+      if (param && param.value) {
+        this.restore(param.value);
+      }
     },
 
 
@@ -180,7 +188,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     collectionEvents: {
-      'change:value': 'changeFilters',
       'change:enabled': 'changeEnabled'
     },
 
@@ -222,13 +229,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0) {
         this.$el.addClass('navigator-filter-list-favorite');
       }
+    },
 
-      var that = this;
-      if (this.options.restoreData) {
-        this.collection.each(function(item) {
-          item.view.restoreFromJSON(that.options.restoreData);
-        });
-      }
+
+    restoreFromQuery: function(q) {
+      this.collection.each(function(item) {
+        item.view.restoreFromQuery(q);
+      });
     },
 
 
@@ -261,41 +268,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         this.moreCriteriaFilter.set({ enabled: true }, { silent: true });
       }
       this.moreCriteriaFilter.set('filters', disabledFilters);
-
-      this.changeFilters();
-    },
-
-
-    changeFilters: function() {
-      var query = _.clone(this.options.extra),
-          enabledFilters = this.collection.where({ enabled: true });
-
-      _.each(enabledFilters, function(item) {
-        var value = item.get('value');
-
-        if (value) {
-          if (_.isObject(value) && !_.isArray(value)) {
-            _.extend(query, value);
-          } else {
-            query[item.get('property')] = item.get('value');
-          }
-        }
-
-      });
-      this.applyQuery($j.param(query, true));
-
-      window.SS.NavigatorApp.router.navigate('filter=' + JSON.stringify(query));
-    },
-
-
-    applyQuery: function(query) {
-      $j.ajax({
-        url: baseUrl + '/issues/search',
-        type: 'get',
-        data: query
-      }).done(function(r) {
-            $j('.navigator-results').html(r);
-          });
     }
   });
 

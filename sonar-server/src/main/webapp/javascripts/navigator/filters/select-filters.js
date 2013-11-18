@@ -1,4 +1,4 @@
-/* global _:false, $j:false, Backbone:false, baseUrl:false */
+/* global _:false, $j:false, Backbone:false */
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
@@ -107,6 +107,21 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    renderInput: function() {
+      var input = $j('<select>')
+          .prop('name', this.model.get('property'))
+          .prop('multiple', true)
+          .css('display', 'none');
+      this.selection.each(function(item) {
+        var option = $j('<option>')
+            .prop('value', item.get('id'))
+            .prop('selected', true);
+        option.appendTo(input);
+      });
+      input.appendTo(this.$el);
+    },
+
+
     renderValue: function() {
       var value = this.selection.map(function(item) {
             return item.get('text');
@@ -122,7 +137,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     restore: function(value) {
-      if (this.choices && this.selection && value) {
+      if (this.choices && this.selection && value.length > 0) {
         var that = this;
         this.choices.add(this.selection.models);
         this.selection.reset([]);
