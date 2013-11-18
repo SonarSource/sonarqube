@@ -39,6 +39,16 @@ class Rule < ActiveRecord::Base
   has_one :rule_note, :inverse_of => :rule
   alias_attribute :note, :rule_note
 
+=begin TODO Uncomment these lines to make rule read-only when Rule facade is complete
+  def read_only?
+    true
+  end
+
+  def before_destroy
+    raise ActiveRecord::ReadOnlyRecord
+  end
+=end
+
   def repository_key
     plugin_name
   end
@@ -269,15 +279,20 @@ class Rule < ActiveRecord::Base
 
 
   # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
-  def self.search(java_facade, options={})
+  def self.search(options={})
     conditions = []
     values = {}
 
-    # For retro compatibility for the Sqale plugin
-    unless options[:plugins].blank?
-      options[:repositories] = options[:plugins]
+    # First, perform search with rule-specific criteria
+    java_hash = {}
+    options.each do |key, value|
+      java_hash[key.to_s] = Array(value).join("|")
     end
+    params = java.util.HashMap.new(java_hash)
+    conditions << "id IN (:ids)"
+    values[:ids] = Array(Internal.rules.findIds(params))
 
+=begin TODO Correctly handle status != STATUS_REMOVED
     status = options[:status]
     if status.blank?
       conditions << ['status <> :status']
@@ -292,31 +307,7 @@ class Rule < ActiveRecord::Base
       conditions << "status IN (:status)"
       values[:status] = options[:status]
     end
-
-    unless options[:language].blank?
-      conditions << ['language = :language']
-      values[:language] = options[:language]
-    end
-
-    if remove_blank(options[:repositories])
-      conditions << "plugin_name IN (:plugin_names)"
-      values[:plugin_names] = options[:repositories]
-    end
-
-    unless options[:searchtext].blank?
-      searchtext = options[:searchtext].to_s.strip
-      search_text_conditions='(UPPER(rules.name) LIKE :searchtext OR plugin_rule_key = :key'
-
-      additional_keys=java_facade.searchRuleName(I18n.locale, searchtext)
-      additional_keys.each do |java_rule_key|
-        search_text_conditions<<" OR (plugin_name='#{java_rule_key.getRepositoryKey()}' AND plugin_rule_key='#{java_rule_key.getKey()}')"
-      end
-
-      search_text_conditions<<')'
-      conditions << search_text_conditions
-      values[:searchtext] = "%" << searchtext.clone.upcase << "%"
-      values[:key] = searchtext
-    end
+=end
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
     rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])

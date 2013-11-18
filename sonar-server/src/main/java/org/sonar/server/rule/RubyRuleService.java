@@ -39,6 +39,9 @@ public class RubyRuleService implements ServerComponent, Startable {
   private final RuleI18nManager i18n;
   private final RuleRegistry ruleRegistry;
 
+  private static final String OPTIONS_STATUS = "status";
+  private static final String OPTIONS_LANGUAGE = "language";
+
   public RubyRuleService(RuleI18nManager i18n, RuleRegistry ruleRegistry) {
     this.i18n = i18n;
     this.ruleRegistry = ruleRegistry;
@@ -61,18 +64,17 @@ public class RubyRuleService implements ServerComponent, Startable {
     return desc;
   }
 
-  public Integer[] findIds(Map options) {
+  public Integer[] findIds(Map<String, String> options) {
     Map<String, String> params = Maps.newHashMap();
-    translateNonBlankKey(options, params, "status", "status");
-    //translateNonNullKey(options, params, "plugins", "repositoryKey");
-    //translateNonNullKey(options, params, "repositories", "repositoryKey");
-    translateNonBlankKey(options, params, "language", "language");
+    translateNonBlankKey(options, params, OPTIONS_STATUS, OPTIONS_STATUS);
+    translateNonBlankKey(options, params, "repositories", "repositoryKey");
+    translateNonBlankKey(options, params, OPTIONS_LANGUAGE, OPTIONS_LANGUAGE);
     translateNonBlankKey(options, params, "searchtext", "nameOrKey");
     return ruleRegistry.findIds(params).toArray(new Integer[0]);
   }
 
-  private static void translateNonBlankKey(Map options, Map<String, String> params, String optionKey, String paramKey) {
-    if(StringUtils.isNotBlank("" + options.get(optionKey))) {
+  private static void translateNonBlankKey(Map<String, String> options, Map<String, String> params, String optionKey, String paramKey) {
+    if(options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
       params.put(paramKey, options.get(optionKey).toString());
     }
   }
@@ -84,5 +86,6 @@ public class RubyRuleService implements ServerComponent, Startable {
 
   @Override
   public void stop() {
+    // implement startable
   }
 }

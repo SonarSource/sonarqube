@@ -19,22 +19,21 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.facet.FacetBuilders;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.elasticsearch.index.query.FilterBuilders.matchAllFilter;
-import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 
 /**
  * This class can be used to build "AND" form queries, eventually with query facets, to be passed to {@link SearchIndex#findHits(SearchQuery)}
@@ -55,14 +54,14 @@ public class SearchQuery {
   private String searchString;
   private List<String> indices;
   private List<String> types;
-  private Map<String, String> fieldCriteria;
+  private Multimap<String, String> fieldCriteria;
   private Map<String, String> termFacets;
 
   private SearchQuery() {
     scrollSize = 10;
     indices = Lists.newArrayList();
     types = Lists.newArrayList();
-    fieldCriteria = Maps.newLinkedHashMap();
+    fieldCriteria = ArrayListMultimap.create();
     termFacets = Maps.newHashMap();
   }
 
@@ -94,13 +93,13 @@ public class SearchQuery {
     return this;
   }
 
-  public SearchQuery field(String fieldName, String fieldValue) {
-    fieldCriteria.put(fieldName, fieldValue);
+  public SearchQuery field(String fieldName, String... fieldValues) {
+    fieldCriteria.putAll(fieldName, Lists.newArrayList(fieldValues));
     return this;
   }
 
   public SearchQuery facet(String facetName, String fieldName) {
-    fieldCriteria.put(facetName, fieldName);
+    termFacets.put(facetName, fieldName);
     return this;
   }
 
@@ -118,7 +117,11 @@ public class SearchQuery {
       filters.add(queryFilter(QueryBuilders.queryString(searchString)));
     }
     for (String field: fieldCriteria.keySet()) {
-      filters.add(termFilter(field, fieldCriteria.get(field)));
+      if (fieldCriteria.get(field).size() > 1) {
+        filters.add(termsFilter(field, fieldCriteria.get(field)));
+      } else {
+        filters.add(termFilter(field, fieldCriteria.get(field)));
+      }
     }
 
     if (filters.isEmpty()) {
@@ -126,7 +129,7 @@ public class SearchQuery {
     } else if(filters.size() == 1) {
       builder.setFilter(filters.get(0));
     } else {
-      builder.setFilter(FilterBuilders.andFilter(filters.toArray(new FilterBuilder[0])));
+      builder.setFilter(andFilter(filters.toArray(new FilterBuilder[0])));
     }
     return addFacets(builder);
   }

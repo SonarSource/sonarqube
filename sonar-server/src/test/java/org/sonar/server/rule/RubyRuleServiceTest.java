@@ -19,15 +19,19 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Locale;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RubyRuleServiceTest {
@@ -74,6 +78,29 @@ public class RubyRuleServiceTest {
     rule.setDescription("Cycles are evil");
     String desc = facade.ruleL10nDescription(rule);
     assertThat(desc).isEqualTo("Cycles are evil");
+  }
+
+  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void should_translate_arguments_ind_find_ids() {
+    Map<String, String> options = Maps.newHashMap();
+    String status = " ";
+    String repositories = "repo1|repo2";
+    String searchText = "search text";
+
+    options.put("status", status);
+    options.put("repositories", repositories);
+    // language not specified to cover blank option case
+    options.put("searchtext", searchText );
+
+    facade.findIds(options);
+    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+    verify(ruleRegistry).findIds(captor.capture());
+    Map<String, String> params = (Map<String, String>) captor.getValue();
+    assertThat(params.get("status")).isNull();
+    assertThat(params.get("repositoryKey")).isEqualTo(repositories);
+    assertThat(params.get("language")).isNull();
+    assertThat(params.get("nameOrKey")).isEqualTo(searchText);
   }
 
   @Test

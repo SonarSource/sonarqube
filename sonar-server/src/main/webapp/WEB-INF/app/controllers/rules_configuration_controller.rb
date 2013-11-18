@@ -48,18 +48,18 @@ class RulesConfigurationController < ApplicationController
                       [message('rules.status.ready'), Rule::STATUS_READY]]
     @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
 
-    @rules = Rule.search(java_facade, {
+    @rules = Rule.search({
         :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
         :repositories => @repositories, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
 
     unless @searchtext.blank?
       if @activation==STATUS_ACTIVE
-        @hidden_inactives = Rule.search(java_facade, {
+        @hidden_inactives = Rule.search({
             :profile => @profile, :activation => STATUS_INACTIVE, :priorities => @priorities, :status => @status,
             :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
 
       elsif @activation==STATUS_INACTIVE
-        @hidden_actives = Rule.search(java_facade, {
+        @hidden_actives = Rule.search({
             :profile => @profile, :activation => STATUS_ACTIVE, :priorities => @priorities, :status => @status,
             :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
       end

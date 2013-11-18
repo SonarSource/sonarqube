@@ -44,6 +44,10 @@ import java.util.Map;
  */
 public class RuleRegistry {
 
+  /**
+   *
+   */
+  private static final String PARAM_NAMEORKEY = "nameOrKey";
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";
 
@@ -103,7 +107,14 @@ public class RuleRegistry {
   }
 
   /**
-   * @param create
+   * <p>Find rule IDs matching the given criteria.</p>
+   * @param query <p>A collection of (optional) criteria with the following meaning:
+   * <ul>
+   *  <li><em>nameOrKey</em>: will be used as a query string over the "name" field</li>
+   *  <li><em>&lt;anyField&gt;</em>: will be used to match the given field against the passed value(s);
+   *  mutiple values must be separated by the '<code>|</code>' (vertical bar) character</li>
+   * </ul>
+   * </p>
    * @return
    */
   public List<Integer> findIds(Map<String, String> query) {
@@ -112,12 +123,12 @@ public class RuleRegistry {
     SearchQuery searchQuery = SearchQuery.create();
     searchQuery.index(INDEX_RULES).type(TYPE_RULE).scrollSize(500);
 
-    if (params.containsKey("nameOrKey")) {
-      searchQuery.searchString(query.get("nameOrKey"));
-      params.remove("nameOrKey");
+    if (params.containsKey(PARAM_NAMEORKEY)) {
+      searchQuery.searchString(params.remove(PARAM_NAMEORKEY));
     }
-    for(String key: params.keySet()) {
-      searchQuery.field(key, params.get(key));
+
+    for(Map.Entry<String, String> param: params.entrySet()) {
+      searchQuery.field(param.getKey(), param.getValue().split("\\|"));
     }
 
     List<Integer> result = Lists.newArrayList();

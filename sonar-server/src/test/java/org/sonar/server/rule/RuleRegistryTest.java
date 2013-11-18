@@ -109,4 +109,9 @@ public class RuleRegistryTest {
 
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters", "repositoryKey", "xoo"))).containsOnly(1);
   }
+
+  @Test
+  public void should_filter_on_multiple_values() {
+    assertThat(registry.findIds(ImmutableMap.of("key", "RuleWithParameters|OneIssuePerLine"))).hasSize(2);
+  }
 }

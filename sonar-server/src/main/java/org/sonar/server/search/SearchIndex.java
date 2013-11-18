@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -91,9 +92,11 @@ public class SearchIndex {
 
   public void addMappingFromClasspath(String index, String type, String resourcePath) {
     try {
-      addMapping(index, type, IOUtils.toString(getClass().getResource(resourcePath)));
-    } catch(NullPointerException nonExisting) {
-      throw new IllegalArgumentException("Could not load unexisting file at " + resourcePath, nonExisting);
+      URL resource = getClass().getResource(resourcePath);
+      if (resource == null) {
+        throw new IllegalArgumentException("Could not load unexisting file at " + resourcePath);
+      }
+      addMapping(index, type, IOUtils.toString(resource));
     } catch(IOException ioException) {
       throw new IllegalArgumentException("Problem loading file at " + resourcePath, ioException);
     }
@@ -126,14 +129,14 @@ public class SearchIndex {
             .setSize(searchQuery.scrollSize()).execute().actionGet();
     //Scroll until no hits are returned
     while (true) {
-        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();
-        for (SearchHit hit : scrollResp.getHits()) {
-            result.add(hit.getId());
-        }
-        //Break condition: No hits are returned
-        if (scrollResp.getHits().getHits().length == 0) {
-            break;
-        }
+      scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();
+      for (SearchHit hit : scrollResp.getHits()) {
+        result.add(hit.getId());
+      }
+      //Break condition: No hits are returned
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
     }
 
     return result;

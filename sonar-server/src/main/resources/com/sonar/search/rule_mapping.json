@@ -20,7 +20,8 @@
         "type": "string"
       },
       "description": {
-        "type": "string"
+        "type": "string",
+        "index": "no"
       },
       "parentKey": {
         "type": "string",
