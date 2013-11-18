@@ -34,7 +34,7 @@ class Api::RulesController < Api::RestController
     options[:searchtext]=params[:searchtext]
     options[:include_parameters_and_notes]=true
     options[:inheritance]=params[:inheritance]
-    
+
 
     if params[:profile]
       profile = Profile.find_by_name_and_language(params[:profile], language)
@@ -42,7 +42,7 @@ class Api::RulesController < Api::RestController
         rest_render([])
       else
         options[:profile]=profile
-        rules = Rule.search(java_facade, options)
+        rules = Rule.search(options)
         rest_render(rules, profile)
       end
     else
@@ -50,7 +50,7 @@ class Api::RulesController < Api::RestController
       rest_render(rules)
     end
   end
-  
+
   def set_backward_compatibility_params
     params[:plugins]=params[:plugin] if params[:plugin]
     params[:priorities]=params[:levels] if params[:levels]
