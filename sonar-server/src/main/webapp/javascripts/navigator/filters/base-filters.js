@@ -90,9 +90,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     renderBase: function() {
       Backbone.Marionette.ItemView.prototype.render.apply(this, arguments);
-      if (this.model.get('enabled')) {
-        this.renderInput();
-      }
+      this.renderInput();
     },
 
 

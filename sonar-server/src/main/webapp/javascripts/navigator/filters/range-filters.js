@@ -71,23 +71,19 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           valueFrom = _.isObject(value) && value[propertyFrom],
           valueTo = _.isObject(value) && value[propertyTo];
 
-      if (valueFrom) {
-        $j('<input>')
-            .prop('name', propertyFrom)
-            .prop('type', 'hidden')
-            .css('display', 'none')
-            .val(valueFrom)
-            .appendTo(this.$el);
-      }
+      $j('<input>')
+          .prop('name', propertyFrom)
+          .prop('type', 'hidden')
+          .css('display', 'none')
+          .val(valueFrom || '')
+          .appendTo(this.$el);
 
-      if (valueTo) {
-        $j('<input>')
-            .prop('name', propertyTo)
-            .prop('type', 'hidden')
-            .css('display', 'none')
-            .val(valueTo)
-            .appendTo(this.$el);
-      }
+      $j('<input>')
+          .prop('name', propertyTo)
+          .prop('type', 'hidden')
+          .css('display', 'none')
+          .val(valueTo || '')
+          .appendTo(this.$el);
     },
 
 

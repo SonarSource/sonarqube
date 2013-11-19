@@ -18,7 +18,9 @@
   vertical-align: middle;
   font-size: 0;
 }
-.navigator-filter-submit {
+.navigator-filter-submit,
+.navigator-filter-new-search {
+  vertical-align: middle;
   margin-left: 15px;
   font-size: 13px;
 }

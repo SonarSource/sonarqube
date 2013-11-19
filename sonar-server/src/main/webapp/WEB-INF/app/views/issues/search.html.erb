@@ -39,7 +39,8 @@
     <input type="hidden" name="asc" value="<%= h @issues_query.asc -%>"/>
 
     <div class="navigator-filters-list"></div>
-    <button class="navigator-filter-submit">Search</button>
+    <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
+    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/issues"><%= message 'issue_filter.new_search' -%></a>
   </form>
 </script>
 
