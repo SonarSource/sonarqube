@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.qualitymodel.Characteristic;
+import org.sonar.api.qualitymodel.CharacteristicProperty;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
@@ -124,8 +125,11 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     fillRule(characteristic, ruleRepositoryKey, ruleKey, messages, technicalDebtRuleCache);
 
     if (StringUtils.isNotBlank(characteristic.getKey()) || characteristic.getRule() != null) {
-      addCharacteristicToModel(model, characteristic, children);
-      return characteristic;
+      Characteristic convertedCharacteristic = processDeprecatedFunctionsOnRequirement(characteristic, messages);
+      if (convertedCharacteristic != null) {
+        addCharacteristicToModel(model, characteristic, children);
+        return characteristic;
+      }
     }
     return null;
   }
@@ -150,6 +154,27 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         characteristic.addChild(child);
       }
     }
+  }
+
+  private Characteristic processDeprecatedFunctionsOnRequirement(Characteristic characteristic, ValidationMessages messages) {
+    CharacteristicProperty function = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION);
+    if (function != null) {
+      if ("linear_threshold".equals(function.getTextValue())) {
+        function.setTextValue(TechnicalDebtRequirement.FUNCTION_LINEAR);
+        CharacteristicProperty offset = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET);
+        offset.setValue(0d);
+
+        String message = String.format("Linear with threshold function is no more used, the function of the requirement '%s' is replaced by linear.", characteristic.getRule());
+        LOG.warn(message);
+        messages.addWarningText(message);
+      } else if ("constant_resource".equals(function.getTextValue())) {
+        String message = String.format("Constant / file function is no more used, requirement '%s' is ignore.", characteristic.getRule());
+        LOG.warn(message);
+        messages.addWarningText(message);
+        return null;
+      }
+    }
+    return characteristic;
   }
 
   private void processProperty(Characteristic characteristic, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {

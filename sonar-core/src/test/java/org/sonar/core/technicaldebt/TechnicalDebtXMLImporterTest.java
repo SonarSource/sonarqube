@@ -22,7 +22,6 @@ package org.sonar.core.technicaldebt;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import org.fest.assertions.Assertions;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -35,18 +34,62 @@ import org.sonar.api.utils.ValidationMessages;
 
 import java.io.IOException;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class TechnicalDebtXMLImporterTest {
 
   @Test
-  public void shouldImportXML() {
+  public void import_xml_with_linear_function() {
     TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
 
-    String xml = getFileContent("shouldImportXML.xml");
+    String xml = getFileContent("shouldImportXML_with_linear.xml");
 
     ValidationMessages messages = ValidationMessages.create();
     Model sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
 
     checkXmlCorrectlyImported(sqale, messages);
+  }
+
+  @Test
+  public void import_xml_with_linear_with_offset() {
+    TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
+
+    String xml = getFileContent("shouldImportXML_with_linear_with_offset.xml");
+
+    ValidationMessages messages = ValidationMessages.create();
+    Model sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
+
+    checkXmlCorrectlyImported(sqale, 1.0, messages);
+  }
+
+  @Test
+  public void convert_deprecated_linear_with_threshold_function_by_linear_function() {
+    TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
+
+    String xml = getFileContent("shouldImportXML_with_deprecated_linear_with_threshold.xml");
+
+    ValidationMessages messages = ValidationMessages.create();
+    Model sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
+
+    checkXmlCorrectlyImported(sqale, 0.0, messages);
+    assertThat(messages.getWarnings()).hasSize(1);
+  }
+
+  @Test
+  public void ignore_deprecated_constant_per_file_function() {
+    TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
+
+    String xml = getFileContent("shouldImportXML_with_deprecated_constant_per_file.xml");
+
+    ValidationMessages messages = ValidationMessages.create();
+    Model sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
+
+    assertThat(messages.getWarnings()).hasSize(1);
+
+    // characteristics
+    assertThat(sqale.getRootCharacteristics()).hasSize(1);
+    Characteristic efficiency = sqale.getCharacteristicByKey("EFFICIENCY");
+    assertThat(efficiency.getChildren()).isEmpty();
   }
 
   @Test
@@ -68,13 +111,13 @@ public class TechnicalDebtXMLImporterTest {
 
     Model sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
 
-    Assertions.assertThat(messages.getWarnings()).hasSize(1);
+    assertThat(messages.getWarnings()).hasSize(1);
 
     // characteristics
-    Assertions.assertThat(sqale.getRootCharacteristics()).hasSize(1);
+    assertThat(sqale.getRootCharacteristics()).hasSize(1);
     Characteristic efficiency = sqale.getCharacteristicByKey("EFFICIENCY");
-    Assertions.assertThat(efficiency.getChildren()).isEmpty();
-    Assertions.assertThat(messages.getWarnings().get(0)).contains("findbugs");
+    assertThat(efficiency.getChildren()).isEmpty();
+    assertThat(messages.getWarnings().get(0)).contains("findbugs");
   }
 
   @Test
@@ -87,8 +130,8 @@ public class TechnicalDebtXMLImporterTest {
 
     new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
 
-    Assertions.assertThat(messages.getErrors()).hasSize(1);
-    Assertions.assertThat(messages.getErrors().get(0)).isEqualTo("Cannot import value 'abc' for field factor - Expected a numeric value instead");
+    assertThat(messages.getErrors()).hasSize(1);
+    assertThat(messages.getErrors().get(0)).isEqualTo("Cannot import value 'abc' for field factor - Expected a numeric value instead");
   }
 
   private TechnicalDebtRuleCache mockRuleCache() {
@@ -98,23 +141,28 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   private void checkXmlCorrectlyImported(Model sqale, ValidationMessages messages) {
+    checkXmlCorrectlyImported(sqale, null, messages);
+  }
 
-    Assertions.assertThat(messages.getErrors()).isEmpty();
-    Assertions.assertThat(sqale.getName()).isEqualTo(TechnicalDebtModel.MODEL_NAME);
+  private void checkXmlCorrectlyImported(Model sqale, Double offset, ValidationMessages messages) {
+
+    assertThat(messages.getErrors()).isEmpty();
+    assertThat(sqale.getName()).isEqualTo(TechnicalDebtModel.MODEL_NAME);
 
     // characteristics
-    Assertions.assertThat(sqale.getRootCharacteristics()).hasSize(2);
-    Assertions.assertThat(sqale.getCharacteristicByKey("USABILITY").getDescription()).isEqualTo("Estimate usability");
+    assertThat(sqale.getRootCharacteristics()).hasSize(2);
+    assertThat(sqale.getCharacteristicByKey("USABILITY").getDescription()).isEqualTo("Estimate usability");
     Characteristic efficiency = sqale.getCharacteristicByKey("EFFICIENCY");
-    Assertions.assertThat(efficiency.getName()).isEqualTo("Efficiency");
+    assertThat(efficiency.getName()).isEqualTo("Efficiency");
 
     // sub-characteristics
-    Assertions.assertThat(efficiency.getChildren()).hasSize(1);
+    assertThat(efficiency.getChildren()).hasSize(1);
     Characteristic requirement = efficiency.getChildren().get(0);
-    Assertions.assertThat(requirement.getRule().getRepositoryKey()).isEqualTo("checkstyle");
-    Assertions.assertThat(requirement.getRule().getKey()).isEqualTo("Regexp");
-    Assertions.assertThat(requirement.getPropertyTextValue("function", null)).isEqualTo("linear");
-    Assertions.assertThat(requirement.getPropertyValue("factor", null)).isEqualTo(3.2);
+    assertThat(requirement.getRule().getRepositoryKey()).isEqualTo("checkstyle");
+    assertThat(requirement.getRule().getKey()).isEqualTo("Regexp");
+    assertThat(requirement.getPropertyTextValue("remediationFunction", null)).isEqualTo("linear");
+    assertThat(requirement.getPropertyValue("remediationFactor", null)).isEqualTo(3.2);
+    assertThat(requirement.getPropertyValue("offset", null)).isEqualTo(offset);
   }
 
   private String getFileContent(String file) {

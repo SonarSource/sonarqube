@@ -53,7 +53,6 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.functions.*;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
@@ -150,11 +149,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // technical debt
       TechnicalDebtModel.class,
       TechnicalDebtConverter.class,
-      ConstantFunction.class,
-      LinearFunction.class,
-      LinearWithOffsetFunction.class,
-      LinearWithThresholdFunction.class,
-      Functions.class,
 
       // Differential periods
       PeriodsDefinition.class,

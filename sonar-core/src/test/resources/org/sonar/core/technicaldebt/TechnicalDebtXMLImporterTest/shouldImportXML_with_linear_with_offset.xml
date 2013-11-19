@@ -1,0 +1,30 @@
+<sqale>
+  <chc>
+    <key>USABILITY</key>
+    <name>Usability</name>
+    <desc>Estimate usability</desc>
+  </chc>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+
+    <chc>
+      <rule-repo>checkstyle</rule-repo>
+      <rule-key>Regexp</rule-key>
+      <prop>
+        <key>remediationFactor</key>
+        <val>3.2</val>
+      </prop>
+      <prop>
+        <key>remediationFunction</key>
+        <txt>linear</txt>
+      </prop>
+      <prop>
+        <key>offset</key>
+        <val>1.0</val>
+        <txt>h</txt>
+      </prop>
+    </chc>
+  </chc>
+
+</sqale>

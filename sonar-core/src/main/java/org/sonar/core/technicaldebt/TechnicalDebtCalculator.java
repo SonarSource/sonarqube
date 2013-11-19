@@ -19,132 +19,41 @@
  */
 package org.sonar.core.technicaldebt;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import org.slf4j.LoggerFactory;
+import com.google.common.base.Objects;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.functions.Functions;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Computes the remediation cost based on the quality and analysis models.
  */
 public class TechnicalDebtCalculator implements BatchExtension {
 
-  private double total = 0.0;
-  private Map<TechnicalDebtCharacteristic, Double> characteristicCosts = Maps.newHashMap();
-  private Map<TechnicalDebtRequirement, Double> requirementCosts = Maps.newHashMap();
-
-  private Functions functions;
   private final TechnicalDebtConverter converter;
   private TechnicalDebtModel technicalDebtModel;
 
-  public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, Functions functions, TechnicalDebtConverter converter) {
+  public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, TechnicalDebtConverter converter) {
     this.technicalDebtModel = technicalDebtModel;
-    this.functions = functions;
     this.converter = converter;
   }
 
   public WorkDayDuration calculTechnicalDebt(Issue issue) {
     TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (requirement != null) {
-      return converter.fromMinutes(functions.costInMinutes(requirement, issue));
+      return converter.fromMinutes(calculTechnicalDebt(requirement, issue));
     }
     return null;
   }
 
-  public void compute(DecoratorContext context) {
-    reset();
+  private long calculTechnicalDebt(TechnicalDebtRequirement requirement, Issue issue) {
+    long effortToFix = Objects.firstNonNull(issue.effortToFix(), 1l).longValue();
 
-    // group violations by requirement
-    ListMultimap<TechnicalDebtRequirement, Violation> violationsByRequirement = groupViolations(context);
+    WorkUnit factorUnit = requirement.getRemediationFactor();
+    long factor = factorUnit != null ? converter.toMinutes(factorUnit) : 0l;
 
-    // the total cost is: cost(violations)
-    for (TechnicalDebtRequirement requirement : technicalDebtModel.getAllRequirements()) {
-      List<Violation> violations = violationsByRequirement.get(requirement);
-      double allViolationsCost = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, requirement, violations);
-      updateRequirementCosts(requirement, allViolationsCost);
-    }
+    WorkUnit offsetUnit = requirement.getOffset();
+    long offset = offsetUnit != null ? converter.toMinutes(offsetUnit) : 0l;
+
+    return effortToFix * factor + offset;
   }
-
-  public double getTotal() {
-    return total;
-  }
-
-  public Map<TechnicalDebtCharacteristic, Double> getCharacteristicCosts() {
-    return characteristicCosts;
-  }
-
-  public Map<TechnicalDebtRequirement, Double> getRequirementCosts() {
-    return requirementCosts;
-  }
-
-  @VisibleForTesting
-  protected ListMultimap<TechnicalDebtRequirement, Violation> groupViolations(DecoratorContext context) {
-    ListMultimap<TechnicalDebtRequirement, Violation> violationsByRequirement = ArrayListMultimap.create();
-    for (Violation violation : context.getViolations()) {
-      String repositoryKey = violation.getRule().getRepositoryKey();
-      String key = violation.getRule().getKey();
-      TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(repositoryKey, key);
-      if (requirement == null) {
-        LoggerFactory.getLogger(getClass()).debug("No technical debt requirement for: " + repositoryKey + "/" + key);
-      } else {
-        violationsByRequirement.put(requirement, violation);
-      }
-    }
-    return violationsByRequirement;
-  }
-
-  @VisibleForTesting
-  protected void updateRequirementCosts(TechnicalDebtRequirement requirement, double cost) {
-    requirementCosts.put(requirement, cost);
-    total += cost;
-    propagateCostInParents(requirement.getParent(), cost);
-  }
-
-  private double computeTechnicalDebt(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    double cost = 0.0;
-    if (violations != null) {
-      cost = functions.costInHours(requirement, violations);
-    }
-
-    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.characteristic(metric, requirement.toCharacteristic()))) {
-      if (measure.getCharacteristic() != null && measure.getCharacteristic().equals(requirement.toCharacteristic()) && measure.getValue() != null) {
-        cost += measure.getValue();
-      }
-    }
-    return cost;
-  }
-
-  private void reset() {
-    total = 0.0;
-    characteristicCosts.clear();
-    requirementCosts.clear();
-  }
-
-  private void propagateCostInParents(TechnicalDebtCharacteristic characteristic, double cost) {
-    if (characteristic != null) {
-      Double parentCost = characteristicCosts.get(characteristic);
-      if (parentCost == null) {
-        characteristicCosts.put(characteristic, cost);
-      } else {
-        characteristicCosts.put(characteristic, cost + parentCost);
-      }
-      propagateCostInParents(characteristic.getParent(), cost);
-    }
-  }
-
 }

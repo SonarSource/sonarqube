@@ -40,13 +40,6 @@ public class TechnicalDebtConverterTest {
   }
 
   @Test
-  public void convert_work_unit_to_days() {
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS))).isEqualTo(6.0);
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS))).isEqualTo(6.0 / 12.0);
-    assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES))).isEqualTo(1.0 / 12.0);
-  }
-
-  @Test
   public void concert_work_unit_to_minutes() {
     assertThat(converter.toMinutes(WorkUnit.create(2.0, WorkUnit.DAYS))).isEqualTo(2 * 12 * 60L);
     assertThat(converter.toMinutes(WorkUnit.create(6.0, WorkUnit.HOURS))).isEqualTo(6 * 60L);

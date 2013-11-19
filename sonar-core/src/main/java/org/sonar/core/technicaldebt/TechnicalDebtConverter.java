@@ -35,21 +35,6 @@ public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
     this.hoursInDay = settings.getInt(PROPERTY_HOURS_IN_DAY);
   }
 
-  public double toDays(WorkUnit factor) {
-    if (StringUtils.equals(WorkUnit.DAYS, factor.getUnit())) {
-      return factor.getValue();
-
-    } else if (StringUtils.equals(WorkUnit.HOURS, factor.getUnit())) {
-      return factor.getValue() / hoursInDay;
-
-    } else if (StringUtils.equals(WorkUnit.MINUTES, factor.getUnit())) {
-      return factor.getValue() / (hoursInDay * 60.0);
-
-    } else {
-      throw new IllegalArgumentException("Unknown remediation factor unit: " + factor.getUnit());
-    }
-  }
-
   public long toMinutes(WorkUnit factor) {
     if (StringUtils.equals(WorkUnit.DAYS, factor.getUnit())) {
       return Double.valueOf(factor.getValue() * hoursInDay * 60d).longValue();

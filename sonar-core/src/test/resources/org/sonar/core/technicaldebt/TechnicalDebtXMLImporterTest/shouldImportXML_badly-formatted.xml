@@ -19,13 +19,13 @@
       <rule-key>Regexp
       </rule-key>
       <prop>
-        <key>factor
+        <key>remediationFactor
         </key>
         <val>3.2
         </val>
       </prop>
       <prop>
-        <key>function
+        <key>remediationFunction
         </key>
         <txt>linear
         </txt>

@@ -21,15 +21,18 @@ package org.sonar.core.technicaldebt;
 
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.Rule;
-import org.sonar.core.technicaldebt.functions.LinearFunction;
-import org.sonar.core.technicaldebt.functions.LinearWithOffsetFunction;
-import org.sonar.core.technicaldebt.functions.LinearWithThresholdFunction;
+
+import javax.annotation.CheckForNull;
 
 public class TechnicalDebtRequirement {
 
   public static final String PROPERTY_REMEDIATION_FUNCTION = "remediationFunction";
   public static final String PROPERTY_REMEDIATION_FACTOR = "remediationFactor";
   public static final String PROPERTY_OFFSET = "offset";
+
+  public static final String FUNCTION_LINEAR = "linear";
+  public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
+  public static final String FUNCTION_CONSTANT_PER_ISSUE = "constant_issue";
 
   private Rule rule;
   private TechnicalDebtCharacteristic parent;
@@ -49,16 +52,17 @@ public class TechnicalDebtRequirement {
   }
 
   private void initFunction() {
-    function = characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FUNCTION, LinearFunction.FUNCTION_LINEAR);
+    function = characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FUNCTION, FUNCTION_LINEAR);
   }
 
   private void initFactor() {
-    factor = WorkUnit.create(characteristic.getPropertyValue(PROPERTY_REMEDIATION_FACTOR, null),
-      characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FACTOR, null));
+    if (FUNCTION_LINEAR.equals(function) || FUNCTION_LINEAR_WITH_OFFSET.equals(function)) {
+      factor = WorkUnit.create(characteristic.getPropertyValue(PROPERTY_REMEDIATION_FACTOR, null), characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FACTOR, null));
+    }
   }
 
   private void initOffset() {
-    if (LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET.equals(function) || LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD.equals(function)) {
+    if (FUNCTION_LINEAR_WITH_OFFSET.equals(function) || FUNCTION_CONSTANT_PER_ISSUE.equals(function)) {
       offset = WorkUnit.create(characteristic.getPropertyValue(PROPERTY_OFFSET, null),
         characteristic.getPropertyTextValue(PROPERTY_OFFSET, null));
     }
@@ -76,10 +80,12 @@ public class TechnicalDebtRequirement {
     return function;
   }
 
+  @CheckForNull
   public WorkUnit getRemediationFactor() {
     return factor;
   }
 
+  @CheckForNull
   public WorkUnit getOffset() {
     return offset;
   }

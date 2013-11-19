@@ -19,192 +19,104 @@
  */
 package org.sonar.core.technicaldebt;
 
-import com.google.common.collect.ListMultimap;
-import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.issue.Issue;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.functions.Functions;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TechnicalDebtCalculatorTest {
 
-  private static final Date NOW = new Date(System.currentTimeMillis());
-  private static final Date YESTERDAY = DateUtils.addDays(NOW, -1);
-  private static final Date LAST_MONTH = DateUtils.addMonths(NOW, -1);
+  @Mock
+  TechnicalDebtModel technicalDebtModel;
 
-  private TechnicalDebtModel technicalDebtModel;
-  private Functions functions;
-  private TechnicalDebtCalculator remediationCostCalculator;
+  @Mock
+  TechnicalDebtConverter converter;
+
+  WorkUnit tenMinutes = WorkUnit.create(10d, WorkUnit.MINUTES);
+  WorkUnit fiveMinutes = WorkUnit.create(5d, WorkUnit.MINUTES);
+
+  TechnicalDebtCalculator remediationCostCalculator;
 
   @Before
-  public void initMocks() {
-    technicalDebtModel = mock(TechnicalDebtModel.class);
-    functions = mock(Functions.class);
-    TechnicalDebtConverter converter = mock(TechnicalDebtConverter.class);
-    remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, functions, converter);
+  public void before() {
+    when(converter.toMinutes(tenMinutes)).thenReturn(10l);
+    when(converter.toMinutes(fiveMinutes)).thenReturn(5l);
+
+    remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, converter);
   }
 
   @Test
-  public void group_violations_by_requirement() throws Exception {
-
-    TechnicalDebtRequirement requirement1 = mock(TechnicalDebtRequirement.class);
-    TechnicalDebtRequirement requirement2 = mock(TechnicalDebtRequirement.class);
-
-    Violation violation1 = buildViolation("rule1", "repo1", NOW);
-    Violation violation2 = buildViolation("rule1", "repo1", NOW);
-    Violation violation3 = buildViolation("rule2", "repo2", NOW);
-    Violation violation4 = buildViolation("unmatchable", "repo2", NOW);
-
-    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
-    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
-
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(violations);
-
-    ListMultimap<TechnicalDebtRequirement, Violation> groupedViolations = remediationCostCalculator.groupViolations(context);
-
-    assertThat(groupedViolations.keySet().size()).isEqualTo(2);
-    assertThat(groupedViolations.get(requirement1)).containsExactly(violation1, violation2);
-    assertThat(groupedViolations.get(requirement2)).containsExactly(violation3);
-  }
-
-  @Test
-  public void add_cost_with_no_parent() throws Exception {
-
-    double requirementCost = 1.0;
-
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    when(requirement.getParent()).thenReturn(null);
-
-    remediationCostCalculator.updateRequirementCosts(requirement, requirementCost);
-
-    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement)).isEqualTo(requirementCost);
-    assertThat(remediationCostCalculator.getTotal()).isEqualTo(requirementCost);
-  }
-
-  @Test
-  public void add_cost_and_propagate_to_parents() throws Exception {
-
-    double requirementCost = 1.0;
-
-    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(Characteristic.create());
-
-    TechnicalDebtCharacteristic characteristic = new TechnicalDebtCharacteristic(Characteristic.create(), parentCharacteristic);
-
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    when(requirement.getParent()).thenReturn(characteristic);
-
-    remediationCostCalculator.updateRequirementCosts(requirement, requirementCost);
-
-    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement)).isEqualTo(requirementCost);
-    assertThat(remediationCostCalculator.getCharacteristicCosts().get(characteristic)).isEqualTo(requirementCost);
-    assertThat(remediationCostCalculator.getCharacteristicCosts().get(parentCharacteristic)).isEqualTo(requirementCost);
-  }
-
-  @Test
-  public void compute_totals_costs() throws Exception {
-
-    TechnicalDebtRequirement requirement1 = mock(TechnicalDebtRequirement.class);
-    TechnicalDebtRequirement requirement2 = mock(TechnicalDebtRequirement.class);
-
-    Violation violation1 = buildViolation("rule1", "repo1", NOW);
-    Violation violation2 = buildViolation("rule1", "repo1", NOW);
-    Violation violation3 = buildViolation("rule2", "repo2", YESTERDAY);
-    Violation violation4 = buildViolation("rule2", "repo2", LAST_MONTH);
-
-    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
-    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(requirement1, requirement2));
-
-    when(functions.costInHours(any(TechnicalDebtRequirement.class), any(Collection.class))).thenReturn(1.0);
-
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(violations);
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.EMPTY_LIST);
-
-    remediationCostCalculator.compute(context);
-
-    assertThat(remediationCostCalculator.getTotal()).isEqualTo(2.0);
-    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement1)).isEqualTo(1.0);
-    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement2)).isEqualTo(1.0);
-  }
-
-  @Test
-  public void compute_totals_costs_from_children() throws Exception {
-    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(Characteristic.create());
-    TechnicalDebtRequirement requirement1 = new TechnicalDebtRequirement(Characteristic.create(), parentCharacteristic);;
-
-    Violation violation1 = buildViolation("rule1", "repo1", NOW);
-    Violation violation2 = buildViolation("rule1", "repo1", NOW);
-    Violation violation3 = buildViolation("rule2", "repo2", YESTERDAY);
-    Violation violation4 = buildViolation("rule2", "repo2", LAST_MONTH);
-
-    List<Violation> violations = newArrayList(violation1, violation2, violation3, violation4);
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(requirement1));
-
-    when(functions.costInHours(any(TechnicalDebtRequirement.class), any(Collection.class))).thenReturn(1.0);
-
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(violations);
-
-    Measure measure = new Measure().setCharacteristic(requirement1.toCharacteristic()).setValue(5.0);
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(newArrayList(measure));
-
-    remediationCostCalculator.compute(context);
-
-    assertThat(remediationCostCalculator.getTotal()).isEqualTo(6.0);
-    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement1)).isEqualTo(6.0);
-  }
-
-  @Test
-  public void technical_debt_from_one_issue() throws Exception {
+  public void calcul_technical_debt() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
+
     TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
+    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
     when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
-    when(functions.costInMinutes(eq(requirement), eq(issue))).thenReturn(10L);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
-    verify(functions).costInMinutes(eq(requirement), eq(issue));
+
+    verify(converter).fromMinutes(10l + 5l);
   }
 
   @Test
-  public void no_technical_debt_from_one_issue_if_requirement_not_found() throws Exception {
+  public void calcul_technical_debt_with_effort_to_fix() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
+    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
+    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+
+    remediationCostCalculator.calculTechnicalDebt(issue);
+
+    verify(converter).fromMinutes(10l * 2 + 5l);
+  }
+
+  @Test
+  public void calcul_technical_debt_with_no_offset() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
+    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.getOffset()).thenReturn(null);
+    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+
+    remediationCostCalculator.calculTechnicalDebt(issue);
+
+    verify(converter).fromMinutes(10l * 2 + 0l);
+  }
+
+  @Test
+  public void calcul_technical_debt_with_no_factor() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
+    Mockito.when(requirement.getRemediationFactor()).thenReturn(null);
+    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
+    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+
+    remediationCostCalculator.calculTechnicalDebt(issue);
+
+    verify(converter).fromMinutes(0l * 2 + 5l);
+  }
+
+  @Test
+  public void no_technical_debt_if_requirement_not_found() throws Exception {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(null);
 
     assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
-    verify(functions, never()).costInMinutes(any(TechnicalDebtRequirement.class), any(Issue.class));
+    verify(converter, never()).fromMinutes(anyLong());
   }
 
-  private Violation buildViolation(String ruleKey, String repositoryKey, Date creationDate) {
-    Violation violation = mock(Violation.class);
-    stub(violation.getRule()).toReturn(Rule.create(repositoryKey, ruleKey));
-    stub(violation.getCreatedAt()).toReturn(creationDate);
-    return violation;
-  }
 }
 
