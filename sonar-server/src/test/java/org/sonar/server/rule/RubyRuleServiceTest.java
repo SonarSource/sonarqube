@@ -104,6 +104,14 @@ public class RubyRuleServiceTest {
   }
 
   @Test
+  public void should_update_index_when_rule_saved() {
+    // this is not a magic number
+    int ruleId = 42;
+    facade.saveOrUpdate(ruleId);
+    verify(ruleRegistry).saveOrUpdate(ruleId);
+  }
+
+  @Test
   public void just_for_fun_and_coverage() throws Exception {
     facade.start();
     facade.stop();

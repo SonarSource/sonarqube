@@ -21,11 +21,14 @@
 package org.sonar.server.rule;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.search.SearchIndex;
@@ -33,6 +36,7 @@ import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -113,5 +117,36 @@ public class RuleRegistryTest {
   @Test
   public void should_filter_on_multiple_values() {
     assertThat(registry.findIds(ImmutableMap.of("key", "RuleWithParameters|OneIssuePerLine"))).hasSize(2);
+  }
+
+  @Test
+  public void should_index_all_rules() {
+    DatabaseSession session = mock(DatabaseSession.class);
+    when(sessionFactory.getSession()).thenReturn(session);
+    Rule rule1 = Rule.create("repo", "key1");
+    rule1.setId(3);
+    Rule rule2 = Rule.create("repo", "key2");
+    rule2.createParameter("param");
+    rule2.setId(4);
+    rule2.setParent(rule1);
+    List<Rule> rules = ImmutableList.of(rule1, rule2);
+    when(session.getResults(Rule.class)).thenReturn(rules);
+    registry.bulkRegisterRules();
+    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(2);
+  }
+
+  @Test
+  public void should_index_and_reindex_single_rule() {
+    DatabaseSession session = mock(DatabaseSession.class);
+    when(sessionFactory.getSession()).thenReturn(session);
+    Rule rule = Rule.create("repo", "key");
+    int id = 3;
+    rule.setId(id);
+    when(session.getEntity(Rule.class, id)).thenReturn(rule);
+    registry.saveOrUpdate(id);
+    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
+    rule.setName("polop");
+    registry.saveOrUpdate(id);
+    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
   }
 }

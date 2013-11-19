@@ -73,6 +73,10 @@ public class RubyRuleService implements ServerComponent, Startable {
     return ruleRegistry.findIds(params).toArray(new Integer[0]);
   }
 
+  public void saveOrUpdate(int ruleId) {
+    ruleRegistry.saveOrUpdate(ruleId);
+  }
+
   private static void translateNonBlankKey(Map<String, String> options, Map<String, String> params, String optionKey, String paramKey) {
     if(options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
       params.put(paramKey, options.get(optionKey).toString());

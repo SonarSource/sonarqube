@@ -186,7 +186,8 @@ class RulesConfigurationController < ApplicationController
     end
 
     if rule.save
-      redirect_to :action => 'index', :id => profile.id, :searchtext => rule.name, :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
+      Internal.rules.saveOrUpdate(rule.id)
+      redirect_to :action => 'index', :id => profile.id, :searchtext => "\"#{rule.name}\"", :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
 
     else
       flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
@@ -235,7 +236,8 @@ class RulesConfigurationController < ApplicationController
         parameter.save
       end
       if rule.save
-        redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_activation => '', "plugins[]" => rule.plugin_name
+        Internal.rules.saveOrUpdate(rule.id)
+        redirect_to :action => 'index', :id => params[:id], :searchtext => "\"#{rule.name}\"", :rule_activation => '', "plugins[]" => rule.plugin_name
       else
         flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
         redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
@@ -260,6 +262,7 @@ class RulesConfigurationController < ApplicationController
     if rule.editable?
       rule.status=Rule::STATUS_REMOVED
       rule.save
+      Internal.rules.saveOrUpdate(rule.id)
 
       # it's mandatory to execute 'destroy_all' but not 'delete_all' because active_rule_parameters must
       # also be destroyed in cascade.

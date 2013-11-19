@@ -28,6 +28,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.search.SearchIndex;
@@ -66,43 +67,18 @@ public class RuleRegistry {
   }
 
   public void bulkRegisterRules() {
+    TimeProfiler profiler = new TimeProfiler();
     DatabaseSession session = sessionFactory.getSession();
+    profiler.start("Rebuilding rules index");
+
+    List<Rule> rules = session.getResults(Rule.class);
 
     try {
-      List<String> ids = Lists.newArrayList();
-      List<BytesStream> docs = Lists.newArrayList();
-      for (Rule rule: session.getResults(Rule.class)) {
-        ids.add(rule.getId().toString());
-        XContentBuilder document = XContentFactory.jsonBuilder()
-            .startObject()
-            .field("id", rule.getId())
-            .field("key", rule.getKey())
-            .field("language", rule.getLanguage())
-            .field("name", ruleI18nManager.getName(rule, Locale.getDefault()))
-            .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault()))
-            .field("parentKey", rule.getParent() == null ? null : rule.getParent().getKey())
-            .field("repositoryKey", rule.getRepositoryKey())
-            .field("severity", rule.getSeverity())
-            .field("status", rule.getStatus())
-            .field("createdAt", rule.getCreatedAt())
-            .field("updatedAt", rule.getUpdatedAt());
-        if(!rule.getParams().isEmpty()) {
-          document.startArray("params");
-          for (RuleParam param: rule.getParams()) {
-            document.startObject()
-              .field("key", param.getKey())
-              .field("type", param.getType())
-              .field("defaultValue", param.getDefaultValue())
-              .field("description", param.getDescription())
-              .endObject();
-          }
-          document.endArray();
-        }
-        docs.add(document.endObject());
-      }
-      searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids.toArray(new String[0]), docs.toArray(new BytesStream[0]));
+      bulkIndex(rules);
     } catch(IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
+    } finally {
+      profiler.stop();
     }
   }
 
@@ -136,5 +112,61 @@ public class RuleRegistry {
       result.add(Integer.parseInt(docId));
     }
     return result;
+  }
+
+  /**
+   * Create or update definition of rule identified by <code>ruleId</code>
+   * @param ruleId
+   */
+  public void saveOrUpdate(int ruleId) {
+    DatabaseSession session = sessionFactory.getSession();
+    Rule rule = session.getEntity(Rule.class, ruleId);
+    try {
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Integer.toString(rule.getId()), ruleDocument(rule));
+    } catch(IOException ioexception) {
+      throw new IllegalStateException("Unable to index rule with id="+ruleId, ioexception);
+    }
+  }
+
+  private void bulkIndex(List<Rule> rules) throws IOException {
+    String[] ids = new String[rules.size()];
+    BytesStream[] docs = new BytesStream[rules.size()];
+    int index = 0;
+    for (Rule rule: rules) {
+      ids[index] = rule.getId().toString();
+      docs[index] = ruleDocument(rule);
+      index ++;
+    }
+    searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
+  }
+
+  private XContentBuilder ruleDocument(Rule rule) throws IOException {
+    XContentBuilder document = XContentFactory.jsonBuilder()
+        .startObject()
+        .field("id", rule.getId())
+        .field("key", rule.getKey())
+        .field("language", rule.getLanguage())
+        .field("name", ruleI18nManager.getName(rule, Locale.getDefault()))
+        .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault()))
+        .field("parentKey", rule.getParent() == null ? null : rule.getParent().getKey())
+        .field("repositoryKey", rule.getRepositoryKey())
+        .field("severity", rule.getSeverity())
+        .field("status", rule.getStatus())
+        .field("createdAt", rule.getCreatedAt())
+        .field("updatedAt", rule.getUpdatedAt());
+    if(!rule.getParams().isEmpty()) {
+      document.startArray("params");
+      for (RuleParam param: rule.getParams()) {
+        document.startObject()
+          .field("key", param.getKey())
+          .field("type", param.getType())
+          .field("defaultValue", param.getDefaultValue())
+          .field("description", param.getDescription())
+          .endObject();
+      }
+      document.endArray();
+    }
+    document.endObject();
+    return document;
   }
 }

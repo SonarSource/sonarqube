@@ -64,7 +64,15 @@ public class SearchIndex {
   }
 
   public void put(String index, String type, String id, BytesStream source) {
-    client.prepareIndex(index, type, id).setSource(source.bytes()).execute().actionGet();
+    internalPut(index, type, id, source, false);
+  }
+
+  public void putSynchronous(String index, String type, String id, BytesStream source) {
+    internalPut(index, type, id, source, true);
+  }
+
+  private void internalPut(String index, String type, String id, BytesStream source, boolean refresh) {
+    client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh).execute().actionGet();
   }
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources) {
