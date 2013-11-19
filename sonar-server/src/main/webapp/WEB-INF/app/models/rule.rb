@@ -278,8 +278,9 @@ class Rule < ActiveRecord::Base
   end
 
 
+  # 'unused' parameter used to be available to inject java_facade, kept for compatibility w/ plugins (e.g sqale)
   # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
-  def self.search(options={})
+  def self.search(unused, options={})
     conditions = []
     values = {}
 

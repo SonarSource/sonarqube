@@ -42,7 +42,7 @@ class Api::RulesController < Api::RestController
         rest_render([])
       else
         options[:profile]=profile
-        rules = Rule.search(options)
+        rules = Rule.search(java_facade, options)
         rest_render(rules, profile)
       end
     else
