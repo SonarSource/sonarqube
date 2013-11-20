@@ -164,12 +164,12 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         CharacteristicProperty offset = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET);
         offset.setValue(0d);
 
-        String message = String.format("Linear with threshold function is no more used, the function of the requirement on rule '%s:%s' is replaced by linear.",
+        String message = String.format("Linear with threshold function is no more used, function of the requirement '%s:%s' is replaced by linear.",
           characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey());
         LOG.warn(message);
         messages.addWarningText(message);
       } else if ("constant_resource".equals(function.getTextValue())) {
-        String message = String.format("Constant / file function is no more used, requirement on rule '%s:%s' is ignored.",
+        String message = String.format("Constant/file function is no more used, requirements '%s:%s' are ignored.",
           characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey());
         LOG.warn(message);
         messages.addWarningText(message);
