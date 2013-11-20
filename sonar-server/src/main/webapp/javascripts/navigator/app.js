@@ -70,12 +70,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'REOPENED': 'Reopened',
           'RESOLVED': 'Resolved',
           'CLOSED': 'Closed'
-        },
-        choiceIcons: {
-          'OPEN': '/images/status/OPEN.png',
-          'REOPENED': '/images/status/REOPENED.png',
-          'RESOLVED': '/images/status/RESOLVED.png',
-          'CLOSED': '/images/status/CLOSED.png'
         }
       }),
 
