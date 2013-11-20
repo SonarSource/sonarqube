@@ -2,9 +2,6 @@
    if @issues_result.issues && !@issues_result.issues.empty?
     colspan = 6
 %>
-  <% if @issues_result && @issues_result.maxResultsReached() %>
-    <p class="notes"><%= message('issue_filter.max_results_reached', :params => @issues_result.paging.total()) -%></p>
-  <% end %>
   <div id="issues-list">
     <table class="data width100">
       <thead>

@@ -8,6 +8,7 @@
   overflow: hidden;
 }
 .navigator-filters {
+  margin-bottom: 10px;
   border-bottom: 1px solid #cdcdcd;
   background: #efefef;
   font-size: 0;
@@ -210,10 +211,17 @@
   font-size: 13px;
 }
 .navigator-results .notes {
+  margin-top: -10px;
   padding-left: 10px;
   padding-right: 10px;
   border-top: none;
 }
 .navigator-results #issues-list {
   margin: 0 10px;
+}
+.navigator-results #issue-filters-operations {
+  padding-left: 10px;
+  padding-right: 10px;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }

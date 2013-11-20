@@ -14,6 +14,7 @@
 }
 
 .navigator-filters {
+  margin-bottom: 10px;
   border-bottom: 1px solid @darkGrey;
   background: @grey;
   font-size: 0;
@@ -243,9 +244,17 @@
 
 .navigator-results {
   .notes {
+    margin-top: -10px;
     padding-left: 10px;
     padding-right: 10px;
     border-top: none;
   }
-  #issues-list { margin: 0 10px; }
+  #issues-list {
+    margin: 0 10px;
+  }
+  #issue-filters-operations {
+    padding-left: 10px;
+    padding-right: 10px;
+    .box-sizing(border-box);
+  }
 }
