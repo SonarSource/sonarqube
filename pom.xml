@@ -482,7 +482,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
-          <argLine>-Xmx256m -Djava.awt.headless=true</argLine>
+          <argLine>-Xmx256m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
