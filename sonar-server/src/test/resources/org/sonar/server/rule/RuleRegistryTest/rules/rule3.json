@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "key": "RemobedRule",
+  "language": "xoo",
+  "name": "Removed rule",
+  "description": "Removed rule that should be filtered out in default query",
+  "parentKey": null,
+  "repositoryKey": "xoo",
+  "severity": "CRITICAL",
+  "status": "REMOVED",
+  "createdAt": "2013-10-28T13:07:26.329Z",
+  "updatedAt": "2013-11-08T10:52:53.473Z"
+}

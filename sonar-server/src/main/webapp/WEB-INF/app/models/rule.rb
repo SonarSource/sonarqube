@@ -293,23 +293,6 @@ class Rule < ActiveRecord::Base
     conditions << "id IN (:ids)"
     values[:ids] = Array(Internal.rules.findIds(params))
 
-=begin TODO Correctly handle status != STATUS_REMOVED
-    status = options[:status]
-    if status.blank?
-      conditions << ['status <> :status']
-      values[:status] = STATUS_REMOVED
-    elsif status == 'ACTIVE' || status == 'INACTIVE'
-      # For retro compatibility for the Sqale plugin
-      # To be removed when SonarQube version will no more be compatible with SQALE version < 1.10
-      options[:activation] = status
-      conditions << ['status <> :status']
-      values[:status] = STATUS_REMOVED
-    else
-      conditions << "status IN (:status)"
-      values[:status] = options[:status]
-    end
-=end
-
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
     rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
     rules = Rule.sort_by(rules, options[:sort_by])

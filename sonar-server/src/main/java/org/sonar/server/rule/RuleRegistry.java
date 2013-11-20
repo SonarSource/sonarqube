@@ -49,6 +49,7 @@ public class RuleRegistry {
    *
    */
   private static final String PARAM_NAMEORKEY = "nameOrKey";
+  private static final String PARAM_STATUS = "status";
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";
 
@@ -101,6 +102,9 @@ public class RuleRegistry {
 
     if (params.containsKey(PARAM_NAMEORKEY)) {
       searchQuery.searchString(params.remove(PARAM_NAMEORKEY));
+    }
+    if (! params.containsKey(PARAM_STATUS)) {
+      searchQuery.notField(PARAM_STATUS, Rule.STATUS_REMOVED);
     }
 
     for(Map.Entry<String, String> param: params.entrySet()) {

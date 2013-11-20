@@ -55,6 +55,7 @@ public class SearchQuery {
   private List<String> indices;
   private List<String> types;
   private Multimap<String, String> fieldCriteria;
+  private Multimap<String, String> notFieldCriteria;
   private Map<String, String> termFacets;
 
   private SearchQuery() {
@@ -62,6 +63,7 @@ public class SearchQuery {
     indices = Lists.newArrayList();
     types = Lists.newArrayList();
     fieldCriteria = ArrayListMultimap.create();
+    notFieldCriteria = ArrayListMultimap.create();
     termFacets = Maps.newHashMap();
   }
 
@@ -98,6 +100,11 @@ public class SearchQuery {
     return this;
   }
 
+  public SearchQuery notField(String fieldName, String... fieldValues) {
+    notFieldCriteria.putAll(fieldName, Lists.newArrayList(fieldValues));
+    return this;
+  }
+
   public SearchQuery facet(String facetName, String fieldName) {
     termFacets.put(facetName, fieldName);
     return this;
@@ -116,11 +123,20 @@ public class SearchQuery {
     if (StringUtils.isNotBlank(searchString)) {
       filters.add(queryFilter(QueryBuilders.queryString(searchString)));
     }
+
     for (String field: fieldCriteria.keySet()) {
       if (fieldCriteria.get(field).size() > 1) {
         filters.add(termsFilter(field, fieldCriteria.get(field)));
       } else {
         filters.add(termFilter(field, fieldCriteria.get(field)));
+      }
+    }
+
+    for (String field: notFieldCriteria.keySet()) {
+      if (notFieldCriteria.get(field).size() > 1) {
+        filters.add(notFilter(termsFilter(field, notFieldCriteria.get(field))));
+      } else {
+        filters.add(notFilter(termFilter(field, notFieldCriteria.get(field))));
       }
     }
 

@@ -68,10 +68,12 @@ public class RuleRegistryTest {
 
     String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());
     String source2 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule2.json").toURI());
+    String source3 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule3.json").toURI());
 
     esSetup.execute(
       EsSetup.index("rules", "rule", "1").withSource(source1),
-      EsSetup.index("rules", "rule", "2").withSource(source2)
+      EsSetup.index("rules", "rule", "2").withSource(source2),
+      EsSetup.index("rules", "rule", "3").withSource(source3)
     );
 
   }
@@ -89,20 +91,22 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_find_all_rule_ids() {
-
+  public void should_filter_removed_rules() {
     assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2);
   }
 
   @Test
-  public void should_filter_on_name_or_key() throws Exception {
+  public void should_display_disabled_rule() {
+    assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 3);
+  }
 
+  @Test
+  public void should_filter_on_name_or_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters"))).containsOnly(1);
   }
 
   @Test
   public void should_filter_on_key() throws Exception {
-
     assertThat(registry.findIds(ImmutableMap.of("key", "OneIssuePerLine"))).containsOnly(2);
   }
 
