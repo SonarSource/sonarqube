@@ -15,7 +15,7 @@
         <% if @manual_metrics.empty? %>
           <div class="modal-body">
             <div class="info">
-              <img style="vertical-align: text-bottom" src="/dev/images/information.png">
+              <img style="vertical-align: text-bottom" src="<%= ApplicationController.root_context -%>/images/information.png">
               <%= message('manual_measures.no_more_available_metric') -%>
               <%  if has_role?(:admin)  %>
                 <%= link_to message('manual_measures.to_define_new_manual_metric_il_require'), :controller => 'metrics', :action => 'index' -%>

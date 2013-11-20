@@ -28,15 +28,11 @@ class ManualMeasuresController < ApplicationController
   end
 
   def create_form
-      load_measures()
-      already_defined_metrics=@measures.map {|m| m.metric}
-      @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
-      #puts '********************************'+@manual_metrics.to_json
-      @manual_metrics.each do |metric|
-        puts '**' + metric.name
-      end
-      @metric=nil
-      @measure=nil
+    load_measures()
+    already_defined_metrics=@measures.map {|m| m.metric}
+    @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
+    @metric=nil
+    @measure=nil
 
     render :partial => 'manual_measures/create_form'
   end
@@ -46,7 +42,6 @@ class ManualMeasuresController < ApplicationController
     @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id]) || ManualMeasure.new
 
     render :partial => 'manual_measures/edit_form'
-
   end
 
   def create
