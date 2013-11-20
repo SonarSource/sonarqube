@@ -164,22 +164,22 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.7</version>
+          <version>2.8</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.7</version>
+          <version>2.8.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.2</version>
+          <version>1.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.15</version>
+          <version>2.16</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -195,7 +195,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.5.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -229,7 +229,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <!-- do not upgrade to 2.4 because of http://jira.codehaus.org/browse/MRELEASE-818 -->
+          <!--
+          Do not upgrade to 2.4 because of http://jira.codehaus.org/browse/MRELEASE-818.
+          Fixed in 2.4.1.
+          -->
           <version>2.3.2</version>
         </plugin>
         <plugin>
@@ -255,12 +258,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.14.1</version>
+          <version>2.16</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.3</version>
+          <version>2.4</version>
         </plugin>
         <plugin>
           <!-- not thread safe -->
@@ -271,7 +274,12 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>1.8</version>
+          <version>1.9</version>
+        </plugin>
+        <plugin>
+          <groupId>ro.isdc.wro4j</groupId>
+          <artifactId>wro4j-maven-plugin</artifactId>
+          <version>1.7.2</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1195,6 +1203,13 @@
       <id>simonbrandhof</id>
       <name>Simon Brandhof</name>
       <email>simon.brandhof@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <email>julien.henry@sonarsource.com</email>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
