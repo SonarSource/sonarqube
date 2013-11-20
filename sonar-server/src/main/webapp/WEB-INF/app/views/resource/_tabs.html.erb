@@ -37,7 +37,7 @@
       </li>
       <% end %>
     </ul>
-    <ul class="tabs2">
+    <ul class="tabs">
       <% @extensions.each do |extension| %>
         <li>
           <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>,'<%= params[:period] -%>', this)"

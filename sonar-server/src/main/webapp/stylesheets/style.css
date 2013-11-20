@@ -1600,13 +1600,6 @@ ul.bullet li {
   font-size: 110%;
 }
 
-.tabs {
-  height: 20px;
-  border-bottom: 1px solid #DDD;
-  margin: 0;
-  padding: 0;
-}
-
 .tablinks {
   float: right;
   padding: 0 5px 0 10px;
@@ -1630,41 +1623,6 @@ ul.bullet li {
   font-size: 85%;
 }
 
-.tabs li {
-  display: inline;
-  list-style-type: none;
-  font-weight: normal;
-  color: #555;
-  background-color: #FFF;
-  vertical-align: baseline;
-  white-space: nowrap;
-  margin: 0;
-  border: 0;
-  padding: 0;
-}
-
-.tabs li a:link, .tabs li a:visited {
-  float: left;
-  background-color: #EFEFEF;
-  color: #555;
-  vertical-align: bottom;
-  height: 17px;
-  margin: 0 1px 0 0;
-  padding: 1px 10px;
-  border: 1px solid #cdcdcd;
-  border-radius: 4px 4px 0 0;
-  -moz-border-radius: 4px 4px 0 0;
-  -webkit-border-radius: 4px 4px 0 0;
-}
-
-.tabs li a.selected:link, .tabs li a.selected:visited {
-  text-decoration: none;
-  background-color: #4B9FD5;
-  color: #FFF;
-  border: 1px solid #CAE3F2;
-  margin: 0 1px 0 0;
-}
-
 .tabs-panel {
   border-right: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
@@ -1673,7 +1631,8 @@ ul.bullet li {
   padding: 10px;
 }
 
-.tabs2 {
+/* tabs2 is deprecated since 4.1. It is kept for backward-compatibility */
+.tabs2, .tabs {
   height: 20px;
   border-bottom: 1px solid #DDD;
   margin: 0;
@@ -1681,7 +1640,7 @@ ul.bullet li {
   font-size: 93%;
 }
 
-.tabs2 li {
+.tabs2 li, .tabs li {
   display: inline;
   list-style-type: none;
   font-weight: normal;
@@ -1693,7 +1652,7 @@ ul.bullet li {
   padding: 0;
 }
 
-.tabs2 li a:link, .tabs2 li a:visited {
+.tabs2 li a:link, .tabs2 li a:visited, .tabs li a:link, .tabs li a:visited {
   float: left;
   color: #777;
   vertical-align: bottom;
@@ -1702,7 +1661,7 @@ ul.bullet li {
   padding: 1px 5px;
 }
 
-.tabs2 li a.selected:link, .tabs2 li a.selected:visited {
+.tabs2 li a.selected:link, .tabs2 li a.selected:visited, .tabs li a.selected:link, .tabs li a.selected:visited {
   text-decoration: none;
   color: #555;
   font-weight: bold;

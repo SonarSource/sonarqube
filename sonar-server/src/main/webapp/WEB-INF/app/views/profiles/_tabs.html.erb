@@ -2,7 +2,7 @@
   new_tab = nil unless defined?(:new_tab)
   selected_tab = nil unless defined?(:selected_tab)
 %>
-<ul class="tabs2">
+<ul class="tabs">
   <li>
     <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules' -%> id="tab-rules"><%= message('coding_rules') -%></a>
   </li>

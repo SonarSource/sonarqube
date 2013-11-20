@@ -1,6 +1,6 @@
 <h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
 
-<ul class="tabs2">
+<ul class="tabs">
 <% @tabs.each do |tab| %>
   <li>
     <a href="<%= url_for :action => 'index', :resource_type => tab %>" id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
