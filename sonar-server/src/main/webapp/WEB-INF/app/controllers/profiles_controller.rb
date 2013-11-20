@@ -19,11 +19,11 @@
 #
 class ProfilesController < ApplicationController
 
+  SECTION=Navigation::SECTION_QUALITY_PROFILES
+
   def self.root_breadcrumb
     {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
   end
-
-  before_filter :hide_sidebar
 
   # GET /profiles/index
   def index

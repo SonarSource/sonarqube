@@ -1,4 +1,4 @@
-<div xmlns="http://www.w3.org/1999/html">
+<div>
   <div class="page-split-left">
     <%= render :partial => 'measures/sidebar' -%>
   </div>
@@ -8,7 +8,7 @@
        edit_mode = (params[:edit]=='true')
   %>
     <div class="page-split-right">
-      <div id="content">
+      <div class="page">
         <div class="line-block marginbottom10">
           <% unless edit_mode %>
           <ul class="operations">

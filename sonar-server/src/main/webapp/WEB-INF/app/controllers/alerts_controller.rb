@@ -19,7 +19,7 @@
 #
 class AlertsController < ApplicationController
 
-  before_filter :hide_sidebar
+  SECTION=Navigation::SECTION_QUALITY_PROFILES
 
   #
   #

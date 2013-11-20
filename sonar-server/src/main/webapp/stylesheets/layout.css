@@ -53,7 +53,7 @@ body, a {
 #hd {
   color: #FFF;
   background: #262626;
-  padding: 0 10px 0 21px;
+  padding: 0 10px;
   height: 30px;
   line-height: 30px;
   font-size: 93%;
@@ -64,6 +64,10 @@ body, a {
 #hd a {
   color: #FFF;
   text-decoration: none;
+}
+
+#hd a.selected {
+  color: #4B9FD5;
 }
 
 #hd a:focus, #hd a:hover {
@@ -110,7 +114,7 @@ body, a {
   line-height: 26px;
   font-size: 93%;
   margin: 0;
-  padding: 0 10px 0 21px;
+  padding: 0 10px;
   border-bottom: 1px solid #CCC;
 }
 
@@ -156,10 +160,6 @@ body, a {
   text-decoration: underline;
 }
 
-#content {
-  padding: 10px;
-}
-
 #hd .dropdown-menu a {
   color: #000;
 }
@@ -185,6 +185,7 @@ body, a {
 
 .with_sidebar {
   margin: 0 0 0 160px;
+  padding: 10px;
 }
 
 .wo_sidebar {
@@ -257,6 +258,9 @@ ul.sidebar select, ul.sidebar input {
   display: block;
 }
 
+.page {
+  padding: 10px;
+}
 .page-split-left {
   min-width: 200px;
   max-width: 200px;

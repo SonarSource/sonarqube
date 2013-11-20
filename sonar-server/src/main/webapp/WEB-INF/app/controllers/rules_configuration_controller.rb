@@ -21,7 +21,7 @@ require 'cgi'
 
 class RulesConfigurationController < ApplicationController
 
-  before_filter :hide_sidebar
+  SECTION=Navigation::SECTION_QUALITY_PROFILES
 
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"

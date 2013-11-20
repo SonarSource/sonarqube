@@ -2,7 +2,7 @@
 
 <% if !@snapshot %>
 
-<p class="info"><%= message('provisioning.no_analysis') -%></p>
+<p class="warning"><%= message('provisioning.no_analysis') -%></p>
 
 <% elsif @snapshot.root? %>
 <style>

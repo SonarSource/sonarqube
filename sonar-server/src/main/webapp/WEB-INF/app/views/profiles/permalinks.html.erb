@@ -1,3 +1,4 @@
+<div class="page">
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Permalinks'} %>
 
 <div class="tabs-panel marginbottom10 ">
@@ -5,7 +6,7 @@
 	<br/>
 	<table class="data without-header marginbottom10" id="permalinks-table">
 	  <tbody>
-	  <tr class="odd">
+	  <tr class="even">
 	    <td width="1%" nowrap>
 	      <%= message('quality_profiles.export_all_rules') -%>
 	    </td>
@@ -15,7 +16,7 @@
 	    </td>
 	  </tr>
 	  <% exporters.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |exporter| %>
-	    <tr class="<%= cycle('even','odd') -%>">
+	    <tr class="<%= cycle('odd','even') -%>">
 	      <td width="1%" nowrap>
 	        <%= h exporter.getName() -%>
 	      </td>
@@ -27,4 +28,5 @@
 	  <% end %>
 	  </tbody>
 	</table>
+</div>
 </div>

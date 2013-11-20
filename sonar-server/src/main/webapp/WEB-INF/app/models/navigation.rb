@@ -19,10 +19,19 @@
  #
 class Navigation
 
-  SECTION_HOME = 'home'
-  SECTION_RESOURCE = 'resource'
-  SECTION_CONFIGURATION = 'configuration'
-  SECTION_RESOURCE_CONFIGURATION = 'resource_configuration'
-  SECTION_SESSION = 'session'
+  attr_reader :key, :show_sidebar
 
+  def initialize(key, show_sidebar)
+    @key = key
+    @show_sidebar = show_sidebar
+  end
+
+  SECTION_HOME = Navigation.new('home', true)
+  SECTION_RESOURCE = Navigation.new('resource', true)
+  SECTION_CONFIGURATION = Navigation.new('configuration', true)
+  SECTION_RESOURCE_CONFIGURATION = Navigation.new('resource_configuration', true)
+  SECTION_SESSION = Navigation.new('session', true)
+  SECTION_ISSUES = Navigation.new('issues', false)
+  SECTION_MEASURES = Navigation.new('measures', false)
+  SECTION_QUALITY_PROFILES = Navigation.new('quality_profiles', false)
 end

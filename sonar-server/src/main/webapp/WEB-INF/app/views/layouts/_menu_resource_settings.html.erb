@@ -32,7 +32,7 @@
         <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('deletion.page') -%></a></li>
       <% end %>
       <% if is_admin
-          controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION, @project.scope, @project.qualifier, @project.language, nil).each do |page|
+          controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION.key, @project.scope, @project.qualifier, @project.language, nil).each do |page|
             page_url = "#{page.getId()}?resource=#{@project.id}"
       %>
         <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>

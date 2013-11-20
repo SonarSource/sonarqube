@@ -21,6 +21,8 @@ require 'set'
 
 class IssuesController < ApplicationController
 
+  SECTION=Navigation::SECTION_ISSUES
+
   before_filter :init_options
   before_filter :load_fav_filters, :only => [:index, :search, :search2, :filter, :manage, :favourites, :toggle_fav]
 
