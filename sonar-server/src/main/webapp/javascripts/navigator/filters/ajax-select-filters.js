@@ -69,24 +69,31 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     template: '#ajaxSelectFilterTemplate',
 
 
-    events: function() {
-      return _.extend({},
-          window.SS.DetailsSelectFilterView.prototype.events.call(this),
-          {
-            'keyup .navigator-filter-search input': 'search'
-          }
-      );
-    },
-
-
     initialize: function() {
       window.SS.DetailsSelectFilterView.prototype.initialize.apply(this, arguments);
-
     },
 
 
     onRender: function() {
       this.resetChoices();
+
+      var that = this,
+          keyup = function(e) {
+            if (e.keyCode !== 38 && e.keyCode !== 40) {
+              that.search();
+            }
+          },
+          debouncedKeyup = _.debounce(keyup, 250),
+          scroll = function() { that.scroll(); },
+          throttledScroll = _.throttle(scroll, 1000);
+
+      this.$('.navigator-filter-search input')
+          .off('keyup')
+          .on('keyup', debouncedKeyup);
+
+      this.$('.choices')
+          .off('scroll')
+          .on('scroll', throttledScroll);
     },
 
 
@@ -94,6 +101,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       var that = this;
       this.query = this.$('.navigator-filter-search input').val();
       if (this.query.length > 1) {
+        this.$el.addClass('fetching');
         this.options.filterView.choices.fetch({
           data: {
             s: this.query,
@@ -105,6 +113,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
             });
             that.options.filterView.choices.reset(choices);
             that.updateLists();
+            that.$el.removeClass('fetching');
           }
         });
       } else {
@@ -113,6 +122,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }
     },
 
+    scroll: function() {
+      var el = this.$('.choices'),
+          scrollBottom = el.scrollTop() >=
+          el[0].scrollHeight - el.outerHeight();
+
+      if (scrollBottom) {
+        this.options.filterView.selection.fetchNextPage();
+      }
+    },
+
+
 
     resetChoices: function() {
       this.options.filterView.choices.reset([]);
@@ -120,6 +140,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     onShow: function() {
+      window.SS.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
       this.$('.navigator-filter-search input').focus();
     }
 

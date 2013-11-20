@@ -1,4 +1,4 @@
-/* global _:false, $j:false, Backbone:false */
+/* global _:false, $j:false, Backbone:false, baseUrl:false */
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
@@ -42,6 +42,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     updateLists: function() {
       this.renderList(this.options.filterView.selection, '.selection', true);
       this.renderList(this.options.filterView.choices, '.choices', false);
+
+      var current = this.currentChoice || 0;
+      this.updateCurrent(current);
     },
 
 
@@ -76,6 +79,87 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    updateCurrent: function(index) {
+      this.currentChoice = index;
+      this.$('label').removeClass('current')
+          .eq(this.currentChoice).addClass('current');
+    },
+
+
+    onShow: function() {
+      this.bindedOnKeyDown = _.bind(this.onKeyDown, this);
+      $j('body').on('keydown', this.bindedOnKeyDown);
+    },
+
+
+    onHide: function() {
+      $j('body').off('keydown', this.bindedOnKeyDown);
+    },
+
+
+    onKeyDown: function(e) {
+      switch (e.keyCode) {
+        case 38:
+          this.selectPrevChoice();
+          break;
+        case 40:
+          this.selectNextChoice();
+          break;
+        case 32:
+          this.selectCurrent();
+          break;
+      }
+    },
+
+
+    selectNextChoice: function() {
+      if (this.$('label').length > this.currentChoice + 1) {
+        this.updateCurrent(this.currentChoice + 1);
+        this.scrollNext();
+      }
+    },
+
+
+    scrollNext: function() {
+      var currentLabel = this.$('label').eq(this.currentChoice);
+      if (currentLabel.length > 0) {
+        var list = currentLabel.closest('ul'),
+            labelPos = currentLabel.offset().top - list.offset().top + list.scrollTop(),
+            deltaScroll = labelPos - list.height() + currentLabel.outerHeight();
+
+        if (deltaScroll > 0) {
+          list.scrollTop(deltaScroll);
+        }
+      }
+    },
+
+
+    selectPrevChoice: function() {
+      if (this.currentChoice > 0) {
+        this.updateCurrent(this.currentChoice - 1);
+        this.scrollPrev();
+      }
+    },
+
+
+    scrollPrev: function() {
+      var currentLabel = this.$('label').eq(this.currentChoice);
+      if (currentLabel.length > 0) {
+        var list = currentLabel.closest('ul'),
+            labelPos = currentLabel.offset().top - list.offset().top;
+
+        if (labelPos < 0) {
+          list.scrollTop(list.scrollTop() + labelPos);
+        }
+      }
+    },
+
+
+    selectCurrent: function() {
+      this.$('label').eq(this.currentChoice).click();
+    },
+
+
     serializeData: function() {
       return _.extend({}, this.model.toJSON(), {
         selection: this.options.filterView.selection.toJSON(),
@@ -98,10 +182,22 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new Backbone.Collection([], { comparator: 'index' });
 
-      var index = 0;
+      var index = 0,
+          icons = this.model.get('choiceIcons');
+
       this.choices = new Backbone.Collection(
           _.map(this.model.get('choices'), function(value, key) {
-            return new Backbone.Model({ id: key, text: value, index: index++ });
+            var model = new Backbone.Model({
+              id: key,
+              text: value,
+              index: index++
+            });
+
+            if (icons && icons[key]) {
+              model.set('icon', baseUrl + icons[key]);
+            }
+
+            return model;
           }), { comparator: 'index' }
       );
     },

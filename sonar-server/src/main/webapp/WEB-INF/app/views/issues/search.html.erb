@@ -49,6 +49,9 @@
     <label>
       <input type="checkbox" value="{{ item.id }}"
       {[ if (checked) { ]}checked{[ } ]}>
+      {[ if (item.icon) { ]}
+      <img src="{{ item.icon }}" alt="{{ item.text }}">
+      {[ } ]}
       <span>{{ item.text }}</span>
     </label>
   </li>

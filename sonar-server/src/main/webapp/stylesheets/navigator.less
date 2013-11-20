@@ -14,7 +14,6 @@
 }
 
 .navigator-filters {
-  margin-bottom: 10px;
   border-bottom: 1px solid @darkGrey;
   background: @grey;
   font-size: 0;
@@ -23,6 +22,7 @@
 .navigator-filters-list {
   display: inline-block;
   vertical-align: middle;
+  margin-bottom: -1px;
   font-size: 0;
 }
 
@@ -127,6 +127,7 @@
   min-width: 100px;
   border: 1px solid @darkGrey;
   background: #fff;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   font-size: @baseFontSize;
   transition: opacity 0.3s ease;
 
@@ -155,8 +156,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &:hover {
+    &:hover,
+    &.current {
       background-color: darken(#fff, 7%);
+    }
+
+    img {
+      vertical-align: text-bottom;
     }
   }
 
@@ -182,13 +188,23 @@
 }
 
 .navigator-filter-search {
-  margin: @navigatorFilterPadding;
+  position: relative;
+  margin: @navigatorFilterPadding 26px @navigatorFilterPadding @navigatorFilterPadding;
 
   input {
     .size(100%, 26px);
     padding: 0 7px;
     border: 1px solid @darkGrey;
     .box-sizing(border-box);
+  }
+
+  .fetching &:after {
+    content: ' ';
+    position: absolute;
+    top: 6px; right: -21px;
+    display: block;
+    .square(16px);
+    background: #fff url(../images/loading.gif) no-repeat center center;
   }
 }
 
@@ -213,7 +229,12 @@
 
 .navigator-filter-favorite-toggle {
   .size(16px, @navigatorHeight);
-  background: url('../images/star.png') no-repeat center center;
+  background: url('../images/navigator/favorite-filters.png') no-repeat center center;
+
+  @media @retina {
+    background-image: url(../images/navigator/favorite-filters@2x.png);
+    background-size: 16px 14px;
+  }
 }
 
 .navigator-filter-more-criteria {
@@ -221,5 +242,10 @@
 }
 
 .navigator-results {
-
+  .notes {
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top: none;
+  }
+  #issues-list { margin: 0 10px; }
 }

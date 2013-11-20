@@ -48,6 +48,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'MAJOR': 'Major',
           'MINOR': 'Minor',
           'INFO': 'Info'
+        },
+        choiceIcons: {
+          'BLOCKER': '/images/priority/BLOCKER.png',
+          'CRITICAL': '/images/priority/CRITICAL.png',
+          'MAJOR': '/images/priority/MAJOR.png',
+          'MINOR': '/images/priority/MINOR.png',
+          'INFO': '/images/priority/INFO.png'
         }
       }),
 
@@ -63,6 +70,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'REOPENED': 'Reopened',
           'RESOLVED': 'Resolved',
           'CLOSED': 'Closed'
+        },
+        choiceIcons: {
+          'OPEN': '/images/status/OPEN.png',
+          'REOPENED': '/images/status/REOPENED.png',
+          'RESOLVED': '/images/status/RESOLVED.png',
+          'CLOSED': '/images/status/CLOSED.png'
         }
       }),
 

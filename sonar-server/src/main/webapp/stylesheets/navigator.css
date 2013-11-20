@@ -8,7 +8,6 @@
   overflow: hidden;
 }
 .navigator-filters {
-  margin-bottom: 10px;
   border-bottom: 1px solid #cdcdcd;
   background: #efefef;
   font-size: 0;
@@ -16,6 +15,7 @@
 .navigator-filters-list {
   display: inline-block;
   vertical-align: middle;
+  margin-bottom: -1px;
   font-size: 0;
 }
 .navigator-filter-submit,
@@ -107,6 +107,7 @@
   min-width: 100px;
   border: 1px solid #cdcdcd;
   background: #fff;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   font-size: 13px;
   transition: opacity 0.3s ease;
 }
@@ -132,8 +133,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.navigator-filter-select-list label:hover {
+.navigator-filter-select-list label:hover,
+.navigator-filter-select-list label.current {
   background-color: #ededed;
+}
+.navigator-filter-select-list label img {
+  vertical-align: text-bottom;
 }
 .navigator-filter-select-list input[type=checkbox] {
   position: relative;
@@ -152,7 +157,8 @@
   border-top: 1px solid #cdcdcd;
 }
 .navigator-filter-search {
-  margin: 10px;
+  position: relative;
+  margin: 10px 26px 10px 10px;
 }
 .navigator-filter-search input {
   width: 100%;
@@ -161,6 +167,16 @@
   border: 1px solid #cdcdcd;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+.fetching .navigator-filter-search:after {
+  content: ' ';
+  position: absolute;
+  top: 6px;
+  right: -21px;
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: #ffffff url(../images/loading.gif) no-repeat center center;
 }
 .navigator-filter-load-more {
   display: none;
@@ -182,8 +198,22 @@
 .navigator-filter-favorite-toggle {
   width: 16px;
   height: 36px;
-  background: url('../images/star.png') no-repeat center center;
+  background: url('../images/navigator/favorite-filters.png') no-repeat center center;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .navigator-filter-favorite-toggle {
+    background-image: url(../images/navigator/favorite-filters@2x.png);
+    background-size: 16px 14px;
+  }
 }
 .navigator-filter-more-criteria {
   font-size: 13px;
+}
+.navigator-results .notes {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-top: none;
+}
+.navigator-results #issues-list {
+  margin: 0 10px;
 }

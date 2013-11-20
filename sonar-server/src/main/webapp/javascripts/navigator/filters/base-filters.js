@@ -140,6 +140,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    isActive: function() {
+      return this.$el.is('.active');
+    },
+
+
     renderValue: function() {
       return this.model.get('value') || 'unset';
     },
