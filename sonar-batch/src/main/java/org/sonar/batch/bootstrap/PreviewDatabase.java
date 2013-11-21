@@ -77,7 +77,7 @@ public class PreviewDatabase implements BatchComponent {
   private int getReadTimeout() {
     int readTimeoutSec;
     if (settings.hasKey(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC)) {
-      LOG.warn(String.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC));
+      LOG.warn("Property {} is deprecated. Please use {} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
       readTimeoutSec = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC);
     } else if (settings.hasKey(CoreProperties.PREVIEW_READ_TIMEOUT_SEC)) {
       readTimeoutSec = settings.getInt(CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
