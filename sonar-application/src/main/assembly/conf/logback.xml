@@ -72,6 +72,17 @@
     <level value="WARN"/>
   </logger>
 
+  <!-- Restrict ElasticSearch logging level -->
+  <logger name="org.elasticsearch">
+    <level value="WARN"/>
+  </logger>
+  <logger name="org.elasticsearch.node">
+    <level value="INFO"/>
+  </logger>
+  <logger name="org.elasticsearch.http">
+    <level value="INFO"/>
+  </logger>
+
   <!-- Export of dry run database -->
   <!--
   <logger name="org.sonar.core.persistence.DbTemplate">
