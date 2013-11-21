@@ -76,7 +76,6 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       cursor.getStreamReader().closeCompletely();
 
     } catch (XMLStreamException e) {
-      LOG.error("XML is not valid", e);
       messages.addErrorText("XML is not valid: " + e.getMessage());
     }
     return model;
@@ -163,16 +162,11 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         function.setTextValue(TechnicalDebtRequirement.FUNCTION_LINEAR);
         CharacteristicProperty offset = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET);
         offset.setValue(0d);
-
-        String message = String.format("Linear with threshold function is no more used, function of the requirement '%s:%s' is replaced by linear.",
-          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey());
-        LOG.warn(message);
-        messages.addWarningText(message);
+        messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s:%s' is replaced by linear.",
+          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey()));
       } else if ("constant_resource".equals(function.getTextValue())) {
-        String message = String.format("Constant/file function is no more used, requirements '%s:%s' are ignored.",
-          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey());
-        LOG.warn(message);
-        messages.addWarningText(message);
+        messages.addWarningText(String.format("Constant/file function is no more used, requirements '%s:%s' are ignored.",
+          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey()));
         return null;
       }
     }
@@ -194,9 +188,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         try {
           value = NumberUtils.createDouble(s);
         } catch (NumberFormatException ex) {
-          String message = String.format("Cannot import value '%s' for field %s - Expected a numeric value instead", s, key);
-          LOG.error(message, ex);
-          messages.addErrorText(message);
+          messages.addErrorText(String.format("Cannot import value '%s' for field %s - Expected a numeric value instead", s, key));
         }
       } else if (StringUtils.equals(node, PROPERTY_TEXT_VALUE)) {
         textValue = c.collectDescendantText().trim();
