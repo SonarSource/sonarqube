@@ -64,12 +64,12 @@ public class InitialOpenIssuesStack implements BatchExtension {
   }
 
   public InitialOpenIssuesStack addChangelog(IssueChangeDto issueChangeDto) {
-    ArrayList<IssueChangeDto> changeDtos = issuesChangelogCache.get(issueChangeDto.getIssueKey());
+    List<IssueChangeDto> changeDtos = issuesChangelogCache.get(issueChangeDto.getIssueKey());
     if (changeDtos == null) {
       changeDtos = newArrayList();
     }
     changeDtos.add(issueChangeDto);
-    issuesChangelogCache.put(issueChangeDto.getIssueKey(), changeDtos);
+    issuesChangelogCache.put(issueChangeDto.getIssueKey(), newArrayList(changeDtos));
     return this;
   }
 

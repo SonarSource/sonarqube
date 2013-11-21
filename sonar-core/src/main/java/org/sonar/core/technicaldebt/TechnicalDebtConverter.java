@@ -25,6 +25,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.WorkDayDuration;
 
+import javax.annotation.Nullable;
+
 public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
 
   public static final String PROPERTY_HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
@@ -50,7 +52,7 @@ public class TechnicalDebtConverter implements BatchComponent, ServerComponent {
     }
   }
 
-  public double toDays(WorkDayDuration technicalDebt) {
+  public double toDays(@Nullable WorkDayDuration technicalDebt) {
     if (technicalDebt == null) {
       return 0d;
     }

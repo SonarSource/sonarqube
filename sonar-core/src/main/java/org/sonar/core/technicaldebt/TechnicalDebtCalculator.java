@@ -46,13 +46,13 @@ public class TechnicalDebtCalculator implements BatchExtension {
   }
 
   private long calculTechnicalDebt(TechnicalDebtRequirement requirement, Issue issue) {
-    long effortToFix = Objects.firstNonNull(issue.effortToFix(), 1l).longValue();
+    long effortToFix = Objects.firstNonNull(issue.effortToFix(), 1L).longValue();
 
     WorkUnit factorUnit = requirement.getRemediationFactor();
-    long factor = factorUnit != null ? converter.toMinutes(factorUnit) : 0l;
+    long factor = factorUnit != null ? converter.toMinutes(factorUnit) : 0L;
 
     WorkUnit offsetUnit = requirement.getOffset();
-    long offset = offsetUnit != null ? converter.toMinutes(offsetUnit) : 0l;
+    long offset = offsetUnit != null ? converter.toMinutes(offsetUnit) : 0L;
 
     return effortToFix * factor + offset;
   }
