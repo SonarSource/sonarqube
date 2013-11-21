@@ -44,6 +44,13 @@ class Project < ActiveRecord::Base
     end
   end
 
+  # return an array with exactly the same size than keys. If an item is not found, then it's nil.
+  def self.by_keys(keys)
+    keys.map do |key|
+      by_key(key)
+    end
+  end
+
   def self.delete_resource_tree(project)
     java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
     if project && java_facade.getResourceTypeBooleanProperty(project.qualifier, 'deletable')
