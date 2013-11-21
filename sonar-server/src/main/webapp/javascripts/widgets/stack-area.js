@@ -130,7 +130,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure info
     this.infoWrap
         .attr('class', 'info')
-        .attr('transform', trans(0, -45));
+        .attr('transform', trans(0, -60));
 
     this.infoDate
         .attr('class', 'info-text info-text-bold')
@@ -142,7 +142,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.infoSnapshot
         .attr('class', 'info-text info-text-small')
-        .attr('transform', trans(0, 36));
+        .attr('transform', trans(0, 54));
 
     this.infoMetrics = [];
     var prevX = 110;
@@ -162,12 +162,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       // Align metric labels
       infoMetric
           .attr('transform', function() {
-            return trans(prevX, -1 + (i % 2) * 18);
+            return trans(prevX, -1 + (i % 3) * 18);
           });
 
       widget.infoMetrics.push(infoMetric);
 
-      prevX += (infoMetricText.node().getComputedTextLength() + 80) * (i % 2);
+      if (i % 3 === 2) {
+        prevX += (infoMetricText.node().getComputedTextLength() + 60);
+      }
     });
 
 
@@ -328,7 +330,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.StackArea.defaults = {
     width: 350,
     height: 150,
-    margin: { top: 65, right: 10, bottom: 40, left: 40 }
+    margin: { top: 80, right: 10, bottom: 40, left: 40 }
   };
 
 
