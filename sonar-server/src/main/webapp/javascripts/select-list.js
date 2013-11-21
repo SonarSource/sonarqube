@@ -157,7 +157,7 @@
 
       this.$listContainer = this.$('.select-list-list-container')
           .height(this.settings.height)
-          .css('overflow', 'scroll')
+          .css('overflow', 'auto')
           .on('scroll', function() { that.scroll(); });
 
       this.$list = this.$('.select-list-list');
