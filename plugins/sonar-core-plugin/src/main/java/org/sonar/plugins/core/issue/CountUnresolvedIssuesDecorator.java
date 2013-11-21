@@ -214,8 +214,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
         measure.setSeverity(severity);
         for (Period period : timeMachineConfiguration.periods()) {
           int variationIndex = period.getIndex();
-          int count = countIssuesAfterDate(issuesPerRule.get(rule), period.getTargetDate());
-          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRule.get(rule)) + count;
+          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRule.get(rule)) + countIssues(issuesPerRule.get(rule), period);
           measure.setVariation(variationIndex, sum);
         }
         context.saveMeasure(measure);
@@ -227,10 +226,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     for (Period period : timeMachineConfiguration.periods()) {
       int variationIndex = period.getIndex();
       Collection<Measure> children = context.getChildrenMeasures(measure.getMetric());
-      // SONAR-3647 Use real snapshot date and not target date in order to stay consistent with other measure variations
-      Date datePlusOneSecond = period.getDate() != null ? DateUtils.addSeconds(period.getDate(), 1) : null;
-      int count = countIssuesAfterDate(issues, datePlusOneSecond);
-      double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + count;
+      double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + countIssues(issues, period);
       measure.setVariation(variationIndex, sum);
     }
     context.saveMeasure(measure);
@@ -255,6 +251,12 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       rulesPerSeverity.put(severity, rulesBag);
     }
     return rulesBag;
+  }
+
+  private int countIssues(Collection<Issue> issues, Period period) {
+    // SONAR-3647 Use real snapshot date and not target date in order to stay consistent with other measure variations
+    Date datePlusOneSecond = period.getDate() != null ? DateUtils.addSeconds(period.getDate(), 1) : null;
+    return countIssuesAfterDate(issues, datePlusOneSecond);
   }
 
   @VisibleForTesting
