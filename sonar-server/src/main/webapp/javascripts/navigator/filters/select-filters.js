@@ -100,12 +100,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     onKeyDown: function(e) {
       switch (e.keyCode) {
         case 38:
+          e.preventDefault();
           this.selectPrevChoice();
           break;
         case 40:
+          e.preventDefault();
           this.selectNextChoice();
           break;
         case 32:
+        case 13:
+          e.preventDefault();
           this.selectCurrent();
           break;
       }

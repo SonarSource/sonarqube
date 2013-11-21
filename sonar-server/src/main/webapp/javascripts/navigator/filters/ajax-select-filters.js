@@ -88,8 +88,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           throttledScroll = _.throttle(scroll, 1000);
 
       this.$('.navigator-filter-search input')
-          .off('keyup')
-          .on('keyup', debouncedKeyup);
+          .off('keyup keydown')
+          .on('keyup', debouncedKeyup)
+          .on('keydown', this.keydown);
 
       this.$('.choices')
           .off('scroll')
@@ -122,6 +123,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }
     },
 
+
     scroll: function() {
       var el = this.$('.choices'),
           scrollBottom = el.scrollTop() >=
@@ -132,6 +134,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }
     },
 
+
+    keydown: function(e) {
+      if (_([37, 38, 39, 40, 32, 13]).indexOf(e.keyCode) !== -1) {
+        e.preventDefault();
+      }
+    },
 
 
     resetChoices: function() {
