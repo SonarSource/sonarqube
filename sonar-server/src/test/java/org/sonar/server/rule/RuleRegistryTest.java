@@ -123,6 +123,11 @@ public class RuleRegistryTest {
     assertThat(registry.findIds(ImmutableMap.of("key", "RuleWithParameters|OneIssuePerLine"))).hasSize(2);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void should_wrap_parse_exceptions() {
+    registry.findIds(ImmutableMap.of("nameOrKey", "\"'"));
+  }
+
   @Test
   public void should_index_all_rules() {
     DatabaseSession session = mock(DatabaseSession.class);

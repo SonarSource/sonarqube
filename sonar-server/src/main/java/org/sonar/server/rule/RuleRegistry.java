@@ -21,6 +21,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.Lists;
+import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -111,11 +112,15 @@ public class RuleRegistry {
       searchQuery.field(param.getKey(), param.getValue().split("\\|"));
     }
 
-    List<Integer> result = Lists.newArrayList();
-    for(String docId: searchIndex.findDocumentIds(searchQuery)) {
-      result.add(Integer.parseInt(docId));
+    try {
+      List<Integer> result = Lists.newArrayList();
+      for(String docId: searchIndex.findDocumentIds(searchQuery)) {
+        result.add(Integer.parseInt(docId));
+      }
+      return result;
+    } catch(ElasticSearchException searchException) {
+      throw new IllegalArgumentException("Unable to perform search, please check query", searchException);
     }
-    return result;
   }
 
   /**

@@ -72,9 +72,9 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- Restrict ElasticSearch logging level -->
+  <!-- Turn off ElasticSearch logging -->
   <logger name="org.elasticsearch">
-    <level value="WARN"/>
+    <level value="OFF"/>
   </logger>
   <logger name="org.elasticsearch.node">
     <level value="INFO"/>
