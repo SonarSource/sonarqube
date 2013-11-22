@@ -34,7 +34,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   background-image: -moz-linear-gradient(center bottom, #eeeeee 0%, white 50%);
   background-image: -o-linear-gradient(bottom, #eeeeee 0%, #ffffff 50%);
   background-image: -ms-linear-gradient(top, #eeeeee 0%, #ffffff 50%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#eeeeee', endColorstr = '#ffffff', GradientType = 0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#ffffff', GradientType=0);
   background-image: linear-gradient(top, #eeeeee 0%, #ffffff 50%);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -47,11 +47,8 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-
-  /* sonar: reduce height and font-size */
-  height: 20px;
-  line-height: 20px;
-  font-size: 93%;
+  height: 26px;
+  line-height: 26px;
   padding: 0 0 0 8px;
   color: #444;
   text-decoration: none;
@@ -67,7 +64,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   background-image: -moz-linear-gradient(center bottom, #eeeeee 0%, white 90%);
   background-image: -o-linear-gradient(bottom, #eeeeee 0%, white 90%);
   background-image: -ms-linear-gradient(top, #eeeeee 0%, #ffffff 90%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#eeeeee', endColorstr = '#ffffff', GradientType = 0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#ffffff', GradientType=0);
   background-image: linear-gradient(top, #eeeeee 0%, #ffffff 90%);
 }
 
@@ -85,12 +82,11 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   display: block;
   position: absolute;
   right: 26px;
-  top: 4px;
+  top: 8px;
   width: 12px;
   height: 12px;
   font-size: 1px;
-  /* sonar : change path to png */
-  background: url('../images/select2.png') right top no-repeat;
+  background: url('select2.png') right top no-repeat;
   cursor: pointer;
   text-decoration: none;
   border: 0;
@@ -116,7 +112,6 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   z-index: 9999;
   width: 100%;
   margin-top: -1px;
-
   -webkit-border-radius: 0 0 4px 4px;
   -moz-border-radius: 0 0 4px 4px;
   border-radius: 0 0 4px 4px;
@@ -129,7 +124,6 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   margin-top: 1px;
   border-top: 1px solid #aaa;
   border-bottom: 0;
-
   -webkit-box-shadow: 0 -4px 5px rgba(0, 0, 0, .15);
   -moz-box-shadow: 0 -4px 5px rgba(0, 0, 0, .15);
   -o-box-shadow: 0 -4px 5px rgba(0, 0, 0, .15);
@@ -142,7 +136,6 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   border-radius: 0 4px 4px 0;
   -moz-background-clip: padding;
   -webkit-background-clip: padding-box;
-  /* sonar: customize selection arrow
   background-clip: padding-box;
   background: #ccc;
   background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ccc), color-stop(0.6, #eee));
@@ -150,13 +143,9 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   background-image: -moz-linear-gradient(center bottom, #ccc 0%, #eee 60%);
   background-image: -o-linear-gradient(bottom, #ccc 0%, #eee 60%);
   background-image: -ms-linear-gradient(top, #cccccc 0%, #eeeeee 60%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#cccccc', endColorstr = '#eeeeee', GradientType = 0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#eeeeee', GradientType=0);
   background-image: linear-gradient(top, #cccccc 0%, #eeeeee 60%);
-  */
-
-
-  /* sonar: customize selection arrow
-  border-left: 1px solid #aaa;*/
+  border-left: 1px solid #aaa;
   position: absolute;
   right: 0;
   top: 0;
@@ -166,8 +155,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
 }
 
 .select2-container .select2-choice div b {
-  /* sonar : change path to png */
-  background: url('../images/select2.png') no-repeat 0 -2px;
+  background: url('select2.png') no-repeat 0 1px;
   display: block;
   width: 100%;
   height: 100%;
@@ -191,14 +179,13 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
 }
 
 .select2-search input {
-  /* sonar : change path to png */
-  background: #fff url('../images/select2.png') no-repeat 100% -22px;
-  background: url('../images/select2.png') no-repeat 100% -22px, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
-  background: url('../images/select2.png') no-repeat 100% -22px, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-  background: url('../images/select2.png') no-repeat 100% -22px, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-  background: url('../images/select2.png') no-repeat 100% -22px, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
-  background: url('../images/select2.png') no-repeat 100% -22px, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
-  background: url('../images/select2.png') no-repeat 100% -22px, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+  background: #fff url('select2.png') no-repeat 100% -22px;
+  background: url('select2.png') no-repeat 100% -22px, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
+  background: url('select2.png') no-repeat 100% -22px, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+  background: url('select2.png') no-repeat 100% -22px, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+  background: url('select2.png') no-repeat 100% -22px, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
+  background: url('select2.png') no-repeat 100% -22px, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+  background: url('select2.png') no-repeat 100% -22px, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
   padding: 4px 20px 4px 5px;
   outline: 0;
   border: 1px solid #aaa;
@@ -221,14 +208,13 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
 }
 
 .select2-search input.select2-active {
-  /* sonar : change path to gif */
-  background: #fff url('../images/spinner.gif') no-repeat 100%;
-  background: url('../images/spinner.gif') no-repeat 100%, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
-  background: url('../images/spinner.gif') no-repeat 100%, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-  background: url('../images/spinner.gif') no-repeat 100%, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-  background: url('../images/spinner.gif') no-repeat 100%, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
-  background: url('../images/spinner.gif') no-repeat 100%, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
-  background: url('../images/spinner.gif') no-repeat 100%, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+  background: #fff url('spinner.gif') no-repeat 100%;
+  background: url('spinner.gif') no-repeat 100%, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
+  background: url('spinner.gif') no-repeat 100%, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+  background: url('spinner.gif') no-repeat 100%, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+  background: url('spinner.gif') no-repeat 100%, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
+  background: url('spinner.gif') no-repeat 100%, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+  background: url('spinner.gif') no-repeat 100%, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
 }
 
 .select2-container-active .select2-choice,
@@ -254,7 +240,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   background-image: -moz-linear-gradient(center bottom, white 0%, #eeeeee 50%);
   background-image: -o-linear-gradient(bottom, white 0%, #eeeeee 50%);
   background-image: -ms-linear-gradient(top, #ffffff 0%, #eeeeee 50%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#eeeeee', GradientType = 0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
   background-image: linear-gradient(top, #ffffff 0%, #eeeeee 50%);
   -webkit-border-bottom-left-radius: 0;
   -webkit-border-bottom-right-radius: 0;
@@ -287,33 +273,19 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   margin: 0 0 0 0;
 }
 
-.select2-results ul.select2-result-sub > li .select2-result-label {
-  padding-left: 20px
-}
+.select2-results ul.select2-result-sub > li .select2-result-label { padding-left: 20px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 40px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 40px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 60px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 60px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 80px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 80px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 100px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 100px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 110px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 110px }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-  padding-left: 120px
-}
+.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label { padding-left: 120px }
 
 .select2-results li {
   list-style: none;
@@ -331,8 +303,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
 }
 
 .select2-results .select2-highlighted {
-  /* sonar: change background-color from #3875d7 to #4b9fd5 */
-  background: #4b9fd5;
+  background: #3875d7;
   color: #fff;
 }
 
@@ -371,8 +342,7 @@ disabled look for already selected choices in the results dropdown
 }
 
 .select2-more-results.select2-active {
-  /* sonar : change path to image */
-  background: #f4f4f4 url('../images/spinner.gif') no-repeat 100%;
+  background: #f4f4f4 url('spinner.gif') no-repeat 100%;
 }
 
 .select2-more-results {
@@ -416,8 +386,7 @@ disabled look for already selected choices in the results dropdown
 }
 
 .select2-container-multi .select2-choices {
-  /* sonar : reduce height by 4 pixels */
-  min-height: 20px;
+  min-height: 26px;
 }
 
 .select2-container-multi.select2-container-active .select2-choices {
@@ -425,27 +394,8 @@ disabled look for already selected choices in the results dropdown
   -moz-box-shadow: 0 0 5px rgba(0, 0, 0, .3);
   -o-box-shadow: 0 0 5px rgba(0, 0, 0, .3);
   box-shadow: 0 0 5px rgba(0, 0, 0, .3);
-  /* sonar : change border color */
-  border: 1px solid #4b9fd5;
+  border: 1px solid #5897fb;
   outline: none;
-}
-
-.select2-container-multi .select2-choices .select2-search-field input {
-  color: #666;
-  background: transparent !important;
-  font-family: sans-serif;
-  /* sonar : reduce height by 4 pixels */
-  font-size: 93%;
-  height: 11px;
-  margin: 0;
-  /* /sonar */
-  padding: 5px;
-  outline: 0;
-  border: 0;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  -o-box-shadow: none;
-  box-shadow: none;
 }
 
 .select2-container-multi .select2-choices li {
@@ -459,9 +409,24 @@ disabled look for already selected choices in the results dropdown
   padding: 0;
 }
 
+.select2-container-multi .select2-choices .select2-search-field input {
+  color: #666;
+  background: transparent !important;
+  font-family: sans-serif;
+  font-size: 100%;
+  height: 15px;
+  padding: 5px;
+  margin: 1px 0;
+  outline: 0;
+  border: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  -o-box-shadow: none;
+  box-shadow: none;
+}
+
 .select2-container-multi .select2-choices .select2-search-field input.select2-active {
-  /* sonar : change path to image */
-  background: #fff url('../images/spinner.gif') no-repeat 100% !important;
+  background: #fff url('spinner.gif') no-repeat 100% !important;
 }
 
 .select2-default {
@@ -476,7 +441,7 @@ disabled look for already selected choices in the results dropdown
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
   background-color: #e4e4e4;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#f4f4f4', endColorstr = '#eeeeee', GradientType = 0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f4f4f4', endColorstr='#eeeeee', GradientType=0);
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, #f4f4f4), color-stop(50%, #f0f0f0), color-stop(52%, #e8e8e8), color-stop(100%, #eeeeee));
   background-image: -webkit-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
   background-image: -moz-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
@@ -488,11 +453,9 @@ disabled look for already selected choices in the results dropdown
   box-shadow: 0 0 2px #ffffff inset, 0 1px 0 rgba(0, 0, 0, 0.05);
   color: #333;
   border: 1px solid #aaaaaa;
-  /* sonar : reduce height */
-  line-height: 11px;
-  font-size: 93%;
-  padding: 3px 5px 3px 15px;
-  margin: 1px 0 1px 1px;
+  line-height: 13px;
+  padding: 3px 5px 3px 18px;
+  margin: 3px 0 3px 5px;
   position: relative;
   cursor: default;
 }
@@ -509,12 +472,11 @@ disabled look for already selected choices in the results dropdown
   display: block;
   position: absolute;
   right: 3px;
-  top: 2px;
+  top: 4px;
   width: 12px;
-  height: 11px;
+  height: 13px;
   font-size: 1px;
-  /* sonar : change path to image */
-  background: url('../images/select2.png') right top no-repeat;
+  background: url('select2.png') right top no-repeat;
   outline: none;
 }
 
@@ -553,25 +515,17 @@ disabled look for already selected choices in the results dropdown
 /* end multiselect */
 
 .select2-result-selectable .select2-match,
-.select2-result-unselectable .select2-result-selectable .select2-match {
-  text-decoration: underline;
-}
+.select2-result-unselectable .select2-result-selectable .select2-match { text-decoration: underline; }
 
-.select2-result-unselectable .select2-match {
-  text-decoration: none;
-}
+.select2-result-unselectable .select2-match { text-decoration: none; }
 
-.select2-offscreen {
-  position: absolute;
-  left: -10000px;
-}
+.select2-offscreen { position: absolute; left: -10000px; }
 
 /* Retina-ize icons */
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
   .select2-search input, .select2-search-choice-close, .select2-container .select2-choice abbr, .select2-container .select2-choice div b {
-    /* sonar : change path to image */
-    background-image: url('../images/select2x2.png') !important;
+    background-image: url(select2x2.png) !important;
     background-repeat: no-repeat !important;
     background-size: 60px 40px !important;
   }
