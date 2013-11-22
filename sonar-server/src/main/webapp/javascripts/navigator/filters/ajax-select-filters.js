@@ -243,6 +243,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     onShow: function() {
+      AjaxSelectDetailsFilterView.prototype.onShow.apply(this, arguments);
       this.$('.navigator-filter-search input').focus();
     }
 
