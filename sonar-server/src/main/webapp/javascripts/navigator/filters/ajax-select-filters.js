@@ -174,23 +174,49 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    restore: function(value) {
+    restore: function(value, param) {
       if (this.choices && this.selection && value.length > 0) {
-        var that = this;
         this.selection.reset([]);
 
-        var requests = _.map(value, function(v) {
-          return that.createRequest(v);
-        });
-
-        $j.when.apply($j, requests).done(function () {
-          that.detailsView.updateLists();
-          that.model.set({
-            value: value,
-            enabled: true
-          });
-        });
+        if (_.isArray(param.text) && param.text.length === value.length) {
+          this.restoreFromText(value, param.text);
+        } else {
+          this.restoreByRequests(value);
+        }
       }
+    },
+
+
+    restoreFromText: function(value, text) {
+      var that = this;
+      _.each(value, function(v, i) {
+        that.selection.add(new Backbone.Model({
+          id: v,
+          text: text[i]
+        }));
+      });
+      this.onRestore(value);
+    },
+
+
+    restoreByRequests: function(value) {
+      var that = this,
+          requests = _.map(value, function(v) {
+            return that.createRequest(v);
+          });
+
+      $j.when.apply($j, requests).done(function () {
+        that.onRestore(value);
+      });
+    },
+
+
+    onRestore: function(value) {
+      this.detailsView.updateLists();
+      this.model.set({
+        value: value,
+        enabled: true
+      });
     },
 
 
@@ -263,33 +289,26 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    restore: function(value) {
-      if (this.choices && this.selection && value.length > 0) {
-        var that = this;
-        this.selection.reset([]);
-
-        if (_.indexOf(value, '<unassigned>') !== -1) {
-          this.selection.add(new Backbone.Model({
-            id: '<unassigned>',
-            text: 'Unassigned'
-          }));
-          this.choices.reset([]);
-          value = _.reject(value, function(k) { return k === '<unassigned>'; });
-        }
-
-
-        var requests = _.map(value, function(v) {
-          return that.createRequest(v);
-        });
-
-        $j.when.apply($j, requests).done(function () {
-          that.detailsView.updateLists();
-          that.model.set({
-            value: value,
-            enabled: true
-          });
-        });
+    restoreFromText: function(value, text) {
+      if (_.indexOf(value, '<unassigned>') !== -1) {
+        this.choices.reset([]);
       }
+
+      AjaxSelectFilterView.prototype.restoreFromText.apply(this, arguments);
+    },
+
+
+    restoreByRequests: function(value) {
+      if (_.indexOf(value, '<unassigned>') !== -1) {
+        this.selection.add(new Backbone.Model({
+          id: '<unassigned>',
+          text: 'Unassigned'
+        }));
+        this.choices.reset([]);
+        value = _.reject(value, function(k) { return k === '<unassigned>'; });
+      }
+
+      AjaxSelectFilterView.prototype.restoreByRequests.call(this, value);
     },
 
 

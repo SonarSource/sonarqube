@@ -158,7 +158,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     restoreFromQuery: function(q) {
       var param = _.findWhere(q, { key: this.model.get('property') });
       if (param && param.value) {
-        this.restore(param.value);
+        this.restore(param.value, param);
       }
     },
 
