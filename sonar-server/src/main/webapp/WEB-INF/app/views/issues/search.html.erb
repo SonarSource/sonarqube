@@ -114,6 +114,11 @@
   </ul>
 </script>
 
+<%
+   component_labels = Project.by_keys(@issues_query.componentRoots).map{|c| c ? c.name : nil}
+   assignee_labels = user_labels(@issues_query.assignees)
+   reporter_labels = user_labels(@issues_query.reporters)
+%>
 <script>
   _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g,
@@ -128,12 +133,12 @@
   });
 
   var queryParams = [
-    { key: 'componentRoots', value: <%= @issues_query.componentRoots.to_json -%>, text: <%= Project.by_keys(@issues_query.componentRoots).map{|c| c ? c.name : nil}.to_json -%> },
+    { key: 'componentRoots', value: <%= @issues_query.componentRoots.to_json -%>, text: <%= component_labels.to_json -%> },
     { key: 'severities[]', value: <%= @issues_query.severities.to_json -%> },
     { key: 'statuses[]', value: <%= @issues_query.statuses.to_json -%> },
     { key: 'resolutions[]', value: <%= @issues_query.resolutions.to_json -%> },
-    { key: 'assignees', value: <%= @issues_query.assignees.to_json -%> },
-    { key: 'reporters', value: <%= @issues_query.reporters.to_json -%> },
+    { key: 'assignees', value: <%= @issues_query.assignees.to_json -%>, text: <%= assignee_labels.to_json -%> },
+    { key: 'reporters', value: <%= @issues_query.reporters.to_json -%>, text: <%= reporter_labels.to_json -%> },
     { key: 'createdAfter', value: '<%= Api::Utils.format_date(@issues_query.createdAfter) -%>' },
     { key: 'createdBefore', value: '<%= Api::Utils.format_date(@issues_query.createdBefore) -%>' }
   ];

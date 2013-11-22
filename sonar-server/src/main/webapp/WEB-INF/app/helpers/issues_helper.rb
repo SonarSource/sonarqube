@@ -57,4 +57,14 @@ module IssuesHelper
     options
   end
 
+  def user_labels(logins)
+    logins.map do |login|
+      if login=='<unassigned>'
+        Api::Utils.message('unassigned')
+      else
+        user = Api.users.findByLogin(login)
+        user ? "#{user.name} (#{user.login})" : login
+      end
+    end
+  end
 end
