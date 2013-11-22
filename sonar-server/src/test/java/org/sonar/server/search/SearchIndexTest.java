@@ -23,6 +23,7 @@ package org.sonar.server.search;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.mapper.StrictDynamicMappingException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,5 +124,13 @@ public class SearchIndexTest {
 
     List<String> docIds = searchIndex.findDocumentIds(SearchQuery.create());
     assertThat(docIds).hasSize(numberOfDocuments);
+  }
+
+  @Test(expected = StrictDynamicMappingException.class)
+  public void should_forbid_dynamic_mapping() throws Exception {
+    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/search/SearchIndexTest/correct_mapping1.json");
+    searchIndex.put("index", "type1", "666",
+      XContentFactory.jsonBuilder().startObject().field("unknown", "plouf").endObject()
+    );
   }
 }

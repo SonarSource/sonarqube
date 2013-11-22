@@ -54,9 +54,12 @@ public class SearchIndex {
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
 
   private static final Settings INDEX_DEFAULT_SETTINGS = ImmutableSettings.builder()
-    .put("index.number_of_shards", 1)
-    .put("index.number_of_replicas", 0)
+    .put("number_of_shards", 1)
+    .put("number_of_replicas", 0)
+    .put("mapper.dynamic", false)
     .build();
+
+  private static final String INDEX_DEFAULT_MAPPING = "{ \"_default_\": { \"dynamic\": \"strict\" } }";
 
   private SearchNode searchNode;
   private Client client;
@@ -138,6 +141,7 @@ public class SearchIndex {
         profiler.start(format("create index '%s'", index));
         indices.prepareCreate(index)
           .setSettings(INDEX_DEFAULT_SETTINGS)
+          .addMapping("_default_", INDEX_DEFAULT_MAPPING)
           .execute().actionGet();
       }
     } catch (Exception e) {
