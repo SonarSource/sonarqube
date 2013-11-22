@@ -26,6 +26,8 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -36,11 +38,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.TimeProfiler;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static java.lang.String.format;
 
 public class SearchIndex {
 
@@ -72,7 +77,11 @@ public class SearchIndex {
   }
 
   private void internalPut(String index, String type, String id, BytesStream source, boolean refresh) {
-    client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh).execute().actionGet();
+    IndexRequestBuilder builder = client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh);
+    TimeProfiler profiler = newDebugProfiler();
+    profiler.start(format("put document with id '%s' with type '%s' into index '%s'", id, type, index));
+    builder.execute().actionGet();
+    profiler.stop();
   }
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources) {
@@ -80,7 +89,9 @@ public class SearchIndex {
     for (int i=0; i<ids.length; i++) {
       builder.add(client.prepareIndex(index, type, ids[i]).setSource(sources[i].bytes()));
     }
+    TimeProfiler profiler = newDebugProfiler();
     try {
+      profiler.start(format("bulk index of %d documents with type '%s' into index '%s'", ids.length, type, index));
       BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
       if (bulkResponse.hasFailures()) {
         // Retry once per failed doc -- ugly
@@ -95,6 +106,8 @@ public class SearchIndex {
       LOG.error("Interrupted during bulk operation", e);
     } catch (ExecutionException e) {
       LOG.error("Execution of bulk operation failed", e);
+    } finally {
+      profiler.stop();
     }
   }
 
@@ -112,18 +125,25 @@ public class SearchIndex {
 
   private void addMapping(String index, String type, String mapping) {
     IndicesAdminClient indices = client.admin().indices();
+    TimeProfiler profiler = newDebugProfiler();
     try {
       if (! indices.exists(new IndicesExistsRequest(index)).get().isExists()) {
+        profiler.start(format("create index '%s'", index));
         indices.prepareCreate(index).execute().actionGet();
       }
     } catch (Exception e) {
       LOG.error("While checking for index existence", e);
+    } finally {
+      profiler.stop();
     }
 
+    profiler.start(format("put mapping on index '%s' for type '%s'", index, type));
     try {
       indices.putMapping(Requests.putMappingRequest(index).type(type).source(mapping)).actionGet();
     } catch(ElasticSearchParseException parseException) {
       throw new IllegalArgumentException("Invalid mapping file", parseException);
+    } finally {
+      profiler.stop();
     }
   }
 
@@ -131,7 +151,11 @@ public class SearchIndex {
     List<String> result = Lists.newArrayList();
     final int scrollTime = 100;
 
-    SearchResponse scrollResp = searchQuery.toBuilder(client).addField("_id")
+    SearchRequestBuilder builder = searchQuery.toBuilder(client);
+    LOG.debug("findDocumentIds" + builder.internalBuilder().toString());
+    TimeProfiler profiler = newDebugProfiler();
+    profiler.start("findDocumentIds");
+    SearchResponse scrollResp = builder.addField("_id")
             .setSearchType(SearchType.SCAN)
             .setScroll(new TimeValue(scrollTime))
             .setSize(searchQuery.scrollSize()).execute().actionGet();
@@ -146,8 +170,15 @@ public class SearchIndex {
         break;
       }
     }
+    profiler.stop();
 
     return result;
+  }
+
+  private TimeProfiler newDebugProfiler() {
+    TimeProfiler profiler = new TimeProfiler();
+    profiler.setLogger(LOG);
+    return profiler;
   }
 
 }

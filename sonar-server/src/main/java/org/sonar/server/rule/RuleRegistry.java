@@ -71,16 +71,15 @@ public class RuleRegistry {
   public void bulkRegisterRules() {
     TimeProfiler profiler = new TimeProfiler();
     DatabaseSession session = sessionFactory.getSession();
-    profiler.start("Rebuilding rules index");
 
+    profiler.start("Rebuilding rules index - query");
     List<Rule> rules = session.getResults(Rule.class);
+    profiler.stop();
 
     try {
       bulkIndex(rules);
     } catch(IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
-    } finally {
-      profiler.stop();
     }
   }
 
@@ -141,12 +140,17 @@ public class RuleRegistry {
     String[] ids = new String[rules.size()];
     BytesStream[] docs = new BytesStream[rules.size()];
     int index = 0;
+    TimeProfiler profiler = new TimeProfiler();
+    profiler.start("Build rules documents");
     for (Rule rule: rules) {
       ids[index] = rule.getId().toString();
       docs[index] = ruleDocument(rule);
       index ++;
     }
+    profiler.stop();
+    profiler.start("Index rules");
     searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
+    profiler.stop();
   }
 
   private XContentBuilder ruleDocument(Rule rule) throws IOException {

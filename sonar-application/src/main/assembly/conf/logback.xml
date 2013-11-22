@@ -82,6 +82,12 @@
   <logger name="org.elasticsearch.http">
     <level value="INFO"/>
   </logger>
+  <!-- ElasticSearch profiling information -->
+  <!--
+  <logger name="org.sonar.server.search">
+    <level value="DEBUG"/>
+  </logger>
+  -->
 
   <!-- Export of dry run database -->
   <!--
