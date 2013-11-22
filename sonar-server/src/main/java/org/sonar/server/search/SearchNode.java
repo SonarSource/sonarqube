@@ -66,10 +66,7 @@ public class SearchNode {
       .put("node.path.data", nodeDir)
       .put("node.path.work", nodeDir)
       .put("node.path.logs", nodeDir)
-      .put("gateway.type", "none")
-      .put("index.store.type", "ram")
-      .put("index.number_of_shards", 1)
-      .put("index.number_of_replicas", 0);
+      .put("gateway.type", "none");
 
     String httpHost = settings.getString("sonar.es.http.host");
     String httpPort = settings.getString("sonar.es.http.port");

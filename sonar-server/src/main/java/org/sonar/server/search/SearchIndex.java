@@ -34,6 +34,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
@@ -50,6 +52,11 @@ import static java.lang.String.format;
 public class SearchIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
+
+  private static final Settings INDEX_DEFAULT_SETTINGS = ImmutableSettings.builder()
+    .put("index.number_of_shards", 1)
+    .put("index.number_of_replicas", 0)
+    .build();
 
   private SearchNode searchNode;
   private Client client;
@@ -129,7 +136,9 @@ public class SearchIndex {
     try {
       if (! indices.exists(new IndicesExistsRequest(index)).get().isExists()) {
         profiler.start(format("create index '%s'", index));
-        indices.prepareCreate(index).execute().actionGet();
+        indices.prepareCreate(index)
+          .setSettings(INDEX_DEFAULT_SETTINGS)
+          .execute().actionGet();
       }
     } catch (Exception e) {
       LOG.error("While checking for index existence", e);
