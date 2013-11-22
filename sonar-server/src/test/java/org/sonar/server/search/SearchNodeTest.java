@@ -27,7 +27,8 @@ import org.elasticsearch.node.NodeBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.TempFolder;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 public class SearchNodeTest {
 
-  private TempFolder tempFolder;
+  private ServerFileSystem fileSystem;
   private Settings settings;
   private ImmutableSettings.Builder settingsBuilder;
   private NodeBuilder nodeBuilder;
@@ -49,8 +50,13 @@ public class SearchNodeTest {
 
   @Before
   public void createMocks() {
-    tempFolder = mock(TempFolder.class);
-    when(tempFolder.newDir("es")).thenReturn(mock(File.class));
+    fileSystem = mock(ServerFileSystem.class);
+    File tempHome = TestUtils.getTestTempDir(getClass(), "sonarHome");
+    when(fileSystem.getHomeDir()).thenReturn(tempHome);
+
+    File tempES = new File(tempHome, "data/es");
+    tempES.mkdirs();
+
     settings = mock(Settings.class);
 
     settingsBuilder = mock(ImmutableSettings.Builder.class);
@@ -60,9 +66,18 @@ public class SearchNodeTest {
     nodeBuilder = mock(NodeBuilder.class);
     when(nodeBuilder.local(anyBoolean())).thenReturn(nodeBuilder);
     when(nodeBuilder.clusterName(anyString())).thenReturn(nodeBuilder);
+    when(nodeBuilder.data(anyBoolean())).thenReturn(nodeBuilder);
     when(nodeBuilder.settings(settingsBuilder)).thenReturn(nodeBuilder);
 
-    searchNode = new SearchNode(tempFolder, settings, settingsBuilder, nodeBuilder);
+    searchNode = new SearchNode(fileSystem, settings, settingsBuilder, nodeBuilder);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void should_fail_if_no_data_dir() {
+    ServerFileSystem invalidFileSystem = mock(ServerFileSystem.class);
+    File tempHome = TestUtils.getTestTempDir(getClass(), "sonarHome");
+    when(invalidFileSystem.getHomeDir()).thenReturn(tempHome);
+    searchNode = new SearchNode(invalidFileSystem, null, null, null);
   }
 
   @Test(expected = IllegalStateException.class)

@@ -28,7 +28,9 @@ import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.TempFolder;
+import org.sonar.api.platform.ServerFileSystem;
+
+import java.io.File;
 
 /**
  * Manages the ElasticSearch Node instance used to connect to the index.
@@ -46,27 +48,34 @@ public class SearchNode {
 
   private Node node;
 
-  public SearchNode(TempFolder tempFolder, Settings settings) {
-    this(tempFolder, settings, ImmutableSettings.builder(), NodeBuilder.nodeBuilder());
+  public SearchNode(ServerFileSystem fileSystem, Settings settings) {
+    this(fileSystem, settings, ImmutableSettings.builder(), NodeBuilder.nodeBuilder());
   }
 
   @VisibleForTesting
-  SearchNode(TempFolder tempFolder, Settings settings, ImmutableSettings.Builder nodeSettingsBuilder, NodeBuilder nodeBuilder) {
-    this.nodeDir = tempFolder.newDir("es").getAbsolutePath();
+  SearchNode(ServerFileSystem fileSystem, Settings settings, ImmutableSettings.Builder nodeSettingsBuilder, NodeBuilder nodeBuilder) {
+    File homeDataDir = new File(fileSystem.getHomeDir(), "data");
+    if (! homeDataDir.exists() || ! homeDataDir.isDirectory()) {
+      throw new IllegalStateException("Data directory not found in SonarQube home.");
+    }
+    File nodeDirectory = new File(homeDataDir, "es");
+    if (! nodeDirectory.exists()) {
+      nodeDirectory.mkdir();
+    }
+
+    this.nodeDir = nodeDirectory.getAbsolutePath();
     this.settings = settings;
     this.nodeSettingsBuilder = nodeSettingsBuilder;
     this.nodeBuilder = nodeBuilder;
   }
 
   public void start() {
+
+
     LOG.info("Starting {} in {}", this.getClass().getSimpleName(), nodeDir);
     nodeSettingsBuilder
       .put("node.name", "sonarqube")
-      .put("node.path.conf", nodeDir)
-      .put("node.path.data", nodeDir)
-      .put("node.path.work", nodeDir)
-      .put("node.path.logs", nodeDir)
-      .put("gateway.type", "none");
+      .put("path.home", nodeDir);
 
     String httpHost = settings.getString("sonar.es.http.host");
     String httpPort = settings.getString("sonar.es.http.port");
@@ -86,6 +95,7 @@ public class SearchNode {
     node = nodeBuilder
       .local(true)
       .clusterName("sonarqube")
+      .data(true)
       .settings(nodeSettingsBuilder)
       .node();
   }
