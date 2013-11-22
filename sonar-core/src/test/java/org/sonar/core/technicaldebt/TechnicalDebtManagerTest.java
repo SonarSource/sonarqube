@@ -40,6 +40,8 @@ import static org.mockito.Mockito.when;
 
 public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
 
+  private static final String[] EXCLUDED_COLUMNS = new String[]{"parent_id", "function_key", "factor_value", "factor_unit", "offset_value", "offset_unit", "created_at", "updated_at"};
+
   private TechnicalDebtManager manager;
   private TechnicalDebtModelRepository technicalDebtModelRepository = mock(TechnicalDebtModelRepository.class);
 
@@ -59,7 +61,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
     getSession().commit();
 
-    checkTables("create_default_model_on_first_execution", "quality_models", "characteristics", "characteristic_edges");
+    checkTables("create_default_model_on_first_execution", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges");
   }
 
   @Test
@@ -79,7 +81,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     manager.initAndMergePlugins(ValidationMessages.create(), technicalDebtRuleCache);
     getSession().commit();
 
-    checkTables("create_model_with_requirements_from_plugin_on_first_execution", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
+    checkTables("create_model_with_requirements_from_plugin_on_first_execution", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test
@@ -91,7 +93,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
     getSession().commit();
 
-    checkTables("add_new_requirements_from_plugin", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
+    checkTables("add_new_requirements_from_plugin", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test
@@ -103,7 +105,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
     getSession().commit();
 
-    checkTables("disable_requirements_on_removed_rules", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
+    checkTables("disable_requirements_on_removed_rules", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test
@@ -119,7 +121,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
     }
-    checkTables("fail_when_plugin_defines_characteristics_not_defined_in_default_model", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
+    checkTables("fail_when_plugin_defines_characteristics_not_defined_in_default_model", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test
@@ -131,7 +133,7 @@ public class TechnicalDebtManagerTest extends AbstractDbUnitTestCase {
     manager.initAndMergePlugins(ValidationMessages.create(), defaultRuleCache());
     getSession().commit();
 
-    checkTables("recreate_previously_deleted_characteristic_from_default_model_when_plugin_define_requirements_on_it", "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
+    checkTables("recreate_previously_deleted_characteristic_from_default_model_when_plugin_define_requirements_on_it", EXCLUDED_COLUMNS, "quality_models", "characteristics", "characteristic_edges", "characteristic_properties");
   }
 
   @Test

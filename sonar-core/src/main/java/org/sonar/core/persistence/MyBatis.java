@@ -63,6 +63,8 @@ import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.core.technicaldebt.db.CharacteristicMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
 import org.sonar.core.user.*;
@@ -130,6 +132,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "PermissionTemplate", PermissionTemplateDto.class);
     loadAlias(conf, "PermissionTemplateUser", PermissionTemplateUserDto.class);
     loadAlias(conf, "PermissionTemplateGroup", PermissionTemplateGroupDto.class);
+    loadAlias(conf, "Characteristic", CharacteristicDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -143,7 +146,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class
+      NotificationQueueMapper.class, CharacteristicMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

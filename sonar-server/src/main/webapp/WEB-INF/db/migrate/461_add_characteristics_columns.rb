@@ -20,10 +20,21 @@
 
 #
 # Sonar 4.1
+# SONAR-4831
+# SONAR-4895
 #
-class AddUniqueConstraintToGroupsUsers < ActiveRecord::Migration
+class AddCharacteristicsColumns < ActiveRecord::Migration
 
   def self.up
-    add_index :groups_users, [:group_id, :user_id], :name => 'GROUPS_USERS_UNIQUE', :unique => true
+    add_column 'characteristics', :parent_id,         :integer, :null => true
+    add_column 'characteristics', :function_key,      :string,    :null => true,   :limit => 100
+    add_column 'characteristics', :factor_value,      :decimal,   :null => true,   :precision => 30,   :scale => 20
+    add_column 'characteristics', :factor_unit,       :string,    :null => true,   :limit => 100
+    add_column 'characteristics', :offset_value,      :decimal,   :null => true,   :precision => 30,   :scale => 20
+    add_column 'characteristics', :offset_unit,       :string,    :null => true,   :limit => 100
+    add_column 'characteristics', :created_at,        :datetime,  :null => true
+    add_column 'characteristics', :updated_at,        :datetime,  :null => true
   end
+
 end
+
