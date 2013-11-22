@@ -76,6 +76,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       cursor.getStreamReader().closeCompletely();
 
     } catch (XMLStreamException e) {
+      LOG.error("XML is not valid", e);
       messages.addErrorText("XML is not valid: " + e.getMessage());
     }
     return model;
