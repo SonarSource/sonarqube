@@ -4,9 +4,6 @@
 /*
  * Colors
  */
-.navigator-filter-shown {
-  overflow: hidden;
-}
 .navigator-filters {
   margin-bottom: 10px;
   border-bottom: 1px solid #cdcdcd;
@@ -142,8 +139,6 @@
   vertical-align: text-bottom;
 }
 .navigator-filter-select-list input[type=checkbox] {
-  position: relative;
-  top: -1px;
   cursor: pointer;
 }
 .navigator-filter-select-list .single {

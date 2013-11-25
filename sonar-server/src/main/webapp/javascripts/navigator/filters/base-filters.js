@@ -121,7 +121,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.detailsView.$el.css({ top: top, left: left }).addClass('active');
       this.$el.addClass('active');
-      $j('body').addClass('navigator-filter-shown');
       this.detailsView.onShow();
     },
 
@@ -135,7 +134,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     hideDetails: function() {
       this.detailsView.$el.removeClass('active');
       this.$el.removeClass('active');
-      $j('body').removeClass('navigator-filter-shown');
       this.detailsView.onHide();
     },
 
