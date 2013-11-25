@@ -163,11 +163,12 @@ public class SearchIndex {
   public List<String> findDocumentIds(SearchQuery searchQuery) {
     List<String> result = Lists.newArrayList();
     final int scrollTime = 100;
+    final String methodName = "findDocumentIds";
 
     SearchRequestBuilder builder = searchQuery.toBuilder(client);
-    LOG.debug("findDocumentIds" + builder.internalBuilder().toString());
+    LOG.debug(methodName + builder.internalBuilder().toString());
     TimeProfiler profiler = newDebugProfiler();
-    profiler.start("findDocumentIds");
+    profiler.start(methodName);
     SearchResponse scrollResp = builder.addField("_id")
             .setSearchType(SearchType.SCAN)
             .setScroll(new TimeValue(scrollTime))
