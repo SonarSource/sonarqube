@@ -218,11 +218,6 @@ public class PluginDeployer implements ServerComponent {
       FileUtils.forceMkdir(pluginDeployDir);
       FileUtils.cleanDirectory(pluginDeployDir);
 
-      List<File> deprecatedExtensions = fileSystem.getExtensions(plugin.getKey());
-      for (File deprecatedExtension : deprecatedExtensions) {
-        plugin.addDeprecatedExtension(deprecatedExtension);
-      }
-
       installer.install(plugin, pluginDeployDir);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to deploy the plugin " + plugin, e);

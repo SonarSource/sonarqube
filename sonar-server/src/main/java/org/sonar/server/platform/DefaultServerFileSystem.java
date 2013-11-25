@@ -171,19 +171,11 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return new File(getDeployDir(), "bootstrap/index.txt");
   }
 
+  /**
+   * @deprecated since 4.1
+   */
+  @Deprecated
   public List<File> getExtensions(String dirName, String... suffixes) {
-    File dir = new File(getHomeDir(), "extensions/rules/" + dirName);
-    if (dir.exists() && dir.isDirectory()) {
-      return getFiles(dir, suffixes);
-    }
-    return Collections.emptyList();
-  }
-
-  public List<File> getPluginExtensionXml(String pluginKey) {
-    File dir = new File(getHomeDir(), "extensions/rules/" + pluginKey);
-    if (dir.exists() && dir.isDirectory()) {
-      return getFiles(dir, "xml");
-    }
     return Collections.emptyList();
   }
 

@@ -105,24 +105,6 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void deployPluginExtensions() {
-    deployer.start();
-
-    // check that the plugin is registered
-    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
-
-    PluginMetadata plugin = deployer.getMetadata("foo");
-    assertThat(plugin.getDeployedFiles()).hasSize(2);
-    File extFile = plugin.getDeployedFiles().get(1);
-    assertThat(extFile.getName()).isEqualTo("foo-extension.txt");
-
-    // check that the extension file is deployed
-    File deployedJar = new File(deployDir, "plugins/foo/foo-extension.txt");
-    assertThat(deployedJar.exists()).isTrue();
-    assertThat(deployedJar.isFile()).isTrue();
-  }
-
-  @Test
   public void ignoreJarsWhichAreNotPlugins() {
     deployer.start();
 

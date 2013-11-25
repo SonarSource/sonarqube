@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.Lists;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,13 +29,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.plugins.RemotePlugin;
-import org.sonar.core.plugins.RemotePluginFile;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,7 +67,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
-    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
+    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFile("sonar-checkstyle-plugin-2.8.jar"));
 
     repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
 
@@ -93,8 +90,8 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
-    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
-    when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
+    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFile("sonar-checkstyle-plugin-2.8.jar"));
+    when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
     repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
 
@@ -108,28 +105,6 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldLoadPluginDeprecatedExtensions() throws IOException {
-    TempFolder tempDirs = mock(TempFolder.class);
-    File toDir = temp.newFolder();
-    when(tempDirs.newDir("plugins/checkstyle")).thenReturn(toDir);
-    RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
-    checkstyle.getFiles().add(new RemotePluginFile("checkstyle-ext.xml", "fakemd5"));
-
-    PluginDownloader downloader = mock(PluginDownloader.class);
-    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
-
-    repository = new BatchPluginRepository(downloader, tempDirs, new Settings(), mode);
-
-    repository.doStart(Arrays.asList(checkstyle));
-
-    assertThat(repository.getPlugin("checkstyle")).isNotNull();
-    assertThat(repository.getMetadata()).hasSize(1);
-    assertThat(repository.getMetadata("checkstyle").getName()).isEqualTo("Checkstyle");
-    assertThat(repository.getMetadata("checkstyle").getDeployedFiles()).hasSize(5); // plugin + 3 dependencies + 1 deprecated
-    // extension
-  }
-
-  @Test
   public void shouldExcludePluginAndItsExtensions() throws IOException {
     TempFolder tempDirs = mock(TempFolder.class);
     File toDir1 = temp.newFolder();
@@ -140,8 +115,8 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
-    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
-    when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
+    when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFile("sonar-checkstyle-plugin-2.8.jar"));
+    when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
@@ -152,16 +127,12 @@ public class BatchPluginRepositoryTest {
     assertThat(repository.getMetadata()).isEmpty();
   }
 
-  private List<File> copyFiles(String... filenames) throws IOException {
-    List<File> files = Lists.newArrayList();
-    for (String filename : filenames) {
-      File file = TestUtils.getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename);
-      File tempDir = new File("target/test-tmp/BatchPluginRepositoryTest");
-      FileUtils.forceMkdir(tempDir);
-      FileUtils.copyFileToDirectory(file, tempDir);
-      files.add(new File(tempDir, filename));
-    }
-    return files;
+  private File copyFile(String filename) throws IOException {
+    File file = TestUtils.getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename);
+    File tempDir = new File("target/test-tmp/BatchPluginRepositoryTest");
+    FileUtils.forceMkdir(tempDir);
+    FileUtils.copyFileToDirectory(file, tempDir);
+    return new File(tempDir, filename);
   }
 
   @Test

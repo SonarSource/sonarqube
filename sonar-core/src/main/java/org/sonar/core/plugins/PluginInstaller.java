@@ -27,19 +27,17 @@ import org.sonar.updatecenter.common.PluginManifest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.zip.ZipEntry;
 
 public class PluginInstaller {
 
   private static final String FAIL_TO_INSTALL_PLUGIN = "Fail to install plugin: ";
 
-  public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File pluginBasedir) {
+  public DefaultPluginMetadata install(File pluginFile, boolean isCore, File pluginBasedir) {
     try {
       // Copy the plugin before extracting metadata to avoid file lock on Widnows
       File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
       DefaultPluginMetadata metadata = extractMetadata(deployedPlugin, isCore);
-      metadata.setDeprecatedExtensions(deprecatedExtensions);
       install(metadata, pluginBasedir, deployedPlugin);
       return metadata;
     } catch (IOException e) {
@@ -61,7 +59,6 @@ public class PluginInstaller {
     try {
       metadata.addDeployedFile(deployedPlugin);
       copyDependencies(metadata, deployedPlugin, pluginBasedir);
-      copyDeprecatedExtensions(metadata, pluginBasedir);
     } catch (IOException e) {
       throw new SonarException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
     }
@@ -85,16 +82,6 @@ public class PluginInstaller {
         }
         metadata.addDeployedFile(dependency);
       }
-    }
-  }
-
-  private void copyDeprecatedExtensions(DefaultPluginMetadata metadata, File pluginBasedir) throws IOException {
-    for (File extension : metadata.getDeprecatedExtensions()) {
-      File toFile = new File(pluginBasedir, extension.getName());
-      if (!toFile.equals(extension)) {
-        FileUtils.copyFile(extension, toFile);
-      }
-      metadata.addDeployedFile(toFile);
     }
   }
 

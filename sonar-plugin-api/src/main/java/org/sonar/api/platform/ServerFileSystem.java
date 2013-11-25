@@ -30,12 +30,14 @@ import java.util.List;
 public interface ServerFileSystem extends ServerComponent {
 
   File getHomeDir();
-  
+
   File getTempDir();
 
   /**
    * @param suffixes the file suffixes. If null, then return all the files, whatever their suffix
+   * @deprecated since 4.1
    */
+  @Deprecated
   List<File> getExtensions(String dirName, String... suffixes);
-  
+
 }

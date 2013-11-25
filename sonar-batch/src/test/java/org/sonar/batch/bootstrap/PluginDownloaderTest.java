@@ -65,19 +65,16 @@ public class PluginDownloaderTest {
     FileCache cache = mock(FileCache.class);
 
     File pluginJar = temp.newFile();
-    File extensionJar = temp.newFile();
     when(cache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
-    when(cache.get(eq("checkstyle-extensions.jar"), eq("fakemd5_2"), any(FileCache.Downloader.class))).thenReturn(extensionJar);
 
     ServerClient server = mock(ServerClient.class);
     PluginDownloader downloader = new PluginDownloader(cache, server);
 
     RemotePlugin plugin = new RemotePlugin("checkstyle", true)
-      .addFile("checkstyle-plugin.jar", "fakemd5_1")
-      .addFile("checkstyle-extensions.jar", "fakemd5_2");
-    List<File> files = downloader.downloadPlugin(plugin);
+      .setFile("checkstyle-plugin.jar", "fakemd5_1");
+    File file = downloader.downloadPlugin(plugin);
 
-    assertThat(files).hasSize(2);
+    assertThat(file).isEqualTo(pluginJar);
   }
 
   @Test

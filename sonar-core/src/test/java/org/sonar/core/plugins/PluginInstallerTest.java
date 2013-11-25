@@ -71,7 +71,7 @@ public class PluginInstallerTest {
   public void should_copy_and_extract_dependencies() throws IOException {
     File toDir = temporaryFolder.newFolder();
 
-    DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
+    DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
 
     assertThat(metadata.getKey()).isEqualTo("checkstyle");
     assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
@@ -82,24 +82,11 @@ public class PluginInstallerTest {
   public void should_extract_only_dependencies() throws IOException {
     File toDir = temporaryFolder.newFolder();
 
-    extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
+    extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
 
     assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
     assertThat(new File(toDir, "META-INF/MANIFEST.MF")).doesNotExist();
     assertThat(new File(toDir, "org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
-  }
-
-  @Test
-  public void should_copy_rule_extensions_on_server_side() throws IOException {
-    File toDir = temporaryFolder.newFolder();
-
-    DefaultPluginMetadata metadata = DefaultPluginMetadata.create(getFile("sonar-checkstyle-plugin-2.8.jar"))
-        .setKey("checkstyle")
-        .addDeprecatedExtension(getFile("checkstyle-extension.xml"));
-    extractor.install(metadata, toDir);
-
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
-    assertThat(new File(toDir, "checkstyle-extension.xml")).exists();
   }
 
   @Test

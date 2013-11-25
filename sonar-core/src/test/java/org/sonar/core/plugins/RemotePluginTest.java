@@ -37,20 +37,9 @@ public class RemotePluginTest {
 
   @Test
   public void shouldMarshal() {
-    RemotePlugin clirr = new RemotePlugin("clirr", false).addFile("clirr-1.1.jar", "fakemd5");
+    RemotePlugin clirr = new RemotePlugin("clirr", false).setFile("clirr-1.1.jar", "fakemd5");
     String text = clirr.marshal();
     assertThat(text, is("clirr,false,clirr-1.1.jar|fakemd5"));
-  }
-
-  @Test
-  public void shouldMarshalDeprecatedExtensions() {
-    RemotePlugin checkstyle = new RemotePlugin("checkstyle", true)
-        .addFile("checkstyle-2.8.jar", "fakemd51")
-        .addFile("ext.xml", "fakemd52")
-        .addFile("ext.jar", "fakemd53");
-
-    String text = checkstyle.marshal();
-    assertThat(text, is("checkstyle,true,checkstyle-2.8.jar|fakemd51,ext.xml|fakemd52,ext.jar|fakemd53"));
   }
 
   @Test
@@ -58,20 +47,7 @@ public class RemotePluginTest {
     RemotePlugin clirr = RemotePlugin.unmarshal("clirr,false,clirr-1.1.jar|fakemd5");
     assertThat(clirr.getKey(), is("clirr"));
     assertThat(clirr.isCore(), is(false));
-    assertThat(clirr.getFiles().size(), is(1));
-    assertThat(clirr.getFiles().get(0).getFilename(), is("clirr-1.1.jar"));
-    assertThat(clirr.getFiles().get(0).getHash(), is("fakemd5"));
-
-  }
-
-  @Test
-  public void shouldUnmarshalDeprecatedExtensions() {
-    RemotePlugin checkstyle = RemotePlugin.unmarshal("checkstyle,true,checkstyle-2.8.jar,ext.xml,ext.jar");
-    assertThat(checkstyle.getKey(), is("checkstyle"));
-    assertThat(checkstyle.isCore(), is(true));
-    assertThat(checkstyle.getFiles().size(), is(3));
-    assertThat(checkstyle.getFiles().get(0).getFilename(), is("checkstyle-2.8.jar"));
-    assertThat(checkstyle.getFiles().get(1).getFilename(), is("ext.xml"));
-    assertThat(checkstyle.getFiles().get(2).getFilename(), is("ext.jar"));
+    assertThat(clirr.file().getFilename(), is("clirr-1.1.jar"));
+    assertThat(clirr.file().getHash(), is("fakemd5"));
   }
 }

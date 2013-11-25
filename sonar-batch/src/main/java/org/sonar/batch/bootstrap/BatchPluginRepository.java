@@ -75,11 +75,10 @@ public class BatchPluginRepository implements PluginRepository {
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (filter.accepts(remote.getKey())) {
-        List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
-        List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
+        File pluginFile = pluginDownloader.downloadPlugin(remote);
         File targetDir = tempDirectories.newDir("plugins/" + remote.getKey());
         LOG.debug("Installing plugin {} into {}", remote.getKey(), targetDir.getAbsolutePath());
-        PluginMetadata metadata = extractor.install(pluginFiles.get(0), remote.isCore(), extensionFiles, targetDir);
+        PluginMetadata metadata = extractor.install(pluginFile, remote.isCore(), targetDir);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           metadataByKey.put(metadata.getKey(), metadata);
         } else {

@@ -46,24 +46,21 @@ public class PluginDownloader implements BatchComponent {
     this.fileCache = fileCache;
   }
 
-  public List<File> downloadPlugin(final RemotePlugin remote) {
+  public File downloadPlugin(final RemotePlugin remote) {
     try {
-      List<File> files = Lists.newArrayList();
-      for (final RemotePluginFile file : remote.getFiles()) {
-        File cachedFile = fileCache.get(file.getFilename(), file.getHash(), new FileCache.Downloader() {
-          public void download(String filename, File toFile) throws IOException {
-            String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
-            } else {
-              LOG.info("Download {}", file.getFilename());
-            }
-            server.download(url, toFile);
+      final RemotePluginFile file = remote.file();
+      File cachedFile = fileCache.get(file.getFilename(), file.getHash(), new FileCache.Downloader() {
+        public void download(String filename, File toFile) throws IOException {
+          String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
+          } else {
+            LOG.info("Download {}", file.getFilename());
           }
-        });
-        files.add(cachedFile);
-      }
-      return files;
+          server.download(url, toFile);
+        }
+      });
+      return cachedFile;
 
     } catch (Exception e) {
       throw new SonarException("Fail to download plugin: " + remote.getKey(), e);

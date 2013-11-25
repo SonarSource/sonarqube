@@ -20,7 +20,6 @@
 package org.sonar.core.plugins;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -35,7 +34,6 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
   private File file;
   private List<File> deployedFiles;
-  private List<File> deprecatedExtensions;
   private List<String> pathsToInternalDeps;
   private String key;
   private String version;
@@ -57,7 +55,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
 
   private DefaultPluginMetadata() {
     deployedFiles = newArrayList();
-    deprecatedExtensions = newArrayList();
     pathsToInternalDeps = newArrayList();
     requiredPlugins = newArrayList();
   }
@@ -81,20 +78,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
 
   public DefaultPluginMetadata addDeployedFile(File f) {
     this.deployedFiles.add(f);
-    return this;
-  }
-
-  public List<File> getDeprecatedExtensions() {
-    return deprecatedExtensions;
-  }
-
-  public DefaultPluginMetadata addDeprecatedExtension(File f) {
-    this.deprecatedExtensions.add(f);
-    return this;
-  }
-
-  public DefaultPluginMetadata setDeprecatedExtensions(List<File> files) {
-    this.deprecatedExtensions = (files == null ? Lists.<File> newArrayList() : files);
     return this;
   }
 
@@ -300,9 +283,9 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("key", key)
-        .append("version", StringUtils.defaultIfEmpty(version, "-"))
-        .toString();
+      .append("key", key)
+      .append("version", StringUtils.defaultIfEmpty(version, "-"))
+      .toString();
   }
 
   public int compareTo(PluginMetadata other) {

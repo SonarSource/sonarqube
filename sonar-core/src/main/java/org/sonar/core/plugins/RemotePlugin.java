@@ -19,16 +19,14 @@
  */
 package org.sonar.core.plugins;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.home.cache.FileHashes;
 
 import java.io.File;
-import java.util.List;
 
 public class RemotePlugin {
   private String pluginKey;
-  private List<RemotePluginFile> files = Lists.newArrayList();
+  private RemotePluginFile file = null;
   private boolean core;
 
   public RemotePlugin(String pluginKey, boolean core) {
@@ -38,10 +36,7 @@ public class RemotePlugin {
 
   public static RemotePlugin create(DefaultPluginMetadata metadata) {
     RemotePlugin result = new RemotePlugin(metadata.getKey(), metadata.isCore());
-    result.addFile(metadata.getFile());
-    for (File file : metadata.getDeprecatedExtensions()) {
-      result.addFile(file);
-    }
+    result.setFile(metadata.getFile());
     return result;
   }
 
@@ -49,10 +44,8 @@ public class RemotePlugin {
     String[] fields = StringUtils.split(row, ",");
     RemotePlugin result = new RemotePlugin(fields[0], Boolean.parseBoolean(fields[1]));
     if (fields.length > 2) {
-      for (int index = 2; index < fields.length; index++) {
-        String[] nameAndHash = StringUtils.split(fields[index], "|");
-        result.addFile(nameAndHash[0], nameAndHash.length > 1 ? nameAndHash[1] : null);
-      }
+      String[] nameAndHash = StringUtils.split(fields[2], "|");
+      result.setFile(nameAndHash[0], nameAndHash.length > 1 ? nameAndHash[1] : null);
     }
     return result;
   }
@@ -61,9 +54,7 @@ public class RemotePlugin {
     StringBuilder sb = new StringBuilder();
     sb.append(pluginKey).append(",");
     sb.append(String.valueOf(core));
-    for (RemotePluginFile file : files) {
-      sb.append(",").append(file.getFilename()).append("|").append(file.getHash());
-    }
+    sb.append(",").append(file.getFilename()).append("|").append(file.getHash());
     return sb.toString();
   }
 
@@ -75,17 +66,17 @@ public class RemotePlugin {
     return core;
   }
 
-  public RemotePlugin addFile(String filename, String hash) {
-    files.add(new RemotePluginFile(filename, hash));
+  public RemotePlugin setFile(String filename, String hash) {
+    file = new RemotePluginFile(filename, hash);
     return this;
   }
 
-  public RemotePlugin addFile(File f) {
-    return this.addFile(f.getName(), f.exists() ? new FileHashes().of(f) : null);
+  public RemotePlugin setFile(File f) {
+    return this.setFile(f.getName(), f.exists() ? new FileHashes().of(f) : null);
   }
 
-  public List<RemotePluginFile> getFiles() {
-    return files;
+  public RemotePluginFile file() {
+    return file;
   }
 
   @Override

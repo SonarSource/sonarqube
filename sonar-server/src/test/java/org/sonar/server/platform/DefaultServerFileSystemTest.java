@@ -68,27 +68,6 @@ public class DefaultServerFileSystemTest {
     assertEquals(0, plugins.size());
   }
 
-  @Test
-  public void shouldFindCheckstyleExtensions() {
-    DefaultServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldFindCheckstyleExtensions"), null);
-
-    List<File> xmls = fs.getPluginExtensionXml("checkstyle");
-    assertEquals(1, xmls.size());
-
-    List<File> jars = fs.getExtensions("checkstyle");
-    assertEquals(3, jars.size());
-  }
-
-  @Test
-  public void shouldNotFailIfNoCheckstyleExtensions() {
-    DefaultServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions"), null);
-    List<File> xmls = fs.getPluginExtensionXml("checkstyle");
-    assertEquals(0, xmls.size());
-
-    List<File> jars = fs.getExtensions("checkstyle");
-    assertEquals(0, jars.size());
-  }
-
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfHomeDirectoryNotExists() {
     DefaultServerFileSystem fs = new DefaultServerFileSystem(null, new File("/notexists"), null);
