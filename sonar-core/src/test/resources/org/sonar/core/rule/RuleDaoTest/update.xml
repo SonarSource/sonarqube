@@ -1,0 +1,10 @@
+<dataset>
+
+  <rules id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" status="READY"
+    plugin_config_key="AvoidNull" priority="2" cardinality="SINGLE" language="golo" created_at="2011-04-25 01:05:00" parent_id="2"/>
+  <rules id="2" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
+    plugin_config_key="Parent1" priority="2" cardinality="SINGLE" language="golo" created_at="1981-10-24 15:20:00" />
+  <rules id="3" plugin_rule_key="Parent2" plugin_name="checkstyle" name="Parent Rule 2" description="Parent Rule 2" status="READY"
+    plugin_config_key="Parent2" priority="2" cardinality="SINGLE" language="dart" created_at="1982-12-14 03:15:00" />
+
+</dataset>

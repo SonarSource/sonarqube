@@ -19,6 +19,11 @@
  */
 package org.sonar.core.rule;
 
+import org.sonar.check.Cardinality;
+import org.sonar.check.Priority;
+
+import java.util.Date;
+
 public final class RuleDto {
   private Long id;
   private String repositoryKey;
@@ -26,6 +31,13 @@ public final class RuleDto {
   private String description;
   private String status;
   private String name;
+  private String configKey;
+  private Priority priority;
+  private Cardinality cardinality;
+  private String language;
+  private Long parentId;
+  private Date createdAt;
+  private Date updatedAt;
 
   public Long getId() {
     return id;
@@ -73,5 +85,69 @@ public final class RuleDto {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getConfigKey() {
+    return configKey;
+  }
+
+  public void setConfigKey(String configKey) {
+    this.configKey = configKey;
+  }
+
+  public Priority getPriority() {
+    return priority;
+  }
+
+  public int getPriorityOrdinal() {
+    return priority.ordinal();
+  }
+
+  public void setPriority(Priority priority) {
+    this.priority = priority;
+  }
+
+  public void setPriorityOrdinal(int ordinal) {
+    this.priority = Priority.values()[ordinal];
+  }
+
+  public Cardinality getCardinality() {
+    return cardinality;
+  }
+
+  public void setCardinality(Cardinality cardinality) {
+    this.cardinality = cardinality;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  public Long getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(Long parentId) {
+    this.parentId = parentId;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
   }
 }

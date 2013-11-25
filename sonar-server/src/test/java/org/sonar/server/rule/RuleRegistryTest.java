@@ -27,10 +27,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
@@ -46,13 +46,13 @@ public class RuleRegistryTest {
 
   private EsSetup esSetup;
   private SearchIndex searchIndex;
-  private DatabaseSessionFactory sessionFactory;
+  private RuleDao ruleDao;
   private RuleI18nManager ruleI18nManager;
   RuleRegistry registry;
 
   @Before
   public void setUp() throws Exception {
-    sessionFactory = mock(DatabaseSessionFactory.class);
+    ruleDao = mock(RuleDao.class);
     ruleI18nManager = mock(RuleI18nManager.class);
 
     esSetup = new EsSetup();
@@ -63,7 +63,7 @@ public class RuleRegistryTest {
     searchIndex = new SearchIndex(node);
     searchIndex.start();
 
-    registry = new RuleRegistry(searchIndex, sessionFactory, ruleI18nManager);
+    registry = new RuleRegistry(searchIndex, ruleDao, ruleI18nManager);
     registry.start();
 
     String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());
@@ -130,32 +130,47 @@ public class RuleRegistryTest {
 
   @Test
   public void should_index_all_rules() {
-    DatabaseSession session = mock(DatabaseSession.class);
-    when(sessionFactory.getSession()).thenReturn(session);
-    Rule rule1 = Rule.create("repo", "key1");
-    rule1.setId(3);
-    Rule rule2 = Rule.create("repo", "key2");
-    rule2.createParameter("param");
-    rule2.setId(4);
-    rule2.setParent(rule1);
-    List<Rule> rules = ImmutableList.of(rule1, rule2);
-    when(session.getResults(Rule.class)).thenReturn(rules);
+    long ruleId1 = 3L;
+    RuleDto rule1 = new RuleDto();
+    rule1.setRepositoryKey("repo");
+    rule1.setRuleKey("key1");
+    rule1.setId(ruleId1);
+    long ruleId2 = 4L;
+    RuleDto rule2 = new RuleDto();
+    rule2.setRepositoryKey("repo");
+    rule2.setRuleKey("key2");
+    rule2.setId(ruleId2);
+    rule2.setParentId(ruleId1);
+    List<RuleDto> rules = ImmutableList.of(rule1, rule2);
+
+    RuleParamDto paramRule2 = new RuleParamDto();
+    paramRule2.setName("name");
+    paramRule2.setRuleId(ruleId2);
+    List<RuleParamDto> params = ImmutableList.of(paramRule2);
+
+    when(ruleDao.selectNonManual()).thenReturn(rules);
+    when(ruleDao.selectParameters()).thenReturn(params);
     registry.bulkRegisterRules();
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(2);
   }
 
   @Test
   public void should_index_and_reindex_single_rule() {
-    DatabaseSession session = mock(DatabaseSession.class);
-    when(sessionFactory.getSession()).thenReturn(session);
-    Rule rule = Rule.create("repo", "key");
+    RuleDto rule = new RuleDto();
+    rule.setRepositoryKey("repo");
+    rule.setRuleKey("key");
     int id = 3;
-    rule.setId(id);
-    when(session.getEntity(Rule.class, id)).thenReturn(rule);
+    rule.setId((long) id);
+    when(ruleDao.selectById((long) id)).thenReturn(rule);
     registry.saveOrUpdate(id);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
     rule.setName("polop");
     registry.saveOrUpdate(id);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
+  }
+
+  @Test
+  public void should_throw_when_problem_on_index() {
+
   }
 }

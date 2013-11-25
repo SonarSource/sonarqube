@@ -2,12 +2,80 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.core.rule.RuleMapper">
+
+  <sql id="selectColumns">
+    id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name, plugin_config_key as "configKey",
+    priority as "priorityOrdinal", cardinality, language as "language", parent_id as "parentId",
+    created_at as "createdAt", updated_at as "updatedAt"
+  </sql>
+
   <select id="selectAll" resultType="Rule">
-    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name from rules
+    select <include refid="selectColumns"/> from rules
   </select>
 
   <select id="selectById" parameterType="long" resultType="Rule">
-    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name from rules WHERE id=#{id}
+    select <include refid="selectColumns"/> from rules WHERE id=#{id}
   </select>
+
+  <select id="selectNonManual" resultType="Rule">
+    select <include refid="selectColumns"/> from rules
+    where plugin_name != 'manual'
+  </select>
+
+  <update id="update" parameterType="Rule">
+    update rules set
+    plugin_rule_key=#{ruleKey},
+    plugin_name=#{repositoryKey},
+    description=#{description},
+    status=#{status},
+    name=#{name},
+    plugin_config_key=#{configKey},
+    priority=#{priorityOrdinal},
+    cardinality=#{cardinality},
+    language=#{language},
+    parent_id=#{parentId},
+    updated_at=#{updatedAt}
+    where id=#{id}
+  </update>
+
+  <sql id="insertColumns">
+    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language,
+      parent_id, created_at, updated_at)
+  </sql>
+
+  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    insert into rules <include refid="insertColumns"/>
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
+      #{priorityOrdinal}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <insert id="insertAll" parameterType="java.util.Collection" useGeneratedKeys="true">
+    insert into rules <include refid="insertColumns"/>
+    values
+    <foreach collection="list" item="rule" separator=", ">
+      (#{rule.ruleKey}, #{rule.repositoryKey}, #{rule.description}, #{rule.status}, #{rule.name}, #{rule.configKey},
+        #{rule.priorityOrdinal}, #{rule.cardinality}, #{rule.language}, #{rule.parentId}, #{rule.createdAt}, #{rule.updatedAt})
+    </foreach>
+  </insert>
+
+  <delete id="deleteParams" parameterType="long" >
+    delete from active_rule_parameters where rules_parameter_id=#{id}
+  </delete>
+
+  <sql id="paramColumns">
+    id, rule_id as "ruleId", name, param_type as "type", default_value as "defaultValue", description
+  </sql>
+
+  <select id="selectAllParams" resultType="RuleParam">
+    select <include refid="paramColumns"/>
+    from rules_parameters
+  </select>
+
+  <select id="selectParamsForRule" resultType="RuleParam">
+    select <include refid="paramColumns"/>
+    from rules_parameters
+    where rule_id=#{id}
+  </select>
+
 </mapper>
 

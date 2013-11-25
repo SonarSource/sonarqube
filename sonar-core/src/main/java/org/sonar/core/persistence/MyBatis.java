@@ -60,6 +60,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.resource.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;
@@ -113,6 +114,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
+    loadAlias(conf, "RuleParam", RuleParamDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "Semaphore", SemaphoreDto.class);
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);

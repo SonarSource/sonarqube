@@ -20,22 +20,25 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchQuery;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,21 +49,18 @@ import java.util.Map;
  */
 public class RuleRegistry {
 
-  /**
-   *
-   */
   private static final String PARAM_NAMEORKEY = "nameOrKey";
   private static final String PARAM_STATUS = "status";
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";
 
   private SearchIndex searchIndex;
-  private DatabaseSessionFactory sessionFactory;
+  private RuleDao ruleDao;
   private RuleI18nManager ruleI18nManager;
 
-  public RuleRegistry(SearchIndex searchIndex, DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager) {
+  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao, RuleI18nManager ruleI18nManager) {
     this.searchIndex = searchIndex;
-    this.sessionFactory = sessionFactory;
+    this.ruleDao = ruleDao;
     this.ruleI18nManager = ruleI18nManager;
   }
 
@@ -70,14 +70,19 @@ public class RuleRegistry {
 
   public void bulkRegisterRules() {
     TimeProfiler profiler = new TimeProfiler();
-    DatabaseSession session = sessionFactory.getSession();
 
     profiler.start("Rebuilding rules index - query");
-    List<Rule> rules = session.getResults(Rule.class);
+    List<RuleDto> rules = ruleDao.selectNonManual();
+    List<RuleParamDto> flatParams = ruleDao.selectParameters();
     profiler.stop();
 
+    Multimap<Long, RuleParamDto> paramsByRule = ArrayListMultimap.create();
+    for (RuleParamDto param: flatParams) {
+      paramsByRule.put(param.getRuleId(), param);
+    }
+
     try {
-      bulkIndex(rules);
+      bulkIndex(rules, paramsByRule);
     } catch(IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
     }
@@ -127,24 +132,24 @@ public class RuleRegistry {
    * @param ruleId
    */
   public void saveOrUpdate(int ruleId) {
-    DatabaseSession session = sessionFactory.getSession();
-    Rule rule = session.getEntity(Rule.class, ruleId);
+    RuleDto rule = ruleDao.selectById(Long.valueOf(ruleId));
+    Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
     try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Integer.toString(rule.getId()), ruleDocument(rule));
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params));
     } catch(IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id="+ruleId, ioexception);
     }
   }
 
-  private void bulkIndex(List<Rule> rules) throws IOException {
+  private void bulkIndex(List<RuleDto> rules, Multimap<Long, RuleParamDto> paramsByRule) throws IOException {
     String[] ids = new String[rules.size()];
     BytesStream[] docs = new BytesStream[rules.size()];
     int index = 0;
     TimeProfiler profiler = new TimeProfiler();
     profiler.start("Build rules documents");
-    for (Rule rule: rules) {
+    for (RuleDto rule: rules) {
       ids[index] = rule.getId().toString();
-      docs[index] = ruleDocument(rule);
+      docs[index] = ruleDocument(rule, paramsByRule.get(rule.getId()));
       index ++;
     }
     profiler.stop();
@@ -153,25 +158,26 @@ public class RuleRegistry {
     profiler.stop();
   }
 
-  private XContentBuilder ruleDocument(Rule rule) throws IOException {
+  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
+    Locale locale = Locale.ENGLISH;
     XContentBuilder document = XContentFactory.jsonBuilder()
         .startObject()
         .field("id", rule.getId())
-        .field("key", rule.getKey())
+        .field("key", rule.getRuleKey())
         .field("language", rule.getLanguage())
-        .field("name", ruleI18nManager.getName(rule, Locale.getDefault()))
-        .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault()))
-        .field("parentKey", rule.getParent() == null ? null : rule.getParent().getKey())
+        .field("name", ruleI18nManager.getName(rule.getRepositoryKey(), rule.getRuleKey(), locale))
+        .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getRuleKey(), locale))
+        .field("parentKey", rule.getParentId() == null ? null : rule.getParentId())
         .field("repositoryKey", rule.getRepositoryKey())
-        .field("severity", rule.getSeverity())
+        .field("severity", rule.getPriority())
         .field("status", rule.getStatus())
         .field("createdAt", rule.getCreatedAt())
         .field("updatedAt", rule.getUpdatedAt());
-    if(!rule.getParams().isEmpty()) {
+    if(!params.isEmpty()) {
       document.startArray("params");
-      for (RuleParam param: rule.getParams()) {
+      for (RuleParamDto param: params) {
         document.startObject()
-          .field("key", param.getKey())
+          .field("key", param.getName())
           .field("type", param.getType())
           .field("defaultValue", param.getDefaultValue())
           .field("description", param.getDescription())

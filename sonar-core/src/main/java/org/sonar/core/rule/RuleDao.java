@@ -24,6 +24,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.Collection;
 import java.util.List;
 
 public class RuleDao implements BatchComponent, ServerComponent {
@@ -37,8 +38,16 @@ public class RuleDao implements BatchComponent, ServerComponent {
   public List<RuleDto> selectAll() {
     SqlSession session = mybatis.openSession();
     try {
-      RuleMapper mapper = session.getMapper(RuleMapper.class);
-      return mapper.selectAll();
+      return getMapper(session).selectAll();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleDto> selectNonManual() {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getMapper(session).selectNonManual();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -47,8 +56,60 @@ public class RuleDao implements BatchComponent, ServerComponent {
   public RuleDto selectById(Long id) {
     SqlSession session = mybatis.openSession();
     try {
-      RuleMapper mapper = session.getMapper(RuleMapper.class);
-      return mapper.selectById(id);
+      return getMapper(session).selectById(id);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(RuleDto rule) {
+    SqlSession session = mybatis.openSession();
+    try {
+      getMapper(session).update(rule);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private RuleMapper getMapper(SqlSession session) {
+    RuleMapper mapper = session.getMapper(RuleMapper.class);
+    return mapper;
+  }
+
+  public void insert(RuleDto ruleToInsert) {
+    SqlSession session = mybatis.openSession();
+    try {
+      getMapper(session).insert(ruleToInsert);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insert(Collection<RuleDto> rules) {
+    SqlSession session = mybatis.openSession();
+    try {
+      getMapper(session).insertAll(rules);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleParamDto> selectParameters() {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getMapper(session).selectAllParams();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleParamDto> selectParameters(Long id) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getMapper(session).selectParamsForRule(id);
     } finally {
       MyBatis.closeQuietly(session);
     }

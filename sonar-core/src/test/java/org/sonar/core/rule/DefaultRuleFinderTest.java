@@ -55,6 +55,12 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_find_by_ids_empty() {
+    Collection<Integer> newArrayList = newArrayList();
+    assertThat(new DefaultRuleFinder(getSessionFactory()).findByIds(newArrayList)).isEmpty();
+  }
+
+  @Test
   public void should_find_by_key() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
