@@ -42,7 +42,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
     return Arrays.asList(
       PropertyDefinition.builder(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)
         .defaultValue("true")
-        .name("Clean history data of directories/packages")
+        .name("Clean directory/package history")
         .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
@@ -53,7 +53,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
       PropertyDefinition.builder(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES)
         .defaultValue("30")
-        .name("Number of days before deleting closed issues")
+        .name("Delete closed issues after")
         .description("Issues that have been closed for more than this number of days will be deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
@@ -64,7 +64,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
       PropertyDefinition.builder(DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY)
         .defaultValue("24")
-        .name("Number of hours before starting to keep only one snapshot per day")
+        .name("Keep only one snapshot a day after")
         .description("After this number of hours, if there are several snapshots during the same day, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
@@ -76,7 +76,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
       PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK)
         .defaultValue("4")
-        .name("Number of weeks before starting to keep only one snapshot per week")
+        .name("Keep only one snapshot a week after")
         .description("After this number of weeks, if there are several snapshots during the same week, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones")
         .type(PropertyType.INTEGER)
@@ -88,7 +88,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
       PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH)
         .defaultValue("52")
-        .name("Number of weeks before starting to keep only one snapshot per month")
+        .name("Keep only one snapshot a month after")
         .description("After this number of weeks, if there are several snapshots during the same month, "
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
@@ -100,7 +100,7 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
       PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS)
         .defaultValue("260")
-        .name("Number of weeks before starting to delete all remaining snapshots")
+        .name("Delete all snapshots after")
         .description("After this number of weeks, all snapshots are fully deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
@@ -108,6 +108,6 @@ public final class DbCleanerPlugin extends SonarPlugin {
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
         .build()
-    );
+      );
   }
 }
