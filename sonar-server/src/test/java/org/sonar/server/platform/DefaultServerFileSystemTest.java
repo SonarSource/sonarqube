@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
+import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.MySql;
@@ -66,6 +67,27 @@ public class DefaultServerFileSystemTest {
   public void shouldNotFailIfNoPlugins() {
     List<File> plugins = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoPlugins"), null).getUserPlugins();
     assertEquals(0, plugins.size());
+  }
+
+  @Test
+  public void shouldFindCheckstyleExtensions() {
+    ServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldFindCheckstyleExtensions"), null);
+
+    List<File> xmls = fs.getExtensions("checkstyle", "xml");
+    assertEquals(1, xmls.size());
+
+    List<File> all = fs.getExtensions("checkstyle");
+    assertEquals(3, all.size());
+  }
+
+  @Test
+  public void shouldNotFailIfNoCheckstyleExtensions() {
+    ServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions"), null);
+    List<File> xmls = fs.getExtensions("checkstyle", "xml");
+    assertEquals(0, xmls.size());
+
+    List<File> jars = fs.getExtensions("checkstyle");
+    assertEquals(0, jars.size());
   }
 
   @Test(expected = IllegalStateException.class)
