@@ -1,76 +1,57 @@
-<div>
-  <div class="page-split-left">
-    <%= render :partial => 'measures/sidebar' -%>
+<div class="navigator">
+
+  <div class="navigator-filters" style="margin-bottom: 0;"></div>
+
+
+  <div class="navigator-results">
+    <%= render :partial => 'search_body' -%>
   </div>
-
-  <%
-     if @filter && @filter.display 
-       edit_mode = (params[:edit]=='true')
-  %>
-    <div class="page-split-right">
-      <div class="page">
-        <div class="line-block marginbottom10">
-          <% unless edit_mode %>
-          <ul class="operations">
-
-            <% if @filter.display %>
-                <li>
-                  <a id="change-display" href="<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
-                </li>
-              <li>
-                <%= message 'measure_filter.display_as' -%>:
-                <% MeasureFilterDisplay.keys.each do |display_key| %>
-                  <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), @filter.criteria.merge(:action => 'search', :display => display_key, :id => @filter.id), :id => "display_as_#{display_key}" -%>
-                <% end %>
-              </li>
-            <% end %>
-
-            <% if logged_in? %>
-              <% if @filter.id %>
-                <li><a id="copy" href="<%= url_for :action => 'copy_form', :id => @filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
-              <% end %>
-              <% if !defined?(@unchanged) && @filter.id && @filter.owner?(current_user) %>
-                <li>
-                  <%= link_to message('save'), params.merge({:action => 'save', :id => @filter.id}), :class => 'link-action', :id => 'save', :method => :post -%>
-                </li>
-              <% end %>
-              <% unless @filter.id %>
-                <li>
-                  <a id="save-as" href="<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
-                </li>
-              <% end %>
-            <% end %>
-          </ul>
-          <% end %>
-          
-          <div class="page_title" id="filter-title">
-            <% if @filter.id && @filter.name.present? %>
-              <p>
-                <span class="h3"><%= h @filter.name -%></span>
-                <span class="note">
-                  <% if !@filter.shared %>
-                    [<%= message 'measure_filter.private' -%>]
-                  <% elsif logged_in? && @filter.user_id==current_user.id %>
-                    [<%= message 'measure_filter.shared_with_all_users' -%>]
-                  <% elsif @filter.user_id %>
-                    [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
-                  <% else %>
-                    [<%= message 'shared_by' -%> Sonar]
-                  <% end %>
-                </span>
-                <% if @filter.owner?(current_user) && !edit_mode %>
-                  &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
-                <% end %>
-              </p>
-            <% end %>
-          </div>
-        </div>
-        <% if @filter.description.present? %>
-          <p class="note" id="filter-description"><%= h @filter.description -%></p>
-      <% end %>
-
-        <%= render :partial => 'measures/display', :locals => {:filter => @filter, :edit_mode => edit_mode, :widget_id => nil} -%>
-      </div>
-    </div>
-  <% end %>
 </div>
+
+
+<script id="filterBarTemplate" type="text/template">
+  <form method="get" action="<%= ApplicationController.root_context -%>/measures/search">
+    <% if @filter.id %>
+      <input type="hidden" name="id" value="<%= h @filter.id -%>">
+    <% end %>
+    <% if @filter.display %>
+      <input type="hidden" name="display" value="<%= h @filter.display.key -%>"/>
+      <%
+         @filter.display.url_params.each do |k_v_array|
+           if k_v_array[1].is_a?(String)
+      %>
+          <%= hidden_field_tag k_v_array[0], k_v_array[1] -%>
+        <% else
+             k_v_array[1].each do |string_val|
+        %>
+            <%= hidden_field_tag "#{k_v_array[0]}[]", string_val -%>
+          <% end
+             end
+             end
+             end
+          %>
+
+    <div class="navigator-filters-list"></div>
+    <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
+    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures/search"><%= message 'issue_filter.new_search' -%></a>
+  </form>
+</script>
+
+
+<%= render :partial => '/navigator/filter_templates' -%>
+
+
+<script>
+  _.templateSettings = {
+    interpolate: /\{\{(.+?)\}\}/g,
+    evaluate: /\{\[(.+?)\]\}/g
+  };
+
+
+  var queryParams = [
+    { key: 'qualifiers[]', value: <%= @filter.criteria['qualifiers'].to_json -%> },
+  ];
+
+  window.SS.MeasuresNavigatorApp.start();
+  window.SS.MeasuresNavigatorApp.filterBarView.restoreFromQuery(queryParams);
+</script>

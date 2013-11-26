@@ -5,7 +5,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 (function() {
 
   var NavigatorApp = new Backbone.Marionette.Application();
-  window.SS.NavigatorApp = NavigatorApp;
+  window.SS.IssuesNavigatorApp = NavigatorApp;
 
 
 

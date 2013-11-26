@@ -1,0 +1,83 @@
+<script id="baseFilterTemplate" type="text/template">
+  <div class="navigator-filter-label">{{ name }}</div>
+  <div class="navigator-filter-value {[ if (defaultValue) { ]}default{[ } ]}">{{ value }}</div>
+  {[ if (optional) { ]}
+  <div class="navigator-filter-disable">&times;</div>
+  {[ } ]}
+</script>
+
+<script id="detailsFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    No details
+  </div>
+</script>
+
+<script id="selectFilterItemTemplate" type="text/template">
+  <li>
+    <label>
+      <input type="checkbox" value="{{ item.id }}"
+      {[ if (checked) { ]}checked{[ } ]}>
+      {[ if (item.icon) { ]}
+      <img src="{{ item.icon }}" alt="{{ item.text }}">
+      {[ } ]}
+      <span>{{ item.text }}</span>
+    </label>
+  </li>
+</script>
+
+<script id="selectFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
+</script>
+
+<script id="ajaxSelectFilterTemplate" type="text/template">
+  <div class="navigator-filter-search">
+    <input type="text">
+  </div>
+  <ul class="navigator-filter-select-list selection"></ul>
+  <ul class="navigator-filter-select-list choices"></ul>
+</script>
+
+<script id="rangeFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyFrom }}">
+    <label>to</label>
+    <input class="navigator-filter-range-input" type="text"
+           name="{{ propertyTo }}">
+  </div>
+</script>
+
+<script id="favoriteFilterTemplate" type="text/template">
+  <div class="navigator-filter-favorite-toggle"></div>
+</script>
+
+<script id="detailsFavoriteFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ if (_.keys(choices).length > 0) { ]}
+    {[ _.each(choices, function(value, key) { ]}
+    <li>
+      <label data-id="{{ key }}">{{ value }}</label>
+    </li>
+    {[ }); ]}
+    <li class="line"></li>
+    {[ } ]}
+    <li class="manage">
+      <label id="manage-favorites">Manage</label>
+    </li>
+  </ul>
+</script>
+
+<script id="moreCriteriaFilterTemplate" type="text/template">
+  <strong>+</strong> More Criteria
+</script>
+
+<script id="detailsMoreCriteriaFilterTemplate" type="text/template">
+  <ul class="navigator-filter-select-list">
+    {[ _.each(filters, function(filter) { ]}
+    <li>
+      <label data-id="{{ filter.cid }}">{[ print(filter.get('name')); ]}</label>
+    </li>
+    {[ }); ]}
+  </ul>
+</script>

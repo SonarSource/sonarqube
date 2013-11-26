@@ -38,7 +38,8 @@
     <js>/javascripts/navigator/filters/range-filters.js</js>
     <js>/javascripts/navigator/filters/favorite-filters.js</js>
     <js>/javascripts/navigator/filters/more-criteria-filters.js</js>
-    <js>/javascripts/navigator/app.js</js>
+    <js>/javascripts/navigator/issues-app.js</js>
+    <js>/javascripts/navigator/measures-app.js</js>
 
     <js>/javascripts/application.js</js>
     <js>/javascripts/dashboard.js</js>
