@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -52,11 +50,11 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.Platform;
@@ -333,10 +331,6 @@ public final class JRubyFacade {
 
   public List<Footer> getWebFooters() {
     return getContainer().getComponentsByType(Footer.class);
-  }
-
-  public Backup getBackup() {
-    return get(Backup.class);
   }
 
   private ProfilesManager getProfilesManager() {
