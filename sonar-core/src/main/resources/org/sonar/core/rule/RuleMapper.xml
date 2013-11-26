@@ -43,19 +43,10 @@
       parent_id, created_at, updated_at)
   </sql>
 
-  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+  <insert id="insert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
       #{priorityOrdinal}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
-  </insert>
-
-  <insert id="insertAll" parameterType="java.util.Collection" useGeneratedKeys="true">
-    insert into rules <include refid="insertColumns"/>
-    values
-    <foreach collection="list" item="rule" separator=", ">
-      (#{rule.ruleKey}, #{rule.repositoryKey}, #{rule.description}, #{rule.status}, #{rule.name}, #{rule.configKey},
-        #{rule.priorityOrdinal}, #{rule.cardinality}, #{rule.language}, #{rule.parentId}, #{rule.createdAt}, #{rule.updatedAt})
-    </foreach>
   </insert>
 
   <delete id="deleteParams" parameterType="long" >

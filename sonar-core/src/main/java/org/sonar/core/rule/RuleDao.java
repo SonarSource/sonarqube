@@ -88,9 +88,11 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(Collection<RuleDto> rules) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openBatchSession();
     try {
-      getMapper(session).insertAll(rules);
+      for (RuleDto rule: rules) {
+        getMapper(session).insert(rule);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

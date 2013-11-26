@@ -159,7 +159,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(insertedRule.getPriority()).isEqualTo(newPriority);
     assertThat(insertedRule.getCardinality()).isEqualTo(newCardinality);
     assertThat(insertedRule.getLanguage()).isEqualTo(newLanguage);
-    assertThat(insertedRule.getUpdatedAt()).isEqualTo(updatedAt);
     assertThat(insertedRule.getParentId()).isEqualTo(newParentId);
   }
 

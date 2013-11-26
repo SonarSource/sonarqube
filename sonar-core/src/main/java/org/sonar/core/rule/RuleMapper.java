@@ -19,7 +19,6 @@
  */
 package org.sonar.core.rule;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface RuleMapper {
@@ -28,7 +27,6 @@ public interface RuleMapper {
   RuleDto selectById(Long id);
   void update(RuleDto rule);
   void insert(RuleDto rule);
-  void insertAll(Collection<RuleDto> rules);
   List<RuleParamDto> selectAllParams();
   List<RuleParamDto> selectParamsForRule(Long id);
 }
