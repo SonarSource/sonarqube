@@ -23,6 +23,7 @@ package org.sonar.server.rule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
@@ -169,8 +170,14 @@ public class RuleRegistry {
         .field("id", rule.getId())
         .field("key", rule.getRuleKey())
         .field("language", rule.getLanguage())
-        .field("name", ruleI18nManager.getName(rule.getRepositoryKey(), rule.getRuleKey(), locale))
-        .field("description", ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getRuleKey(), locale))
+        .field("name",
+          StringUtils.defaultIfEmpty(
+            ruleI18nManager.getName(rule.getRepositoryKey(), rule.getRuleKey(), locale),
+            rule.getName()))
+        .field("description",
+          StringUtils.defaultString(
+            ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getRuleKey(), locale),
+            rule.getDescription()))
         .field("parentKey", rule.getParentId() == null ? null : rule.getParentId())
         .field("repositoryKey", rule.getRepositoryKey())
         .field("severity", rule.getPriority())
