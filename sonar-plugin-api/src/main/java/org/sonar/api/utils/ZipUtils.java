@@ -129,7 +129,6 @@ public final class ZipUtils {
     }
   }
 
-
   private static void doZip(String entryName, InputStream in, ZipOutputStream out) throws IOException {
     ZipEntry zentry = new ZipEntry(entryName);
     out.putNextEntry(zentry);
@@ -171,4 +170,3 @@ public final class ZipUtils {
   }
 
 }
-

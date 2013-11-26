@@ -30,9 +30,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.core.plugins.PluginClassloaders;
-import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
@@ -54,14 +52,15 @@ public class BatchPluginRepository implements PluginRepository {
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
   private PluginClassloaders classLoaders;
-  private TempFolder tempDirectories;
   private final AnalysisMode analysisMode;
+  private final BatchPluginInstaller pluginInstaller;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, TempFolder tempDirectories, Settings settings, AnalysisMode analysisMode) {
+  public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings, AnalysisMode analysisMode,
+    BatchPluginInstaller pluginInstaller) {
     this.pluginDownloader = pluginDownloader;
-    this.tempDirectories = tempDirectories;
     this.settings = settings;
     this.analysisMode = analysisMode;
+    this.pluginInstaller = pluginInstaller;
   }
 
   public void start() {
@@ -71,14 +70,11 @@ public class BatchPluginRepository implements PluginRepository {
 
   void doStart(List<RemotePlugin> remotePlugins) {
     PluginFilter filter = new PluginFilter(settings, analysisMode);
-    PluginInstaller extractor = new PluginInstaller();
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (filter.accepts(remote.getKey())) {
         File pluginFile = pluginDownloader.downloadPlugin(remote);
-        File targetDir = tempDirectories.newDir("plugins/" + remote.getKey());
-        LOG.debug("Installing plugin {} into {}", remote.getKey(), targetDir.getAbsolutePath());
-        PluginMetadata metadata = extractor.install(pluginFile, remote.isCore(), targetDir);
+        PluginMetadata metadata = pluginInstaller.installToCache(pluginFile, remote.isCore());
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           metadataByKey.put(metadata.getKey(), metadata);
         } else {

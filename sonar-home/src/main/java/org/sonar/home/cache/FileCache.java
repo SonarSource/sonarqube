@@ -20,6 +20,7 @@
 package org.sonar.home.cache;
 
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.utils.ZipUtils;
 import org.sonar.home.log.Log;
 
 import javax.annotation.CheckForNull;
@@ -27,6 +28,7 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.zip.ZipEntry;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -36,6 +38,8 @@ import java.util.Random;
 public class FileCache {
 
   private static final int TEMP_FILE_ATTEMPTS = 1000;
+  /** Maximum loop count when creating temp directories. */
+  private static final int TEMP_DIR_ATTEMPTS = 10000;
 
   private final File dir, tmpDir;
   private final FileHashes hashes;
@@ -147,6 +151,18 @@ public class FileCache {
     throw new IllegalStateException("Fail to create temporary file in " + tmpDir);
   }
 
+  private File createTempDir() {
+    String baseName = System.currentTimeMillis() + "-";
+
+    for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+      File tempDir = new File(tmpDir, baseName + counter);
+      if (tempDir.mkdir()) {
+        return tempDir;
+      }
+    }
+    throw new IllegalStateException("Failed to create directory in " + tmpDir);
+  }
+
   private File createDir(File dir, Log log, String debugTitle) {
     if (!dir.isDirectory() || !dir.exists()) {
       log.debug("Create : " + dir.getAbsolutePath());
@@ -159,4 +175,26 @@ public class FileCache {
     return dir;
   }
 
+  /**
+   * Unzip a cached file. Unzip is done only the first time.
+   * @param cachedFile
+   * @return directory where cachedFile was unzipped
+   * @throws IOException
+   */
+  public File unzip(File cachedFile) throws IOException {
+    String filename = cachedFile.getName();
+    File destDir = new File(cachedFile.getParentFile(), filename + "_unzip");
+    if (!destDir.exists()) {
+      File tempDir = createTempDir();
+      ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
+      FileUtils.moveDirectory(tempDir, destDir);
+    }
+    return destDir;
+  }
+
+  private static final class LibFilter implements ZipUtils.ZipEntryFilter {
+    public boolean accept(ZipEntry entry) {
+      return entry.getName().startsWith("META-INF/lib");
+    }
+  }
 }

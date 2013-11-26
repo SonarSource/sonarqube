@@ -20,6 +20,7 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,14 +32,27 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class PluginInstallerTest {
 
-  private PluginInstaller extractor = new PluginInstaller();
+  private PluginInstaller extractor;
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  private File userHome;
+
+  @Before
+  public void setUp() throws IOException {
+    userHome = temporaryFolder.newFolder();
+    extractor = new PluginInstaller() {
+      @Override
+      protected File extractPluginDependencies(File pluginFile, File pluginBasedir) throws IOException {
+        return null;
+      }
+    };
+  }
+
   @Test
-  public void should_extract_metadata() {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-cobertura-plugin-3.1.1.jar"), true);
+  public void should_extract_metadata() throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("sonar-cobertura-plugin-3.1.1.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("cobertura");
     assertThat(metadata.getBasePlugin()).isNull();
@@ -52,46 +66,24 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void should_read_sonar_version() {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-switch-off-violations-plugin-1.1.jar"), false);
+  public void should_read_sonar_version() throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("sonar-switch-off-violations-plugin-1.1.jar"), false);
 
     assertThat(metadata.getVersion()).isEqualTo("1.1");
     assertThat(metadata.getSonarVersion()).isEqualTo("2.5");
   }
 
   @Test
-  public void should_extract_extension_metadata() {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"), true);
+  public void should_extract_extension_metadata() throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("checkstyleextensions");
     assertThat(metadata.getBasePlugin()).isEqualTo("checkstyle");
   }
 
   @Test
-  public void should_copy_and_extract_dependencies() throws IOException {
-    File toDir = temporaryFolder.newFolder();
-
-    DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
-
-    assertThat(metadata.getKey()).isEqualTo("checkstyle");
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
-    assertThat(new File(toDir, "META-INF/lib/checkstyle-5.1.jar")).exists();
-  }
-
-  @Test
-  public void should_extract_only_dependencies() throws IOException {
-    File toDir = temporaryFolder.newFolder();
-
-    extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
-
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
-    assertThat(new File(toDir, "META-INF/MANIFEST.MF")).doesNotExist();
-    assertThat(new File(toDir, "org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
-  }
-
-  @Test
   public void should_extract_parent_information() throws IOException {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("fake1bis-plugin-1.0.jar"), true);
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("fake1bis-plugin-1.0.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("fake1bis");
     assertThat(metadata.getParent()).isEqualTo("fake1");
@@ -99,14 +91,17 @@ public class PluginInstallerTest {
 
   @Test
   public void should_extract_requires_plugin_information() throws IOException {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("fake2-plugin-1.1.jar"), true);
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("fake2-plugin-1.1.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("fake2");
     assertThat(metadata.getRequiredPlugins().get(0)).isEqualTo("fake1:1.1");
   }
 
-  static File getFile(String filename) {
-    return FileUtils.toFile(PluginInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
+  File getFileFromCache(String filename) throws IOException {
+    File src = FileUtils.toFile(PluginInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
+    File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
+    FileUtils.copyFile(src, destFile);
+    return destFile;
   }
 
 }

@@ -82,6 +82,7 @@ public class BootstrapContainer extends ComponentContainer {
       AnalysisMode.class,
       PluginDownloader.class,
       BatchPluginRepository.class,
+      BatchPluginInstaller.class,
       BatchSettings.class,
       ServerClient.class,
       ExtensionInstaller.class,

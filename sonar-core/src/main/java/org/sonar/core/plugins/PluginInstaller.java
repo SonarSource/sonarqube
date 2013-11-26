@@ -19,43 +19,22 @@
  */
 package org.sonar.core.plugins;
 
-import org.apache.commons.io.FileUtils;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.ZipUtils;
 import org.sonar.updatecenter.common.PluginManifest;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.zip.ZipEntry;
 
-public class PluginInstaller {
+public abstract class PluginInstaller implements BatchComponent, ServerComponent {
 
-  private static final String FAIL_TO_INSTALL_PLUGIN = "Fail to install plugin: ";
+  protected static final String FAIL_TO_INSTALL_PLUGIN = "Fail to install plugin: ";
 
-  public DefaultPluginMetadata install(File pluginFile, boolean isCore, File pluginBasedir) {
-    try {
-      // Copy the plugin before extracting metadata to avoid file lock on Widnows
-      File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
-      DefaultPluginMetadata metadata = extractMetadata(deployedPlugin, isCore);
-      install(metadata, pluginBasedir, deployedPlugin);
-      return metadata;
-    } catch (IOException e) {
-      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + pluginFile, e);
-    }
-  }
-
-  public void install(DefaultPluginMetadata metadata, File pluginBasedir) {
-    try {
-      File pluginFile = metadata.getFile();
-      File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
-      install(metadata, pluginBasedir, deployedPlugin);
-    } catch (IOException e) {
-      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
-    }
-  }
-
-  private void install(DefaultPluginMetadata metadata, File pluginBasedir, File deployedPlugin) {
+  protected void install(DefaultPluginMetadata metadata, @Nullable File pluginBasedir, File deployedPlugin) {
     try {
       metadata.addDeployedFile(deployedPlugin);
       copyDependencies(metadata, deployedPlugin, pluginBasedir);
@@ -64,19 +43,12 @@ public class PluginInstaller {
     }
   }
 
-  private File copyPlugin(File pluginBasedir, File pluginFile) throws IOException {
-    FileUtils.forceMkdir(pluginBasedir);
-    File targetFile = new File(pluginBasedir, pluginFile.getName());
-    FileUtils.copyFile(pluginFile, targetFile);
-    return targetFile;
-  }
-
-  private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, File pluginBasedir) throws IOException {
+  private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, @Nullable File pluginBasedir) throws IOException {
     if (!metadata.getPathsToInternalDeps().isEmpty()) {
       // needs to unzip the jar
-      ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
+      File baseDir = extractPluginDependencies(pluginFile, pluginBasedir);
       for (String depPath : metadata.getPathsToInternalDeps()) {
-        File dependency = new File(pluginBasedir, depPath);
+        File dependency = new File(baseDir, depPath);
         if (!dependency.isFile() || !dependency.exists()) {
           throw new IllegalArgumentException("Dependency " + depPath + " can not be found in " + pluginFile.getName());
         }
@@ -85,11 +57,7 @@ public class PluginInstaller {
     }
   }
 
-  private static final class LibFilter implements ZipUtils.ZipEntryFilter {
-    public boolean accept(ZipEntry entry) {
-      return entry.getName().startsWith("META-INF/lib");
-    }
-  }
+  protected abstract File extractPluginDependencies(File pluginFile, @Nullable File pluginBasedir) throws IOException;
 
   public DefaultPluginMetadata extractMetadata(File file, boolean isCore) {
     try {

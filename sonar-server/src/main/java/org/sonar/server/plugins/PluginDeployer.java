@@ -33,7 +33,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
-import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.PluginReferential;
 
@@ -49,15 +48,11 @@ public class PluginDeployer implements ServerComponent {
 
   private final Server server;
   private final DefaultServerFileSystem fileSystem;
-  private final PluginInstaller installer;
+  private final ServerPluginInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final ServerUpgradeStatus serverUpgradeStatus;
 
-  public PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem) {
-    this(server, serverUpgradeStatus, fileSystem, new PluginInstaller());
-  }
-
-  PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
+  public PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem, ServerPluginInstaller installer) {
     this.server = server;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.fileSystem = fileSystem;
@@ -218,7 +213,7 @@ public class PluginDeployer implements ServerComponent {
       FileUtils.forceMkdir(pluginDeployDir);
       FileUtils.cleanDirectory(pluginDeployDir);
 
-      installer.install(plugin, pluginDeployDir);
+      installer.installToDir(plugin, pluginDeployDir);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to deploy the plugin " + plugin, e);
     }

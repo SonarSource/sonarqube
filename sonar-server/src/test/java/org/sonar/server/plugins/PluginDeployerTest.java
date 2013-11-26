@@ -27,7 +27,6 @@ import org.junit.rules.TestName;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.test.TestUtils;
 
@@ -43,7 +42,7 @@ public class PluginDeployerTest {
   public TestName name = new TestName();
   @Rule
   public ExpectedException exception = ExpectedException.none();
-  private PluginInstaller extractor;
+  private ServerPluginInstaller extractor;
   private DefaultServerFileSystem fileSystem;
   private File homeDir;
   private File deployDir;
@@ -57,7 +56,7 @@ public class PluginDeployerTest {
     homeDir = TestUtils.getResource(PluginDeployerTest.class, name.getMethodName());
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
-    extractor = new PluginInstaller();
+    extractor = new ServerPluginInstaller();
     serverUpgradeStatus = mock(ServerUpgradeStatus.class);
     deployer = new PluginDeployer(server, serverUpgradeStatus, fileSystem, extractor);
   }
