@@ -68,7 +68,6 @@
     <%= javascript_include_tag 'issue' %>
     <%= javascript_include_tag 'recent-history' %>
   <% end %>
-  <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
   <script>var baseUrl = '<%= ApplicationController.root_context -%>';
   var $j = jQuery.noConflict();
   $j(document).ready(function () {$j('.open-modal').modal()});
