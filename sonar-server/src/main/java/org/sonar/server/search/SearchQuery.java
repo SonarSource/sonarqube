@@ -28,6 +28,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder.Operator;
 import org.elasticsearch.search.facet.FacetBuilders;
 
 import java.util.List;
@@ -121,7 +122,9 @@ public class SearchQuery {
     SearchRequestBuilder builder = client.prepareSearch(indices.toArray(new String[0])).setTypes(types.toArray(new String[0]));
     List<FilterBuilder> filters = Lists.newArrayList();
     if (StringUtils.isNotBlank(searchString)) {
-      filters.add(queryFilter(QueryBuilders.queryString(searchString)));
+      filters.add(queryFilter(QueryBuilders.queryString(searchString)
+        .defaultOperator(Operator.AND)
+        .allowLeadingWildcard(false)));
     }
 
     for (String field: fieldCriteria.keySet()) {

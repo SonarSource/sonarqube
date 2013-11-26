@@ -103,6 +103,8 @@ public class RuleRegistryTest {
   @Test
   public void should_filter_on_name_or_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters"))).containsOnly(1);
+    assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "issue"))).containsOnly(1, 2);
+    assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "issue line"))).containsOnly(2);
   }
 
   @Test
@@ -121,6 +123,11 @@ public class RuleRegistryTest {
   @Test
   public void should_filter_on_multiple_values() {
     assertThat(registry.findIds(ImmutableMap.of("key", "RuleWithParameters|OneIssuePerLine"))).hasSize(2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_reject_leading_wildcard() {
+    registry.findIds(ImmutableMap.of("nameOrKey", "*ssue"));
   }
 
   @Test(expected = IllegalArgumentException.class)
