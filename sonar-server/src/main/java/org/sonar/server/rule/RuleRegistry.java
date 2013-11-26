@@ -38,10 +38,7 @@ import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchQuery;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Fill search index with rules
@@ -156,6 +153,13 @@ public class RuleRegistry {
     profiler.start("Index rules");
     searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
     profiler.stop();
+
+    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
+    indexIds.removeAll(Arrays.asList(ids));
+    if (! indexIds.isEmpty()) {
+      profiler.start("Remove deleted rule documents");
+      searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
+    }
   }
 
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {

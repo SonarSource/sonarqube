@@ -189,10 +189,35 @@ public class SearchIndex {
     return result;
   }
 
+  public void bulkDelete(String index, String type, String[] ids) {
+    BulkRequestBuilder builder = new BulkRequestBuilder(client);
+    for (int i=0; i<ids.length; i++) {
+      builder.add(client.prepareDelete(index, type, ids[i]));
+    }
+    TimeProfiler profiler = newDebugProfiler();
+    try {
+      profiler.start(format("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index));
+      BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
+      if (bulkResponse.hasFailures()) {
+        for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
+          if(bulkItemResponse.isFailed()) {
+            int itemId = bulkItemResponse.getItemId();
+            client.prepareDelete(index, type, ids[itemId]).execute().actionGet();
+          }
+        }
+      }
+    } catch (InterruptedException e) {
+      LOG.error("Interrupted during bulk operation", e);
+    } catch (ExecutionException e) {
+      LOG.error("Execution of bulk operation failed", e);
+    } finally {
+      profiler.stop();
+    }
+  }
+
   private TimeProfiler newDebugProfiler() {
     TimeProfiler profiler = new TimeProfiler();
     profiler.setLogger(LOG);
     return profiler;
   }
-
 }

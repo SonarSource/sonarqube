@@ -170,7 +170,25 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_throw_when_problem_on_index() {
+  public void should_update_existing_rules_and_forget_deleted_rules() {
+    long ruleId1 = 1L;
+    RuleDto rule1 = new RuleDto();
+    rule1.setRepositoryKey("xoo");
+    rule1.setRuleKey("key1");
+    rule1.setId(ruleId1);
+    long ruleId2 = 2L;
+    RuleDto rule2 = new RuleDto();
+    rule2.setRepositoryKey("xoo");
+    rule2.setRuleKey("key2");
+    rule2.setId(ruleId2);
+    rule2.setParentId(ruleId1);
+    List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
+    when(ruleDao.selectNonManual()).thenReturn(rules);
+    registry.bulkRegisterRules();
+
+    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
+      .hasSize(2)
+      .containsOnly((int) ruleId1, (int) ruleId2);
   }
 }
