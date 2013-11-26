@@ -137,6 +137,11 @@ public interface CoreProperties {
   String PROJECT_KEY_PROPERTY = "sonar.projectKey";
 
   /**
+   * @since 4.1
+   */
+  String MODULE_KEY_PROPERTY = "sonar.moduleKey";
+
+  /**
    * @since 2.6
    */
   String PROJECT_NAME_PROPERTY = "sonar.projectName";

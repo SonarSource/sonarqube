@@ -97,7 +97,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
+  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {CoreProperties.MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
 
   /**
    * Properties that must not be passed from the parent project to its children.
@@ -181,8 +181,6 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   }
 
   private ProjectDefinition loadChildProject(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
-    setProjectKeyAndNameIfNotDefined(moduleProps, moduleId);
-
     final File baseDir;
     if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
       baseDir = getFileFromPath(moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR), parentProject.getBaseDir());
@@ -202,13 +200,13 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
       tryToFindAndLoadPropsFile(baseDir, moduleProps, moduleId);
     }
 
+    setModuleKeyAndNameIfNotDefined(moduleProps, moduleId, parentProject.getKey());
+
     // and finish
     checkMandatoryProperties(moduleProps, MANDATORY_PROPERTIES_FOR_CHILD);
     validateDirectories(moduleProps, baseDir, moduleId);
 
     mergeParentProperties(moduleProps, parentProject.getProperties());
-
-    prefixProjectKeyWithParentKey(moduleProps, parentProject.getKey());
 
     return defineProject(moduleProps, parentProject);
   }
@@ -266,13 +264,20 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   }
 
   @VisibleForTesting
-  protected static void setProjectKeyAndNameIfNotDefined(Properties childProps, String moduleId) {
-    if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
-      childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, moduleId);
+  protected static void setModuleKeyAndNameIfNotDefined(Properties childProps, String moduleId, String parentKey) {
+    if (!childProps.containsKey(CoreProperties.MODULE_KEY_PROPERTY)) {
+      if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
+        childProps.put(CoreProperties.MODULE_KEY_PROPERTY, parentKey + ":" + moduleId);
+      } else {
+        String childKey = childProps.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+        childProps.put(CoreProperties.MODULE_KEY_PROPERTY, parentKey + ":" + childKey);
+      }
     }
     if (!childProps.containsKey(CoreProperties.PROJECT_NAME_PROPERTY)) {
       childProps.put(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
     }
+    // For backward compatibility with ProjectDefinition
+    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.getProperty(CoreProperties.MODULE_KEY_PROPERTY));
   }
 
   @VisibleForTesting
@@ -282,12 +287,6 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
         throw new IllegalStateException("Project '" + parentProject.getKey() + "' can't have 2 modules with the following key: " + childProject.getKey());
       }
     }
-  }
-
-  @VisibleForTesting
-  protected static void prefixProjectKeyWithParentKey(Properties childProps, String parentKey) {
-    String childKey = childProps.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, parentKey + ":" + childKey);
   }
 
   private static void setProjectBaseDir(File baseDir, Properties childProps, String moduleId) {
@@ -309,9 +308,9 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
         missing.append(mandatoryProperty);
       }
     }
-    String projectKey = props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    String moduleKey = StringUtils.defaultIfBlank(props.getProperty(CoreProperties.MODULE_KEY_PROPERTY), props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
     if (missing.length() != 0) {
-      throw new IllegalStateException("You must define the following mandatory properties for '" + (projectKey == null ? "Unknown" : projectKey) + "': " + missing);
+      throw new IllegalStateException("You must define the following mandatory properties for '" + (moduleKey == null ? "Unknown" : moduleKey) + "': " + missing);
     }
   }
 

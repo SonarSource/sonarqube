@@ -207,6 +207,25 @@ public class DefaultProjectBootstrapperTest {
     assertThat(module2.getProperties().getProperty("module2.sonar.projectKey")).isNull();
   }
 
+  // SONAR-4876
+  @Test
+  public void shouldDefineMultiModuleProjectWithModuleKey() throws IOException {
+    ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-moduleKey");
+
+    // CHECK ROOT
+    // module properties must have been cleaned
+    assertThat(rootProject.getProperties().getProperty("module1.sonar.moduleKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module2.sonar.moduleKey")).isNull();
+
+    // CHECK MODULES
+    List<ProjectDefinition> modules = rootProject.getSubProjects();
+    assertThat(modules.size()).isEqualTo(2);
+
+    // Module 2
+    ProjectDefinition module2 = modules.get(1);
+    assertThat(module2.getKey()).isEqualTo("com.foo.project.module2");
+  }
+
   @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsModule1Inherited() throws IOException {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-in-each-module-inherited");
@@ -530,7 +549,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String> newHashMap())));
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -540,7 +559,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
-    Map<String, String> props = Maps.<String, String> newHashMap();
+    Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
     DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
@@ -552,7 +571,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
-    Map<String, String> props = Maps.<String, String> newHashMap();
+    Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
     DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
@@ -560,15 +579,6 @@ public class DefaultProjectBootstrapperTest {
     File workDir = builder.initRootProjectWorkDir(baseDir);
 
     assertThat(workDir).isEqualTo(new File("src").getAbsoluteFile());
-  }
-
-  @Test
-  public void shouldReturnPrefixedKey() {
-    Properties props = new Properties();
-    props.put("sonar.projectKey", "my-module-key");
-
-    DefaultProjectBootstrapper.prefixProjectKeyWithParentKey(props, "my-parent-key");
-    assertThat(props.getProperty("sonar.projectKey")).isEqualTo("my-parent-key:my-module-key");
   }
 
   @Test
@@ -597,18 +607,18 @@ public class DefaultProjectBootstrapperTest {
   }
 
   @Test
-  public void shouldSetProjectKeyIfNotPresent() {
+  public void shouldSetModuleKeyIfNotPresent() {
     Properties props = new Properties();
     props.put("sonar.projectVersion", "1.0");
 
     // should be set
-    DefaultProjectBootstrapper.setProjectKeyAndNameIfNotDefined(props, "foo");
-    assertThat(props.getProperty("sonar.projectKey")).isEqualTo("foo");
+    DefaultProjectBootstrapper.setModuleKeyAndNameIfNotDefined(props, "foo", "parent");
+    assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
     assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
 
     // but not this 2nd time
-    DefaultProjectBootstrapper.setProjectKeyAndNameIfNotDefined(props, "bar");
-    assertThat(props.getProperty("sonar.projectKey")).isEqualTo("foo");
+    DefaultProjectBootstrapper.setModuleKeyAndNameIfNotDefined(props, "bar", "parent");
+    assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
     assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
   }
 
@@ -621,7 +631,7 @@ public class DefaultProjectBootstrapperTest {
   }
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
-    Map<String, String> props = Maps.<String, String> newHashMap();
+    Map<String, String> props = Maps.<String, String>newHashMap();
     Properties runnerProps = DefaultProjectBootstrapper.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
