@@ -261,10 +261,15 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var AssigneeDetailsFilterView = AjaxSelectDetailsFilterView.extend({
 
     resetChoices: function() {
-      this.options.filterView.choices.reset([{
-        id: '<unassigned>',
-        text: 'Unassigned'
-      }]);
+      if (this.options.filterView.selection.findWhere({ id: '<unassigned>' })) {
+        this.options.filterView.choices.reset([]);
+      } else {
+        this.options.filterView.choices.reset([{
+          id: '<unassigned>',
+          text: 'Unassigned'
+        }]);
+      }
+
     },
 
 
@@ -289,7 +294,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    restoreFromText: function(value, text) {
+    restoreFromText: function(value) {
       if (_.indexOf(value, '<unassigned>') !== -1) {
         this.choices.reset([]);
       }
