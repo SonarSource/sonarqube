@@ -12,14 +12,14 @@
 <div class="bubble-chart-widget" id="<%= container_id %>">
     <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
 
-    <!--[if (gt IE 9)|!(IE)]><!-->
+    <!--[if (gte IE 9)|!(IE)]><!-->
     <% if chartTitle %>
       <h3 style="text-align: center;"><%= h(chartTitle) -%></h3>
     <% end %>
     <!--<![endif]-->
 </div>
 
-<!--[if (gt IE 9)|!(IE)]><!-->
+<!--[if (gte IE 9)|!(IE)]><!-->
 <script>
 
   var bubbleChartData = [

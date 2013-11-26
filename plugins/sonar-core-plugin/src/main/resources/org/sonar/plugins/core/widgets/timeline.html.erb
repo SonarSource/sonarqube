@@ -148,14 +148,14 @@
 
 <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
 
-<!--[if (gt IE 9)|!(IE)]><!-->
+<!--[if (gte IE 9)|!(IE)]><!-->
 <% if widget_properties["chartTitle"] %>
   <h3 style="text-align: center; margin-bottom: 10px"><%= h(widget_properties["chartTitle"]) -%></h3>
 <% end %>
 <!--<![endif]-->
 
 
-<!--[if (gt IE 9)|!(IE)]><!-->
+<!--[if (gte IE 9)|!(IE)]><!-->
 <%
    unless metric_data_map.values.empty?
 
