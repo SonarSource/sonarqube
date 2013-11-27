@@ -72,11 +72,6 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  private RuleMapper getMapper(SqlSession session) {
-    RuleMapper mapper = session.getMapper(RuleMapper.class);
-    return mapper;
-  }
-
   public void insert(RuleDto ruleToInsert) {
     SqlSession session = mybatis.openSession();
     try {
@@ -117,4 +112,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
+  private RuleMapper getMapper(SqlSession session) {
+    return session.getMapper(RuleMapper.class);
+  }
 }
