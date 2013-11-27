@@ -17,9 +17,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class QualityModel < ActiveRecord::Base
 
-  validates_length_of :name, :within => 1..100
-  validates_uniqueness_of :name
+# TODO delete it
+class QualityModel < ActiveRecord::Base
 
 end

@@ -71,7 +71,7 @@ public class TechnicalDebtManager implements ServerExtension {
   public TechnicalDebtModel initAndMergePlugins(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
     TechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
     TechnicalDebtModel model = loadOrCreateModelFromDb(defaultModel, messages, session);
-    disableRequirementsOnRemovedRules(model, rulesCache, session);
+    disableRequirementsOnRemovedRules(model, session);
     mergePlugins(model, defaultModel, messages, rulesCache, session);
     messages.log(LOG);
 
@@ -139,9 +139,9 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
-  private void disableRequirementsOnRemovedRules(TechnicalDebtModel model, TechnicalDebtRuleCache rulesCache, SqlSession session) {
+  private void disableRequirementsOnRemovedRules(TechnicalDebtModel model, SqlSession session) {
     for (Requirement requirement : model.requirements()) {
-      if (!rulesCache.exists(requirement.ruleKey())) {
+      if (requirement.ruleKey() == null) {
         requirement.characteristic().removeRequirement(requirement);
         service.disable(requirement, session);
       }

@@ -27,15 +27,17 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.Characteristic;
 import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
-import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,7 +47,7 @@ public class TechnicalDebtFinderTest {
   CharacteristicDao dao;
 
   @Mock
-  DefaultRuleFinder ruleFinder;
+  RuleFinder ruleFinder;
 
   TechnicalDebtFinder finder;
 
@@ -80,7 +82,7 @@ public class TechnicalDebtFinderTest {
     RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
     Rule rule = Rule.create(ruleKey.repository(), ruleKey.rule());
     rule.setId(100);
-    when(ruleFinder.findByIds(newArrayList(100))).thenReturn(newArrayList(rule));
+    when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(newArrayList(rule));
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto, requirementDto));
 
     TechnicalDebtModel result = finder.findAll();

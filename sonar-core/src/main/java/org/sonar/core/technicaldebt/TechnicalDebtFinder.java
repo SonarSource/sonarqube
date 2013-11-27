@@ -20,12 +20,14 @@
 
 package org.sonar.core.technicaldebt;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -33,15 +35,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
 
   private final CharacteristicDao dao;
-  private final DefaultRuleFinder ruleFinder;
+  private final RuleFinder ruleFinder;
 
-  public TechnicalDebtFinder(CharacteristicDao dao, DefaultRuleFinder ruleFinder) {
+  public TechnicalDebtFinder(CharacteristicDao dao, RuleFinder ruleFinder) {
     this.dao = dao;
     this.ruleFinder = ruleFinder;
   }
@@ -50,9 +51,21 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
     TechnicalDebtModel model = new TechnicalDebtModel();
     List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
     Map<Integer, Characteristic> characteristicsById = newHashMap();
-    List<Integer> ruleIds = newArrayList();
 
-    // Root characteristics
+    addRootCharacteristics(model, dtos, characteristicsById);
+    addCharacteristics(model, dtos, characteristicsById);
+    addRequirements(model, dtos, characteristicsById);
+    return model;
+  }
+
+  public TechnicalDebtModel findRootCharacteristics() {
+    TechnicalDebtModel model = new TechnicalDebtModel();
+    List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
+    addRootCharacteristics(model, dtos, Maps.<Integer, Characteristic>newHashMap());
+    return model;
+  }
+
+  private void addRootCharacteristics(TechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, Characteristic> characteristicsById){
     for (CharacteristicDto dto : dtos) {
       if (dto.getParentId() == null) {
         Characteristic rootCharacteristic = dto.toCharacteristic(null);
@@ -60,8 +73,9 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
         characteristicsById.put(dto.getId(), rootCharacteristic);
       }
     }
+  }
 
-    // Characteristics
+  private void addCharacteristics(TechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, Characteristic> characteristicsById){
     for (CharacteristicDto dto : dtos) {
       if (dto.getParentId() != null && dto.getRuleId() == null) {
         Characteristic parent = characteristicsById.get(dto.getParentId());
@@ -69,15 +83,10 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
         characteristicsById.put(dto.getId(), characteristic);
       }
     }
+  }
 
-    for (CharacteristicDto dto : dtos) {
-      if (dto.getRuleId() != null) {
-        ruleIds.add(dto.getRuleId());
-      }
-    }
-
-    Map<Integer, Rule> rulesById = findRules(ruleIds);
-    // Requirements
+  private void addRequirements(TechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, Characteristic> characteristicsById){
+    Map<Integer, Rule> rulesById = rulesById(ruleFinder.findAll(RuleQuery.create()));
     for (CharacteristicDto dto : dtos) {
       Integer ruleId = dto.getRuleId();
       if (ruleId != null) {
@@ -87,25 +96,9 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
         dto.toRequirement(ruleKey, characteristic);
       }
     }
-
-    return model;
   }
 
-  public TechnicalDebtModel findRootCharacteristics() {
-    TechnicalDebtModel model = new TechnicalDebtModel();
-    List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
-    // Root characteristics
-    for (CharacteristicDto dto : dtos) {
-      if (dto.getParentId() == null) {
-        Characteristic rootCharacteristic = dto.toCharacteristic(null);
-        model.addRootCharacteristic(rootCharacteristic);
-      }
-    }
-    return model;
-  }
-
-  private Map<Integer, Rule> findRules(List<Integer> ruleIds) {
-    Collection<Rule> rules = ruleFinder.findByIds(ruleIds);
+  private Map<Integer, Rule> rulesById(Collection<Rule> rules) {
     Map<Integer, Rule> rulesById = newHashMap();
     for (Rule rule : rules) {
       rulesById.put(rule.getId(), rule);

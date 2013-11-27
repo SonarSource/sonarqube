@@ -191,10 +191,8 @@ public class TechnicalDebtManagerTest {
     Characteristic dbCharacteristic = new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(dbRootCharacteristic);
     dbModel.addRootCharacteristic(dbRootCharacteristic);
 
-    RuleKey ruleKey1 = RuleKey.of("checkstyle", "import");
-    when(ruleCache.exists(ruleKey1)).thenReturn(false);
     // To be disabled as rule does not exists
-    Requirement dbRequirement = new Requirement().setRuleKey(ruleKey1)
+    Requirement dbRequirement = new Requirement().setRuleKey(null)
       .setFunction("linear").setFactor(WorkUnit.create(30.0, WorkUnit.MINUTES)).setCharacteristic(dbCharacteristic);
 
     when(sqaleModelFinder.findAll()).thenReturn(dbModel);
