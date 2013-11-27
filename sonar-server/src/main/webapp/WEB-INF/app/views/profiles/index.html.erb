@@ -78,7 +78,7 @@
 
         <% if profiles_administrator? %>
 
-          <td align="right">
+          <td align="right" nowrap>
             <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
               <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key %>" onclick="$j('#backup-<%= profile.key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
             </form>
