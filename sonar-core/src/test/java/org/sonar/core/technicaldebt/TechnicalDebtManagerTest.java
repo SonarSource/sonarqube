@@ -60,7 +60,7 @@ public class TechnicalDebtManagerTest {
   TechnicalDebtRuleCache ruleCache;
 
   @Mock
-  TechnicalDebtModelFinder sqaleModelFinder;
+  TechnicalDebtFinder sqaleModelFinder;
 
   @Mock
   TechnicalDebtModelService service;

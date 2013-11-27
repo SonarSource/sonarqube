@@ -22,14 +22,18 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.core.technicaldebt.TechnicalDebtFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
 import org.sonar.server.user.UserSession;
 
 public class InternalRubyTechnicalDebtService implements ServerComponent {
 
   private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final TechnicalDebtFinder finder;
 
-  public InternalRubyTechnicalDebtService(TechnicalDebtFormatter technicalDebtFormatter) {
+  public InternalRubyTechnicalDebtService(TechnicalDebtFormatter technicalDebtFormatter, TechnicalDebtFinder finder) {
     this.technicalDebtFormatter = technicalDebtFormatter;
+    this.finder = finder;
   }
 
   public String format(WorkDayDuration technicalDebt){
@@ -38,6 +42,10 @@ public class InternalRubyTechnicalDebtService implements ServerComponent {
 
   public WorkDayDuration toTechnicalDebt(String technicalDebtInLong){
     return WorkDayDuration.fromLong(Long.parseLong(technicalDebtInLong));
+  }
+
+  public TechnicalDebtModel findRootCharacteristics(){
+    return finder.findRootCharacteristics();
   }
 
 }

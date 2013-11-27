@@ -39,7 +39,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtModelFinderTest {
+public class TechnicalDebtFinderTest {
 
   @Mock
   CharacteristicDao dao;
@@ -47,11 +47,11 @@ public class TechnicalDebtModelFinderTest {
   @Mock
   DefaultRuleFinder ruleFinder;
 
-  TechnicalDebtModelFinder finder;
+  TechnicalDebtFinder finder;
 
   @Before
   public void setUp() throws Exception {
-    finder = new TechnicalDebtModelFinder(dao, ruleFinder);
+    finder = new TechnicalDebtFinder(dao, ruleFinder);
   }
 
   @Test
@@ -107,5 +107,24 @@ public class TechnicalDebtModelFinderTest {
     assertThat(requirement.function()).isEqualTo("linear");
     assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
     assertThat(requirement.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT));
+  }
+
+  @Test
+  public void find_root_characteristics() throws Exception {
+    CharacteristicDto rootCharacteristicDto = new CharacteristicDto()
+      .setId(1)
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use");
+    when(dao.selectEnabledRootCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto));
+
+    TechnicalDebtModel result = finder.findRootCharacteristics();
+    assertThat(result.rootCharacteristics()).hasSize(1);
+
+    Characteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
+    assertThat(rootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
+    assertThat(rootCharacteristic.parent()).isNull();
+    assertThat(rootCharacteristic.requirements()).isEmpty();
+    assertThat(rootCharacteristic.children()).isEmpty();
   }
 }

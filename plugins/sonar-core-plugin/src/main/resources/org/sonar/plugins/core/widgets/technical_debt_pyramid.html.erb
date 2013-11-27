@@ -1,11 +1,8 @@
 <%
    technical_debt = measure('sqale_index')
 
-   # Load root characteristics only
-   root_characteristics = Characteristic.find(:all,
-                                         :conditions => ['characteristics.parent_id IS NULL AND characteristics.rule_id IS NULL and characteristics.enabled=?', true],
-                                         :order => 'characteristic_order DESC')
-
+   model_with_root_characteristics = Internal.technical_debt.findRootCharacteristics()
+   root_characteristics = model_with_root_characteristics.rootCharacteristics().to_a
 
    should_display_diff_measures = dashboard_configuration.selected_period? && technical_debt.variation(dashboard_configuration.period_index)!=nil
    if technical_debt.nil? || root_characteristics.empty?
@@ -102,7 +99,7 @@
          end
        end
 
-       root_characteristics.reverse.each do |characteristic|
+       root_characteristics.sort_by {|characteristic| characteristic.order}.each do |characteristic|
          measure=measures_by_characteristic_id[characteristic.id]
          value=(measure && measure.value ? measure.value : 0)
          total_size=(total>0 ? (100*cumulated/total).to_i: 0)

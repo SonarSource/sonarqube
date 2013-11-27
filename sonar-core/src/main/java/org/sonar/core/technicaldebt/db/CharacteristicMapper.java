@@ -26,6 +26,8 @@ public interface CharacteristicMapper {
 
   List<CharacteristicDto> selectEnabledCharacteristics();
 
+  List<CharacteristicDto> selectEnabledRootCharacteristics();
+
   void insert(CharacteristicDto characteristic);
 
   int update(CharacteristicDto characteristic);

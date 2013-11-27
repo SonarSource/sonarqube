@@ -29,6 +29,17 @@
     </where>
   </select>
 
+  <select id="selectEnabledRootCharacteristics" parameterType="map" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.parent_id is null
+      and c.rule_id is null
+      and c.enabled=${_true}
+    </where>
+    order by characteristic_order asc
+  </select>
+
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO characteristics (kee, name, parent_id, characteristic_order,
     rule_id, function_key, factor_value, factor_unit, offset_value, offset_unit,

@@ -24,8 +24,8 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
 
 public class TechnicalDebtModelProvider extends ProviderAdapter {
 
@@ -33,7 +33,7 @@ public class TechnicalDebtModelProvider extends ProviderAdapter {
 
   private TechnicalDebtModel model;
 
-  public TechnicalDebtModel provide(TechnicalDebtModelFinder modelFinder) {
+  public TechnicalDebtModel provide(TechnicalDebtFinder modelFinder) {
     if (model == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
       model = modelFinder.findAll();

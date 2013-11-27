@@ -50,8 +50,8 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     CharacteristicDto rootCharacteristic = dtos.get(0);
     assertThat(rootCharacteristic.getId()).isEqualTo(1);
-    assertThat(rootCharacteristic.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(rootCharacteristic.getName()).isEqualTo("Compiler related portability");
+    assertThat(rootCharacteristic.getKey()).isEqualTo("PORTABILITY");
+    assertThat(rootCharacteristic.getName()).isEqualTo("Portability");
     assertThat(rootCharacteristic.getParentId()).isNull();
     assertThat(rootCharacteristic.getRuleId()).isNull();
     assertThat(rootCharacteristic.getOrder()).isEqualTo(1);
@@ -61,8 +61,8 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     CharacteristicDto characteristic = dtos.get(1);
     assertThat(characteristic.getId()).isEqualTo(2);
-    assertThat(characteristic.getKey()).isEqualTo("PORTABILITY");
-    assertThat(characteristic.getName()).isEqualTo("Portability");
+    assertThat(characteristic.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(characteristic.getName()).isEqualTo("Compiler related portability");
     assertThat(characteristic.getParentId()).isEqualTo(1);
     assertThat(characteristic.getRuleId()).isNull();
     assertThat(characteristic.getOrder()).isNull();
@@ -85,6 +85,31 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(requirement.isEnabled()).isTrue();
     assertThat(requirement.getCreatedAt()).isNotNull();
     assertThat(requirement.getUpdatedAt()).isNull();
+  }
+
+  @Test
+  public void select_enabled_root_characteristics() {
+    setupData("select_enabled_root_characteristics");
+
+    List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
+
+    assertThat(dtos).hasSize(1);
+
+    CharacteristicDto rootCharacteristic = dtos.get(0);
+    assertThat(rootCharacteristic.getId()).isEqualTo(1);
+    assertThat(rootCharacteristic.getKey()).isEqualTo("PORTABILITY");
+  }
+
+  @Test
+  public void select_enabled_root_characteristics_order_by_characteristic_order() {
+    setupData("select_enabled_root_characteristics_order_by_characteristic_order");
+
+    List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
+
+    assertThat(dtos).hasSize(3);
+    assertThat(dtos.get(0).getKey()).isEqualTo("TESTABILITY");
+    assertThat(dtos.get(1).getKey()).isEqualTo("PORTABILITY");
+    assertThat(dtos.get(2).getKey()).isEqualTo("MAINTAINABILITY");
   }
 
   @Test

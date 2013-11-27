@@ -25,6 +25,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.core.technicaldebt.TechnicalDebtFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 import java.util.Locale;
 
@@ -32,18 +34,22 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternalRubyTechnicalDebtServiceTest {
 
   @Mock
-  private TechnicalDebtFormatter technicalDebtFormatter;
+  TechnicalDebtFormatter technicalDebtFormatter;
+
+  @Mock
+  TechnicalDebtFinder finder;
 
   private InternalRubyTechnicalDebtService service;
 
   @Before
   public void before() {
-    service = new InternalRubyTechnicalDebtService(technicalDebtFormatter);
+    service = new InternalRubyTechnicalDebtService(technicalDebtFormatter, finder);
   }
 
   @Test
@@ -56,5 +62,12 @@ public class InternalRubyTechnicalDebtServiceTest {
   @Test
   public void to_technical_debt() {
     assertThat(service.toTechnicalDebt("500")).isEqualTo(WorkDayDuration.of(0, 5, 0));
+  }
+
+  @Test
+  public void find_root_characteristics() {
+    TechnicalDebtModel model = new TechnicalDebtModel();
+    when(finder.findRootCharacteristics()).thenReturn(model);
+    assertThat(service.findRootCharacteristics()).isEqualTo(model);
   }
 }

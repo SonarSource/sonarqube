@@ -36,12 +36,12 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class TechnicalDebtModelFinder implements ServerComponent, BatchComponent {
+public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
 
   private final CharacteristicDao dao;
   private final DefaultRuleFinder ruleFinder;
 
-  public TechnicalDebtModelFinder(CharacteristicDao dao, DefaultRuleFinder ruleFinder) {
+  public TechnicalDebtFinder(CharacteristicDao dao, DefaultRuleFinder ruleFinder) {
     this.dao = dao;
     this.ruleFinder = ruleFinder;
   }
@@ -88,6 +88,19 @@ public class TechnicalDebtModelFinder implements ServerComponent, BatchComponent
       }
     }
 
+    return model;
+  }
+
+  public TechnicalDebtModel findRootCharacteristics() {
+    TechnicalDebtModel model = new TechnicalDebtModel();
+    List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
+    // Root characteristics
+    for (CharacteristicDto dto : dtos) {
+      if (dto.getParentId() == null) {
+        Characteristic rootCharacteristic = dto.toCharacteristic(null);
+        model.addRootCharacteristic(rootCharacteristic);
+      }
+    }
     return model;
   }
 

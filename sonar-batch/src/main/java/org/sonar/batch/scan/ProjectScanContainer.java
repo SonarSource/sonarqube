@@ -53,7 +53,7 @@ import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
+import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
@@ -148,7 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       SymbolizableBuilder.class,
 
       // technical debt
-      TechnicalDebtModelFinder.class,
+      TechnicalDebtFinder.class,
       TechnicalDebtConverter.class,
       new TechnicalDebtModelProvider(),
 

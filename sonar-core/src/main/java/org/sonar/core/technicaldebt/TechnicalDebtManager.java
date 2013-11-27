@@ -42,11 +42,11 @@ public class TechnicalDebtManager implements ServerExtension {
 
   private final MyBatis mybatis;
   private final TechnicalDebtModelService service;
-  private final TechnicalDebtModelFinder modelFinder;
+  private final TechnicalDebtFinder modelFinder;
   private final TechnicalDebtModelRepository languageModelFinder;
   private final TechnicalDebtXMLImporter importer;
 
-  public TechnicalDebtManager(MyBatis mybatis, TechnicalDebtModelService service, TechnicalDebtModelFinder modelFinder,
+  public TechnicalDebtManager(MyBatis mybatis, TechnicalDebtModelService service, TechnicalDebtFinder modelFinder,
                               TechnicalDebtModelRepository modelRepository, TechnicalDebtXMLImporter importer) {
     this.mybatis = mybatis;
     this.service = service;

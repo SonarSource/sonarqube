@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 public class TechnicalDebtModelProviderTest {
 
   @Mock
-  TechnicalDebtModelFinder modelFinder;
+  TechnicalDebtFinder modelFinder;
 
   @Test
   public void load_model(){
