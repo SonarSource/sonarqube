@@ -1,11 +1,14 @@
 <%
    technical_debt = measure('sqale_index')
+
    # Load root characteristics only
-   characteristics = Characteristic.find(:all,
-                                       :conditions => ['characteristics.parent_id IS NULL AND characteristics.rule_id IS NULL and characteristics.enabled=?', true],
-                                       :order => 'characteristic_order DESC')
+   root_characteristics = Characteristic.find(:all,
+                                         :conditions => ['characteristics.parent_id IS NULL AND characteristics.rule_id IS NULL and characteristics.enabled=?', true],
+                                         :order => 'characteristic_order DESC')
+
+
    should_display_diff_measures = dashboard_configuration.selected_period? && technical_debt.variation(dashboard_configuration.period_index)!=nil
-   if technical_debt.nil? || characteristics.empty?
+   if technical_debt.nil? || root_characteristics.empty?
 %>
 
   <h3><%= message('widget.technical_debt_pyramid.name') -%></h3>
@@ -79,7 +82,8 @@
     <%
        measures_by_characteristic_id={}
        ProjectMeasure.find(:all,
-                           :conditions => ['characteristic_id IN (?) AND snapshot_id=? AND metric_id=?', characteristics.select{|c| c.id}, @snapshot.id, technical_debt.metric().id]).each do |measure|
+                           :conditions => ['characteristic_id IN (?) AND snapshot_id=? AND metric_id=?',
+                                           root_characteristics.map{|c| c.id}, @snapshot.id, technical_debt.metric().id]).each do |measure|
          measures_by_characteristic_id[measure.characteristic_id]=measure
        end
 
@@ -89,7 +93,7 @@
        if should_display_diff_measures
          diff_by_characteristic_id={}
          total_diff = 0;
-         characteristics.each do |c|
+         root_characteristics.each do |c|
            measure = measures_by_characteristic_id[c.id]
            if measure && measure.variation(dashboard_configuration.period_index)
              diff_by_characteristic_id[c.id] = measure.variation(dashboard_configuration.period_index)
@@ -98,7 +102,7 @@
          end
        end
 
-       characteristics.reverse.each do |characteristic|
+       root_characteristics.reverse.each do |characteristic|
          measure=measures_by_characteristic_id[characteristic.id]
          value=(measure && measure.value ? measure.value : 0)
          total_size=(total>0 ? (100*cumulated/total).to_i: 0)
