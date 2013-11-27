@@ -11,7 +11,7 @@
     VALUES (
       #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue}, #{tendency},
       #{measureDate}, #{projectId}, #{alertStatus}, #{alertText},
-      #{url}, #{description}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
+      #{url}, #{description}, #{rulePriority.ordinal}, #{characteristicId}, #{variationValue1},
       #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
     )
   </insert>
@@ -38,7 +38,7 @@
       url = #{url},
       description = #{description},
       rule_priority = #{rulePriority.ordinal},
-      characteristic_id = #{characteristic.id},
+      characteristic_id = #{characteristicId},
       variation_value_1 = #{variationValue1},
       variation_value_2 = #{variationValue2},
       variation_value_3 = #{variationValue3},

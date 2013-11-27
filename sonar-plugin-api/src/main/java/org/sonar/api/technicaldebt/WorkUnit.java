@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt;
+package org.sonar.api.technicaldebt;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
 
@@ -32,10 +34,10 @@ public final class WorkUnit {
   public static final String DEFAULT_UNIT = DAYS;
   private static final String[] UNITS = {DAYS, MINUTES, HOURS};
 
-  public static final double DEFAULT_VALUE = 1.0;
+  public static final double DEFAULT_VALUE = 0.0;
 
-  private double value;
-  private String unit;
+  private double value = 0d;
+  private String unit = DEFAULT_UNIT;
 
   WorkUnit(double value, String unit) {
     this.value = value;
@@ -53,16 +55,52 @@ public final class WorkUnit {
   public static WorkUnit create(@Nullable Double value, @Nullable String unit) {
     unit = StringUtils.defaultIfEmpty(unit, DEFAULT_UNIT);
     if (!ArrayUtils.contains(UNITS, unit)) {
-      throw new IllegalArgumentException("Remediation factor unit can not be: " + unit + ". Possible values are " + ArrayUtils.toString(UNITS));
+      throw new IllegalArgumentException("Unit can not be: " + unit + ". Possible values are " + ArrayUtils.toString(UNITS));
     }
     double d = value != null ? value : DEFAULT_VALUE;
     if (d < 0.0) {
-      throw new IllegalArgumentException("Remediation factor can not be negative: " + d);
+      throw new IllegalArgumentException("Value can not be negative: " + d);
     }
     return new WorkUnit(d, unit);
   }
 
-  public static WorkUnit createInDays(Double value) {
-    return create(value, DAYS);
+  public static WorkUnit create() {
+    return create(0d, DEFAULT_UNIT);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    WorkUnit workUnit = (WorkUnit) o;
+
+    if (Double.compare(workUnit.value, value) != 0) {
+      return false;
+    }
+    if (!unit.equals(workUnit.unit)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    temp = Double.doubleToLongBits(value);
+    result = (int) (temp ^ (temp >>> 32));
+    result = 31 * result + unit.hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }

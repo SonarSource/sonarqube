@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.technicaldebt;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -29,10 +31,11 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.qualitymodel.Characteristic;
-import org.sonar.api.qualitymodel.CharacteristicProperty;
-import org.sonar.api.qualitymodel.Model;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
@@ -42,25 +45,34 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class TechnicalDebtXMLImporter implements ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtXMLImporter.class);
 
-  private static final String CHARACTERISTIC = "chc";
-  private static final String CHARACTERISTIC_KEY = "key";
-  private static final String CHARACTERISTIC_NAME = "name";
-  private static final String CHARACTERISTIC_DESCRIPTION = "desc";
-  private static final String PROPERTY = "prop";
-  private static final String PROPERTY_KEY = "key";
-  private static final String PROPERTY_VALUE = "val";
-  private static final String PROPERTY_TEXT_VALUE = "txt";
+  public static final String CHARACTERISTIC = "chc";
+  public static final String CHARACTERISTIC_KEY = "key";
+  public static final String CHARACTERISTIC_NAME = "name";
+  public static final String PROPERTY = "prop";
 
-  public Model importXML(String xml, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
+  public static final String PROPERTY_KEY = "key";
+  public static final String PROPERTY_VALUE = "val";
+  public static final String PROPERTY_TEXT_VALUE = "txt";
+
+  public static final String REPOSITORY_KEY = "rule-repo";
+  public static final String RULE_KEY = "rule-key";
+
+  public static final String PROPERTY_FUNCTION = "remediationFunction";
+  public static final String PROPERTY_FACTOR = "remediationFactor";
+  public static final String PROPERTY_OFFSET = "offset";
+
+  public TechnicalDebtModel importXML(String xml, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
     return importXML(new StringReader(xml), messages, technicalDebtRuleCache);
   }
 
-  public Model importXML(Reader xml, ValidationMessages messages, TechnicalDebtRuleCache repositoryCache) {
-    Model model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
+  public TechnicalDebtModel importXML(Reader xml, ValidationMessages messages, TechnicalDebtRuleCache repositoryCache) {
+    TechnicalDebtModel model = new TechnicalDebtModel();
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -70,7 +82,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       SMInputCursor chcCursor = cursor.childElementCursor(CHARACTERISTIC);
 
       while (chcCursor.getNext() != null) {
-        processCharacteristic(model, chcCursor, messages, repositoryCache);
+        processCharacteristic(model, null, chcCursor, messages, repositoryCache);
       }
 
       cursor.getStreamReader().closeCompletely();
@@ -91,13 +103,12 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
-    throws XMLStreamException {
-    Characteristic characteristic = Characteristic.create();
-    SMInputCursor cursor = chcCursor.childElementCursor();
+  private Characteristic processCharacteristic(TechnicalDebtModel model, Characteristic parent, SMInputCursor chcCursor, ValidationMessages messages,
+                                                      TechnicalDebtRuleCache technicalDebtRuleCache) throws XMLStreamException {
+    Characteristic characteristic = new Characteristic();
+    characteristic.setParent(parent);
 
-    String ruleRepositoryKey = null, ruleKey = null;
-    List<Characteristic> children = Lists.newArrayList();
+    SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
@@ -106,75 +117,58 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       } else if (StringUtils.equals(node, CHARACTERISTIC_NAME)) {
         characteristic.setName(cursor.collectDescendantText().trim(), false);
 
-      } else if (StringUtils.equals(node, CHARACTERISTIC_DESCRIPTION)) {
-        characteristic.setDescription(cursor.collectDescendantText().trim());
-
-      } else if (StringUtils.equals(node, PROPERTY)) {
-        processProperty(characteristic, cursor, messages);
-
+        // <chc> can contain characteristics or requirements
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        children.add(processCharacteristic(model, cursor, messages, technicalDebtRuleCache));
+        processCharacteristic(model, characteristic, cursor, messages, technicalDebtRuleCache);
 
-      } else if (StringUtils.equals(node, "rule-repo")) {
-        ruleRepositoryKey = cursor.collectDescendantText().trim();
-
-      } else if (StringUtils.equals(node, "rule-key")) {
-        ruleKey = cursor.collectDescendantText().trim();
+      } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
+        Requirement requirement = processRequirement(model, cursor, messages, technicalDebtRuleCache);
+        if (requirement != null) {
+          requirement.setCharacteristic(parent);
+        }
       }
     }
-    fillRule(characteristic, ruleRepositoryKey, ruleKey, messages, technicalDebtRuleCache);
 
-    if (StringUtils.isNotBlank(characteristic.getKey()) || characteristic.getRule() != null) {
-      Characteristic convertedCharacteristic = processDeprecatedFunctionsOnRequirement(characteristic, messages);
-      if (convertedCharacteristic != null) {
-        addCharacteristicToModel(model, characteristic, children);
-        return characteristic;
-      }
+    if (StringUtils.isNotBlank(characteristic.key()) && characteristic.isRoot()) {
+      characteristic.setOrder(model.rootCharacteristics().size() + 1);
+      model.addRootCharacteristic(characteristic);
+      return characteristic;
     }
     return null;
   }
 
-  private void fillRule(Characteristic characteristic, String ruleRepositoryKey, String ruleKey, ValidationMessages messages,
+  private Requirement processRequirement(TechnicalDebtModel model, SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
+    throws XMLStreamException {
+
+    Requirement requirement = new Requirement();
+    String ruleRepositoryKey = cursor.collectDescendantText().trim();
+    String ruleKey = null;
+    Properties properties = new Properties();
+    while (cursor.getNext() != null) {
+      String node = cursor.getLocalName();
+      if (StringUtils.equals(node, PROPERTY)) {
+        properties.add(processProperty(requirement, cursor, messages));
+      } else if (StringUtils.equals(node, RULE_KEY)) {
+        ruleKey = cursor.collectDescendantText().trim();
+      }
+    }
+    fillRule(requirement, ruleRepositoryKey, ruleKey, messages, technicalDebtRuleCache);
+    return processFunctionsOnRequirement(requirement, properties, messages);
+  }
+
+  private void fillRule(Requirement requirement, String ruleRepositoryKey, String ruleKey, ValidationMessages messages,
                         TechnicalDebtRuleCache technicalDebtRuleCache) {
     if (StringUtils.isNotBlank(ruleRepositoryKey) && StringUtils.isNotBlank(ruleKey)) {
-      Rule rule = technicalDebtRuleCache.getRule(ruleRepositoryKey, ruleKey);
+      Rule rule = technicalDebtRuleCache.getByRuleKey(RuleKey.of(ruleRepositoryKey, ruleKey));
       if (rule != null) {
-        characteristic.setRule(rule);
+        requirement.setRuleKey(RuleKey.of(ruleRepositoryKey, ruleKey));
       } else {
         messages.addWarningText("Rule not found: [repository=" + ruleRepositoryKey + ", key=" + ruleKey + "]");
       }
     }
   }
 
-  private void addCharacteristicToModel(Model model, Characteristic characteristic, List<Characteristic> children) {
-    model.addCharacteristic(characteristic);
-    for (Characteristic child : children) {
-      if (child != null) {
-        model.addCharacteristic(child);
-        characteristic.addChild(child);
-      }
-    }
-  }
-
-  private Characteristic processDeprecatedFunctionsOnRequirement(Characteristic characteristic, ValidationMessages messages) {
-    CharacteristicProperty function = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION);
-    if (function != null) {
-      if ("linear_threshold".equals(function.getTextValue())) {
-        function.setTextValue(TechnicalDebtRequirement.FUNCTION_LINEAR);
-        CharacteristicProperty offset = characteristic.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET);
-        offset.setValue(0d);
-        messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s:%s' is replaced by linear.",
-          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey()));
-      } else if ("constant_resource".equals(function.getTextValue())) {
-        messages.addWarningText(String.format("Constant/file function is no more used, requirements '%s:%s' are ignored.",
-          characteristic.getRule().getRepositoryKey(), characteristic.getRule().getKey()));
-        return null;
-      }
-    }
-    return characteristic;
-  }
-
-  private void processProperty(Characteristic characteristic, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
+  private Property processProperty(Requirement requirement, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
     SMInputCursor c = cursor.childElementCursor();
     String key = null;
     Double value = null;
@@ -195,8 +189,103 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         textValue = c.collectDescendantText().trim();
       }
     }
-    if (StringUtils.isNotBlank(key)) {
-      characteristic.setProperty(key, textValue).setValue(value);
+    return new Property(key, value, textValue);
+  }
+
+  private Requirement processFunctionsOnRequirement(Requirement requirement, Properties properties, ValidationMessages messages) {
+    Property function = properties.function();
+    Property factor = properties.factor();
+    Property offset = properties.offset();
+
+    if (function != null) {
+      String functionKey = function.getTextValue();
+      if ("linear_threshold".equals(functionKey)) {
+        function.setTextValue(Requirement.FUNCTION_LINEAR);
+        offset.setValue(0d);
+        messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s' is replaced by linear.", requirement.ruleKey()));
+      } else if ("constant_resource".equals(functionKey)) {
+        messages.addWarningText(String.format("Constant/file function is no more used, requirements '%s' are ignored.", requirement.ruleKey()));
+        return null;
+      }
+
+      requirement.setFunction(function.getTextValue());
+      if (factor != null) {
+        requirement.setFactor(WorkUnit.create(factor.getValue(), factor.getTextValue()));
+      }
+      if (offset != null) {
+        requirement.setOffset(WorkUnit.create(offset.getValue(), offset.getTextValue()));
+      }
+      return requirement;
+    }
+    return null;
+  }
+
+  private class Properties {
+    List<Property> properties;
+
+    public Properties() {
+      this.properties = newArrayList();
+    }
+
+    public Properties add(Property property) {
+      this.properties.add(property);
+      return this;
+    }
+
+    public Property function() {
+      return find(PROPERTY_FUNCTION);
+    }
+
+    public Property factor() {
+      return find(PROPERTY_FACTOR);
+    }
+
+    public Property offset() {
+      return find(PROPERTY_OFFSET);
+    }
+
+    private Property find(final String key) {
+      return Iterables.find(properties, new Predicate<Property>() {
+        @Override
+        public boolean apply(Property input) {
+          return input.getKey().equals(key);
+        }
+      }, null);
+    }
+
+  }
+
+  private class Property {
+    String key;
+    Double value;
+    String textValue;
+
+    private Property(String key, Double value, String textValue) {
+      this.key = key;
+      this.value = value;
+      this.textValue = textValue;
+    }
+
+    private Property setValue(Double value) {
+      this.value = value;
+      return this;
+    }
+
+    private Property setTextValue(String textValue) {
+      this.textValue = textValue;
+      return this;
+    }
+
+    private String getKey() {
+      return key;
+    }
+
+    private Double getValue() {
+      return value;
+    }
+
+    private String getTextValue() {
+      return textValue;
     }
   }
 }

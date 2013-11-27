@@ -21,6 +21,7 @@
 package org.sonar.core.technicaldebt.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
@@ -28,7 +29,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
-public class CharacteristicDao implements ServerComponent {
+public class CharacteristicDao implements BatchComponent, ServerComponent  {
 
   private final MyBatis mybatis;
 
@@ -42,6 +43,48 @@ public class CharacteristicDao implements ServerComponent {
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
       return mapper.selectEnabledCharacteristics();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insert(CharacteristicDto dto, SqlSession session) {
+    session.getMapper(CharacteristicMapper.class).insert(dto);
+  }
+
+  public void insert(CharacteristicDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      insert(dto, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(CharacteristicDto dto, SqlSession session) {
+    session.getMapper(CharacteristicMapper.class).update(dto);
+  }
+
+  public void update(CharacteristicDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      update(dto, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void disable(Integer id, SqlSession session) {
+    session.getMapper(CharacteristicMapper.class).disable(id);
+  }
+
+  public void disable(Integer id) {
+    SqlSession session = mybatis.openSession();
+    try {
+      disable(id, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

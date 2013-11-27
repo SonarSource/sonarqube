@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 
 public class TechnicalDebtModelRepositoryTest {
 
-  private static final String TEST_XML_PREFIX_PATH = "org/sonar/core/technicaldebt/TechnicalDebtModelFinderTest/";
+  private static final String TEST_XML_PREFIX_PATH = "org/sonar/core/technicaldebt/TechnicalDebtModelRepositoryTest/";
 
   private TechnicalDebtModelRepository modelFinder;
 

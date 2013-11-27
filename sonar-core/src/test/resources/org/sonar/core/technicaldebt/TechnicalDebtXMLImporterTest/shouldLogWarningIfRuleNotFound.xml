@@ -2,10 +2,13 @@
   <chc>
     <key>EFFICIENCY</key>
     <name>Efficiency</name>
-
     <chc>
-      <rule-repo>findbugs</rule-repo>
-      <rule-key>Foo</rule-key>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <chc>
+        <rule-repo>findbugs</rule-repo>
+        <rule-key>Foo</rule-key>
+      </chc>
     </chc>
   </chc>
 

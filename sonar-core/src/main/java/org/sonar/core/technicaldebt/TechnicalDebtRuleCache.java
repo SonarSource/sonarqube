@@ -20,6 +20,7 @@
 package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.Maps;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
@@ -46,8 +47,18 @@ public class TechnicalDebtRuleCache {
     return lookUpRuleInCache(repository, ruleKey);
   }
 
+  @CheckForNull
+  public Rule getByRuleKey(RuleKey ruleKey) {
+    initRules();
+    return lookUpRuleInCache(ruleKey.repository(), ruleKey.rule());
+  }
+
   public boolean exists(Rule rule) {
     return getRule(rule.getRepositoryKey(), rule.getKey()) != null;
+  }
+
+  public boolean exists(RuleKey ruleKey) {
+    return getByRuleKey(ruleKey) != null;
   }
 
   private void initRules(){

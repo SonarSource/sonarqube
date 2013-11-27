@@ -19,8 +19,9 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,6 +81,27 @@ public final class MeasuresFilters {
             measure.getPersonId() == null &&
             measure.getCharacteristic() != null &&
             measure.getCharacteristic().equals(characteristic)) {
+            return measure;
+          }
+        }
+        return null;
+      }
+    };
+  }
+
+  public static MeasuresFilter<Measure> requirement(final Metric metric, final Requirement requirement) {
+    return new MetricFilter<Measure>(metric) {
+
+      public Measure filter(Collection<Measure> measures) {
+        if (measures == null) {
+          return null;
+        }
+        for (Measure measure : measures) {
+          if (measure.getClass().equals(Measure.class) &&
+            measure.getMetric().equals(metric) &&
+            measure.getPersonId() == null &&
+            measure.getRequirement() != null &&
+            measure.getRequirement().equals(requirement)) {
             return measure;
           }
         }

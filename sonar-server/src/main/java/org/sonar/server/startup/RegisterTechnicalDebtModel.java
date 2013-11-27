@@ -31,21 +31,21 @@ public final class RegisterTechnicalDebtModel {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterTechnicalDebtModel.class);
 
-  private final TechnicalDebtManager technicalDebtManager;
+  private final TechnicalDebtManager manager;
   private final RuleFinder ruleFinder;
 
   /**
    * @param registerRulesBeforeModels used only to be started after the creation of check templates
    */
-  public RegisterTechnicalDebtModel(TechnicalDebtManager technicalDebtManager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
-    this.technicalDebtManager = technicalDebtManager;
+  public RegisterTechnicalDebtModel(TechnicalDebtManager manager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
+    this.manager = manager;
     this.ruleFinder = ruleFinder;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Technical Debt Model");
     TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
-    technicalDebtManager.initAndMergePlugins(ValidationMessages.create(), technicalDebtRuleCache);
+    manager.initAndMergePlugins(ValidationMessages.create(), technicalDebtRuleCache);
     profiler.stop();
   }
 

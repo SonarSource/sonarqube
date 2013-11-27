@@ -336,10 +336,9 @@ class Api::ResourcesController < Api::ApiController
   def add_characteristic_filters(measures_conditions, measures_values)
     @characteristics=[]
     @characteristic_by_id={}
-    if params[:model].present? && params[:characteristics].present?
+    if params[:characteristics].present?
       @characteristics=Characteristic.all(:select => 'characteristics.id,characteristics.kee,characteristics.name',
-                                           :joins => :quality_model,
-                                           :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
+                                           :conditions => ['characteristics.kee IN (?)', params[:characteristics].split(',')])
       if @characteristics.empty?
         measures_conditions<<'project_measures.characteristic_id=-1'
       else

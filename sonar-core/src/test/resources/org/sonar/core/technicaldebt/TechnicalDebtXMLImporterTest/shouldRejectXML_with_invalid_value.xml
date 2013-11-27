@@ -7,18 +7,21 @@
   <chc>
     <key>EFFICIENCY</key>
     <name>Efficiency</name>
-
     <chc>
-      <rule-repo>checkstyle</rule-repo>
-      <rule-key>Regexp</rule-key>
-      <prop>
-        <key>factor</key>
-        <val>abc</val>
-      </prop>
-      <prop>
-        <key>function</key>
-        <txt>linear</txt>
-      </prop>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>Regexp</rule-key>
+        <prop>
+          <key>factor</key>
+          <val>abc</val>
+        </prop>
+        <prop>
+          <key>function</key>
+          <txt>linear</txt>
+        </prop>
+      </chc>
     </chc>
   </chc>
 

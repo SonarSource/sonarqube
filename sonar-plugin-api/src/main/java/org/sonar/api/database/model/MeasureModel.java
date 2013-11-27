@@ -23,7 +23,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
@@ -112,9 +111,8 @@ public class MeasureModel implements Cloneable {
   @OneToMany(mappedBy = "measure", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
   private List<MeasureData> measureData = new ArrayList<MeasureData>();
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "characteristic_id")
-  private Characteristic characteristic;
+  @Column(name = "characteristic_id", nullable = true)
+  private Integer characteristicId;
 
   @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
@@ -497,12 +495,12 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
-  public Characteristic getCharacteristic() {
-    return characteristic;
+  public Integer getCharacteristicId() {
+    return characteristicId;
   }
 
-  public MeasureModel setCharacteristic(Characteristic c) {
-    this.characteristic = c;
+  public MeasureModel setCharacteristicId(Integer characteristicId) {
+    this.characteristicId = characteristicId;
     return this;
   }
 
@@ -535,7 +533,7 @@ public class MeasureModel implements Cloneable {
     clone.setSnapshotId(getSnapshotId());
     clone.setMeasureDate(getMeasureDate());
     clone.setUrl(getUrl());
-    clone.setCharacteristic(getCharacteristic());
+    clone.setCharacteristicId(getCharacteristicId());
     clone.setPersonId(getPersonId());
     return clone;
   }

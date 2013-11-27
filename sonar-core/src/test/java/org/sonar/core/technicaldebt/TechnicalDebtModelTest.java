@@ -17,58 +17,87 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.technicaldebt;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.qualitymodel.Characteristic;
-import org.sonar.api.qualitymodel.Model;
-import org.sonar.api.qualitymodel.ModelFinder;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TechnicalDebtModelTest {
 
-  private Characteristic disabledCharacteristic = Characteristic.createByKey("DISABLED", "Disabled").setEnabled(false);
+  private TechnicalDebtModel sqaleModel;
 
-  @Test
-  public void load_model() {
-    ModelFinder modelFinder = mock(ModelFinder.class);
-    Model persistedModel = createModel();
-    when(modelFinder.findByName(TechnicalDebtModel.MODEL_NAME)).thenReturn(persistedModel);
-
-    TechnicalDebtModel technicalDebtModel = new TechnicalDebtModel(modelFinder);
-
-    assertThat(technicalDebtModel.getCharacteristics()).hasSize(2);
-    assertThat(technicalDebtModel.getAllRequirements()).hasSize(1);
-    assertThat(technicalDebtModel.getRequirementByRule("repo", "check1").getRule().getKey()).isEqualTo("check1");
-    assertThat(technicalDebtModel.getRequirementByRule("repo", "check1").getParent().getKey()).isEqualTo("CPU_EFFICIENCY");
-
-    // ignore disabled characteristics/requirements
-    assertThat(technicalDebtModel.getCharacteristics()).excludes(disabledCharacteristic);
-    assertThat(technicalDebtModel.getRequirementByRule("repo", "check2")).isNull();
+  @Before
+  public void setUp() throws Exception {
+    sqaleModel = new TechnicalDebtModel();
   }
 
-  private Model createModel() {
-    Model model = Model.createByName(TechnicalDebtModel.MODEL_NAME);
-    Characteristic efficiency = model.createCharacteristicByKey("EFFICIENCY", "Efficiency");
-    model.createCharacteristicByKey("TESTABILITY", "Testability");
+  @Test
+  public void get_root_characteristics() throws Exception {
+    Characteristic rootCharacteristic = new Characteristic()
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use");
 
-    Characteristic cpuEfficiency = model.createCharacteristicByKey("CPU_EFFICIENCY", "CPU Efficiency");
-    efficiency.addChild(cpuEfficiency);
+    new Characteristic()
+      .setKey("EFFICIENCY")
+      .setName("Efficiency")
+      .setParent(rootCharacteristic);
 
-    Characteristic requirement1 = model.createCharacteristicByRule(Rule.create("repo", "check1", "Check One"));
-    cpuEfficiency.addChild(requirement1);
+    sqaleModel.addRootCharacteristic(rootCharacteristic);
 
-    // disabled requirement
-    Characteristic requirement2 = model.createCharacteristicByRule(Rule.create("repo", "check2", "Check Two"));
-    requirement2.setEnabled(false);
-    cpuEfficiency.addChild(requirement2);
+    assertThat(sqaleModel.rootCharacteristics()).hasSize(1);
+    Characteristic resultRootCharacteristic = sqaleModel.rootCharacteristics().get(0);
+    assertThat(resultRootCharacteristic).isEqualTo(rootCharacteristic);
+  }
 
-    // disabled characteristic
-    model.addCharacteristic(disabledCharacteristic);
-    return model;
+  @Test
+  public void get_characteristic_by_key() throws Exception {
+    Characteristic rootCharacteristic = new Characteristic()
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use");
+
+    Characteristic characteristic = new Characteristic()
+      .setKey("EFFICIENCY")
+      .setName("Efficiency")
+      .setParent(rootCharacteristic);
+
+    sqaleModel.addRootCharacteristic(rootCharacteristic);
+
+    assertThat(sqaleModel.characteristicByKey("MEMORY_EFFICIENCY")).isEqualTo(rootCharacteristic);
+    assertThat(sqaleModel.characteristicByKey("EFFICIENCY")).isEqualTo(characteristic);
+    assertThat(sqaleModel.characteristicByKey("EFFICIENCY").parent()).isEqualTo(rootCharacteristic);
+
+    assertThat(sqaleModel.characteristicByKey("UNKNOWN")).isNull();
+  }
+
+  @Test
+  public void get_requirement_by_rule_key() throws Exception {
+    Characteristic rootCharacteristic = new Characteristic()
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use");
+
+    Characteristic characteristic = new Characteristic()
+      .setKey("EFFICIENCY")
+      .setName("Efficiency")
+      .setParent(rootCharacteristic);
+
+    RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
+    Requirement requirement = new Requirement()
+      .setCharacteristic(characteristic)
+      .setRuleKey(ruleKey)
+      .setFunction("linear")
+      .setFactor(WorkUnit.create(2d, WorkUnit.HOURS))
+      .setOffset(WorkUnit.create(0d, WorkUnit.HOURS));
+
+    sqaleModel.addRootCharacteristic(rootCharacteristic);
+
+    assertThat(sqaleModel.requirementsByRule(ruleKey)).isEqualTo(requirement);
+    assertThat(sqaleModel.requirementsByRule(RuleKey.of("not", "found"))).isNull();
   }
 }

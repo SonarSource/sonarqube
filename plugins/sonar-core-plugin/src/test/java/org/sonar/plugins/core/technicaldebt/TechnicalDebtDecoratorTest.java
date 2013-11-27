@@ -38,16 +38,15 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
 import java.util.List;
 
@@ -105,8 +104,8 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void group_issues_by_requirement() throws Exception {
-    TechnicalDebtRequirement requirement1 = mock(TechnicalDebtRequirement.class);
-    TechnicalDebtRequirement requirement2 = mock(TechnicalDebtRequirement.class);
+    Requirement requirement1 = mock(Requirement.class);
+    Requirement requirement2 = mock(Requirement.class);
 
     Issue issue1 = createIssue("rule1", "repo1");
     Issue issue2 = createIssue("rule1", "repo1");
@@ -115,10 +114,10 @@ public class TechnicalDebtDecoratorTest {
 
     List<Issue> issues = newArrayList(issue1, issue2, issue3, issue4);
 
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
-    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
+    when(technicalDebtModel.requirementsByRule(RuleKey.of("repo1", "rule1"))).thenReturn(requirement1);
+    when(technicalDebtModel.requirementsByRule(RuleKey.of("repo2", "rule2"))).thenReturn(requirement2);
 
-    ListMultimap<TechnicalDebtRequirement, Issue> result = decorator.issuesByRequirement(issues);
+    ListMultimap<Requirement, Issue> result = decorator.issuesByRequirement(issues);
 
     assertThat(result.keySet().size()).isEqualTo(2);
     assertThat(result.get(requirement1)).containsExactly(issue1, issue2);
@@ -133,18 +132,14 @@ public class TechnicalDebtDecoratorTest {
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
-    Characteristic requirement = Characteristic.create();
-    TechnicalDebtRequirement technicalDebtRequirement = mock(TechnicalDebtRequirement.class);
-    when(technicalDebtRequirement.toCharacteristic()).thenReturn(requirement);
-    when(technicalDebtRequirement.getParent()).thenReturn(null);
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(technicalDebtRequirement);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(technicalDebtRequirement));
+    Requirement requirement = mock(Requirement.class);
+    when(technicalDebtModel.requirementsByRule(RuleKey.of("repo1", "rule1"))).thenReturn(requirement);
+    when(technicalDebtModel.requirements()).thenReturn(newArrayList(requirement));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, 1.0)));
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, 1.0)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, 1.0)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, requirement, 1.0)));
   }
 
   @Test
@@ -155,22 +150,17 @@ public class TechnicalDebtDecoratorTest {
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
-    Characteristic requirement = Characteristic.createByName("requirement");
-    Characteristic characteristic = Characteristic.createByName("characteristic");
-    Characteristic parentCharacteristic = Characteristic.createByName("parentCharacteristic");
+    Characteristic parentCharacteristic = new Characteristic().setKey("parentCharacteristic");
+    Characteristic characteristic = new Characteristic().setKey("characteristic").setParent(parentCharacteristic);
+    RuleKey ruleKey = RuleKey.of("repo1", "rule1");
+    Requirement requirement = new Requirement().setCharacteristic(characteristic).setRuleKey(ruleKey);
 
-    TechnicalDebtCharacteristic parentTechDebtCharacteristic = new TechnicalDebtCharacteristic(parentCharacteristic);
-    TechnicalDebtCharacteristic techDebtCharacteristic = new TechnicalDebtCharacteristic(characteristic, parentTechDebtCharacteristic);
-    TechnicalDebtRequirement technicalDebtRequirement = mock(TechnicalDebtRequirement.class);
-    when(technicalDebtRequirement.toCharacteristic()).thenReturn(requirement);
-    when(technicalDebtRequirement.getParent()).thenReturn(techDebtCharacteristic);
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(technicalDebtRequirement);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(technicalDebtRequirement));
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
+    when(technicalDebtModel.requirements()).thenReturn(newArrayList(requirement));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, 1.0)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, 1.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, parentCharacteristic, 1.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, characteristic, 1.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, 1.0)));
@@ -190,22 +180,20 @@ public class TechnicalDebtDecoratorTest {
     Issue issue4 = createIssue("rule2", "repo2").setTechnicalDebt(technicalDebt2);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2, issue3, issue4));
 
-    Characteristic requirement1 = Characteristic.createByName("requirement1");
-    Characteristic requirement2 = Characteristic.createByName("requirement2");
+    Characteristic rootCharacteristic = new Characteristic().setKey("rootCharacteristic");
+    Characteristic characteristic = new Characteristic().setKey("characteristic").setParent(rootCharacteristic);
+    RuleKey ruleKey1 = RuleKey.of("repo1", "rule1");
+    Requirement requirement1 = new Requirement().setRuleKey(ruleKey1).setCharacteristic(characteristic);
+    RuleKey ruleKey2 = RuleKey.of("repo2", "rule2");
+    Requirement requirement2 = new Requirement().setRuleKey(ruleKey2).setCharacteristic(characteristic);
 
-    TechnicalDebtRequirement technicalDebtRequirement1 = mock(TechnicalDebtRequirement.class);
-    when(technicalDebtRequirement1.toCharacteristic()).thenReturn(requirement1);
-    TechnicalDebtRequirement technicalDebtRequirement2 = mock(TechnicalDebtRequirement.class);
-    when(technicalDebtRequirement2.toCharacteristic()).thenReturn(requirement2);
-
-
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(technicalDebtRequirement1);
-    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(technicalDebtRequirement2);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(technicalDebtRequirement1, technicalDebtRequirement2));
+    when(technicalDebtModel.requirementsByRule(ruleKey1)).thenReturn(requirement1);
+    when(technicalDebtModel.requirementsByRule(ruleKey2)).thenReturn(requirement2);
+    when(technicalDebtModel.requirements()).thenReturn(newArrayList(requirement1, requirement2));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, 6.0)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, 6.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement1, 2.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement2, 4.0)));
   }
@@ -219,19 +207,20 @@ public class TechnicalDebtDecoratorTest {
     Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
 
-    Characteristic requirement = Characteristic.createByName("requirement1");
-    TechnicalDebtRequirement technicalDebtRequirement = mock(TechnicalDebtRequirement.class);
-    when(technicalDebtRequirement.toCharacteristic()).thenReturn(requirement);
+    Characteristic rootCharacteristic = new Characteristic().setKey("rootCharacteristic");
+    Characteristic characteristic = new Characteristic().setKey("characteristic").setParent(rootCharacteristic);
+    RuleKey ruleKey1 = RuleKey.of("repo1", "rule1");
+    Requirement requirement = new Requirement().setRuleKey(ruleKey1).setCharacteristic(characteristic);
 
-    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(technicalDebtRequirement);
-    when(technicalDebtModel.getAllRequirements()).thenReturn(newArrayList(technicalDebtRequirement));
+    when(technicalDebtModel.requirementsByRule(ruleKey1)).thenReturn(requirement);
+    when(technicalDebtModel.requirements()).thenReturn(newArrayList(requirement));
 
-    Measure measure = new Measure().setCharacteristic(requirement).setValue(5.0);
+    Measure measure = new Measure().setRequirement(requirement).setValue(5.0);
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(newArrayList(measure));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, 7.0)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, 7.0)));
     verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, 7.0)));
   }
 
@@ -240,13 +229,13 @@ public class TechnicalDebtDecoratorTest {
     // for a project
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
-    decorator.saveCost(context, null, 12.0, false);
+    decorator.saveTechnicalDebt(context, (Characteristic) null, 12.0, false);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
 
     // or for a file
     context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new File("foo"));
-    decorator.saveCost(context, null, 12.0, false);
+    decorator.saveTechnicalDebt(context, (Characteristic) null, 12.0, false);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
   }
 
@@ -255,10 +244,10 @@ public class TechnicalDebtDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
     // this is a top characteristic
-    Characteristic topCharacteristic = Characteristic.create();
+    Characteristic rootCharacteristic = new Characteristic().setKey("root");
 
-    decorator.saveCost(context, topCharacteristic, 0.0, true);
-    verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT).setCharacteristic(topCharacteristic));
+    decorator.saveTechnicalDebt(context, rootCharacteristic, 0.0, true);
+    verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT).setCharacteristic(rootCharacteristic));
   }
 
   /**
@@ -268,11 +257,11 @@ public class TechnicalDebtDecoratorTest {
   public void never_save_technical_debt_for_project_if_not_top_characteristic() throws Exception {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
-    Characteristic topCharacteristic = Characteristic.create();
-    Characteristic childCharacteristic = Characteristic.create();
-    topCharacteristic.addChild(childCharacteristic);
 
-    decorator.saveCost(context, childCharacteristic, 0.0, true);
+    Characteristic rootCharacteristic = new Characteristic().setKey("rootCharacteristic");
+    Characteristic characteristic = new Characteristic().setKey("characteristic").setParent(rootCharacteristic);
+
+    decorator.saveTechnicalDebt(context, characteristic, 0.0, true);
     verify(context, never()).saveMeasure(any(Measure.class));
   }
 
@@ -281,7 +270,7 @@ public class TechnicalDebtDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new File("foo"));
 
-    decorator.saveCost(context, null, 0.0, true);
+    decorator.saveTechnicalDebt(context, (Characteristic) null, 0.0, true);
     verify(context, never()).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
   }
 
@@ -297,11 +286,34 @@ public class TechnicalDebtDecoratorTest {
   class IsCharacteristicMeasure extends ArgumentMatcher<Measure> {
     Metric metric = null;
     Characteristic characteristic = null;
+    Requirement requirement = null;
     Double value = null;
+
+    public IsCharacteristicMeasure(Metric metric, Characteristic characteristic, Requirement requirement, Double value) {
+      this.metric = metric;
+      this.characteristic = characteristic;
+      this.requirement = requirement;
+      this.value = value;
+    }
 
     public IsCharacteristicMeasure(Metric metric, Characteristic characteristic, Double value) {
       this.metric = metric;
       this.characteristic = characteristic;
+      this.requirement = null;
+      this.value = value;
+    }
+
+    public IsCharacteristicMeasure(Metric metric, Requirement requirement, Double value) {
+      this.metric = metric;
+      this.characteristic = null;
+      this.requirement = requirement;
+      this.value = value;
+    }
+
+    public IsCharacteristicMeasure(Metric metric, Double value) {
+      this.metric = metric;
+      this.characteristic = null;
+      this.requirement = null;
       this.value = value;
     }
 
@@ -312,6 +324,7 @@ public class TechnicalDebtDecoratorTest {
       Measure m = (Measure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
         ObjectUtils.equals(characteristic, m.getCharacteristic()) &&
+        ObjectUtils.equals(requirement, m.getRequirement()) &&
         ObjectUtils.equals(value, m.getValue());
     }
   }

@@ -31,8 +31,12 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
+import javax.annotation.Nullable;
 import javax.persistence.Query;
 
 import java.util.*;
@@ -42,11 +46,13 @@ public class DefaultTimeMachine implements TimeMachine {
   private DatabaseSession session;
   private DefaultIndex index;
   private MetricFinder metricFinder;
+  private TechnicalDebtModel techDebtModel;
 
-  public DefaultTimeMachine(DatabaseSession session, DefaultIndex index, MetricFinder metricFinder) {
+  public DefaultTimeMachine(DatabaseSession session, DefaultIndex index, MetricFinder metricFinder, TechnicalDebtModel techDebtModel) {
     this.session = session;
     this.index = index;
     this.metricFinder = metricFinder;
+    this.techDebtModel = techDebtModel;
   }
 
   public List<Measure> getMeasures(TimeMachineQuery query) {
@@ -57,7 +63,10 @@ public class DefaultTimeMachine implements TimeMachine {
 
     for (Object[] object : objects) {
       MeasureModel model = (MeasureModel) object[0];
-      Measure measure = toMeasure(model, metricById.get(model.getMetricId()));
+      Integer characteristicId = model.getCharacteristicId();
+      Characteristic characteristic = techDebtModel.characteristicById(characteristicId);
+      Requirement requirement = techDebtModel.requirementsById(characteristicId);
+      Measure measure = toMeasure(model, metricById.get(model.getMetricId()), characteristic != null ? characteristic : null, requirement != null ? requirement : null);
       measure.setDate((Date) object[1]);
       result.add(measure);
     }
@@ -99,7 +108,7 @@ public class DefaultTimeMachine implements TimeMachine {
     params.put("status", Snapshot.STATUS_PROCESSED);
     params.put("lib", Qualifiers.LIBRARY);
 
-    sb.append(" AND m.characteristic IS NULL");
+    sb.append(" AND m.characteristicId IS NULL");
     sb.append(" AND m.personId IS NULL");
     sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
     if (!metricIds.isEmpty()) {
@@ -145,7 +154,7 @@ public class DefaultTimeMachine implements TimeMachine {
     return result;
   }
 
-  static Measure toMeasure(MeasureModel model, Metric metric) {
+  static Measure toMeasure(MeasureModel model, Metric metric, @Nullable Characteristic characteristic, @Nullable Requirement requirement) {
     // NOTE: measures on rule are not supported
     Measure measure = new Measure(metric);
     measure.setId(model.getId());
@@ -161,7 +170,8 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation4(model.getVariationValue4());
     measure.setVariation5(model.getVariationValue5());
     measure.setUrl(model.getUrl());
-    measure.setCharacteristic(model.getCharacteristic());
+    measure.setCharacteristic(characteristic);
+    measure.setRequirement(requirement);
     measure.setPersonId(model.getPersonId());
     return measure;
   }

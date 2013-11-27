@@ -18,18 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt.db;
+package org.sonar.batch.technicaldebt;
 
-import java.util.List;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
+import org.sonar.core.technicaldebt.TechnicalDebtModelFinder;
 
-public interface CharacteristicMapper {
+public class TechnicalDebtModelProvider extends ProviderAdapter {
 
-  List<CharacteristicDto> selectEnabledCharacteristics();
+  private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtModelProvider.class);
 
-  void insert(CharacteristicDto characteristic);
+  private TechnicalDebtModel model;
 
-  int update(CharacteristicDto characteristic);
-
-  int disable(Integer id);
-
+  public TechnicalDebtModel provide(TechnicalDebtModelFinder modelFinder) {
+    if (model == null) {
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
+      model = modelFinder.findAll();
+      profiler.stop();
+    }
+    return model;
+  }
 }

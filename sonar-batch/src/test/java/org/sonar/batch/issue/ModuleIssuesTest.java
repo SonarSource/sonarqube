@@ -35,7 +35,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
+import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 
 import java.util.Calendar;
 import java.util.Date;

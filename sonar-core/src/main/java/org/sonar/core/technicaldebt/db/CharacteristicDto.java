@@ -20,6 +20,11 @@
 
 package org.sonar.core.technicaldebt.db;
 
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.WorkUnit;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -28,7 +33,7 @@ import java.util.Date;
 
 public class CharacteristicDto implements Serializable {
 
-  private Long id;
+  private Integer id;
   private String kee;
   private String name;
   private Integer parentId;
@@ -43,11 +48,11 @@ public class CharacteristicDto implements Serializable {
   private Date updatedAt;
   private boolean enabled;
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public CharacteristicDto setId(Long id) {
+  public CharacteristicDto setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -178,6 +183,56 @@ public class CharacteristicDto implements Serializable {
   public CharacteristicDto setEnabled(boolean enabled) {
     this.enabled = enabled;
     return this;
+  }
+
+  public Characteristic toCharacteristic(Characteristic parent) {
+    return new Characteristic()
+      .setId(id)
+      .setKey(kee)
+      .setName(name)
+      .setOrder(characteristicOrder)
+      .setParent(parent)
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt);
+  }
+
+  public static CharacteristicDto toDto(Characteristic characteristic) {
+    Characteristic parent = characteristic.parent();
+    return new CharacteristicDto()
+      .setKey(characteristic.key())
+      .setName(characteristic.name())
+      .setOrder(characteristic.order())
+      .setParentId(parent != null ? parent.id() : null)
+      .setEnabled(true)
+      .setCreatedAt(characteristic.createdAt())
+      .setUpdatedAt(characteristic.updatedAt());
+  }
+
+  public Requirement toRequirement(RuleKey ruleKey, Characteristic characteristic) {
+    return new Requirement()
+      .setId(id)
+      .setRuleKey(ruleKey)
+      .setCharacteristic(characteristic)
+      .setFunction(functionKey)
+      .setFactor(WorkUnit.create(factorValue, factorUnit))
+      .setOffset(WorkUnit.create(offsetValue, offsetUnit))
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt);
+  }
+
+  public static CharacteristicDto toDto(Requirement requirement, Integer ruleId) {
+    Characteristic parent = requirement.characteristic();
+    return new CharacteristicDto()
+      .setRuleId(ruleId)
+      .setParentId(parent != null ? parent.id() : null)
+      .setFunction(requirement.function())
+      .setFactorValue(requirement.factor().getValue())
+      .setFactorUnit(requirement.factor().getUnit())
+      .setOffsetValue(requirement.offset().getValue())
+      .setOffsetUnit(requirement.offset().getUnit())
+      .setEnabled(true)
+      .setCreatedAt(requirement.createdAt())
+      .setUpdatedAt(requirement.updatedAt());
   }
 
 }

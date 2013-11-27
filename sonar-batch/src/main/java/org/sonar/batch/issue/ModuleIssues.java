@@ -25,8 +25,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
+import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.issue.DefaultIssueBuilder;
-import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 
 import javax.annotation.Nullable;
 

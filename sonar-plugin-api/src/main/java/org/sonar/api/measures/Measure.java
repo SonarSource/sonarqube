@@ -22,8 +22,10 @@ package org.sonar.api.measures;
 import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.qualitymodel.Characteristic;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.math.BigDecimal;
@@ -59,6 +61,7 @@ public class Measure {
   protected Double variation1, variation2, variation3, variation4, variation5;
   protected String url;
   protected Characteristic characteristic;
+  protected Requirement requirement;
   protected Integer personId;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
@@ -584,17 +587,34 @@ public class Measure {
   }
 
   /**
-   * @since 2.3
+   * @since 4.1
    */
+  @CheckForNull
   public final Characteristic getCharacteristic() {
     return characteristic;
   }
 
   /**
-   * @since 2.3
+   * @since 4.1
    */
-  public final Measure setCharacteristic(Characteristic characteristic) {
+  public final Measure setCharacteristic(@Nullable Characteristic characteristic) {
     this.characteristic = characteristic;
+    return this;
+  }
+
+  /**
+   * @since 4.1
+   */
+  @CheckForNull
+  public final Requirement getRequirement() {
+    return requirement;
+  }
+
+  /**
+   * @since 4.1
+   */
+  public final Measure setRequirement(@Nullable Requirement requirement) {
+    this.requirement = requirement;
     return this;
   }
 
@@ -660,6 +680,9 @@ public class Measure {
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
       return false;
     }
+    if (requirement != null ? !requirement.equals(measure.requirement) : measure.requirement != null) {
+      return false;
+    }
     if (personId != null ? !personId.equals(measure.personId) : measure.personId != null) {
       return false;
     }
@@ -670,6 +693,7 @@ public class Measure {
   public int hashCode() {
     int result = metricKey != null ? metricKey.hashCode() : 0;
     result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
+    result = 31 * result + (requirement != null ? requirement.hashCode() : 0);
     result = 31 * result + (personId != null ? personId.hashCode() : 0);
     return result;
   }

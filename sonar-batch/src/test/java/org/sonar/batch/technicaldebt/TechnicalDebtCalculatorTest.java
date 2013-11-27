@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt;
+package org.sonar.batch.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +27,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -55,12 +59,13 @@ public class TechnicalDebtCalculatorTest {
 
   @Test
   public void calcul_technical_debt() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+    Requirement requirement = mock(Requirement.class);
+    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -69,12 +74,13 @@ public class TechnicalDebtCalculatorTest {
 
   @Test
   public void calcul_technical_debt_with_effort_to_fix() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+    Requirement requirement = mock(Requirement.class);
+    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -83,12 +89,13 @@ public class TechnicalDebtCalculatorTest {
 
   @Test
   public void calcul_technical_debt_with_no_offset() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    Mockito.when(requirement.getRemediationFactor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.getOffset()).thenReturn(null);
-    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+    Requirement requirement = mock(Requirement.class);
+    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
+    Mockito.when(requirement.offset()).thenReturn(null);
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -97,12 +104,13 @@ public class TechnicalDebtCalculatorTest {
 
   @Test
   public void calcul_technical_debt_with_no_factor() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle")).setEffortToFix(2d);
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
-    Mockito.when(requirement.getRemediationFactor()).thenReturn(null);
-    Mockito.when(requirement.getOffset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(requirement);
+    Requirement requirement = mock(Requirement.class);
+    Mockito.when(requirement.factor()).thenReturn(null);
+    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -111,8 +119,9 @@ public class TechnicalDebtCalculatorTest {
 
   @Test
   public void no_technical_debt_if_requirement_not_found() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    when(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).thenReturn(null);
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
+    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(null);
 
     assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
     verify(converter, never()).fromMinutes(anyLong());

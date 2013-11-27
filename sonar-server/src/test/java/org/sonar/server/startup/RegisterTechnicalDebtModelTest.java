@@ -31,13 +31,13 @@ import static org.mockito.Mockito.*;
 public class RegisterTechnicalDebtModelTest {
 
   @Test
-  public void shouldCreateModel() throws Exception {
-    TechnicalDebtManager technicalDebtManager = mock(TechnicalDebtManager.class);
+  public void create_model() throws Exception {
+    TechnicalDebtManager manger = mock(TechnicalDebtManager.class);
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(technicalDebtManager, ruleFinder, null);
+    RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(manger, ruleFinder, null);
 
     sqaleDefinition.start();
 
-    verify(technicalDebtManager, times(1)).initAndMergePlugins(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
+    verify(manger, times(1)).initAndMergePlugins(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
   }
 }

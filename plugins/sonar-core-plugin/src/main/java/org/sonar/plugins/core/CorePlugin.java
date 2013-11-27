@@ -26,7 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
+import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;

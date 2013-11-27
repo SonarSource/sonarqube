@@ -35,7 +35,7 @@
     enabled, created_at, updated_at)
     VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder},
     #{ruleId}, #{functionKey}, #{factorValue}, #{factorUnit}, #{offsetValue}, #{offsetUnit},
-    #{enabled}, #{createdAt}, #{updatedAt})
+    #{enabled}, current_timestamp, current_timestamp)
   </insert>
 
   <update id="update" parameterType="Characteristic">
@@ -50,7 +50,14 @@
     offset_value=#{offsetValue},
     offset_unit=#{offsetUnit},
     enabled=#{enabled},
-    updated_at=#{updatedAt}
+    updated_at=current_timestamp
+    where id=#{id}
+  </update>
+
+  <update id="disable" parameterType="Integer">
+    update characteristics set
+    enabled=${_false},
+    updated_at=current_timestamp
     where id=#{id}
   </update>
 

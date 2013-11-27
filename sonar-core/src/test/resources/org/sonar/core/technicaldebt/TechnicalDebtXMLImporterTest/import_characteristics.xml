@@ -12,23 +12,11 @@
     </chc>
   </chc>
   <chc>
+    <key>MAINTAINABILITY</key>
+    <name>Maintainability</name>
     <chc>
-      <key>MAINTAINABILITY</key>
-      <name>Maintainability</name>
-      <chc>
-        <key>READABILITY</key>
-        <name>Readability</name>
-      </chc>
-    </chc>
-  </chc>
-  <chc>
-    <chc>
-      <key>NEW_ONE</key>
-      <name>New One</name>
-      <chc>
-        <key>SUB_ONE</key>
-        <name>Sub One</name>
-      </chc>
+      <key>READABILITY</key>
+      <name>Readability</name>
     </chc>
   </chc>
 </sqale>

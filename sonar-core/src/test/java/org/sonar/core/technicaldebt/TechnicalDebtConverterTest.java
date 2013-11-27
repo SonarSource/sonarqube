@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.technicaldebt.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
 

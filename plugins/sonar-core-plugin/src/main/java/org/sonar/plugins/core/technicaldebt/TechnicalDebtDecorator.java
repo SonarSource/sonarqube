@@ -37,10 +37,10 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,19 +87,19 @@ public final class TechnicalDebtDecorator implements Decorator {
 
   private void saveMeasures(DecoratorContext context, List<Issue> issues) {
     // group issues by requirement
-    ListMultimap<TechnicalDebtRequirement, Issue> issuesByRequirement = issuesByRequirement(issues);
+    ListMultimap<Requirement, Issue> issuesByRequirement = issuesByRequirement(issues);
 
     double total = 0.0;
-    Map<TechnicalDebtCharacteristic, Double> characteristicCosts = newHashMap();
-    Map<TechnicalDebtRequirement, Double> requirementCosts = newHashMap();
+    Map<Characteristic, Double> characteristicCosts = newHashMap();
+    Map<Requirement, Double> requirementCosts = newHashMap();
 
-    for (TechnicalDebtRequirement requirement : technicalDebtModel.getAllRequirements()) {
+    for (Requirement requirement : technicalDebtModel.requirements()) {
       List<Issue> requirementIssues = issuesByRequirement.get(requirement);
       double value = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, requirement, requirementIssues);
 
       requirementCosts.put(requirement, value);
       total += value;
-      propagateTechnicalDebtInParents(requirement.getParent(), value, characteristicCosts);
+      propagateTechnicalDebtInParents(requirement.characteristic(), value, characteristicCosts);
     }
 
     context.saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT, total, DECIMALS_PRECISION));
@@ -107,23 +107,23 @@ public final class TechnicalDebtDecorator implements Decorator {
     saveOnRequirement(context, requirementCosts);
   }
 
-  private void saveOnCharacteristic(DecoratorContext context, Map<TechnicalDebtCharacteristic, Double> characteristicCosts) {
-    for (Map.Entry<TechnicalDebtCharacteristic, Double> entry : characteristicCosts.entrySet()) {
-      saveCost(context, entry.getKey().toCharacteristic(), entry.getValue(), false);
+  private void saveOnCharacteristic(DecoratorContext context, Map<Characteristic, Double> characteristicCosts) {
+    for (Map.Entry<Characteristic, Double> entry : characteristicCosts.entrySet()) {
+      saveTechnicalDebt(context, entry.getKey(), entry.getValue(), false);
     }
   }
 
-  private void saveOnRequirement(DecoratorContext context, Map<TechnicalDebtRequirement, Double> requirementCosts) {
-    for (Map.Entry<TechnicalDebtRequirement, Double> entry : requirementCosts.entrySet()) {
-      saveCost(context, entry.getKey().toCharacteristic(), entry.getValue(), ResourceUtils.isEntity(context.getResource()));
+  private void saveOnRequirement(DecoratorContext context, Map<Requirement, Double> requirementCosts) {
+    for (Map.Entry<Requirement, Double> entry : requirementCosts.entrySet()) {
+      saveTechnicalDebt(context, entry.getKey(), entry.getValue(), ResourceUtils.isEntity(context.getResource()));
     }
   }
 
   @VisibleForTesting
-  void saveCost(DecoratorContext context, org.sonar.api.qualitymodel.Characteristic characteristic, Double value, boolean inMemory) {
+  void saveTechnicalDebt(DecoratorContext context, Characteristic characteristic, Double value, boolean inMemory) {
     // we need the value on projects (root or module) even if value==0 in order to display correctly the SQALE history chart (see SQALE-122)
     // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
-    if (value > 0.0 || (ResourceUtils.isProject(context.getResource()) && characteristic.getDepth() == org.sonar.api.qualitymodel.Characteristic.ROOT_DEPTH)) {
+    if (value > 0.0 || (ResourceUtils.isProject(context.getResource()) && characteristic.isRoot())) {
       Measure measure = new Measure(CoreMetrics.TECHNICAL_DEBT);
       measure.setCharacteristic(characteristic);
       measure.setValue(value, DECIMALS_PRECISION);
@@ -135,12 +135,27 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  ListMultimap<TechnicalDebtRequirement, Issue> issuesByRequirement(List<Issue> issues) {
-    ListMultimap<TechnicalDebtRequirement, Issue> issuesByRequirement = ArrayListMultimap.create();
+  void saveTechnicalDebt(DecoratorContext context, Requirement requirement, Double value, boolean inMemory) {
+    // we need the value on projects (root or module) even if value==0 in order to display correctly the SQALE history chart (see SQALE-122)
+    // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
+    if (value > 0.0) {
+      Measure measure = new Measure(CoreMetrics.TECHNICAL_DEBT);
+      measure.setRequirement(requirement);
+      measure.setValue(value, DECIMALS_PRECISION);
+      if (inMemory) {
+        measure.setPersistenceMode(PersistenceMode.MEMORY);
+      }
+      context.saveMeasure(measure);
+    }
+  }
+
+  @VisibleForTesting
+  ListMultimap<Requirement, Issue> issuesByRequirement(List<Issue> issues) {
+    ListMultimap<Requirement, Issue> issuesByRequirement = ArrayListMultimap.create();
     for (Issue issue : issues) {
       String repositoryKey = issue.ruleKey().repository();
       String key = issue.ruleKey().rule();
-      TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(repositoryKey, key);
+      Requirement requirement = technicalDebtModel.requirementsByRule(issue.ruleKey());
       if (requirement == null) {
         LoggerFactory.getLogger(getClass()).debug("No technical debt requirement for: " + repositoryKey + "/" + key);
       } else {
@@ -150,7 +165,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     return issuesByRequirement;
   }
 
-  private double computeTechnicalDebt(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Issue> issues) {
+  private double computeTechnicalDebt(Metric metric, DecoratorContext context, Requirement requirement, Collection<Issue> issues) {
     double value = 0.0;
     if (issues != null) {
       for (Issue issue : issues){
@@ -158,15 +173,15 @@ public final class TechnicalDebtDecorator implements Decorator {
       }
     }
 
-    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.characteristic(metric, requirement.toCharacteristic()))) {
-      if (measure.getCharacteristic() != null && measure.getCharacteristic().equals(requirement.toCharacteristic()) && measure.getValue() != null) {
+    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
+      if (measure.getRequirement() != null && measure.getRequirement().equals(requirement) && measure.getValue() != null) {
         value += measure.getValue();
       }
     }
     return value;
   }
 
-  private void propagateTechnicalDebtInParents(TechnicalDebtCharacteristic characteristic, double value, Map<TechnicalDebtCharacteristic, Double> characteristicCosts) {
+  private void propagateTechnicalDebtInParents(Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {
     if (characteristic != null) {
       Double parentCost = characteristicCosts.get(characteristic);
       if (parentCost == null) {
@@ -174,7 +189,7 @@ public final class TechnicalDebtDecorator implements Decorator {
       } else {
         characteristicCosts.put(characteristic, value + parentCost);
       }
-      propagateTechnicalDebtInParents(characteristic.getParent(), value, characteristicCosts);
+      propagateTechnicalDebtInParents(characteristic.parent(), value, characteristicCosts);
     }
   }
 

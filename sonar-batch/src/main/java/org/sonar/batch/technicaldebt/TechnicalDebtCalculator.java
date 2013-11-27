@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt;
+package org.sonar.batch.technicaldebt;
 
 import com.google.common.base.Objects;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.core.technicaldebt.TechnicalDebtConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 /**
  * Computes the remediation cost based on the quality and analysis models.
@@ -38,20 +42,20 @@ public class TechnicalDebtCalculator implements BatchExtension {
   }
 
   public WorkDayDuration calculTechnicalDebt(Issue issue) {
-    TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(issue.ruleKey().repository(), issue.ruleKey().rule());
+    Requirement requirement = technicalDebtModel.requirementsByRule(issue.ruleKey());
     if (requirement != null) {
       return converter.fromMinutes(calculTechnicalDebt(requirement, issue));
     }
     return null;
   }
 
-  private long calculTechnicalDebt(TechnicalDebtRequirement requirement, Issue issue) {
+  private long calculTechnicalDebt(Requirement requirement, Issue issue) {
     long effortToFix = Objects.firstNonNull(issue.effortToFix(), 1L).longValue();
 
-    WorkUnit factorUnit = requirement.getRemediationFactor();
+    WorkUnit factorUnit = requirement.factor();
     long factor = factorUnit != null ? converter.toMinutes(factorUnit) : 0L;
 
-    WorkUnit offsetUnit = requirement.getOffset();
+    WorkUnit offsetUnit = requirement.offset();
     long offset = offsetUnit != null ? converter.toMinutes(offsetUnit) : 0L;
 
     return effortToFix * factor + offset;

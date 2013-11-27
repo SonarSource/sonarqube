@@ -17,95 +17,107 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.technicaldebt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.qualitymodel.Model;
-import org.sonar.api.qualitymodel.ModelFinder;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.TimeProfiler;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
-/**
- * This class contains characteristics and requirement of the technical debt mode.
- * It should be used only on batch side, because on server side the model can be updated by the SQALE plugin
- */
-public class TechnicalDebtModel implements BatchComponent {
+public class TechnicalDebtModel {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDebtModel.class);
+  private Collection<Characteristic> rootCharacteristics;
 
-  public static final String MODEL_NAME = "SQALE";
-
-  private List<TechnicalDebtCharacteristic> characteristics = newArrayList();
-  private Map<Rule, TechnicalDebtRequirement> requirementsByRule = newHashMap();
-
-  public TechnicalDebtModel(ModelFinder modelFinder) {
-    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Loading technical debt model");
-    Model model = modelFinder.findByName(MODEL_NAME);
-    if (model == null) {
-      throw new SonarException("Can not find the model in database: " + MODEL_NAME);
-    }
-    init(model);
-    profiler.stop();
+  public TechnicalDebtModel() {
+    rootCharacteristics = newArrayList();
   }
 
-  /**
-   * For unit tests
-   */
-  private TechnicalDebtModel(Model model) {
-    init(model);
+  public TechnicalDebtModel addRootCharacteristic(Characteristic characteristic) {
+    rootCharacteristics.add(characteristic);
+    return this;
   }
 
-  /**
-   * For unit tests
-   */
-  public static TechnicalDebtModel create(Model model) {
-    return new TechnicalDebtModel(model);
-  }
-
-  private void init(Model model) {
-    for (org.sonar.api.qualitymodel.Characteristic characteristic : model.getRootCharacteristics()) {
-      if (characteristic.getEnabled()) {
-        TechnicalDebtCharacteristic sc = new TechnicalDebtCharacteristic(characteristic);
-        characteristics.add(sc);
-        registerRequirements(sc);
+  public List<Characteristic> rootCharacteristics() {
+    return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<Characteristic>() {
+      @Override
+      public boolean apply(Characteristic input) {
+        return input.isRoot();
       }
-    }
-  }
-
-  private void registerRequirements(TechnicalDebtCharacteristic c) {
-    for (TechnicalDebtRequirement requirement : c.getRequirements()) {
-
-      if (requirement.getRule() != null) {
-        requirementsByRule.put(requirement.getRule(), requirement);
-      }
-    }
-    for (TechnicalDebtCharacteristic subCharacteristic : c.getSubCharacteristics()) {
-      registerRequirements(subCharacteristic);
-    }
-  }
-
-  public List<TechnicalDebtCharacteristic> getCharacteristics() {
-    return characteristics;
-  }
-
-  public Collection<TechnicalDebtRequirement> getAllRequirements() {
-    return requirementsByRule.values();
+    }));
   }
 
   @CheckForNull
-  public TechnicalDebtRequirement getRequirementByRule(String repositoryKey, String key) {
-    return requirementsByRule.get(Rule.create().setUniqueKey(repositoryKey, key));
+  public Characteristic characteristicByKey(final String key) {
+    return Iterables.find(characteristics(), new Predicate<Characteristic>() {
+      @Override
+      public boolean apply(Characteristic input) {
+        return input.key().equals(key);
+      }
+    }, null);
   }
+
+  @CheckForNull
+  public Characteristic characteristicById(final Integer id){
+    return Iterables.find(characteristics(), new Predicate<Characteristic>() {
+      @Override
+      public boolean apply(Characteristic input) {
+        return input.id().equals(id);
+      }
+    }, null);
+  }
+
+  @CheckForNull
+  public Requirement requirementsByRule(final RuleKey ruleKey) {
+    return Iterables.find(requirements(), new Predicate<Requirement>() {
+      @Override
+      public boolean apply(Requirement input) {
+        return input.ruleKey().equals(ruleKey);
+      }
+    }, null);
+  }
+
+  @CheckForNull
+  public Requirement requirementsById(final Integer id){
+    return Iterables.find(requirements(), new Predicate<Requirement>() {
+      @Override
+      public boolean apply(Requirement input) {
+        return input.id().equals(id);
+      }
+    }, null);
+  }
+
+  public List<Characteristic> characteristics() {
+    List<Characteristic> flatCharacteristics = newArrayList();
+    for (Characteristic rootCharacteristic : rootCharacteristics) {
+      flatCharacteristics.add(rootCharacteristic);
+      for (Characteristic characteristic : rootCharacteristic.children()) {
+        flatCharacteristics.add(characteristic);
+      }
+    }
+    return flatCharacteristics;
+  }
+
+  public List<Requirement> requirements() {
+    List<Requirement> allRequirements = newArrayList();
+    for (Characteristic characteristic : characteristics()) {
+      for (Requirement requirement : characteristic.requirements()) {
+        allRequirements.add(requirement);
+      }
+    }
+    return allRequirements;
+  }
+
+  public boolean isEmpty(){
+    return rootCharacteristics.isEmpty();
+  }
+
 }

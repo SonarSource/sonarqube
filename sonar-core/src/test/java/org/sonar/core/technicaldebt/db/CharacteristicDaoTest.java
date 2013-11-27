@@ -22,6 +22,7 @@ package org.sonar.core.technicaldebt.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -29,6 +30,8 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicDaoTest extends AbstractDaoTestCase {
+
+  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "depth", "description", "quality_model_id", "created_at", "updated_at"};
 
   CharacteristicDao dao;
 
@@ -82,6 +85,88 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(requirement.isEnabled()).isTrue();
     assertThat(requirement.getCreatedAt()).isNotNull();
     assertThat(requirement.getUpdatedAt()).isNull();
+  }
+
+  @Test
+  public void insert_characteristic() throws Exception {
+    CharacteristicDto dto = new CharacteristicDto()
+      .setKey("COMPILER_RELATED_PORTABILITY")
+      .setName("Compiler related portability")
+      .setOrder(1)
+      .setEnabled(true)
+      .setCreatedAt(DateUtils.parseDate("2013-11-20"));
+
+    dao.insert(dto);
+
+    checkTables("insert_characteristic", EXCLUDED_COLUMNS, "characteristics");
+  }
+
+  @Test
+  public void insert_requirement() throws Exception {
+    CharacteristicDto dto = new CharacteristicDto()
+      .setParentId(2)
+      .setRuleId(1)
+      .setFunction("linear_offset")
+      .setFactorValue(20.0)
+      .setFactorUnit("mn")
+      .setOffsetValue(30.0)
+      .setOffsetUnit("h")
+      .setCreatedAt(DateUtils.parseDate("2013-11-20"))
+      .setEnabled(true);
+
+    dao.insert(dto);
+
+    checkTables("insert_requirement", EXCLUDED_COLUMNS, "characteristics");
+  }
+
+  @Test
+  public void update_characteristic() throws Exception {
+    setupData("update_characteristic");
+
+    CharacteristicDto dto = new CharacteristicDto()
+      .setId(1)
+        // The Key should not be changed
+      .setKey("NEW_KEY")
+      .setName("New name")
+      .setOrder(2)
+        // Created date should not changed
+      .setCreatedAt(DateUtils.parseDate("2013-11-22"))
+      .setEnabled(false);
+
+    dao.update(dto);
+
+    checkTables("update_characteristic", new String[]{"id", "depth", "description", "quality_model_id", "updated_at"}, "characteristics");
+  }
+
+  @Test
+  public void update_requirement() throws Exception {
+    setupData("update_requirement");
+
+    CharacteristicDto dto = new CharacteristicDto()
+      .setId(1)
+      .setParentId(3)
+      .setRuleId(2)
+      .setFunction("linear")
+      .setFactorValue(21.0)
+      .setFactorUnit("h")
+      .setOffsetValue(null)
+      .setOffsetUnit(null)
+        // Created date should not changed
+      .setCreatedAt(DateUtils.parseDate("2013-11-22"))
+      .setEnabled(false);
+
+    dao.update(dto);
+
+    checkTables("update_requirement", EXCLUDED_COLUMNS, "characteristics");
+  }
+
+  @Test
+  public void disable() throws Exception {
+    setupData("disable");
+
+    dao.disable(1);
+
+    checkTables("disable", EXCLUDED_COLUMNS, "characteristics");
   }
 
 }

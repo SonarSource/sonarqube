@@ -8,24 +8,28 @@
     <key>EFFICIENCY</key>
     <name>Efficiency</name>
     <chc>
-      <rule-repo>checkstyle</rule-repo>
-      <rule-key>Regexp</rule-key>
-      <prop>
-        <key>remediationFunction</key>
-        <!-- Should be replaced by linear -->
-        <txt>linear_threshold</txt>
-      </prop>
-      <prop>
-        <key>remediationFactor</key>
-        <val>3.2</val>
-        <txt>h</txt>
-      </prop>
-      <!-- Should be ignored -->
-      <prop>
-        <key>offset</key>
-        <val>1.0</val>
-        <txt>h</txt>
-      </prop>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>Regexp</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <!-- Should be replaced by linear -->
+          <txt>linear_threshold</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.2</val>
+          <txt>h</txt>
+        </prop>
+        <!-- Should be ignored -->
+        <prop>
+          <key>offset</key>
+          <val>1.0</val>
+          <txt>h</txt>
+        </prop>
+      </chc>
     </chc>
   </chc>
 
