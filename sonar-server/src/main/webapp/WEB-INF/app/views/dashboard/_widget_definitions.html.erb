@@ -4,7 +4,7 @@
       <ul class="horizontal widget_categs" id="widget-filters">
         <li>Category:</li>
         <li class="<%= 'selected' if category.blank? -%>">
-          <a href="#" onClick="return filterWidgetsByCategory('')" id="widget-filter-none"><%= message('none') -%></a>
+          <a href="#" onClick="return filterWidgetsByCategory('')" id="widget-filter-none"><%= message('any') -%></a>
         </li>
         <% @widget_categories.each do |c| %>
           <li class="<%= 'selected' if category==c -%>">
