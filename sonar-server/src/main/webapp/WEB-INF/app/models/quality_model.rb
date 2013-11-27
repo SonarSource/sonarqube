@@ -22,43 +22,4 @@ class QualityModel < ActiveRecord::Base
   validates_length_of :name, :within => 1..100
   validates_uniqueness_of :name
 
-  has_many :characteristics, :dependent => :delete_all
-
-  def root_characteristics(only_enabled=true)
-    @roots ||=
-      begin
-        characteristics.select do |c|
-          c.parents.empty? && (!only_enabled || c.enabled)
-        end
-      end
-  end
-
-  def characteristics_with_rule(only_enabled=true)
-    @characteristics_with_rule ||=
-      begin
-        characteristics.select do |c|
-          (!c.rule_id.nil?) && (!only_enabled || c.enabled)
-        end
-      end
-  end
-
-  def characteristics_without_rule(only_enabled=true)
-    @characteristics_without_rule ||=
-      begin
-        characteristics.select do |c|
-          c.rule_id.nil? && (!only_enabled || c.enabled)
-        end
-      end
-  end
-
-  # be careful, can return disabled characteristic
-  def characteristic(id)
-    @characteristics_by_id ||=
-        begin
-          hash={}
-          characteristics.each {|c| hash[c.id]=c}
-          hash
-        end
-    @characteristics_by_id[id]
-  end
 end

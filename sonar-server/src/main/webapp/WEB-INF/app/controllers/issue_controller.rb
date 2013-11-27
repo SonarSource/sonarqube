@@ -209,8 +209,8 @@ class IssueController < ApplicationController
 
     rule_id = @issue_results.rule(@issue).id
     @requirement = Characteristic.first(
-        :conditions => ['quality_models.name=? AND characteristics.rule_id=? AND characteristics.enabled=?', 'SQALE', rule_id, true],
-        :include => [:quality_model, {:parents => :parents}, :characteristic_properties]
+        :conditions => ['characteristics.rule_id=? AND characteristics.enabled=?', rule_id, true],
+        :include => [{:parent => :parent}]
     )
     render :partial => 'issue/technicaldebt'
   end
