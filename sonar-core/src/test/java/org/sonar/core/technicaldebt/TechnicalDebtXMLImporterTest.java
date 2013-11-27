@@ -134,7 +134,7 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   @Test
-  public void shouldLogWarningIfRuleNotFound() {
+  public void ignore_requirement_with_not_found_rule() {
     TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
     String xml = getFileContent("shouldLogWarningIfRuleNotFound.xml");
     ValidationMessages messages = ValidationMessages.create();

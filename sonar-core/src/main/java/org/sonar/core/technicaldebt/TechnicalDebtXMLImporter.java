@@ -153,6 +153,9 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       }
     }
     fillRule(requirement, ruleRepositoryKey, ruleKey, messages, technicalDebtRuleCache);
+    if (requirement.ruleKey() == null) {
+      return null;
+    }
     return processFunctionsOnRequirement(requirement, properties, messages);
   }
 
