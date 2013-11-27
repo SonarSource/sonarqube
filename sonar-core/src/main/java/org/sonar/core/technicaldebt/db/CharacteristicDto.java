@@ -196,13 +196,12 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(updatedAt);
   }
 
-  public static CharacteristicDto toDto(Characteristic characteristic) {
-    Characteristic parent = characteristic.parent();
+  public static CharacteristicDto toDto(Characteristic characteristic, @Nullable Integer parentId) {
     return new CharacteristicDto()
       .setKey(characteristic.key())
       .setName(characteristic.name())
       .setOrder(characteristic.order())
-      .setParentId(parent != null ? parent.id() : null)
+      .setParentId(parentId)
       .setEnabled(true)
       .setCreatedAt(characteristic.createdAt())
       .setUpdatedAt(characteristic.updatedAt());
@@ -220,11 +219,10 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(updatedAt);
   }
 
-  public static CharacteristicDto toDto(Requirement requirement, Integer ruleId) {
-    Characteristic parent = requirement.characteristic();
+  public static CharacteristicDto toDto(Requirement requirement, Integer characteristicId, Integer ruleId) {
     return new CharacteristicDto()
       .setRuleId(ruleId)
-      .setParentId(parent != null ? parent.id() : null)
+      .setParentId(characteristicId)
       .setFunction(requirement.function())
       .setFactorValue(requirement.factor().getValue())
       .setFactorUnit(requirement.factor().getUnit())

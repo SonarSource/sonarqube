@@ -36,6 +36,7 @@ public class TechnicalDebtRuleCache {
   private final RuleFinder ruleFinder;
 
   private Map<String, Map<String, Rule>> cachedRules;
+  private Map<Integer, Rule> cachedRulesId;
 
   public TechnicalDebtRuleCache(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;
@@ -57,6 +58,11 @@ public class TechnicalDebtRuleCache {
     return getRule(rule.getRepositoryKey(), rule.getKey()) != null;
   }
 
+  public boolean exists(Integer ruleId) {
+    initRules();
+    return cachedRulesId.get(ruleId) != null;
+  }
+
   public boolean exists(RuleKey ruleKey) {
     return getByRuleKey(ruleKey) != null;
   }
@@ -69,6 +75,7 @@ public class TechnicalDebtRuleCache {
 
   private void loadRules() {
     cachedRules = Maps.newHashMap();
+    cachedRulesId = Maps.newHashMap();
     Collection<Rule> rules = ruleFinder.findAll(RuleQuery.create());
     for (Rule rule : rules) {
       if(!cachedRules.containsKey(rule.getRepositoryKey())) {
@@ -77,6 +84,7 @@ public class TechnicalDebtRuleCache {
       Map<String, Rule> cachedRepository = cachedRules.get(rule.getRepositoryKey());
       if(!cachedRepository.containsKey(rule.getKey())) {
         cachedRepository.put(rule.getKey(), rule);
+        cachedRulesId.put(rule.getId(), rule);
       }
     }
   }
@@ -89,4 +97,5 @@ public class TechnicalDebtRuleCache {
     }
     return null;
   }
+
 }

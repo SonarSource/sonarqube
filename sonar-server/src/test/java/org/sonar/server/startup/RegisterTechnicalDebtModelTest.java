@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.TechnicalDebtManager;
+import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
 import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
 
 import static org.mockito.Matchers.any;
@@ -32,7 +32,7 @@ public class RegisterTechnicalDebtModelTest {
 
   @Test
   public void create_model() throws Exception {
-    TechnicalDebtManager manger = mock(TechnicalDebtManager.class);
+    TechnicalDebtModelSynchronizer manger = mock(TechnicalDebtModelSynchronizer.class);
     RuleFinder ruleFinder = mock(RuleFinder.class);
     RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(manger, ruleFinder, null);
 

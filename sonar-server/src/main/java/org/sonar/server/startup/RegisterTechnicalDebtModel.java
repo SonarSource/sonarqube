@@ -24,20 +24,20 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.TechnicalDebtManager;
+import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
 import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
 
 public final class RegisterTechnicalDebtModel {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterTechnicalDebtModel.class);
 
-  private final TechnicalDebtManager manager;
+  private final TechnicalDebtModelSynchronizer manager;
   private final RuleFinder ruleFinder;
 
   /**
    * @param registerRulesBeforeModels used only to be started after the creation of check templates
    */
-  public RegisterTechnicalDebtModel(TechnicalDebtManager manager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
+  public RegisterTechnicalDebtModel(TechnicalDebtModelSynchronizer manager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
     this.manager = manager;
     this.ruleFinder = ruleFinder;
   }

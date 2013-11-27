@@ -29,6 +29,8 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
+import javax.annotation.Nullable;
+
 public class TechnicalDebtModelService implements ServerExtension {
 
   private final MyBatis mybatis;
@@ -39,34 +41,33 @@ public class TechnicalDebtModelService implements ServerExtension {
     this.dao = dao;
   }
 
-  public void create(Characteristic characteristic, SqlSession session) {
-    CharacteristicDto characteristicDto = CharacteristicDto.toDto(characteristic);
+  public void create(Characteristic characteristic, @Nullable Integer parentId, SqlSession session) {
+    CharacteristicDto characteristicDto = CharacteristicDto.toDto(characteristic, parentId);
     dao.insert(characteristicDto, session);
     characteristic.setId(characteristicDto.getId());
   }
 
-  public void create(Characteristic characteristic) {
+  public void create(Characteristic characteristic, @Nullable Integer parentId) {
     SqlSession session = mybatis.openSession();
     try {
-      create(characteristic, session);
+      create(characteristic, parentId, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void create(Requirement requirement, Characteristic characteristic, TechnicalDebtRuleCache ruleCache, SqlSession session) {
+  public void create(Requirement requirement, Integer characteristicId, TechnicalDebtRuleCache ruleCache, SqlSession session) {
     Rule rule = ruleCache.getByRuleKey(requirement.ruleKey());
-    requirement.setCharacteristic(characteristic);
-    CharacteristicDto requirementDto = CharacteristicDto.toDto(requirement, rule.getId());
+    CharacteristicDto requirementDto = CharacteristicDto.toDto(requirement, characteristicId, rule.getId());
     dao.insert(requirementDto, session);
     requirement.setId(requirementDto.getId());
   }
 
-  public void create(Requirement requirement, Characteristic characteristic, TechnicalDebtRuleCache ruleCache) {
+  public void create(Requirement requirement, Integer characteristicId, TechnicalDebtRuleCache ruleCache) {
     SqlSession session = mybatis.openSession();
     try {
-      create(requirement, characteristic, ruleCache, session);
+      create(requirement, characteristicId, ruleCache, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

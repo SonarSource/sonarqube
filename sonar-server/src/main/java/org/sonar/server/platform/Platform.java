@@ -307,12 +307,11 @@ public final class Platform {
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);
-    servicesContainer.addSingleton(TechnicalDebtManager.class);
+    servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(TechnicalDebtConverter.class);
     servicesContainer.addSingleton(TechnicalDebtFormatter.class);
-    servicesContainer.addSingleton(TechnicalDebtModelService.class);
     servicesContainer.addSingleton(TechnicalDebtFinder.class);
 
     // text
