@@ -20,14 +20,12 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.home.cache.FileCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
 
 public class BatchPluginInstaller extends PluginInstaller implements BatchComponent {
 
@@ -48,29 +46,4 @@ public class BatchPluginInstaller extends PluginInstaller implements BatchCompon
     return cache.unzip(pluginFile);
   }
 
-  private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, File pluginBasedir) throws IOException {
-    if (!metadata.getPathsToInternalDeps().isEmpty()) {
-      // needs to unzip the jar
-      File baseDir;
-      if (pluginBasedir == null) {
-        baseDir = cache.unzip(pluginFile);
-      } else {
-        ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
-        baseDir = pluginBasedir;
-      }
-      for (String depPath : metadata.getPathsToInternalDeps()) {
-        File dependency = new File(baseDir, depPath);
-        if (!dependency.isFile() || !dependency.exists()) {
-          throw new IllegalArgumentException("Dependency " + depPath + " can not be found in " + pluginFile.getName());
-        }
-        metadata.addDeployedFile(dependency);
-      }
-    }
-  }
-
-  private static final class LibFilter implements ZipUtils.ZipEntryFilter {
-    public boolean accept(ZipEntry entry) {
-      return entry.getName().startsWith("META-INF/lib");
-    }
-  }
 }
