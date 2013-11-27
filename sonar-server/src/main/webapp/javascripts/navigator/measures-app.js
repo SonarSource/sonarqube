@@ -116,6 +116,39 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         type: window.SS.StringFilterView,
         enabled: false,
         optional: true
+      }),
+
+      new window.SS.Filter({
+        name: 'Metric',
+        property: 'c3',
+        type: window.SS.MetricFilterView,
+        metrics: window.SS.metrics,
+        periods: window.SS.metricPeriods,
+        operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
+        enabled: false,
+        optional: true
+      }),
+
+      new window.SS.Filter({
+        name: 'Metric',
+        property: 'c2',
+        type: window.SS.MetricFilterView,
+        metrics: window.SS.metrics,
+        periods: window.SS.metricPeriods,
+        operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
+        enabled: false,
+        optional: true
+      }),
+
+      new window.SS.Filter({
+        name: 'Metric',
+        property: 'c1',
+        type: window.SS.MetricFilterView,
+        metrics: window.SS.metrics,
+        periods: window.SS.metricPeriods,
+        operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
+        enabled: false,
+        optional: true
       })
     ]);
 

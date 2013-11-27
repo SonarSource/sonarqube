@@ -121,7 +121,11 @@
   display: block;
 }
 .navigator-filter-details-inner {
+  max-width: 300px;
   padding: 5px 10px;
+}
+.navigator-filter-details-inner select {
+  display: block;
 }
 .navigator-filter-select-list {
   min-width: 150px;

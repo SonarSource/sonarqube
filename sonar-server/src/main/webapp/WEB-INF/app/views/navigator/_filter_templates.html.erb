@@ -64,6 +64,36 @@
   </div>
 </script>
 
+<script id="metricFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    <select name="metric">
+      <option></option>
+      {[ _.each(groupedMetrics, function(group) { ]}
+      <optgroup label="{{ group.domain }}">
+        {[ _.each(group.metrics, function(metric) { ]}
+        <option value="{{ metric.name }}">{{ metric.short_name }}</option>
+        {[ }); ]}
+      </optgroup>
+      {[ }); ]}
+    </select>
+
+    <select name="period">
+      <option value="0">Value</option>
+      {[ _.each(periods, function(period, key) { ]}
+      <option value="{{ key }}">{{ period }}</option>
+      {[ }); ]}
+    </select>
+
+    <select name="op">
+      {[ _.each(operations, function(op, key) { ]}
+      <option value="{{ key }}">{{ op }}</option>
+      {[ }); ]}
+    </select>
+
+    <input type="text" name="val">
+  </div>
+</script>
+
 <script id="favoriteFilterTemplate" type="text/template">
   <div class="navigator-filter-favorite-toggle"></div>
 </script>
