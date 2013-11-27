@@ -53,6 +53,11 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectBootstrapper.class);
 
+  /**
+   * @since 4.1 but not yet exposed in {@link CoreProperties}
+   */
+  private static final String MODULE_KEY_PROPERTY = "sonar.moduleKey";
+
   private static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
   private static final String PROPERTY_PROJECT_CONFIG_FILE = "sonar.projectConfigFile";
   private static final String PROPERTY_MODULES = "sonar.modules";
@@ -97,7 +102,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {CoreProperties.MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
+  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
 
   /**
    * Properties that must not be passed from the parent project to its children.
@@ -265,19 +270,19 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
 
   @VisibleForTesting
   protected static void setModuleKeyAndNameIfNotDefined(Properties childProps, String moduleId, String parentKey) {
-    if (!childProps.containsKey(CoreProperties.MODULE_KEY_PROPERTY)) {
+    if (!childProps.containsKey(MODULE_KEY_PROPERTY)) {
       if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
-        childProps.put(CoreProperties.MODULE_KEY_PROPERTY, parentKey + ":" + moduleId);
+        childProps.put(MODULE_KEY_PROPERTY, parentKey + ":" + moduleId);
       } else {
         String childKey = childProps.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-        childProps.put(CoreProperties.MODULE_KEY_PROPERTY, parentKey + ":" + childKey);
+        childProps.put(MODULE_KEY_PROPERTY, parentKey + ":" + childKey);
       }
     }
     if (!childProps.containsKey(CoreProperties.PROJECT_NAME_PROPERTY)) {
       childProps.put(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
     }
     // For backward compatibility with ProjectDefinition
-    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.getProperty(CoreProperties.MODULE_KEY_PROPERTY));
+    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.getProperty(MODULE_KEY_PROPERTY));
   }
 
   @VisibleForTesting
@@ -308,7 +313,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
         missing.append(mandatoryProperty);
       }
     }
-    String moduleKey = StringUtils.defaultIfBlank(props.getProperty(CoreProperties.MODULE_KEY_PROPERTY), props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
+    String moduleKey = StringUtils.defaultIfBlank(props.getProperty(MODULE_KEY_PROPERTY), props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
     if (missing.length() != 0) {
       throw new IllegalStateException("You must define the following mandatory properties for '" + (moduleKey == null ? "Unknown" : moduleKey) + "': " + missing);
     }
