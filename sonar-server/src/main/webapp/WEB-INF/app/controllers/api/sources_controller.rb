@@ -26,7 +26,7 @@ class Api::SourcesController < Api::RestController
     resource_id=params[:resource]
     if resource_id
       @resource=Project.by_key(resource_id)
-      if @resource.nil?
+      if @resource.nil? || @resource.last_snapshot.nil?
         rest_status_ko('Resource not found', 404)
         return
       end
