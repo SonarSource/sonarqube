@@ -92,8 +92,12 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
       if (ruleId != null) {
         Characteristic characteristic = characteristicsById.get(dto.getParentId());
         Rule rule = rulesById.get(ruleId);
-        RuleKey ruleKey = RuleKey.of(rule.getRepositoryKey(), rule.getKey());
-        dto.toRequirement(ruleKey, characteristic);
+        if (rule != null) {
+          RuleKey ruleKey = RuleKey.of(rule.getRepositoryKey(), rule.getKey());
+          dto.toRequirement(ruleKey, characteristic);
+        } else {
+          dto.toRequirement(null, characteristic);
+        }
       }
     }
   }
