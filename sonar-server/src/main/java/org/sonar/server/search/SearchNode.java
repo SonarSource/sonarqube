@@ -20,11 +20,14 @@
 
 package org.sonar.server.search;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.FileUtils;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.logging.ESLoggerFactory;
+import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -36,72 +39,72 @@ import java.io.File;
  * Manages the ElasticSearch Node instance used to connect to the index.
  * @since 4.1
  */
-public class SearchNode {
+public class SearchNode implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
+  private static final String INSTANCE_NAME = "sonarqube";
+  static final String DATA_DIR = "data/es";
 
-  private String nodeDir;
-  private Settings settings;
+  private final ServerFileSystem fileSystem;
+  private final Settings settings;
 
-  private ImmutableSettings.Builder nodeSettingsBuilder;
-  private NodeBuilder nodeBuilder;
-
+  // available only after startup
   private Node node;
 
   public SearchNode(ServerFileSystem fileSystem, Settings settings) {
-    this(fileSystem, settings, ImmutableSettings.builder(), NodeBuilder.nodeBuilder());
-  }
-
-  @VisibleForTesting
-  SearchNode(ServerFileSystem fileSystem, Settings settings, ImmutableSettings.Builder nodeSettingsBuilder, NodeBuilder nodeBuilder) {
-    File homeDataDir = new File(fileSystem.getHomeDir(), "data");
-    if (! homeDataDir.exists() || ! homeDataDir.isDirectory()) {
-      throw new IllegalStateException("Data directory not found in SonarQube home.");
-    }
-    File nodeDirectory = new File(homeDataDir, "es");
-    if (! nodeDirectory.exists()) {
-      nodeDirectory.mkdir();
-    }
-
-    this.nodeDir = nodeDirectory.getAbsolutePath();
+    this.fileSystem = fileSystem;
     this.settings = settings;
-    this.nodeSettingsBuilder = nodeSettingsBuilder;
-    this.nodeBuilder = nodeBuilder;
   }
 
+  @Override
   public void start() {
+    LOG.info("Starting Elasticsearch...");
 
+    initLogging();
+    ImmutableSettings.Builder esSettings = ImmutableSettings.builder().put("node.name", INSTANCE_NAME);
+    initDirs(esSettings);
+    initRestConsole(esSettings);
 
-    LOG.info("Starting {} in {}", this.getClass().getSimpleName(), nodeDir);
-    nodeSettingsBuilder
-      .put("node.name", "sonarqube")
-      .put("path.home", nodeDir);
-
-    String httpHost = settings.getString("sonar.es.http.host");
-    String httpPort = settings.getString("sonar.es.http.port");
-    if (httpPort == null) {
-      LOG.info("HTTP access to search cache disabled");
-      nodeSettingsBuilder.put("http.enabled", false);
-    } else {
-      if (httpHost == null) {
-        httpHost = "127.0.0.1";
-      }
-      LOG.info("Enabling HTTP access to search cache on ports {}", httpPort);
-      nodeSettingsBuilder.put("http.enabled", true);
-      nodeSettingsBuilder.put("http.host", httpHost);
-      nodeSettingsBuilder.put("http.port", httpPort);
-    }
-
-    node = nodeBuilder
+    node = NodeBuilder.nodeBuilder()
+      .clusterName(INSTANCE_NAME)
       .local(true)
-      .clusterName("sonarqube")
       .data(true)
-      .settings(nodeSettingsBuilder)
+      .settings(esSettings)
       .node();
+    node.start();
+    LOG.info("Elasticsearch started");
   }
 
+  private void initLogging() {
+    ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
+  }
+
+  private void initRestConsole(ImmutableSettings.Builder esSettings) {
+    int httpPort = settings.getInt("sonar.es.http.port");
+    if (httpPort > 0) {
+      LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
+      esSettings.put("http.enabled", true);
+      esSettings.put("http.host", "127.0.0.1");
+      esSettings.put("http.port", httpPort);
+    } else {
+      esSettings.put("http.enabled", false);
+    }
+  }
+
+  private void initDirs(ImmutableSettings.Builder esSettings) {
+    File esDir = new File(fileSystem.getHomeDir(), DATA_DIR);
+    try {
+      FileUtils.forceMkdir(esDir);
+      esSettings.put("path.home", esDir.getAbsolutePath());
+      LOG.debug("Elasticsearch data stored in {}", esDir.getAbsolutePath());
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to create directory " + esDir.getAbsolutePath(), e);
+    }
+  }
+
+  @Override
   public void stop() {
-    if(node != null) {
+    if (node != null) {
       node.close();
       node = null;
     }
@@ -109,7 +112,7 @@ public class SearchNode {
 
   public Client client() {
     if (node == null) {
-      throw new IllegalStateException(this.getClass().getSimpleName() + " not started");
+      throw new IllegalStateException("Elasticsearch is not started");
     }
     return node.client();
   }

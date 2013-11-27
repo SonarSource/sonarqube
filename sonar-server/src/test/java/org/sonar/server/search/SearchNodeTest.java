@@ -17,116 +17,97 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.search;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.client.ClusterAdminClient;
+import org.elasticsearch.cluster.ClusterState;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SearchNodeTest {
 
-  private ServerFileSystem fileSystem;
-  private Settings settings;
-  private ImmutableSettings.Builder settingsBuilder;
-  private NodeBuilder nodeBuilder;
-  private SearchNode searchNode;
+  ServerFileSystem fs;
+  File homedir;
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
-  public void createMocks() {
-    fileSystem = mock(ServerFileSystem.class);
-    File tempHome = TestUtils.getTestTempDir(getClass(), "sonarHome");
-    when(fileSystem.getHomeDir()).thenReturn(tempHome);
-
-    File tempES = new File(tempHome, "data/es");
-    tempES.mkdirs();
-
-    settings = mock(Settings.class);
-
-    settingsBuilder = mock(ImmutableSettings.Builder.class);
-    when(settingsBuilder.put(anyString(), anyString())).thenReturn(settingsBuilder);
-    when(settingsBuilder.put(anyString(), anyInt())).thenReturn(settingsBuilder);
-
-    nodeBuilder = mock(NodeBuilder.class);
-    when(nodeBuilder.local(anyBoolean())).thenReturn(nodeBuilder);
-    when(nodeBuilder.clusterName(anyString())).thenReturn(nodeBuilder);
-    when(nodeBuilder.data(anyBoolean())).thenReturn(nodeBuilder);
-    when(nodeBuilder.settings(settingsBuilder)).thenReturn(nodeBuilder);
-
-    searchNode = new SearchNode(fileSystem, settings, settingsBuilder, nodeBuilder);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void should_fail_if_no_data_dir() {
-    ServerFileSystem invalidFileSystem = mock(ServerFileSystem.class);
-    File tempHome = TestUtils.getTestTempDir(getClass(), "sonarHome");
-    when(invalidFileSystem.getHomeDir()).thenReturn(tempHome);
-    searchNode = new SearchNode(invalidFileSystem, null, null, null);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void should_fail_if_not_properly_started() {
-    searchNode.stop();
-    searchNode.client();
+  public void createMocks() throws IOException {
+    homedir = temp.newFolder();
+    fs = mock(ServerFileSystem.class);
+    when(fs.getHomeDir()).thenReturn(homedir);
   }
 
   @Test
-  public void should_manage_node_without_http() {
-    Node node = mock(Node.class);
-    Client client = mock(Client.class);
+  public void start_and_stop_es_node() throws Exception {
+    File dataDir = new File(homedir, SearchNode.DATA_DIR);
+    assertThat(dataDir).doesNotExist();
 
-    when(nodeBuilder.node()).thenReturn(node);
-    when(node.client()).thenReturn(client);
+    SearchNode node = new SearchNode(fs, new Settings());
+    node.start();
 
-    searchNode.start();
-    assertThat(searchNode.client()).isEqualTo(client);
-    searchNode.stop();
+    ClusterAdminClient cluster = node.client().admin().cluster();
+    ClusterState state = cluster.state(cluster.prepareState().request()).actionGet().getState();
+    assertThat(state.getNodes().size()).isEqualTo(1);
+    assertThat(state.getNodes().getMasterNode().isDataNode()).isTrue();
+    assertThat(dataDir).exists().isDirectory();
 
-    verify(settingsBuilder).put("http.enabled", false);
-    verify(nodeBuilder).node();
-    verify(node).client();
-    verify(node).close();
+    // REST console is disabled by default
+    assertThat(state.getMetaData().settings().get("http.port")).isNull();
+
+    node.stop();
+
+    // data dir is persistent
+    assertThat(dataDir).exists().isDirectory();
   }
 
   @Test
-  public void should_initialize_node_with_http() {
-    String httpHost = "httpHost";
-    String httpPort = "httpPort";
-    when(settings.getString("sonar.es.http.host")).thenReturn(httpHost);
-    when(settings.getString("sonar.es.http.port")).thenReturn(httpPort);
-
-    searchNode.start();
-
-    verify(settingsBuilder).put("http.enabled", true);
-    verify(settingsBuilder).put("http.host", httpHost);
-    verify(settingsBuilder).put("http.port", httpPort);
+  public void should_fail_to_get_client_if_not_started() {
+    SearchNode node = new SearchNode(fs, new Settings());
+    try {
+      node.client();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Elasticsearch is not started");
+    }
   }
 
   @Test
-  public void should_initialize_node_with_http_on_localhost() {
-    String httpPort = "httpPort";
-    when(settings.getString("sonar.es.http.port")).thenReturn(httpPort);
+  public void should_enable_rest_console() throws Exception {
+    Settings settings = new Settings();
+    int httpPort = NetworkUtils.freePort();
+    settings.setProperty("sonar.es.http.port", httpPort);
+    SearchNode node = new SearchNode(fs, settings);
+    node.start();
 
-    searchNode.start();
+    URL url = URI.create("http://localhost:" + httpPort).toURL();
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.connect();
+    assertThat(connection.getResponseCode()).isEqualTo(200);
 
-    verify(settingsBuilder).put("http.enabled", true);
-    verify(settingsBuilder).put("http.host", "127.0.0.1");
-    verify(settingsBuilder).put("http.port", httpPort);
+    node.stop();
+    connection = (HttpURLConnection) url.openConnection();
+    try {
+      connection.connect();
+      fail();
+    } catch (Exception e) {
+      // ok, console is down
+    }
   }
 }
