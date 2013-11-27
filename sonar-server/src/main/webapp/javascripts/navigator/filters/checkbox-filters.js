@@ -20,7 +20,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     renderValue: function() {
-      return (this.model.get('value') || false) ? 'Yes' : 'No';
+      return this.model.get('value') || false;
     },
 
 
