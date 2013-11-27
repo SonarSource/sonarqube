@@ -42,7 +42,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_enabled_characteristics() {
-    setupData("select_enabled_characteristics");
+    setupData("shared");
 
     List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
 
@@ -110,6 +110,44 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(dtos.get(0).getKey()).isEqualTo("TESTABILITY");
     assertThat(dtos.get(1).getKey()).isEqualTo("PORTABILITY");
     assertThat(dtos.get(2).getKey()).isEqualTo("MAINTAINABILITY");
+  }
+
+  @Test
+  public void select_requirement() {
+    setupData("shared");
+
+    CharacteristicDto dto = dao.selectRequirement(1);
+
+    assertThat(dto).isNotNull();
+    assertThat(dto.getId()).isEqualTo(3);
+    assertThat(dto.getParentId()).isEqualTo(2);
+  }
+
+  @Test
+  public void select_characteristic_by_key() {
+    setupData("shared");
+
+    CharacteristicDto dto = dao.selectCharacteristic("COMPILER_RELATED_PORTABILITY");
+    assertThat(dto).isNotNull();
+    assertThat(dto.getId()).isEqualTo(2);
+    assertThat(dto.getParentId()).isEqualTo(1);
+
+    dto = dao.selectCharacteristic("PORTABILITY");
+    assertThat(dto).isNotNull();
+    assertThat(dto.getId()).isEqualTo(1);
+    assertThat(dto.getParentId()).isNull();
+
+    assertThat(dao.selectCharacteristic("UNKNOWN")).isNull();
+  }
+
+  @Test
+  public void select_characteristic_by_id() {
+    setupData("shared");
+
+    assertThat(dao.selectCharacteristic(2)).isNotNull();
+    assertThat(dao.selectCharacteristic(1)).isNotNull();
+
+    assertThat(dao.selectCharacteristic(10)).isNull();
   }
 
   @Test

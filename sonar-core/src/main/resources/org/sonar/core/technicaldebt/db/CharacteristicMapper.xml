@@ -40,6 +40,33 @@
     order by characteristic_order asc
   </select>
 
+  <select id="selectCharacteristicByKey" parameterType="String" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.kee=#{key}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectCharacteristicById" parameterType="Integer" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.id=#{id}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectRequirementByRuleId" parameterType="Integer" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.rule_id=#{ruleId}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO characteristics (kee, name, parent_id, characteristic_order,
     rule_id, function_key, factor_value, factor_unit, offset_value, offset_unit,

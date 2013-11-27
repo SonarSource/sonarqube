@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
@@ -70,4 +71,12 @@ public class InternalRubyTechnicalDebtServiceTest {
     when(finder.findRootCharacteristics()).thenReturn(model);
     assertThat(service.findRootCharacteristics()).isEqualTo(model);
   }
+
+  @Test
+  public void find_requirement() {
+    Requirement requirement = new Requirement();
+    when(finder.findRequirement(1)).thenReturn(requirement);
+    assertThat(service.findRequirement(1)).isEqualTo(requirement);
+  }
+
 }

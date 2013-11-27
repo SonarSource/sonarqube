@@ -1,4 +1,8 @@
 <div>
-  <%= @requirement.parent.parent.name %>&nbsp;&gt;&nbsp;<%= @requirement.parent.name %>
+  <%
+     characteristic = @requirement.characteristic
+     root_characteristic = characteristic.parent
+  %>
+  <%= root_characteristic.name %>&nbsp;&gt;&nbsp;<%= characteristic.name %>
 </div>
 

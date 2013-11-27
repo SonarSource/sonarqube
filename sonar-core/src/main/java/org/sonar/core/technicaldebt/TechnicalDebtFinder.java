@@ -28,6 +28,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -63,6 +64,17 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
     List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
     addRootCharacteristics(model, dtos, Maps.<Integer, Characteristic>newHashMap());
     return model;
+  }
+
+  public Requirement findRequirement(Integer ruleId) {
+    Rule rule = ruleFinder.findById(ruleId);
+    CharacteristicDto requirementDto = dao.selectRequirement(ruleId);
+    CharacteristicDto characteristicDto = dao.selectCharacteristic(requirementDto.getParentId());
+    CharacteristicDto rootCharacteristicDto = dao.selectCharacteristic(characteristicDto.getParentId());
+
+    Characteristic rootCharacteristic = rootCharacteristicDto.toCharacteristic(null);
+    Characteristic characteristic = characteristicDto.toCharacteristic(rootCharacteristic);
+    return requirementDto.toRequirement(RuleKey.of(rule.getRepositoryKey(), rule.getKey()), characteristic);
   }
 
   private void addRootCharacteristics(TechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, Characteristic> characteristicsById){
