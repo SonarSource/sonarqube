@@ -1,0 +1,9 @@
+<% if logged_in? %>
+  {
+  <% current_user.favourited_measure_filters.each do |filter| %>
+    '<%= h filter.id -%>': '<%= h filter.name -%>',
+  <% end %>
+  }
+<% else %>
+  null
+<% end %>

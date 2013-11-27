@@ -58,6 +58,14 @@
 .navigator-filter-optional {
   padding-right: 0;
 }
+.navigator-filter-inline {
+  cursor: default;
+}
+.navigator-filter-inline:hover,
+.navigator-filter-inline.active {
+  border-color: transparent;
+  background: transparent;
+}
 .navigator-filter-label {
   display: inline-block;
   vertical-align: middle;

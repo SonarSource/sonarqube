@@ -103,12 +103,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           paramTo = _.findWhere(q, { key: this.model.get('propertyTo') }),
           value = {};
 
-      if (paramFrom.value || paramTo.value) {
-        if (paramFrom.value) {
+      if ((paramFrom && paramFrom.value) || (paramTo && paramTo.value)) {
+        if (paramFrom && paramFrom.value) {
           value[this.model.get('propertyFrom')] = paramFrom.value;
         }
 
-        if (paramTo.value) {
+        if (paramTo && paramTo.value) {
           value[this.model.get('propertyTo')] = paramTo.value;
         }
 

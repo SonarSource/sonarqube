@@ -16,12 +16,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     applyFavorite: function(e) {
       var id = $j(e.target).data('id');
-      window.location = baseUrl + '/issues/filter/' + id;
+      window.location = baseUrl + this.model.get('favoriteUrl') + '/' + id;
     },
 
 
     manage: function() {
-      window.location = baseUrl + '/issues/manage';
+      window.location = baseUrl + this.model.get('manageUrl');
     }
 
   });

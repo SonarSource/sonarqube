@@ -23,7 +23,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           type: window.SS.FavoriteFilterView,
           enabled: true,
           optional: false,
-          choices: window.SS.favorites
+          choices: window.SS.favorites,
+          favoriteUrl: '/issues/filter',
+          manageUrl: '/issues/manage'
         })]);
     }
 

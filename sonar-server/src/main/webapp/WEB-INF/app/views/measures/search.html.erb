@@ -48,8 +48,25 @@
   };
 
 
+  _.extend(window.SS, {
+    languages: <%= render :partial => 'measures/languages' -%>,
+    favorites: <%= render :partial => 'measures/favourites2' -%>
+  });
+
+
   var queryParams = [
     { key: 'qualifiers[]', value: <%= @filter.criteria['qualifiers'].to_json -%> },
+    { key: 'alertLevels[]', value: <%= @filter.criteria['alertLevels'].to_json -%> },
+    { key: 'fromDate', value: '<%= h @filter.criteria['fromDate'] -%>' },
+    { key: 'toDate', value: '<%= h @filter.criteria['toDate'] -%>' },
+    { key: 'ageMinDays', value: '<%= h @filter.criteria('ageMinDays') -%>' },
+    { key: 'ageMaxDays', value: '<%= h @filter.criteria['ageMaxDays'] -%>' },
+    <% if @filter.base_resource %>
+    { key: 'base', value: ['<%= h @filter.base_resource.key -%>'], text: ['<%= h @filter.base_resource.name(true) -%>'] },
+    <% end %>
+    { key: 'onFavourites', value: <%= @filter.criteria['onFavourites']=='true' -%> },
+    { key: 'keySearch', value: '<%= h @filter.criteria['keySearch'] -%>' },
+    { key: 'languages[]', value: <%= @filter.criteria['languages'].to_json -%> }
   ];
 
   window.SS.MeasuresNavigatorApp.start();

@@ -48,6 +48,22 @@
   </div>
 </script>
 
+<script id="checkboxFilterTemplate" type="text/template">
+  <div class="navigator-filter-label">{{ name }}</div>
+  <div class="navigator-filter-value">
+    <input type="checkbox" name="{{ property }}" value="true" {[ if (value) { ]}checked{[ } ]}>
+  </div>
+  {[ if (optional) { ]}
+  <div class="navigator-filter-disable">&times;</div>
+  {[ } ]}
+</script>
+
+<script id="stringFilterTemplate" type="text/template">
+  <div class="navigator-filter-details-inner">
+    <input type="text" name="{{ property }}" value="{{ value }}">
+  </div>
+</script>
+
 <script id="favoriteFilterTemplate" type="text/template">
   <div class="navigator-filter-favorite-toggle"></div>
 </script>

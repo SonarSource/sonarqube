@@ -4,7 +4,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 (function() {
 
-  var Filter = Backbone.Model.extend({});
+  var Filter = Backbone.Model.extend({
+
+    defaults: {
+      multiple: true
+    }
+
+  });
 
 
 

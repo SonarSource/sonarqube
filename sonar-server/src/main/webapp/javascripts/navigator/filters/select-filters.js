@@ -52,8 +52,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       var id = $j(e.target).val(),
           model = this.options.filterView.choices.findWhere({ id: id });
 
-      this.options.filterView.selection.add(model);
-      this.options.filterView.choices.remove(model);
+      if (this.model.get('multiple')) {
+        this.options.filterView.selection.add(model);
+        this.options.filterView.choices.remove(model);
+      } else {
+        this.options.filterView.choices.add(this.options.filterView.selection.models);
+        this.options.filterView.selection.reset([model]);
+      }
 
       this.updateValue();
       this.updateLists();
@@ -232,9 +237,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     renderValue: function() {
       var value = this.selection.map(function(item) {
             return item.get('text');
-          });
+          }),
+          defaultValue = this.model.get('multiple') ? 'All' : 'Any';
 
-      return this.isDefaultValue() ? 'All' : value.join(', ');
+      return this.isDefaultValue() ? defaultValue : value.join(', ');
     },
 
 
