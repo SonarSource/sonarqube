@@ -132,18 +132,17 @@ public class TechnicalDebtFinderTest {
 
   @Test
   public void find_requirement() throws Exception {
-    Integer ruleId = 1;
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(1);
 
-    when(dao.selectRequirement(ruleId)).thenReturn(
+    when(dao.selectRequirement(rule.getId())).thenReturn(
       new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
     when(dao.selectCharacteristic(2)).thenReturn(
       new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1));
     when(dao.selectCharacteristic(1)).thenReturn(
       new CharacteristicDto().setId(1).setKey("PORTABILITY"));
 
-    when(ruleFinder.findById(ruleId)).thenReturn(Rule.create("repo", "key"));
-
-    Requirement result = finder.findRequirement(1);
+    Requirement result = finder.findRequirement(rule);
 
     assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
     assertThat(result.characteristic().key()).isEqualTo("COMPILER_RELATED_PORTABILITY");

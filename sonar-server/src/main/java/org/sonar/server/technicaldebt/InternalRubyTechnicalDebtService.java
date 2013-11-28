@@ -22,6 +22,7 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtModel;
@@ -49,8 +50,8 @@ public class InternalRubyTechnicalDebtService implements ServerComponent {
     return finder.findRootCharacteristics();
   }
 
-  public Requirement findRequirement(Integer ruleId){
-    return finder.findRequirement(ruleId);
+  public Requirement findRequirement(Rule rule){
+    return finder.findRequirement(rule);
   }
 
 }

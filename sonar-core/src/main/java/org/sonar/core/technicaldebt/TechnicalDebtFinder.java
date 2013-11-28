@@ -66,9 +66,8 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
     return model;
   }
 
-  public Requirement findRequirement(Integer ruleId) {
-    Rule rule = ruleFinder.findById(ruleId);
-    CharacteristicDto requirementDto = dao.selectRequirement(ruleId);
+  public Requirement findRequirement(Rule rule) {
+    CharacteristicDto requirementDto = dao.selectRequirement(rule.getId());
     CharacteristicDto characteristicDto = dao.selectCharacteristic(requirementDto.getParentId());
     CharacteristicDto rootCharacteristicDto = dao.selectCharacteristic(characteristicDto.getParentId());
 

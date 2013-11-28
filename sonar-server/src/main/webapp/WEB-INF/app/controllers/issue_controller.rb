@@ -207,8 +207,8 @@ class IssueController < ApplicationController
     @issue_results = Api.issues.find(params[:id])
     @issue = @issue_results.first()
 
-    rule_id = @issue_results.rule(@issue).id
-    @requirement = Internal.technical_debt.findRequirement(rule_id)
+    rule = @issue_results.rule(@issue)
+    @requirement = Internal.technical_debt.findRequirement(rule)
     render :partial => 'issue/technicaldebt'
   end
 
