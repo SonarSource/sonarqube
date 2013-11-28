@@ -26,6 +26,10 @@
       <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
     </th>
     <th class="left">
+      <%= message('projects_role.issueadmin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.issueadmin.desc') -%></span>
+    </th>
+    <th class="left">
       <%= message('projects_role.codeviewer') -%><br/>
       <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
     </th>
@@ -45,7 +49,7 @@
       <td valign="top"><b><%= h permission_template.name %></b><br/>
         <span class="small gray"><%= h permission_template.description -%></span>
       </td>
-      <% ['user', 'admin', 'codeviewer'].each do |permission| -%>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
         <td valign="top">
           <%
              users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission(permission).collect {|u| u.userName})
