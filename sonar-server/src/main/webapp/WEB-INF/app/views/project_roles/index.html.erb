@@ -3,7 +3,7 @@
 <div class="line-block marginbottom10">
   <ul class="operations">
     <li class="last">
-      <%= link_to message('projects_role.apply_template'), {:controller => :roles, :action => :apply_template_form, :components => [@project.id], :names => @project.name,
+      <%= link_to message('projects_role.apply_template'), {:controller => :roles, :action => :apply_template_form, :components => [@project.key], :names => @project.name,
                                                             :results_count => 1},
                   :id => "apply-template-#{u @project.kee}", :class => 'open-modal link-action' %>
     </li>
