@@ -46,7 +46,7 @@ public class RegisterPermissionTemplates {
   private final PersistentSettings settings;
 
   public RegisterPermissionTemplates(LoadedTemplateDao loadedTemplateDao, PermissionTemplateDao permissionTemplateDao,
-                                     UserDao userDao, PersistentSettings settings) {
+    UserDao userDao, PersistentSettings settings) {
     this.loadedTemplateDao = loadedTemplateDao;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
@@ -56,8 +56,8 @@ public class RegisterPermissionTemplates {
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Register permission templates");
 
-    if(shouldRegister()) {
-      if(hasExistingPermissionsConfig()) {
+    if (shouldRegister()) {
+      if (hasExistingPermissionsConfig()) {
         String projectsPermissionsKey = settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY);
         setDefaultProperty(projectsPermissionsKey);
       } else {
@@ -81,17 +81,18 @@ public class RegisterPermissionTemplates {
     PermissionTemplateDto defaultPermissionTemplate = permissionTemplateDao
       .createPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription());
     addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
+    addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
     addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
     addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
   }
 
   private void addGroupPermission(PermissionTemplateDto template, String permission, String groupName) {
     Long groupId;
-    if(DefaultGroups.isAnyone(groupName)) {
+    if (DefaultGroups.isAnyone(groupName)) {
       groupId = null;
     } else {
       GroupDto groupDto = userDao.selectGroupByName(groupName);
-      if(groupDto != null) {
+      if (groupDto != null) {
         groupId = groupDto.getId();
       } else {
         throw new IllegalArgumentException("Cannot setup default permission for group: " + groupName);
