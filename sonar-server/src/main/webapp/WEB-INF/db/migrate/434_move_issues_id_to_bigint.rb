@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.1
+# Sonar 3.7.4
 # SONAR-4926
 #
 class MoveIssuesIdToBigint < ActiveRecord::Migration
