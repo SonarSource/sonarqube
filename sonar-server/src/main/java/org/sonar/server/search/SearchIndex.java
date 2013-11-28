@@ -37,20 +37,23 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.Profiling.Level;
+import org.sonar.core.profiling.StopWatch;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static java.lang.String.format;
-
 public class SearchIndex {
 
+  private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
 
   private static final Settings INDEX_DEFAULT_SETTINGS = ImmutableSettings.builder()
@@ -63,9 +66,11 @@ public class SearchIndex {
 
   private SearchNode searchNode;
   private Client client;
+  private Profiling profiling;
 
-  public SearchIndex(SearchNode searchNode) {
+  public SearchIndex(SearchNode searchNode, Profiling profiling) {
     this.searchNode = searchNode;
+    this.profiling = profiling;
   }
 
   public void start() {
@@ -88,10 +93,9 @@ public class SearchIndex {
 
   private void internalPut(String index, String type, String id, BytesStream source, boolean refresh) {
     IndexRequestBuilder builder = client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh);
-    TimeProfiler profiler = newDebugProfiler();
-    profiler.start(format("put document with id '%s' with type '%s' into index '%s'", id, type, index));
+    StopWatch watch = createWatch();
     builder.execute().actionGet();
-    profiler.stop();
+    watch.stop("put document with id '%s' with type '%s' into index '%s'", id, type, index);
   }
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources) {
@@ -99,9 +103,8 @@ public class SearchIndex {
     for (int i=0; i<ids.length; i++) {
       builder.add(client.prepareIndex(index, type, ids[i]).setSource(sources[i].bytes()));
     }
-    TimeProfiler profiler = newDebugProfiler();
+    StopWatch watch = createWatch();
     try {
-      profiler.start(format("bulk index of %d documents with type '%s' into index '%s'", ids.length, type, index));
       BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
       if (bulkResponse.hasFailures()) {
         // Retry once per failed doc -- ugly
@@ -117,7 +120,7 @@ public class SearchIndex {
     } catch (ExecutionException e) {
       LOG.error("Execution of bulk operation failed", e);
     } finally {
-      profiler.stop();
+      watch.stop("bulk index of %d documents with type '%s' into index '%s'", ids.length, type, index);
     }
   }
 
@@ -135,10 +138,9 @@ public class SearchIndex {
 
   private void addMapping(String index, String type, String mapping) {
     IndicesAdminClient indices = client.admin().indices();
-    TimeProfiler profiler = newDebugProfiler();
+    StopWatch watch = createWatch();
     try {
       if (! indices.exists(new IndicesExistsRequest(index)).get().isExists()) {
-        profiler.start(format("create index '%s'", index));
         indices.prepareCreate(index)
           .setSettings(INDEX_DEFAULT_SETTINGS)
           .addMapping("_default_", INDEX_DEFAULT_MAPPING)
@@ -147,28 +149,25 @@ public class SearchIndex {
     } catch (Exception e) {
       LOG.error("While checking for index existence", e);
     } finally {
-      profiler.stop();
+      watch.stop("create index '%s'", index);
     }
 
-    profiler.start(format("put mapping on index '%s' for type '%s'", index, type));
+    watch = createWatch();
     try {
       indices.putMapping(Requests.putMappingRequest(index).type(type).source(mapping)).actionGet();
     } catch(ElasticSearchParseException parseException) {
       throw new IllegalArgumentException("Invalid mapping file", parseException);
     } finally {
-      profiler.stop();
+      watch.stop("put mapping on index '%s' for type '%s'", index, type);
     }
   }
 
   public List<String> findDocumentIds(SearchQuery searchQuery) {
     List<String> result = Lists.newArrayList();
     final int scrollTime = 100;
-    final String methodName = "findDocumentIds";
 
     SearchRequestBuilder builder = searchQuery.toBuilder(client);
-    LOG.debug(methodName + builder.internalBuilder().toString());
-    TimeProfiler profiler = newDebugProfiler();
-    profiler.start(methodName);
+    StopWatch watch = createWatch();
     SearchResponse scrollResp = builder.addField("_id")
             .setSearchType(SearchType.SCAN)
             .setScroll(new TimeValue(scrollTime))
@@ -184,9 +183,19 @@ public class SearchIndex {
         break;
       }
     }
-    profiler.stop();
+    watch.stop("findDocumentIds with request: %s", builderToString(builder));
 
     return result;
+  }
+
+  private String builderToString(SearchRequestBuilder builder) {
+    try {
+      return builder.internalBuilder().toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS)
+          .humanReadable(false).string();
+    } catch (IOException ioException) {
+      LOG.warn("Could not serialize request: " + builder.internalBuilder().toString(), ioException);
+      return "<IOException in serialize>";
+    }
   }
 
   public void bulkDelete(String index, String type, String[] ids) {
@@ -194,9 +203,8 @@ public class SearchIndex {
     for (int i=0; i<ids.length; i++) {
       builder.add(client.prepareDelete(index, type, ids[i]));
     }
-    TimeProfiler profiler = newDebugProfiler();
+    StopWatch watch = createWatch();
     try {
-      profiler.start(format("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index));
       BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
       if (bulkResponse.hasFailures()) {
         for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
@@ -211,13 +219,11 @@ public class SearchIndex {
     } catch (ExecutionException e) {
       LOG.error("Execution of bulk operation failed", e);
     } finally {
-      profiler.stop();
+      watch.stop("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index);
     }
   }
 
-  private TimeProfiler newDebugProfiler() {
-    TimeProfiler profiler = new TimeProfiler();
-    profiler.setLogger(LOG);
-    return profiler;
+  private StopWatch createWatch() {
+    return profiling.start(PROFILE_DOMAIN, Level.FULL);
   }
 }

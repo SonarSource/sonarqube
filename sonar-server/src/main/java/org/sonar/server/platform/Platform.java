@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.core.profiling.Profiling;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -164,6 +166,7 @@ public final class Platform {
     rootContainer.addSingleton(ServerSettings.class);
     rootContainer.addSingleton(ServerImpl.class);
     rootContainer.addSingleton(Logback.class);
+    rootContainer.addSingleton(Profiling.class);
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);

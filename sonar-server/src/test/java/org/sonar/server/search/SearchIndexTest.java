@@ -20,6 +20,9 @@
 
 package org.sonar.server.search;
 
+import org.sonar.api.config.Settings;
+
+import org.sonar.core.profiling.Profiling;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -50,7 +53,9 @@ public class SearchIndexTest {
     searchNode = mock(SearchNode.class);
     when(searchNode.client()).thenReturn(esSetup.client());
 
-    searchIndex = new SearchIndex(searchNode);
+    Settings settings = new Settings();
+    settings.setProperty("sonar.log.profilingLevel", "BASIC");
+    searchIndex = new SearchIndex(searchNode, new Profiling(settings));
     searchIndex.start();
   }
 

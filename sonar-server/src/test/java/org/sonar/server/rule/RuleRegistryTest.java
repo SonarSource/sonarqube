@@ -20,6 +20,9 @@
 
 package org.sonar.server.rule;
 
+import org.sonar.api.config.Settings;
+
+import org.sonar.core.profiling.Profiling;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -60,7 +63,10 @@ public class RuleRegistryTest {
 
     SearchNode node = mock(SearchNode.class);
     when(node.client()).thenReturn(esSetup.client());
-    searchIndex = new SearchIndex(node);
+    Settings settings = new Settings();
+    settings.setProperty("sonar.log.profilingLevel", "FULL");
+    Profiling profiling = new Profiling(settings);
+    searchIndex = new SearchIndex(node, profiling);
     searchIndex.start();
 
     registry = new RuleRegistry(searchIndex, ruleDao, ruleI18nManager);
