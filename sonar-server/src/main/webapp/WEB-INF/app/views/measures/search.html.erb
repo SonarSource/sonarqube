@@ -82,6 +82,7 @@
     { key: '<%= "c#{i}_val" -%>', value: '<%= h @filter.criteria("c#{i}_val") -%>' },
     <% end %>
 
+    { key: 'nameSearch', value: '<%= h @filter.criteria['nameSearch'] -%>' }
   ];
 
   window.SS.MeasuresNavigatorApp.start();

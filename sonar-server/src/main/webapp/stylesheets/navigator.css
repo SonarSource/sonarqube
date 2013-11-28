@@ -124,8 +124,9 @@
   max-width: 300px;
   padding: 5px 10px;
 }
-.navigator-filter-details-inner select {
-  display: block;
+.navigator-filter-details-inner .select2-container,
+.navigator-filter-details-inner input {
+  margin: 5px 0;
 }
 .navigator-filter-select-list {
   min-width: 150px;

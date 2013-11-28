@@ -29,9 +29,15 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     onRender: function() {
       var value = this.model.get('value') || {};
-      this.$('[name=metric]').val(value.metric);
-      this.$('[name=period]').val(value.period);
-      this.$('[name=op]').val(value.op);
+      this.$('[name=metric]').val(value.metric).select2({
+        width: '100%'
+      });
+      this.$('[name=period]').val(value.period).select2({
+        width: '100%'
+      });
+      this.$('[name=op]').val(value.op).select2({
+        width: '60px'
+      });
       this.$('[name=val]').val(value.val);
       this.inputChanged();
     }

@@ -57,6 +57,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         this.options.filterView.choices.remove(model);
       } else {
         this.options.filterView.choices.add(this.options.filterView.selection.models);
+        this.options.filterView.choices.remove(model);
         this.options.filterView.selection.reset([model]);
       }
 
