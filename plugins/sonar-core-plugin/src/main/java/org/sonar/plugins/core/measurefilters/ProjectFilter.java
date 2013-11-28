@@ -48,7 +48,7 @@ public class ProjectFilter extends FilterTemplate {
         .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
         .add(FilterColumn.create("version", null, FilterColumn.DESC, false))
         .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.TECHNICAL_DEBT_KEY, FilterColumn.DESC, false))
         .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }
