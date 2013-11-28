@@ -32,7 +32,13 @@ import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.ActionPlanStatsDao;
+import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -41,7 +47,11 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -58,9 +68,8 @@ public class ActionPlanService implements ServerComponent {
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
 
-
   public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao,
-                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
+    IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
@@ -197,7 +206,7 @@ public class ActionPlanService implements ServerComponent {
   }
 
   private void checkAuthorization(UserSession userSession, ResourceDto project, String requiredRole) {
-    if (!authorizationDao.isAuthorizedComponentId(project.getId(), userSession.userId(), requiredRole)) {
+    if (!authorizationDao.isAuthorizedComponentKey(project.getKey(), userSession.userId(), requiredRole)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role on the project: " + project.getKey());
     }

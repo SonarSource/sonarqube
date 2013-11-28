@@ -38,7 +38,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -119,7 +123,7 @@ public class DefaultIssue implements Issue {
   }
 
   /**
-   * The project key is not always populated, that's why it's not present is the Issue API
+   * The project key is not always populated, that's why it's not present in the Issue API
    */
   @CheckForNull
   public String projectKey() {
@@ -356,7 +360,7 @@ public class DefaultIssue implements Issue {
   }
 
   public Map<String, String> attributes() {
-    return attributes == null ? Collections.<String, String> emptyMap() : ImmutableMap.copyOf(attributes);
+    return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
   public DefaultIssue setAttributes(@Nullable Map<String, String> map) {
@@ -400,7 +404,6 @@ public class DefaultIssue implements Issue {
     addChange(currentChange);
     return this;
   }
-
 
   @CheckForNull
   public FieldDiffs currentChange() {

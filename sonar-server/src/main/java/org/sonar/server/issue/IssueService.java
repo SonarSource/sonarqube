@@ -19,9 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import org.sonar.core.preview.PreviewCache;
-
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -39,6 +38,7 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -47,6 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -98,20 +99,29 @@ public class IssueService implements ServerComponent {
    * <p/>
    * Never return null, but return an empty list if the issue does not exist.
    */
-  public List<Transition> listTransitions(String issueKey) {
+  public List<Transition> listTransitions(String issueKey, UserSession userSession) {
     Issue issue = loadIssue(issueKey).first();
-    return listTransitions(issue);
+    return listTransitions(issue, userSession);
   }
 
   /**
    * Never return null, but an empty list if the issue does not exist.
    * No security check is done since it should already have been done to get the issue
    */
-  public List<Transition> listTransitions(@Nullable Issue issue) {
+  public List<Transition> listTransitions(@Nullable Issue issue, UserSession userSession) {
     if (issue == null) {
       return Collections.emptyList();
     }
-    return workflow.outTransitions(issue);
+    List<Transition> outTransitions = workflow.outTransitions(issue);
+    List<Transition> allowedTransitions = new ArrayList<Transition>();
+    for (Transition transition : outTransitions) {
+      DefaultIssue defaultIssue = (DefaultIssue) issue;
+      if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
+        userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, defaultIssue.projectKey())) {
+        allowedTransitions.add(transition);
+      }
+    }
+    return allowedTransitions;
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
@@ -188,7 +198,7 @@ public class IssueService implements ServerComponent {
     if (resourceDto == null) {
       throw new IllegalArgumentException("Unknown component: " + issue.componentKey());
     }
-    if (!authorizationDao.isAuthorizedComponentId(resourceDto.getId(), userSession.userId(), UserRole.USER)) {
+    if (!authorizationDao.isAuthorizedComponentKey(issue.componentKey(), userSession.userId(), UserRole.USER)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");
     }

@@ -25,7 +25,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.*;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueFinder;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.rules.Rule;
@@ -39,7 +43,6 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
@@ -59,23 +62,20 @@ public class DefaultIssueFinder implements IssueFinder {
   private final MyBatis myBatis;
   private final IssueDao issueDao;
   private final IssueChangeDao issueChangeDao;
-  private final AuthorizationDao authorizationDao;
   private final DefaultRuleFinder ruleFinder;
   private final UserFinder userFinder;
   private final ResourceDao resourceDao;
   private final ActionPlanService actionPlanService;
 
   public DefaultIssueFinder(MyBatis myBatis,
-                            IssueDao issueDao, IssueChangeDao issueChangeDao,
-                            AuthorizationDao authorizationDao,
-                            DefaultRuleFinder ruleFinder,
-                            UserFinder userFinder,
-                            ResourceDao resourceDao,
-                            ActionPlanService actionPlanService) {
+    IssueDao issueDao, IssueChangeDao issueChangeDao,
+    DefaultRuleFinder ruleFinder,
+    UserFinder userFinder,
+    ResourceDao resourceDao,
+    ActionPlanService actionPlanService) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.issueChangeDao = issueChangeDao;
-    this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
     this.userFinder = userFinder;
     this.resourceDao = resourceDao;
@@ -87,7 +87,7 @@ public class DefaultIssueFinder implements IssueFinder {
     if (dto == null) {
       throw new IllegalStateException("Unknown issue: " + issueKey);
     }
-    if (!authorizationDao.isAuthorizedComponentId(dto.getComponentId(), UserSession.get().userId(), requiredRole)) {
+    if (!UserSession.get().hasProjectPermission(requiredRole, dto.getRootComponentKey())) {
       throw new IllegalStateException("User does not have the required role required to change the issue: " + issueKey);
     }
     return dto.toDefaultIssue();

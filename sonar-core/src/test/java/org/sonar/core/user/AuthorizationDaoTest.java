@@ -31,7 +31,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
   private static final int USER = 100;
-  private static final long PROJECT = 300l, PACKAGE = 301l, FILE = 302l, FILE_IN_OTHER_PROJECT = 999l, EMPTY_PROJECT=400l;
+  private static final String PROJECT = "pj-w-snapshot", PACKAGE = "pj-w-snapshot:package", FILE = "pj-w-snapshot:file", FILE_IN_OTHER_PROJECT = "another",
+    EMPTY_PROJECT = "pj-wo-snapshot";
 
   @Test
   public void user_should_be_authorized() {
@@ -39,15 +40,15 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("user_should_be_authorized");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    Set<String> componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // user does not have the role "admin"
-    componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE),
+    componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -58,15 +59,15 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("group_should_be_authorized");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    Set<String> componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
-    componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -77,15 +78,15 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("group_should_have_global_authorization");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    Set<String> componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
-    componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -95,59 +96,59 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("anonymous_should_be_authorized");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
+    Set<String> componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       null, "user");
 
     assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
-    componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+    componentIds = authorization.keepAuthorizedComponentKeys(
+      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
       null, "admin");
     assertThat(componentIds).isEmpty();
   }
 
   @Test
-  public void should_return_root_project_ids_for_user() {
-    setupData("should_return_root_project_ids_for_user");
+  public void should_return_root_project_keys_for_user() {
+    setupData("should_return_root_project_keys_for_user");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Collection<Long> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // user does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 
   @Test
-  public void should_return_root_project_ids_for_group() {
+  public void should_return_root_project_keys_for_group() {
     // but user is not in an authorized group
-    setupData("should_return_root_project_ids_for_group");
+    setupData("should_return_root_project_keys_for_group");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Collection<Long> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // user does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 
   @Test
-  public void should_return_root_project_ids_for_anonymous() {
-    setupData("should_return_root_project_ids_for_anonymous");
+  public void should_return_root_project_keys_for_anonymous() {
+    setupData("should_return_root_project_keys_for_anonymous");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Collection<Long> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(null, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // group does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(null, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 

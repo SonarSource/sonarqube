@@ -20,8 +20,6 @@
 
 package org.sonar.server.issue;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +41,7 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -58,7 +57,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -91,7 +89,7 @@ public class IssueServiceTest {
     when(userSession.userId()).thenReturn(10);
     when(userSession.login()).thenReturn("arthur");
 
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(true);
+    when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(true);
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
     when(issueQueryResult.first()).thenReturn(issue);
@@ -108,7 +106,7 @@ public class IssueServiceTest {
 
   @Test
   public void should_fail_to_load_issue() {
-    when(issueQueryResult.issues()).thenReturn(Collections.<Issue> emptyList());
+    when(issueQueryResult.issues()).thenReturn(Collections.<Issue>emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
     try {
@@ -130,7 +128,7 @@ public class IssueServiceTest {
     List<Transition> transitions = newArrayList(transition);
     when(workflow.outTransitions(issue)).thenReturn(transitions);
 
-    List<Transition> result = issueService.listTransitions("ABCD");
+    List<Transition> result = issueService.listTransitions("ABCD", userSession);
     assertThat(result).hasSize(1);
     assertThat(result.get(0)).isEqualTo(transition);
   }
@@ -140,7 +138,7 @@ public class IssueServiceTest {
     when(issueQueryResult.first()).thenReturn(null);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue()));
 
-    assertThat(issueService.listTransitions("ABCD")).isEmpty();
+    assertThat(issueService.listTransitions("ABCD", userSession)).isEmpty();
     verifyZeroInteractions(workflow);
   }
 
@@ -379,7 +377,7 @@ public class IssueServiceTest {
     assertThat(result.updateDate()).isNotNull();
 
     verify(issueStorage).save(manualIssue);
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
@@ -387,7 +385,7 @@ public class IssueServiceTest {
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+    when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(false);
 
     DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(ruleKey).setComponentKey("org.sonar.Sample");
     try {

@@ -222,7 +222,8 @@
 
   <sql id="selectQueryConditions">
     <if test="componentRootKeys.size() == 0 and role != null">
-      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
+      inner join projects root_project on root_project.id=i.root_component_id and root_project.enabled=${_true}
+      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsKeysQuery" />) authorizedProjects on authorizedProjects.root_project_kee=root_project.kee
     </if>
     <if test="componentRootKeys.size() > 0">
       inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectAuthorizedChildrenComponentIdsQuery" />) authorizedComponents on authorizedComponents.project_id=i.component_id

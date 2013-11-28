@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 
 import java.util.List;
@@ -83,23 +84,26 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
 
-        // resolve as false-positive
+      // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
 
-        // automatic transitions
+      // automatic transitions
 
-        // Close the "end of life" issues (disabled/deleted rule, deleted component)
+      // Close the "end of life" issues (disabled/deleted rule, deleted component)
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
         .conditions(new IsEndOfLife(true))

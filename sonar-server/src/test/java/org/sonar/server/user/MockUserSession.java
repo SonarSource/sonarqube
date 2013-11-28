@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import com.google.common.collect.HashMultimap;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -32,7 +33,7 @@ public class MockUserSession extends UserSession {
 
   private MockUserSession() {
     globalPermissions = Collections.emptyList();
-    projectIdByPermission = HashMultimap.create();
+    projectKeyByPermission = HashMultimap.create();
   }
 
   public static MockUserSession set() {
@@ -65,9 +66,9 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
-  public MockUserSession addProjectPermissions(String projectPermission, Long... projectIds) {
+  public MockUserSession addProjectPermissions(String projectPermission, String... projectKeys) {
     this.projectPermissions.add(projectPermission);
-    this.projectIdByPermission.putAll(projectPermission, newArrayList(projectIds));
+    this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
     return this;
   }
 }

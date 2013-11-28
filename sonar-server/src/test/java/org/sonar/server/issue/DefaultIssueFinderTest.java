@@ -40,7 +40,6 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.DefaultUser;
 
 import java.util.Collections;
@@ -52,21 +51,22 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultIssueFinderTest {
 
   MyBatis mybatis = mock(MyBatis.class);
   IssueDao issueDao = mock(IssueDao.class);
   IssueChangeDao issueChangeDao = mock(IssueChangeDao.class);
-  AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
   ActionPlanService actionPlanService = mock(ActionPlanService.class);
   UserFinder userFinder = mock(UserFinder.class);
-  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, userFinder, resourceDao, actionPlanService);
+  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService);
 
   @Test
   public void should_find_issues() {
@@ -252,7 +252,7 @@ public class DefaultIssueFinderTest {
     when(userFinder.findByLogins(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(
       new DefaultUser().setLogin("perceval").setName("Perceval"),
       new DefaultUser().setLogin("arthur").setName("Roi Arthur")
-    ));
+      ));
 
     IssueQuery query = IssueQuery.builder().build();
 
@@ -295,8 +295,7 @@ public class DefaultIssueFinderTest {
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN")
-      .setTechnicalDebt(10L)
-      ;
+      .setTechnicalDebt(10L);
     List<IssueDto> dtoList = newArrayList(issue);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 

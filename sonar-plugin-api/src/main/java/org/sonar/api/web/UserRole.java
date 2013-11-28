@@ -40,6 +40,7 @@ public @interface UserRole {
   String USER = "user";
   String ADMIN = "admin";
   String CODEVIEWER = "codeviewer";
+  String ISSUE_ADMIN = "issueadmin";
 
   String[] value() default {};
 

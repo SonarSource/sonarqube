@@ -27,7 +27,11 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -39,58 +43,58 @@ public class AuthorizationDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Set<Long> keepAuthorizedComponentIds(Set<Long> componentIds, @Nullable Integer userId, String role) {
+  public Set<String> keepAuthorizedComponentKeys(Set<String> componentKeys, @Nullable Integer userId, String role) {
     SqlSession session = mybatis.openSession();
     try {
-      return keepAuthorizedComponentIds(componentIds, userId, role, session);
+      return keepAuthorizedComponentKeys(componentKeys, userId, role, session);
 
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Set<Long> keepAuthorizedComponentIds(Set<Long> componentIds, @Nullable Integer userId, String role, SqlSession session) {
-    if (componentIds.isEmpty()) {
+  public Set<String> keepAuthorizedComponentKeys(Set<String> componentKeys, @Nullable Integer userId, String role, SqlSession session) {
+    if (componentKeys.isEmpty()) {
       return Collections.emptySet();
     }
     String sql;
     Map<String, Object> params;
     if (userId == null) {
-      sql = "keepAuthorizedComponentIdsForAnonymous";
-      params = ImmutableMap.of("role", role, "componentIds", componentIds);
+      sql = "keepAuthorizedComponentKeysForAnonymous";
+      params = ImmutableMap.of("role", role, "componentKeys", componentKeys);
     } else {
-      sql = "keepAuthorizedComponentIdsForUser";
-      params = ImmutableMap.of("userId", userId, "role", role, "componentIds", componentIds);
+      sql = "keepAuthorizedComponentKeysForUser";
+      params = ImmutableMap.of("userId", userId, "role", role, "componentKeys", componentKeys);
     }
 
-    return Sets.newHashSet(session.<Long>selectList(sql, params));
+    return Sets.newHashSet(session.<String>selectList(sql, params));
   }
 
-  public boolean isAuthorizedComponentId(long componentId, @Nullable Integer userId, String role) {
-    return keepAuthorizedComponentIds(Sets.newHashSet(componentId), userId, role).size() == 1;
+  public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
+    return keepAuthorizedComponentKeys(Sets.newHashSet(componentKey), userId, role).size() == 1;
   }
 
-  public Collection<Long> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
+  public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectAuthorizedRootProjectsIds(userId, role, session);
+      return selectAuthorizedRootProjectsKeys(userId, role, session);
 
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<Long> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
+  public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role, SqlSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
-    sql = "selectAuthorizedRootProjectsIds";
+    sql = "selectAuthorizedRootProjectsKeys";
     params.put("userId", userId);
     params.put("role", role);
 
     return session.selectList(sql, params);
   }
 
-  public List<String> selectGlobalPermissions(@Nullable String userLogin){
+  public List<String> selectGlobalPermissions(@Nullable String userLogin) {
     SqlSession session = mybatis.openSession();
     try {
       Map<String, Object> params = newHashMap();

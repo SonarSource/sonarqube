@@ -32,7 +32,13 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.ActionPlanStatsDao;
+import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -45,7 +51,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ActionPlanServiceTest {
 
@@ -64,7 +76,7 @@ public class ActionPlanServiceTest {
   public void before() {
     when(userSession.isLoggedIn()).thenReturn(true);
     when(userSession.userId()).thenReturn(10);
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(true);
+    when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(true);
 
     actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage);
   }
@@ -76,14 +88,14 @@ public class ActionPlanServiceTest {
 
     actionPlanService.create(actionPlan, userSession);
     verify(actionPlanDao).save(any(ActionPlanDto.class));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
   public void should_create_required_admin_role() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+    when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(false);
 
     try {
       actionPlanService.create(actionPlan, userSession);
@@ -91,7 +103,7 @@ public class ActionPlanServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role on the project: org.sonar.Sample");
     }
-    verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(eq("org.sonar.Sample"), eq(10), eq(UserRole.ADMIN));
     verifyZeroInteractions(actionPlanDao);
   }
 
@@ -105,7 +117,7 @@ public class ActionPlanServiceTest {
 
     assertThat(result).isNotNull();
     assertThat(result.status()).isEqualTo("CLOSED");
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -115,7 +127,7 @@ public class ActionPlanServiceTest {
 
     actionPlanService.update(actionPlan, userSession);
     verify(actionPlanDao).update(any(ActionPlanDto.class));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -124,7 +136,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -139,7 +151,7 @@ public class ActionPlanServiceTest {
     ArgumentCaptor<DefaultIssue> captor = ArgumentCaptor.forClass(DefaultIssue.class);
     actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.ADMIN));
     verify(issueUpdater).plan(captor.capture(), eq((ActionPlan) null), any(IssueChangeContext.class));
     verify(issueStorage).save(newArrayList(captor.getAllValues()));
   }
@@ -152,7 +164,7 @@ public class ActionPlanServiceTest {
     ActionPlan result = actionPlanService.findByKey("ABCD", userSession);
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("ABCD");
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
@@ -176,14 +188,14 @@ public class ActionPlanServiceTest {
     Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_find_open_by_project_key_required_user_role() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+    when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(false);
 
     try {
       actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
@@ -191,7 +203,7 @@ public class ActionPlanServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role on the project: org.sonar.Sample");
     }
-    verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.USER));
+    verify(authorizationDao).isAuthorizedComponentKey(eq("org.sonar.Sample"), eq(10), eq(UserRole.USER));
     verifyZeroInteractions(actionPlanDao);
   }
 
@@ -208,7 +220,7 @@ public class ActionPlanServiceTest {
 
     Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.USER));
   }
 
   @Test(expected = IllegalArgumentException.class)

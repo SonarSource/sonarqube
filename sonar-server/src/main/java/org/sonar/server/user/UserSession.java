@@ -56,7 +56,7 @@ public class UserSession {
   private Locale locale = Locale.ENGLISH;
   List<String> globalPermissions = null;
 
-  HashMultimap<String, Long> projectIdByPermission = HashMultimap.create();
+  HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
@@ -137,8 +137,8 @@ public class UserSession {
   /**
    * Ensures that user implies the specified project permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
-  public UserSession checkProjectPermission(String projectPermission, Long componentId) {
-    if (!hasProjectPermission(projectPermission, componentId)) {
+  public UserSession checkProjectPermission(String projectPermission, String projectKey) {
+    if (!hasProjectPermission(projectPermission, projectKey)) {
       throw new ForbiddenException("Insufficient privileges");
     }
     return this;
@@ -147,15 +147,15 @@ public class UserSession {
   /**
    * Does the user have the given project permission ?
    */
-  public boolean hasProjectPermission(String permission, Long componentId) {
+  public boolean hasProjectPermission(String permission, String projectKey) {
     if (!projectPermissions.contains(permission)) {
-      Collection<Long> projectIds = authorizationDao().selectAuthorizedRootProjectsIds(userId, permission);
-      for (Long id : projectIds) {
-        projectIdByPermission.put(permission, id);
+      Collection<String> projectKeys = authorizationDao().selectAuthorizedRootProjectsKeys(userId, permission);
+      for (String key : projectKeys) {
+        projectKeyByPermission.put(permission, key);
       }
       projectPermissions.add(permission);
     }
-    return projectIdByPermission.get(permission).contains(componentId);
+    return projectKeyByPermission.get(permission).contains(projectKey);
   }
 
   AuthorizationDao authorizationDao() {

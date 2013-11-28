@@ -103,29 +103,29 @@ public class UserSessionTest {
   public void has_project_permission() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(10L));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
 
-    assertThat(session.hasProjectPermission(UserRole.USER, 10L)).isTrue();
-    assertThat(session.hasProjectPermission(UserRole.CODEVIEWER, 10L)).isFalse();
-    assertThat(session.hasProjectPermission(UserRole.ADMIN, 10L)).isFalse();
+    assertThat(session.hasProjectPermission(UserRole.USER, "com.foo:Bar")).isTrue();
+    assertThat(session.hasProjectPermission(UserRole.CODEVIEWER, "com.foo:Bar")).isFalse();
+    assertThat(session.hasProjectPermission(UserRole.ADMIN, "com.foo:Bar")).isFalse();
   }
 
   @Test
   public void check_project_permission_ok() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(10L));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
 
-    session.checkProjectPermission(UserRole.USER, 10L);
+    session.checkProjectPermission(UserRole.USER, "com.foo:Bar");
   }
 
   @Test(expected = ForbiddenException.class)
   public void check_project_permission_ko() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsIds(1, UserRole.USER)).thenReturn(newArrayList(11L));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar2"));
 
-    session.checkProjectPermission(UserRole.USER, 10L);
+    session.checkProjectPermission(UserRole.USER, "com.foo:Bar");
   }
 
   static class SpyUserSession extends UserSession {

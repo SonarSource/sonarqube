@@ -50,7 +50,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class InternalPermissionServiceTest {
 
@@ -78,7 +81,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void return_global_permissions()  {
+  public void return_global_permissions() {
     assertThat(service.globalPermissions()).containsOnly(
       GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN, GlobalPermissions.DASHBOARD_SHARING,
       GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
@@ -101,7 +104,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.addPermission(params);
 
@@ -125,7 +128,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.removePermission(params);
 
@@ -149,7 +152,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
     setUpGlobalGroupPermissions("group", "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.addPermission(params);
 
@@ -171,7 +174,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.addPermission(params);
 
@@ -195,7 +198,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.removePermission(params);
 
@@ -219,7 +222,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions(DefaultGroups.ANYONE, 10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.removePermission(params);
 
@@ -242,8 +245,8 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
-    setUpComponentUserPermissions("user",  10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    setUpComponentUserPermissions("user", 10L, "codeviewer");
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.addPermission(params);
 
@@ -267,7 +270,7 @@ public class InternalPermissionServiceTest {
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     service.addPermission(params);
 
@@ -352,9 +355,18 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void apply_permission_template_on_many_projects() throws Exception {
+    ComponentDto c1 = mock(ComponentDto.class);
+    when(c1.getId()).thenReturn(1L);
+    when(resourceDao.findByKey("org.sample.Sample1")).thenReturn(c1);
+    ComponentDto c2 = mock(ComponentDto.class);
+    when(c2.getId()).thenReturn(2L);
+    when(resourceDao.findByKey("org.sample.Sample2")).thenReturn(c2);
+    ComponentDto c3 = mock(ComponentDto.class);
+    when(c3.getId()).thenReturn(3L);
+    when(resourceDao.findByKey("org.sample.Sample3")).thenReturn(c3);
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
-    params.put("components", "1,2,3");
+    params.put("components", "org.sample.Sample1,org.sample.Sample2,org.sample.Sample3");
 
     service.applyPermissionTemplate(params);
 
@@ -367,9 +379,18 @@ public class InternalPermissionServiceTest {
   public void apply_permission_template_on_many_projects_without_permission() {
     MockUserSession.set().setLogin("admin").setGlobalPermissions();
 
+    ComponentDto c1 = mock(ComponentDto.class);
+    when(c1.getId()).thenReturn(1L);
+    when(resourceDao.findByKey("org.sample.Sample1")).thenReturn(c1);
+    ComponentDto c2 = mock(ComponentDto.class);
+    when(c2.getId()).thenReturn(2L);
+    when(resourceDao.findByKey("org.sample.Sample2")).thenReturn(c2);
+    ComponentDto c3 = mock(ComponentDto.class);
+    when(c3.getId()).thenReturn(3L);
+    when(resourceDao.findByKey("org.sample.Sample3")).thenReturn(c3);
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
-    params.put("components", "1,2,3");
+    params.put("components", "org.sample.Sample1,org.sample.Sample2,org.sample.Sample3");
 
     service.applyPermissionTemplate(params);
 
@@ -378,11 +399,15 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void apply_permission_template_on_one_project() throws Exception {
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 1L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
-    params.put("components", "1");
+    params.put("components", "org.sample.Sample");
+
+    ComponentDto c = mock(ComponentDto.class);
+    when(c.getId()).thenReturn(1L);
+    when(resourceDao.findByKey("org.sample.Sample")).thenReturn(c);
 
     service.applyPermissionTemplate(params);
 
@@ -411,7 +436,7 @@ public class InternalPermissionServiceTest {
     ComponentDto mockComponent = mock(ComponentDto.class);
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 1234L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, componentKey);
 
     when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);

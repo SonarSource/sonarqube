@@ -3,41 +3,41 @@
 
 <mapper namespace="org.sonar.core.user.AuthorizationMapper">
 
-  <select id="keepAuthorizedComponentIdsForUser" parameterType="map" resultType="long">
-    SELECT p.id
+  <select id="keepAuthorizedComponentKeysForUser" parameterType="map" resultType="string">
+    SELECT p.kee
     FROM group_roles gr, projects p
     WHERE
       gr.role=#{role}
       and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
       and (gr.resource_id = p.root_id or gr.resource_id = p.id) and
-      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >p.id=#{element}</foreach>
+      <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or " >p.kee=#{element}</foreach>
     UNION
-    SELECT p.id
+    SELECT p.kee
     FROM user_roles ur, projects p
     WHERE
       ur.role=#{role}
       and ur.user_id=#{userId} and
-      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >p.id=#{element}</foreach>
+      <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or " >p.kee=#{element}</foreach>
   </select>
 
-  <select id="keepAuthorizedComponentIdsForAnonymous" parameterType="map" resultType="long">
-      SELECT p.id
+  <select id="keepAuthorizedComponentKeysForAnonymous" parameterType="map" resultType="string">
+      SELECT p.kee
       FROM group_roles gr, projects p
       WHERE
         gr.role=#{role}
         and gr.group_id is null
         and (gr.resource_id = p.root_id or gr.resource_id = p.id) and
-        <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >p.id=#{element}</foreach>
+        <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or " >p.kee=#{element}</foreach>
   </select>
 
-  <select id="selectAuthorizedRootProjectsIds" parameterType="map" resultType="long">
-    <include refid="selectAuthorizedRootProjectsIdsQuery" />
+  <select id="selectAuthorizedRootProjectsKeys" parameterType="map" resultType="string">
+    <include refid="selectAuthorizedRootProjectsKeysQuery" />
   </select>
 
-  <sql id="selectAuthorizedRootProjectsIdsQuery">
+  <sql id="selectAuthorizedRootProjectsKeysQuery">
     <choose>
       <when test="userId != null">
-        SELECT p.id as root_project_id
+        SELECT p.kee as root_project_kee
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         <where>
@@ -45,7 +45,7 @@
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
         </where>
         UNION
-        SELECT p.id as root_project_id
+        SELECT p.kee as root_project_kee
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         <where>
@@ -54,7 +54,7 @@
         </where>
       </when>
       <otherwise>
-        SELECT p.id as root_project_id
+        SELECT p.kee as root_project_kee
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         <where>

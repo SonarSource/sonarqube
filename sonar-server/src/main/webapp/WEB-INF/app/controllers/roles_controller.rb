@@ -112,7 +112,7 @@ class RolesController < ApplicationController
     if params['components'].blank?
       params['pageSize'] = -1
       components = Internal.component_api.findWithUncompleteProjects(params).components().to_a
-      params['components'] = components.collect{|component| component.getId()}.join(',')
+      params['components'] = components.collect{|component| component.key()}.join(',')
     end
 
     Internal.permissions.applyPermissionTemplate(params)

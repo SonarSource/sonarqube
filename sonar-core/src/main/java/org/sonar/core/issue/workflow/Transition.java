@@ -35,6 +35,7 @@ public class Transition {
   private final Condition[] conditions;
   private final Function[] functions;
   private final boolean automatic;
+  private String requiredProjectPermission;
 
   private Transition(TransitionBuilder builder) {
     key = builder.key;
@@ -43,6 +44,7 @@ public class Transition {
     conditions = builder.conditions.toArray(new Condition[builder.conditions.size()]);
     functions = builder.functions.toArray(new Function[builder.functions.size()]);
     automatic = builder.automatic;
+    requiredProjectPermission = builder.requiredProjectPermission;
   }
 
   public String key() {
@@ -76,6 +78,10 @@ public class Transition {
       }
     }
     return true;
+  }
+
+  public String requiredProjectPermission() {
+    return requiredProjectPermission;
   }
 
   @Override
@@ -126,6 +132,7 @@ public class Transition {
     private List<Condition> conditions = Lists.newArrayList();
     private List<Function> functions = Lists.newArrayList();
     private boolean automatic = false;
+    private String requiredProjectPermission;
 
     private TransitionBuilder(String key) {
       this.key = key;
@@ -153,6 +160,11 @@ public class Transition {
 
     public TransitionBuilder automatic() {
       this.automatic = true;
+      return this;
+    }
+
+    public TransitionBuilder requiredProjectPermission(String requiredProjectPermission) {
+      this.requiredProjectPermission = requiredProjectPermission;
       return this;
     }
 

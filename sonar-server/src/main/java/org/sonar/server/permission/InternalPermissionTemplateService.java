@@ -28,14 +28,13 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -67,7 +66,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   public List<PermissionTemplate> selectAllPermissionTemplates(@Nullable String componentKey) {
-    PermissionTemplateUpdater.checkProjectAdminUser(getComponentId(componentKey));
+    PermissionTemplateUpdater.checkProjectAdminUser(componentKey);
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
     List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAllPermissionTemplates();
     if (permissionTemplateDtos != null) {
@@ -161,16 +160,4 @@ public class InternalPermissionTemplateService implements ServerComponent {
     }
   }
 
-  @Nullable
-  private Long getComponentId(String componentKey) {
-    if (componentKey == null) {
-      return null;
-    } else {
-      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
-      if (resourceDto == null) {
-        throw new BadRequestException("Project does not exists.");
-      }
-      return resourceDto.getId();
-    }
-  }
 }

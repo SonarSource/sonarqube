@@ -34,6 +34,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 abstract class PermissionTemplateUpdater {
@@ -63,18 +64,18 @@ abstract class PermissionTemplateUpdater {
 
   Long getUserId() {
     UserDto userDto = userDao.selectActiveUserByLogin(updatedReference);
-    if(userDto == null) {
+    if (userDto == null) {
       throw new BadRequestException("Unknown user: " + updatedReference);
     }
     return userDto.getId();
   }
 
   Long getGroupId() {
-    if(DefaultGroups.isAnyone(updatedReference)) {
+    if (DefaultGroups.isAnyone(updatedReference)) {
       return null;
     }
     GroupDto groupDto = userDao.selectGroupByName(updatedReference);
-    if(groupDto == null) {
+    if (groupDto == null) {
       throw new BadRequestException("Unknown group: " + updatedReference);
     }
     return groupDto.getId();
@@ -84,13 +85,13 @@ abstract class PermissionTemplateUpdater {
     checkProjectAdminUser(null);
   }
 
-  static void checkProjectAdminUser(@Nullable Long projectId) {
+  static void checkProjectAdminUser(@Nullable String componentKey) {
     UserSession currentSession = UserSession.get();
     currentSession.checkLoggedIn();
-    if (projectId == null) {
+    if (componentKey == null) {
       currentSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     } else {
-      if (!currentSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !currentSession.hasProjectPermission(UserRole.ADMIN, projectId)) {
+      if (!currentSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !currentSession.hasProjectPermission(UserRole.ADMIN, componentKey)) {
         throw new ForbiddenException("Insufficient privileges");
       }
     }
@@ -98,14 +99,14 @@ abstract class PermissionTemplateUpdater {
 
   private void validatePermission(String permission) {
     List<String> supportedPermissions = Lists.newArrayList(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.USER);
-    if(permission == null || !supportedPermissions.contains(permission)) {
+    if (permission == null || !supportedPermissions.contains(permission)) {
       throw new BadRequestException("Invalid permission: " + permission);
     }
   }
 
   private Long getTemplateId(String name) {
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByName(name);
-    if(permissionTemplateDto == null) {
+    if (permissionTemplateDto == null) {
       throw new BadRequestException("Unknown template: " + name);
     }
     return permissionTemplateDto.getId();

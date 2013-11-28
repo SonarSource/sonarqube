@@ -26,7 +26,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.*;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.PermissionTemplateGroupDto;
+import org.sonar.core.permission.PermissionTemplateUserDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -39,7 +43,12 @@ import org.sonar.server.user.MockUserSession;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class InternalPermissionTemplateServiceTest {
 
@@ -113,13 +122,13 @@ public class InternalPermissionTemplateServiceTest {
       buildUserPermission("user_dry_run", GlobalPermissions.DRY_RUN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.SCAN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.DRY_RUN_EXECUTION)
-    );
+      );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
       buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
       buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
       buildGroupPermission(null, GlobalPermissions.DRY_RUN_EXECUTION)
-    );
+      );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)
@@ -158,7 +167,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_retrieve_all_permission_templates_from_project() throws Exception {
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, 10L);
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     PermissionTemplateDto template1 =
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
