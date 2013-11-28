@@ -1,12 +1,7 @@
-<div class="page-split-left">
-  <%= render :partial => 'measures/sidebar' -%>
-</div>
-
 <%
    if @filter && @filter.display
      edit_mode = (params[:edit]=='true')
 %>
-  <div class="page-split-right">
     <div class="page">
       <div class="line-block marginbottom10">
         <% unless edit_mode %>
@@ -70,5 +65,4 @@
 
       <%= render :partial => 'measures/display', :locals => {:filter => @filter, :edit_mode => edit_mode, :widget_id => nil} -%>
     </div>
-  </div>
 <% end %>

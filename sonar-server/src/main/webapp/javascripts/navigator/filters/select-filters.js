@@ -251,6 +251,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     restore: function(value) {
+      if (_.isString(value)) {
+        value = [value];
+      }
+
       if (this.choices && this.selection && value.length > 0) {
         var that = this;
         this.choices.add(this.selection.models);

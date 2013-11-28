@@ -1,7 +1,7 @@
 <% if logged_in? %>
   {
   <% current_user.favourited_measure_filters.each do |filter| %>
-    '<%= h filter.id -%>': '<%= h filter.name -%>',
+    "<%= h filter.id -%>": <%= filter.name.to_json %>,
   <% end %>
   }
 <% else %>
