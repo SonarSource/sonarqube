@@ -22,7 +22,7 @@
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <!-- Use %d{yyyy.MM.dd HH:mm:ss.SSS} to display milliseconds -->
       <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %logger{20} %X %msg%n
+        %d{yyyy.MM.dd HH:mm:ss} %-5level %thread [%logger{20}] %X %msg%n
       </pattern>
     </encoder>
   </appender>
