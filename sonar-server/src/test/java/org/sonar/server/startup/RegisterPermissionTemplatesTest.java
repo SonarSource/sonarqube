@@ -34,8 +34,14 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.platform.PersistentSettings;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class RegisterPermissionTemplatesTest {
 
@@ -71,6 +77,7 @@ public class RegisterPermissionTemplatesTest {
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
     verify(permissionTemplateDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription());
     verify(permissionTemplateDao).addGroupPermission(1L, 1L, UserRole.ADMIN);
+    verify(permissionTemplateDao).addGroupPermission(1L, 1L, UserRole.ISSUE_ADMIN);
     verify(permissionTemplateDao).addGroupPermission(1L, null, UserRole.USER);
     verify(permissionTemplateDao).addGroupPermission(1L, null, UserRole.CODEVIEWER);
     verifyNoMoreInteractions(permissionTemplateDao);
@@ -118,7 +125,7 @@ public class RegisterPermissionTemplatesTest {
 
     @Override
     public boolean matches(Object o) {
-      if(o != null && o instanceof LoadedTemplateDto) {
+      if (o != null && o instanceof LoadedTemplateDto) {
         LoadedTemplateDto otherTemplate = (LoadedTemplateDto) o;
         return referenceTemplate.getKey().equals(otherTemplate.getKey())
           && referenceTemplate.getType().equals(otherTemplate.getType());
