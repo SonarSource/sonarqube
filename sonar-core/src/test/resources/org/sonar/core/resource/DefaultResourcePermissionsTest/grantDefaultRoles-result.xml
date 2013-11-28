@@ -11,9 +11,9 @@
   <!--
   new rows : sonar-administrators (admin), sonar-users (user & codeviewer), Anyone (user & codeviewer),
    -->
-  <group_roles id="3" group_id="100" resource_id="123" role="admin"/>
-  <group_roles id="4" group_id="101" resource_id="123" role="user"/>
-  <group_roles id="5" group_id="[null]" resource_id="123" role="user"/>
+  <group_roles id="3" group_id="101" resource_id="123" role="user"/>
+  <group_roles id="4" group_id="[null]" resource_id="123" role="user"/>
+  <group_roles id="5" group_id="100" resource_id="123" role="admin"/>
   <group_roles id="6" group_id="101" resource_id="123" role="codeviewer"/>
   <group_roles id="7" group_id="[null]" resource_id="123" role="codeviewer"/>
 
