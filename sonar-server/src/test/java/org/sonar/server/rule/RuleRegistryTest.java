@@ -191,11 +191,13 @@ public class RuleRegistryTest {
     rule2.setParentId(ruleId1);
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
+    assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
     when(ruleDao.selectNonManual()).thenReturn(rules);
     registry.bulkRegisterRules();
 
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
       .hasSize(2)
       .containsOnly((int) ruleId1, (int) ruleId2);
+    assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
   }
 }
