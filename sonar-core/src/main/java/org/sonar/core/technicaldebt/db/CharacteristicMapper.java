@@ -28,11 +28,11 @@ public interface CharacteristicMapper {
 
   List<CharacteristicDto> selectEnabledRootCharacteristics();
 
-  CharacteristicDto selectCharacteristicByKey(String key);
+  CharacteristicDto selectByKey(String key);
 
-  CharacteristicDto selectCharacteristicById(Integer id);
+  CharacteristicDto selectById(Integer id);
 
-  CharacteristicDto selectRequirementByRuleId(Integer ruleId);
+  CharacteristicDto selectByRuleId(Integer ruleId);
 
   void insert(CharacteristicDto characteristic);
 

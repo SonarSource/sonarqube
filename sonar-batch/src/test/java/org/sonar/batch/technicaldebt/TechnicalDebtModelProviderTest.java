@@ -24,8 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.technicaldebt.TechnicalDebtFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,28 +33,28 @@ import static org.mockito.Mockito.*;
 public class TechnicalDebtModelProviderTest {
 
   @Mock
-  TechnicalDebtFinder modelFinder;
+  TechnicalDebtModelLoader loader;
 
   @Test
-  public void load_model(){
-    TechnicalDebtModel model = new TechnicalDebtModel();
-    when(modelFinder.findAll()).thenReturn(model);
+  public void load_model() {
+    TechnicalDebtModel model = mock(TechnicalDebtModel.class);
+    when(loader.load()).thenReturn(model);
 
     TechnicalDebtModelProvider provider = new TechnicalDebtModelProvider();
-    TechnicalDebtModel result = provider.provide(modelFinder);
+    TechnicalDebtModel result = provider.provide(loader);
     assertThat(result).isNotNull();
   }
 
   @Test
-  public void load_model_only_once(){
-    TechnicalDebtModel model = new TechnicalDebtModel();
-    when(modelFinder.findAll()).thenReturn(model);
+  public void load_model_only_once() {
+    TechnicalDebtModel model = mock(TechnicalDebtModel.class);
+    when(loader.load()).thenReturn(model);
 
     TechnicalDebtModelProvider provider = new TechnicalDebtModelProvider();
-    provider.provide(modelFinder);
-    verify(modelFinder).findAll();
+    provider.provide(loader);
+    verify(loader).load();
 
-    provider.provide(modelFinder);
-    verifyZeroInteractions(modelFinder);
+    provider.provide(loader);
+    verifyZeroInteractions(loader);
   }
 }

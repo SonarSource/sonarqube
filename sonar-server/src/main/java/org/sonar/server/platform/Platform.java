@@ -312,7 +312,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(TechnicalDebtConverter.class);
     servicesContainer.addSingleton(TechnicalDebtFormatter.class);
-    servicesContainer.addSingleton(TechnicalDebtFinder.class);
+    servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);

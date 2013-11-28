@@ -54,13 +54,19 @@ public class TechnicalDebtRuleCache {
     return lookUpRuleInCache(ruleKey.repository(), ruleKey.rule());
   }
 
+  @CheckForNull
+  public Rule getByRuleId(Integer ruleId) {
+    initRules();
+    return cachedRulesId.get(ruleId);
+  }
+
   public boolean exists(Rule rule) {
     return getRule(rule.getRepositoryKey(), rule.getKey()) != null;
   }
 
   public boolean exists(Integer ruleId) {
     initRules();
-    return cachedRulesId.get(ruleId) != null;
+    return getByRuleId(ruleId) != null;
   }
 
   public boolean exists(RuleKey ruleKey) {

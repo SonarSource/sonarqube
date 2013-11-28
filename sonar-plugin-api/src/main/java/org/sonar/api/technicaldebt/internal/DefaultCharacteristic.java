@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt;
+package org.sonar.api.technicaldebt.internal;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.technicaldebt.batch.Characteristic;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,21 +33,21 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class Characteristic {
+public class DefaultCharacteristic implements Characteristic {
 
   private Integer id;
   private String key;
   private String name;
   private Integer order;
-  private Characteristic parent;
-  private Characteristic root;
-  private List<Characteristic> children;
-  private List<Requirement> requirements;
+  private DefaultCharacteristic parent;
+  private DefaultCharacteristic root;
+  private List<DefaultCharacteristic> children;
+  private List<DefaultRequirement> requirements;
 
   private Date createdAt;
   private Date updatedAt;
 
-  public Characteristic() {
+  public DefaultCharacteristic() {
     this.children = newArrayList();
     this.requirements = newArrayList();
   }
@@ -55,7 +56,7 @@ public class Characteristic {
     return id;
   }
 
-  public Characteristic setId(Integer id) {
+  public DefaultCharacteristic setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -64,7 +65,7 @@ public class Characteristic {
     return key;
   }
 
-  public Characteristic setKey(String key) {
+  public DefaultCharacteristic setKey(String key) {
     this.key = StringUtils.trimToNull(key);
     return this;
   }
@@ -73,8 +74,9 @@ public class Characteristic {
     return name;
   }
 
-  public Characteristic setName(String name) {
-    return setName(name, false);
+  public DefaultCharacteristic setName(String name) {
+    this.name = name;
+    return this;
   }
 
   public Characteristic setName(String s, boolean asKey) {
@@ -90,17 +92,17 @@ public class Characteristic {
     return order;
   }
 
-  public Characteristic setOrder(Integer order) {
+  public DefaultCharacteristic setOrder(Integer order) {
     this.order = order;
     return this;
   }
 
   @CheckForNull
-  public Characteristic parent() {
+  public DefaultCharacteristic parent() {
     return parent;
   }
 
-  public Characteristic setParent(@Nullable Characteristic parent) {
+  public DefaultCharacteristic setParent(@Nullable DefaultCharacteristic parent) {
     if (parent != null) {
       this.parent = parent;
       parent.addChild(this);
@@ -109,39 +111,34 @@ public class Characteristic {
   }
 
   @CheckForNull
-  public Characteristic getRoot() {
+  public DefaultCharacteristic getRoot() {
     return root;
   }
 
-  public Characteristic setRoot(@Nullable Characteristic root) {
+  public DefaultCharacteristic setRoot(@Nullable DefaultCharacteristic root) {
     this.root = root;
     return this;
   }
 
-  public List<Characteristic> children() {
+  public List<DefaultCharacteristic> children() {
     return children;
   }
 
-  private Characteristic addChild(Characteristic child){
+  private DefaultCharacteristic addChild(DefaultCharacteristic child) {
     this.children.add(child);
     return this;
   }
 
-  public List<Requirement> requirements() {
+  public List<DefaultRequirement> requirements() {
     return requirements;
   }
 
-  protected Characteristic addRequirement(Requirement requirement){
+  public DefaultCharacteristic addRequirement(DefaultRequirement requirement) {
     this.requirements.add(requirement);
     return this;
   }
 
-  public Characteristic removeRequirement(Requirement requirement){
-    this.requirements.remove(requirement);
-    return this;
-  }
-
-  public boolean isRoot(){
+  public boolean isRoot() {
     return parent == null;
   }
 
@@ -149,7 +146,7 @@ public class Characteristic {
     return createdAt;
   }
 
-  public Characteristic setCreatedAt(Date createdAt) {
+  public DefaultCharacteristic setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -158,7 +155,7 @@ public class Characteristic {
     return updatedAt;
   }
 
-  public Characteristic setUpdatedAt(Date updatedAt) {
+  public DefaultCharacteristic setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -176,7 +173,7 @@ public class Characteristic {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Characteristic that = (Characteristic) o;
+    DefaultCharacteristic that = (DefaultCharacteristic) o;
     return key.equals(that.key);
   }
 

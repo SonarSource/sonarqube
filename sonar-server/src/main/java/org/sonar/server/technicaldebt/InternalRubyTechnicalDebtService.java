@@ -23,35 +23,40 @@ package org.sonar.server.technicaldebt;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.Requirement;
-import org.sonar.core.technicaldebt.TechnicalDebtFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.server.user.UserSession;
+
+import java.util.List;
 
 public class InternalRubyTechnicalDebtService implements ServerComponent {
 
   private final TechnicalDebtFormatter technicalDebtFormatter;
-  private final TechnicalDebtFinder finder;
+  private final DefaultTechnicalDebtManager finder;
 
-  public InternalRubyTechnicalDebtService(TechnicalDebtFormatter technicalDebtFormatter, TechnicalDebtFinder finder) {
+  public InternalRubyTechnicalDebtService(TechnicalDebtFormatter technicalDebtFormatter, DefaultTechnicalDebtManager finder) {
     this.technicalDebtFormatter = technicalDebtFormatter;
     this.finder = finder;
   }
 
-  public String format(WorkDayDuration technicalDebt){
+  public String format(WorkDayDuration technicalDebt) {
     return technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
-  public WorkDayDuration toTechnicalDebt(String technicalDebtInLong){
+  public WorkDayDuration toTechnicalDebt(String technicalDebtInLong) {
     return WorkDayDuration.fromLong(Long.parseLong(technicalDebtInLong));
   }
 
-  public TechnicalDebtModel findRootCharacteristics(){
+  public List<Characteristic> findRootCharacteristics() {
     return finder.findRootCharacteristics();
   }
 
-  public Requirement findRequirement(Rule rule){
-    return finder.findRequirement(rule);
+  public Characteristic findRequirement(Rule rule) {
+    return finder.findRequirementByRule(rule);
+  }
+
+  public Characteristic findCharacteristic(Integer id) {
+    return finder.findCharacteristicById(id);
   }
 
 }

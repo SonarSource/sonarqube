@@ -23,28 +23,28 @@ package org.sonar.core.technicaldebt;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class TechnicalDebtModelTest {
+public class DefaultTechnicalDebtModelTest {
 
-  private TechnicalDebtModel sqaleModel;
+  private DefaultTechnicalDebtModel sqaleModel;
 
   @Before
   public void setUp() throws Exception {
-    sqaleModel = new TechnicalDebtModel();
+    sqaleModel = new DefaultTechnicalDebtModel();
   }
 
   @Test
   public void get_root_characteristics() throws Exception {
-    Characteristic rootCharacteristic = new Characteristic()
+    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
       .setKey("MEMORY_EFFICIENCY")
       .setName("Memory use");
 
-    new Characteristic()
+    new DefaultCharacteristic()
       .setKey("EFFICIENCY")
       .setName("Efficiency")
       .setParent(rootCharacteristic);
@@ -52,17 +52,17 @@ public class TechnicalDebtModelTest {
     sqaleModel.addRootCharacteristic(rootCharacteristic);
 
     assertThat(sqaleModel.rootCharacteristics()).hasSize(1);
-    Characteristic resultRootCharacteristic = sqaleModel.rootCharacteristics().get(0);
+    DefaultCharacteristic resultRootCharacteristic = sqaleModel.rootCharacteristics().get(0);
     assertThat(resultRootCharacteristic).isEqualTo(rootCharacteristic);
   }
 
   @Test
   public void get_characteristic_by_key() throws Exception {
-    Characteristic rootCharacteristic = new Characteristic()
+    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
       .setKey("MEMORY_EFFICIENCY")
       .setName("Memory use");
 
-    Characteristic characteristic = new Characteristic()
+    DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setKey("EFFICIENCY")
       .setName("Efficiency")
       .setParent(rootCharacteristic);
@@ -78,17 +78,17 @@ public class TechnicalDebtModelTest {
 
   @Test
   public void get_requirement_by_rule_key() throws Exception {
-    Characteristic rootCharacteristic = new Characteristic()
+    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
       .setKey("MEMORY_EFFICIENCY")
       .setName("Memory use");
 
-    Characteristic characteristic = new Characteristic()
+    DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setKey("EFFICIENCY")
       .setName("Efficiency")
       .setParent(rootCharacteristic);
 
     RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
-    Requirement requirement = new Requirement()
+    DefaultRequirement requirement = new DefaultRequirement()
       .setCharacteristic(characteristic)
       .setRuleKey(ruleKey)
       .setFunction("linear")

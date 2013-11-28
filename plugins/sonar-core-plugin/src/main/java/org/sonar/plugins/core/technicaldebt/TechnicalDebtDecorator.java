@@ -37,10 +37,10 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,12 +59,12 @@ public final class TechnicalDebtDecorator implements Decorator {
   private static final int DECIMALS_PRECISION = 5;
 
   private final ResourcePerspectives perspectives;
-  private final TechnicalDebtModel technicalDebtModel;
+  private final TechnicalDebtModel model;
   private final TechnicalDebtConverter converter;
 
-  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel technicalDebtModel, TechnicalDebtConverter converter) {
+  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, TechnicalDebtConverter converter) {
     this.perspectives = perspectives;
-    this.technicalDebtModel = technicalDebtModel;
+    this.model = model;
     this.converter = converter;
   }
 
@@ -93,7 +93,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     Map<Characteristic, Double> characteristicCosts = newHashMap();
     Map<Requirement, Double> requirementCosts = newHashMap();
 
-    for (Requirement requirement : technicalDebtModel.requirements()) {
+    for (Requirement requirement : model.requirements()) {
       List<Issue> requirementIssues = issuesByRequirement.get(requirement);
       double value = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, requirement, requirementIssues);
 
@@ -155,7 +155,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     for (Issue issue : issues) {
       String repositoryKey = issue.ruleKey().repository();
       String key = issue.ruleKey().rule();
-      Requirement requirement = technicalDebtModel.requirementsByRule(issue.ruleKey());
+      Requirement requirement = model.requirementsByRule(issue.ruleKey());
       if (requirement == null) {
         LoggerFactory.getLogger(getClass()).debug("No technical debt requirement for: " + repositoryKey + "/" + key);
       } else {
@@ -174,7 +174,8 @@ public final class TechnicalDebtDecorator implements Decorator {
     }
 
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
-      if (measure.getRequirement() != null && measure.getRequirement().equals(requirement) && measure.getValue() != null) {
+      Requirement measureRequirement = measure.getRequirement();
+      if (measureRequirement != null && measureRequirement.equals(requirement) && measure.getValue() != null) {
         value += measure.getValue();
       }
     }

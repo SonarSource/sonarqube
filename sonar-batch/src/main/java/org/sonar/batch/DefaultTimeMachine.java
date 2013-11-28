@@ -31,10 +31,10 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 import javax.annotation.Nullable;
 import javax.persistence.Query;
@@ -100,10 +100,10 @@ public class DefaultTimeMachine implements TimeMachine {
       sb.append("SELECT s.createdAt, m.metricId, m.value ");
     }
     sb.append(" FROM ")
-        .append(MeasureModel.class.getSimpleName())
-        .append(" m, ")
-        .append(Snapshot.class.getSimpleName())
-        .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND s.qualifier<>:lib");
+      .append(MeasureModel.class.getSimpleName())
+      .append(" m, ")
+      .append(Snapshot.class.getSimpleName())
+      .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND s.qualifier<>:lib");
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
     params.put("lib", Qualifiers.LIBRARY);

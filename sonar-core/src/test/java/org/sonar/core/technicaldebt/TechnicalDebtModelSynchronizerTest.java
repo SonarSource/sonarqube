@@ -30,9 +30,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -70,7 +70,7 @@ public class TechnicalDebtModelSynchronizerTest {
   @Mock
   TechnicalDebtXMLImporter xmlImporter;
 
-  private TechnicalDebtModel defaultModel;
+  private DefaultTechnicalDebtModel defaultModel;
 
   private TechnicalDebtModelSynchronizer manager;
 
@@ -78,7 +78,7 @@ public class TechnicalDebtModelSynchronizerTest {
   public void initAndMerge() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    defaultModel = new TechnicalDebtModel();
+    defaultModel = new DefaultTechnicalDebtModel();
     Reader defaultModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(xmlImporter.importXML(eq(defaultModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(defaultModel);
@@ -88,14 +88,14 @@ public class TechnicalDebtModelSynchronizerTest {
 
   @Test
   public void create_default_model_on_first_execution_when_no_plugin() throws Exception {
-    Characteristic rootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
+    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
     defaultModel.addRootCharacteristic(rootCharacteristic);
 
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
 
-    manager.initAndMergePlugins(ValidationMessages.create(), ruleCache);
+    manager.synchronize(ValidationMessages.create(), ruleCache);
 
     verify(dao).selectEnabledCharacteristics();
     ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
@@ -110,24 +110,24 @@ public class TechnicalDebtModelSynchronizerTest {
   @Test
   public void create_model_with_requirements_from_plugin_on_first_execution() throws Exception {
     // Default model
-    Characteristic defaultRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    Characteristic characteristic = new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
     defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
     // No db model
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
 
     // Java model
-    TechnicalDebtModel javaModel = new TechnicalDebtModel();
-    Characteristic javaRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    Characteristic javaCharacteristic = new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
+    DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
+    DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
     javaModel.addRootCharacteristic(javaRootCharacteristic);
 
     Rule rule = Rule.create();
     rule.setId(10);
     RuleKey ruleKey = RuleKey.of("checkstyle", "import");
     when(ruleCache.getByRuleKey(ruleKey)).thenReturn(rule);
-    new Requirement().setRuleKey(ruleKey)
+    new DefaultRequirement().setRuleKey(ruleKey)
       .setFunction("linear").setFactor(WorkUnit.create(30.0, WorkUnit.MINUTES)).setCharacteristic(javaCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
@@ -135,7 +135,7 @@ public class TechnicalDebtModelSynchronizerTest {
     when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
-    manager.initAndMergePlugins(ValidationMessages.create(), ruleCache);
+    manager.synchronize(ValidationMessages.create(), ruleCache);
 
     verify(dao).selectEnabledCharacteristics();
     ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
@@ -151,8 +151,8 @@ public class TechnicalDebtModelSynchronizerTest {
   @Test
   public void add_new_requirements_from_plugin() throws Exception {
     // Default model
-    Characteristic defaultRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
     defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
     // Db model
@@ -169,9 +169,9 @@ public class TechnicalDebtModelSynchronizerTest {
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(requirement, dbCharacteristic, dbRootCharacteristic));
 
     // Java model
-    TechnicalDebtModel javaModel = new TechnicalDebtModel();
-    Characteristic javaRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    Characteristic javaCharacteristic = new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
+    DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
+    DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
     javaModel.addRootCharacteristic(javaRootCharacteristic);
 
     RuleKey ruleKey2 = RuleKey.of("checkstyle", "export");
@@ -180,7 +180,7 @@ public class TechnicalDebtModelSynchronizerTest {
     when(ruleCache.getByRuleKey(ruleKey2)).thenReturn(rule2);
 
     // New requirement
-    new Requirement().setRuleKey(ruleKey2)
+    new DefaultRequirement().setRuleKey(ruleKey2)
       .setFunction("linear").setFactor(WorkUnit.create(1.0, WorkUnit.HOURS)).setCharacteristic(javaCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
@@ -188,7 +188,7 @@ public class TechnicalDebtModelSynchronizerTest {
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
-    manager.initAndMergePlugins(ValidationMessages.create(), ruleCache);
+    manager.synchronize(ValidationMessages.create(), ruleCache);
 
     verify(dao).selectEnabledCharacteristics();
     ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
@@ -200,8 +200,8 @@ public class TechnicalDebtModelSynchronizerTest {
   @Test
   public void disable_requirements_on_not_existing_rules() throws Exception {
     // Default model
-    Characteristic defaultRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-    new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
     defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
     // Db model
@@ -215,7 +215,7 @@ public class TechnicalDebtModelSynchronizerTest {
 
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(dbRootCharacteristic, dbCharacteristic, requirement));
 
-    manager.initAndMergePlugins(ValidationMessages.create(), ruleCache);
+    manager.synchronize(ValidationMessages.create(), ruleCache);
 
     verify(dao).selectEnabledCharacteristics();
     verify(dao).disable(eq(3), eq(session));
@@ -226,8 +226,8 @@ public class TechnicalDebtModelSynchronizerTest {
   public void fail_when_plugin_defines_characteristics_not_defined_in_default_model() throws Exception {
     try {
       // Default model
-      Characteristic defaultRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-      new Characteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+      DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+      new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
       defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
       // Db model
@@ -236,9 +236,9 @@ public class TechnicalDebtModelSynchronizerTest {
       when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(dbRootCharacteristic, dbCharacteristic));
 
       // Java model
-      TechnicalDebtModel javaModel = new TechnicalDebtModel();
-      Characteristic javaRootCharacteristic = new Characteristic().setKey("PORTABILITY");
-      new Characteristic().setKey("NEW_CHARACTERISTIC").setParent(javaRootCharacteristic);
+      DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
+      DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
+      new DefaultCharacteristic().setKey("NEW_CHARACTERISTIC").setParent(javaRootCharacteristic);
       javaModel.addRootCharacteristic(javaRootCharacteristic);
 
       Reader javaModelReader = mock(Reader.class);
@@ -246,7 +246,7 @@ public class TechnicalDebtModelSynchronizerTest {
       when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
       when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
-      manager.initAndMergePlugins(ValidationMessages.create(), ruleCache);
+      manager.synchronize(ValidationMessages.create(), ruleCache);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The characteristic : NEW_CHARACTERISTIC cannot be used as it's not available in default characteristics.");

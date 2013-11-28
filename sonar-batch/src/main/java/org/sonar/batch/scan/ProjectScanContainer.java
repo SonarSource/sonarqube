@@ -45,6 +45,7 @@ import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
+import org.sonar.batch.technicaldebt.TechnicalDebtModelLoader;
 import org.sonar.batch.technicaldebt.TechnicalDebtModelProvider;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueNotifications;
@@ -53,7 +54,6 @@ import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtFinder;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
@@ -148,7 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       SymbolizableBuilder.class,
 
       // technical debt
-      TechnicalDebtFinder.class,
+      TechnicalDebtModelLoader.class,
       TechnicalDebtConverter.class,
       new TechnicalDebtModelProvider(),
 

@@ -61,31 +61,31 @@ public class CharacteristicDao implements BatchComponent, ServerComponent  {
     }
   }
 
-  public CharacteristicDto selectCharacteristic(String key) {
+  public CharacteristicDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectCharacteristicByKey(key);
+      return mapper.selectByKey(key);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public CharacteristicDto selectCharacteristic(Integer id) {
+  public CharacteristicDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectCharacteristicById(id);
+      return mapper.selectById(id);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public CharacteristicDto selectRequirement(Integer ruleId) {
+  public CharacteristicDto selectByRuleId(Integer ruleId) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectRequirementByRuleId(ruleId);
+      return mapper.selectByRuleId(ruleId);
     } finally {
       MyBatis.closeQuietly(session);
     }

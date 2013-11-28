@@ -18,28 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt;
+package org.sonar.api.technicaldebt.internal;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.batch.Requirement;
 
 import java.util.Date;
-import java.util.List;
 
-public class Requirement {
+public class DefaultRequirement implements Requirement {
 
   public static final String FUNCTION_LINEAR = "linear";
   public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
   public static final String CONSTANT_ISSUE = "constant_issue";
 
-  public static final List<String> FUNCTIONS = ImmutableList.of(FUNCTION_LINEAR, FUNCTION_LINEAR_WITH_OFFSET, CONSTANT_ISSUE);
-
   private Integer id;
   private RuleKey ruleKey;
-  private Characteristic characteristic;
-  private Characteristic rootCharacteristic;
+  private DefaultCharacteristic characteristic;
+  private DefaultCharacteristic rootCharacteristic;
 
   private String function;
   private WorkUnit factor;
@@ -48,7 +46,7 @@ public class Requirement {
   private Date createdAt;
   private Date updatedAt;
 
-  public Requirement() {
+  public DefaultRequirement() {
     this.factor = WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT);
     this.offset = WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT);
   }
@@ -57,7 +55,7 @@ public class Requirement {
     return id;
   }
 
-  public Requirement setId(Integer id) {
+  public DefaultRequirement setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -66,26 +64,26 @@ public class Requirement {
     return ruleKey;
   }
 
-  public Requirement setRuleKey(RuleKey ruleKey) {
+  public DefaultRequirement setRuleKey(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }
 
-  public Characteristic characteristic() {
+  public DefaultCharacteristic characteristic() {
     return characteristic;
   }
 
-  public Requirement setCharacteristic(Characteristic characteristic) {
+  public DefaultRequirement setCharacteristic(DefaultCharacteristic characteristic) {
     this.characteristic = characteristic;
     this.characteristic.addRequirement(this);
     return this;
   }
 
-  public Characteristic getRootCharacteristic() {
+  public DefaultCharacteristic rootCharacteristic() {
     return rootCharacteristic;
   }
 
-  public Requirement setRootCharacteristic(Characteristic rootCharacteristic) {
+  public DefaultRequirement setRootCharacteristic(DefaultCharacteristic rootCharacteristic) {
     this.rootCharacteristic = rootCharacteristic;
     return this;
   }
@@ -94,10 +92,7 @@ public class Requirement {
     return function;
   }
 
-  public Requirement setFunction(String function) {
-    if (!FUNCTIONS.contains(function)) {
-      throw new IllegalArgumentException("Function '"+ function +"' is unknown.");
-    }
+  public DefaultRequirement setFunction(String function) {
     this.function = function;
     return this;
   }
@@ -106,7 +101,7 @@ public class Requirement {
     return factor;
   }
 
-  public Requirement setFactor(WorkUnit factor) {
+  public DefaultRequirement setFactor(WorkUnit factor) {
     this.factor = factor;
     return this;
   }
@@ -115,7 +110,7 @@ public class Requirement {
     return offset;
   }
 
-  public Requirement setOffset(WorkUnit offset) {
+  public DefaultRequirement setOffset(WorkUnit offset) {
     this.offset = offset;
     return this;
   }
@@ -124,7 +119,7 @@ public class Requirement {
     return createdAt;
   }
 
-  public Requirement setCreatedAt(Date createdAt) {
+  public DefaultRequirement setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -133,7 +128,7 @@ public class Requirement {
     return updatedAt;
   }
 
-  public Requirement setUpdatedAt(Date updatedAt) {
+  public DefaultRequirement setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -153,7 +148,7 @@ public class Requirement {
       return false;
     }
 
-    Requirement that = (Requirement) o;
+    DefaultRequirement that = (DefaultRequirement) o;
 
     if (!characteristic.equals(that.characteristic)) {
       return false;

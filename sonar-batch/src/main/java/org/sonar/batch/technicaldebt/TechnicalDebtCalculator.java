@@ -23,10 +23,10 @@ import com.google.common.base.Objects;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 /**
  * Computes the remediation cost based on the quality and analysis models.
@@ -34,15 +34,15 @@ import org.sonar.core.technicaldebt.TechnicalDebtModel;
 public class TechnicalDebtCalculator implements BatchExtension {
 
   private final TechnicalDebtConverter converter;
-  private TechnicalDebtModel technicalDebtModel;
+  private TechnicalDebtModel model;
 
-  public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, TechnicalDebtConverter converter) {
-    this.technicalDebtModel = technicalDebtModel;
+  public TechnicalDebtCalculator(TechnicalDebtModel model, TechnicalDebtConverter converter) {
+    this.model = model;
     this.converter = converter;
   }
 
   public WorkDayDuration calculTechnicalDebt(Issue issue) {
-    Requirement requirement = technicalDebtModel.requirementsByRule(issue.ruleKey());
+    Requirement requirement = model.requirementsByRule(issue.ruleKey());
     if (requirement != null) {
       return converter.fromMinutes(calculTechnicalDebt(requirement, issue));
     }

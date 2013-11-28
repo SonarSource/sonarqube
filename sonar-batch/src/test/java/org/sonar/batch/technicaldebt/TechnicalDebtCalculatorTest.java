@@ -27,10 +27,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 public class TechnicalDebtCalculatorTest {
 
   @Mock
-  TechnicalDebtModel technicalDebtModel;
+  TechnicalDebtModel model;
 
   @Mock
   TechnicalDebtConverter converter;
@@ -54,7 +54,7 @@ public class TechnicalDebtCalculatorTest {
     when(converter.toMinutes(tenMinutes)).thenReturn(10l);
     when(converter.toMinutes(fiveMinutes)).thenReturn(5l);
 
-    remediationCostCalculator = new TechnicalDebtCalculator(technicalDebtModel, converter);
+    remediationCostCalculator = new TechnicalDebtCalculator(model, converter);
   }
 
   @Test
@@ -62,10 +62,10 @@ public class TechnicalDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
-    Requirement requirement = mock(Requirement.class);
+    DefaultRequirement requirement = mock(DefaultRequirement.class);
     Mockito.when(requirement.factor()).thenReturn(tenMinutes);
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
+    when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -77,10 +77,10 @@ public class TechnicalDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    Requirement requirement = mock(Requirement.class);
+    DefaultRequirement requirement = mock(DefaultRequirement.class);
     Mockito.when(requirement.factor()).thenReturn(tenMinutes);
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
+    when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -92,10 +92,10 @@ public class TechnicalDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    Requirement requirement = mock(Requirement.class);
+    DefaultRequirement requirement = mock(DefaultRequirement.class);
     Mockito.when(requirement.factor()).thenReturn(tenMinutes);
     Mockito.when(requirement.offset()).thenReturn(null);
-    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
+    when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -107,10 +107,10 @@ public class TechnicalDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    Requirement requirement = mock(Requirement.class);
+    DefaultRequirement requirement = mock(DefaultRequirement.class);
     Mockito.when(requirement.factor()).thenReturn(null);
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
-    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(requirement);
+    when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     remediationCostCalculator.calculTechnicalDebt(issue);
 
@@ -121,7 +121,7 @@ public class TechnicalDebtCalculatorTest {
   public void no_technical_debt_if_requirement_not_found() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
-    when(technicalDebtModel.requirementsByRule(ruleKey)).thenReturn(null);
+    when(model.requirementsByRule(ruleKey)).thenReturn(null);
 
     assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
     verify(converter, never()).fromMinutes(anyLong());

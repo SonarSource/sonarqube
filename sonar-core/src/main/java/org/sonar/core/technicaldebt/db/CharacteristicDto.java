@@ -21,9 +21,9 @@
 package org.sonar.core.technicaldebt.db;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -196,8 +196,8 @@ public class CharacteristicDto implements Serializable {
     return this;
   }
 
-  public Characteristic toCharacteristic(Characteristic parent) {
-    return new Characteristic()
+  public DefaultCharacteristic toCharacteristic(DefaultCharacteristic parent) {
+    return new DefaultCharacteristic()
       .setId(id)
       .setKey(kee)
       .setName(name)
@@ -208,7 +208,7 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(updatedAt);
   }
 
-  public static CharacteristicDto toDto(Characteristic characteristic, @Nullable Integer parentId) {
+  public static CharacteristicDto toDto(DefaultCharacteristic characteristic, @Nullable Integer parentId) {
     return new CharacteristicDto()
       .setKey(characteristic.key())
       .setName(characteristic.name())
@@ -220,8 +220,8 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(characteristic.updatedAt());
   }
 
-  public Requirement toRequirement(RuleKey ruleKey, Characteristic characteristic, Characteristic rootCharacteristic) {
-    return new Requirement()
+  public DefaultRequirement toRequirement(RuleKey ruleKey, DefaultCharacteristic characteristic, DefaultCharacteristic rootCharacteristic) {
+    return new DefaultRequirement()
       .setId(id)
       .setRuleKey(ruleKey)
       .setCharacteristic(characteristic)
@@ -233,7 +233,7 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(updatedAt);
   }
 
-  public static CharacteristicDto toDto(Requirement requirement, Integer characteristicId, Integer rootCharacteristicId, Integer ruleId) {
+  public static CharacteristicDto toDto(DefaultRequirement requirement, Integer characteristicId, Integer rootCharacteristicId, Integer ruleId) {
     return new CharacteristicDto()
       .setRuleId(ruleId)
       .setParentId(characteristicId)

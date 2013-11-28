@@ -20,8 +20,8 @@
 package org.sonar.api.measures;
 
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 
 import java.util.ArrayList;
 import java.util.Collection;

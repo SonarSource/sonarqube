@@ -26,12 +26,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.Requirement;
-import org.sonar.core.technicaldebt.TechnicalDebtFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
+import java.util.List;
 import java.util.Locale;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -45,7 +46,7 @@ public class InternalRubyTechnicalDebtServiceTest {
   TechnicalDebtFormatter technicalDebtFormatter;
 
   @Mock
-  TechnicalDebtFinder finder;
+  DefaultTechnicalDebtManager finder;
 
   private InternalRubyTechnicalDebtService service;
 
@@ -68,17 +69,24 @@ public class InternalRubyTechnicalDebtServiceTest {
 
   @Test
   public void find_root_characteristics() {
-    TechnicalDebtModel model = new TechnicalDebtModel();
-    when(finder.findRootCharacteristics()).thenReturn(model);
-    assertThat(service.findRootCharacteristics()).isEqualTo(model);
+    List<Characteristic> rootCharacteristics = newArrayList();
+    when(finder.findRootCharacteristics()).thenReturn(rootCharacteristics);
+    assertThat(service.findRootCharacteristics()).isEqualTo(rootCharacteristics);
   }
 
   @Test
   public void find_requirement() {
     Rule rule = Rule.create("repo", "key");
-    Requirement requirement = new Requirement();
-    when(finder.findRequirement(rule)).thenReturn(requirement);
+    Characteristic requirement = new Characteristic();
+    when(finder.findRequirementByRule(rule)).thenReturn(requirement);
     assertThat(service.findRequirement(rule)).isEqualTo(requirement);
+  }
+
+  @Test
+  public void find_characteristic() {
+    Characteristic characteristic = new Characteristic();
+    when(finder.findCharacteristicById(1)).thenReturn(characteristic);
+    assertThat(service.findCharacteristic(1)).isEqualTo(characteristic);
   }
 
 }

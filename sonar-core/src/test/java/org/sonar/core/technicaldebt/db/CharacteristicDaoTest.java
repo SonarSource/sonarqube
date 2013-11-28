@@ -119,7 +119,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   public void select_requirement() {
     setupData("shared");
 
-    CharacteristicDto dto = dao.selectRequirement(1);
+    CharacteristicDto dto = dao.selectByRuleId(1);
 
     assertThat(dto).isNotNull();
     assertThat(dto.getId()).isEqualTo(3);
@@ -131,29 +131,29 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   public void select_characteristic_by_key() {
     setupData("shared");
 
-    CharacteristicDto dto = dao.selectCharacteristic("COMPILER_RELATED_PORTABILITY");
+    CharacteristicDto dto = dao.selectByKey("COMPILER_RELATED_PORTABILITY");
     assertThat(dto).isNotNull();
     assertThat(dto.getId()).isEqualTo(2);
     assertThat(dto.getParentId()).isEqualTo(1);
     assertThat(dto.getRootId()).isEqualTo(1);
 
-    dto = dao.selectCharacteristic("PORTABILITY");
+    dto = dao.selectByKey("PORTABILITY");
     assertThat(dto).isNotNull();
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getParentId()).isNull();
     assertThat(dto.getRootId()).isNull();
 
-    assertThat(dao.selectCharacteristic("UNKNOWN")).isNull();
+    assertThat(dao.selectByKey("UNKNOWN")).isNull();
   }
 
   @Test
   public void select_characteristic_by_id() {
     setupData("shared");
 
-    assertThat(dao.selectCharacteristic(2)).isNotNull();
-    assertThat(dao.selectCharacteristic(1)).isNotNull();
+    assertThat(dao.selectById(2)).isNotNull();
+    assertThat(dao.selectById(1)).isNotNull();
 
-    assertThat(dao.selectCharacteristic(10)).isNull();
+    assertThat(dao.selectById(10)).isNull();
   }
 
   @Test

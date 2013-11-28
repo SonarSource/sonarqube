@@ -23,8 +23,9 @@ package org.sonar.core.technicaldebt;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 
 import javax.annotation.CheckForNull;
 
@@ -33,83 +34,83 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class TechnicalDebtModel {
+public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
 
-  private Collection<Characteristic> rootCharacteristics;
+  private Collection<DefaultCharacteristic> rootCharacteristics;
 
-  public TechnicalDebtModel() {
+  public DefaultTechnicalDebtModel() {
     rootCharacteristics = newArrayList();
   }
 
-  public TechnicalDebtModel addRootCharacteristic(Characteristic characteristic) {
+  public DefaultTechnicalDebtModel addRootCharacteristic(DefaultCharacteristic characteristic) {
     rootCharacteristics.add(characteristic);
     return this;
   }
 
-  public List<Characteristic> rootCharacteristics() {
-    return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<Characteristic>() {
+  public List<DefaultCharacteristic> rootCharacteristics() {
+    return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<DefaultCharacteristic>() {
       @Override
-      public boolean apply(Characteristic input) {
+      public boolean apply(DefaultCharacteristic input) {
         return input.isRoot();
       }
     }));
   }
 
   @CheckForNull
-  public Characteristic characteristicByKey(final String key) {
-    return Iterables.find(characteristics(), new Predicate<Characteristic>() {
+  public DefaultCharacteristic characteristicByKey(final String key) {
+    return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
       @Override
-      public boolean apply(Characteristic input) {
+      public boolean apply(DefaultCharacteristic input) {
         return input.key().equals(key);
       }
     }, null);
   }
 
   @CheckForNull
-  public Characteristic characteristicById(final Integer id){
-    return Iterables.find(characteristics(), new Predicate<Characteristic>() {
+  public DefaultCharacteristic characteristicById(final Integer id){
+    return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
       @Override
-      public boolean apply(Characteristic input) {
+      public boolean apply(DefaultCharacteristic input) {
         return input.id().equals(id);
       }
     }, null);
   }
 
   @CheckForNull
-  public Requirement requirementsByRule(final RuleKey ruleKey) {
-    return Iterables.find(requirements(), new Predicate<Requirement>() {
+  public DefaultRequirement requirementsByRule(final RuleKey ruleKey) {
+    return Iterables.find(requirements(), new Predicate<DefaultRequirement>() {
       @Override
-      public boolean apply(Requirement input) {
+      public boolean apply(DefaultRequirement input) {
         return input.ruleKey().equals(ruleKey);
       }
     }, null);
   }
 
   @CheckForNull
-  public Requirement requirementsById(final Integer id){
-    return Iterables.find(requirements(), new Predicate<Requirement>() {
+  public DefaultRequirement requirementsById(final Integer id){
+    return Iterables.find(requirements(), new Predicate<DefaultRequirement>() {
       @Override
-      public boolean apply(Requirement input) {
+      public boolean apply(DefaultRequirement input) {
         return input.id().equals(id);
       }
     }, null);
   }
 
-  public List<Characteristic> characteristics() {
-    List<Characteristic> flatCharacteristics = newArrayList();
-    for (Characteristic rootCharacteristic : rootCharacteristics) {
+  public List<DefaultCharacteristic> characteristics() {
+    List<DefaultCharacteristic> flatCharacteristics = newArrayList();
+    for (DefaultCharacteristic rootCharacteristic : rootCharacteristics) {
       flatCharacteristics.add(rootCharacteristic);
-      for (Characteristic characteristic : rootCharacteristic.children()) {
+      for (DefaultCharacteristic characteristic : rootCharacteristic.children()) {
         flatCharacteristics.add(characteristic);
       }
     }
     return flatCharacteristics;
   }
 
-  public List<Requirement> requirements() {
-    List<Requirement> allRequirements = newArrayList();
-    for (Characteristic characteristic : characteristics()) {
-      for (Requirement requirement : characteristic.requirements()) {
+  public List<DefaultRequirement> requirements() {
+    List<DefaultRequirement> allRequirements = newArrayList();
+    for (DefaultCharacteristic characteristic : characteristics()) {
+      for (DefaultRequirement requirement : characteristic.requirements()) {
         allRequirements.add(requirement);
       }
     }

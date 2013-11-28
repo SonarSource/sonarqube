@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.batch.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +29,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -41,7 +42,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtFinderTest {
+public class TechnicalDebtModelLoaderTest {
 
   @Mock
   CharacteristicDao dao;
@@ -49,11 +50,11 @@ public class TechnicalDebtFinderTest {
   @Mock
   RuleFinder ruleFinder;
 
-  TechnicalDebtFinder finder;
+  TechnicalDebtModelLoader loader;
 
   @Before
-  public void setUp() throws Exception {
-    finder = new TechnicalDebtFinder(dao, ruleFinder);
+  public void before() {
+    loader = new TechnicalDebtModelLoader(dao, ruleFinder);
   }
 
   @Test
@@ -85,10 +86,10 @@ public class TechnicalDebtFinderTest {
     when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(newArrayList(rule));
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto, requirementDto));
 
-    TechnicalDebtModel result = finder.findAll();
+    DefaultTechnicalDebtModel result = (DefaultTechnicalDebtModel) loader.load();
     assertThat(result.rootCharacteristics()).hasSize(1);
 
-    Characteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
+    DefaultCharacteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
     assertThat(rootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
     assertThat(rootCharacteristic.parent()).isNull();
@@ -96,7 +97,7 @@ public class TechnicalDebtFinderTest {
     assertThat(rootCharacteristic.children()).hasSize(1);
     assertThat(rootCharacteristic.children().get(0).key()).isEqualTo("EFFICIENCY");
 
-    Characteristic characteristic = result.characteristicByKey("EFFICIENCY");
+    DefaultCharacteristic characteristic = result.characteristicByKey("EFFICIENCY");
     assertThat(characteristic.key()).isEqualTo("EFFICIENCY");
     assertThat(characteristic.name()).isEqualTo("Efficiency");
     assertThat(characteristic.parent().key()).isEqualTo("MEMORY_EFFICIENCY");
@@ -104,48 +105,11 @@ public class TechnicalDebtFinderTest {
     assertThat(characteristic.requirements()).hasSize(1);
     assertThat(characteristic.requirements().get(0).ruleKey()).isEqualTo(ruleKey);
 
-    Requirement requirement = result.requirementsByRule(ruleKey);
+    DefaultRequirement requirement = result.requirementsByRule(ruleKey);
     assertThat(requirement.ruleKey()).isEqualTo(ruleKey);
     assertThat(requirement.function()).isEqualTo("linear");
     assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
     assertThat(requirement.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT));
   }
 
-  @Test
-  public void find_root_characteristics() throws Exception {
-    CharacteristicDto rootCharacteristicDto = new CharacteristicDto()
-      .setId(1)
-      .setKey("MEMORY_EFFICIENCY")
-      .setName("Memory use");
-    when(dao.selectEnabledRootCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto));
-
-    TechnicalDebtModel result = finder.findRootCharacteristics();
-    assertThat(result.rootCharacteristics()).hasSize(1);
-
-    Characteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
-    assertThat(rootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
-    assertThat(rootCharacteristic.parent()).isNull();
-    assertThat(rootCharacteristic.requirements()).isEmpty();
-    assertThat(rootCharacteristic.children()).isEmpty();
-  }
-
-  @Test
-  public void find_requirement() throws Exception {
-    Rule rule = Rule.create("repo", "key");
-    rule.setId(1);
-
-    when(dao.selectRequirement(rule.getId())).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
-    when(dao.selectCharacteristic(2)).thenReturn(
-      new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1));
-    when(dao.selectCharacteristic(1)).thenReturn(
-      new CharacteristicDto().setId(1).setKey("PORTABILITY"));
-
-    Requirement result = finder.findRequirement(rule);
-
-    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
-    assertThat(result.characteristic().key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(result.characteristic().parent().key()).isEqualTo("PORTABILITY");
-  }
 }

@@ -41,7 +41,7 @@
     order by characteristic_order asc
   </select>
 
-  <select id="selectCharacteristicByKey" parameterType="String" resultType="Characteristic">
+  <select id="selectByKey" parameterType="String" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c
     <where>
@@ -50,7 +50,7 @@
     </where>
   </select>
 
-  <select id="selectCharacteristicById" parameterType="Integer" resultType="Characteristic">
+  <select id="selectById" parameterType="Integer" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c
     <where>
@@ -59,7 +59,7 @@
     </where>
   </select>
 
-  <select id="selectRequirementByRuleId" parameterType="Integer" resultType="Characteristic">
+  <select id="selectByRuleId" parameterType="Integer" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c
     <where>

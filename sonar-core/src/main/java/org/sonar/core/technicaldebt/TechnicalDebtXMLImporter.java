@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
@@ -67,12 +67,12 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
   public static final String PROPERTY_FACTOR = "remediationFactor";
   public static final String PROPERTY_OFFSET = "offset";
 
-  public TechnicalDebtModel importXML(String xml, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
+  public DefaultTechnicalDebtModel importXML(String xml, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache) {
     return importXML(new StringReader(xml), messages, technicalDebtRuleCache);
   }
 
-  public TechnicalDebtModel importXML(Reader xml, ValidationMessages messages, TechnicalDebtRuleCache repositoryCache) {
-    TechnicalDebtModel model = new TechnicalDebtModel();
+  public DefaultTechnicalDebtModel importXML(Reader xml, ValidationMessages messages, TechnicalDebtRuleCache repositoryCache) {
+    DefaultTechnicalDebtModel model = new DefaultTechnicalDebtModel();
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -103,9 +103,9 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(TechnicalDebtModel model, Characteristic parent, SMInputCursor chcCursor, ValidationMessages messages,
+  private DefaultCharacteristic processCharacteristic(DefaultTechnicalDebtModel model, DefaultCharacteristic parent, SMInputCursor chcCursor, ValidationMessages messages,
                                                       TechnicalDebtRuleCache technicalDebtRuleCache) throws XMLStreamException {
-    Characteristic characteristic = new Characteristic();
+    DefaultCharacteristic characteristic = new DefaultCharacteristic();
     characteristic.setParent(parent);
 
     SMInputCursor cursor = chcCursor.childElementCursor();
@@ -122,7 +122,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         processCharacteristic(model, characteristic, cursor, messages, technicalDebtRuleCache);
 
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
-        Requirement requirement = processRequirement(model, cursor, messages, technicalDebtRuleCache);
+        DefaultRequirement requirement = processRequirement(model, cursor, messages, technicalDebtRuleCache);
         if (requirement != null) {
           requirement.setCharacteristic(parent);
         }
@@ -137,10 +137,10 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return null;
   }
 
-  private Requirement processRequirement(TechnicalDebtModel model, SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
+  private DefaultRequirement processRequirement(DefaultTechnicalDebtModel model, SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
     throws XMLStreamException {
 
-    Requirement requirement = new Requirement();
+    DefaultRequirement requirement = new DefaultRequirement();
     String ruleRepositoryKey = cursor.collectDescendantText().trim();
     String ruleKey = null;
     Properties properties = new Properties();
@@ -159,7 +159,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return processFunctionsOnRequirement(requirement, properties, messages);
   }
 
-  private void fillRule(Requirement requirement, String ruleRepositoryKey, String ruleKey, ValidationMessages messages,
+  private void fillRule(DefaultRequirement requirement, String ruleRepositoryKey, String ruleKey, ValidationMessages messages,
                         TechnicalDebtRuleCache technicalDebtRuleCache) {
     if (StringUtils.isNotBlank(ruleRepositoryKey) && StringUtils.isNotBlank(ruleKey)) {
       Rule rule = technicalDebtRuleCache.getByRuleKey(RuleKey.of(ruleRepositoryKey, ruleKey));
@@ -171,7 +171,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     }
   }
 
-  private Property processProperty(Requirement requirement, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
+  private Property processProperty(DefaultRequirement requirement, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
     SMInputCursor c = cursor.childElementCursor();
     String key = null;
     Double value = null;
@@ -195,7 +195,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return new Property(key, value, textValue);
   }
 
-  private Requirement processFunctionsOnRequirement(Requirement requirement, Properties properties, ValidationMessages messages) {
+  private DefaultRequirement processFunctionsOnRequirement(DefaultRequirement requirement, Properties properties, ValidationMessages messages) {
     Property function = properties.function();
     Property factor = properties.factor();
     Property offset = properties.offset();
@@ -203,7 +203,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     if (function != null) {
       String functionKey = function.getTextValue();
       if ("linear_threshold".equals(functionKey)) {
-        function.setTextValue(Requirement.FUNCTION_LINEAR);
+        function.setTextValue(DefaultRequirement.FUNCTION_LINEAR);
         offset.setValue(0d);
         messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s' is replaced by linear.", requirement.ruleKey()));
       } else if ("constant_resource".equals(functionKey)) {

@@ -22,8 +22,8 @@ package org.sonar.api.measures;
 import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.technicaldebt.Characteristic;
-import org.sonar.api.technicaldebt.Requirement;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

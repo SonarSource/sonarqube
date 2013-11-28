@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
 
-import org.junit.Test;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
+package org.sonar.api.technicaldebt.batch;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import org.sonar.api.rule.RuleKey;
 
-public class RegisterTechnicalDebtModelTest {
+import javax.annotation.CheckForNull;
 
-  @Test
-  public void create_model() throws Exception {
-    TechnicalDebtModelSynchronizer manger = mock(TechnicalDebtModelSynchronizer.class);
-    RuleFinder ruleFinder = mock(RuleFinder.class);
-    RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(manger, ruleFinder, null);
+import java.util.List;
 
-    sqaleDefinition.start();
+public interface TechnicalDebtModel {
 
-    verify(manger, times(1)).synchronize(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
-  }
+  @CheckForNull
+  Characteristic characteristicById(Integer id);
+
+  @CheckForNull
+  Requirement requirementsByRule(RuleKey ruleKey);
+
+  @CheckForNull
+  Requirement requirementsById(Integer id);
+
+  List<? extends Requirement> requirements();
+
 }
