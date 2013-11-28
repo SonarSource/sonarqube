@@ -106,13 +106,13 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
   private DefaultCharacteristic processCharacteristic(DefaultTechnicalDebtModel model, DefaultCharacteristic parent, SMInputCursor chcCursor, ValidationMessages messages,
                                                       TechnicalDebtRuleCache technicalDebtRuleCache) throws XMLStreamException {
     DefaultCharacteristic characteristic = new DefaultCharacteristic();
-    characteristic.setParent(parent);
-
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
         characteristic.setKey(cursor.collectDescendantText().trim());
+        // Attached to parent only if a key is existing, otherwise characteristic with empty key can be added.
+        characteristic.setParent(parent);
 
       } else if (StringUtils.equals(node, CHARACTERISTIC_NAME)) {
         characteristic.setName(cursor.collectDescendantText().trim(), false);
@@ -124,7 +124,12 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
         DefaultRequirement requirement = processRequirement(model, cursor, messages, technicalDebtRuleCache);
         if (requirement != null) {
-          requirement.setCharacteristic(parent);
+          if (parent.parent() == null) {
+            messages.addWarningText("Requirement '" + requirement.ruleKey()  + "' is ignored because it's defined directly under a root characteristic.");
+          } else {
+            requirement.setCharacteristic(parent);
+            requirement.setRootCharacteristic(parent.parent());
+          }
         }
       }
     }

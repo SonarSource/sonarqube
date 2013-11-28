@@ -123,6 +123,23 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   @Test
+  public void ignore_requirement_on_root_characteristics() {
+    TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
+
+    String xml = getFileContent("ignore_requirement_on_root_characteristics.xml");
+
+    ValidationMessages messages = ValidationMessages.create();
+    DefaultTechnicalDebtModel sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
+
+    assertThat(messages.getWarnings()).hasSize(1);
+
+    assertThat(sqale.characteristics()).hasSize(1);
+    DefaultCharacteristic efficiency = sqale.characteristicByKey("EFFICIENCY");
+    assertThat(efficiency.requirements()).isEmpty();
+    assertThat(messages.getWarnings().get(0)).contains("checkstyle");
+  }
+
+  @Test
   public void shouldBadlyFormattedImportXML() {
     TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
     String xml = getFileContent("shouldImportXML_badly-formatted.xml");
@@ -196,6 +213,8 @@ public class TechnicalDebtXMLImporterTest {
     assertThat(requirement.function()).isEqualTo("linear");
     assertThat(requirement.factor()).isEqualTo(WorkUnit.create(3.2, "h"));
     assertThat(requirement.offset()).isEqualTo(offset);
+    assertThat(requirement.characteristic().key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(requirement.rootCharacteristic().key()).isEqualTo("EFFICIENCY");
   }
 
   private String getFileContent(String file) {
