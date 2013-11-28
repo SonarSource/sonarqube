@@ -26,7 +26,8 @@
 class AddCharacteristicsColumns < ActiveRecord::Migration
 
   def self.up
-    add_column 'characteristics', :parent_id,         :integer, :null => true
+    add_column 'characteristics', :parent_id,         :integer,   :null => true
+    add_column 'characteristics', :root_id,           :integer,   :null => true
     add_column 'characteristics', :function_key,      :string,    :null => true,   :limit => 100
     add_column 'characteristics', :factor_value,      :decimal,   :null => true,   :precision => 30,   :scale => 20
     add_column 'characteristics', :factor_unit,       :string,    :null => true,   :limit => 100

@@ -64,8 +64,6 @@ class MigrateCharacteristics < ActiveRecord::Migration
         properties_by_characteristic_id[prop.characteristic_id] = char_properties
       end
 
-      requirements_to_delete = []
-
       characteristics.each do |characteristic|
         # Requirement
         if characteristic.rule_id
@@ -81,7 +79,7 @@ class MigrateCharacteristics < ActiveRecord::Migration
                 characteristic.factor_value = factor.value
                 characteristic.factor_unit = factor.text_value
                 characteristic.offset_value = 0.0
-                characteristic.offset_unit = 'mn'
+                characteristic.offset_unit = 'd'
 
               when 'linear_offset'
                 characteristic.function_key = 'linear_offset'
@@ -96,28 +94,28 @@ class MigrateCharacteristics < ActiveRecord::Migration
                 characteristic.factor_value = factor.value
                 characteristic.factor_unit = factor.text_value
                 characteristic.offset_value = 0.0
-                characteristic.offset_unit = 'mn'
+                characteristic.offset_unit = 'd'
 
-              # constant_resource is no more managed anymore, it has to be deleted
+              # constant_resource is no more managed anymore, it has to be disabled
               when 'constant_resource'
-                requirements_to_delete << characteristic
+                characteristic.enabled = false
+                characteristic.function_key = 'constant_resource'
+                characteristic.factor_value = 0.0
+                characteristic.factor_unit = 'd'
+                characteristic.offset_value = 0.0
+                characteristic.offset_unit = 'd'
             end
-            # requirement without properties or without remediationFunction has to be deleted
+            # requirement without properties or without remediationFunction has to be disabled
           else
-            requirements_to_delete << characteristic
+            requirement.enabled = false
           end
         end
 
         characteristic.parent_id = parent_ids_by_characteristic_id[characteristic.id]
+        characteristic.root_id = parent_ids_by_characteristic_id[characteristic.parent_id] if characteristic.parent_id
         characteristic.created_at = now
         characteristic.updated_at = now
         characteristic.save
-      end
-
-      requirements_to_delete.each do |requirement|
-        CharacteristicProperty.delete_all(['characteristic_id=?', requirement.id])
-        CharacteristicEdge.delete_all(['child_id=?', requirement.id])
-        requirement.delete
       end
     end
   end
