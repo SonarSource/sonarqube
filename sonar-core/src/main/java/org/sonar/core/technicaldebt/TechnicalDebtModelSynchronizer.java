@@ -35,8 +35,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
-import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
@@ -123,7 +121,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
       for (Requirement pluginRequirement : pluginModel.requirements()) {
         Rule rule = rulesCache.getByRuleKey(pluginRequirement.ruleKey());
         if (!find(existingModel, rule)) {
-          CharacteristicDto characteristicDto = find(existingModel, pluginRequirement.characteristic().key());
+          CharacteristicDto characteristicDto = findCharacteristic(existingModel, pluginRequirement.characteristic().key());
           CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(), rule.getId());
           dao.insert(requirementDto, session);
         }
@@ -165,11 +163,11 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return pluginList;
   }
 
-  private CharacteristicDto find(List<CharacteristicDto> existingModel, final String key) {
+  private CharacteristicDto findCharacteristic(List<CharacteristicDto> existingModel, final String key) {
     return Iterables.find(existingModel, new Predicate<CharacteristicDto>() {
       @Override
-      public boolean apply(@Nullable CharacteristicDto input) {
-        return input.getKey().equals(key);
+      public boolean apply(CharacteristicDto input) {
+        return input.getRuleId() == null && input.getKey().equals(key);
       }
     });
   }
@@ -177,7 +175,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
   private boolean find(List<CharacteristicDto> existingModel, final Rule rule) {
     return Iterables.any(existingModel, new Predicate<CharacteristicDto>() {
       @Override
-      public boolean apply(@Nullable CharacteristicDto input) {
+      public boolean apply(CharacteristicDto input) {
         Integer ruleId = input.getRuleId();
         return ruleId != null && ruleId.equals(rule.getId());
       }

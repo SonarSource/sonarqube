@@ -166,7 +166,7 @@ public class TechnicalDebtModelSynchronizerTest {
     rule1.setId(10);
     when(ruleCache.getByRuleKey(ruleKey1)).thenReturn(rule1);
     when(ruleCache.exists(10)).thenReturn(true);
-    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(dbRootCharacteristic, dbCharacteristic, requirement));
+    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(requirement, dbCharacteristic, dbRootCharacteristic));
 
     // Java model
     TechnicalDebtModel javaModel = new TechnicalDebtModel();
