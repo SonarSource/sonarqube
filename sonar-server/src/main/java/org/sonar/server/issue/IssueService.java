@@ -182,6 +182,7 @@ public class IssueService implements ServerComponent {
     verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
+    userSession.checkProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.setManualSeverity(issue, severity, context)) {

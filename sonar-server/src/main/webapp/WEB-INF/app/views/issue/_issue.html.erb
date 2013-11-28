@@ -123,10 +123,12 @@
         <div class="dropdown">
           <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
           <ul style="display: none" class="dropdown-menu">
-            <% unless issue.resolution %>
-              <li>
-                <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
-              </li>
+            <% if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey) %>
+              <% unless issue.resolution %>
+                <li>
+                  <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
+                </li>
+              <% end %>
             <% end %>
 
             <% # Display remaining transitions

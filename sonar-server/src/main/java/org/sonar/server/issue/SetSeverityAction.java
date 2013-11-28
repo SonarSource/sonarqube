@@ -23,14 +23,15 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
 import java.util.Map;
-
 
 public class SetSeverityAction extends Action implements ServerComponent {
 
@@ -41,12 +42,26 @@ public class SetSeverityAction extends Action implements ServerComponent {
   public SetSeverityAction(IssueUpdater issueUpdater) {
     super(KEY);
     this.issueUpdater = issueUpdater;
-    super.setConditions(new IsUnResolved());
+    super.setConditions(new IsUnResolved(), new Condition() {
+      @Override
+      public boolean matches(Issue issue) {
+        return isCurrentUserIssueAdmin(((DefaultIssue) issue).projectKey());
+      }
+    });
+  }
+
+  boolean isCurrentUserIssueAdmin(String projectKey) {
+    return UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey);
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
     severity(properties);
+    for (Issue issue : issues) {
+      if (!isCurrentUserIssueAdmin(((DefaultIssue) issue).projectKey())) {
+        return false;
+      }
+    }
     return true;
   }
 

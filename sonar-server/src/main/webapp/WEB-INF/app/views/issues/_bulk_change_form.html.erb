@@ -7,6 +7,7 @@
 
    transitions_by_issues = {}
    unresolved_issues = 0
+   unresolved_issues_user_can_admin = 0
    issues.each do |issue|
      transitions = Internal.issues.listTransitions(issue)
      transitions.each do |transition|
@@ -15,6 +16,9 @@
        transitions_by_issues[transition.key] = issues_for_transition
      end
      unresolved_issues += 1 unless issue.resolution()
+     if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey)
+       unresolved_issues_user_can_admin += 1 unless issue.resolution()
+     end
    end
 %>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
@@ -71,7 +75,7 @@
         <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
         <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
                          {:id => 'severity'}) -%>
-        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
       </div>
       <% end %>
 

@@ -26,8 +26,11 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserSessionTestUtils;
 
 import java.util.Map;
 
@@ -36,7 +39,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class SetSeverityActionTest {
 
@@ -44,13 +50,17 @@ public class SetSeverityActionTest {
 
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
+  private UserSession userSession;
+
   @Before
-  public void before(){
+  public void before() {
     action = new SetSeverityAction(issueUpdater);
+    userSession = mock(UserSession.class);
+    UserSessionTestUtils.setUserSession(userSession);
   }
 
   @Test
-  public void should_execute(){
+  public void should_execute() {
     String severity = "MINOR";
     Map<String, Object> properties = newHashMap();
     properties.put("severity", severity);
@@ -77,9 +87,17 @@ public class SetSeverityActionTest {
   }
 
   @Test
-  public void should_support_only_unresolved_issues(){
-    assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+  public void should_support_only_unresolved_issues() {
+    when(userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+  }
+
+  @Test
+  public void should_support_only_issues_with_issue_admin_permission() {
+    when(userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar2").setResolution(null))).isFalse();
   }
 
 }
