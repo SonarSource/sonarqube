@@ -27,6 +27,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.technicaldebt.Characteristic;
+import org.sonar.api.technicaldebt.Requirement;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -94,7 +96,9 @@ public class VariationDecorator implements Decorator {
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
       Integer metricId = measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId();
-      Integer characteristicId = measure.getCharacteristic() != null ? measure.getCharacteristic().id() : null;
+      Characteristic characteristic = measure.getCharacteristic();
+      Requirement requirement = measure.getRequirement();
+      Integer characteristicId = characteristic != null ? characteristic.id() : requirement != null ? requirement.id() : null;
       Integer personId = measure.getPersonId();
       Integer ruleId = measure instanceof RuleMeasure ? ((RuleMeasure) measure).getRule().getId() : null;
 
