@@ -122,7 +122,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
         Rule rule = rulesCache.getByRuleKey(pluginRequirement.ruleKey());
         if (!find(existingModel, rule)) {
           CharacteristicDto characteristicDto = findCharacteristic(existingModel, pluginRequirement.characteristic().key());
-          CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(), rule.getId());
+          CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(),  characteristicDto.getRootId(), rule.getId());
           dao.insert(requirementDto, session);
         }
       }

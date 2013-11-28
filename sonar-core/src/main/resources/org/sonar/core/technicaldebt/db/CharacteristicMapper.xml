@@ -9,6 +9,7 @@
     c.kee as kee,
     c.name as name,
     c.parent_id as parentId,
+    c.root_id as rootId,
     c.characteristic_order as characteristicOrder,
     c.rule_id as ruleId,
     c.function_key as functionKey,
@@ -68,10 +69,10 @@
   </select>
 
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO characteristics (kee, name, parent_id, characteristic_order,
+    INSERT INTO characteristics (kee, name, parent_id, root_id, characteristic_order,
     rule_id, function_key, factor_value, factor_unit, offset_value, offset_unit,
     enabled, created_at, updated_at)
-    VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder},
+    VALUES (#{kee}, #{name}, #{parentId}, #{rootId}, #{characteristicOrder},
     #{ruleId}, #{functionKey}, #{factorValue}, #{factorUnit}, #{offsetValue}, #{offsetUnit},
     #{enabled}, current_timestamp, current_timestamp)
   </insert>
@@ -80,6 +81,7 @@
     update characteristics set
     name=#{name},
     parent_id=#{parentId},
+    root_id=#{rootId},
     characteristic_order=#{characteristicOrder},
     rule_id=#{ruleId},
     function_key=#{functionKey},

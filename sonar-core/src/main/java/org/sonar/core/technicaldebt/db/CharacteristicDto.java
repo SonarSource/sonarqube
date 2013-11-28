@@ -37,6 +37,7 @@ public class CharacteristicDto implements Serializable {
   private String kee;
   private String name;
   private Integer parentId;
+  private Integer rootId;
   private Integer characteristicOrder;
   private Integer ruleId;
   private String functionKey;
@@ -84,6 +85,16 @@ public class CharacteristicDto implements Serializable {
 
   public CharacteristicDto setParentId(@Nullable Integer i) {
     this.parentId = i;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getRootId() {
+    return rootId;
+  }
+
+  public CharacteristicDto setRootId(@Nullable Integer rootId) {
+    this.rootId = rootId;
     return this;
   }
 
@@ -192,6 +203,7 @@ public class CharacteristicDto implements Serializable {
       .setName(name)
       .setOrder(characteristicOrder)
       .setParent(parent)
+      .setRoot(parent)
       .setCreatedAt(createdAt)
       .setUpdatedAt(updatedAt);
   }
@@ -202,16 +214,18 @@ public class CharacteristicDto implements Serializable {
       .setName(characteristic.name())
       .setOrder(characteristic.order())
       .setParentId(parentId)
+      .setRootId(parentId)
       .setEnabled(true)
       .setCreatedAt(characteristic.createdAt())
       .setUpdatedAt(characteristic.updatedAt());
   }
 
-  public Requirement toRequirement(RuleKey ruleKey, Characteristic characteristic) {
+  public Requirement toRequirement(RuleKey ruleKey, Characteristic characteristic, Characteristic rootCharacteristic) {
     return new Requirement()
       .setId(id)
       .setRuleKey(ruleKey)
       .setCharacteristic(characteristic)
+      .setRootCharacteristic(rootCharacteristic)
       .setFunction(functionKey)
       .setFactor(WorkUnit.create(factorValue, factorUnit))
       .setOffset(WorkUnit.create(offsetValue, offsetUnit))
@@ -219,10 +233,11 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(updatedAt);
   }
 
-  public static CharacteristicDto toDto(Requirement requirement, Integer characteristicId, Integer ruleId) {
+  public static CharacteristicDto toDto(Requirement requirement, Integer characteristicId, Integer rootCharacteristicId, Integer ruleId) {
     return new CharacteristicDto()
       .setRuleId(ruleId)
       .setParentId(characteristicId)
+      .setRootId(rootCharacteristicId)
       .setFunction(requirement.function())
       .setFactorValue(requirement.factor().getValue())
       .setFactorUnit(requirement.factor().getUnit())

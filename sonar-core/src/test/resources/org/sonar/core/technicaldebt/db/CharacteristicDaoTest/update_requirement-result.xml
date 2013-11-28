@@ -1,6 +1,6 @@
 <dataset>
 
-  <characteristics id="1" kee="[null]" name="[null]" parent_id="3" rule_id="2" characteristic_order="[null]"
+  <characteristics id="1" kee="[null]" name="[null]" parent_id="3" root_id="1" rule_id="2" characteristic_order="[null]"
                    function_key="linear" factor_value="21.0" factor_unit="h" offset_value="[null]" offset_unit="[null]" enabled="[false]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 

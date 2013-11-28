@@ -39,6 +39,7 @@ public class Requirement {
   private Integer id;
   private RuleKey ruleKey;
   private Characteristic characteristic;
+  private Characteristic rootCharacteristic;
 
   private String function;
   private WorkUnit factor;
@@ -77,6 +78,15 @@ public class Requirement {
   public Requirement setCharacteristic(Characteristic characteristic) {
     this.characteristic = characteristic;
     this.characteristic.addRequirement(this);
+    return this;
+  }
+
+  public Characteristic getRootCharacteristic() {
+    return rootCharacteristic;
+  }
+
+  public Requirement setRootCharacteristic(Characteristic rootCharacteristic) {
+    this.rootCharacteristic = rootCharacteristic;
     return this;
   }
 

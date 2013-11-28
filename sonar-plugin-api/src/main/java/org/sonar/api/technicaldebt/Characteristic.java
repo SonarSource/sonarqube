@@ -39,6 +39,7 @@ public class Characteristic {
   private String name;
   private Integer order;
   private Characteristic parent;
+  private Characteristic root;
   private List<Characteristic> children;
   private List<Requirement> requirements;
 
@@ -104,6 +105,16 @@ public class Characteristic {
       this.parent = parent;
       parent.addChild(this);
     }
+    return this;
+  }
+
+  @CheckForNull
+  public Characteristic getRoot() {
+    return root;
+  }
+
+  public Characteristic setRoot(@Nullable Characteristic root) {
+    this.root = root;
     return this;
   }
 

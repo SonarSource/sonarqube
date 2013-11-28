@@ -73,7 +73,7 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
 
     Characteristic rootCharacteristic = rootCharacteristicDto.toCharacteristic(null);
     Characteristic characteristic = characteristicDto.toCharacteristic(rootCharacteristic);
-    return requirementDto.toRequirement(RuleKey.of(rule.getRepositoryKey(), rule.getKey()), characteristic);
+    return requirementDto.toRequirement(RuleKey.of(rule.getRepositoryKey(), rule.getKey()), characteristic, rootCharacteristic);
   }
 
   private void addRootCharacteristics(TechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, Characteristic> characteristicsById){
@@ -102,9 +102,10 @@ public class TechnicalDebtFinder implements ServerComponent, BatchComponent {
       Integer ruleId = dto.getRuleId();
       if (ruleId != null) {
         Characteristic characteristic = characteristicsById.get(dto.getParentId());
+        Characteristic rootCharacteristic = characteristicsById.get(dto.getRootId());
         Rule rule = rulesById.get(ruleId);
         RuleKey ruleKey = RuleKey.of(rule.getRepositoryKey(), rule.getKey());
-        dto.toRequirement(ruleKey, characteristic);
+        dto.toRequirement(ruleKey, characteristic, rootCharacteristic);
       }
     }
   }

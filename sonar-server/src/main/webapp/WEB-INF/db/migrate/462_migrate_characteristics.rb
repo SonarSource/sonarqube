@@ -104,15 +104,27 @@ class MigrateCharacteristics < ActiveRecord::Migration
                 characteristic.factor_unit = 'd'
                 characteristic.offset_value = 0.0
                 characteristic.offset_unit = 'd'
+
             end
             # requirement without properties or without remediationFunction has to be disabled
           else
             requirement.enabled = false
+            requirements_to_disable << characteristic
           end
         end
 
-        characteristic.parent_id = parent_ids_by_characteristic_id[characteristic.id]
-        characteristic.root_id = parent_ids_by_characteristic_id[characteristic.parent_id] if characteristic.parent_id
+        parent_id = parent_ids_by_characteristic_id[characteristic.id]
+        # Not for root characteristics
+        if parent_id
+          characteristic.parent_id = parent_id
+          # Requirements
+          if characteristic.rule_id
+            characteristic.root_id = parent_ids_by_characteristic_id[characteristic.parent_id]
+            # Characteristics as same root_id as parent_id
+          else
+            characteristic.root_id = parent_id
+          end
+        end
         characteristic.created_at = now
         characteristic.updated_at = now
         characteristic.save

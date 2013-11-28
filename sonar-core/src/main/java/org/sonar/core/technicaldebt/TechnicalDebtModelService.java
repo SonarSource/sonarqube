@@ -57,17 +57,17 @@ public class TechnicalDebtModelService implements ServerExtension {
     }
   }
 
-  public void create(Requirement requirement, Integer characteristicId, TechnicalDebtRuleCache ruleCache, SqlSession session) {
+  public void create(Requirement requirement, Integer characteristicId, Integer rootCharacteristicId, TechnicalDebtRuleCache ruleCache, SqlSession session) {
     Rule rule = ruleCache.getByRuleKey(requirement.ruleKey());
-    CharacteristicDto requirementDto = CharacteristicDto.toDto(requirement, characteristicId, rule.getId());
+    CharacteristicDto requirementDto = CharacteristicDto.toDto(requirement, characteristicId, rootCharacteristicId, rule.getId());
     dao.insert(requirementDto, session);
     requirement.setId(requirementDto.getId());
   }
 
-  public void create(Requirement requirement, Integer characteristicId, TechnicalDebtRuleCache ruleCache) {
+  public void create(Requirement requirement, Integer characteristicId, Integer rootCharacteristicId, TechnicalDebtRuleCache ruleCache) {
     SqlSession session = mybatis.openSession();
     try {
-      create(requirement, characteristicId, ruleCache, session);
+      create(requirement, characteristicId, rootCharacteristicId, ruleCache, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
