@@ -26,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupRoleDto;
@@ -140,7 +139,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
 
   public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, @Nullable SqlSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
-      deleteGroupPermission(resourceId,  (Long) null, permission, session);
+      deleteGroupPermission(resourceId, (Long) null, permission, session);
     } else {
       GroupDto group = userDao.selectGroupByName(groupName, session);
       if (group != null) {
@@ -206,9 +205,9 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     SqlSession session = myBatis.openSession();
     try {
       removeAllPermissions(componentId, session);
-      grantDefaultRoles(componentId, qualifier, UserRole.ADMIN, session);
-      grantDefaultRoles(componentId, qualifier, UserRole.USER, session);
-      grantDefaultRoles(componentId, qualifier, UserRole.CODEVIEWER, session);
+      for (String permission : ComponentPermissions.ALL) {
+        grantDefaultRoles(componentId, qualifier, permission, session);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

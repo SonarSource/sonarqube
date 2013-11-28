@@ -16,6 +16,7 @@
   <group_roles id="5" group_id="[null]" resource_id="123" role="user"/>
   <group_roles id="6" group_id="101" resource_id="123" role="codeviewer"/>
   <group_roles id="7" group_id="[null]" resource_id="123" role="codeviewer"/>
+  <group_roles id="8" group_id="100" resource_id="123" role="issueadmin"/>
 
   <!-- new user permission : marius (admin) -->
   <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
@@ -28,6 +29,7 @@
   <perm_templates_groups id="3" template_id="1" group_id="[null]" permission_reference="user"/>
   <perm_templates_groups id="4" template_id="1" group_id="101" permission_reference="codeviewer"/>
   <perm_templates_groups id="5" template_id="1" group_id="[null]" permission_reference="codeviewer"/>
+  <perm_templates_groups id="6" template_id="1" group_id="100" permission_reference="issueadmin"/>
 
   <perm_templates_users id="1" template_id="1" user_id="200" permission_reference="admin"/>
 

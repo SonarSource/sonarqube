@@ -34,7 +34,6 @@ public final class ComponentPermissions {
   /**
    * All the component permissions values, ordered from {@link UserRole#USER} to {@link UserRole#CODEVIEWER}.
    */
-  public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.CODEVIEWER);
-
+  public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER);
 
 }
