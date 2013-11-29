@@ -4,13 +4,13 @@
 <mapper namespace="org.sonar.core.permission.PermissionTemplateMapper">
 
   <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO permission_templates (name, kee, description, created_at, updated_at)
-    VALUES (#{name}, #{kee}, #{description}, #{createdAt}, #{updatedAt})
+    INSERT INTO permission_templates (name, kee, description, key_pattern, created_at, updated_at)
+    VALUES (#{name}, #{kee}, #{description}, #{keyPattern}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="PermissionTemplate">
     UPDATE permission_templates
-    SET name = #{name}, description = #{description}, updated_at = #{updatedAt}
+    SET name = #{name}, description = #{description}, key_pattern = #{keyPattern}, updated_at = #{updatedAt}
     WHERE id = #{id}
   </update>
 
@@ -62,19 +62,19 @@
   </delete>
 
   <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
+    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
     WHERE kee = #{kee}
   </select>
 
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
+    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
     WHERE name = #{templateName}
   </select>
 
   <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
+    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
   </select>
 
@@ -82,6 +82,7 @@
     SELECT  pt.id AS template_id,
             pt.name AS template_name,
             pt.description AS template_description,
+            pt.key_pattern AS template_key_pattern,
             pt.created_at AS template_created_at,
             pt.updated_at AS template_updated_at,
             ptu.id AS permission_template_user_id,
@@ -99,6 +100,7 @@
     SELECT  pt.id AS template_id,
             pt.name AS template_name,
             pt.description AS template_description,
+            pt.key_pattern AS template_key_pattern,
             pt.created_at AS template_created_at,
             pt.updated_at AS template_updated_at,
             ptg.id AS permission_template_group_id,
@@ -116,6 +118,7 @@
     <id property="id" column="template_id"/>
     <result property="name" column="template_name"/>
     <result property="description" column="template_description"/>
+    <result property="keyPattern" column="template_key_pattern"/>
     <result property="createdAt" column="template_created_at"/>
     <result property="updatedAt" column="template_updated_at"/>
     <collection property="usersPermissions" ofType="PermissionTemplateUser">

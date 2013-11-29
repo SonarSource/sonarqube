@@ -33,7 +33,10 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
@@ -52,7 +55,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_create_permission_template() throws Exception {
     setupData("createPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("my template", "my description");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("my template", "my description", "myregexp");
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     checkTable("createPermissionTemplate", "permission_templates", "id", "name", "kee", "description");
@@ -61,7 +64,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_normalize_kee_on_template_creation() throws Exception {
     setupData("createNonAsciiPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description", null);
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     checkTable("createNonAsciiPermissionTemplate", "permission_templates", "id", "name", "kee", "description");
@@ -79,7 +82,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
     when(myBatis.openSession()).thenReturn(session);
 
     permissionTemplateDao = new PermissionTemplateDao(myBatis, dateProvider);
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null);
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);
 
     verify(mapper).insert(permissionTemplate);
     verify(session).commit();
@@ -162,7 +165,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   public void should_update_permission_template() throws Exception {
     setupData("updatePermissionTemplate");
 
-    permissionTemplateDao.updatePermissionTemplate(1L, "new_name", "new_description");
+    permissionTemplateDao.updatePermissionTemplate(1L, "new_name", "new_description", "new_regexp");
 
     checkTable("updatePermissionTemplate", "permission_templates", "id", "name", "kee", "description");
   }

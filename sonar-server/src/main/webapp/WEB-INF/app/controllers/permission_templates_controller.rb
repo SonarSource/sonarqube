@@ -137,7 +137,7 @@ class PermissionTemplatesController < ApplicationController
   #
   def create
     verify_post_request
-    @permission_template = Internal.permission_templates.createPermissionTemplate(params[:name], params[:description])
+    @permission_template = Internal.permission_templates.createPermissionTemplate(params[:name], params[:description], params[:pattern])
     redirect_to :action => 'index'
   end
 
@@ -156,7 +156,7 @@ class PermissionTemplatesController < ApplicationController
   def edit
     verify_post_request
     require_parameters :id, :name
-    Internal.permission_templates.updatePermissionTemplate(params[:id].to_i, params[:name], params[:description])
+    Internal.permission_templates.updatePermissionTemplate(params[:id].to_i, params[:name], params[:description], params[:pattern])
     redirect_to :action => 'index'
   end
 

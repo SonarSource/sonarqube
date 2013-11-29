@@ -78,9 +78,9 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_create_permission_template() throws Exception {
-    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null)).thenReturn(DEFAULT_TEMPLATE);
 
-    PermissionTemplate permissionTemplate = permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC);
+    PermissionTemplate permissionTemplate = permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null);
 
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo(DEFAULT_NAME);
@@ -94,7 +94,7 @@ public class InternalPermissionTemplateServiceTest {
 
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(DEFAULT_TEMPLATE));
 
-    permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC);
+    permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null);
   }
 
   @Test
@@ -102,7 +102,7 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Name can't be blank");
 
-    permissionTemplateService.createPermissionTemplate("", DEFAULT_DESC);
+    permissionTemplateService.createPermissionTemplate("", DEFAULT_DESC, null);
   }
 
   @Test
@@ -189,9 +189,9 @@ public class InternalPermissionTemplateServiceTest {
   @Test
   public void should_update_permission_template() throws Exception {
 
-    permissionTemplateService.updatePermissionTemplate(1L, "new_name", "new_description");
+    permissionTemplateService.updatePermissionTemplate(1L, "new_name", "new_description", null);
 
-    verify(permissionTemplateDao).updatePermissionTemplate(1L, "new_name", "new_description");
+    verify(permissionTemplateDao).updatePermissionTemplate(1L, "new_name", "new_description", null);
   }
 
   @Test
@@ -205,7 +205,7 @@ public class InternalPermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
-    permissionTemplateService.updatePermissionTemplate(1L, "template2", "template1");
+    permissionTemplateService.updatePermissionTemplate(1L, "template2", "template1", null);
   }
 
   @Test
@@ -216,9 +216,9 @@ public class InternalPermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
-    permissionTemplateService.updatePermissionTemplate(1L, "template1", "new_description");
+    permissionTemplateService.updatePermissionTemplate(1L, "template1", "new_description", null);
 
-    verify(permissionTemplateDao).updatePermissionTemplate(1L, "template1", "new_description");
+    verify(permissionTemplateDao).updatePermissionTemplate(1L, "template1", "new_description", null);
   }
 
   @Test

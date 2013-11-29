@@ -27,7 +27,9 @@ import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.permission.PermissionTemplateGroupDto;
 import org.sonar.core.permission.PermissionTemplateUserDto;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class PermissionTemplate {
@@ -36,27 +38,30 @@ public class PermissionTemplate {
   private final String name;
   private final String key;
   private final String description;
+  private final String keyPattern;
   private Multimap<String, PermissionTemplateUser> usersByPermission;
   private Multimap<String, PermissionTemplateGroup> groupsByPermission;
 
-  private PermissionTemplate(Long id, String name, String key, String description) {
+  private PermissionTemplate(Long id, String name, String key, @Nullable String description, @Nullable String keyPattern) {
     this.id = id;
     this.name = name;
     this.key = key;
     this.description = description;
+    this.keyPattern = keyPattern;
     usersByPermission = HashMultimap.create();
     groupsByPermission = HashMultimap.create();
   }
 
   public static PermissionTemplate create(@Nullable PermissionTemplateDto permissionTemplateDto) {
-    if(permissionTemplateDto == null) {
+    if (permissionTemplateDto == null) {
       return null;
     }
     PermissionTemplate permissionTemplate = new PermissionTemplate(
-      permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getKee(), permissionTemplateDto.getDescription());
+      permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getKee(), permissionTemplateDto.getDescription(),
+      permissionTemplateDto.getKeyPattern());
 
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplateDto.getUsersPermissions();
-    if(usersPermissions != null) {
+    if (usersPermissions != null) {
       for (PermissionTemplateUserDto userPermission : usersPermissions) {
         permissionTemplate.registerUserPermission(permissionTemplateDto.getId(), userPermission.getUserId(),
           userPermission.getUserName(), userPermission.getUserLogin(), userPermission.getPermission());
@@ -64,7 +69,7 @@ public class PermissionTemplate {
     }
 
     List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplateDto.getGroupsPermissions();
-    if(groupsPermissions != null) {
+    if (groupsPermissions != null) {
       for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
         permissionTemplate.registerGroupPermission(groupPermission.getPermission(), permissionTemplateDto.getId(),
           groupPermission.getGroupId(), groupPermission.getGroupName());
@@ -81,12 +86,18 @@ public class PermissionTemplate {
     return name;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
   public String getKey() {
     return key;
+  }
+
+  @CheckForNull
+  public String getKeyPattern() {
+    return keyPattern;
   }
 
   public List<PermissionTemplateUser> getUsersForPermission(String permission) {

@@ -66,7 +66,7 @@ public class RegisterPermissionTemplatesTest {
 
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
       .thenReturn(0);
-    when(permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription()))
+    when(permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription(), null))
       .thenReturn(permissionTemplate);
     when(userDao.selectGroupByName(DefaultGroups.ADMINISTRATORS)).thenReturn(new GroupDto().setId(1L));
     when(userDao.selectGroupByName(DefaultGroups.USERS)).thenReturn(new GroupDto().setId(2L));
@@ -75,7 +75,7 @@ public class RegisterPermissionTemplatesTest {
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(permissionTemplateDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription());
+    verify(permissionTemplateDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription(), null);
     verify(permissionTemplateDao).addGroupPermission(1L, 1L, UserRole.ADMIN);
     verify(permissionTemplateDao).addGroupPermission(1L, 1L, UserRole.ISSUE_ADMIN);
     verify(permissionTemplateDao).addGroupPermission(1L, null, UserRole.USER);

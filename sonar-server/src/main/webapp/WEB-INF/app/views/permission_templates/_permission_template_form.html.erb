@@ -10,11 +10,15 @@
       <div class="modal-error"/>
       <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
-        <input id="name" name="name" type="text" size="50" maxlength="256" value="<%= @permission_template ? @permission_template.name : '' -%>" autofocus="autofocus"/>
+        <input id="name" name="name" type="text" maxlength="256" value="<%= @permission_template ? @permission_template.name : '' -%>" autofocus="autofocus" style="width: 330px;"/>
       </div>
       <div class="modal-field">
         <label for="description"><%= h message('description') -%></label>
         <textarea id="description" name="description" maxlength="4000" rows="10" style="width: 330px;"><%= @permission_template ? @permission_template.description : '' -%></textarea>
+      </div>
+      <div class="modal-field">
+        <label for="keyPattern"><%= h message('permission_template.key_pattern') -%></label>
+        <input id="keyPattern" name="pattern" type="text" maxlength="500" value="<%= @permission_template ? @permission_template.keyPattern : '' -%>" style="width: 330px;"/>
       </div>
     </div>
     <div class="modal-foot">

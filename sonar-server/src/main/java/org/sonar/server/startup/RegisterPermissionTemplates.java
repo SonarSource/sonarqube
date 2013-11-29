@@ -79,7 +79,7 @@ public class RegisterPermissionTemplates {
 
   private void insertDefaultTemplate(String templateName) {
     PermissionTemplateDto defaultPermissionTemplate = permissionTemplateDao
-      .createPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription());
+      .createPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription(), null);
     addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
     addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);

@@ -22,6 +22,7 @@ package org.sonar.core.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class PermissionTemplateDto {
   private String name;
   private String kee;
   private String description;
+  private String keyPattern;
   private List<PermissionTemplateUserDto> usersPermissions;
   private List<PermissionTemplateGroupDto> groupsPermissions;
   private Date createdAt;
@@ -75,6 +77,16 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setDescription(@Nullable String description) {
     this.description = description;
+    return this;
+  }
+
+  @CheckForNull
+  public String getKeyPattern() {
+    return keyPattern;
+  }
+
+  public PermissionTemplateDto setKeyPattern(@Nullable String regexp) {
+    this.keyPattern = regexp;
     return this;
   }
 

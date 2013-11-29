@@ -77,10 +77,10 @@ public class InternalPermissionTemplateService implements ServerComponent {
     return permissionTemplates;
   }
 
-  public PermissionTemplate createPermissionTemplate(String name, @Nullable String description) {
+  public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(null, name);
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
     if (permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
       LOG.error(errorMsg);
@@ -89,10 +89,10 @@ public class InternalPermissionTemplateService implements ServerComponent {
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
-  public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription) {
+  public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(templateId, newName);
-    permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription);
+    permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
   }
 
   public void deletePermissionTemplate(Long templateId) {

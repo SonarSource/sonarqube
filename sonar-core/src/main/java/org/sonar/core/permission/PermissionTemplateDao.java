@@ -79,11 +79,11 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       permissionTemplate = mapper.selectByName(templateName);
       PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateName);
-      if(templateUsersPermissions != null) {
+      if (templateUsersPermissions != null) {
         permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
       }
       PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateName);
-      if(templateGroupsPermissions != null) {
+      if (templateGroupsPermissions != null) {
         permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
       }
     } finally {
@@ -102,12 +102,13 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
     }
   }
 
-  public PermissionTemplateDto createPermissionTemplate(String templateName, @Nullable String description) {
+  public PermissionTemplateDto createPermissionTemplate(String templateName, @Nullable String description, @Nullable String keyPattern) {
     Date creationDate = now();
     PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
       .setName(templateName)
       .setKee(generateTemplateKee(templateName, creationDate))
       .setDescription(description)
+      .setKeyPattern(keyPattern)
       .setCreatedAt(creationDate)
       .setUpdatedAt(creationDate);
     SqlSession session = myBatis.openSession();
@@ -134,11 +135,12 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
     }
   }
 
-  public void updatePermissionTemplate(Long templateId, String templateName, @Nullable String description) {
+  public void updatePermissionTemplate(Long templateId, String templateName, @Nullable String description, @Nullable String keyPattern) {
     PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
       .setId(templateId)
       .setName(templateName)
       .setDescription(description)
+      .setKeyPattern(keyPattern)
       .setUpdatedAt(now());
     SqlSession session = myBatis.openSession();
     try {
@@ -215,7 +217,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   private String generateTemplateKee(String name, Date timeStamp) {
-    if(PermissionTemplateDto.DEFAULT.getName().equals(name)) {
+    if (PermissionTemplateDto.DEFAULT.getName().equals(name)) {
       return PermissionTemplateDto.DEFAULT.getKee();
     }
     String normalizedName = Normalizer.normalize(name, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").replace(" ", "_");
