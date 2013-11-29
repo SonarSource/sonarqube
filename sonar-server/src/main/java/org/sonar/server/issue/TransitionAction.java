@@ -23,9 +23,11 @@ package org.sonar.server.issue;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
@@ -54,17 +56,21 @@ public class TransitionAction extends Action implements ServerComponent {
   public boolean execute(Map<String, Object> properties, Context context) {
     DefaultIssue issue = (DefaultIssue) context.issue();
     String transition = transition(properties);
-    if (canExecuteTransition(issue, transition)){
+    if (canExecuteTransition(issue, transition)) {
       return workflow.doTransition((DefaultIssue) context.issue(), transition(properties), context.issueChangeContext());
     }
     return false;
   }
 
-  private boolean canExecuteTransition(Issue issue, final String transition){
+  private boolean canExecuteTransition(Issue issue, final String transition) {
+    final DefaultIssue defaultIssue = (DefaultIssue) issue;
+    final UserSession userSession = UserSession.get();
     return Iterables.find(workflow.outTransitions(issue), new Predicate<Transition>() {
       @Override
       public boolean apply(Transition input) {
-        return input.key().equals(transition);
+        return input.key().equals(transition) &&
+          (StringUtils.isBlank(input.requiredProjectPermission()) ||
+          userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, defaultIssue.projectKey()));
       }
     }, null) != null;
   }
