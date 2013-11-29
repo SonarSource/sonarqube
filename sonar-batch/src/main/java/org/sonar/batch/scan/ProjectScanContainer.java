@@ -45,6 +45,7 @@ import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
+import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.batch.technicaldebt.TechnicalDebtModelLoader;
 import org.sonar.batch.technicaldebt.TechnicalDebtModelProvider;
 import org.sonar.core.component.ScanGraph;
@@ -150,6 +151,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // technical debt
       TechnicalDebtModelLoader.class,
       TechnicalDebtConverter.class,
+      TechnicalDebtCalculator.class,
       new TechnicalDebtModelProvider(),
 
       // Differential periods
