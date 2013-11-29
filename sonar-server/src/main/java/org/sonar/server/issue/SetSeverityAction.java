@@ -50,18 +50,13 @@ public class SetSeverityAction extends Action implements ServerComponent {
     });
   }
 
-  boolean isCurrentUserIssueAdmin(String projectKey) {
+  private boolean isCurrentUserIssueAdmin(String projectKey) {
     return UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey);
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
     severity(properties);
-    for (Issue issue : issues) {
-      if (!isCurrentUserIssueAdmin(((DefaultIssue) issue).projectKey())) {
-        return false;
-      }
-    }
     return true;
   }
 
