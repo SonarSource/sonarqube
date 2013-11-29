@@ -82,25 +82,9 @@
   <logger name="org.elasticsearch.http">
     <level value="INFO"/>
   </logger>
-  <!-- ElasticSearch profiling information -->
-  <!--
-  <logger name="org.sonar.server.search">
-    <level value="DEBUG"/>
-  </logger>
-  -->
-
-  <!-- Export of dry run database -->
-  <!--
-  <logger name="org.sonar.core.persistence.DbTemplate">
-    <level value="DEBUG"/>
-  </logger>
-  <logger name="org.sonar.core.persistence.DryRunDatabaseFactory">
-    <level value="DEBUG"/>
-  </logger>
-  -->
 
   <root>
-    <level value="INFO"/>
+    <level value="${ROOT_LOGGER_LEVEL}"/>
     <appender-ref ref="LOGFILE"/>
   </root>
 

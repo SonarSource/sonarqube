@@ -19,19 +19,20 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.io.File;
-import java.util.Collections;
+
+import java.util.Map;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
     try {
-      configureLogback();
+      configureLogback(event);
       Platform.getInstance().init(event.getServletContext());
       Platform.getInstance().start();
     } catch (Throwable t) {
@@ -58,9 +59,11 @@ public final class PlatformLifecycleListener implements ServletContextListener {
   }
 
   /**
-   * Configure Logback with $SONAR_HOME/conf/logback.xml
+   * Configure Logback from classpath, with configuration from sonar.properties
    */
-  private void configureLogback() {
-    Logback.configure(new File(SonarHome.getHome(), "conf/logback.xml"), Collections.<String, String>emptyMap());
+  private void configureLogback(ServletContextEvent event) {
+    boolean sonarLogVerbose = Boolean.valueOf(event.getServletContext().getInitParameter("sonar.log.verbose"));
+    Map<String, String> variables = ImmutableMap.of("ROOT_LOGGER_LEVEL", sonarLogVerbose ? "DEBUG" : "INFO");
+    Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
 }
