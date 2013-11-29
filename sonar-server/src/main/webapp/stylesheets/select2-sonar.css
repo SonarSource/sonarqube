@@ -10,6 +10,7 @@
   border-color: #cdcdcd;
   border-radius: 0;
   background: #fff;
+  text-align: left;
 }
 .select2-container .select2-choice div {
   width: 19px;
