@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.core.profiling.Profiling;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -56,6 +54,7 @@ import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -167,6 +166,7 @@ public final class Platform {
     rootContainer.addSingleton(ServerImpl.class);
     rootContainer.addSingleton(Logback.class);
     rootContainer.addSingleton(Profiling.class);
+    rootContainer.addSingleton(JRubyProfiling.class);
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);

@@ -58,6 +58,10 @@ class Internal
     component(Java::OrgSonarServerTechnicaldebt::InternalRubyTechnicalDebtService.java_class)
   end
 
+  def self.profiling
+    component(Java::OrgSonarServerUi::JRubyProfiling.java_class)
+  end
+
   private
 
   def self.component(component_java_class)
