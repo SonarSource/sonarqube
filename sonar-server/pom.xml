@@ -360,6 +360,7 @@
                 <sonar.runtime.mode>development</sonar.runtime.mode>
                 <sonar.es.http.host>127.0.0.1</sonar.es.http.host>
                 <sonar.es.http.port>9200</sonar.es.http.port>
+                <sonar.log.profilingLevel>FULL</sonar.log.profilingLevel>
               </systemProperties>
             </configuration>
           </plugin>
