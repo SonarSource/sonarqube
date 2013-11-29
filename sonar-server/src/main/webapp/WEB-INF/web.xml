@@ -47,7 +47,19 @@
     <filter-name>RackFilter</filter-name>
     <filter-class>org.jruby.rack.RackFilter</filter-class>
   </filter>
+  <filter>
+    <filter-name>ProfilingFilter</filter-name>
+    <filter-class>org.sonar.server.platform.ProfilingFilter</filter-class>
+    <init-param>
+      <param-name>staticDirs</param-name>
+      <param-value>/images,/javascripts,/stylesheets</param-value>
+    </init-param>
+  </filter>
 
+  <filter-mapping>
+    <filter-name>ProfilingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   <filter-mapping>
     <filter-name>DatabaseSessionFilter</filter-name>
     <url-pattern>/*</url-pattern>
