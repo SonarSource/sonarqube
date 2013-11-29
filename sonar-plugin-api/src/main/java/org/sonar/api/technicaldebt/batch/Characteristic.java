@@ -25,6 +25,9 @@ import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @since 4.1
+ */
 public interface Characteristic {
 
   Integer id();

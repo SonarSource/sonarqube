@@ -25,6 +25,9 @@ import org.sonar.api.technicaldebt.WorkUnit;
 
 import java.util.Date;
 
+/**
+ * @since 4.1
+ */
 public interface Requirement {
 
   Integer id();

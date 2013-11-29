@@ -28,6 +28,9 @@ import org.sonar.api.technicaldebt.WorkUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @since 4.1
+ */
 public class Characteristic {
 
   private Integer id;

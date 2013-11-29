@@ -25,6 +25,10 @@ import org.sonar.api.rules.Rule;
 
 import java.util.List;
 
+/**
+ * @since 4.1
+ */
+
 public interface TechnicalDebtManager extends ServerComponent {
 
   List<Characteristic> findRootCharacteristics();

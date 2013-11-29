@@ -26,10 +26,16 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
+/**
+ * @since 4.1
+ */
 public interface TechnicalDebtModel {
 
   @CheckForNull
   Characteristic characteristicById(Integer id);
+
+  @CheckForNull
+  Characteristic characteristicByKey(String key);
 
   @CheckForNull
   Requirement requirementsByRule(RuleKey ruleKey);
