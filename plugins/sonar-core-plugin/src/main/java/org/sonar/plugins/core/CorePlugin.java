@@ -46,7 +46,6 @@ import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.technicaldebt.NewTechnicalDebtDecorator;
 import org.sonar.plugins.core.technicaldebt.TechnicalDebtDecorator;
 import org.sonar.plugins.core.timemachine.*;
-import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.*;
@@ -213,7 +212,6 @@ public final class CorePlugin extends SonarPlugin {
       Periods.class,
 
       // pages
-      Lcom4Viewer.class,
       TestsViewer.class,
 
       // measure filters

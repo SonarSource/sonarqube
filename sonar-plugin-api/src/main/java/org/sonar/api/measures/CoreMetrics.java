@@ -1663,7 +1663,16 @@ public final class CoreMetrics {
       .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
       .create();
 
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final String LCOM4_KEY = "lcom4";
+
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final Metric LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
       .setDescription("Lack of Cohesion of Functions")
       .setDirection(Metric.DIRECTION_WORST)
@@ -1673,7 +1682,16 @@ public final class CoreMetrics {
       .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
       .create();
 
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final String LCOM4_BLOCKS_KEY = "lcom4_blocks";
+
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final Metric LCOM4_BLOCKS = new Metric.Builder(LCOM4_BLOCKS_KEY, "LCOM4 blocks", Metric.ValueType.DATA)
       .setDescription("LCOM4 blocks")
       .setDirection(Metric.DIRECTION_NONE)
@@ -1683,7 +1701,16 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final String LCOM4_DISTRIBUTION_KEY = "lcom4_distribution";
+
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final Metric LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4", Metric.ValueType.DISTRIB)
       .setDescription("Class distribution /LCOM4")
       .setDirection(Metric.DIRECTION_NONE)
@@ -1692,7 +1719,16 @@ public final class CoreMetrics {
       .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
       .create();
 
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final String SUSPECT_LCOM4_DENSITY_KEY = "suspect_lcom4_density";
+
+  /**
+   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   */
+  @Deprecated
   public static final Metric SUSPECT_LCOM4_DENSITY = new Metric.Builder(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density", Metric.ValueType.PERCENT)
       .setDescription("Density of classes having LCOM4>1")
       .setDirection(Metric.DIRECTION_WORST)
