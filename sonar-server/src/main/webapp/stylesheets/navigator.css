@@ -66,6 +66,9 @@
   border-color: transparent;
   background: transparent;
 }
+.navigator-filter-inline .navigator-filter-label:after {
+  content: "";
+}
 .navigator-filter-label {
   display: inline-block;
   vertical-align: middle;

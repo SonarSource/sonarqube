@@ -1,4 +1,4 @@
-/* global _:false */
+/* global _:false, $j:false */
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
@@ -16,7 +16,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    renderInput: function() {},
+    renderInput: function() {
+      if (this.model.get('enabled')) {
+        $j('<input>')
+            .prop('name', this.model.get('property'))
+            .prop('type', 'checkbox')
+            .prop('value', 'true')
+            .prop('checked', true)
+            .css('display', 'none')
+            .appendTo(this.$el);
+      }
+    },
 
 
     renderValue: function() {

@@ -50,9 +50,6 @@
 
 <script id="checkboxFilterTemplate" type="text/template">
   <div class="navigator-filter-label">{{ name }}</div>
-  <div class="navigator-filter-value">
-    <input type="checkbox" name="{{ property }}" value="true" {[ if (value) { ]}checked{[ } ]}>
-  </div>
   {[ if (optional) { ]}
   <div class="navigator-filter-disable">&times;</div>
   {[ } ]}
@@ -95,7 +92,7 @@
 </script>
 
 <script id="favoriteFilterTemplate" type="text/template">
-  <div class="navigator-filter-favorite-toggle"></div>
+  <div class="navigator-filter-favorite-toggle" title="Issues Filters"></div>
 </script>
 
 <script id="detailsFavoriteFilterTemplate" type="text/template">
