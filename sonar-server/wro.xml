@@ -9,6 +9,7 @@
     <css>/stylesheets/select2-sonar.css</css>
     <css>/stylesheets/layout.css</css>
     <css>/stylesheets/style.css</css>
+    <css>/stylesheets/ui.css</css>
     <css>/stylesheets/sonar-colorizer.css</css>
     <css>/stylesheets/dashboard.css</css>
     <css>/stylesheets/select-list.css</css>

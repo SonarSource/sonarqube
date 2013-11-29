@@ -164,60 +164,6 @@ a.external {
   vertical-align: text-bottom;
 }
 
-button, .button, input[type="submit"], input[type="button"] {
-  font-weight: bold;
-  font-size: 90%;
-  text-align: center;
-  text-decoration: none;
-  text-shadow: 1px 1px 0 #FFFFFF;
-
-  cursor: pointer;
-  outline: none;
-  margin: 0 1px;
-  padding: 2px 10px;
-  -webkit-border-radius: .5em;
-  -moz-border-radius: .5em;
-  border-radius: .5em;
-  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-
-  color: #333;
-  border: 1px solid #CCC;
-  background: #EBEBEB;
-  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E7E7E7));
-  background: -moz-linear-gradient(top, #FFFFFF, #E7E7E7);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FFFFFF', endColorstr = '#E7E7E7');
-
-  vertical-align: baseline;
-  display: inline-block;
-  /* zoom and *display = ie7 hack for display:inline-block */
-  zoom: 1;
-  *display: inline;
-}
-
-button:hover, .button:hover, input[type="submit"]:hover, input[type="button"]:hover {
-  text-decoration: none;
-  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.1);
-  color: #FFFFFF;
-  border: 1px solid #5281a0;
-  background: #4B9FD5;
-  background: -webkit-gradient(linear, left top, left bottom, from(#78bdea), to(#4B9FD5));
-  background: -moz-linear-gradient(top, #78bdea, #4B9FD5);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#78bdea', endColorstr = '#4B9FD5');
-}
-
-button:active, .button:active, input[type="submit"]:active, input[type="button"]:active {
-  position: relative;
-  top: 1px;
-  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.1);
-  color: #FFFFFF;
-  border: solid 1px #2790C0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#4B9FD5), to(#78bdea));
-  background: -moz-linear-gradient(top, #4B9FD5, #78bdea);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#4B9FD5', endColorstr = '#78bdea');
-}
-
 .red-button {
   color: #990000 !important;
 }
@@ -2376,16 +2322,6 @@ ul.modal-head-metadata li {
   margin: 0 0 4px;
   padding: 4px;
   display: none;
-}
-
-input[type=text], input[type=password] {
-  height: 18px;
-  padding: 0 3px;
-  color: #444;
-}
-
-textarea {
-  padding: 3px;
 }
 
 textarea.width100 {

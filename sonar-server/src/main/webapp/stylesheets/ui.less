@@ -1,0 +1,66 @@
+@import "mixins";
+@import "variables";
+
+input[type=text],
+input[type=password],
+input[type=email],
+textarea {
+  border: 1px solid @darkGrey;
+  .box-sizing(border-box);
+  background: #fff;
+  color: @baseFontColor;
+
+  &:active,
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+}
+
+input[type=text],
+input[type=password],
+input[type=email] {
+  height: 22px;
+  padding: 0 3px;
+}
+
+textarea {
+  padding: 3px;
+}
+
+button,
+.button,
+input[type=submit],
+input[type=button] {
+  display: inline-block;
+  vertical-align: baseline;
+  height: 22px;
+  margin: 0 1px;
+  padding: 2px 10px;
+
+  border: 1px solid @darkGrey;
+  .box-sizing(border-box);
+
+  background: #f4f4f4;
+
+  color: @baseFontColor;
+  font-weight: bold;
+  font-size: @baseFontSize;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    border-color: #5281a0;
+    background: #4b9fd5;
+    color: #fff;
+  }
+
+  &:active {
+    border-color: #2790c0;
+    background: #78bdea;
+    color: #fff;
+  }
+}
