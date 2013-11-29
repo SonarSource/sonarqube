@@ -1,3 +1,13 @@
+<!--[if lte IE 7 ]>
+<div style="position:fixed;z-index:99999;top:0;bottom:0;left:0;right:0;background:#fff;">
+  <div style="margin-top:150px;text-align:center;line-height:1.4;color:#333;">
+    The web interface cannot be displayed because IE 7 is not supported.<br>
+    Please switch to a <a target="_blank" href="http://docs.codehaus.org/x/zYHEBg">supported version or another supported browser</a>.
+  </div>
+</div>
+<!--<![endif]-->
+
+
 </body><script>
 <% if flash[:notice] %>info('<%=escape_javascript(flash[:notice])-%>');<% end %>
 <% if flash[:warning] %>warning('<%=escape_javascript(flash[:warning])-%>');<% end %>
