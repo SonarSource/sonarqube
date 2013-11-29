@@ -45,6 +45,11 @@
   padding: 0 5px;
 }
 
+.ie-warn a {
+  color: #EEE;
+  text-decoration: underline;
+}
+
 #ftlinks a {
   color: #444;
 }
