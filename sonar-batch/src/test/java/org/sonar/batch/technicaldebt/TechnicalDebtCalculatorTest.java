@@ -27,9 +27,9 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import static org.fest.assertions.Assertions.assertThat;

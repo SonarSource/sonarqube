@@ -23,9 +23,9 @@ import com.google.common.base.Objects;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 /**

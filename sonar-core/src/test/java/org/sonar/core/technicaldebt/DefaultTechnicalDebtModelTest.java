@@ -23,9 +23,9 @@ package org.sonar.core.technicaldebt;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
+import org.sonar.api.utils.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
 

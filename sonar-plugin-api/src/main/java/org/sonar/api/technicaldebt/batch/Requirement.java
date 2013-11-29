@@ -21,7 +21,7 @@
 package org.sonar.api.technicaldebt.batch;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.utils.WorkUnit;
 
 import java.util.Date;
 

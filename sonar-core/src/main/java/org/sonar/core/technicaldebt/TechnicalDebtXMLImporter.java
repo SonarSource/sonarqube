@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.WorkUnit;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;

@@ -18,39 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.internal;
+package org.sonar.api.technicaldebt.server.internal;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Date;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-
+/**
+ * @since 4.1
+ */
 public class DefaultCharacteristic implements Characteristic {
 
   private Integer id;
   private String key;
   private String name;
   private Integer order;
-  private DefaultCharacteristic parent;
-  private DefaultCharacteristic root;
-  private List<DefaultCharacteristic> children;
-  private List<DefaultRequirement> requirements;
-
-  private Date createdAt;
-  private Date updatedAt;
-
-  public DefaultCharacteristic() {
-    this.children = newArrayList();
-    this.requirements = newArrayList();
-  }
+  private Integer parentId;
+  private Integer rootId;
+  private RuleKey ruleKey;
+  private String function;
+  private WorkUnit factor;
+  private WorkUnit offset;
 
   public Integer id() {
     return id;
@@ -66,7 +59,7 @@ public class DefaultCharacteristic implements Characteristic {
   }
 
   public DefaultCharacteristic setKey(String key) {
-    this.key = StringUtils.trimToNull(key);
+    this.key = key;
     return this;
   }
 
@@ -76,15 +69,6 @@ public class DefaultCharacteristic implements Characteristic {
 
   public DefaultCharacteristic setName(String name) {
     this.name = name;
-    return this;
-  }
-
-  public Characteristic setName(String s, boolean asKey) {
-    this.name = StringUtils.trimToNull(s);
-    if (asKey) {
-      this.key = StringUtils.upperCase(this.name);
-      this.key = StringUtils.replaceChars(this.key, ' ', '_');
-    }
     return this;
   }
 
@@ -98,71 +82,67 @@ public class DefaultCharacteristic implements Characteristic {
   }
 
   @CheckForNull
-  public DefaultCharacteristic parent() {
-    return parent;
+  public Integer parentId() {
+    return parentId;
   }
 
-  public DefaultCharacteristic setParent(@Nullable DefaultCharacteristic parent) {
-    if (parent != null) {
-      this.parent = parent;
-      parent.addChild(this);
-    }
+  public DefaultCharacteristic setParentId(@Nullable Integer parentId) {
+    this.parentId = parentId;
     return this;
   }
 
   @CheckForNull
-  public DefaultCharacteristic getRoot() {
-    return root;
+  public Integer rootId() {
+    return rootId;
   }
 
-  public DefaultCharacteristic setRoot(@Nullable DefaultCharacteristic root) {
-    this.root = root;
+  public DefaultCharacteristic setRootId(@Nullable Integer rootId) {
+    this.rootId = rootId;
     return this;
   }
 
-  public List<DefaultCharacteristic> children() {
-    return children;
+  public RuleKey ruleKey() {
+    return ruleKey;
   }
 
-  private DefaultCharacteristic addChild(DefaultCharacteristic child) {
-    this.children.add(child);
+  public DefaultCharacteristic setRuleKey(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
     return this;
   }
 
-  public List<DefaultRequirement> requirements() {
-    return requirements;
+  public String function() {
+    return function;
   }
 
-  public DefaultCharacteristic addRequirement(DefaultRequirement requirement) {
-    this.requirements.add(requirement);
+  public DefaultCharacteristic setFunction(String function) {
+    this.function = function;
+    return this;
+  }
+
+  public WorkUnit factor() {
+    return factor;
+  }
+
+  public DefaultCharacteristic setFactor(WorkUnit factor) {
+    this.factor = factor;
+    return this;
+  }
+
+  public WorkUnit offset() {
+    return offset;
+  }
+
+  public DefaultCharacteristic setOffset(WorkUnit offset) {
+    this.offset = offset;
     return this;
   }
 
   public boolean isRoot() {
-    return parent == null;
+    return parentId == null;
   }
 
-  public Date createdAt() {
-    return createdAt;
-  }
-
-  public DefaultCharacteristic setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Date updatedAt() {
-    return updatedAt;
-  }
-
-  public DefaultCharacteristic setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  public boolean isRequirement() {
+    return ruleKey == null;
   }
 
   @Override
@@ -173,12 +153,29 @@ public class DefaultCharacteristic implements Characteristic {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+
     DefaultCharacteristic that = (DefaultCharacteristic) o;
-    return key.equals(that.key);
+
+    if (key != null ? !key.equals(that.key) : that.key != null) {
+      return false;
+    }
+    if (ruleKey != null ? !ruleKey.equals(that.ruleKey) : that.ruleKey != null) {
+      return false;
+    }
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return key.hashCode();
+    int result = key != null ? key.hashCode() : 0;
+    result = 31 * result + (ruleKey != null ? ruleKey.hashCode() : 0);
+    return result;
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
 }

@@ -20,161 +20,40 @@
 
 package org.sonar.api.technicaldebt.server;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * @since 4.1
  */
-public class Characteristic {
+public interface Characteristic {
 
-  private Integer id;
-  private String key;
-  private String name;
-  private Integer order;
-  private Integer parentId;
-  private Integer rootId;
-  private RuleKey ruleKey;
-  private String function;
-  private WorkUnit factor;
-  private WorkUnit offset;
+  Integer id();
 
-  public Integer id() {
-    return id;
-  }
+  String key();
 
-  public Characteristic setId(Integer id) {
-    this.id = id;
-    return this;
-  }
+  String name();
 
-  public String key() {
-    return key;
-  }
-
-  public Characteristic setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String name() {
-    return name;
-  }
-
-  public Characteristic setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public Integer order() {
-    return order;
-  }
-
-  public Characteristic setOrder(Integer order) {
-    this.order = order;
-    return this;
-  }
+  Integer order();
 
   @CheckForNull
-  public Integer parentId() {
-    return parentId;
-  }
-
-  public Characteristic setParentId(@Nullable Integer parentId) {
-    this.parentId = parentId;
-    return this;
-  }
+  Integer parentId();
 
   @CheckForNull
-  public Integer rootId() {
-    return rootId;
-  }
+  Integer rootId();
 
-  public Characteristic setRootId(@Nullable Integer rootId) {
-    this.rootId = rootId;
-    return this;
-  }
+  RuleKey ruleKey();
 
-  public RuleKey ruleKey() {
-    return ruleKey;
-  }
+  String function();
 
-  public Characteristic setRuleKey(RuleKey ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
-  }
+  WorkUnit factor();
 
-  public String function() {
-    return function;
-  }
+  WorkUnit offset();
 
-  public Characteristic setFunction(String function) {
-    this.function = function;
-    return this;
-  }
+  boolean isRoot();
 
-  public WorkUnit factor() {
-    return factor;
-  }
-
-  public Characteristic setFactor(WorkUnit factor) {
-    this.factor = factor;
-    return this;
-  }
-
-  public WorkUnit offset() {
-    return offset;
-  }
-
-  public Characteristic setOffset(WorkUnit offset) {
-    this.offset = offset;
-    return this;
-  }
-
-  public boolean isRoot() {
-    return parentId == null;
-  }
-
-  public boolean isRequirement() {
-    return ruleKey == null;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    Characteristic that = (Characteristic) o;
-
-    if (key != null ? !key.equals(that.key) : that.key != null) {
-      return false;
-    }
-    if (ruleKey != null ? !ruleKey.equals(that.ruleKey) : that.ruleKey != null) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = key != null ? key.hashCode() : 0;
-    result = 31 * result + (ruleKey != null ? ruleKey.hashCode() : 0);
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+  boolean isRequirement();
 
 }

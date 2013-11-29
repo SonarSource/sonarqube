@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
 import java.util.List;
@@ -77,14 +78,14 @@ public class InternalRubyTechnicalDebtServiceTest {
   @Test
   public void find_requirement() {
     Rule rule = Rule.create("repo", "key");
-    Characteristic requirement = new Characteristic();
+    Characteristic requirement = new DefaultCharacteristic();
     when(finder.findRequirementByRule(rule)).thenReturn(requirement);
     assertThat(service.findRequirement(rule)).isEqualTo(requirement);
   }
 
   @Test
   public void find_characteristic() {
-    Characteristic characteristic = new Characteristic();
+    Characteristic characteristic = new DefaultCharacteristic();
     when(finder.findCharacteristicById(1)).thenReturn(characteristic);
     assertThat(service.findCharacteristic(1)).isEqualTo(characteristic);
   }

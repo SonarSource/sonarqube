@@ -21,9 +21,9 @@
 package org.sonar.core.technicaldebt.db;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

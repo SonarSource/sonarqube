@@ -45,8 +45,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 

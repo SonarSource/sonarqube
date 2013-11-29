@@ -29,10 +29,10 @@ import org.mockito.Mockito;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.technicaldebt.WorkUnit;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.WorkUnit;
 
 import java.io.IOException;
 

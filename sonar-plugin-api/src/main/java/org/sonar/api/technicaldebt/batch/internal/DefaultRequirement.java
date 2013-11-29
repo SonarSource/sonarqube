@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.internal;
+package org.sonar.api.technicaldebt.batch.internal;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.utils.WorkUnit;
 
 import java.util.Date;
 

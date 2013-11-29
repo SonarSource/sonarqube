@@ -24,7 +24,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.technicaldebt.WorkUnit;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.Nullable;
 

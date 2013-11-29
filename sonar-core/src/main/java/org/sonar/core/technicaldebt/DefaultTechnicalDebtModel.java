@@ -24,8 +24,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.technicaldebt.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.internal.DefaultRequirement;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 
 import javax.annotation.CheckForNull;
 

@@ -22,9 +22,10 @@ package org.sonar.core.technicaldebt;
 
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.TechnicalDebtManager;
+import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -34,6 +35,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * TODO This class should be replaced or created by a TechnicalDebtManagerBuilder
+ */
 public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
 
   private final CharacteristicDao dao;
@@ -61,7 +65,7 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto, @Nullable RuleKey ruleKey) {
-    return new Characteristic()
+    return new DefaultCharacteristic()
       .setId(dto.getId())
       .setKey(dto.getKey())
       .setName(dto.getName())

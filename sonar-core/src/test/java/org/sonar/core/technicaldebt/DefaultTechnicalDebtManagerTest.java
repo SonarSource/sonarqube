@@ -27,8 +27,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.WorkUnit;
 import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
