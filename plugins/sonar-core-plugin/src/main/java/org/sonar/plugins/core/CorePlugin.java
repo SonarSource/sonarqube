@@ -344,15 +344,6 @@ public final class CorePlugin extends SonarPlugin {
 
   static List<PropertyDefinition> propertyDefinitions() {
     return Arrays.asList(
-      PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
-        .defaultValue("en")
-        .name("Locale used for issue messages")
-        .description("Locale to be used when generating issue messages. It's up to each rule engine to support this global internationalization property")
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_L10N)
-        .build(),
-
       PropertyDefinition.builder(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)
         .defaultValue("" + CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE)
         .name("Allow users to sign up online")

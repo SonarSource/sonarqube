@@ -181,7 +181,13 @@ public interface CoreProperties {
   String REUSE_RULES_CONFIGURATION_PROPERTY = "sonar.reuseExistingRulesConfiguration";
 
   /* Sonar Core */
+
+  /**
+   * @deprecated since 4.1. See http://jira.codehaus.org/browse/SONAR-4875
+   */
+  @Deprecated
   String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
+
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
   String CORE_IMPORT_SOURCES_PROPERTY = "sonar.importSources";
   boolean CORE_IMPORT_SOURCES_DEFAULT_VALUE = true;
