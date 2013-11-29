@@ -250,6 +250,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    disable: function() {
+      this.choices.add(this.selection.models);
+      this.selection.reset([]);
+      window.SS.BaseFilterView.prototype.disable.apply(this, arguments);
+    },
+
+
     restore: function(value) {
       if (_.isString(value)) {
         value = [value];

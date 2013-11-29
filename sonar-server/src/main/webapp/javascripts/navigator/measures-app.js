@@ -50,6 +50,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         propertyFrom: 'ageMinDays',
         propertyTo: 'ageMaxDays',
         type: window.SS.RangeFilterView,
+        placeholder: 'in days',
         enabled: false,
         optional: true
       }),
@@ -99,17 +100,23 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         type: window.SS.StringFilterView,
         enabled: false,
         optional: true
-      }),
+      })
+    ]);
 
-      new window.SS.Filter({
-        name: 'Language',
-        property: 'languages[]',
-        type: window.SS.SelectFilterView,
-        enabled: false,
-        optional: true,
-        choices: window.SS.languages
-      }),
+    if (_.isObject(window.SS.languages) && _.size(window.SS.languages) > 1) {
+      this.filters.add([
+        new window.SS.Filter({
+          name: 'Language',
+          property: 'languages[]',
+          type: window.SS.SelectFilterView,
+          enabled: false,
+          optional: true,
+          choices: window.SS.languages
+        })
+      ]);
+    }
 
+    this.filters.add([
       new window.SS.Filter({
         name: 'Name contains',
         property: 'nameSearch',

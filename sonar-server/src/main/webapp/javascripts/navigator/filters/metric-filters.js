@@ -30,13 +30,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     onRender: function() {
       var value = this.model.get('value') || {};
       this.$('[name=metric]').val(value.metric).select2({
-        width: '100%'
+        width: '100%',
+        placeholder: 'Metric'
       });
-      this.$('[name=period]').val(value.period).select2({
-        width: '100%'
+      this.$('[name=period]').val(value.period || 0).select2({
+        width: '100%',
+        placeholder: 'Period'
       });
-      this.$('[name=op]').val(value.op).select2({
-        width: '60px'
+      this.$('[name=op]').val(value.op || 'eq').select2({
+        width: '60px',
+        placeholder: '='
       });
       this.$('[name=val]').val(value.val);
       this.inputChanged();
@@ -86,16 +89,23 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     renderInput: function() {
       var that = this,
-          value = this.model.get('value') || {};
-      _.each(value, function(v, k) {
+          value = this.model.get('value');
 
-        $j('<input>')
-            .prop('name', that.model.get('property') + '_' + k)
-            .prop('type', 'hidden')
-            .css('display', 'none')
-            .val(v)
-            .appendTo(that.$el);
-      });
+      if (_.isObject(value) && value.metric && value.op && value.val) {
+        _.each(['metric', 'period', 'op', 'val'], function(key) {
+          var v = value[key];
+          if (key === 'period' && v === '0') {
+            v = '';
+          }
+
+          $j('<input>')
+              .prop('name', that.model.get('property') + '_' + key)
+              .prop('type', 'hidden')
+              .css('display', 'none')
+              .val(v)
+              .appendTo(that.$el);
+        });
+      }
     },
 
 
@@ -104,7 +114,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (!_.isObject(value)) {
         return true;
       }
-      return !(value.metric && value.period && value.op && value.val);
+      return !(value.metric && value.op && value.val);
     },
 
 
@@ -115,12 +125,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         var property = that.model.get('property') + '_' + p,
             pValue = _.findWhere(q, { key: property });
 
-        if (pValue.value) {
+        if (pValue && pValue.value) {
           value[p] = pValue.value;
         }
       });
 
-      if (value && value.metric && value.period && value.op && value.val) {
+      if (value && value.metric && value.op && value.val) {
         this.model.set({
           value: value,
           enabled: true

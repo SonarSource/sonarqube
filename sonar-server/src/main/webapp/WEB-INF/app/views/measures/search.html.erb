@@ -76,10 +76,12 @@
     { key: 'languages[]', value: <%= @filter.criteria['languages'].to_json -%> },
 
     <% for i in 1..3 %>
-    { key: '<%= "c#{i}_metric" -%>', value: '<%= h @filter.criteria("c#{i}_metric") -%>' },
-    { key: '<%= "c#{i}_period" -%>', value: '<%= h @filter.criteria("c#{i}_period") -%>' },
-    { key: '<%= "c#{i}_op" -%>', value: '<%= h @filter.criteria("c#{i}_op") -%>' },
-    { key: '<%= "c#{i}_val" -%>', value: '<%= h @filter.criteria("c#{i}_val") -%>' },
+      <% unless @filter.criteria("c#{i}_metric").blank? %>
+      { key: '<%= "c#{i}_metric" -%>', value: '<%= h @filter.criteria("c#{i}_metric") -%>' },
+      { key: '<%= "c#{i}_period" -%>', value: '<%= h @filter.criteria("c#{i}_period") -%>' },
+      { key: '<%= "c#{i}_op" -%>', value: '<%= h @filter.criteria("c#{i}_op") -%>' },
+      { key: '<%= "c#{i}_val" -%>', value: '<%= h @filter.criteria("c#{i}_val") -%>' },
+      <% end %>
     <% end %>
 
     { key: 'nameSearch', value: '<%= h @filter.criteria['nameSearch'] -%>' }

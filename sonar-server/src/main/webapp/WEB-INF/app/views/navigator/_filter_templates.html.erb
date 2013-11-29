@@ -41,10 +41,10 @@
 <script id="rangeFilterTemplate" type="text/template">
   <div class="navigator-filter-details-inner">
     <input class="navigator-filter-range-input" type="text"
-           name="{{ propertyFrom }}">
+           name="{{ propertyFrom }}" placeholder="{{ placeholder }}">
     <label>to</label>
     <input class="navigator-filter-range-input" type="text"
-           name="{{ propertyTo }}">
+           name="{{ propertyTo }}" placeholder="{{ placeholder }}">
   </div>
 </script>
 
@@ -120,10 +120,12 @@
 
 <script id="detailsMoreCriteriaFilterTemplate" type="text/template">
   <ul class="navigator-filter-select-list">
-    {[ _.each(filters, function(filter) { ]}
+    {[ _.each(filters, function(filter, i) { ]}
+    {[ if (!(i > 0 && filters[i - 1].get('name') === filter.get('name'))) { ]}
     <li>
       <label data-id="{{ filter.cid }}">{[ print(filter.get('name')); ]}</label>
     </li>
+    {[ } ]}
     {[ }); ]}
   </ul>
 </script>

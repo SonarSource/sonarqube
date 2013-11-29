@@ -7,7 +7,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var Filter = Backbone.Model.extend({
 
     defaults: {
-      multiple: true
+      multiple: true,
+      placeholder: ''
     }
 
   });
@@ -174,7 +175,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     disable: function(e) {
       e.stopPropagation();
-      this.model.set('enabled', false);
+      this.model.set({
+        enabled: false,
+        value: null
+      });
     },
 
 
