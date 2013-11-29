@@ -406,20 +406,16 @@ public final class JRubyFacade {
     return getJRubyI18n().message(rubyLocale, key, defaultValue, parameters);
   }
 
-  public String getRuleName(String rubyLocale, String repositoryKey, String key) {
-    return getJRubyI18n().getRuleName(rubyLocale, repositoryKey, key);
+  public String getRuleName(String repositoryKey, String key) {
+    return getJRubyI18n().getRuleName(repositoryKey, key);
   }
 
-  public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
-    return getJRubyI18n().getRuleDescription(rubyLocale, repositoryKey, key);
+  public String getRuleDescription(String repositoryKey, String key) {
+    return getJRubyI18n().getRuleDescription(repositoryKey, key);
   }
 
-  public String getRuleParamDescription(String rubyLocale, String repositoryKey, String key, String paramKey) {
-    return getJRubyI18n().getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
-  }
-
-  public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
-    return getJRubyI18n().searchRuleName(rubyLocale, searchText);
+  public String getRuleParamDescription(String repositoryKey, String key, String paramKey) {
+    return getJRubyI18n().getRuleParamDescription(repositoryKey, key, paramKey);
   }
 
   public String getJsL10nDictionnary(String rubyLocale) {

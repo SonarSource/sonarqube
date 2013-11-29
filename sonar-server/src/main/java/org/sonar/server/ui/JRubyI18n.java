@@ -79,20 +79,16 @@ public class JRubyI18n implements ServerComponent {
     return StringUtils.defaultString(i18n.message(getLocale(rubyLocale), key, defaultValue, parameters), key);
   }
 
-  public String getRuleName(String rubyLocale, String repositoryKey, String key) {
-    return ruleI18nManager.getName(repositoryKey, key, toLocale(rubyLocale));
+  public String getRuleName(String repositoryKey, String key) {
+    return ruleI18nManager.getName(repositoryKey, key);
   }
 
-  public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
-    return ruleI18nManager.getDescription(repositoryKey, key, toLocale(rubyLocale));
+  public String getRuleDescription(String repositoryKey, String key) {
+    return ruleI18nManager.getDescription(repositoryKey, key);
   }
 
-  public String getRuleParamDescription(String rubyLocale, String repositoryKey, String ruleKey, String paramKey) {
-    return ruleI18nManager.getParamDescription(repositoryKey, ruleKey, paramKey, toLocale(rubyLocale));
-  }
-
-  public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
-    return ruleI18nManager.searchNames(searchText, toLocale(rubyLocale));
+  public String getRuleParamDescription(String repositoryKey, String ruleKey, String paramKey) {
+    return ruleI18nManager.getParamDescription(repositoryKey, ruleKey, paramKey);
   }
 
   public String getJsDictionnary(String rubyLocale) {

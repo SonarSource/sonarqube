@@ -53,19 +53,6 @@ public class RuleI18nManagerTest {
   }
 
   @Test
-  public void shouldGetRuleNameIfNoLocalizationFound() {
-    String propertyKey = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
-    I18nManager i18n = mock(I18nManager.class);
-    when(i18n.message(Locale.ENGLISH, propertyKey, null)).thenReturn(null);
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-
-    String ruleName = "RULE_NAME";
-    Rule rule = Rule.create("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", ruleName);
-    String name = ruleI18n.getName(rule, Locale.ENGLISH);
-    Assertions.assertThat(name).isEqualTo(ruleName);
-  }
-
-  @Test
   public void shouldGetParamDescription() {
     I18nManager i18n = mock(I18nManager.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
@@ -110,60 +97,12 @@ public class RuleI18nManagerTest {
     verifyNoMoreInteractions(i18n);
   }
 
-  // see http://jira.codehaus.org/browse/SONAR-3319
-  @Test
-  public void shouldGetDescriptionFromFileWithBackwardCompatibilityWithSpecificLocale() {
-    String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
-
-    I18nManager i18n = mock(I18nManager.class);
-    // this is the "old" way of storing HTML description files for rules (they are not in the "rules/<repo-key>" folder)
-    when(i18n.messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true)).thenReturn("Description");
-
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-    String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.FRENCH);
-    assertThat(description, is("Description"));
-
-    verify(i18n).messageFromFile(Locale.FRENCH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verify(i18n).messageFromFile(Locale.FRENCH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verifyNoMoreInteractions(i18n);
-  }
-
-  @Test
-  public void shouldUseOnlyLanguage() {
-    I18nManager i18n = mock(I18nManager.class);
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-
-    ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", new Locale("fr", "BE"));
-
-    String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
-    verify(i18n).messageFromFile(new Locale("fr"), "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-  }
-
   @Test
   public void shoudlReturnNullIfMissingDescription() {
     I18nManager i18n = mock(I18nManager.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
 
     assertThat(ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH), nullValue());
-  }
-
-  @Test
-  public void shouldUseEnglishIfMissingLocale() {
-    I18nManager i18n = mock(I18nManager.class);
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-
-    ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.FRENCH);
-
-    String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
-    verify(i18n).messageFromFile(Locale.FRENCH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    // check for backward compatibility in French
-    verify(i18n).messageFromFile(Locale.FRENCH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    // check for backward compatibility in English
-    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    // and finally get the default English bundle
-    verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verifyNoMoreInteractions(i18n);
   }
 
   @Test
@@ -211,42 +150,4 @@ public class RuleI18nManagerTest {
     assertThat(keys, hasItem(new RuleI18nManager.RuleKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck")));
   }
 
-  @Test
-  public void shouldSearchEnglishNames() {
-    I18nManager i18n = mock(I18nManager.class);
-    when(i18n.getPropertyKeys()).thenReturn(Sets.newHashSet("rule.pmd.Header.name", "rule.checkstyle.AnnotationUseStyleCheck.name"));
-    when(i18n.message(Locale.ENGLISH, "rule.pmd.Header.name", null)).thenReturn("HEADER PMD CHECK");
-    when(i18n.message(Locale.ENGLISH, "rule.checkstyle.AnnotationUseStyleCheck.name", null)).thenReturn("check annotation style");
-
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-    ruleI18n.start();
-
-    List<RuleI18nManager.RuleKey> result = ruleI18n.searchNames("ANNOTATion", Locale.ENGLISH);
-    assertThat(result.size(), Is.is(1));
-    assertThat(result.get(0).getRepositoryKey(), Is.is("checkstyle"));
-
-    result = ruleI18n.searchNames("bibopaloula", Locale.ENGLISH);
-    assertThat(result.size(), Is.is(0));
-  }
-
-  @Test
-  public void shouldSearchLocalizedNames() {
-    I18nManager i18n = mock(I18nManager.class);
-    when(i18n.getPropertyKeys()).thenReturn(Sets.newHashSet("rule.pmd.Header.name", "rule.checkstyle.AnnotationUseStyleCheck.name"));
-    when(i18n.message(Locale.ENGLISH, "rule.pmd.Header.name", null)).thenReturn("HEADER PMD CHECK");
-    when(i18n.message(Locale.ENGLISH, "rule.checkstyle.AnnotationUseStyleCheck.name", null)).thenReturn("check annotation style");
-    when(i18n.message(Locale.FRENCH, "rule.checkstyle.AnnotationUseStyleCheck.name", null)).thenReturn("vérifie le style des annotations");
-
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-    ruleI18n.start();
-
-    List<RuleI18nManager.RuleKey> result = ruleI18n.searchNames("annotation", Locale.FRENCH);
-    assertThat(result.size(), Is.is(1));
-    assertThat(result.get(0).getKey(), Is.is("AnnotationUseStyleCheck"));
-
-    // search only in the french bundle
-    result = ruleI18n.searchNames("vérifie", Locale.FRENCH);
-    assertThat(result.size(), Is.is(1));
-    assertThat(result.get(0).getKey(), Is.is("AnnotationUseStyleCheck"));
-  }
 }

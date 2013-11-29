@@ -49,7 +49,7 @@ public class RubyRuleService implements ServerComponent, Startable {
 
   @CheckForNull
   public String ruleL10nName(Rule rule) {
-    String name = i18n.getName(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
+    String name = i18n.getName(rule.getRepositoryKey(), rule.getKey());
     if (name == null) {
       name = rule.getName();
     }
@@ -57,7 +57,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   }
 
   public String ruleL10nDescription(Rule rule) {
-    String desc = i18n.getDescription(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
+    String desc = i18n.getDescription(rule.getRepositoryKey(), rule.getKey());
     if (desc == null) {
       desc = rule.getDescription();
     }

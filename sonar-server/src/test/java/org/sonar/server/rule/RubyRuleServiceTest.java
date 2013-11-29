@@ -41,15 +41,6 @@ public class RubyRuleServiceTest {
   RubyRuleService facade = new RubyRuleService(i18n, ruleRegistry);
 
   @Test
-  public void should_get_localized_rule_name() {
-    MockUserSession.set().setLocale(Locale.FRENCH);
-    when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Eviter les cycles");
-
-    String name = facade.ruleL10nName(new Rule("squid", "AvoidCycle"));
-    assertThat(name).isEqualTo("Eviter les cycles");
-  }
-
-  @Test
   public void should_get_raw_name_if_no_l10n_name() throws Exception {
     MockUserSession.set().setLocale(Locale.FRENCH);
     when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn(null);
@@ -58,15 +49,6 @@ public class RubyRuleServiceTest {
     rule.setName("Avoid cycles");
     String name = facade.ruleL10nName(rule);
     assertThat(name).isEqualTo("Avoid cycles");
-  }
-
-  @Test
-  public void should_get_localized_rule_description() {
-    MockUserSession.set().setLocale(Locale.FRENCH);
-    when(i18n.getDescription("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Les cycles sont le mal");
-
-    String desc = facade.ruleL10nDescription(new Rule("squid", "AvoidCycle"));
-    assertThat(desc).isEqualTo("Les cycles sont le mal");
   }
 
   @Test

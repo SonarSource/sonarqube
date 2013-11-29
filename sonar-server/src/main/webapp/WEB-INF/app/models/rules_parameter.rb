@@ -34,9 +34,9 @@ class RulesParameter < ActiveRecord::Base
   end
 
   def description
-    @l10n_description ||=
+    @raw_description ||=
       begin
-        result = Java::OrgSonarServerUi::JRubyFacade.instance.getRuleParamDescription(I18n.locale, rule.repository_key, rule.plugin_rule_key, name)
+        result = Java::OrgSonarServerUi::JRubyFacade.instance.getRuleParamDescription(rule.repository_key, rule.plugin_rule_key, name)
         result = read_attribute(:description) unless result
         result
       end

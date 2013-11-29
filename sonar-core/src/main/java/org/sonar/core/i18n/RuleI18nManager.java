@@ -21,6 +21,7 @@ package org.sonar.core.i18n;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.RuleI18n;
@@ -31,7 +32,7 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Locale;
 
-public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension {
+public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension, Startable {
 
   private static final String NAME_SUFFIX = ".name";
   private static final String RULE_PREFIX = "rule.";
@@ -43,6 +44,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     this.i18nManager = i18nManager;
   }
 
+  @Override
   public void start() {
     List<RuleKey> list = Lists.newArrayList();
     for (String propertyKey : i18nManager.getPropertyKeys()) {
@@ -53,30 +55,55 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     this.ruleKeys = list.toArray(new RuleKey[list.size()]);
   }
 
-  @CheckForNull
+  @Override
+  public void stop() {
+
+  }
+
+  @Override
+  @Deprecated
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
-    return message(repositoryKey, ruleKey, locale, NAME_SUFFIX);
+    return getName(repositoryKey, ruleKey);
+  }
+
+  @Override
+  @Deprecated
+  public String getName(Rule rule, Locale locale) {
+    return getName(rule);
+  }
+
+  @Override
+  @Deprecated
+  public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
+    return getDescription(repositoryKey, ruleKey);
+  }
+
+  @Override
+  @Deprecated
+  public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
+    return getParamDescription(repositoryKey, ruleKey, paramKey);
+  }
+
+
+  @CheckForNull
+  public String getName(String repositoryKey, String ruleKey) {
+    return message(repositoryKey, ruleKey, NAME_SUFFIX);
   }
 
   @CheckForNull
-  public String getName(Rule rule, Locale locale) {
-    String name = message(rule.getRepositoryKey(), rule.getKey(), locale, NAME_SUFFIX);
+  public String getName(Rule rule) {
+    String name = message(rule.getRepositoryKey(), rule.getKey(), NAME_SUFFIX);
     return name != null ? name : rule.getName();
   }
 
-  public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
+  public String getDescription(String repositoryKey, String ruleKey) {
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
-    Locale localeWithoutCountry = locale.getCountry() == null ? locale : new Locale(locale.getLanguage());
     String ruleDescriptionFilePath = "rules/" + repositoryKey + "/" + ruleKey + ".html";
-    String description = i18nManager.messageFromFile(localeWithoutCountry, ruleDescriptionFilePath, relatedProperty, true);
+    String description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty, true);
     if (description == null) {
       // Following line is to ensure backward compatibility (SONAR-3319)
-      description = lookUpDescriptionInFormerLocation(ruleKey, relatedProperty, localeWithoutCountry);
-      if (description == null && !"en".equals(localeWithoutCountry.getLanguage())) {
-        // nothing was found, let's get the value of the default bundle
-        description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty, true);
-      }
+      description = lookUpDescriptionInFormerLocation(ruleKey, relatedProperty);
     }
     return description;
   }
@@ -87,35 +114,19 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
    * 
    * See http://jira.codehaus.org/browse/SONAR-3319
    */
-  private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty, Locale localeWithoutCountry) {
-    String description = i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
-    if (description == null && !"en".equals(localeWithoutCountry.getLanguage())) {
-      // nothing was found, let's get the value of the default bundle
-      description = i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty, true);
-    }
-    return description;
+  private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty) {
+    return i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty, true);
   }
 
   @CheckForNull
-  public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
-    return message(repositoryKey, ruleKey, locale, ".param." + paramKey);
+  public String getParamDescription(String repositoryKey, String ruleKey, String paramKey) {
+    return message(repositoryKey, ruleKey, ".param." + paramKey);
   }
 
   @CheckForNull
-  String message(String repositoryKey, String ruleKey, Locale locale, String suffix) {
+  String message(String repositoryKey, String ruleKey, String suffix) {
     String propertyKey = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
-    return i18nManager.message(locale, propertyKey, null);
-  }
-
-  public List<RuleKey> searchNames(String search, Locale locale) {
-    List<RuleKey> result = Lists.newArrayList();
-    for (RuleKey ruleKey : ruleKeys) {
-      String name = i18nManager.message(locale, ruleKey.getNameProperty(), null);
-      if (name != null && StringUtils.indexOfIgnoreCase(name, search) >= 0) {
-        result.add(ruleKey);
-      }
-    }
-    return result;
+    return i18nManager.message(Locale.ENGLISH, propertyKey, null);
   }
 
   RuleKey[] getRuleKeys() {

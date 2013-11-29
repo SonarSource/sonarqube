@@ -111,29 +111,17 @@ class Rule < ActiveRecord::Base
     name.downcase<=>other.name.downcase
   end
 
-  def name(l10n=true)
-    if l10n
-      @l10n_name ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
-          result = read_attribute(:name) unless result
-          # SONAR-4583
-          # name should return an empty string instead of nil
-          result = '' unless result
-          result
-        end
-    else
-      @raw_name ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName("en", repository_key, plugin_rule_key)
-          # if no name present in the bundle, try to find it in the DB
-          result = read_attribute(:name) unless result
-          # SONAR-4583
-          # name should return an empty string instead of nil
-          result = '' unless result
-          result
-        end
-    end
+  def name(unused_deprecated_l10n=true)
+    @raw_name ||=
+      begin
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(repository_key, plugin_rule_key)
+        # if no name present in the bundle, try to find it in the DB
+        result = read_attribute(:name) unless result
+        # SONAR-4583
+        # name should return an empty string instead of nil
+        result = '' unless result
+        result
+      end
   end
 
   def name=(value)
@@ -141,9 +129,9 @@ class Rule < ActiveRecord::Base
   end
 
   def description
-    @l10n_description ||=
+    @raw_description ||=
       begin
-        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(repository_key, plugin_rule_key)
         result = read_attribute(:description) unless result
         # SONAR-4583
         # description should return an empty string instead of nil
