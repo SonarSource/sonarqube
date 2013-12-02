@@ -1,4 +1,8 @@
 <div>
-  <%= @root_characteristic.name %>&nbsp;&gt;&nbsp;<%= @characteristic.name %>
+  <% if @requirement %>
+    <%= @root_characteristic.name %>&nbsp;&gt;&nbsp;<%= @characteristic.name %>
+  <% else %>
+    <%= message 'issue.technical_debt_deleted' %>
+  <% end %>
 </div>
 

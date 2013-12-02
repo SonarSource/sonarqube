@@ -208,9 +208,10 @@ class IssueController < ApplicationController
     @issue = @issue_results.first()
 
     rule = @issue_results.rule(@issue)
-    requirement = Internal.technical_debt.findRequirement(rule)
-    @characteristic = Internal.technical_debt.findCharacteristic(requirement.parentId)
-    @root_characteristic = Internal.technical_debt.findCharacteristic(requirement.rootId)
+    @requirement = Internal.technical_debt.findRequirement(rule)
+    # Requirement can be null if it's disabled
+    @characteristic = Internal.technical_debt.findCharacteristic(@requirement.parentId) if @requirement
+    @root_characteristic = Internal.technical_debt.findCharacteristic(@requirement.rootId) if @requirement
     render :partial => 'issue/technicaldebt'
   end
 

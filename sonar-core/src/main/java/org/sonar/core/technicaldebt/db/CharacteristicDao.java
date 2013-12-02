@@ -25,6 +25,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class CharacteristicDao implements BatchComponent, ServerComponent  {
@@ -61,6 +63,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent  {
     }
   }
 
+  @CheckForNull
   public CharacteristicDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
@@ -71,6 +74,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent  {
     }
   }
 
+  @CheckForNull
   public CharacteristicDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
@@ -81,6 +85,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent  {
     }
   }
 
+  @CheckForNull
   public CharacteristicDto selectByRuleId(Integer ruleId) {
     SqlSession session = mybatis.openSession();
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);

@@ -29,6 +29,7 @@ import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
@@ -55,13 +56,22 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     return characteristics;
   }
 
+  @CheckForNull
   public Characteristic findCharacteristicById(Integer id) {
-    return toCharacteristic(dao.selectById(id), null);
+    CharacteristicDto dto = dao.selectById(id);
+    if (dto != null) {
+      return toCharacteristic(dao.selectById(id), null);
+    }
+    return null;
   }
 
+  @CheckForNull
   public Characteristic findRequirementByRule(Rule rule) {
     CharacteristicDto requirementDto = dao.selectByRuleId(rule.getId());
-    return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
+    if (requirementDto != null) {
+      return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
+    }
+    return null;
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto, @Nullable RuleKey ruleKey) {

@@ -89,6 +89,17 @@ public class DefaultTechnicalDebtManagerTest {
   }
 
   @Test
+  public void not_find_requirement() throws Exception {
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(1);
+
+    when(dao.selectByRuleId(rule.getId())).thenReturn(null);
+
+    Characteristic result = finder.findRequirementByRule(rule);
+    assertThat(result).isNull();
+  }
+
+  @Test
   public void find_characteristic() throws Exception {
     Rule rule = Rule.create("repo", "key");
     rule.setId(1);
@@ -103,5 +114,16 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
     assertThat(result.name()).isEqualTo("Compiler");
+  }
+
+  @Test
+  public void not_find_characteristic() throws Exception {
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(1);
+
+    when(dao.selectById(rule.getId())).thenReturn(null);
+
+    Characteristic result = finder.findCharacteristicById(2);
+    assertThat(result).isNull();
   }
 }
