@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Configuration for default logger. Only used while embedded server is starting,
+  before proper logging configuration is loaded.
+
+  See http://logback.qos.ch/manual/configuration.html
+-->
+<configuration debug="false">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+  <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${SONAR_HOME}/logs/sonar.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <param name="FileNamePattern" value="${SONAR_HOME}/logs/sonar.%i.log"/>
+      <param name="MinIndex" value="1"/>
+      <param name="MaxIndex" value="3"/>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <param name="MaxFileSize" value="5MB"/>
+    </triggeringPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <!-- Use %d{yyyy.MM.dd HH:mm:ss.SSS} to display milliseconds -->
+      <pattern>
+        %d{yyyy.MM.dd HH:mm:ss} %-5level %thread [%logger{20}] %X %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>
+        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <root>
+    <level value="INFO"/>
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+</configuration>
