@@ -23,6 +23,10 @@
         <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
       </th>
       <th>
+        <%= message('projects_role.issueadmin') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.issueadmin.desc') -%></span>
+      </th>
+      <th>
         <%= message('projects_role.codeviewer') -%><br/>
         <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
       </th>
@@ -31,7 +35,7 @@
   <tbody>
     <tr class="even">
       <td valign="top"><b>Users</b></td>
-      <% ['user', 'admin', 'codeviewer'].each do |permission| -%>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
       <td valign="top">
         <span id="<%= permission -%>-role-users"><%= users(permission, @project.id).map(&:name).join(', ') %></span>
         (<%= link_to_edit_roles_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-users") %>)<br/>
@@ -40,7 +44,7 @@
     </tr>
     <tr class="odd">
       <td valign="top"><b>Groups</b></td>
-      <% ['user', 'admin', 'codeviewer'].each do |permission| -%>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
       <td valign="top">
         <span id="<%= permission -%>-role-groups"><%= groups(permission, @project.id).map{|g| group_name(g)}.join(', ') %></span>
         (<%= link_to_edit_groups_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-groups") %>)<br/>
