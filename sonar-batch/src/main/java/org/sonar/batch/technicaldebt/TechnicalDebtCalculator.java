@@ -46,7 +46,8 @@ public class TechnicalDebtCalculator implements BatchExtension {
     Requirement requirement = model.requirementsByRule(issue.ruleKey());
     if (requirement != null) {
       if (requirement.function().equals(DefaultRequirement.CONSTANT_ISSUE) && issue.effortToFix() != null) {
-        throw new IllegalArgumentException("The implementation of rule '"+ issue.ruleKey() +"' defines an effort to fix whereas its requirement is set to 'constant/issue' - which is not compatible.");
+        throw new IllegalArgumentException("Requirement for '"+ issue.ruleKey() +"' can not use 'Constant/issue' remediation function " +
+          "because this rule does not have a fixed remediation cost.");
       }
       return converter.fromMinutes(calculTechnicalDebt(requirement, issue));
     }

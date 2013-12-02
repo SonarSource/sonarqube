@@ -148,7 +148,7 @@ public class TechnicalDebtCalculatorTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("The implementation of rule 'squid:AvoidCycle' defines an effort to fix whereas its requirement is set to 'constant/issue' - which is not compatible.");
+        .hasMessage("Requirement for 'squid:AvoidCycle' can not use 'Constant/issue' remediation function because this rule does not have a fixed remediation cost.");
     }
     verifyZeroInteractions(converter);
   }
