@@ -1,0 +1,11 @@
+{
+  "name": "sonar",
+  "version": "0.0.1",
+  "dependencies": {
+    "qunitjs": "*",
+    "karma": "0.9.3",
+    "karma-qunit": "*",
+    "karma-phantomjs-launcher": "*",
+    "karma-coverage": "*"
+  }
+}
