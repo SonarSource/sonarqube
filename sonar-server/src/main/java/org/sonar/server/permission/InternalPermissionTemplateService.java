@@ -36,6 +36,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
@@ -80,6 +82,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(null, name);
+    validateKeyPattern(null, keyPattern);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
     if (permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
@@ -92,6 +95,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(templateId, newName);
+    validateKeyPattern(templateId, newKeyPattern);
     permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
   }
 
@@ -144,7 +148,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
     updater.executeUpdate();
   }
 
-  private void validateTemplateName(Long templateId, String templateName) {
+  private void validateTemplateName(@Nullable Long templateId, String templateName) {
     if (StringUtils.isNullOrEmpty(templateName)) {
       String errorMsg = "Name can't be blank";
       throw new BadRequestException(errorMsg);
@@ -157,6 +161,18 @@ public class InternalPermissionTemplateService implements ServerComponent {
           throw new BadRequestException(errorMsg);
         }
       }
+    }
+  }
+
+  private void validateKeyPattern(@Nullable Long templateId, @Nullable String keyPattern) {
+    if (StringUtils.isNullOrEmpty(keyPattern)) {
+      return;
+    }
+    try {
+      Pattern.compile(keyPattern);
+    } catch (PatternSyntaxException e) {
+      String errorMsg = "Invalid pattern: " + keyPattern + ". Should be a valid Java regular expression.";
+      throw new BadRequestException(errorMsg);
     }
   }
 

@@ -19,7 +19,8 @@
 #
 
 #
-# Sonar 4.1
+# SonarQube 4.1
+# SONAR-4535
 #
 
 class AddPermTemplateKeyPatternColumn < ActiveRecord::Migration

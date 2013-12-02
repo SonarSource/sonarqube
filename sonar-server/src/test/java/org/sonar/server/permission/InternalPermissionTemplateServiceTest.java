@@ -54,9 +54,10 @@ public class InternalPermissionTemplateServiceTest {
 
   private static final String DEFAULT_NAME = "my template";
   private static final String DEFAULT_DESC = "my description";
+  private static final String DEFAULT_PATTERN = "com.foo.(.*)";
   private static final String DEFAULT_PERMISSION = UserRole.USER;
   private static final PermissionTemplateDto DEFAULT_TEMPLATE =
-    new PermissionTemplateDto().setId(1L).setName(DEFAULT_NAME).setDescription(DEFAULT_DESC);
+    new PermissionTemplateDto().setId(1L).setName(DEFAULT_NAME).setDescription(DEFAULT_DESC).setKeyPattern(DEFAULT_PATTERN);
 
   private PermissionTemplateDao permissionTemplateDao;
   private UserDao userDao;
@@ -78,13 +79,14 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_create_permission_template() throws Exception {
-    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
 
-    PermissionTemplate permissionTemplate = permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null);
+    PermissionTemplate permissionTemplate = permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, DEFAULT_PATTERN);
 
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo(DEFAULT_NAME);
     assertThat(permissionTemplate.getDescription()).isEqualTo(DEFAULT_DESC);
+    assertThat(permissionTemplate.getKeyPattern()).isEqualTo(DEFAULT_PATTERN);
   }
 
   @Test
@@ -103,6 +105,14 @@ public class InternalPermissionTemplateServiceTest {
     expected.expectMessage("Name can't be blank");
 
     permissionTemplateService.createPermissionTemplate("", DEFAULT_DESC, null);
+  }
+
+  @Test
+  public void should_reject_invalid_key_pattern_on_creation() throws Exception {
+    expected.expect(BadRequestException.class);
+    expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
+
+    permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, "[azerty");
   }
 
   @Test
@@ -206,6 +216,17 @@ public class InternalPermissionTemplateServiceTest {
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
     permissionTemplateService.updatePermissionTemplate(1L, "template2", "template1", null);
+  }
+
+  @Test
+  public void should_validate_template_key_pattern_on_update_if_applicable() throws Exception {
+    expected.expect(BadRequestException.class);
+    expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
+
+    PermissionTemplateDto template1 = new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
+    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1));
+
+    permissionTemplateService.updatePermissionTemplate(1L, "template1", "template1", "[azerty");
   }
 
   @Test
