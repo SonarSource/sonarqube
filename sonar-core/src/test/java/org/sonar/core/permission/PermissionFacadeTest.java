@@ -167,7 +167,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
 
-    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplate("test_template");
+    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions("test_template");
 
     assertThat(permissionTemplate).isSameAs(templateWithPermissions);
   }
@@ -179,7 +179,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     permissionTemplateDao = mock(PermissionTemplateDao.class);
 
     permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
-    permissionFacade.getPermissionTemplate("unmatched");
+    permissionFacade.getPermissionTemplateWithPermissions("unmatched");
   }
 
   @Test

@@ -78,6 +78,6 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   }
 
   public void grantDefaultRoles(Resource resource) {
-    permissionFacade.grantDefaultRoles(Long.valueOf(resource.getId()), resource.getQualifier());
+    permissionFacade.grantDefaultRoles(Long.valueOf(resource.getId()), resource.getEffectiveKey(), resource.getQualifier());
   }
 }

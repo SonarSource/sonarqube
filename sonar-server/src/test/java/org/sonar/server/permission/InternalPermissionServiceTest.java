@@ -441,7 +441,7 @@ public class InternalPermissionServiceTest {
     when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);
     verify(resourceDao).findByKey(componentKey);
-    verify(permissionFacade).grantDefaultRoles(componentId, qualifier);
+    verify(permissionFacade).grantDefaultRoles(componentId, componentKey, qualifier);
   }
 
   @Test(expected = ForbiddenException.class)

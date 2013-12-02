@@ -93,7 +93,7 @@ public class InternalPermissionService implements ServerComponent {
       UserSession.get().checkGlobalPermission(GlobalPermissions.PROVISIONING);
     }
 
-    permissionFacade.grantDefaultRoles(component.getId(), component.qualifier());
+    permissionFacade.grantDefaultRoles(component.getId(), componentKey, component.qualifier());
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {

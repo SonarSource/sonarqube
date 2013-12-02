@@ -37,7 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
-  private Resource project = new Project("project").setId(123);
+  private Resource project;
   private Settings settings;
   private DefaultResourcePermissions permissions;
 
@@ -46,6 +46,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
   @Before
   public void initResourcePermissions() {
+    project = new Project("project").setId(123);
     settings = new Settings();
     PermissionFacade permissionFacade = new PermissionFacade(getMyBatis(),
       new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new PermissionTemplateDao(getMyBatis()), settings);
@@ -113,6 +114,34 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles", "user_roles", "group_roles");
+  }
+
+  @Test
+  public void grantDefaultRoles_pattern() {
+    setupData("grantDefaultRolesPattern");
+
+    settings.setProperty("sonar.permission.template.default", "default");
+
+    project.setEffectiveKey("foo.project");
+    permissions.grantDefaultRoles(project);
+
+    checkTables("grantDefaultRolesPattern", "user_roles", "group_roles");
+  }
+
+  @Test
+  public void grantDefaultRoles_several_matching_pattern() {
+    setupData("grantDefaultRolesSeveralPattern");
+
+    settings.setProperty("sonar.permission.template.default", "default");
+
+    project.setEffectiveKey("foo.project");
+
+    throwable.expect(IllegalStateException.class);
+    throwable
+      .expectMessage("The following permission templates have a key pattern that matches the 'foo.project' key: 'Start with foo', 'Start with foo again'. The administrator must update them to make sure that only one permission template can be selected for foo.project component.");
+
+    permissions.grantDefaultRoles(project);
+
   }
 
   @Test

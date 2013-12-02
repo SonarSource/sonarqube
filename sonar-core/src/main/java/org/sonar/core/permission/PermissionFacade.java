@@ -20,6 +20,7 @@
 
 package org.sonar.core.permission;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -35,9 +36,10 @@ import org.sonar.core.user.UserRoleDto;
 
 import javax.annotation.Nullable;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Internal use only
@@ -148,7 +150,11 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     }
   }
 
-  public PermissionTemplateDto getPermissionTemplate(String templateKey) {
+  /**
+   * Load permission template and load associated collections of users and groups permissions
+   */
+  @VisibleForTesting
+  PermissionTemplateDto getPermissionTemplateWithPermissions(String templateKey) {
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(templateKey);
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
@@ -161,10 +167,10 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
   }
 
   public void applyPermissionTemplate(String templateKey, Long resourceId) {
+    PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(templateKey);
     SqlSession session = myBatis.openSession();
     try {
       removeAllPermissions(resourceId, session);
-      PermissionTemplateDto permissionTemplate = getPermissionTemplate(templateKey);
       List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
       if (usersPermissions != null) {
         for (PermissionTemplateUserDto userPermission : usersPermissions) {
@@ -201,70 +207,48 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     return roleDao.selectUserPermissions(user, componentId);
   }
 
-  public void grantDefaultRoles(Long componentId, String qualifier) {
-    SqlSession session = myBatis.openSession();
-    try {
-      removeAllPermissions(componentId, session);
-      for (String permission : ComponentPermissions.ALL) {
-        grantDefaultRoles(componentId, qualifier, permission, session);
+  public void grantDefaultRoles(Long componentId, final String componentKey, String qualifier) {
+    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(componentKey, qualifier);
+    applyPermissionTemplate(applicablePermissionTemplateKey, componentId);
+  }
+
+  /**
+   * Return the permission template for the given componentKey. If no template key pattern match then consider default
+   * permission template for the resource qualifier.
+   */
+  private String getApplicablePermissionTemplateKey(final String componentKey, String qualifier) {
+    List<PermissionTemplateDto> allPermissionTemplates = permissionTemplateDao.selectAllPermissionTemplates();
+    List<PermissionTemplateDto> matchingTemplates = new ArrayList<PermissionTemplateDto>();
+    for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
+      String keyPattern = permissionTemplateDto.getKeyPattern();
+      if (StringUtils.isNotBlank(keyPattern) && componentKey.matches(keyPattern)) {
+        matchingTemplates.add(permissionTemplateDto);
       }
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
-  }
-
-  private void grantDefaultRoles(Long resourceId, String qualifier, String role, SqlSession session) {
-    PermissionTemplateDto applicablePermissionTemplate = getDefaultPermissionTemplate(qualifier);
-
-    List<Long> groupIds = getEligibleGroups(role, applicablePermissionTemplate);
-    for (Long groupId : groupIds) {
-      insertGroupPermission(resourceId, groupId, role, session);
-    }
-
-    List<Long> userIds = getEligibleUsers(role, applicablePermissionTemplate);
-    for (Long userId : userIds) {
-      insertUserPermission(resourceId, userId, role, session);
-    }
-  }
-
-  private List<Long> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
-    List<Long> eligibleGroups = newArrayList();
-    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
-    if (groupsPermissions != null) {
-      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
-        if (role.equals(groupPermission.getPermission())) {
-          Long groupId = groupPermission.getGroupId() != null ? groupPermission.getGroupId() : null;
-          eligibleGroups.add(groupId);
+    if (matchingTemplates.size() > 1) {
+      StringBuilder templatesNames = new StringBuilder();
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
+        templatesNames.append("'").append(it.next().getName()).append("'");
+        if (it.hasNext()) {
+          templatesNames.append(", ");
         }
       }
+      throw new IllegalStateException(MessageFormat.format(
+        "The following permission templates have a key pattern that matches the ''{0}'' key: {1}."
+          + " The administrator must update them to make sure that only one permission template can be selected for 'foo.project' component.", componentKey,
+        templatesNames.toString()));
+    } else if (matchingTemplates.size() == 1) {
+      return matchingTemplates.get(0).getKee();
     }
-    return eligibleGroups;
-  }
-
-  private List<Long> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
-    List<Long> eligibleUsers = newArrayList();
-    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
-    if (usersPermissions != null) {
-      for (PermissionTemplateUserDto userPermission : usersPermissions) {
-        if (role.equals(userPermission.getPermission())) {
-          eligibleUsers.add(userPermission.getUserId());
-        }
-      }
-    }
-    return eligibleUsers;
-  }
-
-  private PermissionTemplateDto getDefaultPermissionTemplate(String qualifier) {
     String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
     if (!StringUtils.isBlank(qualifierTemplateKey)) {
-      return getPermissionTemplate(qualifierTemplateKey);
+      return qualifierTemplateKey;
     }
 
     String defaultTemplateKey = settings.getString("sonar.permission.template.default");
     if (StringUtils.isBlank(defaultTemplateKey)) {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
-    return getPermissionTemplate(defaultTemplateKey);
+    return defaultTemplateKey;
   }
 }
