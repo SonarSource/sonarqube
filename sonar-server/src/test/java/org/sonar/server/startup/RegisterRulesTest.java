@@ -32,7 +32,6 @@ import org.sonar.server.rule.RuleRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -54,12 +53,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   private RegisterRules task;
   private ProfilesManager profilesManager;
   private RuleRegistry ruleRegistry;
+  private RuleI18nManager ruleI18nManager;
 
   @Before
   public void init() {
     profilesManager = mock(ProfilesManager.class);
     ruleRegistry = mock(RuleRegistry.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null, profilesManager, ruleRegistry);
+    ruleI18nManager = mock(RuleI18nManager.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
   }
 
   @Test
@@ -212,6 +213,28 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_store_bundle_name_and_description_in_database() {
+    setupData("updadeRuleFields");
+    String i18nName = "The One";
+    String i18nDescription = "The Description of One";
+    when(ruleI18nManager.getName("fake", "rule1")).thenReturn(i18nName);
+    when(ruleI18nManager.getDescription("fake", "rule1")).thenReturn(i18nDescription);
+    task.start();
+
+    // fields have been updated with new values
+    Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule1.getName(), is(i18nName));
+    assertThat(rule1.getDescription(), is(i18nDescription));
+    assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
+    assertThat(rule1.getConfigKey(), is("config1"));
+    assertThat(rule1.getUpdatedAt(), notNullValue());
+
+    Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule2.getStatus(), is(Rule.STATUS_DEPRECATED));
+    assertThat(rule2.getUpdatedAt(), notNullValue());
+  }
+
+  @Test
   public void should_update_rule_parameters() {
     setupData("updateRuleParameters");
     task.start();
@@ -267,7 +290,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void volume_testing() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null, profilesManager, ruleRegistry);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
     task.start();
 
@@ -278,7 +301,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   // SONAR-3305
   @Test
   public void should_fail_with_rule_without_name() throws Exception {
-    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
@@ -291,16 +313,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     }
 
     // now it is ok, the rule has a name in the English bundle
-    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
-    when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
+    when(ruleI18nManager.getName(anyString(), anyString())).thenReturn("Name");
+    when(ruleI18nManager.getDescription(anyString(), anyString())).thenReturn("Description");
     task.start();
   }
 
   // SONAR-3769
   @Test
   public void should_fail_with_rule_with_blank_name() throws Exception {
-    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("");
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
@@ -316,8 +336,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   // SONAR-3305
   @Test
   public void should_fail_with_rule_without_description() throws Exception {
-    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
+    when(ruleI18nManager.getName(anyString(), anyString())).thenReturn("Name");
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 
@@ -330,15 +349,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     }
 
     // now it is ok, the rule has a name & a description in the English bundle
-    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
-    when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
+    when(ruleI18nManager.getName(anyString(), anyString())).thenReturn("Name");
+    when(ruleI18nManager.getDescription(anyString(), anyString())).thenReturn("Description");
     task.start();
   }
 
   // http://jira.codehaus.org/browse/SONAR-3722
   @Test
   public void should_fail_with_rule_without_name_in_bundle() throws Exception {
-    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
     setupData("shared");
 

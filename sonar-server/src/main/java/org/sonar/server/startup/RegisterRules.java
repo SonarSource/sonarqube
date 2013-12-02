@@ -160,14 +160,22 @@ public final class RegisterRules {
   }
 
   private void validateRuleRepositoryName(Rule rule, String repositoryKey) {
-    if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+    String nameFromBundle = ruleI18nManager.getName(repositoryKey, rule.getKey());
+    if(! Strings.isNullOrEmpty(nameFromBundle)) {
+      rule.setName(nameFromBundle);
+    }
+    if (Strings.isNullOrEmpty(rule.getName())) {
       throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
     }
   }
 
   private void validateRuleDescription(Rule rule, String repositoryKey) {
-    if (Strings.isNullOrEmpty(rule.getDescription()) && Strings.isNullOrEmpty(ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
-      if (!Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+    String descriptionFromBundle = ruleI18nManager.getDescription(repositoryKey, rule.getKey());
+    if(! Strings.isNullOrEmpty(descriptionFromBundle)) {
+      rule.setDescription(descriptionFromBundle);
+    }
+    if (Strings.isNullOrEmpty(rule.getDescription())) {
+      if (!Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey()))) {
         // specific case
         throw new SonarException("No description found for the rule '" + rule.getName() + "' (repository: " + repositoryKey + ") because the entry 'rule."
           + repositoryKey + "." + rule.getKey() + ".name' is missing from the bundle.");
