@@ -16,7 +16,7 @@
         </li>
         <%= render 'layouts/menu_projects' -%>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/measures" class="<%= 'selected' if selected_section==Navigation::SECTION_MEASURES -%>"><%= message('layout.measures') -%></a>
+          <a href="<%= ApplicationController.root_context -%>/measures/search?qualifiers[]=TRK" class="<%= 'selected' if selected_section==Navigation::SECTION_MEASURES -%>"><%= message('layout.measures') -%></a>
         </li>
         <li>
           <a href="<%= ApplicationController.root_context -%>/issues/index" class="<%= 'selected' if selected_section==Navigation::SECTION_ISSUES -%>"><%= message('issues.page') -%></a>
