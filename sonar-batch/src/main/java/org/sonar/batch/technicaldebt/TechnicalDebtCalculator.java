@@ -25,6 +25,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
@@ -44,6 +45,9 @@ public class TechnicalDebtCalculator implements BatchExtension {
   public WorkDayDuration calculTechnicalDebt(Issue issue) {
     Requirement requirement = model.requirementsByRule(issue.ruleKey());
     if (requirement != null) {
+      if (requirement.function().equals(DefaultRequirement.CONSTANT_ISSUE) && issue.effortToFix() != null) {
+        throw new IllegalArgumentException("The implementation of rule '"+ issue.ruleKey() +"' defines an effort to fix whereas its requirement is set to 'constant/issue' - which is not compatible.");
+      }
       return converter.fromMinutes(calculTechnicalDebt(requirement, issue));
     }
     return null;
