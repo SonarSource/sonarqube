@@ -122,7 +122,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         processCharacteristic(model, characteristic, cursor, messages, technicalDebtRuleCache);
 
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
-        DefaultRequirement requirement = processRequirement(model, cursor, messages, technicalDebtRuleCache);
+        DefaultRequirement requirement = processRequirement(cursor, messages, technicalDebtRuleCache);
         if (requirement != null) {
           if (parent.parent() == null) {
             messages.addWarningText("Requirement '" + requirement.ruleKey()  + "' is ignored because it's defined directly under a root characteristic.");
@@ -142,7 +142,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return null;
   }
 
-  private DefaultRequirement processRequirement(DefaultTechnicalDebtModel model, SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
+  private DefaultRequirement processRequirement(SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)
     throws XMLStreamException {
 
     DefaultRequirement requirement = new DefaultRequirement();
@@ -263,7 +263,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
 
   }
 
-  private class Property {
+  private static class Property {
     String key;
     Double value;
     String textValue;

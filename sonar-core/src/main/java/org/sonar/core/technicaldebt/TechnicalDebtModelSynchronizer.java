@@ -73,7 +73,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
 
   public List<CharacteristicDto> synchronize(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
     DefaultTechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
-    List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, messages, session);
+    List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
     disableRequirementsOnRemovedRules(model, rulesCache, session);
     mergePlugins(model, defaultModel, messages, rulesCache, session);
     messages.log(LOG);
@@ -81,7 +81,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return model;
   }
 
-  private List<CharacteristicDto> loadOrCreateModelFromDb(DefaultTechnicalDebtModel defaultModel, ValidationMessages messages, SqlSession session) {
+  private List<CharacteristicDto> loadOrCreateModelFromDb(DefaultTechnicalDebtModel defaultModel, SqlSession session) {
     List<CharacteristicDto> characteristicDtos = loadModel();
     if (characteristicDtos.isEmpty()) {
       return createTechnicalDebtModel(defaultModel, session);

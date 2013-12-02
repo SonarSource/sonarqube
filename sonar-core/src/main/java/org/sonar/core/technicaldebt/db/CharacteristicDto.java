@@ -196,7 +196,7 @@ public class CharacteristicDto implements Serializable {
     return this;
   }
 
-  public DefaultCharacteristic toCharacteristic(DefaultCharacteristic parent) {
+  public DefaultCharacteristic toCharacteristic(@Nullable DefaultCharacteristic parent) {
     return new DefaultCharacteristic()
       .setId(id)
       .setKey(kee)

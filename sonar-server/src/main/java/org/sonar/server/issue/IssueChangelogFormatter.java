@@ -70,8 +70,8 @@ public class IssueChangelogFormatter implements ServerComponent {
     Serializable newValue = diff.newValue();
     Serializable oldValue = diff.oldValue();
 
-    String newValueString = newValue != null && !newValue.equals("") ? newValue.toString() : null;
-    String oldValueString = oldValue != null && !oldValue.equals("") ? oldValue.toString() : null;
+    String newValueString = newValue != null && !"".equals(newValue) ? newValue.toString() : null;
+    String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
         newValueString = technicalDebtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(newValueString)));
