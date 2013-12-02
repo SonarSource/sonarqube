@@ -33,14 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -71,16 +64,16 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     verify(ruleRegistry).bulkRegisterRules();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
-    assertThat(result.size(), is(2));
+    assertThat(result.size()).isEqualTo(2);
 
     Rule first = result.get(0);
-    assertThat(first.getKey(), is("rule1"));
-    assertThat(first.getRepositoryKey(), is("fake"));
-    assertThat(first.isEnabled(), is(true));
-    assertThat(first.getCreatedAt(), notNullValue());
-    assertThat(first.getStatus(), is(Rule.STATUS_READY));
-    assertThat(first.getLanguage(), is("java"));
-    assertThat(first.getParams().size(), is(2));
+    assertThat(first.getKey()).isEqualTo("rule1");
+    assertThat(first.getRepositoryKey()).isEqualTo("fake");
+    assertThat(first.isEnabled()).isEqualTo(true);
+    assertThat(first.getCreatedAt()).isNotNull();
+    assertThat(first.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(first.getLanguage()).isEqualTo("java");
+    assertThat(first.getParams().size()).isEqualTo(2);
   }
 
   @Test
@@ -89,15 +82,15 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.getRepositoryKey(), is("fake"));
-    assertThat(rule.getLanguage(), is("java"));
-    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
+    assertThat(rule.getRepositoryKey()).isEqualTo("fake");
+    assertThat(rule.getLanguage()).isEqualTo("java");
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
 
     rule = getSession().getSingleResult(Rule.class, "id", 4);
-    assertThat(rule.getRepositoryKey(), is("fake"));
-    assertThat(rule.getLanguage(), is("java"));
+    assertThat(rule.getRepositoryKey()).isEqualTo("fake");
+    assertThat(rule.getLanguage()).isEqualTo("java");
     // parent status is now DEPRECATED but template should not be changed
-    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
   }
 
   @Test
@@ -108,10 +101,10 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     List<Rule> rules = getSession()
         .createQuery("from " + Rule.class.getSimpleName() + " where pluginName<>'fake'")
         .getResultList();
-    assertThat(rules.size(), greaterThan(0));
+    assertThat(rules.size()).isGreaterThan(0);
     for (Rule rule : rules) {
-      assertThat(rule.isEnabled(), is(false));
-      assertThat(rule.getUpdatedAt(), notNullValue());
+      assertThat(rule.isEnabled()).isEqualTo(false);
+      assertThat(rule.getUpdatedAt()).isNotNull();
     }
   }
 
@@ -129,8 +122,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
-    assertThat(rule.getUpdatedAt(), notNullValue());
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(rule.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -139,8 +132,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.getStatus(), is(Rule.STATUS_REMOVED));
-    assertThat(rule.getUpdatedAt(), notNullValue());
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_REMOVED);
+    assertThat(rule.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -149,8 +142,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus(), is(Rule.STATUS_REMOVED));
-    assertThat(rule.getUpdatedAt(), nullValue());
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_REMOVED);
+    assertThat(rule.getUpdatedAt()).isNull();
   }
 
   @Test
@@ -159,15 +152,15 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
-    assertThat(result.size(), is(3));
+    assertThat(result.size()).isEqualTo(3);
 
     Rule deprecated = result.get(0);
-    assertThat(deprecated.getKey(), is("deprecated"));
-    assertThat(deprecated.isEnabled(), is(false));
-    assertThat(deprecated.getUpdatedAt(), notNullValue());
+    assertThat(deprecated.getKey()).isEqualTo("deprecated");
+    assertThat(deprecated.isEnabled()).isEqualTo(false);
+    assertThat(deprecated.getUpdatedAt()).isNotNull();
 
-    assertThat(result.get(1).isEnabled(), is(true));
-    assertThat(result.get(2).isEnabled(), is(true));
+    assertThat(result.get(1).isEnabled()).isEqualTo(true);
+    assertThat(result.get(2).isEnabled()).isEqualTo(true);
   }
 
   @Test
@@ -176,8 +169,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     ActiveRule arule = getSession().getSingleResult(ActiveRule.class, "id", 1);
-    assertThat(arule.getActiveRuleParams().size(), is(2));
-    assertNull(getSession().getSingleResult(ActiveRuleParam.class, "id", 3));
+    assertThat(arule.getActiveRuleParams().size()).isEqualTo(2);
+    assertThat(getSession().getSingleResult(ActiveRuleParam.class, "id", 3)).isNull();
   }
 
   @Test
@@ -186,12 +179,12 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.isEnabled(), is(false));
-    assertThat(rule.getUpdatedAt(), notNullValue());
+    assertThat(rule.isEnabled()).isEqualTo(false);
+    assertThat(rule.getUpdatedAt()).isNotNull();
 
     rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled(), is(false));
-    assertThat(rule.getUpdatedAt(), notNullValue());
+    assertThat(rule.isEnabled()).isEqualTo(false);
+    assertThat(rule.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -201,15 +194,15 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
     // fields have been updated with new values
     Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule1.getName(), is("One"));
-    assertThat(rule1.getDescription(), is("Description of One"));
-    assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
-    assertThat(rule1.getConfigKey(), is("config1"));
-    assertThat(rule1.getUpdatedAt(), notNullValue());
+    assertThat(rule1.getName()).isEqualTo("One");
+    assertThat(rule1.getDescription()).isEqualTo("Description of One");
+    assertThat(rule1.getSeverity()).isEqualTo(RulePriority.BLOCKER);
+    assertThat(rule1.getConfigKey()).isEqualTo("config1");
+    assertThat(rule1.getUpdatedAt()).isNotNull();
 
     Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus(), is(Rule.STATUS_DEPRECATED));
-    assertThat(rule2.getUpdatedAt(), notNullValue());
+    assertThat(rule2.getStatus()).isEqualTo(Rule.STATUS_DEPRECATED);
+    assertThat(rule2.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -223,15 +216,15 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
     // fields have been updated with new values
     Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule1.getName(), is(i18nName));
-    assertThat(rule1.getDescription(), is(i18nDescription));
-    assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
-    assertThat(rule1.getConfigKey(), is("config1"));
-    assertThat(rule1.getUpdatedAt(), notNullValue());
+    assertThat(rule1.getName()).isEqualTo(i18nName);
+    assertThat(rule1.getDescription()).isEqualTo(i18nDescription);
+    assertThat(rule1.getSeverity()).isEqualTo(RulePriority.BLOCKER);
+    assertThat(rule1.getConfigKey()).isEqualTo("config1");
+    assertThat(rule1.getUpdatedAt()).isNotNull();
 
     Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus(), is(Rule.STATUS_DEPRECATED));
-    assertThat(rule2.getUpdatedAt(), notNullValue());
+    assertThat(rule2.getStatus()).isEqualTo(Rule.STATUS_DEPRECATED);
+    assertThat(rule2.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -240,21 +233,21 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getParams().size(), is(2));
+    assertThat(rule.getParams().size()).isEqualTo(2);
 
     // new parameter
-    assertNotNull(rule.getParam("param2"));
-    assertThat(rule.getParam("param2").getDescription(), is("parameter two"));
-    assertThat(rule.getParam("param2").getDefaultValue(), is("default value two"));
+    assertThat(rule.getParam("param2")).isNotNull();
+    assertThat(rule.getParam("param2").getDescription()).isEqualTo("parameter two");
+    assertThat(rule.getParam("param2").getDefaultValue()).isEqualTo("default value two");
 
     // updated parameter
-    assertNotNull(rule.getParam("param1"));
-    assertThat(rule.getParam("param1").getDescription(), is("parameter one"));
-    assertThat(rule.getParam("param1").getDefaultValue(), is("default value one"));
+    assertThat(rule.getParam("param1")).isNotNull();
+    assertThat(rule.getParam("param1").getDescription()).isEqualTo("parameter one");
+    assertThat(rule.getParam("param1").getDefaultValue()).isEqualTo("default value one");
 
     // deleted parameter
-    assertNull(rule.getParam("deprecated_param"));
-    assertNull(getSession().getSingleResult(RuleParam.class, "id", 2)); // id of deprecated_param is 2
+    assertThat(rule.getParam("deprecated_param")).isNull();
+    assertThat(getSession().getSingleResult(RuleParam.class, "id", 2)).isNull(); // id of deprecated_param is 2
   }
 
   @Test
@@ -263,7 +256,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled(), is(true));
+    assertThat(rule.isEnabled()).isEqualTo(true);
   }
 
   @Test
@@ -272,10 +265,10 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled(), is(false));
-    assertThat(rule.getUpdatedAt(), notNullValue());
+    assertThat(rule.isEnabled()).isEqualTo(false);
+    assertThat(rule.getUpdatedAt()).isNotNull();
 
-    assertThat(getSession().getSingleResult(Rule.class, "id", 4).isEnabled(), is(false));
+    assertThat(getSession().getSingleResult(Rule.class, "id", 4).isEnabled()).isEqualTo(false);
   }
 
   @Test
@@ -284,8 +277,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shouldNotDisableManualRules");
     task.start();
 
-    assertThat(getSession().getSingleResult(Rule.class, "id", 1).isEnabled(), is(true));
-    assertThat(getSession().getSingleResult(Rule.class, "id", 2).isEnabled(), is(false));
+    assertThat(getSession().getSingleResult(Rule.class, "id", 1).isEnabled()).isEqualTo(true);
+    assertThat(getSession().getSingleResult(Rule.class, "id", 2).isEnabled()).isEqualTo(false);
   }
 
   @Test
@@ -295,7 +288,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "status", Rule.STATUS_READY);
-    assertThat(result.size(), is(VolumeRepository.SIZE));
+    assertThat(result.size()).isEqualTo(VolumeRepository.SIZE);
   }
 
   // SONAR-3305
@@ -309,7 +302,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       task.start();
       fail("Rule must have a name");
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("must have a name"));
+      assertThat(e.getMessage()).contains("must have a name");
     }
 
     // now it is ok, the rule has a name in the English bundle
@@ -329,7 +322,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       task.start();
       fail("Rule must have a name");
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("must have a name"));
+      assertThat(e.getMessage()).contains("must have a name");
     }
   }
 
@@ -345,7 +338,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       task.start();
       fail("Rule must have a description");
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("must have a description"));
+      assertThat(e.getMessage()).contains("must have a description");
     }
 
     // now it is ok, the rule has a name & a description in the English bundle
@@ -365,8 +358,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       task.start();
       fail("Rule must have a description");
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("No description found for the rule 'Rule 1' (repository: rule-without-description-repo) " +
-        "because the entry 'rule.rule-without-description-repo.rule1.name' is missing from the bundle."));
+      assertThat(e.getMessage()).contains("No description found for the rule 'Rule 1' (repository: rule-without-description-repo) " +
+        "because the entry 'rule.rule-without-description-repo.rule1.name' is missing from the bundle.");
     }
   }
 
