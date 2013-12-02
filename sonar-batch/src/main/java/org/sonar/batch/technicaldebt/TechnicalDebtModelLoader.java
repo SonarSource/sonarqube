@@ -53,7 +53,7 @@ public class TechnicalDebtModelLoader implements BatchComponent {
     Map<Integer, DefaultCharacteristic> characteristicsById = newHashMap();
 
     addRootCharacteristics(model, dtos, characteristicsById);
-    addCharacteristics(model, dtos, characteristicsById);
+    addCharacteristics(dtos, characteristicsById);
     addRequirements(model, dtos, characteristicsById);
     return model;
   }
@@ -68,7 +68,7 @@ public class TechnicalDebtModelLoader implements BatchComponent {
     }
   }
 
-  private void addCharacteristics(DefaultTechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
+  private void addCharacteristics(List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
     for (CharacteristicDto dto : dtos) {
       if (dto.getParentId() != null && dto.getRuleId() == null) {
         DefaultCharacteristic parent = characteristicsById.get(dto.getParentId());

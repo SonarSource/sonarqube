@@ -27,7 +27,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
@@ -70,6 +72,8 @@ public class TechnicalDebtModelSynchronizerTest {
   @Mock
   TechnicalDebtXMLImporter xmlImporter;
 
+  Integer currentId = 1;
+
   private DefaultTechnicalDebtModel defaultModel;
 
   private TechnicalDebtModelSynchronizer manager;
@@ -82,6 +86,16 @@ public class TechnicalDebtModelSynchronizerTest {
     Reader defaultModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(xmlImporter.importXML(eq(defaultModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(defaultModel);
+
+    doAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        CharacteristicDto dto = (CharacteristicDto) args[0];
+        dto.setId(currentId++);
+        return null;
+      }
+    }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
+
 
     manager = new TechnicalDebtModelSynchronizer(myBatis, dao, technicalDebtModelRepository, xmlImporter);
   }
@@ -111,7 +125,7 @@ public class TechnicalDebtModelSynchronizerTest {
   public void create_model_with_requirements_from_plugin_on_first_execution() throws Exception {
     // Default model
     DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic).setRoot(defaultRootCharacteristic);
     defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
     // No db model
@@ -128,7 +142,7 @@ public class TechnicalDebtModelSynchronizerTest {
     RuleKey ruleKey = RuleKey.of("checkstyle", "import");
     when(ruleCache.getByRuleKey(ruleKey)).thenReturn(rule);
     new DefaultRequirement().setRuleKey(ruleKey)
-      .setFunction("linear").setFactor(WorkUnit.create(30.0, WorkUnit.MINUTES)).setCharacteristic(javaCharacteristic);
+      .setFunction("linear").setFactor(WorkUnit.create(30.0, WorkUnit.MINUTES)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
@@ -152,14 +166,14 @@ public class TechnicalDebtModelSynchronizerTest {
   public void add_new_requirements_from_plugin() throws Exception {
     // Default model
     DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
+    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic).setRoot(defaultRootCharacteristic);
     defaultModel.addRootCharacteristic(defaultRootCharacteristic);
 
     // Db model
     CharacteristicDto dbRootCharacteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY");
-    CharacteristicDto dbCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1);
+    CharacteristicDto dbCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1).setRootId(1);
     CharacteristicDto requirement = new CharacteristicDto().setId(3)
-      .setRuleId(10).setParentId(2).setFactorValue(30.0).setFactorUnit("mn");
+      .setRuleId(10).setParentId(2).setRootId(1).setFactorValue(30.0).setFactorUnit("mn");
 
     RuleKey ruleKey1 = RuleKey.of("checkstyle", "import");
     Rule rule1 = Rule.create();
@@ -171,7 +185,7 @@ public class TechnicalDebtModelSynchronizerTest {
     // Java model
     DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
     DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
+    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic).setRoot(javaRootCharacteristic);
     javaModel.addRootCharacteristic(javaRootCharacteristic);
 
     RuleKey ruleKey2 = RuleKey.of("checkstyle", "export");
@@ -181,7 +195,7 @@ public class TechnicalDebtModelSynchronizerTest {
 
     // New requirement
     new DefaultRequirement().setRuleKey(ruleKey2)
-      .setFunction("linear").setFactor(WorkUnit.create(1.0, WorkUnit.HOURS)).setCharacteristic(javaCharacteristic);
+      .setFunction("linear").setFactor(WorkUnit.create(1.0, WorkUnit.HOURS)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);

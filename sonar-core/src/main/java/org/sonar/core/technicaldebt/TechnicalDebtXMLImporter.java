@@ -152,7 +152,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, PROPERTY)) {
-        properties.add(processProperty(requirement, cursor, messages));
+        properties.add(processProperty(cursor, messages));
       } else if (StringUtils.equals(node, RULE_KEY)) {
         ruleKey = cursor.collectDescendantText().trim();
       }
@@ -176,7 +176,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     }
   }
 
-  private Property processProperty(DefaultRequirement requirement, SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
+  private Property processProperty(SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
     SMInputCursor c = cursor.childElementCursor();
     String key = null;
     Double value = null;
