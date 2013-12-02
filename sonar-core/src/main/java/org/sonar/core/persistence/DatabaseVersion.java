@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 463;
+  public static final int LAST_VERSION = 464;
 
   public static enum Status {
     UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
@@ -54,8 +54,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "alerts",
     "authors",
     "characteristics",
-    "characteristic_edges",
-    "characteristic_properties",
     "dashboards",
     "dependencies",
     "duplications_index",
@@ -82,7 +80,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "project_links",
     "project_measures",
     "properties",
-    "quality_models",
     "resource_index",
     "rules",
     "rules_parameters",

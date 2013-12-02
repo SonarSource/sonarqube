@@ -9,9 +9,6 @@
     <class>org.sonar.jpa.entity.SchemaMigration</class>
     <class>org.sonar.jpa.entity.ManualMeasure</class>
     <class>org.sonar.api.database.configuration.Property</class>
-    <class>org.sonar.api.qualitymodel.Model</class>
-    <class>org.sonar.api.qualitymodel.Characteristic</class>
-    <class>org.sonar.api.qualitymodel.CharacteristicProperty</class>
     <class>org.sonar.api.database.model.User</class>
     <class>org.sonar.api.database.model.Snapshot</class>
     <class>org.sonar.api.database.model.MeasureModel</class>

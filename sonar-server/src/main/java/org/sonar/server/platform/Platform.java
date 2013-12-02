@@ -55,7 +55,6 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.purge.PurgeProfiler;
-import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.source.HtmlSourceDecorator;
@@ -229,7 +228,6 @@ public final class Platform {
     servicesContainer.addSingleton(PluginDownloader.class);
     servicesContainer.addSingleton(ServerIdGenerator.class);
     // depends on plugins
-    servicesContainer.addSingleton(DefaultModelFinder.class);
     servicesContainer.addSingleton(ChartFactory.class);
     servicesContainer.addSingleton(Languages.class);
     servicesContainer.addSingleton(Views.class);
@@ -343,7 +341,6 @@ public final class Platform {
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
-    startupContainer.addSingleton(VerifyNoQualityModelsAreDefined.class);
     startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);

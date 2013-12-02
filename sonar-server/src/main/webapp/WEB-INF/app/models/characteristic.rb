@@ -39,6 +39,10 @@ class Characteristic < ActiveRecord::Base
     parent_id.nil?
   end
 
+  def requirement?
+    rule_id.nil?
+  end
+
   def key
     kee
   end
@@ -50,9 +54,5 @@ class Characteristic < ActiveRecord::Base
     end
     result
   end
-
-  #def enabled_children
-  #  children.select{|c| c.enabled}
-  #end
 
 end

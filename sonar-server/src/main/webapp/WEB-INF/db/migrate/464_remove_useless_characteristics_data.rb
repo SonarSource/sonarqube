@@ -18,7 +18,38 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# TODO delete it
-class QualityModel < ActiveRecord::Base
+#
+# Sonar 4.1
+# SONAR-4831
+# SONAR-4891
+#
+
+class RemoveUselessCharacteristicsData < ActiveRecord::Migration
+
+  class QualityModel < ActiveRecord::Base
+  end
+
+  class Characteristic < ActiveRecord::Base
+  end
+
+  def self.up
+    Characteristic.reset_column_information
+
+    # Delete all characteristics not related to SQALE
+    sqale_model = QualityModel.first(['name = ?', 'SQALE'])
+    if sqale_model
+      Characteristic.delete_all(['quality_model_id <> ?', sqale_model.id.to_i])
+    end
+
+    # Delete useless columns
+    remove_column('characteristics', 'quality_model_id')
+    remove_column('characteristics', 'depth')
+    remove_column('characteristics', 'description')
+
+    # Delete useless tables
+    drop_table(:characteristic_properties)
+    drop_table(:characteristic_edges)
+    drop_table(:quality_models)
+  end
 
 end
