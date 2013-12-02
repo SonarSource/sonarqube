@@ -76,6 +76,14 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
+        name: 'Assignee',
+        property: 'assignees',
+        type: window.SS.AssigneeFilterView,
+        enabled: true,
+        optional: false
+      }),
+
+      new window.SS.Filter({
         name: 'Resolution',
         property: 'resolutions[]',
         type: window.SS.SelectFilterView,
@@ -86,14 +94,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'FIXED': 'Fixed',
           'REMOVED': 'Removed'
         }
-      }),
-
-      new window.SS.Filter({
-        name: 'Assignee',
-        property: 'assignees',
-        type: window.SS.AssigneeFilterView,
-        enabled: true,
-        optional: false
       }),
 
       new window.SS.Filter({

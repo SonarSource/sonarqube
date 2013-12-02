@@ -175,6 +175,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     disable: function(e) {
       e.stopPropagation();
+      this.hideDetails();
       this.model.set({
         enabled: false,
         value: null
@@ -263,6 +264,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       filterView.$el.detach().insertBefore(this.$('.navigator-filter-more-criteria'));
       filter.set('enabled', true);
+      filterView.showDetails();
     },
 
 

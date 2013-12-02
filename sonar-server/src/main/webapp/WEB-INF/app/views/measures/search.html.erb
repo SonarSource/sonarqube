@@ -33,7 +33,7 @@
 
     <div class="navigator-filters-list"></div>
     <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
-    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures/search"><%= message 'issue_filter.new_search' -%></a>
+    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures"><%= message 'issue_filter.new_search' -%></a>
   </form>
 </script>
 
@@ -89,4 +89,8 @@
 
   window.SS.MeasuresNavigatorApp.start();
   window.SS.MeasuresNavigatorApp.filterBarView.restoreFromQuery(queryParams);
+
+  if ($j('.operations').length === 0) {
+    $j('input[type=checkbox][value=TRK]').click();
+  }
 </script>

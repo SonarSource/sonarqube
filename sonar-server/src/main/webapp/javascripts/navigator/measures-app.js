@@ -31,7 +31,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     this.filters.add([
       new window.SS.Filter({
-        name: 'Qualifiers',
+        name: 'Components',
         property: 'qualifiers[]',
         type: window.SS.SelectFilterView,
         enabled: true,
