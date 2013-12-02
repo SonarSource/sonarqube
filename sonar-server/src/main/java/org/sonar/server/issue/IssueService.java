@@ -116,8 +116,9 @@ public class IssueService implements ServerComponent {
     List<Transition> allowedTransitions = new ArrayList<Transition>();
     for (Transition transition : outTransitions) {
       DefaultIssue defaultIssue = (DefaultIssue) issue;
+      String projectKey = defaultIssue.projectKey();
       if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
-        userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, defaultIssue.projectKey())) {
+        (projectKey != null && userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey))) {
         allowedTransitions.add(transition);
       }
     }

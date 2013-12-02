@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerErrorException;
@@ -48,12 +47,10 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
-  private final ResourceDao resourceDao;
 
-  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao, ResourceDao resourceDao) {
+  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
-    this.resourceDao = resourceDao;
   }
 
   @CheckForNull

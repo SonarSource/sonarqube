@@ -113,6 +113,9 @@ public class InternalPermissionService implements ServerComponent {
 
     for (String componentKey : query.getSelectedComponents()) {
       ComponentDto component = (ComponentDto) resourceDao.findByKey(componentKey);
+      if (component == null) {
+        throw new IllegalStateException("Unable to find component with key " + componentKey);
+      }
       permissionFacade.applyPermissionTemplate(query.getTemplateKey(), component.getId());
     }
   }

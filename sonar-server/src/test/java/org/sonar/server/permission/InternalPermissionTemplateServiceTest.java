@@ -31,9 +31,6 @@ import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.permission.PermissionTemplateGroupDto;
 import org.sonar.core.permission.PermissionTemplateUserDto;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -43,7 +40,6 @@ import org.sonar.server.user.MockUserSession;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -61,7 +57,6 @@ public class InternalPermissionTemplateServiceTest {
 
   private PermissionTemplateDao permissionTemplateDao;
   private UserDao userDao;
-  private ResourceDao resourceDao;
 
   private InternalPermissionTemplateService permissionTemplateService;
 
@@ -73,8 +68,7 @@ public class InternalPermissionTemplateServiceTest {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     permissionTemplateDao = mock(PermissionTemplateDao.class);
     userDao = mock(UserDao.class);
-    resourceDao = mock(ResourceDao.class);
-    permissionTemplateService = new InternalPermissionTemplateService(permissionTemplateDao, userDao, resourceDao);
+    permissionTemplateService = new InternalPermissionTemplateService(permissionTemplateDao, userDao);
   }
 
   @Test
@@ -184,9 +178,6 @@ public class InternalPermissionTemplateServiceTest {
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
-
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     List<PermissionTemplate> templates = permissionTemplateService.selectAllPermissionTemplates("org.sample.Sample");
 
