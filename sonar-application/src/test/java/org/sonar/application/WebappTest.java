@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,16 +31,28 @@ import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class WebappTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private Env env;
+
+  @Before
+  public void initEnv() {
+    env = mock(Env.class);
+    File sonarHome = temp.newFolder("home");
+    when(env.rootDir()).thenReturn(sonarHome);
+    System.setProperty("SONAR_HOME", sonarHome.getAbsolutePath());
+  }
+
   @Test
   public void fail_on_error() throws Exception {
-    Env env = mock(Env.class);
     File webDir = temp.newFolder("web");
     when(env.file("web")).thenReturn(webDir);
 

@@ -24,6 +24,7 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.Valve;
 import org.apache.catalina.startup.Tomcat;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,15 +32,25 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.util.Properties;
 
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class LoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Before
+  public void setHome() {
+    File homeDir = temp.newFolder("home");
+    System.setProperty("SONAR_HOME", homeDir.getAbsolutePath());
+  }
 
   @Test
   public void enable_access_logs_by_Default() throws Exception {
