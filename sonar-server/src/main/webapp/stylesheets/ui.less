@@ -1,5 +1,5 @@
-@import "mixins";
 @import "variables";
+@import "mixins";
 
 input[type=text],
 input[type=password],
@@ -9,9 +9,11 @@ textarea {
   .box-sizing(border-box);
   background: #fff;
   color: @baseFontColor;
+  .trans(border-color);
 
   &:active,
   &:focus {
+    border-color: @highlighted;
     box-shadow: none;
     outline: none;
   }
@@ -51,6 +53,7 @@ input[type=button] {
 
   cursor: pointer;
   outline: none;
+  .trans(border-color);
 
   &:hover {
     border-color: #5281a0;
@@ -62,5 +65,9 @@ input[type=button] {
     border-color: #2790c0;
     background: #78bdea;
     color: #fff;
+  }
+
+  &:focus {
+    border-color: @highlighted;
   }
 }

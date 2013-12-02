@@ -1,3 +1,5 @@
+@import "variables";
+
 .clearfix() {
   &:before, &:after { display: table; content: ""; line-height: 0; }
   &:after { clear: both; }
@@ -117,6 +119,10 @@
     background-image: -moz-linear-gradient(@angle, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
     background-image: -o-linear-gradient(@angle, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
     background-image: linear-gradient(@angle, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+}
+
+.trans(@property: all, @options: @defaultTransitionOptions) {
+  transition: @property @options;
 }
 
 .webkit-scrollbar() {

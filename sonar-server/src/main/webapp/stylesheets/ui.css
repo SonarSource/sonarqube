@@ -4,6 +4,9 @@
 /*
  * Colors
  */
+/*
+ * Transitions
+ */
 input[type=text],
 input[type=password],
 input[type=email],
@@ -13,6 +16,7 @@ textarea {
   box-sizing: border-box;
   background: #fff;
   color: #444444;
+  transition: border-color 0.3s ease;
 }
 input[type=text]:active,
 input[type=password]:active,
@@ -22,6 +26,7 @@ input[type=text]:focus,
 input[type=password]:focus,
 input[type=email]:focus,
 textarea:focus {
+  border-color: #4b9fd5;
   box-shadow: none;
   outline: none;
 }
@@ -54,6 +59,7 @@ input[type=button] {
   text-decoration: none;
   cursor: pointer;
   outline: none;
+  transition: border-color 0.3s ease;
 }
 button:hover,
 .button:hover,
@@ -70,4 +76,10 @@ input[type=button]:active {
   border-color: #2790c0;
   background: #78bdea;
   color: #fff;
+}
+button:focus,
+.button:focus,
+input[type=submit]:focus,
+input[type=button]:focus {
+  border-color: #4b9fd5;
 }
