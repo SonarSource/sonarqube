@@ -20,9 +20,6 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.api.config.Settings;
-
-import org.sonar.core.profiling.Profiling;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -50,13 +48,11 @@ public class RuleRegistryTest {
   private EsSetup esSetup;
   private SearchIndex searchIndex;
   private RuleDao ruleDao;
-  private RuleI18nManager ruleI18nManager;
   RuleRegistry registry;
 
   @Before
   public void setUp() throws Exception {
     ruleDao = mock(RuleDao.class);
-    ruleI18nManager = mock(RuleI18nManager.class);
 
     esSetup = new EsSetup();
     esSetup.execute(EsSetup.deleteAll());
@@ -69,7 +65,7 @@ public class RuleRegistryTest {
     searchIndex = new SearchIndex(node, profiling);
     searchIndex.start();
 
-    registry = new RuleRegistry(searchIndex, ruleDao, ruleI18nManager);
+    registry = new RuleRegistry(searchIndex, ruleDao);
     registry.start();
 
     String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());

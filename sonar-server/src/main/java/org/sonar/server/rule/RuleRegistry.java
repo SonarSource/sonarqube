@@ -23,7 +23,6 @@ package org.sonar.server.rule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
@@ -31,7 +30,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -39,7 +37,10 @@ import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchQuery;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Fill search index with rules
@@ -54,12 +55,10 @@ public class RuleRegistry {
 
   private SearchIndex searchIndex;
   private RuleDao ruleDao;
-  private RuleI18nManager ruleI18nManager;
 
-  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao, RuleI18nManager ruleI18nManager) {
+  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao) {
     this.searchIndex = searchIndex;
     this.ruleDao = ruleDao;
-    this.ruleI18nManager = ruleI18nManager;
   }
 
   public void start() {
@@ -164,20 +163,13 @@ public class RuleRegistry {
   }
 
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
-    Locale locale = Locale.ENGLISH;
     XContentBuilder document = XContentFactory.jsonBuilder()
         .startObject()
         .field("id", rule.getId())
         .field("key", rule.getRuleKey())
         .field("language", rule.getLanguage())
-        .field("name",
-          StringUtils.defaultIfEmpty(
-            ruleI18nManager.getName(rule.getRepositoryKey(), rule.getRuleKey(), locale),
-            rule.getName()))
-        .field("description",
-          StringUtils.defaultString(
-            ruleI18nManager.getDescription(rule.getRepositoryKey(), rule.getRuleKey(), locale),
-            rule.getDescription()))
+        .field("name", rule.getName())
+        .field("description", rule.getDescription())
         .field("parentKey", rule.getParentId() == null ? null : rule.getParentId())
         .field("repositoryKey", rule.getRepositoryKey())
         .field("severity", rule.getPriority())
