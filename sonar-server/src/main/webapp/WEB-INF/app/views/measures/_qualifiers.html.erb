@@ -1,0 +1,11 @@
+{
+<%
+   qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
+     [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
+   end
+
+   qualifiers.each do |q|
+%>
+  '<%= h q[1] -%>': '<%= h q[0] -%>',
+<% end %>
+}

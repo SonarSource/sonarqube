@@ -16,6 +16,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    showDetails: function() {},
+
+
     renderInput: function() {
       if (this.model.get('enabled')) {
         $j('<input>')

@@ -39,6 +39,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.$('input').eq(0).val(valueFrom || '');
       this.$('input').eq(1).val(valueTo || '');
+    },
+
+
+    onShow: function() {
+      this.$(':input:first').focus();
     }
 
   });

@@ -36,13 +36,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
-        choices: {
-          'TRK': 'Projects',
-          'BRC': 'Sub-projects',
-          'DIR': 'Directories',
-          'FIL': 'Files',
-          'UTS': 'Unit Test Files'
-        }
+        choices: window.SS.qualifiers
       }),
 
       new window.SS.Filter({
@@ -71,7 +65,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       new window.SS.Filter({
         name: 'Components of',
         property: 'base',
-        type: window.SS.ProjectFilterView,
+        type: window.SS.ComponentFilterView,
         multiple: false,
         enabled: false,
         optional: true
@@ -118,14 +112,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     this.filters.add([
       new window.SS.Filter({
-        name: 'Name contains',
-        property: 'nameSearch',
-        type: window.SS.StringFilterView,
-        enabled: false,
-        optional: true
-      }),
-
-      new window.SS.Filter({
         name: 'Metric',
         property: 'c3',
         type: window.SS.MetricFilterView,
@@ -154,6 +140,14 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         metrics: window.SS.metrics,
         periods: window.SS.metricPeriods,
         operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
+        enabled: false,
+        optional: true
+      }),
+
+      new window.SS.Filter({
+        name: 'Name contains',
+        property: 'nameSearch',
+        type: window.SS.StringFilterView,
         enabled: false,
         optional: true
       })

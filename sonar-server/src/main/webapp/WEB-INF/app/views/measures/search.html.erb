@@ -49,6 +49,7 @@
 
 
   _.extend(window.SS, {
+    qualifiers: <%= render :partial => 'measures/qualifiers' -%>,
     languages: <%= render :partial => 'measures/languages' -%>,
     <% condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden } %>
     metrics: <%= condition_metrics.to_json -%>,
@@ -89,8 +90,4 @@
 
   window.SS.MeasuresNavigatorApp.start();
   window.SS.MeasuresNavigatorApp.filterBarView.restoreFromQuery(queryParams);
-
-  if ($j('.operations').length === 0) {
-    $j('input[type=checkbox][value=TRK]').click();
-  }
 </script>

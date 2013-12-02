@@ -43,6 +43,14 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       });
       this.$('[name=val]').val(value.val);
       this.inputChanged();
+    },
+
+
+    onShow: function() {
+      var select = this.$('[name=metric]');
+      if (!select.val()) {
+        select.select2('open');
+      }
     }
 
   });

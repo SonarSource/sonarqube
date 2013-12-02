@@ -65,6 +65,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
+  var ComponentSuggestions = Suggestions.extend({
+
+    url: function() {
+      return baseUrl + '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
+    }
+
+  });
+
+
+
   var AjaxSelectDetailsFilterView = window.SS.DetailsSelectFilterView.extend({
     template: '#ajaxSelectFilterTemplate',
 
@@ -226,6 +236,38 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
+  var ComponentFilterView = AjaxSelectFilterView.extend({
+
+    initialize: function() {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
+        detailsView: AjaxSelectDetailsFilterView
+      });
+
+      this.selection = new ComponentSuggestions();
+      this.choices = new ComponentSuggestions();
+    },
+
+
+    createRequest: function(v) {
+      var that = this;
+      return $j
+          .ajax({
+            url: baseUrl + '/api/resources',
+            type: 'GET',
+            data: { resource: v }
+          })
+          .done(function (r) {
+            that.selection.add(new Backbone.Model({
+              id: r[0].key,
+              text: r[0].name
+            }));
+          });
+    }
+
+  });
+
+
+
   var ProjectFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
@@ -375,6 +417,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   _.extend(window.SS, {
     ProjectFilterView: ProjectFilterView,
+    ComponentFilterView: ComponentFilterView,
     AssigneeFilterView: AssigneeFilterView,
     ReporterFilterView: ReporterFilterView
   });
