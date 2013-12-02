@@ -19,7 +19,8 @@
 #
 
 #
-# Sonar 3.6
+# SonarQube 4.1
+# SONAR-2447
 #
 
 class AddAdministerIssuesPerm < ActiveRecord::Migration
