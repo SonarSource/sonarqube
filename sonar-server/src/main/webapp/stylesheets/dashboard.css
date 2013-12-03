@@ -156,11 +156,6 @@
   text-align: center;
 }
 
-.admin_page .description {
-  font-size: 85%;
-  font-weight: normal;
-}
-
 /*OPERATIONS*/
 #dashboard #dashboard-operations {
   position: relative;

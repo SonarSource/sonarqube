@@ -1,4 +1,4 @@
-<% 
+<%
   if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key')
     has_modules = !@project.modules.empty?
     reset_cycle 'modules_tree'
@@ -11,10 +11,9 @@
     });
   }
 </script>
-  
-<h1><%= message('update_key.update_resource_key') -%></h1>
 
-<p style="margin: 15px 0px"><%= message('update_key.description') -%></p>
+<h1 class="admin-page-title"><%= message('update_key.page') -%></h1>
+<p class="admin-page-description"><%= message('update_key.page.description') -%></p>
 
 <% if has_modules %>
   <h2><%= message('update_key.bulk_update') -%></h2>
@@ -44,7 +43,7 @@
           <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
         </td>
         <td></td>
-      </tr>      
+      </tr>
     </table>
   <% end %>
   <br/>
@@ -64,5 +63,5 @@
       <%= render :partial => 'key_modules', :locals => {:current_module => @project, :module_depth => 0, :id_prefix => "0"} -%>
     </tbody>
   </table>
-  
+
 <% end %>

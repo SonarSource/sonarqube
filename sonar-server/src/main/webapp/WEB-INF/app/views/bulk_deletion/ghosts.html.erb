@@ -1,4 +1,5 @@
-<h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
+<h1 class="admin-page-title"><%= message('bulk_deletion.page') -%></h1>
+<p class="admin-page-description"><%= message('bulk_deletion.page.description') -%></p>
 
 <ul class="tabs">
 <% @tabs.each do |tab| %>
@@ -16,19 +17,19 @@
   <p style="margin: 0  0 15px 0">
     <%= message('bulk_deletion.ghosts.description') -%>
   </p>
-  
+
   <% unless @ghosts.size > 0 %>
-  
+
     <b><%= message('bulk_deletion.no_ghosts') -%></b>
-  
+
   <% else %>
-  
+
     <p style="margin: 0  0 10px 0">
       <%= message('bulk_deletion.following_ghosts_can_be_deleted') -%>
     </p>
 
     <table>
-      <% 
+      <%
          @tabs.each do |qualifier|
            ghosts = @ghosts_by_qualifier[qualifier]
            if ghosts
@@ -43,16 +44,16 @@
              ghosts.sort {|x,y| x.name <=> y.name}.each do |resource|
       %>
               <li><%= h resource.name -%> <span class="small gray">( <%= h resource.key -%> )</span></li>
-      <% 
+      <%
              end
       %>
           </ul>
       <%
            end
-         end 
+         end
       %>
     </table>
-    
+
     <p style="margin: 15px 0">
       <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
         <input type="hidden" id="all_resources" name="all_resources" value="<%= @ghosts.map {|r| r.id.to_s}.join(',') -%>"/>

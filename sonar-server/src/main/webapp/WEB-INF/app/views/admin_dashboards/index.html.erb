@@ -1,16 +1,16 @@
 <div class="admin_page">
-  <h1><%= message('dashboard.global_dashboards') -%></h1>
-  <p><%= message('dashboard.global_dashboards.description') -%></p>
+  <h1 class="admin-page-title"><%= message('dashboard.global_dashboards') -%></h1>
+  <p class="admin-page-description"><%= message('dashboard.global_dashboards.description') -%></p>
 
   <%= render :partial => 'list', :locals => {:active_dashboards => @actives.select(&:global?), :group => 'activeGlobal'} %>
 
-  <h1><%= message('dashboard.project_dashboards') -%></h1>
-  <p><%= message('dashboard.project_dashboards.description') -%></p>
+  <h1 class="admin-page-title"><%= message('dashboard.project_dashboards') -%></h1>
+  <p class="admin-page-description"><%= message('dashboard.project_dashboards.description') -%></p>
 
   <%= render :partial => 'list', :locals => {:active_dashboards => @actives.reject(&:global?), :group => 'activeProject'} %>
 
-  <h1><%= message('dashboard.shared_dashboards') -%></h1>
-  <p><%= message('dashboard.shared_dashboards.description') -%></p>
+  <h1 class="admin-page-title"><%= message('dashboard.shared_dashboards') -%></h1>
+  <p class="admin-page-description"><%= message('dashboard.shared_dashboards.description') -%></p>
 
   <table class="data" id="shared">
     <thead>

@@ -1,10 +1,11 @@
-<div class="line-block">
+<div>
   <ul style="float: right" class="horizontal">
     <li class="csv marginleft10">
       <a href="<%= ApplicationController.root_context -%>/system/index?format=csv" id="download-link" class="action">Download</a>
     </li>
   </ul>
-  <h1 class="marginbottom10"><%= message('system_info.page') -%></h1>
+  <h1 class="admin-page-title"><%= message('system_info.page') -%></h1>
+  <p class="admin-page-description"><%= message('system_info.page.description') -%></p>
 </div>
 
 <table class="data width100" id="sonar">

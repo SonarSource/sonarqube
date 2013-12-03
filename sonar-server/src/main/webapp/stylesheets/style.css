@@ -2471,3 +2471,15 @@ textarea.width100 {
   stroke-width: 1px;
   transition: all 0.3s ease;
 }
+
+/* ------------------- Admin pages ------------------- */
+
+.admin-page-title {
+  margin-bottom: 0px;
+}
+
+.admin-page-description {
+  font-size: 85%;
+  font-weight: normal;
+  margin-bottom: 10px;
+}

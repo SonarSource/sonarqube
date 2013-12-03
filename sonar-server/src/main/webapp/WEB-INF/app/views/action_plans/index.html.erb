@@ -1,4 +1,4 @@
-<div class="line-block">
+<div>
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
           <li class="marginleft10 add">
@@ -6,7 +6,8 @@
           </li>
       </ul>
     <% end %>
-    <h1><%= message('action_plans.page_title') -%></h1>
+    <h1 class="admin-page-title"><%= message('action_plans.page_title') -%></h1>
+    <p class="admin-page-description"><%= message('action_plans.page.description') -%></p>
 </div>
 <table width="100%" id="action-plans">
   <tr>

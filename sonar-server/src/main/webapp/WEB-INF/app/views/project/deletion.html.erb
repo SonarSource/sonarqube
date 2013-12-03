@@ -1,9 +1,10 @@
 <%
   if !@snapshot || @snapshot.root?
-    resource_name = message('qualifier.' + @project.qualifier)
-    delete_resource_message = message('project_deletion.delete_resource', :params => resource_name)
+    resource_qualifier = message('qualifier.' + @project.qualifier)
+    delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
 %>
-<h1><%= delete_resource_message -%></h1>
+<h1 class="admin-page-title"><%= delete_resource_message -%></h1>
+<p class="admin-page-description"><%= message('project_deletion.page.description') -%></p>
 <br/>
 <div class="yui-g widget" id="widget_delete_project">
   <div class="warning">
@@ -23,7 +24,7 @@
     <%= message('project_deletion.operation_cannot_be_undone') -%>
     <br/>
     <%= submit_tag delete_resource_message, :id => 'delete_resource', :class => 'action red-button',
-                   :confirm => message('project_deletion.delete_resource_confirmation', :params => resource_name) %>
+                   :confirm => message('project_deletion.delete_resource_confirmation', :params => resource_qualifier) %>
     </form>
   </div>
 </div>

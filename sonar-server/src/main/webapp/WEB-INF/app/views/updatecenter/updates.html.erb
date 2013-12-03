@@ -7,7 +7,8 @@ function upgradePlugin(key) {
   return false;
 }
 </script>
-<h1 class="marginbottom10"><%= message('update_center.page') -%></h1>
+<h1 class="admin-page-title"><%= message('update_center.page') -%></h1>
+<p class="admin-page-description"><%= message('update_center.page.description') -%></p>
 <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'updates'} -%>
 
  <div class="tabs-panel">

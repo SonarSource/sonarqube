@@ -1,4 +1,5 @@
-<h1><%= message('project_history.page') -%></h1>
+<h1 class="admin-page-title"><%= message('project_history.page') -%></h1>
+<p class="admin-page-description"><%= message('project_history.page.description') -%></p>
 
 <% if !@snapshot %>
 
@@ -21,10 +22,6 @@
   display: inline;
 }
 </style>
-
-<p style="margin: 15px 0px">
-  <%= message('project_history.description') -%>
-</p>
 
 <table id="project-history" class="data" style="width:1%">
   <thead>

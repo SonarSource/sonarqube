@@ -1,4 +1,5 @@
-<h1>Project Links</h1>
+<h1 class="admin-page-title"><%= message('project_links.page') -%></h1>
+<p class="admin-page-description"><%= message('project_links.page.description') -%></p>
 <br/>
 
 <style>
@@ -16,7 +17,7 @@
 <% form_for( 'set_links', :url => { :action => 'set_links', :project_id => @project.id } ) do |form|
      links_by_key={}
      @project.links.each do |link|
-       links_by_key[link.link_type]=link  
+       links_by_key[link.link_type]=link
      end
 %>
  <div class="yui-u first">
@@ -35,7 +36,7 @@
             if link.starts_with?("http")
               link = "<a href=\"#{h link}\">#{h link}</a>"
             end
-          %>        
+          %>
           <%= link -%>
         </td>
      </tr>
@@ -43,7 +44,7 @@
       <td>
         <%= image_tag("links/ci.png") -%> <%= message('project_links.ci') -%>
         <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.ci</span>        
+        <span class="note" style="margin-left: 20px">sonar.links.ci</span>
       </td>
         <td>
           <%
@@ -51,7 +52,7 @@
             if link.starts_with?("http")
               link = "<a href=\"#{h link}\">#{h link}</a>"
             end
-          %>        
+          %>
           <%= link -%>
         </td>
      </tr>
@@ -59,7 +60,7 @@
       <td>
         <%= image_tag("links/issue.png") -%> <%= message('project_links.issue') -%>
         <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.issue</span>        
+        <span class="note" style="margin-left: 20px">sonar.links.issue</span>
       </td>
         <td>
           <%
@@ -67,7 +68,7 @@
             if link.starts_with?("http")
               link = "<a href=\"#{h link}\">#{h link}</a>"
             end
-          %>        
+          %>
           <%= link -%>
         </td>
      </tr>
@@ -75,7 +76,7 @@
       <td>
         <%= image_tag("links/scm.png") -%> <%= message('project_links.scm') -%>
         <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.scm</span>        
+        <span class="note" style="margin-left: 20px">sonar.links.scm</span>
       </td>
         <td>
           <%
@@ -83,7 +84,7 @@
             if link.starts_with?("http")
               link = "<a href=\"#{h link}\">#{h link}</a>"
             end
-          %>        
+          %>
           <%= link -%>
         </td>
      </tr>
@@ -91,7 +92,7 @@
       <td>
         <%= image_tag("links/scm_dev.png") -%> <%= message('project_links.scm_dev') -%>
         <br/>
-        <span class="note" style="margin-left: 20px">sonar.links.scm_dev</span>        
+        <span class="note" style="margin-left: 20px">sonar.links.scm_dev</span>
       </td>
         <td>
           <%
@@ -99,7 +100,7 @@
             if link.starts_with?("http")
               link = "<a href=\"#{h link}\">#{h link}</a>"
             end
-          %>        
+          %>
           <%= link -%>
         </td>
      </tr>
