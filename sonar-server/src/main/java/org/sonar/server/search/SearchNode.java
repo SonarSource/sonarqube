@@ -42,6 +42,8 @@ import java.io.File;
 public class SearchNode implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
+
+  private static final String HTTP_ENABLED = "http.enabled";
   private static final String INSTANCE_NAME = "sonarqube";
   static final String DATA_DIR = "data/es";
 
@@ -83,11 +85,11 @@ public class SearchNode implements Startable {
     int httpPort = settings.getInt("sonar.es.http.port");
     if (httpPort > 0) {
       LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
-      esSettings.put("http.enabled", true);
+      esSettings.put(HTTP_ENABLED, true);
       esSettings.put("http.host", "127.0.0.1");
       esSettings.put("http.port", httpPort);
     } else {
-      esSettings.put("http.enabled", false);
+      esSettings.put(HTTP_ENABLED, false);
     }
   }
 

@@ -53,6 +53,9 @@ import java.util.concurrent.ExecutionException;
 
 public class SearchIndex {
 
+  private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";
+  private static final String BULK_INTERRUPTED = "Interrupted during bulk operation";
+
   private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
 
@@ -116,9 +119,9 @@ public class SearchIndex {
         }
       }
     } catch (InterruptedException e) {
-      LOG.error("Interrupted during bulk operation", e);
+      LOG.error(BULK_INTERRUPTED, e);
     } catch (ExecutionException e) {
-      LOG.error("Execution of bulk operation failed", e);
+      LOG.error(BULK_EXECUTE_FAILED, e);
     } finally {
       watch.stop("bulk index of %d documents with type '%s' into index '%s'", ids.length, type, index);
     }
@@ -215,9 +218,9 @@ public class SearchIndex {
         }
       }
     } catch (InterruptedException e) {
-      LOG.error("Interrupted during bulk operation", e);
+      LOG.error(BULK_INTERRUPTED, e);
     } catch (ExecutionException e) {
-      LOG.error("Execution of bulk operation failed", e);
+      LOG.error(BULK_EXECUTE_FAILED, e);
     } finally {
       watch.stop("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index);
     }

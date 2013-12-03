@@ -20,8 +20,12 @@
 
 package org.sonar.server.platform;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
@@ -41,6 +45,8 @@ import java.util.Set;
  * @since 4.1
  */
 public class ProfilingFilter implements Filter {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ProfilingFilter.class);
 
   private static final String CONFIG_SEPARATOR = ",";
   private static final String URL_SEPARATOR = "/";
@@ -105,12 +111,13 @@ public class ProfilingFilter implements Filter {
     // Nothing
   }
 
-
+  @VisibleForTesting
   Profiling getProfiling() {
     try {
       return (Profiling) Platform.component(Profiling.class);
     } catch(Exception initException) {
-      return null;
+      LOG.error("Could not initialize platform profiling", initException);
+      return new Profiling(new Settings());
     }
   }
 }

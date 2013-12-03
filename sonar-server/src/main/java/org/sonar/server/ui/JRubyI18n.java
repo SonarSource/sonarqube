@@ -27,7 +27,7 @@ import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.Nullable;
-import java.util.List;
+
 import java.util.Locale;
 import java.util.Map;
 

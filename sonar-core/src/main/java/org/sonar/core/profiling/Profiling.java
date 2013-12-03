@@ -29,9 +29,6 @@ import org.sonar.api.config.Settings;
  */
 public final class Profiling implements ServerExtension {
 
-  /**
-   * 
-   */
   public static final String CONFIG_PROFILING_LEVEL = "sonar.log.profilingLevel";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Profiling.class);
