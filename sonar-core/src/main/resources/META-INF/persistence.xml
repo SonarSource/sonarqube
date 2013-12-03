@@ -28,6 +28,7 @@
     <class>org.sonar.api.rules.ActiveRuleChange</class>
     <class>org.sonar.api.rules.ActiveRuleParamChange</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.current_session_context_class" value="thread"/>
       <property name="hibernate.connection.release_mode" value="after_transaction"/>
