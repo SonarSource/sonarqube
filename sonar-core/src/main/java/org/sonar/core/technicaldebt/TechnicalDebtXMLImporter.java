@@ -228,7 +228,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return null;
   }
 
-  private class Properties {
+  private static class Properties {
     List<Property> properties;
 
     public Properties() {

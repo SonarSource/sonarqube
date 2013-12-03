@@ -101,38 +101,42 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public RuleKey ruleKey() {
     return ruleKey;
   }
 
-  public DefaultCharacteristic setRuleKey(RuleKey ruleKey) {
+  public DefaultCharacteristic setRuleKey(@Nullable RuleKey ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }
 
+  @CheckForNull
   public String function() {
     return function;
   }
 
-  public DefaultCharacteristic setFunction(String function) {
+  public DefaultCharacteristic setFunction(@Nullable String function) {
     this.function = function;
     return this;
   }
 
+  @CheckForNull
   public WorkUnit factor() {
     return factor;
   }
 
-  public DefaultCharacteristic setFactor(WorkUnit factor) {
+  public DefaultCharacteristic setFactor(@Nullable WorkUnit factor) {
     this.factor = factor;
     return this;
   }
 
+  @CheckForNull
   public WorkUnit offset() {
     return offset;
   }
 
-  public DefaultCharacteristic setOffset(WorkUnit offset) {
+  public DefaultCharacteristic setOffset(@Nullable WorkUnit offset) {
     this.offset = offset;
     return this;
   }
