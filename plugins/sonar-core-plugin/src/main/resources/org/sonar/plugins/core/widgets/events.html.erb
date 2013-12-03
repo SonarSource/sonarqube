@@ -63,6 +63,12 @@
     <% end %>
   </select>
 
+  <script>
+    $j(function() {
+      $j('#select_category_<%= widget.id -%>').select2({ width: '100px' });
+    });
+  </script>
+
 </h3>
 
 <table id="events_<%= widget.id -%>" class="spaced data">

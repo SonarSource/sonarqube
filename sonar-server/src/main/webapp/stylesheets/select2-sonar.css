@@ -7,6 +7,9 @@
 /*
  * Transitions
  */
+.select2-container {
+  vertical-align: middle;
+}
 .select2-container .select2-choice {
   height: 20px;
   line-height: 20px;
@@ -18,6 +21,9 @@
 .select2-container .select2-choice,
 .select2-container .select2-choices {
   transition: border-color 0.3s ease;
+}
+.select2-container .select2-choice abbr {
+  top: 4px;
 }
 .select2-container .select2-choice div {
   width: 19px;

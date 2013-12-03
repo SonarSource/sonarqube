@@ -37,7 +37,7 @@
     </a>
   </div>
   <h3>
-    <%= message(dashboard_configuration.selected_period? ? 'widget.hotspot_most_violated_rules.name_when_period' : 'widget.hotspot_most_violated_rules.name') -%>
+    <%= message(dashboard_configuration.selected_period? ? 'widget.hotspot_most_violated_rules.name_when_period' : 'widget.hotspot_most_violated_rules.name') %>
 
     <select class="small withIcons" style="margin-left: 20px" onchange="showMostViolatedRules<%= widget.id -%>(this.value);" id="select-severity_<%= widget.id -%>">
       <option value="" <%= 'selected' if default_severity=='' -%>><%= message('widget.hotspot_most_violated_rules.any_severity') -%></option>
@@ -45,6 +45,12 @@
         <option class="sev_<%= key -%>" value="<%= key -%>" <%= 'selected' if default_severity==key -%>><%= message("severity.#{key}") -%></option>
       <% end %>
     </select>
+
+    <script>
+      $j(function() {
+        $j('#select-severity_<%= widget.id -%>').select2({ width: '130px' });
+      });
+    </script>
   </h3>
 </div>
 

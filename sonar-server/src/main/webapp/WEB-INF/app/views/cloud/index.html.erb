@@ -28,6 +28,11 @@
           <% end %>
           <option value="violations_density" <%= 'selected' if @color_metric.key=='violations_density' -%>><%= message('metric.violations_density.name') -%></option>
         </select>
+        <script>
+          $j(function() {
+            $j('select[name=color]').select2({ width: '200px' });
+          });
+        </script>
       </li>
       <li class="sep"></li>
       <li>
