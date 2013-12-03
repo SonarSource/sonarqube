@@ -97,6 +97,9 @@ Rails::Initializer.run do |config|
   # Provided by JRuby-Rack
   config.action_controller.session_store = :java_servlet_store
 
+  # Prevent appearance of ANSI style escape sequences in logs
+  config.active_record.colorize_logging = false
+
   # Use SQL instead of Active Record's schema dumper when creating the test database.
   # This is necessary if your schema can't be completely dumped by the schema dumper,
   # like if you have constraints or database-specific column types

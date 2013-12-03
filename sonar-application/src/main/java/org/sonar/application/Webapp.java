@@ -28,14 +28,14 @@ class Webapp {
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
   private static final String PROPERTY_CONTEXT = "sonar.web.context";
-  private static final String PROPERTY_LOG_VERBOSE = "sonar.log.verbose";
+  private static final String PROPERTY_LOG_PROFILING_LEVEL = "sonar.log.profilingLevel";
 
   static void configure(Tomcat tomcat, Env env, Props props) {
     String ctx = getContext(props);
     try {
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
-      context.addParameter(PROPERTY_LOG_VERBOSE, props.of(PROPERTY_LOG_VERBOSE, "false"));
+      context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
       configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
 
