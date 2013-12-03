@@ -27,20 +27,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.Profiling.Level;
+import org.sonar.core.profiling.StopWatch;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 
 public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
+
+  private Profiling profiling;
+
+  public DbTemplate(Profiling profiling) {
+    this.profiling = profiling;
+  }
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table) {
     return copyTableColumns(source, dest, table, null);
@@ -59,7 +62,7 @@ public class DbTemplate implements ServerComponent {
 
   public DbTemplate copyTableColumns(DataSource source, DataSource dest, String table, String selectQuery, @Nullable String[] columnNames) {
     LOG.debug("Copy table {}", table);
-    long startup = System.currentTimeMillis();
+    StopWatch watch = profiling.start("previewdb", Level.BASIC);
 
     truncate(dest, table);
 
@@ -103,13 +106,11 @@ public class DbTemplate implements ServerComponent {
         destStatement.executeBatch();
         destConnection.commit();
       }
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("  " + count + " rows of " + table + " copied in " + (System.currentTimeMillis() - startup) + " ms");
-      }
     } catch (SQLException e) {
       LOG.error("Fail to copy table " + table, e);
       throw new IllegalStateException("Fail to copy table " + table, e);
     } finally {
+      watch.stop("  " + count + " rows of " + table + " copied");
       DbUtils.closeQuietly(destStatement);
       DbUtils.closeQuietly(destResultSet);
       DbUtils.closeQuietly(destConnection);

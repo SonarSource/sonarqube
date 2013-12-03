@@ -20,11 +20,12 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.Profiling.Level;
+import org.sonar.core.profiling.StopWatch;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,6 @@ import java.io.File;
 import java.sql.SQLException;
 
 public class PreviewDatabaseFactory implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(PreviewDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -44,13 +44,15 @@ public class PreviewDatabaseFactory implements ServerComponent {
   private static final String PASSWORD = SONAR;
 
   private final Database database;
+  private final Profiling profiling;
 
-  public PreviewDatabaseFactory(Database database) {
+  public PreviewDatabaseFactory(Database database, Profiling profiling) {
     this.database = database;
+    this.profiling = profiling;
   }
 
   public File createNewDatabaseForDryRun(Long projectId, File destFolder, String dbFileName) {
-    long startup = System.currentTimeMillis();
+    StopWatch watch = profiling.start("previewdb", Level.BASIC);
 
     String h2Name = destFolder.getAbsolutePath() + File.separator + dbFileName;
 
@@ -62,15 +64,16 @@ public class PreviewDatabaseFactory implements ServerComponent {
       close(destination);
 
       File dbFile = new File(h2Name + H2_FILE_SUFFIX);
-      if (LOG.isDebugEnabled()) {
-        long size = dbFile.length();
-        long duration = System.currentTimeMillis() - startup;
-        if (projectId == null) {
-          LOG.debug("Preview Database created in " + duration + " ms, size is " + size + " bytes");
-        } else {
-          LOG.debug("Preview Database for project " + projectId + " created in " + duration + " ms, size is " + size + " bytes");
-        }
+
+      long size = dbFile.length();
+      String message = "";
+      if (projectId == null) {
+        message = "Preview Database created, size is " + size + " bytes";
+      } else {
+        message = "Preview Database for project " + projectId + " created, size is " + size + " bytes";
       }
+      watch.stop(message);
+
       return dbFile;
 
     } catch (SQLException e) {
@@ -80,7 +83,7 @@ public class PreviewDatabaseFactory implements ServerComponent {
   }
 
   private void copy(DataSource source, DataSource dest, @Nullable Long projectId) {
-    DbTemplate template = new DbTemplate();
+    DbTemplate template = new DbTemplate(profiling);
     template
       .copyTable(source, dest, "active_rules")
       .copyTable(source, dest, "active_rule_parameters")
@@ -156,8 +159,8 @@ public class PreviewDatabaseFactory implements ServerComponent {
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {
-    BasicDataSource dataSource = new DbTemplate().dataSource(driver, user, password, url);
-    new DbTemplate().createSchema(dataSource, dialect);
+    BasicDataSource dataSource = new DbTemplate(profiling).dataSource(driver, user, password, url);
+    new DbTemplate(profiling).createSchema(dataSource, dialect);
     return dataSource;
   }
 

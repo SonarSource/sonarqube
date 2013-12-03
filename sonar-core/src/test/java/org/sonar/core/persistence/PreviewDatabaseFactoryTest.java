@@ -28,6 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 
 import javax.sql.DataSource;
 
@@ -49,7 +51,7 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() throws Exception {
-    localDatabaseFactory = new PreviewDatabaseFactory(getDatabase());
+    localDatabaseFactory = new PreviewDatabaseFactory(getDatabase(), new Profiling(new Settings()));
   }
 
   @After
@@ -154,11 +156,11 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
   private BasicDataSource createDatabase(byte[] db) throws IOException {
     File file = temporaryFolder.newFile("db.h2.db");
     Files.write(db, file);
-    return new DbTemplate().dataSource("org.h2.Driver", "sonar", "sonar", "jdbc:h2:" + file.getAbsolutePath().replaceAll(".h2.db", ""));
+    return new DbTemplate(new Profiling(new Settings())).dataSource("org.h2.Driver", "sonar", "sonar", "jdbc:h2:" + file.getAbsolutePath().replaceAll(".h2.db", ""));
   }
 
   private int rowCount(String table) {
-    return new DbTemplate().getRowCount(dataSource, table);
+    return new DbTemplate(new Profiling(new Settings())).getRowCount(dataSource, table);
   }
 
   public String getUserPassword(DataSource dataSource, int userId) {
