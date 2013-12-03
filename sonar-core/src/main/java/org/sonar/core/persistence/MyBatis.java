@@ -53,6 +53,7 @@ import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.permission.PermissionTemplateGroupDto;
 import org.sonar.core.permission.PermissionTemplateMapper;
 import org.sonar.core.permission.PermissionTemplateUserDto;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -193,8 +194,9 @@ public class MyBatis implements BatchComponent, ServerComponent {
    */
   private void configureLogback(Class<?>... mapperClasses) {
     Level level = Level.INFO;
-    if (settings.getBoolean("sonar.showSql")) {
-      level = settings.getBoolean("sonar.showSqlResults") ? Level.TRACE : Level.DEBUG;
+    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(settings.getString(Profiling.CONFIG_PROFILING_LEVEL));
+    if (profilingLevel == Profiling.Level.FULL) {
+      level = Level.TRACE;
     }
     for (Class mapperClass : mapperClasses) {
       logback.setLoggerLevel(mapperClass.getName(), level);

@@ -29,6 +29,11 @@ import org.sonar.api.config.Settings;
  */
 public final class Profiling implements ServerExtension {
 
+  /**
+   * 
+   */
+  public static final String CONFIG_PROFILING_LEVEL = "sonar.log.profilingLevel";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(Profiling.class);
 
   private Settings settings;
@@ -36,6 +41,18 @@ public final class Profiling implements ServerExtension {
 
   public enum Level {
     NONE, BASIC, FULL;
+
+    public static Level fromConfigString(String settingsValue) {
+      Level settingsLevel = NONE;
+      if (settingsValue != null) {
+        try {
+          settingsLevel = Level.valueOf(settingsValue);
+        } catch(IllegalArgumentException invalidSettings) {
+          LOGGER.debug("Bad profiling settings, profiling is disabled", invalidSettings);
+        }
+      }
+      return settingsLevel;
+    }
   }
 
   public Profiling(Settings settings) {
@@ -59,15 +76,8 @@ public final class Profiling implements ServerExtension {
   }
 
   private boolean isProfilingEnabled(Level level) {
-    String settingsValue = settings.getString("sonar.log.profilingLevel");
-    Level settingsLevel = Level.NONE;
-    if (settingsValue != null) {
-      try {
-        settingsLevel = Level.valueOf(settingsValue);
-      } catch(IllegalArgumentException invalidSettings) {
-        LOGGER.debug("Bad profiling settings, profiling is disabled", invalidSettings);
-      }
-    }
+    String settingsValue = settings.getString(CONFIG_PROFILING_LEVEL);
+    Level settingsLevel = Level.fromConfigString(settingsValue);
     return settingsLevel != Level.NONE && level.ordinal() <= settingsLevel.ordinal();
   }
 }

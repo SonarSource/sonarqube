@@ -76,21 +76,9 @@ public class MyBatisTest {
   }
 
   @Test
-  public void log_sql_requests() {
-    Settings settings = new Settings()
-        .setProperty("sonar.showSql", true);
-
-    MyBatis myBatis = new MyBatis(database, settings, logback);
-    myBatis.start();
-
-    verify(logback).setLoggerLevel("org.sonar.core.resource.ResourceIndexerMapper", Level.DEBUG);
-  }
-
-  @Test
   public void log_sql_requests_and_responses() {
     Settings settings = new Settings()
-        .setProperty("sonar.showSql", true)
-        .setProperty("sonar.showSqlResults", true);
+        .setProperty("sonar.log.profilingLevel", "FULL");
 
     MyBatis myBatis = new MyBatis(database, settings, logback);
     myBatis.start();
