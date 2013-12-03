@@ -54,7 +54,7 @@ public class TechnicalDebtModelLoader implements BatchComponent {
 
     addRootCharacteristics(model, dtos, characteristicsById);
     addCharacteristics(dtos, characteristicsById);
-    addRequirements(model, dtos, characteristicsById);
+    addRequirements(dtos, characteristicsById);
     return model;
   }
 
@@ -78,7 +78,7 @@ public class TechnicalDebtModelLoader implements BatchComponent {
     }
   }
 
-  private void addRequirements(DefaultTechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
+  private void addRequirements(List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
     Map<Integer, Rule> rulesById = rulesById(ruleFinder.findAll(RuleQuery.create()));
     for (CharacteristicDto dto : dtos) {
       Integer ruleId = dto.getRuleId();

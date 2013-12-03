@@ -108,7 +108,8 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return characteristics;
   }
 
-  private void mergePlugins(List<CharacteristicDto> existingModel, DefaultTechnicalDebtModel defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
+  private void mergePlugins(List<CharacteristicDto> existingModel, DefaultTechnicalDebtModel defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache,
+                            SqlSession session) {
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
       DefaultTechnicalDebtModel pluginModel = loadModelFromXml(pluginKey, messages, rulesCache);
       checkPluginDoNotAddNewCharacteristic(pluginModel, defaultModel);
@@ -116,7 +117,8 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     }
   }
 
-  private void mergePlugin(DefaultTechnicalDebtModel pluginModel, List<CharacteristicDto> existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
+  private void mergePlugin(DefaultTechnicalDebtModel pluginModel, List<CharacteristicDto> existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache,
+                           SqlSession session) {
     if (!messages.hasErrors()) {
       for (DefaultRequirement pluginRequirement : pluginModel.requirements()) {
         Rule rule = rulesCache.getByRuleKey(pluginRequirement.ruleKey());
@@ -171,7 +173,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return Iterables.find(existingModel, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(CharacteristicDto input) {
-        return input.getRuleId() == null && input.getKey().equals(key);
+        return input.getRuleId() == null && input.getKey() != null && input.getKey().equals(key);
       }
     });
   }

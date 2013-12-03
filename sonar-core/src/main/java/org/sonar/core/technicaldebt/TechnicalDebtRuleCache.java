@@ -43,12 +43,6 @@ public class TechnicalDebtRuleCache {
   }
 
   @CheckForNull
-  public Rule getRule(String repository, String ruleKey) {
-    initRules();
-    return lookUpRuleInCache(repository, ruleKey);
-  }
-
-  @CheckForNull
   public Rule getByRuleKey(RuleKey ruleKey) {
     initRules();
     return lookUpRuleInCache(ruleKey.repository(), ruleKey.rule());
@@ -58,10 +52,6 @@ public class TechnicalDebtRuleCache {
   public Rule getByRuleId(Integer ruleId) {
     initRules();
     return cachedRulesId.get(ruleId);
-  }
-
-  public boolean exists(Rule rule) {
-    return getRule(rule.getRepositoryKey(), rule.getKey()) != null;
   }
 
   public boolean exists(Integer ruleId) {

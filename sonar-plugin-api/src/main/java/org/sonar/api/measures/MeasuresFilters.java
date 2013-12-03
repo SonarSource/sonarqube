@@ -76,18 +76,22 @@ public final class MeasuresFilters {
           return null;
         }
         for (Measure measure : measures) {
-          Characteristic measureCharacteristic = measure.getCharacteristic();
           if (measure.getClass().equals(Measure.class) &&
             measure.getMetric().equals(metric) &&
             measure.getPersonId() == null &&
-            measureCharacteristic != null &&
-            measureCharacteristic.equals(characteristic)) {
+            isSameCharacteristic(measure, characteristic)) {
             return measure;
           }
         }
         return null;
       }
     };
+  }
+
+  private static boolean isSameCharacteristic(Measure measure, final Characteristic characteristic){
+    Characteristic measureCharacteristic = measure.getCharacteristic();
+    return measureCharacteristic != null &&
+      measureCharacteristic.equals(characteristic);
   }
 
   public static MeasuresFilter<Measure> requirement(final Metric metric, final Requirement requirement) {
@@ -101,14 +105,19 @@ public final class MeasuresFilters {
           if (measure.getClass().equals(Measure.class) &&
             measure.getMetric().equals(metric) &&
             measure.getPersonId() == null &&
-            measure.getRequirement() != null &&
-            measure.getRequirement().equals(requirement)) {
+            isSameRequirement(measure, requirement)) {
             return measure;
           }
         }
         return null;
       }
     };
+  }
+
+  private static boolean isSameRequirement(Measure measure, final Requirement requirement){
+    Requirement measureRequirement = measure.getRequirement();
+    return measureRequirement != null &&
+      measureRequirement.equals(requirement);
   }
 
   /**

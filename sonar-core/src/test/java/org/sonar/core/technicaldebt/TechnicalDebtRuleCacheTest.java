@@ -24,6 +24,7 @@ import org.fest.assertions.Assertions;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
@@ -39,8 +40,8 @@ public class TechnicalDebtRuleCacheTest {
     Mockito.when(ruleFinder.findAll(Matchers.any(RuleQuery.class))).thenReturn(Collections.EMPTY_LIST);
 
     TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
-    technicalDebtRuleCache.getRule("", "");
-    technicalDebtRuleCache.getRule("", "");
+    technicalDebtRuleCache.getByRuleKey(RuleKey.of("repo1", "rule1"));
+    technicalDebtRuleCache.getByRuleKey(RuleKey.of("repo1", "rule1"));
 
     Mockito.verify(ruleFinder, Mockito.times(1)).findAll(Matchers.any(RuleQuery.class));
   }
@@ -55,8 +56,8 @@ public class TechnicalDebtRuleCacheTest {
     Mockito.when(ruleFinder.findAll(Matchers.any(RuleQuery.class))).thenReturn(Lists.newArrayList(rule1, rule2));
 
     TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
-    Rule actualRule1 = technicalDebtRuleCache.getRule("repo1", "rule1");
-    Rule actualRule2 = technicalDebtRuleCache.getRule("repo2", "rule2");
+    Rule actualRule1 = technicalDebtRuleCache.getByRuleKey(RuleKey.of("repo1", "rule1"));
+    Rule actualRule2 = technicalDebtRuleCache.getByRuleKey(RuleKey.of("repo2", "rule2"));
 
     Assertions.assertThat(actualRule1).isEqualTo(rule1);
     Assertions.assertThat(actualRule2).isEqualTo(rule2);
@@ -66,14 +67,28 @@ public class TechnicalDebtRuleCacheTest {
   public void return_if_rule_exists() throws Exception {
 
     Rule rule1 = Rule.create("repo1", "rule1");
-    Rule rule2 = Rule.create("repo2", "rule2");
 
     RuleFinder ruleFinder = Mockito.mock(RuleFinder.class);
     Mockito.when(ruleFinder.findAll(Matchers.any(RuleQuery.class))).thenReturn(Lists.newArrayList(rule1));
 
     TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
 
-    Assertions.assertThat(technicalDebtRuleCache.exists(rule1)).isTrue();
-    Assertions.assertThat(technicalDebtRuleCache.exists(rule2)).isFalse();
+    Assertions.assertThat(technicalDebtRuleCache.exists(RuleKey.of("repo1", "rule1"))).isTrue();
+    Assertions.assertThat(technicalDebtRuleCache.exists(RuleKey.of("repo2", "rule2"))).isFalse();
+  }
+
+  @Test
+  public void return_if_rule_id_exists() throws Exception {
+
+    Rule rule1 = Rule.create("repo1", "rule1");
+    rule1.setId(1);
+
+    RuleFinder ruleFinder = Mockito.mock(RuleFinder.class);
+    Mockito.when(ruleFinder.findAll(Matchers.any(RuleQuery.class))).thenReturn(Lists.newArrayList(rule1));
+
+    TechnicalDebtRuleCache technicalDebtRuleCache = new TechnicalDebtRuleCache(ruleFinder);
+
+    Assertions.assertThat(technicalDebtRuleCache.exists(1)).isTrue();
+    Assertions.assertThat(technicalDebtRuleCache.exists(2)).isFalse();
   }
 }

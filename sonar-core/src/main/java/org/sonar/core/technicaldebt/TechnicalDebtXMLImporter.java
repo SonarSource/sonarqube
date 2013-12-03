@@ -124,12 +124,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
         DefaultRequirement requirement = processRequirement(cursor, messages, technicalDebtRuleCache);
         if (requirement != null) {
-          if (parent.parent() == null) {
-            messages.addWarningText("Requirement '" + requirement.ruleKey()  + "' is ignored because it's defined directly under a root characteristic.");
-          } else {
-            requirement.setCharacteristic(parent);
-            requirement.setRootCharacteristic(parent.parent());
-          }
+          addRequirement(requirement, parent, messages);
         }
       }
     }
@@ -140,6 +135,16 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       return characteristic;
     }
     return null;
+  }
+
+  private void addRequirement(DefaultRequirement requirement, DefaultCharacteristic parent, ValidationMessages messages){
+    DefaultCharacteristic root = parent.parent();
+    if (root == null) {
+      messages.addWarningText("Requirement '" + requirement.ruleKey()  + "' is ignored because it's defined directly under a root characteristic.");
+    } else {
+      requirement.setCharacteristic(parent);
+      requirement.setRootCharacteristic(root);
+    }
   }
 
   private DefaultRequirement processRequirement(SMInputCursor cursor, ValidationMessages messages, TechnicalDebtRuleCache technicalDebtRuleCache)

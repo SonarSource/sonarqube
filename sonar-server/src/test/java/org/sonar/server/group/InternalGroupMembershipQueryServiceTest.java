@@ -32,6 +32,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 /**
  * Use Test with DB because there's no IT on this feature for the moment
@@ -91,6 +92,7 @@ public class InternalGroupMembershipQueryServiceTest extends AbstractDaoTestCase
       service.find(ImmutableMap.of(
         "user", "user_not_existing",
         "selected", "all"));
+      fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'user_not_existing' does not exists.");
     }

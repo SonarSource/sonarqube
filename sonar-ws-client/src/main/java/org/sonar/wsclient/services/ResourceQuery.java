@@ -20,6 +20,7 @@
 package org.sonar.wsclient.services;
 
 public class ResourceQuery extends Query<Resource> {
+
   public static final String BASE_URL = "/api/resources";
 
   public static final int DEPTH_UNLIMITED = -1;
@@ -74,15 +75,6 @@ public class ResourceQuery extends Query<Resource> {
 
   public ResourceQuery setResourceId(int resourceId) {
     this.resourceKeyOrId = Integer.toString(resourceId);
-    return this;
-  }
-
-  /**
-   * @see #setCharacteristics
-   */
-  @Deprecated
-  public ResourceQuery setCharacteristicKeys(String model, String... keys) {
-    this.characteristicKeys = keys;
     return this;
   }
 

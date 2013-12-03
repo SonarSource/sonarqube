@@ -139,7 +139,7 @@ public class UserSession {
    */
   public UserSession checkProjectPermission(String projectPermission, String projectKey) {
     if (!hasProjectPermission(projectPermission, projectKey)) {
-      throw new ForbiddenException("Insufficient privileges");
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }

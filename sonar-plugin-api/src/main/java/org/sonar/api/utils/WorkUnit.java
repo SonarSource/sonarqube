@@ -53,15 +53,15 @@ public final class WorkUnit {
   }
 
   public static WorkUnit create(@Nullable Double value, @Nullable String unit) {
-    unit = StringUtils.defaultIfEmpty(unit, DEFAULT_UNIT);
-    if (!ArrayUtils.contains(UNITS, unit)) {
-      throw new IllegalArgumentException("Unit can not be: " + unit + ". Possible values are " + ArrayUtils.toString(UNITS));
+    String defaultIfEmptyUnit = StringUtils.defaultIfEmpty(unit, DEFAULT_UNIT);
+    if (!ArrayUtils.contains(UNITS, defaultIfEmptyUnit)) {
+      throw new IllegalArgumentException("Unit can not be: " + defaultIfEmptyUnit + ". Possible values are " + ArrayUtils.toString(UNITS));
     }
     double d = value != null ? value : DEFAULT_VALUE;
     if (d < 0.0) {
       throw new IllegalArgumentException("Value can not be negative: " + d);
     }
-    return new WorkUnit(d, unit);
+    return new WorkUnit(d, defaultIfEmptyUnit);
   }
 
   public static WorkUnit create() {

@@ -43,7 +43,6 @@ import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.technicaldebt.NewTechnicalDebtDecorator;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.plugins.core.technicaldebt.TechnicalDebtDecorator;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.TestsViewer;
@@ -288,7 +287,6 @@ public final class CorePlugin extends SonarPlugin {
 
       // technical debt
       TechnicalDebtConverter.class,
-      TechnicalDebtCalculator.class,
       TechnicalDebtDecorator.class,
       NewTechnicalDebtDecorator.class,
 
@@ -389,7 +387,7 @@ public final class CorePlugin extends SonarPlugin {
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build()
-      );
+    );
   }
 
 }

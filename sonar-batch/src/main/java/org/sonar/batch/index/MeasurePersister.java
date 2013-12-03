@@ -34,6 +34,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.MyBatis;
 
@@ -152,22 +154,26 @@ public final class MeasurePersister {
     model.setVariationValue4(measure.getVariation4());
     model.setVariationValue5(measure.getVariation5());
     model.setUrl(measure.getUrl());
-    if (measure.getCharacteristic() != null) {
-      model.setCharacteristicId(measure.getCharacteristic().id());
-    } else if (measure.getRequirement() != null) {
-      model.setCharacteristicId(measure.getRequirement().id());
+    Characteristic characteristic = measure.getCharacteristic();
+    Requirement requirement = measure.getRequirement();
+    if (characteristic != null) {
+      model.setCharacteristicId(characteristic.id());
+    } else if (requirement != null) {
+      model.setCharacteristicId(requirement.id());
     }
     model.setPersonId(measure.getPersonId());
-    if (measure.getValue() != null) {
-      model.setValue(measure.getValue().doubleValue());
+    Double value = measure.getValue();
+    if (value != null) {
+      model.setValue(value.doubleValue());
     } else {
       model.setValue(null);
     }
     if (measure instanceof RuleMeasure) {
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
       model.setRulePriority(ruleMeasure.getSeverity());
-      if (ruleMeasure.getRule() != null) {
-        Rule ruleWithId = ruleFinder.findByKey(ruleMeasure.getRule().getRepositoryKey(), ruleMeasure.getRule().getKey());
+      Rule rule = ruleMeasure.getRule();
+      if (rule != null) {
+        Rule ruleWithId = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
         if (ruleWithId == null) {
           throw new SonarException("Can not save a measure with unknown rule " + ruleMeasure);
         }
