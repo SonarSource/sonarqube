@@ -68,6 +68,7 @@
 
     render: function() {
       this.$el.html(this.template(this.settings.format(this.model.toJSON())));
+      this.$('input').prop('name', this.model.get('name'));
       this.$el.toggleClass('selected', this.model.get('selected'));
       this.$('.select-list-list-checkbox')
           .prop('title',
@@ -92,12 +93,15 @@
     toggle: function() {
       var selected = this.model.get('selected'),
           that = this,
-          url = selected ? this.settings.deselectUrl : this.settings.selectUrl;
+          url = selected ? this.settings.deselectUrl : this.settings.selectUrl,
+          data = {};
+
+      data[this.settings.selectParameter] = this.model.id;
 
       $.ajax({
           url: url,
           type: 'POST',
-          data: { user: this.model.id }
+          data: data
       })
           .done(function() {
             that.model.set('selected', !selected);

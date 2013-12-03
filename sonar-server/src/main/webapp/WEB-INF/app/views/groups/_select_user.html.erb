@@ -18,6 +18,7 @@
     searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
     selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
     deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>',
+    selectParameter: 'user',
     labels: {
       selected: 'Members',
       deselected: 'Non-members',

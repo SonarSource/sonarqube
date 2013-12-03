@@ -30,7 +30,7 @@
               <td class="left" valign="top"><%= h user.name -%></td>
               <td class="left" valign="top"><%= h user.email -%></td>
               <td class="left" valign="top">
-                <%= h user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{user.login.parameterize}", :class => 'link-action'} %>)
+                <%= h user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{user.login.parameterize}", :class => 'open-modal link-action'} %>)
               </td>
               <td class="right" valign="top">
                 <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>

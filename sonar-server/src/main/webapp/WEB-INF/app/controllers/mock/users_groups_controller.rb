@@ -19,7 +19,7 @@
 #
 class Mock::ExampleController < Api::ApiController
 
-  # GET /mock/example/search_groups
+  # GET /mock/users_groups/search_groups
   def search_groups
     render :json => <<RESPONSE
       {

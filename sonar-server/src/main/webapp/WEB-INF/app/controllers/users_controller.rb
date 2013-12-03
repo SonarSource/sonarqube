@@ -179,6 +179,7 @@ class UsersController < ApplicationController
 
   def select_group
     @user = User.find(params[:id])
+    render :partial => 'users/select_group'
   end
 
   def set_groups

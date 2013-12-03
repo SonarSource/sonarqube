@@ -1,0 +1,32 @@
+<div class="modal-head">
+  <h2>User: <%= h @user.login -%></h2>
+</div>
+
+<div class="modal-body">
+  <div id="select-list-user-<%= @user.id -%>"></div>
+</div>
+
+<div class="modal-foot">
+  <%= link_to 'Close', { :controller => 'users', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
+</div>
+
+<script>
+  var selectList = new SelectList({
+    el: '#select-list-user-<%= @user.id -%>',
+    width: '100%',
+    format: function (item) { return item.name; },
+    searchUrl: baseUrl + '/user_groups/search?user=<%= @user.login -%>',
+    selectUrl: baseUrl + '/groups/add_member?user=<%= @user.id -%>',
+    deselectUrl: baseUrl + '/groups/remove_member?user=<%= @user.id -%>',
+    selectParameter: 'group',
+    labels: {
+      selected: 'Member of',
+      deselected: 'Not member of',
+      all: 'All'
+    },
+    tooltips: {
+      select: 'Click to add user <%= h @user.login -%> to the group',
+      deselect: 'Click to remove user <%= h @user.login -%> from the group'
+    }
+  });
+</script>
