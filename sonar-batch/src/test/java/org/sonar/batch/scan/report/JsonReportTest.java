@@ -33,20 +33,25 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.user.DefaultUser;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +68,7 @@ public class JsonReportTest {
   Settings settings;
   IssueCache issueCache = mock(IssueCache.class);
   private AnalysisMode mode;
+  private UserFinder userFinder;
 
   @Before
   public void setUp() {
@@ -72,7 +78,8 @@ public class JsonReportTest {
     settings = new Settings();
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode);
+    userFinder = mock(UserFinder.class);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
   }
 
   @Test
@@ -94,6 +101,9 @@ public class JsonReportTest {
       .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    DefaultUser user1 = new DefaultUser().setLogin("julien").setName("Julien");
+    DefaultUser user2 = new DefaultUser().setLogin("simon").setName("Simon");
+    when(userFinder.findByLogins(eq(Arrays.asList("julien", "simon")))).thenReturn(Lists.<User>newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

@@ -29,4 +29,8 @@
   <events id="2" name="2.0-SNAPSHOT" resource_id="123" />
   <events id="3" name="1.0-SNAPSHOT" resource_id="456" />
 
+  <users id="1" login="julien" name="Julien" crypted_password="foo" active="1" />
+  <users id="2" login="simon" name="Simon" active="1" />
+  <users id="3" login="jb" name="JB" active="1" />
+
 </dataset>

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.user;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.CheckForNull;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * @since 3.6
  */
-public interface UserFinder extends ServerComponent {
+public interface UserFinder extends ServerComponent, BatchComponent {
 
   @CheckForNull
   User findByLogin(String login);

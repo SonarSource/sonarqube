@@ -21,6 +21,7 @@ package org.sonar.core.persistence;
 
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -28,9 +29,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -64,6 +70,9 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     assertThat(rowCount("projects")).isZero();
     assertThat(rowCount("alerts")).isEqualTo(1);
     assertThat(rowCount("events")).isZero();
+    assertThat(rowCount("users")).isEqualTo(3);
+    // Verify that password column was not exported into dryRun DB
+    assertThat(getUserPassword(dataSource, 1)).isNull();
   }
 
   private byte[] createDb(Long projectId) throws IOException {
@@ -150,5 +159,24 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
 
   private int rowCount(String table) {
     return new DbTemplate().getRowCount(dataSource, table);
+  }
+
+  public String getUserPassword(DataSource dataSource, int userId) {
+    Connection connection = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = dataSource.getConnection();
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery("SELECT crypted_password FROM users WHERE id=" + userId);
+
+      return resultSet.next() ? resultSet.getString(1) : null;
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    } finally {
+      DbUtils.closeQuietly(resultSet);
+      DbUtils.closeQuietly(statement);
+      DbUtils.closeQuietly(connection);
+    }
   }
 }

@@ -30,6 +30,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -43,6 +45,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -63,15 +67,16 @@ public class JsonReport implements BatchComponent {
   private final EventBus eventBus;
   private final ComponentSelector componentSelector;
   private AnalysisMode analysisMode;
+  private UserFinder userFinder;
 
   public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
-    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode) {
-    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create(), mode);
+    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
+    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
   }
 
   @VisibleForTesting
   JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
-    EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode) {
+    EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -80,6 +85,7 @@ public class JsonReport implements BatchComponent {
     this.eventBus = eventBus;
     this.componentSelector = componentSelector;
     this.analysisMode = analysisMode;
+    this.userFinder = userFinder;
   }
 
   public void execute() {
@@ -116,10 +122,13 @@ public class JsonReport implements BatchComponent {
       json.name("version").value(server.getVersion());
 
       Set<RuleKey> ruleKeys = newHashSet();
+      Set<String> userLogins = newHashSet();
       componentSelector.init();
-      writeJsonIssues(json, ruleKeys);
+      writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
+      List<User> users = userFinder.findByLogins(new ArrayList<String>(userLogins));
+      writeUsers(json, users);
       json.endObject().flush();
 
     } catch (IOException e) {
@@ -129,7 +138,7 @@ public class JsonReport implements BatchComponent {
     }
   }
 
-  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys) throws IOException {
+  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> logins) throws IOException {
     json.name("issues").beginArray();
     for (DefaultIssue issue : getIssues()) {
       if (issue.resolution() == null && componentSelector.register(issue)) {
@@ -147,6 +156,12 @@ public class JsonReport implements BatchComponent {
           .name("reporter").value(issue.reporter())
           .name("assignee").value(issue.assignee())
           .name("effortToFix").value(issue.effortToFix());
+        if (issue.reporter() != null) {
+          logins.add(issue.reporter());
+        }
+        if (issue.assignee() != null) {
+          logins.add(issue.assignee());
+        }
         if (issue.creationDate() != null) {
           json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
         }
@@ -183,6 +198,18 @@ public class JsonReport implements BatchComponent {
         .name("rule").value(ruleKey.rule())
         .name("repository").value(ruleKey.repository())
         .name("name").value(getRuleName(ruleKey))
+        .endObject();
+    }
+    json.endArray();
+  }
+
+  private void writeUsers(JsonWriter json, List<User> users) throws IOException {
+    json.name("users").beginArray();
+    for (User user : users) {
+      json
+        .beginObject()
+        .name("login").value(user.login())
+        .name("name").value(user.name())
         .endObject();
     }
     json.endArray();

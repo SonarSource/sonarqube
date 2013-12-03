@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import java.sql.Connection;
@@ -42,13 +43,21 @@ public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table) {
+    return copyTableColumns(source, dest, table, null);
+  }
+
+  public DbTemplate copyTableColumns(DataSource source, DataSource dest, String table, @Nullable String[] columnNames) {
     String selectQuery = "SELECT * FROM " + table;
-    copyTable(source, dest, table, selectQuery);
+    copyTableColumns(source, dest, table, selectQuery, columnNames);
 
     return this;
   }
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String selectQuery) {
+    return copyTableColumns(source, dest, table, selectQuery, null);
+  }
+
+  public DbTemplate copyTableColumns(DataSource source, DataSource dest, String table, String selectQuery, @Nullable String[] columnNames) {
     LOG.debug("Copy table {}", table);
     long startup = System.currentTimeMillis();
 
@@ -67,7 +76,10 @@ public class DbTemplate implements ServerComponent {
       sourceResultSet = sourceStatement.executeQuery(selectQuery);
 
       if (sourceResultSet.next()) {
-        String[] columnNames = columnNames(sourceResultSet);
+        if (columnNames == null) {
+          // Copy all columns
+          columnNames = columnNames(sourceResultSet);
+        }
         int[] columnTypes = columnTypes(sourceResultSet);
 
         destConnection = dest.getConnection();

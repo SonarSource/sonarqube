@@ -34,10 +34,31 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
+import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.components.PeriodsDefinition;
-import org.sonar.batch.index.*;
-import org.sonar.batch.issue.*;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ComponentDataPersister;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.issue.DefaultProjectIssues;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.IssuePersister;
+import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.filesystem.InputFileCache;
@@ -59,6 +80,7 @@ import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.test.TestablePerspectiveLoader;
+import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -120,6 +142,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
+      DefaultUserFinder.class,
 
       // file system
       InputFileCache.class,

@@ -24,4 +24,13 @@
     "rule": "AvoidCycles",
     "repository": "squid"
   }
+], "users": [
+  {
+    "login": "julien",
+    "name": "Julien"
+  },
+  {
+    "login": "simon",
+    "name": "Simon"
+  }
 ]}
