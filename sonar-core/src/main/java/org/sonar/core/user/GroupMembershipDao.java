@@ -17,17 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.exceptions;
 
-public class NotFoundException extends HttpException {
+package org.sonar.core.user;
 
-  private static final int NOT_FOUND = 404;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.MyBatis;
 
-  public NotFoundException() {
-    super(NOT_FOUND);
+import java.util.List;
+
+public class GroupMembershipDao {
+
+  public GroupMembershipDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
   }
 
-  public NotFoundException(String message) {
-    super(NOT_FOUND, message);
+  private final MyBatis mybatis;
+
+  public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      GroupMembershipMapper mapper = session.getMapper(GroupMembershipMapper.class);
+      return mapper.selectGroups(query);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
+
 }

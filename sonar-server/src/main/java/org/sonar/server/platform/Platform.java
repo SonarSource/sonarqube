@@ -81,6 +81,7 @@ import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
+import org.sonar.server.group.InternalGroupMembershipQueryService;
 import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -270,6 +271,9 @@ public final class Platform {
     servicesContainer.addSingleton(PermissionFacade.class);
     servicesContainer.addSingleton(InternalPermissionService.class);
     servicesContainer.addSingleton(InternalPermissionTemplateService.class);
+
+    // groups
+    servicesContainer.addSingleton(InternalGroupMembershipQueryService.class);
 
     // components
     servicesContainer.addSingleton(DefaultComponentFinder.class);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.user.GroupMembershipMapper">
+
+  <sql id="groupColumns">
+    g.id as id,
+    g.name as name
+  </sql>
+
+  <select id="selectGroups" parameterType="map" resultType="GroupMembership">
+    SELECT  g.id as id, g.name as name, gu.user_id as userId
+    FROM groups g
+    LEFT JOIN groups_users gu ON gu.group_id=g.id AND gu.user_id=#{userId}
+    <where>
+      <choose>
+        <when test="memberShip == 'MEMBER_ONLY'">
+          AND gu.user_id is not null
+        </when>
+        <when test="memberShip == 'NOT_MEMBER'">
+          AND gu.user_id is null
+        </when>
+      </choose>
+    </where>
+    ORDER BY g.name
+  </select>
+
+</mapper>

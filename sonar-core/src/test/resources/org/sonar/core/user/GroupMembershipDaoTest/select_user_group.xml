@@ -1,0 +1,7 @@
+<dataset>
+
+  <groups id="101" name="sonar-users" />
+
+  <groups_users user_id="201" group_id="101"/>
+
+</dataset>

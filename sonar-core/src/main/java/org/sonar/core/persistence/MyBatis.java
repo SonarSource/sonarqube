@@ -105,6 +105,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Graph", GraphDto.class);
     loadAlias(conf, "Group", GroupDto.class);
     loadAlias(conf, "GroupRole", GroupRoleDto.class);
+    loadAlias(conf, "GroupMembership", GroupMembershipDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
     loadAlias(conf, "MeasureFilter", MeasureFilterDto.class);
     loadAlias(conf, "NotificationQueue", NotificationQueueDto.class);
@@ -148,7 +149,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class, CharacteristicMapper.class
+      NotificationQueueMapper.class, CharacteristicMapper.class, GroupMembershipMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

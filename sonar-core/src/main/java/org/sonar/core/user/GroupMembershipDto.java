@@ -17,17 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.exceptions;
+package org.sonar.core.user;
 
-public class NotFoundException extends HttpException {
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-  private static final int NOT_FOUND = 404;
+/**
+ * @since 4.1
+ */
+public class GroupMembershipDto {
 
-  public NotFoundException() {
-    super(NOT_FOUND);
+  private Long id;
+  private String name;
+  private Long userId;
+
+  public Long getId() {
+    return id;
   }
 
-  public NotFoundException(String message) {
-    super(NOT_FOUND, message);
+  public GroupMembershipDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public GroupMembershipDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getUserId() {
+    return userId;
+  }
+
+  public GroupMembershipDto setUserId(@Nullable Long userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  public GroupMembership toDefaultGroupMembership() {
+    return new GroupMembership()
+      .setId(id)
+      .setName(name)
+      .setMember(userId != null);
   }
 }

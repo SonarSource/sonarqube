@@ -62,6 +62,10 @@ class Internal
     component(Java::OrgSonarServerUi::JRubyProfiling.java_class)
   end
 
+  def self.group_membership
+    component(Java::OrgSonarServerGroup::InternalGroupMembershipQueryService.java_class)
+  end
+
   private
 
   def self.component(component_java_class)

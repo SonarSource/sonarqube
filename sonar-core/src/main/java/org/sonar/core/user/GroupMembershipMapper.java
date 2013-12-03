@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.exceptions;
+package org.sonar.core.user;
 
-public class NotFoundException extends HttpException {
+import java.util.List;
 
-  private static final int NOT_FOUND = 404;
+public interface GroupMembershipMapper {
 
-  public NotFoundException() {
-    super(NOT_FOUND);
-  }
+  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
 
-  public NotFoundException(String message) {
-    super(NOT_FOUND, message);
-  }
 }

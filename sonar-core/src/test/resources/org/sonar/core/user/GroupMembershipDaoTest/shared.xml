@@ -1,0 +1,15 @@
+<dataset>
+
+  <groups id="100" name="sonar-administrators"/>
+  <groups id="101" name="sonar-users" />
+  <groups id="102" name="sonar-reviewers" />
+
+  <!-- user 200 is in all groups -->
+  <groups_users user_id="200" group_id="100"/>
+  <groups_users user_id="200" group_id="101"/>
+  <groups_users user_id="200" group_id="102"/>
+
+  <!-- user 201 is in users group -->
+  <groups_users user_id="201" group_id="101"/>
+
+</dataset>
