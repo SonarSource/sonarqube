@@ -21,6 +21,9 @@
           AND gu.user_id is null
         </when>
       </choose>
+      <if test="searchText != null">
+        AND (g.name LIKE #{searchTextSql} ESCAPE '/')
+      </if>
     </where>
     ORDER BY g.name
   </select>

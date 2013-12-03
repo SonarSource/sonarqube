@@ -42,7 +42,7 @@ public class InternalGroupMembershipQueryService implements ServerComponent {
     this.groupMembershipDao = groupMembershipDao;
   }
 
-  public List<GroupMembership> find(Map<String, Object> params) {
+  public List<GroupMembership> find(Map<String, String> params) {
     List<GroupMembership> groupMemberships = newArrayList();
     String user = user(params);
     UserDto userDto = userDao.selectActiveUserByLogin(user);
@@ -56,19 +56,20 @@ public class InternalGroupMembershipQueryService implements ServerComponent {
     return groupMemberships;
   }
 
-  private GroupMembershipQuery parseQuery(Map<String, Object> params, Long userId) {
+  private GroupMembershipQuery parseQuery(Map<String, String> params, Long userId) {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
     builder.memberShip(memberShip(params));
+    builder.searchText(params.get("query"));
     builder.userId(userId);
     return builder.build();
   }
 
-  private String user(Map<String, Object> params){
-    return (String) params.get("user");
+  private String user(Map<String, String> params){
+    return params.get("user");
   }
 
-  private String memberShip(Map<String, Object> params){
-    String selected = (String) params.get("selected");
+  private String memberShip(Map<String, String> params){
+    String selected = params.get("selected");
     if (selected.equals("selected")) {
       return GroupMembershipQuery.MEMBER_ONLY;
     } else if (selected.equals("deselected")) {

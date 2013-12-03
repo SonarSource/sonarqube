@@ -85,6 +85,19 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_only_matching_group_name() throws Exception {
+    setupData("shared");
+
+    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().userId(200L).searchText("user").build());
+    assertThat(result).hasSize(1);
+
+    assertThat(result.get(0).getName()).isEqualTo("sonar-users");
+
+    result = dao.selectGroups(GroupMembershipQuery.builder().userId(200L).searchText("sonar").build());
+    assertThat(result).hasSize(3);
+  }
+
+  @Test
   public void should_be_sorted_by_group_name() throws Exception {
     setupData("should_be_sorted_by_group_name");
 
@@ -93,15 +106,6 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
     assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
     assertThat(result.get(1).getName()).isEqualTo("sonar-reviewers");
     assertThat(result.get(2).getName()).isEqualTo("sonar-users");
-  }
-
-  private void check(GroupMembershipDto groupMembership, String expectedName, Long expectedUser){
-    assertThat(groupMembership.getName()).isEqualTo(expectedName);
-    if (expectedUser != null) {
-      assertThat(groupMembership.getUserId()).isEqualTo(expectedUser);
-    } else {
-      assertThat(groupMembership.getUserId()).isNull();
-    }
   }
 
 }
