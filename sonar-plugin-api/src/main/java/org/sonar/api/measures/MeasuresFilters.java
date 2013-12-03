@@ -76,11 +76,12 @@ public final class MeasuresFilters {
           return null;
         }
         for (Measure measure : measures) {
+          Characteristic measureCharacteristic = measure.getCharacteristic();
           if (measure.getClass().equals(Measure.class) &&
             measure.getMetric().equals(metric) &&
             measure.getPersonId() == null &&
-            measure.getCharacteristic() != null &&
-            measure.getCharacteristic().equals(characteristic)) {
+            measureCharacteristic != null &&
+            measureCharacteristic.equals(characteristic)) {
             return measure;
           }
         }
