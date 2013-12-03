@@ -29,7 +29,7 @@ class Api::PermissionsController < Api::ApiController
   # -- Mandatory parameters
   # 'permission' is the key of the permission to add.
   #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan, provisioning.
-  #   For component permissions, available values are : user, codeviewer, admin.
+  #   For component permissions, available values are : user, codeviewer, admin, issueadmin.
   # 'user' is the user identifier (login)
   # OR
   # 'group' is the group identifier (group name or 'anyone')
@@ -46,6 +46,7 @@ class Api::PermissionsController < Api::ApiController
   #
   # since 3.7
   # 'component' parameter and 'provisioning' permission have been added in 4.0
+  # 'issueadmin' permission has been added in 4.1
   #
   def add
     verify_post_request
