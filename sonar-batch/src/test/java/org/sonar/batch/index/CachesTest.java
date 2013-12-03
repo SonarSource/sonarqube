@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.index;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -43,7 +43,9 @@ public class CachesTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   public static Caches createCacheOnTemp(TemporaryFolder temp) {
-    BootstrapSettings bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Collections.emptyMap()));
+    BootstrapSettings bootstrapSettings = new BootstrapSettings(
+      new BootstrapProperties(Collections.<String,String>emptyMap())
+    );
     try {
       bootstrapSettings.properties().put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
     } catch (IOException e) {

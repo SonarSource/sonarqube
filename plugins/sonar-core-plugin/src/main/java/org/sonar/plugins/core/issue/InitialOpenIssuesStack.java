@@ -20,7 +20,7 @@
 
 package org.sonar.plugins.core.issue;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.index.Cache;
@@ -75,7 +75,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
 
   public List<IssueChangeDto> selectChangelog(String issueKey) {
     List<IssueChangeDto> changeDtos = issuesChangelogCache.get(issueKey);
-    return changeDtos != null ? changeDtos : Collections.emptyList();
+    return changeDtos != null ? changeDtos : Collections.<IssueChangeDto>emptyList();
   }
 
   public void clear() {

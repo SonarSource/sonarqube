@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
@@ -70,7 +70,7 @@ public class IssueChangelogServiceTest {
   @Test
   public void not_load_changelog_on_unkown_issue() throws Exception {
     try {
-      IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.emptyList());
+      IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
       when(issueFinder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
       service.changelog("ABCDE");

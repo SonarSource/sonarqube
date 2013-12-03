@@ -21,7 +21,7 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
-import org.h2.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -146,7 +146,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   private void validateTemplateName(@Nullable Long templateId, String templateName) {
-    if (StringUtils.isNullOrEmpty(templateName)) {
+    if (StringUtils.isEmpty(templateName)) {
       String errorMsg = "Name can't be blank";
       throw new BadRequestException(errorMsg);
     }
@@ -162,7 +162,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   private void validateKeyPattern(@Nullable Long templateId, @Nullable String keyPattern) {
-    if (StringUtils.isNullOrEmpty(keyPattern)) {
+    if (StringUtils.isEmpty(keyPattern)) {
       return;
     }
     try {
