@@ -19,12 +19,14 @@
  */
 package org.sonar.core.measure;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.Profiling.Level;
+import org.sonar.core.profiling.StopWatch;
 
 import javax.annotation.Nullable;
 
@@ -33,50 +35,49 @@ import java.util.Map;
 
 public class MeasureFilterEngine implements ServerComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger("org.sonar.MEASURE_FILTER");
+
   private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;
+  private final Profiling profiling;
 
-
-  public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor) {
+  public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor, Profiling profiling) {
     this.executor = executor;
     this.factory = factory;
+    this.profiling = profiling;
   }
 
   public MeasureFilterResult execute(Map<String, Object> filterMap, @Nullable Long userId) {
-    return execute(filterMap, userId, LoggerFactory.getLogger("org.sonar.MEASURE_FILTER"));
-  }
-
-  @VisibleForTesting
-  MeasureFilterResult execute(Map<String, Object> filterMap, @Nullable Long userId, Logger logger) {
-    long start = System.currentTimeMillis();
+    StopWatch watch = profiling.start("measures", Level.BASIC);
+    StopWatch sqlWatch = null;
     MeasureFilterResult result = new MeasureFilterResult();
     MeasureFilterContext context = new MeasureFilterContext();
     context.setUserId(userId);
     context.setData(String.format("{%s}", Joiner.on('|').withKeyValueSeparator("=").join(filterMap)));
     try {
       MeasureFilter filter = factory.create(filterMap);
+      sqlWatch = profiling.start("sql", Level.FULL);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
       result.setRows(rows);
-      log(context, result, logger);
 
     } catch (Exception e) {
       result.setError(MeasureFilterResult.Error.UNKNOWN);
-      logger.error("Fail to execute measure filter: " + context, e);
+      LOG.error("Fail to execute measure filter: " + context, e);
     } finally {
-      result.setDurationInMs(System.currentTimeMillis() - start);
+      if (sqlWatch != null) {
+        sqlWatch.stop(context.getSql());
+      }
+      watch.stop(log(context, result));
     }
     return result;
   }
 
-  private void log(MeasureFilterContext context, MeasureFilterResult result, Logger logger) {
-    if (logger.isDebugEnabled()) {
-      StringBuilder log = new StringBuilder();
-      log.append(SystemUtils.LINE_SEPARATOR);
-      log.append("request: ").append(context.getData()).append(SystemUtils.LINE_SEPARATOR);
-      log.append(" result: ").append(result.toString()).append(SystemUtils.LINE_SEPARATOR);
-      log.append("    sql: ").append(context.getSql()).append(SystemUtils.LINE_SEPARATOR);
-      logger.debug(log.toString());
-    }
+  private String log(MeasureFilterContext context, MeasureFilterResult result) {
+    StringBuilder log = new StringBuilder();
+    log.append(SystemUtils.LINE_SEPARATOR);
+    log.append("request: ").append(context.getData()).append(SystemUtils.LINE_SEPARATOR);
+    log.append(" result: ").append(result.toString());
+    return log.toString();
   }
 
 }

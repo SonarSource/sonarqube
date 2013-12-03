@@ -31,7 +31,6 @@ public class MeasureFilterResult {
 
   private List<MeasureFilterRow> rows = null;
   private Error error = null;
-  private long durationInMs;
 
   MeasureFilterResult() {
   }
@@ -42,15 +41,6 @@ public class MeasureFilterResult {
 
   public Error getError() {
     return error;
-  }
-
-  public long getDurationInMs() {
-    return durationInMs;
-  }
-
-  MeasureFilterResult setDurationInMs(long l) {
-    this.durationInMs = l;
-    return this;
   }
 
   MeasureFilterResult setRows(@Nullable List<MeasureFilterRow> rows) {
@@ -76,7 +66,6 @@ public class MeasureFilterResult {
     if (error != null) {
       sb.append("error=").append(error).append(", ");
     }
-    sb.append(durationInMs).append("ms");
     return sb.toString();
   }
 }

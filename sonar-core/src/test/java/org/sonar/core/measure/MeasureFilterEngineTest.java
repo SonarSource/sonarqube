@@ -23,13 +23,17 @@ import com.google.common.collect.ImmutableMap;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
-import org.slf4j.Logger;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MeasureFilterEngineTest {
 
@@ -40,13 +44,11 @@ public class MeasureFilterEngineTest {
     MeasureFilter filter = new MeasureFilter();
     when(factory.create(filterMap)).thenReturn(filter);
     MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
-    Logger logger = mock(Logger.class);
-    when(logger.isDebugEnabled()).thenReturn(true);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor);
+    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor, new Profiling(new Settings()));
 
     final long userId = 50L;
-    engine.execute(filterMap, userId, logger);
+    engine.execute(filterMap, userId);
     verify(executor).execute(refEq(filter), argThat(new BaseMatcher<MeasureFilterContext>() {
       public boolean matches(Object o) {
         MeasureFilterContext context = (MeasureFilterContext) o;
@@ -56,7 +58,6 @@ public class MeasureFilterEngineTest {
       public void describeTo(Description description) {
       }
     }));
-    verify(logger).debug(anyString());
   }
 
   @Test
@@ -66,7 +67,7 @@ public class MeasureFilterEngineTest {
     when(factory.create(filterMap)).thenThrow(new IllegalArgumentException());
     MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor);
+    MeasureFilterEngine engine = new MeasureFilterEngine(factory, executor, new Profiling(new Settings()));
     MeasureFilterResult result = engine.execute(filterMap, 50L);
 
     assertThat(result.isSuccess()).isFalse();
