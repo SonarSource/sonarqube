@@ -31,7 +31,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     this.filters.add([
       new window.SS.Filter({
-        name: 'Components',
+        name: window.SS.phrases.components,
         property: 'qualifiers[]',
         type: window.SS.SelectFilterView,
         enabled: true,
@@ -40,30 +40,30 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Age',
+        name: window.SS.phrases.age,
         propertyFrom: 'ageMinDays',
         propertyTo: 'ageMaxDays',
         type: window.SS.RangeFilterView,
-        placeholder: 'in days',
+        placeholder: window.SS.phrases.days,
         enabled: false,
         optional: true
       }),
 
       new window.SS.Filter({
-        name: 'Alert',
+        name: window.SS.phrases.alert,
         property: 'alertLevels[]',
         type: window.SS.SelectFilterView,
         enabled: false,
         optional: true,
         choices: {
-          'error': 'Error',
-          'warn': 'Warning',
-          'ok': 'Ok'
+          'error': window.SS.phrases.error,
+          'warn': window.SS.phrases.warning,
+          'ok': window.SS.phrases.ok
         }
       }),
 
       new window.SS.Filter({
-        name: 'Components of',
+        name: window.SS.phrases.componentsOf,
         property: 'base',
         type: window.SS.ComponentFilterView,
         multiple: false,
@@ -72,7 +72,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Favorites only',
+        name: window.SS.phrases.favoritesOnly,
         property: 'onFavourites',
         type: window.SS.CheckboxFilterView,
         enabled: false,
@@ -80,7 +80,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Date',
+        name: window.SS.phrases.date,
         propertyFrom: 'fromDate',
         propertyTo: 'toDate',
         type: window.SS.DateRangeFilterView,
@@ -89,7 +89,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Key contains',
+        name: window.SS.phrases.keyContains,
         property: 'keySearch',
         type: window.SS.StringFilterView,
         enabled: false,
@@ -100,7 +100,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     if (_.isObject(window.SS.languages) && _.size(window.SS.languages) > 1) {
       this.filters.add([
         new window.SS.Filter({
-          name: 'Language',
+          name: window.SS.phrases.language,
           property: 'languages[]',
           type: window.SS.SelectFilterView,
           enabled: false,
@@ -112,7 +112,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     this.filters.add([
       new window.SS.Filter({
-        name: 'Metric',
+        name: window.SS.phrases.metric,
         property: 'c3',
         type: window.SS.MetricFilterView,
         metrics: window.SS.metrics,
@@ -123,7 +123,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Metric',
+        name: window.SS.phrases.metric,
         property: 'c2',
         type: window.SS.MetricFilterView,
         metrics: window.SS.metrics,
@@ -134,7 +134,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Metric',
+        name: window.SS.phrases.metric,
         property: 'c1',
         type: window.SS.MetricFilterView,
         metrics: window.SS.metrics,
@@ -145,7 +145,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Name contains',
+        name: window.SS.phrases.nameContains,
         property: 'nameSearch',
         type: window.SS.StringFilterView,
         enabled: false,

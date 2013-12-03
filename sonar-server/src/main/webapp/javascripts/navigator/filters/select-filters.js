@@ -239,7 +239,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       var value = this.selection.map(function(item) {
             return item.get('text');
           }),
-          defaultValue = this.model.get('multiple') ? 'All' : 'Any';
+          defaultValue = this.model.get('multiple') ? window.SS.phrases.all : window.SS.phrases.any;
 
       return this.isDefaultValue() ? defaultValue : value.join(', ');
     },

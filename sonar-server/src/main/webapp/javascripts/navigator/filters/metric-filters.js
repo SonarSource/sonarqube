@@ -31,11 +31,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       var value = this.model.get('value') || {};
       this.$('[name=metric]').val(value.metric).select2({
         width: '100%',
-        placeholder: 'Metric'
+        placeholder: window.SS.phrases.metric
       });
       this.$('[name=period]').val(value.period || 0).select2({
-        width: '100%',
-        placeholder: 'Period'
+        width: '100%'
       });
       this.$('[name=op]').val(value.op || 'eq').select2({
         width: '60px',

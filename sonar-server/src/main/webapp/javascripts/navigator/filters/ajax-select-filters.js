@@ -308,7 +308,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       } else {
         this.options.filterView.choices.reset([{
           id: '<unassigned>',
-          text: 'Unassigned'
+          text: window.SS.phrases.unassigned
         }]);
       }
 
@@ -349,7 +349,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (_.indexOf(value, '<unassigned>') !== -1) {
         this.selection.add(new Backbone.Model({
           id: '<unassigned>',
-          text: 'Unassigned'
+          text: window.SS.phrases.unassigned
         }));
         this.choices.reset([]);
         value = _.reject(value, function(k) { return k === '<unassigned>'; });

@@ -48,7 +48,42 @@
     severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
     statuses: <%= @options_for_statuses.to_json.html_safe -%>,
     resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,
-    favorites: <%= render :partial => 'issues/filter_favourites2' -%>
+    favorites: <%= render :partial => 'issues/filter_favourites2' -%>,
+
+    phrases: {
+      'any':           '<%= escape_javascript message('any') -%>',
+      'anytime':       '<%= escape_javascript message('anytime') -%>',
+      'all':           '<%= escape_javascript message('all') -%>',
+      'project':       '<%= escape_javascript message('issue_filter.criteria.project') -%>',
+      'severity':      '<%= escape_javascript message('issue_filter.criteria.severity') -%>',
+      'severities': {
+        blocker:       '<%= escape_javascript message('blocker') -%>',
+        critical:      '<%= escape_javascript message('critical') -%>',
+        major:         '<%= escape_javascript message('major') -%>',
+        minor:         '<%= escape_javascript message('minor') -%>',
+        info:          '<%= escape_javascript message('info') -%>',
+      },
+      'status':        '<%= escape_javascript message('issue_filter.criteria.status') -%>',
+      'statuses': {
+        open:          '<%= escape_javascript message('open') -%>',
+        confirmed:     'Confirmed',
+        reopened:      'Reopened',
+        resolved:      'Resolved',
+        closed:        '<%= escape_javascript message('closed') -%>',
+      },
+      assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
+      resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
+      resolutions: {
+        falsePositive: 'False positive',
+        fixed:         'Fixed',
+        removed:       'Removed'
+      },
+      reporter:        '<%= escape_javascript message('issue_filter.criteria.reporter') -%>',
+      created:         '<%= escape_javascript message('issue_filter.criteria.created') -%>',
+
+      moreCriteria:    '<%= escape_javascript message('more_criteria') -%>',
+      unassigned:      '<%= escape_javascript message('unassigned') -%>'
+    }
   });
 
   var queryParams = [

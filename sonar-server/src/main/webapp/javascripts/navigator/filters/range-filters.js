@@ -64,7 +64,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         var value = _.values(this.model.get('value'));
         return value.join(' — ');
       } else {
-        return 'Any';
+        return window.SS.phrases.any;
       }
     },
 
@@ -168,7 +168,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         var value = _.values(this.model.get('value'));
         return value.join(' — ');
       } else {
-        return 'Anytime';
+        return window.SS.phrases.anytime;
       }
     }
 

@@ -1,6 +1,6 @@
 <div class="navigator">
 
-  <div class="navigator-filters" style="margin-bottom: 0;"></div>
+  <div class="navigator-filters"></div>
 
 
   <div class="navigator-results">
@@ -33,7 +33,7 @@
 
     <div class="navigator-filters-list"></div>
     <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
-    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures"><%= message 'issue_filter.new_search' -%></a>
+    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures"><%= message 'measure_filter.new_search' -%></a>
   </form>
 </script>
 
@@ -58,8 +58,30 @@
       '2': '<%= Api::Utils.period_label(2) -%>',
       '3': '<%= Api::Utils.period_label(3) -%>'
     },
-    favorites: <%= render :partial => 'measures/favourites2' -%>
+    favorites: <%= render :partial => 'measures/favourites2' -%>,
+
+    phrases: {
+      'any':            '<%= escape_javascript message('any') -%>',
+      'anytime':        '<%= escape_javascript message('anytime') -%>',
+      'all':            '<%= escape_javascript message('all') -%>',
+      'components':     '<%= escape_javascript message('measure_filter.criteria.what') -%>',
+      'age':            '<%= escape_javascript message('measure_filter.criteria.age') -%>',
+      'alert':          '<%= escape_javascript message('measure_filter.criteria.alert') -%>',
+      'componentsOf':   '<%= escape_javascript message('measure_filter.criteria.components_of') -%>',
+      'date':           '<%= escape_javascript message('measure_filter.criteria.date') -%>',
+      'favoritesOnly':  '<%= escape_javascript message('measure_filter.criteria.only_favorites') -%>',
+      'keyContains':    '<%= escape_javascript message('measure_filter.criteria.key') -%>',
+      'language':       '<%= escape_javascript message('measure_filter.criteria.language') -%>',
+      'metric':         '<%= escape_javascript message('measure_filter.criteria.metric') -%>',
+      'nameContains':   '<%= escape_javascript message('measure_filter.criteria.name') -%>',
+      'moreCriteria':   '<%= escape_javascript message('more_criteria') -%>',
+      'error':          '<%= escape_javascript message('measure_filter.criteria.alert.error') -%>',
+      'warning':        '<%= escape_javascript message('measure_filter.criteria.alert.warn') -%>',
+      'ok':             '<%= escape_javascript message('measure_filter.criteria.alert.ok') -%>',
+      'days':           '<%= escape_javascript message('measure_filter.criteria.age.days') -%>'
+    }
   });
+
 
 
   var queryParams = [

@@ -31,7 +31,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     this.filters.add([
       new window.SS.Filter({
-        name: 'Project',
+        name: window.SS.phrases.project,
         property: 'componentRoots',
         type: window.SS.ProjectFilterView,
         enabled: true,
@@ -39,17 +39,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Severity',
+        name: window.SS.phrases.severity,
         property: 'severities[]',
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
         choices: {
-          'BLOCKER': 'Blocker',
-          'CRITICAL': 'Critical',
-          'MAJOR': 'Major',
-          'MINOR': 'Minor',
-          'INFO': 'Info'
+          'BLOCKER': window.SS.phrases.severities.blocker,
+          'CRITICAL': window.SS.phrases.severities.critical,
+          'MAJOR': window.SS.phrases.severities.major,
+          'MINOR': window.SS.phrases.severities.minor,
+          'INFO': window.SS.phrases.severities.info
         },
         choiceIcons: {
           'BLOCKER': '/images/priority/BLOCKER.png',
@@ -61,22 +61,22 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Status',
+        name: window.SS.phrases.status,
         property: 'statuses[]',
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
         choices: {
-          'OPEN': 'Open',
-          'CONFIRMED': 'Confirmed',
-          'REOPENED': 'Reopened',
-          'RESOLVED': 'Resolved',
-          'CLOSED': 'Closed'
+          'OPEN': window.SS.phrases.statuses.open,
+          'CONFIRMED': window.SS.phrases.statuses.confirmed,
+          'REOPENED': window.SS.phrases.statuses.reopened,
+          'RESOLVED': window.SS.phrases.statuses.resolved,
+          'CLOSED': window.SS.phrases.statuses.closed
         }
       }),
 
       new window.SS.Filter({
-        name: 'Assignee',
+        name: window.SS.phrases.assignee,
         property: 'assignees',
         type: window.SS.AssigneeFilterView,
         enabled: true,
@@ -84,20 +84,20 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Resolution',
+        name: window.SS.phrases.resolution,
         property: 'resolutions[]',
         type: window.SS.SelectFilterView,
         enabled: false,
         optional: true,
         choices: {
-          'FALSE-POSITIVE': 'False positive',
-          'FIXED': 'Fixed',
-          'REMOVED': 'Removed'
+          'FALSE-POSITIVE': window.SS.phrases.resolutions.falsePositive,
+          'FIXED': window.SS.phrases.resolutions.fixed,
+          'REMOVED': window.SS.phrases.resolutions.removed
         }
       }),
 
       new window.SS.Filter({
-        name: 'Reporter',
+        name: window.SS.phrases.reporter,
         property: 'reporters',
         type: window.SS.ReporterFilterView,
         enabled: false,
@@ -105,7 +105,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: 'Created',
+        name: window.SS.phrases.created,
         propertyFrom: 'createdAfter',
         propertyTo: 'createdBefore',
         type: window.SS.DateRangeFilterView,
