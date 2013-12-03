@@ -333,8 +333,27 @@
                     <resource>
                       <directory>src/dev</directory>
                       <includes>
-                        <include>logback.xml</include>
                         <include>sonar.properties</include>
+                      </includes>
+                      <filtering>false</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy-logback</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/classes/org/sonar/server/platform</outputDirectory>
+                  <overwrite>true</overwrite>
+                  <resources>
+                    <resource>
+                      <directory>src/dev</directory>
+                      <includes>
+                        <include>logback.xml</include>
                       </includes>
                       <filtering>false</filtering>
                     </resource>
