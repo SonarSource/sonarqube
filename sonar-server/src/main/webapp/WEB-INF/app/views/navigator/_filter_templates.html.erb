@@ -42,7 +42,7 @@
   <div class="navigator-filter-details-inner">
     <input class="navigator-filter-range-input" type="text"
            name="{{ propertyFrom }}" placeholder="{{ placeholder }}">
-    <label>to</label>
+    <label>{[ print(window.SS.phrases.to); ]}</label>
     <input class="navigator-filter-range-input" type="text"
            name="{{ propertyTo }}" placeholder="{{ placeholder }}">
   </div>
@@ -75,7 +75,7 @@
     </select>
 
     <select name="period">
-      <option value="0">Value</option>
+      <option value="0">{[ print(window.SS.phrases.value); ]}</option>
       {[ _.each(periods, function(period, key) { ]}
       <option value="{{ key }}">{{ period }}</option>
       {[ }); ]}
@@ -92,7 +92,7 @@
 </script>
 
 <script id="favoriteFilterTemplate" type="text/template">
-  <div class="navigator-filter-favorite-toggle" title="Issues Filters"></div>
+  <div class="navigator-filter-favorite-toggle" title="{[ print(window.SS.phrases.filtersList); ]}"></div>
 </script>
 
 <script id="detailsFavoriteFilterTemplate" type="text/template">
@@ -106,13 +106,13 @@
     <li class="line"></li>
     {[ } ]}
     <li class="manage">
-      <label id="manage-favorites">Manage</label>
+      <label id="manage-favorites">{[ print(window.SS.phrases.manage); ]}</label>
     </li>
   </ul>
 </script>
 
 <script id="moreCriteriaFilterTemplate" type="text/template">
-  <strong>+</strong> {[ print(window.SS.phrases.moreCriteria); ]}
+  {[ print(window.SS.phrases.moreCriteria); ]}
 </script>
 
 <script id="detailsMoreCriteriaFilterTemplate" type="text/template">

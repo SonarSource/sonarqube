@@ -54,35 +54,38 @@
       'any':           '<%= escape_javascript message('any') -%>',
       'anytime':       '<%= escape_javascript message('anytime') -%>',
       'all':           '<%= escape_javascript message('all') -%>',
+      'manage':        '<%= escape_javascript message('manage') -%>',
+      'to':            '<%= escape_javascript message('to') -%>',
       'project':       '<%= escape_javascript message('issue_filter.criteria.project') -%>',
       'severity':      '<%= escape_javascript message('issue_filter.criteria.severity') -%>',
       'severities': {
-        blocker:       '<%= escape_javascript message('blocker') -%>',
-        critical:      '<%= escape_javascript message('critical') -%>',
-        major:         '<%= escape_javascript message('major') -%>',
-        minor:         '<%= escape_javascript message('minor') -%>',
-        info:          '<%= escape_javascript message('info') -%>',
+        blocker:       '<%= escape_javascript message('severity.BLOCKER') -%>',
+        critical:      '<%= escape_javascript message('severity.CRITICAL') -%>',
+        major:         '<%= escape_javascript message('severity.MAJOR') -%>',
+        minor:         '<%= escape_javascript message('severity.MINOR') -%>',
+        info:          '<%= escape_javascript message('severity.INFO') -%>'
       },
       'status':        '<%= escape_javascript message('issue_filter.criteria.status') -%>',
       'statuses': {
-        open:          '<%= escape_javascript message('open') -%>',
-        confirmed:     'Confirmed',
-        reopened:      'Reopened',
-        resolved:      'Resolved',
-        closed:        '<%= escape_javascript message('closed') -%>',
+        open:          '<%= escape_javascript message('issue.status.OPEN') -%>',
+        confirmed:     '<%= escape_javascript message('issue.status.CONFIRMED') -%>',
+        reopened:      '<%= escape_javascript message('issue.status.REOPENED') -%>',
+        resolved:      '<%= escape_javascript message('issue.status.RESOLVED') -%>',
+        closed:        '<%= escape_javascript message('issue.status.CLOSED') -%>'
       },
       assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
       resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
       resolutions: {
-        falsePositive: 'False positive',
-        fixed:         'Fixed',
-        removed:       'Removed'
+        falsePositive: '<%= escape_javascript message('issue.resolution.FALSE-POSITIVE') -%>',
+        fixed:         '<%= escape_javascript message('issue.resolution.FIXED') -%>',
+        removed:       '<%= escape_javascript message('issue.resolution.REMOVED') -%>'
       },
       reporter:        '<%= escape_javascript message('issue_filter.criteria.reporter') -%>',
       created:         '<%= escape_javascript message('issue_filter.criteria.created') -%>',
 
-      moreCriteria:    '<%= escape_javascript message('more_criteria') -%>',
-      unassigned:      '<%= escape_javascript message('unassigned') -%>'
+      moreCriteria:    '<%= escape_javascript message('issue_filter.more_criteria') -%>',
+      unassigned:      '<%= escape_javascript message('unassigned') -%>',
+      filtersList:     '<%= escape_javascript message('issue_filter.filter_list') -%>'
     }
   });
 
