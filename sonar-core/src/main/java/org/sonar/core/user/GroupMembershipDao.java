@@ -20,10 +20,14 @@
 
 package org.sonar.core.user;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
+import java.util.Map;
 
 public class GroupMembershipDao {
 
@@ -33,14 +37,19 @@ public class GroupMembershipDao {
 
   private final MyBatis mybatis;
 
-  public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query) {
+  public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId, int offset, int limit) {
     SqlSession session = mybatis.openSession();
     try {
-      GroupMembershipMapper mapper = session.getMapper(GroupMembershipMapper.class);
-      return mapper.selectGroups(query);
+      Map<String, Object> params = ImmutableMap.of("query",  query, "userId", userId);
+      return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @VisibleForTesting
+  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId) {
+    return selectGroups(query, userId, 0, Integer.MAX_VALUE);
   }
 
 }

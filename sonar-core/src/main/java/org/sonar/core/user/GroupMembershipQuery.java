@@ -36,18 +36,18 @@ public class GroupMembershipQuery {
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
 
-  public static final String ALL = "ALL";
-  public static final String MEMBER_ONLY = "MEMBER_ONLY";
-  public static final String NOT_MEMBER = "NOT_MEMBER";
-  public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ALL, MEMBER_ONLY, NOT_MEMBER);
+  public static final String ANY = "ANY";
+  public static final String IN = "IN";
+  public static final String OUT = "OUT";
+  public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
-  private final Long userId;
-  private final String memberShip;
+  private final String login;
+  private final String membership;
 
-  private final String searchText;
+  private final String groupSearch;
 
   // for internal use in MyBatis
-  final String searchTextSql;
+  final String groupSearchSql;
 
   // max results per page
   private final int pageSize;
@@ -57,16 +57,16 @@ public class GroupMembershipQuery {
 
 
   private GroupMembershipQuery(Builder builder) {
-    this.userId = builder.userId;
-    this.memberShip = builder.memberShip;
-    this.searchText = builder.searchText;
-    this.searchTextSql = searchTextToSql(searchText);
+    this.login = builder.login;
+    this.membership = builder.membership;
+    this.groupSearch = builder.groupSearch;
+    this.groupSearchSql = groupSearchToSql(groupSearch);
 
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
   }
 
-  private String searchTextToSql(@Nullable String s) {
+  private String groupSearchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
       sql = StringUtils.replace(s, "%", "/%");
@@ -76,21 +76,21 @@ public class GroupMembershipQuery {
     return sql;
   }
 
-  public Long userId() {
-    return userId;
+  public String login() {
+    return login;
   }
 
   @CheckForNull
-  public String memberShip() {
-    return memberShip;
+  public String membership() {
+    return membership;
   }
 
   /**
    * Search for groups or names containing a given string
    */
   @CheckForNull
-  public String searchText() {
-    return searchText;
+  public String groupSearch() {
+    return groupSearch;
   }
 
   public int pageSize() {
@@ -106,9 +106,9 @@ public class GroupMembershipQuery {
   }
 
   public static class Builder {
-    private Long userId;
-    private String memberShip = GroupMembershipQuery.ALL;
-    private String searchText;
+    private String login;
+    private String membership;
+    private String groupSearch;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
@@ -116,18 +116,18 @@ public class GroupMembershipQuery {
     private Builder() {
     }
 
-    public Builder userId(Long userId) {
-      this.userId = userId;
+    public Builder login(String login) {
+      this.login = login;
       return this;
     }
 
-    public Builder memberShip(@Nullable String memberShip) {
-      this.memberShip = memberShip;
+    public Builder membership(@Nullable String membership) {
+      this.membership = membership;
       return this;
     }
 
-    public Builder searchText(@Nullable String s) {
-      this.searchText = StringUtils.defaultIfBlank(s, null);
+    public Builder groupSearch(@Nullable String s) {
+      this.groupSearch = StringUtils.defaultIfBlank(s, null);
       return this;
     }
 
@@ -141,12 +141,32 @@ public class GroupMembershipQuery {
       return this;
     }
 
+    private void initMembership() {
+      if (membership == null) {
+        membership = GroupMembershipQuery.ANY;
+      } else {
+        // TODO check
+      }
+    }
+
+    private void initPageSize() {
+      if (pageSize == null) {
+        pageSize = DEFAULT_PAGE_SIZE;
+      }
+    }
+
     private void initPageIndex() {
+      if (pageIndex == null) {
+        pageIndex = DEFAULT_PAGE_INDEX;
+      }
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
     public GroupMembershipQuery build() {
-      Preconditions.checkNotNull(userId, "User id cant be null.");
+      Preconditions.checkNotNull(login, "User cant be null.");
+      initMembership();
+      initPageIndex();
+      initPageSize();
       return new GroupMembershipQuery(this);
     }
   }

@@ -41,8 +41,8 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
   public void select_all_groups_by_query() throws Exception {
     setupData("shared");
 
-    GroupMembershipQuery query = GroupMembershipQuery.builder().userId(200L).build();
-    List<GroupMembershipDto> result = dao.selectGroups(query);
+    GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
+    List<GroupMembershipDto> result = dao.selectGroups(query, 200L);
     assertThat(result).hasSize(3);
   }
 
@@ -50,8 +50,8 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
   public void select_user_group() throws Exception {
     setupData("select_user_group");
 
-    GroupMembershipQuery query = GroupMembershipQuery.builder().userId(201L).build();
-    List<GroupMembershipDto> result = dao.selectGroups(query);
+    GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
+    List<GroupMembershipDto> result = dao.selectGroups(query, 201L);
     assertThat(result).hasSize(1);
 
     GroupMembershipDto dto = result.get(0);
@@ -65,11 +65,11 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     // 200 is member of 3 groups
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(200L).memberShip(GroupMembershipQuery.MEMBER_ONLY).build())).hasSize(3);
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.IN).build(), 200L)).hasSize(3);
     // 201 is member of 1 group on 3
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(201L).memberShip(GroupMembershipQuery.MEMBER_ONLY).build())).hasSize(1);
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.IN).build(), 201L)).hasSize(1);
     // 999 is member of 0 group
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(999L).memberShip(GroupMembershipQuery.MEMBER_ONLY).build())).isEmpty();
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.IN).build(), 999L)).isEmpty();
   }
 
   @Test
@@ -77,23 +77,23 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     // 200 is member of 3 groups
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(200L).memberShip(GroupMembershipQuery.NOT_MEMBER).build())).isEmpty();
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.OUT).build(), 200L)).isEmpty();
     // 201 is member of 1 group on 3
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(201L).memberShip(GroupMembershipQuery.NOT_MEMBER).build())).hasSize(2);
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.OUT).build(), 201L)).hasSize(2);
     // 999 is member of 0 group
-    assertThat(dao.selectGroups(GroupMembershipQuery.builder().userId(999L).memberShip(GroupMembershipQuery.NOT_MEMBER).build())).hasSize(3);
+    assertThat(dao.selectGroups(GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.OUT).build(), 2999L)).hasSize(3);
   }
 
   @Test
   public void select_only_matching_group_name() throws Exception {
     setupData("shared");
 
-    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().userId(200L).searchText("user").build());
+    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").groupSearch("user").build(), 200L);
     assertThat(result).hasSize(1);
 
     assertThat(result.get(0).getName()).isEqualTo("sonar-users");
 
-    result = dao.selectGroups(GroupMembershipQuery.builder().userId(200L).searchText("sonar").build());
+    result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").groupSearch("sonar").build(), 200L);
     assertThat(result).hasSize(3);
   }
 
@@ -101,11 +101,30 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
   public void should_be_sorted_by_group_name() throws Exception {
     setupData("should_be_sorted_by_group_name");
 
-    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().userId(200L).memberShip(GroupMembershipQuery.ALL).build());
+    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L);
     assertThat(result).hasSize(3);
     assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
     assertThat(result.get(1).getName()).isEqualTo("sonar-reviewers");
     assertThat(result.get(2).getName()).isEqualTo("sonar-users");
+  }
+
+  @Test
+  public void should_be_paginated() throws Exception {
+    setupData("shared");
+
+    List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L, 0, 2);
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
+    assertThat(result.get(1).getName()).isEqualTo("sonar-reviewers");
+
+    result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L, 1, 2);
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getName()).isEqualTo("sonar-reviewers");
+    assertThat(result.get(1).getName()).isEqualTo("sonar-users");
+
+    result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L, 2, 1);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getName()).isEqualTo("sonar-users");
   }
 
 }

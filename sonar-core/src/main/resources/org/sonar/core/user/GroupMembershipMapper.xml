@@ -5,27 +5,32 @@
 
   <sql id="groupColumns">
     g.id as id,
-    g.name as name
+    g.name as name,
+    gu.user_id as userId
   </sql>
 
   <select id="selectGroups" parameterType="map" resultType="GroupMembership">
-    SELECT  g.id as id, g.name as name, gu.user_id as userId
+    SELECT <include refid="groupColumns"/>
     FROM groups g
+    <include refid="selectQueryConditions"/>
+    ORDER BY g.name
+  </select>
+
+  <sql id="selectQueryConditions">
     LEFT JOIN groups_users gu ON gu.group_id=g.id AND gu.user_id=#{userId}
     <where>
       <choose>
-        <when test="memberShip == 'MEMBER_ONLY'">
-          AND gu.user_id is not null
+        <when test="query.membership() == 'IN'">
+          AND gu.user_id IS NOT NULL
         </when>
-        <when test="memberShip == 'NOT_MEMBER'">
-          AND gu.user_id is null
+        <when test="query.membership() == 'OUT'">
+          AND gu.user_id IS NULL
         </when>
       </choose>
-      <if test="searchText != null">
-        AND (g.name LIKE #{searchTextSql} ESCAPE '/')
+      <if test="query.groupSearch() != null">
+        AND (g.name LIKE #{query.groupSearchSql} ESCAPE '/')
       </if>
     </where>
-    ORDER BY g.name
-  </select>
+  </sql>
 
 </mapper>

@@ -21,61 +21,44 @@
 package org.sonar.server.group;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.user.*;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.core.user.GroupMembershipQuery;
+import org.sonar.server.util.RubyUtils;
 
-import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
- * Used by ruby code <pre>Internal.groupmembership</pre>
+ * Used by ruby code <pre>Internal.group_membership</pre>
  */
 public class InternalGroupMembershipQueryService implements ServerComponent {
 
-  private final UserDao userDao;
-  private final GroupMembershipDao groupMembershipDao;
+  private final GroupMembershipFinder finder;
 
-  public InternalGroupMembershipQueryService(UserDao userDao, GroupMembershipDao groupMembershipDao) {
-    this.userDao = userDao;
-    this.groupMembershipDao = groupMembershipDao;
+  public InternalGroupMembershipQueryService(GroupMembershipFinder finder) {
+    this.finder = finder;
   }
 
-  public List<GroupMembership> find(Map<String, String> params) {
-    List<GroupMembership> groupMemberships = newArrayList();
-    String user = user(params);
-    UserDto userDto = userDao.selectActiveUserByLogin(user);
-    if (userDto == null) {
-      throw new NotFoundException("User '"+ user +"' does not exists.");
-    }
-    List<GroupMembershipDto> dtos = groupMembershipDao.selectGroups(parseQuery(params, userDto.getId()));
-    for (GroupMembershipDto dto : dtos){
-      groupMemberships.add(dto.toDefaultGroupMembership());
-    }
-    return groupMemberships;
+  public GroupMembershipQueryResult find(Map<String, Object> params) {
+    return finder.find(parseQuery(params));
   }
 
-  private GroupMembershipQuery parseQuery(Map<String, String> params, Long userId) {
+  private GroupMembershipQuery parseQuery(Map<String, Object> params) {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
-    builder.memberShip(memberShip(params));
-    builder.searchText(params.get("query"));
-    builder.userId(userId);
+    builder.membership(membership(params));
+    builder.groupSearch((String) params.get("query"));
+    builder.pageIndex(RubyUtils.toInteger(params.get("page")));
+    builder.pageSize(RubyUtils.toInteger(params.get("pageSize")));
+    builder.login((String) params.get("login"));
     return builder.build();
   }
 
-  private String user(Map<String, String> params){
-    return params.get("user");
-  }
-
-  private String memberShip(Map<String, String> params){
-    String selected = params.get("selected");
+  private String membership(Map<String, Object> params) {
+    String selected = (String) params.get("selected");
     if ("selected".equals(selected)) {
-      return GroupMembershipQuery.MEMBER_ONLY;
+      return GroupMembershipQuery.IN;
     } else if ("deselected".equals(selected)) {
-      return GroupMembershipQuery.NOT_MEMBER;
+      return GroupMembershipQuery.OUT;
     } else {
-      return GroupMembershipQuery.ALL;
+      return GroupMembershipQuery.ANY;
     }
   }
 }

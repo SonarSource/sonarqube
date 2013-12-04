@@ -81,6 +81,7 @@ import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
+import org.sonar.server.group.GroupMembershipFinder;
 import org.sonar.server.group.InternalGroupMembershipQueryService;
 import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
@@ -274,6 +275,7 @@ public final class Platform {
 
     // groups
     servicesContainer.addSingleton(InternalGroupMembershipQueryService.class);
+    servicesContainer.addSingleton(GroupMembershipFinder.class);
 
     // components
     servicesContainer.addSingleton(DefaultComponentFinder.class);

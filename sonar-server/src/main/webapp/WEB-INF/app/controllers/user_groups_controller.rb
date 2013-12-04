@@ -26,12 +26,14 @@ class UserGroupsController < ApplicationController
   #
   #
   def search
-    groups = Internal.group_membership.find(params)
+    result = Internal.group_membership.find(params)
+    groups = result.groups()
+    more = result.hasMoreResults()
 
     respond_to do |format|
       format.json {
         render :json => {
-            :more => false,
+            :more => more,
             :results => groups.map { |group| {
                 :id => group.id(),
                 :name => group.name(),
