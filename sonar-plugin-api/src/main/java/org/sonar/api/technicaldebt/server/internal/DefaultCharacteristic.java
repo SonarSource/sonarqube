@@ -63,11 +63,12 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public String name() {
     return name;
   }
 
-  public DefaultCharacteristic setName(String name) {
+  public DefaultCharacteristic setName(@Nullable String name) {
     this.name = name;
     return this;
   }
