@@ -1679,7 +1679,6 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setDomain(DOMAIN_DESIGN)
       .setBestValue(1.0)
-      .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
       .create();
 
   /**
