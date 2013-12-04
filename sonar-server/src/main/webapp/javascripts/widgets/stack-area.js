@@ -55,7 +55,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
   window.SonarWidgets.StackArea.prototype.render = function () {
-    var widget = this;
+    var widget = this,
+        cl = widget.colors().length;
 
     this.svg = this.container.append('svg')
         .attr('class', 'sonar-d3');
@@ -100,7 +101,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .domain([0, d3.max(this.stackDataTop, function(d) { return d.y0 + d.y; })])
         .nice();
 
-    this.color = function(i) { return widget.colors()[i][0]; };
+    this.color = function(i) { return widget.colors()[i % cl][0]; };
 
 
     // Configure the axis
