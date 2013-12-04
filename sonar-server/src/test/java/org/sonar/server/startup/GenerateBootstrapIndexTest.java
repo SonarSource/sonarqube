@@ -61,6 +61,8 @@ public class GenerateBootstrapIndexTest {
     assertThat(GenerateBootstrapIndex.isIgnored("eastwood-1.1.0.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("jruby-complete-1.5.6.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("jruby-rack-1.0.5.jar")).isTrue();
+    assertThat(GenerateBootstrapIndex.isIgnored("elasticsearch-0.90.6.jar")).isTrue();
+    assertThat(GenerateBootstrapIndex.isIgnored("lucene-core-4.5.1.jar")).isTrue();
   }
 
 }

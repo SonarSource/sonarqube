@@ -41,6 +41,10 @@ import java.util.Set;
  */
 public final class GenerateBootstrapIndex {
 
+  // JARs starting with one of these prefixes are excluded from batch
+  private static final String[] IGNORE = {"jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood",
+    "elasticsearch", "lucene"};
+
   private final ServletContext servletContext;
   private final DefaultServerFileSystem fileSystem;
 
@@ -72,7 +76,7 @@ public final class GenerateBootstrapIndex {
 
   public static List<String> getLibs(ServletContext servletContext) {
     List<String> libs = Lists.newArrayList();
-    Set<String> paths = servletContext.getResourcePaths("/WEB-INF/lib");
+    Set<String> paths = servletContext.getResourcePaths("/WEB-INF/lib/");
     for (String path : paths) {
       if (StringUtils.endsWith(path, ".jar")) {
         String filename = StringUtils.removeStart(path, "/WEB-INF/lib/");
@@ -83,8 +87,6 @@ public final class GenerateBootstrapIndex {
     }
     return libs;
   }
-
-  private static final String[] IGNORE = {"jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood"};
 
   /**
    * Dirty hack to disable downloading for certain files.
