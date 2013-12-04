@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+
+package org.sonar.core.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -28,10 +29,7 @@ import javax.annotation.Nullable;
 
 import java.util.Set;
 
-/**
- * @since 4.1
- */
-public class GroupMembershipQuery {
+public class WithPermissionQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
@@ -41,13 +39,13 @@ public class GroupMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
-  private final String login;
+  private final String permission;
+  private final String component;
   private final String membership;
-
-  private final String groupSearch;
+  private final String search;
 
   // for internal use in MyBatis
-  final String groupSearchSql;
+  final String searchSql;
 
   // max results per page
   private final int pageSize;
@@ -56,17 +54,18 @@ public class GroupMembershipQuery {
   private final int pageIndex;
 
 
-  private GroupMembershipQuery(Builder builder) {
-    this.login = builder.login;
+  private WithPermissionQuery(Builder builder) {
+    this.permission = builder.permission;
+    this.component = builder.component;
     this.membership = builder.membership;
-    this.groupSearch = builder.groupSearch;
-    this.groupSearchSql = groupSearchToSql(groupSearch);
+    this.search = builder.search;
+    this.searchSql = searchToSql(search);
 
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
   }
 
-  private String groupSearchToSql(@Nullable String s) {
+  private String searchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
       sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");
@@ -76,8 +75,13 @@ public class GroupMembershipQuery {
     return sql;
   }
 
-  public String login() {
-    return login;
+  public String permission() {
+    return permission;
+  }
+
+  @CheckForNull
+  public String component() {
+    return component;
   }
 
   @CheckForNull
@@ -85,12 +89,9 @@ public class GroupMembershipQuery {
     return membership;
   }
 
-  /**
-   * Search for groups containing a given string
-   */
   @CheckForNull
-  public String groupSearch() {
-    return groupSearch;
+  public String search() {
+    return search;
   }
 
   public int pageSize() {
@@ -106,9 +107,10 @@ public class GroupMembershipQuery {
   }
 
   public static class Builder {
-    private String login;
+    private String permission;
+    private String component;
     private String membership;
-    private String groupSearch;
+    private String search;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
@@ -116,8 +118,13 @@ public class GroupMembershipQuery {
     private Builder() {
     }
 
-    public Builder login(String login) {
-      this.login = login;
+    public Builder permission(String permission) {
+      this.permission = permission;
+      return this;
+    }
+
+    public Builder component(@Nullable String component) {
+      this.component = component;
       return this;
     }
 
@@ -126,8 +133,8 @@ public class GroupMembershipQuery {
       return this;
     }
 
-    public Builder groupSearch(@Nullable String s) {
-      this.groupSearch = StringUtils.defaultIfBlank(s, null);
+    public Builder search(@Nullable String s) {
+      this.search = StringUtils.defaultIfBlank(s, null);
       return this;
     }
 
@@ -143,7 +150,7 @@ public class GroupMembershipQuery {
 
     private void initMembership() {
       if (membership == null) {
-        membership = GroupMembershipQuery.ANY;
+        membership = WithPermissionQuery.ANY;
       } else {
         // TODO check
       }
@@ -162,12 +169,12 @@ public class GroupMembershipQuery {
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
-    public GroupMembershipQuery build() {
-      Preconditions.checkNotNull(login, "User cant be null.");
+    public WithPermissionQuery build() {
+      Preconditions.checkNotNull(permission, "Permission cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();
-      return new GroupMembershipQuery(this);
+      return new WithPermissionQuery(this);
     }
   }
 }

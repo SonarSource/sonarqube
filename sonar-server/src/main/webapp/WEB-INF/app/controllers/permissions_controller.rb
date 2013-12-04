@@ -1,5 +1,5 @@
 #
-# SonarQube, open source software quality management tool.
+# Sonar, entreprise quality control tool.
 # Copyright (C) 2008-2013 SonarSource
 # mailto:contact AT sonarsource DOT com
 #
@@ -17,26 +17,24 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class UserGroupsController < ApplicationController
+class PermissionsController < ApplicationController
 
   #
-  # GET /user_groups/search?user=<login>&selected=<selected>&page=3&pageSize=10&query=<query>
+  # GET /permissions/search?permission=<permission>&selected=all
   #
   # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
   #
   def search
-    result = Internal.group_membership.find(params)
-    groups = result.groups()
+    result = Internal.permissions.find(params)
+    users = result.users()
     more = result.hasMoreResults()
-
     respond_to do |format|
       format.json {
         render :json => {
             :more => more,
-            :results => groups.map { |group| {
-                :id => group.id(),
-                :name => group.name(),
-                :selected => group.isMember()
+            :results => users.map { |user| {
+                :name => user.name(),
+                :selected => user.hasPermission()
             }}
         }
       }

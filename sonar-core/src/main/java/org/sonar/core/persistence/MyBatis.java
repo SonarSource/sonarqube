@@ -49,10 +49,7 @@ import org.sonar.core.measure.MeasureFilterDto;
 import org.sonar.core.measure.MeasureFilterMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.permission.PermissionTemplateGroupDto;
-import org.sonar.core.permission.PermissionTemplateMapper;
-import org.sonar.core.permission.PermissionTemplateUserDto;
+import org.sonar.core.permission.*;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
@@ -137,12 +134,14 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "PermissionTemplateUser", PermissionTemplateUserDto.class);
     loadAlias(conf, "PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     loadAlias(conf, "Characteristic", CharacteristicDto.class);
+    loadAlias(conf, "UserWithPermission", UserWithPermissionDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
     // ResourceMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, ResourceMapper.class);
 
+    loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
       IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
@@ -150,7 +149,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class, CharacteristicMapper.class, GroupMembershipMapper.class
+      NotificationQueueMapper.class, CharacteristicMapper.class,
+      GroupMembershipMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

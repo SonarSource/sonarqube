@@ -88,6 +88,7 @@ import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
+import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
@@ -269,13 +270,16 @@ public final class Platform {
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(DefaultUserFinder.class);
     servicesContainer.addSingleton(DefaultUserService.class);
-    servicesContainer.addSingleton(PermissionFacade.class);
-    servicesContainer.addSingleton(InternalPermissionService.class);
-    servicesContainer.addSingleton(InternalPermissionTemplateService.class);
 
     // groups
     servicesContainer.addSingleton(InternalGroupMembershipService.class);
     servicesContainer.addSingleton(GroupMembershipFinder.class);
+
+    // permissions
+    servicesContainer.addSingleton(PermissionFacade.class);
+    servicesContainer.addSingleton(InternalPermissionService.class);
+    servicesContainer.addSingleton(InternalPermissionTemplateService.class);
+    servicesContainer.addSingleton(PermissionFinder.class);
 
     // components
     servicesContainer.addSingleton(DefaultComponentFinder.class);

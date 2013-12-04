@@ -17,52 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.core.permission;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
-/**
- * @since 4.1
- */
-public class GroupMembershipDto {
+public class UserWithPermission {
 
-  private Long id;
   private String name;
-  private Long userId;
+  private boolean hasPermission;
 
-  public Long getId() {
-    return id;
-  }
-
-  public GroupMembershipDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public GroupMembershipDto setName(String name) {
+  public UserWithPermission setName(String name) {
     this.name = name;
     return this;
   }
 
-  @CheckForNull
-  public Long getUserId() {
-    return userId;
+  public boolean hasPermission() {
+    return hasPermission;
   }
 
-  public GroupMembershipDto setUserId(@Nullable Long userId) {
-    this.userId = userId;
+  public UserWithPermission hasPermission(boolean hasPermission) {
+    this.hasPermission = hasPermission;
     return this;
   }
 
-  public GroupMembership toGroupMembership() {
-    return new GroupMembership()
-      .setId(id)
-      .setName(name)
-      .setMember(userId != null);
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    UserWithPermission that = (UserWithPermission) o;
+    return name.equals(that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
   }
 }

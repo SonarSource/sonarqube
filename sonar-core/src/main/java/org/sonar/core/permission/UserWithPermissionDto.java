@@ -17,52 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+
+package org.sonar.core.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-/**
- * @since 4.1
- */
-public class GroupMembershipDto {
+public class UserWithPermissionDto {
 
-  private Long id;
   private String name;
-  private Long userId;
-
-  public Long getId() {
-    return id;
-  }
-
-  public GroupMembershipDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
+  private String permission;
 
   public String getName() {
     return name;
   }
 
-  public GroupMembershipDto setName(String name) {
+  public UserWithPermissionDto setName(String name) {
     this.name = name;
     return this;
   }
 
   @CheckForNull
-  public Long getUserId() {
-    return userId;
+  public String getPermission() {
+    return permission;
   }
 
-  public GroupMembershipDto setUserId(@Nullable Long userId) {
-    this.userId = userId;
+  public UserWithPermissionDto setPermission(@Nullable String permission) {
+    this.permission = permission;
     return this;
   }
 
-  public GroupMembership toGroupMembership() {
-    return new GroupMembership()
-      .setId(id)
+  public UserWithPermission toUserWithPermission() {
+    return new UserWithPermission()
       .setName(name)
-      .setMember(userId != null);
+      .hasPermission(permission != null);
   }
 }

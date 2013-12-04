@@ -1,0 +1,11 @@
+<dataset>
+
+  <users id="200" login="user3" name="user3"/>
+  <users id="201" login="user1" name="user1"/>
+  <users id="202" login="user2" name="user2"/>
+
+  <user_roles id="1" user_id="200" resource_id="100" role="user"/>
+  <user_roles id="2" user_id="200" resource_id="100" role="admin"/>
+  <user_roles id="3" user_id="200" resource_id="100" role="codeviewer"/>
+
+</dataset>

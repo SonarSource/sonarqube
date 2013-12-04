@@ -20,18 +20,21 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.permission.WithPermissionQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -50,10 +53,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InternalPermissionServiceTest {
 
@@ -65,6 +65,7 @@ public class InternalPermissionServiceTest {
   private UserDao userDao;
   private ResourceDao resourceDao;
   private PermissionFacade permissionFacade;
+  private PermissionFinder finder;
 
   @Before
   public void setUpCommonStubbing() {
@@ -74,10 +75,11 @@ public class InternalPermissionServiceTest {
 
     resourceDao = mock(ResourceDao.class);
     permissionFacade = mock(PermissionFacade.class);
+    finder = mock(PermissionFinder.class);
 
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    service = new InternalPermissionService(userDao, resourceDao, permissionFacade);
+    service = new InternalPermissionService(userDao, resourceDao, permissionFacade, finder);
   }
 
   @Test
@@ -85,6 +87,22 @@ public class InternalPermissionServiceTest {
     assertThat(service.globalPermissions()).containsOnly(
       GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN, GlobalPermissions.DASHBOARD_SHARING,
       GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
+  }
+
+  @Test
+  public void find_user_with_permissions() throws Exception {
+    service.find(ImmutableMap.<String, Object>of(
+      "permission", "user",
+      "component", "org.sample.Sample",
+      "selected", "all"));
+
+    ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
+    verify(finder).find(argumentCaptor.capture());
+
+    WithPermissionQuery query = argumentCaptor.getValue();
+    assertThat(query.component()).isEqualTo("org.sample.Sample");
+    assertThat(query.permission()).isEqualTo("user");
+    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
   }
 
   @Test

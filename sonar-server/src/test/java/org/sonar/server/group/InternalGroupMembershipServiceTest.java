@@ -35,7 +35,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 /**
- * Use Test with DB because there's no IT on this feature for the moment
+ * Use BbUnit tests because there's no IT on this feature for the moment
  */
 public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
 

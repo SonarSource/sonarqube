@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.permission.PermissionMapper">
+
+  <sql id="userColumns">
+    u.name as name,
+    user_role.role as permission
+  </sql>
+
+  <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    <include refid="selectQueryConditions"/>
+    ORDER BY u.name
+  </select>
+
+  <sql id="selectQueryConditions">
+    LEFT JOIN user_roles user_role ON user_role.user_id=u.id AND user_role.role=#{query.permission}
+    <if test="componentId != null">
+      AND user_role.resource_id=#{componentId}
+    </if>
+    <if test="componentId == null">
+      AND user_role.resource_id IS NULL
+    </if>
+    <where>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND user_role.role IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND user_role.role IS NULL
+        </when>
+      </choose>
+      <if test="query.search() != null">
+        AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+  </sql>
+
+</mapper>

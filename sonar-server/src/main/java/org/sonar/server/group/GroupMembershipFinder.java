@@ -67,7 +67,7 @@ public class GroupMembershipFinder implements ServerComponent {
   private List<GroupMembership> toGroupMembership(List<GroupMembershipDto> dtos) {
     List<GroupMembership> groups = newArrayList();
     for (GroupMembershipDto groupMembershipDto : dtos) {
-      groups.add(groupMembershipDto.toDefaultGroupMembership());
+      groups.add(groupMembershipDto.toGroupMembership());
     }
     return groups;
   }

@@ -30,8 +30,14 @@ import java.util.List;
  */
 public interface RoleMapper {
 
+  /**
+   * @return permissions from a user
+   */
   List<String> selectUserPermissions(@Param("userLogin") String userLogin, @Nullable @Param("resourceId") Long resourceId);
 
+  /**
+   * @return permissions from to a group
+   */
   List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId);
 
   void insertGroupRole(GroupRoleDto groupRole);
