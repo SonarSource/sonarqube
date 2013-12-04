@@ -54,7 +54,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "all"));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(3);
@@ -68,7 +68,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1"));
+      "user", "user1"));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(3);
     check(result.get(0), "sonar-administrators", false);
@@ -81,7 +81,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "selected"));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(1);
@@ -93,7 +93,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "deselected"));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(2);
@@ -106,7 +106,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "all",
       "page", 1,
       "pageSize", 2
@@ -121,7 +121,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "all",
       "page", 3,
       "pageSize", 1
@@ -137,7 +137,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
 
     try {
       service.find(ImmutableMap.<String, Object>of(
-        "login", "user_not_existing",
+        "user", "user_not_existing",
         "selected", "all"));
       fail();
     } catch (Exception e) {
@@ -150,7 +150,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     setupData("shared");
 
     GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "all",
       "query", "user"));
     List<GroupMembership> result = queryResult.groups();
@@ -158,7 +158,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
     check(result.get(0), "sonar-users", true);
 
     queryResult = service.find(ImmutableMap.<String, Object>of(
-      "login", "user1",
+      "user", "user1",
       "selected", "all",
       "query", "sonar"));
     result = queryResult.groups();

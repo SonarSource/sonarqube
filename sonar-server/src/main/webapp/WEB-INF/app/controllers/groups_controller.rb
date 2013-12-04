@@ -152,9 +152,9 @@ class GroupsController < ApplicationController
 
   def add_member
     verify_post_request
-    require_parameters :group, :login
+    require_parameters :group, :user
 
-    user = User.find(:first, :conditions => {:login => params[:login], :active => true})
+    user = User.find(:first, :conditions => {:login => params[:user], :active => true})
     group = Group.first(:conditions => {:name => params[:group]})
     status = 400
     if user && group
@@ -166,7 +166,7 @@ class GroupsController < ApplicationController
 
   def remove_member
     verify_post_request
-    require_parameters :group, :login
+    require_parameters :group, :user
 
     user = User.find(:first, :conditions => {:login => params[:user], :active => true})
     user_id = user.id

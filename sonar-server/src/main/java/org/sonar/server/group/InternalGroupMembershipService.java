@@ -47,7 +47,7 @@ public class InternalGroupMembershipService implements ServerComponent {
     builder.groupSearch((String) params.get("query"));
     builder.pageIndex(RubyUtils.toInteger(params.get("page")));
     builder.pageSize(RubyUtils.toInteger(params.get("pageSize")));
-    builder.login((String) params.get("login"));
+    builder.login((String) params.get("user"));
     return builder.build();
   }
 
