@@ -25,8 +25,17 @@ import javax.annotation.Nullable;
 
 public class UserWithPermissionDto {
 
+  private String login;
   private String name;
   private String permission;
+
+  public String getLogin() {
+    return login;
+  }
+
+  public void setLogin(String login) {
+    this.login = login;
+  }
 
   public String getName() {
     return name;
@@ -49,6 +58,7 @@ public class UserWithPermissionDto {
 
   public UserWithPermission toUserWithPermission() {
     return new UserWithPermission()
+      .setLogin(login)
       .setName(name)
       .hasPermission(permission != null);
   }

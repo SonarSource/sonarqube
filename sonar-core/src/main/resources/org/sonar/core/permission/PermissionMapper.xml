@@ -4,6 +4,7 @@
 <mapper namespace="org.sonar.core.permission.PermissionMapper">
 
   <sql id="userColumns">
+    u.login as login,
     u.name as name,
     user_role.role as permission
   </sql>

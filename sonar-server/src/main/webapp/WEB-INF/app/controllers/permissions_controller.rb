@@ -33,6 +33,7 @@ class PermissionsController < ApplicationController
         render :json => {
             :more => more,
             :results => users.map { |user| {
+                :login => user.login(),
                 :name => user.name(),
                 :selected => user.hasPermission()
             }}

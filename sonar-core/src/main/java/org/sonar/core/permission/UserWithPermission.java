@@ -24,8 +24,18 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public class UserWithPermission {
 
+  private String login;
   private String name;
   private boolean hasPermission;
+
+  public String login() {
+    return login;
+  }
+
+  public UserWithPermission setLogin(String login) {
+    this.login = login;
+    return this;
+  }
 
   public String name() {
     return name;
