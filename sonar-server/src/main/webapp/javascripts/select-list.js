@@ -94,9 +94,9 @@
       var selected = this.model.get('selected'),
           that = this,
           url = selected ? this.settings.deselectUrl : this.settings.selectUrl,
-          data = {};
+          data = $.extend({}, this.settings.extra || {});
 
-      data[this.settings.selectParameter] = this.model.id;
+      data[this.settings.selectParameter] = this.model.get(this.settings.selectParameterValue);
 
       $.ajax({
           url: url,

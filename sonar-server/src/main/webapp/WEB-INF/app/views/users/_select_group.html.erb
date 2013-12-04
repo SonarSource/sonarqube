@@ -3,7 +3,7 @@
 </div>
 
 <div class="modal-body">
-  <div id="select-list-user-<%= @user.id -%>"></div>
+  <div id="select-list-user"></div>
 </div>
 
 <div class="modal-foot">
@@ -12,13 +12,17 @@
 
 <script>
   var selectList = new SelectList({
-    el: '#select-list-user-<%= @user.id -%>',
+    el: '#select-list-user',
     width: '100%',
     format: function (item) { return item.name; },
-    searchUrl: baseUrl + '/user_groups/search?login=<%= @user.login -%>',
-    selectUrl: baseUrl + '/groups/add_member?user=<%= @user.id -%>',
-    deselectUrl: baseUrl + '/groups/remove_member?user=<%= @user.id -%>',
+    searchUrl: baseUrl + '/user_groups/search?user=<%= @user.login -%>',
+    selectUrl: baseUrl + '/groups/add_member',
+    deselectUrl: baseUrl + '/groups/remove_member',
+    extra: {
+      user: '<%= @user.login -%>'
+    },
     selectParameter: 'group',
+    selectParameterValue: 'name',
     labels: {
       selected: 'Member of',
       deselected: 'Not member of',

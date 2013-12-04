@@ -1,24 +1,28 @@
 <div class="modal-head">
-    <h2>Group: <%= h @group.name -%></h2>
+  <h2>Group: <%= h @group.name -%></h2>
 </div>
 
 <div class="modal-body">
-    <div id="select-list-group-<%= @group.id -%>"></div>
+  <div id="select-list-group"></div>
 </div>
 
 <div class="modal-foot">
-    <%= link_to 'Close', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
+  <%= link_to 'Close', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
 </div>
 
 <script>
   var selectList = new SelectList({
-    el: '#select-list-group-<%= @group.id -%>',
+    el: '#select-list-group',
     width: '100%',
     format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
-    searchUrl: baseUrl + '/groups/search_users?group=<%= @group.id -%>',
-    selectUrl: baseUrl + '/groups/add_member?group=<%= @group.id -%>',
-    deselectUrl: baseUrl + '/groups/remove_member?group=<%= @group.id -%>',
+    searchUrl: baseUrl + '/groups/search_users?group=<%= @group.name -%>',
+    selectUrl: baseUrl + '/groups/add_member',
+    deselectUrl: baseUrl + '/groups/remove_member',
+    extra: {
+      group: '<%= @group.name -%>'
+    },
     selectParameter: 'user',
+    selectParameterValue: 'login',
     labels: {
       selected: 'Members',
       deselected: 'Non-members',
