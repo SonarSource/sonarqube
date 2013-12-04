@@ -154,11 +154,16 @@
 .navigator-filter-select-list label.current {
   background-color: #ededed;
 }
-.navigator-filter-select-list label img {
+.navigator-filter-select-list label > input[type=checkbox] {
+  vertical-align: baseline;
+  cursor: pointer;
+}
+.navigator-filter-select-list label > img {
   vertical-align: text-bottom;
 }
-.navigator-filter-select-list input[type=checkbox] {
-  cursor: pointer;
+.navigator-filter-select-list label > span {
+  display: inline-block;
+  vertical-align: top;
 }
 .navigator-filter-select-list .single {
   padding: 5px 10px;

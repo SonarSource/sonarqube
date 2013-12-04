@@ -178,13 +178,19 @@
       background-color: darken(#fff, 7%);
     }
 
-    img {
+    & > input[type=checkbox] {
+      vertical-align: baseline;
+      cursor: pointer;
+    }
+
+    & > img {
       vertical-align: text-bottom;
     }
-  }
 
-  input[type=checkbox] {
-    cursor: pointer;
+    & > span {
+      display: inline-block;
+      vertical-align: top;
+    }
   }
 
   .single {

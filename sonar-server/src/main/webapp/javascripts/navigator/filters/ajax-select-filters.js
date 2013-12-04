@@ -69,6 +69,24 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     url: function() {
       return baseUrl + '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
+    },
+
+    parse: function(r) {
+      this.more = r.more;
+
+      // If results are divided into categories
+      if (r.results.length > 0 && r.results[0].children) {
+        var results = [];
+        _.each(r.results, function(category) {
+          _.each(category.children, function(child) {
+            child.category = category.text;
+            results.push(child);
+          });
+        });
+        return results;
+      } else {
+        return r.results;
+      }
     }
 
   });

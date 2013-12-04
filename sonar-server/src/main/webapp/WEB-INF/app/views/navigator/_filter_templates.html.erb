@@ -20,7 +20,13 @@
       {[ if (item.icon) { ]}
       <img src="{{ item.icon }}" alt="{{ item.text }}">
       {[ } ]}
-      <span>{{ item.text }}</span>
+      <span>
+        {{ item.text }}
+        {[ if (item.category) { ]}
+          <br>
+          <span class="subtitle">{{ item.category }}</span>
+        {[ } ]}
+      </span>
     </label>
   </li>
 </script>
