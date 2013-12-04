@@ -63,7 +63,7 @@ class Internal
   end
 
   def self.group_membership
-    component(Java::OrgSonarServerGroup::InternalGroupMembershipQueryService.java_class)
+    component(Java::OrgSonarServerGroup::InternalGroupMembershipService.java_class)
   end
 
   private
