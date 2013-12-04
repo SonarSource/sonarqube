@@ -89,7 +89,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     renderValue: function() {
       return this.isDefaultValue() ?
-          'Not set' :
+          window.SS.phrases.notSet :
           this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' + this.model.get('value').val;
     },
 
