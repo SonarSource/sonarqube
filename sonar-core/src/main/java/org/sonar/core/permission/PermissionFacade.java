@@ -28,6 +28,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupRoleDto;
 import org.sonar.core.user.RoleDao;
@@ -55,11 +57,13 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
   private final UserDao userDao;
   private final PermissionTemplateDao permissionTemplateDao;
   private final Settings settings;
+  private final ResourceDao resourceDao;
 
-  public PermissionFacade(MyBatis myBatis, RoleDao roleDao, UserDao userDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
+  public PermissionFacade(MyBatis myBatis, RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
     this.myBatis = myBatis;
     this.roleDao = roleDao;
     this.userDao = userDao;
+    this.resourceDao = resourceDao;
     this.permissionTemplateDao = permissionTemplateDao;
     this.settings = settings;
   }
@@ -207,8 +211,12 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     return roleDao.selectUserPermissions(user, componentId);
   }
 
-  public void grantDefaultRoles(Long componentId, final String componentKey, String qualifier) {
-    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(componentKey, qualifier);
+  public void grantDefaultRoles(Long componentId, String qualifier) {
+    ResourceDto resource = resourceDao.getResource(componentId);
+    if (resource == null) {
+      throw new IllegalStateException("Unable to find resource with id " + componentId);
+    }
+    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(resource.getKey(), qualifier);
     applyPermissionTemplate(applicablePermissionTemplateKey, componentId);
   }
 

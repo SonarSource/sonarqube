@@ -1,4 +1,6 @@
 <dataset>
+  <projects id="123" kee="foo.project"/>
+
   <groups id="100" name="sonar-administrators" />
   <groups id="101" name="sonar-users" />
   <groups id="102" name="sonar-foos" />

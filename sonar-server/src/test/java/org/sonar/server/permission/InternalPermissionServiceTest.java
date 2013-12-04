@@ -435,13 +435,14 @@ public class InternalPermissionServiceTest {
 
     ComponentDto mockComponent = mock(ComponentDto.class);
     when(mockComponent.getId()).thenReturn(componentId);
+    when(mockComponent.key()).thenReturn(componentKey);
     when(mockComponent.qualifier()).thenReturn(qualifier);
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, componentKey);
 
     when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);
     verify(resourceDao).findByKey(componentKey);
-    verify(permissionFacade).grantDefaultRoles(componentId, componentKey, qualifier);
+    verify(permissionFacade).grantDefaultRoles(componentId, qualifier);
   }
 
   @Test(expected = ForbiddenException.class)

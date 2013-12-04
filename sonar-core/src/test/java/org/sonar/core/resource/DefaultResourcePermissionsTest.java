@@ -49,7 +49,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     project = new Project("project").setId(123);
     settings = new Settings();
     PermissionFacade permissionFacade = new PermissionFacade(getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new PermissionTemplateDao(getMyBatis()), settings);
+      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new ResourceDao(getMyBatis()), new PermissionTemplateDao(getMyBatis()), settings);
     permissions = new DefaultResourcePermissions(getMyBatis(), permissionFacade);
   }
 
@@ -122,7 +122,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
     settings.setProperty("sonar.permission.template.default", "default");
 
-    project.setEffectiveKey("foo.project");
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRolesPattern", "user_roles", "group_roles");
@@ -133,8 +132,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     setupData("grantDefaultRolesSeveralPattern");
 
     settings.setProperty("sonar.permission.template.default", "default");
-
-    project.setEffectiveKey("foo.project");
 
     throwable.expect(IllegalStateException.class);
     throwable

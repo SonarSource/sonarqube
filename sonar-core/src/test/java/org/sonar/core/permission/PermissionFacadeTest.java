@@ -20,18 +20,19 @@
 
 package org.sonar.core.permission;
 
-import org.sonar.api.config.Settings;
-
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Settings;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,7 +51,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     UserDao userDao = new UserDao(getMyBatis());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis());
     Settings settings = new Settings();
-    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, permissionTemplateDao, settings);
+    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, new ResourceDao(getMyBatis()), permissionTemplateDao, settings);
   }
 
   @Test
@@ -165,7 +166,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     when(permissionTemplateDao.selectTemplateByKey("test_template")).thenReturn(permissionTemplateDto);
     when(permissionTemplateDao.selectPermissionTemplate("Test template")).thenReturn(templateWithPermissions);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
+    permissionFacade = new PermissionFacade(null, null, null, null, permissionTemplateDao, null);
 
     PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions("test_template");
 
@@ -178,7 +179,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     permissionTemplateDao = mock(PermissionTemplateDao.class);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
+    permissionFacade = new PermissionFacade(null, null, null, null, permissionTemplateDao, null);
     permissionFacade.getPermissionTemplateWithPermissions("unmatched");
   }
 
