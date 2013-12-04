@@ -69,6 +69,7 @@ class MigrateCharacteristics < ActiveRecord::Migration
         if characteristic.rule_id
           char_properties = properties_by_characteristic_id[characteristic.id]
           function = char_properties.find { |prop| prop.kee == 'remediationFunction' } if char_properties
+
           if char_properties && function
             factor = char_properties.find { |prop| prop.kee == 'remediationFactor' }
             offset = char_properties.find { |prop| prop.kee == 'offset' }
@@ -108,8 +109,7 @@ class MigrateCharacteristics < ActiveRecord::Migration
             end
             # requirement without properties or without remediationFunction has to be disabled
           else
-            requirement.enabled = false
-            requirements_to_disable << characteristic
+            characteristic.enabled = false
           end
         end
 
@@ -119,9 +119,15 @@ class MigrateCharacteristics < ActiveRecord::Migration
           characteristic.parent_id = parent_id
           # Requirements
           if characteristic.rule_id
-            characteristic.root_id = parent_ids_by_characteristic_id[characteristic.parent_id]
-            # Characteristics as same root_id as parent_id
+            root_id = parent_ids_by_characteristic_id[characteristic.parent_id]
+            if root_id
+              characteristic.root_id = root_id
+            else
+              # requirement linked to a root characteristic has to be disabled
+              characteristic.enabled = false
+            end
           else
+            # Characteristics has same root_id as parent_id
             characteristic.root_id = parent_id
           end
         end
