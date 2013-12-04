@@ -92,7 +92,6 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
     return permissionTemplate;
   }
 
-  @CheckForNull
   public List<PermissionTemplateDto> selectAllPermissionTemplates() {
     SqlSession session = myBatis.openSession();
     try {

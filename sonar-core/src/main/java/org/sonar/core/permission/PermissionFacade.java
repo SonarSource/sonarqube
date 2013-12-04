@@ -225,19 +225,8 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
         matchingTemplates.add(permissionTemplateDto);
       }
     }
-    if (matchingTemplates.size() > 1) {
-      StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
-        templatesNames.append("'").append(it.next().getName()).append("'");
-        if (it.hasNext()) {
-          templatesNames.append(", ");
-        }
-      }
-      throw new IllegalStateException(MessageFormat.format(
-        "The following permission templates have a key pattern that matches the ''{0}'' key: {1}."
-          + " The administrator must update them to make sure that only one permission template can be selected for 'foo.project' component.", componentKey,
-        templatesNames.toString()));
-    } else if (matchingTemplates.size() == 1) {
+    checkAtMostOneMatchForComponentKey(componentKey, matchingTemplates);
+    if (matchingTemplates.size() == 1) {
       return matchingTemplates.get(0).getKee();
     }
     String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
@@ -250,5 +239,21 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
     return defaultTemplateKey;
+  }
+
+  private void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {
+    if (matchingTemplates.size() > 1) {
+      StringBuilder templatesNames = new StringBuilder();
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
+        templatesNames.append("'").append(it.next().getName()).append("'");
+        if (it.hasNext()) {
+          templatesNames.append(", ");
+        }
+      }
+      throw new IllegalStateException(MessageFormat.format(
+        "The following permission templates have a key pattern that matches the ''{0}'' key: {1}."
+          + " The administrator must update them to make sure that only one permission template can be selected for 'foo.project' component.", componentKey,
+        templatesNames.toString()));
+    }
   }
 }

@@ -79,7 +79,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(null, name);
-    validateKeyPattern(null, keyPattern);
+    validateKeyPattern(keyPattern);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
     if (permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
@@ -92,7 +92,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     validateTemplateName(templateId, newName);
-    validateKeyPattern(templateId, newKeyPattern);
+    validateKeyPattern(newKeyPattern);
     permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
   }
 
@@ -161,7 +161,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
     }
   }
 
-  private void validateKeyPattern(@Nullable Long templateId, @Nullable String keyPattern) {
+  private void validateKeyPattern(@Nullable String keyPattern) {
     if (StringUtils.isEmpty(keyPattern)) {
       return;
     }
