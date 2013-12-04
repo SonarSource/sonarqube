@@ -15,7 +15,7 @@
     el: '#select-list-user-<%= @user.id -%>',
     width: '100%',
     format: function (item) { return item.name; },
-    searchUrl: baseUrl + '/user_groups/search?user=<%= @user.login -%>',
+    searchUrl: baseUrl + '/user_groups/search?login=<%= @user.login -%>',
     selectUrl: baseUrl + '/groups/add_member?user=<%= @user.id -%>',
     deselectUrl: baseUrl + '/groups/remove_member?user=<%= @user.id -%>',
     selectParameter: 'group',
