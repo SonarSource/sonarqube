@@ -29,6 +29,7 @@ class Webapp {
   private static final String RAILS_ENV = "rails.env";
   private static final String PROPERTY_CONTEXT = "sonar.web.context";
   private static final String PROPERTY_LOG_PROFILING_LEVEL = "sonar.log.profilingLevel";
+  private static final String PROPERTY_LOG_CONSOLE = "sonar.log.console";
 
   static void configure(Tomcat tomcat, Env env, Props props) {
     String ctx = getContext(props);
@@ -36,6 +37,7 @@ class Webapp {
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
       context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
+      context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
       configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
 

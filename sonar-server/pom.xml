@@ -342,26 +342,6 @@
                   </resources>
                 </configuration>
               </execution>
-              <execution>
-                <id>copy-logback</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/classes/org/sonar/server/platform</outputDirectory>
-                  <overwrite>true</overwrite>
-                  <resources>
-                    <resource>
-                      <directory>src/dev</directory>
-                      <includes>
-                        <include>logback.xml</include>
-                      </includes>
-                      <filtering>false</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
             </executions>
           </plugin>
           <plugin>
@@ -381,7 +361,7 @@
                 <sonar.runtime.mode>development</sonar.runtime.mode>
                 <sonar.es.http.host>127.0.0.1</sonar.es.http.host>
                 <sonar.es.http.port>9200</sonar.es.http.port>
-                <sonar.log.verbose>true</sonar.log.verbose>
+                <sonar.log.console>true</sonar.log.console>
                 <sonar.log.profilingLevel>FULL</sonar.log.profilingLevel>
               </systemProperties>
             </configuration>

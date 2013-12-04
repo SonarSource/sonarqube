@@ -29,6 +29,8 @@ import javax.servlet.ServletContextListener;
 
 import java.util.Map;
 
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
@@ -63,8 +65,16 @@ public final class PlatformLifecycleListener implements ServletContextListener {
    * Configure Logback from classpath, with configuration from sonar.properties
    */
   private void configureLogback(ServletContextEvent event) {
-    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL));
-    Map<String, String> variables = ImmutableMap.of("RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN");
+    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(
+        event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL));
+    String consoleEnabled = defaultIfEmpty(defaultIfEmpty(
+        event.getServletContext().getInitParameter("sonar.log.console"),
+        System.getProperty("sonar.log.console")),
+        // Line below used in last resort
+        "false");
+    Map<String, String> variables = ImmutableMap.of(
+        "RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN",
+        "CONSOLE_ENABLED", consoleEnabled);
     Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
 }

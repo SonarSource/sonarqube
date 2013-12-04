@@ -20,8 +20,13 @@
 package org.sonar.core.config;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.apache.commons.io.FileUtils;
@@ -69,6 +74,9 @@ public class Logback implements BatchComponent, ServerComponent {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(configureContext(lc, substitutionVariables));
       configurator.doConfigure(input);
+      if (isConsoleEnabled(substitutionVariables)) {
+        ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).addAppender(consoleAppender(lc));
+      }
     } catch (JoranException e) {
       // StatusPrinter will handle this
     } finally {
@@ -83,6 +91,22 @@ public class Logback implements BatchComponent, ServerComponent {
       context.putProperty(entry.getKey(), entry.getValue());
     }
     return context;
+  }
+
+  private static Boolean isConsoleEnabled(Map<String, String> substitutionVariables) {
+    return Boolean.valueOf(substitutionVariables.get("CONSOLE_ENABLED"));
+  }
+
+  private static Appender<ILoggingEvent> consoleAppender(LoggerContext context) {
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setPattern("%d{yyyy.MM.dd HH:mm:ss} %-5level %thread [%logger{20}] %X %msg%n");
+    encoder.setContext(context);
+    encoder.start();
+    ConsoleAppender<ILoggingEvent> console = new ConsoleAppender<ILoggingEvent>();
+    console.setEncoder(encoder);
+    console.setContext(context);
+    console.start();
+    return console;
   }
 
   public void setLoggerLevel(String loggerName, Level level) {
