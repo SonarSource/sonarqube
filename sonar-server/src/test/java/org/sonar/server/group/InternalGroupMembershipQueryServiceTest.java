@@ -62,6 +62,18 @@ public class InternalGroupMembershipQueryServiceTest extends AbstractDaoTestCase
   }
 
   @Test
+  public void find_all_member_groups_when_no_selected_parameter() {
+    setupData("shared");
+
+    List<GroupMembership> result = service.find(ImmutableMap.of(
+      "user", "user1"));
+    assertThat(result).hasSize(3);
+    check(result.get(0), "sonar-administrators", false);
+    check(result.get(1), "sonar-reviewers", false);
+    check(result.get(2), "sonar-users", true);
+  }
+
+  @Test
   public void find_member_groups() {
     setupData("shared");
 

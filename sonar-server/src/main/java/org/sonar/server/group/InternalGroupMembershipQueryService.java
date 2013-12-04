@@ -70,9 +70,9 @@ public class InternalGroupMembershipQueryService implements ServerComponent {
 
   private String memberShip(Map<String, String> params){
     String selected = params.get("selected");
-    if (selected.equals("selected")) {
+    if ("selected".equals(selected)) {
       return GroupMembershipQuery.MEMBER_ONLY;
-    } else if (selected.equals("deselected")) {
+    } else if ("deselected".equals(selected)) {
       return GroupMembershipQuery.NOT_MEMBER;
     } else {
       return GroupMembershipQuery.ALL;
