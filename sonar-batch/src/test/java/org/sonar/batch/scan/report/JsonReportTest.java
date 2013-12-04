@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -56,6 +57,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JsonReportTest {
+
+  private SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -72,6 +75,7 @@ public class JsonReportTest {
 
   @Before
   public void setUp() {
+    SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
 
@@ -96,8 +100,8 @@ public class JsonReportTest {
       .setEffortToFix(3.14)
       .setReporter("julien")
       .setAssignee("simon")
-      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
-      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
+      .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
+      .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
@@ -120,9 +124,9 @@ public class JsonReportTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
-      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
-      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
-      .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-26"))
+      .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
+      .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
+      .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
