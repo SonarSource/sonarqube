@@ -186,7 +186,6 @@ a.external {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#AC2F29', endColorstr = '#D35650') !important;
 }
 
-button[disabled], .button[disabled], input[type="submit"][disabled], input[type="button"][disabled],
 .red-button[disabled] {
   position: relative;
   top: 0;

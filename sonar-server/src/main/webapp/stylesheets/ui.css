@@ -83,3 +83,24 @@ input[type=submit]:focus,
 input[type=button]:focus {
   border-color: #4b9fd5;
 }
+button[disabled],
+.button[disabled],
+input[type=submit][disabled],
+input[type=button][disabled],
+button[disabled]:hover,
+.button[disabled]:hover,
+input[type=submit][disabled]:hover,
+input[type=button][disabled]:hover,
+button[disabled]:active,
+.button[disabled]:active,
+input[type=submit][disabled]:active,
+input[type=button][disabled]:active,
+button[disabled]:focus,
+.button[disabled]:focus,
+input[type=submit][disabled]:focus,
+input[type=button][disabled]:focus {
+  color: #bbb;
+  border-color: #ddd;
+  background: #ebebeb;
+  cursor: default;
+}

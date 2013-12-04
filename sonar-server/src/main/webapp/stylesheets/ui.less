@@ -70,4 +70,14 @@ input[type=button] {
   &:focus {
     border-color: @highlighted;
   }
+
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:active,
+  &[disabled]:focus {
+    color: #bbb;
+    border-color: #ddd;
+    background: #ebebeb;
+    cursor: default;
+  }
 }
