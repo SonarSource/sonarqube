@@ -28,7 +28,7 @@
         </when>
       </choose>
       <if test="query.groupSearch() != null">
-        AND (g.name LIKE #{query.groupSearchSql} ESCAPE '/')
+        AND (UPPER(g.name) LIKE #{query.groupSearchSql} ESCAPE '/')
       </if>
     </where>
   </sql>

@@ -69,7 +69,7 @@ public class GroupMembershipQuery {
   private String groupSearchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
-      sql = StringUtils.replace(s, "%", "/%");
+      sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");
       sql = StringUtils.replace(sql, "_", "/_");
       sql = "%" + sql + "%";
     }
