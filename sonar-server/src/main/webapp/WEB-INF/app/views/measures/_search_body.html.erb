@@ -2,6 +2,10 @@
    if @filter && @filter.display
      edit_mode = (params[:edit]=='true')
 %>
+    <% if filter.security_exclusions %>
+      <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+    <% end %>
+
     <div class="page">
       <div class="line-block marginbottom10">
         <% unless edit_mode %>

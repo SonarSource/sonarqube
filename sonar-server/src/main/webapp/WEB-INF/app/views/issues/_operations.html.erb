@@ -2,6 +2,10 @@
   <p class="notes"><%= message('issue_filter.max_results_reached', :params => @issues_result.paging.total()) -%></p>
 <% end %>
 
+<% unless @issues_result.issues && !@issues_result.issues.empty? %>
+  <p class="notes" style="padding: 5px;"><%= message('issue_filter.no_result') -%></p>
+<% end %>
+
 <% if logged_in? && !@first_search %>
   <div id="issue-filters-operations" class="line-block marginbottom10">
     <ul class="operations">
