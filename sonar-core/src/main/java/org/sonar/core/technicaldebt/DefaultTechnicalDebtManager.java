@@ -60,7 +60,7 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
   public Characteristic findCharacteristicById(Integer id) {
     CharacteristicDto dto = dao.selectById(id);
     if (dto != null) {
-      return toCharacteristic(dao.selectById(id), null);
+      return toCharacteristic(dto, null);
     }
     return null;
   }

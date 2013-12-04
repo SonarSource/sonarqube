@@ -173,8 +173,8 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return Iterables.find(existingModel, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(CharacteristicDto input) {
-        String key = input.getKey();
-        return input.getRuleId() == null && key != null && key.equals(key);
+        String characteristicKey = input.getKey();
+        return input.getRuleId() == null && characteristicKey != null && characteristicKey.equals(key);
       }
     });
   }

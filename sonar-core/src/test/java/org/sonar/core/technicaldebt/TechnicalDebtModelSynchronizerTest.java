@@ -134,7 +134,7 @@ public class TechnicalDebtModelSynchronizerTest {
     // Java model
     DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
     DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic);
+    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic).setRoot(javaRootCharacteristic);
     javaModel.addRootCharacteristic(javaRootCharacteristic);
 
     Rule rule = Rule.create();
