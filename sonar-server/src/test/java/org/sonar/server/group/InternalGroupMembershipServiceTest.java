@@ -37,16 +37,16 @@ import static org.fest.assertions.Fail.fail;
 /**
  * Use Test with DB because there's no IT on this feature for the moment
  */
-public class InternalGroupMembershipQueryServiceTest extends AbstractDaoTestCase {
+public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
 
-  private InternalGroupMembershipQueryService service;
+  private InternalGroupMembershipService service;
 
   @Before
   public void before() throws Exception {
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
     GroupMembershipFinder finder = new GroupMembershipFinder(userDao, groupMembershipDao);
-    service = new InternalGroupMembershipQueryService(finder);
+    service = new InternalGroupMembershipService(finder);
   }
 
   @Test

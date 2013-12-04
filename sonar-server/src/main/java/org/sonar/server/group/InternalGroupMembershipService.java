@@ -29,11 +29,11 @@ import java.util.Map;
 /**
  * Used by ruby code <pre>Internal.group_membership</pre>
  */
-public class InternalGroupMembershipQueryService implements ServerComponent {
+public class InternalGroupMembershipService implements ServerComponent {
 
   private final GroupMembershipFinder finder;
 
-  public InternalGroupMembershipQueryService(GroupMembershipFinder finder) {
+  public InternalGroupMembershipService(GroupMembershipFinder finder) {
     this.finder = finder;
   }
 
