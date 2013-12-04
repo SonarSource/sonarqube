@@ -85,11 +85,15 @@ public class LoggingConfigurationTest {
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
         .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
 
-    properties.put("sonar.showSql", "true");
+    properties.put("sonar.log.profilingLevel", "FULL");
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
         .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_VERBOSE);
 
-    properties.put("sonar.showSql", "false");
+    properties.put("sonar.log.profilingLevel", "BASIC");
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
+
+    properties.put("sonar.log.profilingLevel", "NONE");
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
         .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
   }
