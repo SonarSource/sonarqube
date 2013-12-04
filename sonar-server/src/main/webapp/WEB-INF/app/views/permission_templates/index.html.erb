@@ -74,6 +74,7 @@
            end
            if qualifiers.length > 0
         %>
+          <br/>
           <span class="small gray" id="<%= "is-default-#{u permission_template.name}" %>">
             <%= message('permission_template.default_for', :params => qualifiers.collect {|q| message('qualifier.' + q)}.join(', ')) -%>
           </span>
