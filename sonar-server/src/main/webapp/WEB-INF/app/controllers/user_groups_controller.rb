@@ -24,7 +24,6 @@ class UserGroupsController < ApplicationController
   #
   # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
   #
-  #
   def search
     result = Internal.group_membership.find(params)
     groups = result.groups()

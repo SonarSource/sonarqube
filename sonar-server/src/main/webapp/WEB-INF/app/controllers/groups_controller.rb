@@ -99,10 +99,15 @@ class GroupsController < ApplicationController
 
 
   # Used for selection of group members
+  #
+  # GET /groups/search_users?group=<group_name>&page=1&pageSize=10
+  #
+  #
   def search_users
     require_parameters :group, :page, :pageSize
 
-    group_id = params[:group].to_i
+    group = Group.first(:conditions => {:name => params[:group]})
+    group_id = group.id
     selected = params[:selected]||'all'
     query = params[:query]
     page_id = params[:page].to_i
@@ -147,10 +152,10 @@ class GroupsController < ApplicationController
 
   def add_member
     verify_post_request
-    require_parameters :group, :user
+    require_parameters :group, :login
 
-    user = User.find(:first, :conditions => {:id => params[:user], :active => true})
-    group = Group.find(params[:group])
+    user = User.find(:first, :conditions => {:login => params[:login], :active => true})
+    group = Group.first(:conditions => {:name => params[:group]})
     status = 400
     if user && group
       group.users << user
@@ -161,15 +166,16 @@ class GroupsController < ApplicationController
 
   def remove_member
     verify_post_request
-    require_parameters :group, :user
+    require_parameters :group, :login
 
-    user_id = params[:user].to_i
-    group = Group.find(params[:group])
+    user = User.find(:first, :conditions => {:login => params[:user], :active => true})
+    user_id = user.id
+    group = Group.first(:conditions => {:name => params[:group]})
     status = 400
     if group
-      user = group.users.find(user_id)
-      if user
-        group.users.delete(user)
+      user_from_group = group.users.find(user_id)
+      if user_from_group
+        group.users.delete(user_from_group)
         status = 200 if group.save
       else
         status = 200  
