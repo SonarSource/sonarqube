@@ -2299,6 +2299,12 @@ ul.modal-head-metadata li {
   margin-bottom: 10px;
 }
 
+.modal-field input[type=text],
+.modal-field input[type=password],
+.modal-field textarea {
+  width: 250px;
+}
+
 .modal-foot {
   text-align: right;
   padding: 2px 10px;
