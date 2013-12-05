@@ -173,22 +173,7 @@ public class EmailNotificationChannel extends NotificationChannel {
       email.setMsg(emailMessage.getMessage());
       // Send
       email.setHostName(configuration.getSmtpHost());
-      if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
-        email.setSSLOnConnect(true);
-        email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
-
-        // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
-        // It prevents from getting bad message.
-        email.setSmtpPort(configuration.getSmtpPort());
-      } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "starttls")) {
-        email.setStartTLSEnabled(true);
-        email.setStartTLSRequired(true);
-        email.setSmtpPort(configuration.getSmtpPort());
-      } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
-        email.setSmtpPort(configuration.getSmtpPort());
-      } else {
-        throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
-      }
+      configureSecureConnection(email);
       if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
         email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
       }
@@ -198,6 +183,25 @@ public class EmailNotificationChannel extends NotificationChannel {
 
     } finally {
       Thread.currentThread().setContextClassLoader(classloader);
+    }
+  }
+
+  private void configureSecureConnection(SimpleEmail email) {
+    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
+      email.setSSLOnConnect(true);
+      email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
+
+      // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
+      // It prevents from getting bad message.
+      email.setSmtpPort(configuration.getSmtpPort());
+    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "starttls")) {
+      email.setStartTLSEnabled(true);
+      email.setStartTLSRequired(true);
+      email.setSmtpPort(configuration.getSmtpPort());
+    } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
+      email.setSmtpPort(configuration.getSmtpPort());
+    } else {
+      throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
     }
   }
 
