@@ -14,10 +14,10 @@
      measures_by_severity[key] = sorted_measures
      all_measures.concat(sorted_measures)
    end
-   measures_by_severity['']=all_measures.sort { |a, b| b.send(value_column) <=> a.send(value_column) }[0...limit]
+   measures_by_severity['all']=all_measures.sort { |a, b| b.send(value_column) <=> a.send(value_column) }[0...limit]
 
    default_severity = widget_properties['defaultSeverity']
-   default_severity = '' unless Severity::KEYS.include?(default_severity)
+   default_severity = 'all' unless Severity::KEYS.include?(default_severity)
 %>
 
 <script type="text/javascript">
@@ -40,7 +40,7 @@
     <%= message(dashboard_configuration.selected_period? ? 'widget.hotspot_most_violated_rules.name_when_period' : 'widget.hotspot_most_violated_rules.name') %>
 
     <select class="small withIcons" style="margin-left: 20px" onchange="showMostViolatedRules<%= widget.id -%>(this.value);" id="select-severity_<%= widget.id -%>">
-      <option value="" <%= 'selected' if default_severity=='' -%>><%= message('widget.hotspot_most_violated_rules.any_severity') -%></option>
+      <option value="all" <%= 'selected' if default_severity=='all' -%>><%= message('widget.hotspot_most_violated_rules.any_severity') -%></option>
       <% Severity::KEYS.each do |key| %>
         <option class="sev_<%= key -%>" value="<%= key -%>" <%= 'selected' if default_severity==key -%>><%= message("severity.#{key}") -%></option>
       <% end %>
