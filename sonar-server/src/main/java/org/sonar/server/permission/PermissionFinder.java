@@ -19,7 +19,12 @@
  */
 package org.sonar.server.permission;
 
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.base.Predicate;
+import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -28,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -60,24 +66,6 @@ public class PermissionFinder implements ServerComponent {
     return new UserWithPermissionQueryResult(toUserWithPermissionList(dtos), hasMoreResults);
   }
 
-  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
-    Long componentId = getComponentId(query.component());
-    int pageSize = query.pageSize();
-    int pageIndex = query.pageIndex();
-
-    int offset = (pageIndex - 1) * pageSize;
-    // Add one to page size in order to be able to know if there's more results or not
-    int limit = pageSize + 1;
-    List<GroupWithPermissionDto> dtos = dao.selectGroups(query, componentId, offset, limit);
-    boolean hasMoreResults = false;
-    if (dtos.size() == limit) {
-      hasMoreResults = true;
-      // Removed last entry as it's only need to know if there more results or not
-      dtos.remove(dtos.size() - 1);
-    }
-    return new GroupWithPermissionQueryResult(toGroupWithPermissionList(dtos), hasMoreResults);
-  }
-
   private List<UserWithPermission> toUserWithPermissionList(List<UserWithPermissionDto> dtos) {
     List<UserWithPermission> users = newArrayList();
     for (UserWithPermissionDto dto : dtos) {
@@ -86,12 +74,63 @@ public class PermissionFinder implements ServerComponent {
     return users;
   }
 
-  private List<GroupWithPermission> toGroupWithPermissionList(List<GroupWithPermissionDto> dtos) {
-    List<GroupWithPermission> users = newArrayList();
-    for (GroupWithPermissionDto dto : dtos) {
-      users.add(dto.toGroupWithPermission());
+  /**
+   * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
+   */
+  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
+    Long componentId = getComponentId(query.component());
+
+    List<GroupWithPermissionDto> dtos = dao.selectGroups(query, componentId);
+    addAnyoneGroup(dtos, query);
+    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
+
+    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
+    List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
+    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
+  }
+
+  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, final WithPermissionQuery query) {
+    return newArrayList(Iterables.filter(dtos, new Predicate<GroupWithPermissionDto>() {
+      @Override
+      public boolean apply(GroupWithPermissionDto dto) {
+        if (query.membership().equals(WithPermissionQuery.IN)) {
+          return dto.getPermission() != null;
+        } else if (query.membership().equals(WithPermissionQuery.OUT)) {
+          return dto.getPermission() == null;
+        }
+        return true;
+      }
+    }));
+  }
+
+  /**
+   * As the anyone group does not exists in db, it's not returned when it has not the permission.
+   * We have to manually add it at the begin of the list, if it matched the search text
+   */
+  private void addAnyoneGroup(List<GroupWithPermissionDto> groups, WithPermissionQuery query) {
+    boolean hasAnyoneGroup = Iterables.any(groups, new Predicate<GroupWithPermissionDto>() {
+      @Override
+      public boolean apply(GroupWithPermissionDto group) {
+        return group.getName().equals(DefaultGroups.ANYONE);
+      }
+    });
+    if (!hasAnyoneGroup && (query.search() == null || StringUtils.containsIgnoreCase(DefaultGroups.ANYONE, query.search()))) {
+      groups.add(0, new GroupWithPermissionDto().setName(DefaultGroups.ANYONE));
     }
-    return users;
+  }
+
+  private List<GroupWithPermission> pagedGroups(Collection<GroupWithPermissionDto> dtos, Paging paging) {
+    List<GroupWithPermission> groups = newArrayList();
+    int index = 0;
+    for (GroupWithPermissionDto dto : dtos) {
+      if (index >= paging.offset() && groups.size() < paging.pageSize()) {
+        groups.add(dto.toGroupWithPermission());
+      } else if (groups.size() >= paging.pageSize()) {
+        break;
+      }
+      index++;
+    }
+    return groups;
   }
 
   @Nullable

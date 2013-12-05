@@ -71,6 +71,14 @@ public class Paging {
     return p;
   }
 
+  /**
+   *
+   * @since 4.1
+   */
+  public boolean hasNextPage(){
+    return pageIndex() < pages();
+  }
+
   public static Paging create(int pageSize, int pageIndex, int totalItems) {
     if (pageSize<1) {
       throw new IllegalArgumentException("Page size must be strictly positive. Got " + pageSize);

@@ -25,12 +25,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.permission.PermissionDao;
-import org.sonar.core.permission.UserWithPermissionDto;
-import org.sonar.core.permission.WithPermissionQuery;
+import org.sonar.core.permission.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,10 +56,10 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find() throws Exception {
+  public void find_users() throws Exception {
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").build();
     when(dao.selectUsers(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(
-      newArrayList(new UserWithPermissionDto().setName("user1"))
+      newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
     );
 
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
@@ -68,7 +68,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_with_paging() throws Exception {
+  public void find_users_with_paging() throws Exception {
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").pageIndex(3).pageSize(10).build();
     finder.findUsersWithPermission(query);
 
@@ -81,12 +81,12 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_with_paging_having_more_results() throws Exception {
+  public void find_users_with_paging_having_more_results() throws Exception {
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").pageIndex(1).pageSize(2).build();
     when(dao.selectUsers(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
-      new UserWithPermissionDto().setName("user1"),
-      new UserWithPermissionDto().setName("user2"),
-      new UserWithPermissionDto().setName("user3"))
+      new UserWithPermissionDto().setName("user1").setPermission("user"),
+      new UserWithPermissionDto().setName("user2").setPermission("user"),
+      new UserWithPermissionDto().setName("user3").setPermission("user"))
     );
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
 
@@ -100,13 +100,13 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_with_paging_having_no_more_results() throws Exception {
+  public void find_users_with_paging_having_no_more_results() throws Exception {
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").pageIndex(1).pageSize(10).build();
     when(dao.selectUsers(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
-      new UserWithPermissionDto().setName("user1"),
-      new UserWithPermissionDto().setName("user2"),
-      new UserWithPermissionDto().setName("user4"),
-      new UserWithPermissionDto().setName("user3"))
+      new UserWithPermissionDto().setName("user1").setPermission("user"),
+      new UserWithPermissionDto().setName("user2").setPermission("user"),
+      new UserWithPermissionDto().setName("user4").setPermission("user"),
+      new UserWithPermissionDto().setName("user3").setPermission("user"))
     );
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
 
@@ -117,6 +117,116 @@ public class PermissionFinderTest {
     assertThat(argumentOffset.getValue()).isEqualTo(0);
     assertThat(argumentLimit.getValue()).isEqualTo(11);
     assertThat(result.hasMoreResults()).isFalse();
+  }
+
+  @Test
+  public void find_groups() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
+      WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.IN).build());
+    assertThat(result.groups()).hasSize(1);
+    assertThat(result.hasMoreResults()).isFalse();
+  }
+
+  @Test
+  public void find_groups_should_be_paginated() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(newArrayList(
+      new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
+      new GroupWithPermissionDto().setName("Admin").setPermission("user"),
+      new GroupWithPermissionDto().setName("Users").setPermission(null),
+      new GroupWithPermissionDto().setName("Reviewers").setPermission(null),
+      new GroupWithPermissionDto().setName("Other").setPermission(null)
+    ));
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
+      WithPermissionQuery.builder()
+        .permission("user")
+        .pageSize(2)
+        .pageIndex(2)
+        .build());
+
+    assertThat(result.hasMoreResults()).isTrue();
+    List<GroupWithPermission> groups = result.groups();
+    assertThat(groups).hasSize(2);
+    assertThat(groups.get(0).name()).isEqualTo("Users");
+    assertThat(groups.get(1).name()).isEqualTo("Reviewers");
+
+    assertThat(finder.findGroupsWithPermission(
+      WithPermissionQuery.builder()
+        .permission("user")
+        .pageSize(2)
+        .pageIndex(3)
+        .build()).hasMoreResults()).isFalse();
+  }
+
+  @Test
+  public void find_groups_should_filter_membership() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(newArrayList(
+      new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
+      new GroupWithPermissionDto().setName("Admin").setPermission("user"),
+      new GroupWithPermissionDto().setName("Users").setPermission(null),
+      new GroupWithPermissionDto().setName("Reviewers").setPermission(null),
+      new GroupWithPermissionDto().setName("Other").setPermission(null)
+    ));
+
+    assertThat(finder.findGroupsWithPermission(
+      WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.IN).build()).groups()).hasSize(2);
+    assertThat(finder.findGroupsWithPermission(
+      WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.OUT).build()).groups()).hasSize(3);
+    assertThat(finder.findGroupsWithPermission(
+      WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.ANY).build()).groups()).hasSize(5);
+  }
+
+  @Test
+  public void find_groups_with_added_anyone_group() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission( WithPermissionQuery.builder().permission("user")
+      .pageIndex(1).membership(WithPermissionQuery.ANY).build());
+    assertThat(result.groups()).hasSize(2);
+    GroupWithPermission first = result.groups().get(0);
+    assertThat(first.name()).isEqualTo("Anyone");
+    assertThat(first.hasPermission()).isFalse();
+  }
+
+  @Test
+  public void find_groups_without_adding_anyone_group_when_search_text_do_not_matched() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(WithPermissionQuery.builder().permission("user").search("other")
+      .pageIndex(1).membership(WithPermissionQuery.ANY).build());
+    // Anyone group should not be added
+    assertThat(result.groups()).hasSize(1);
+  }
+
+  @Test
+  public void find_groups_with_added_anyone_group_when_search_text_matched() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("MyAnyGroup").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(WithPermissionQuery.builder().permission("user").search("any")
+      .pageIndex(1).membership(WithPermissionQuery.ANY).build());
+    assertThat(result.groups()).hasSize(2);
+  }
+
+  @Test
+  public void find_groups_without_adding_anyone_group_when_out_membership_selected() throws Exception {
+    when(dao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission( WithPermissionQuery.builder().permission("user")
+      .pageIndex(1).membership(WithPermissionQuery.OUT).build());
+    // Anyone group should not be added
+    assertThat(result.groups()).hasSize(1);
   }
 
 }

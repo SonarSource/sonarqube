@@ -30,7 +30,8 @@
   </select>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
-    SELECT g.name as name, group_role.role as permission
+    SELECT name, permission FROM
+    (SELECT g.name as name, group_role.role as permission
     FROM groups g
     LEFT JOIN group_roles group_role ON group_role.group_id=g.id AND group_role.role=#{query.permission}
     <if test="componentId != null">
@@ -39,20 +40,27 @@
     <if test="componentId == null">
       AND group_role.resource_id IS NULL
     </if>
+    UNION
+    -- Add Anyone group
+    SELECT #{anyoneGroup} as name, group_role.role as permission
+    FROM group_roles group_role
     <where>
-      <choose>
-        <when test="query.membership() == 'IN'">
-          AND group_role.role IS NOT NULL
-        </when>
-        <when test="query.membership() == 'OUT'">
-          AND group_role.role IS NULL
-        </when>
-      </choose>
-      <if test="query.search() != null">
-        AND (UPPER(g.name) LIKE #{query.searchSql} ESCAPE '/')
+      AND group_role.group_id IS NULL
+      AND group_role.role=#{query.permission}
+      <if test="componentId != null">
+        AND group_role.resource_id=#{componentId}
+      </if>
+      <if test="componentId == null">
+        AND group_role.resource_id IS NULL
       </if>
     </where>
-    ORDER BY g.name
+    ) as groups
+    <where>
+      <if test="query.search() != null">
+        AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY groups.name
   </select>
 
 </mapper>

@@ -11,6 +11,9 @@
 
   <group_roles id="4" group_id="201" resource_id="100" role="user"/>
 
+  <!-- Permission 'user' for Anyone group -->
+  <group_roles id="5" group_id="[null]" resource_id="100" role="user"/>
+
   <!-- Global permission -->
   <group_roles id="10" group_id="200" resource_id="[null]" role="admin"/>
 

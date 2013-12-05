@@ -24,6 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
@@ -41,6 +42,9 @@ public class PermissionDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
+  /**
+   * @return a paginated list of users.
+   */
   public List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
     SqlSession session = mybatis.openSession();
     try {
@@ -58,21 +62,21 @@ public class PermissionDao implements ServerComponent {
     return selectUsers(query, componentId, 0, Integer.MAX_VALUE);
   }
 
-  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
+  /**
+   * @return a non paginated list of groups.
+   * Membership parameter from query is not taking into account in order to deal more easily deal the 'Anyone' group
+   */
+  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
     SqlSession session = mybatis.openSession();
     try {
       Map<String, Object> params = newHashMap();
       params.put("query", query);
       params.put("componentId", componentId);
-      return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params, new RowBounds(offset, limit));
+      params.put("anyoneGroup", DefaultGroups.ANYONE);
+      return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params);
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  @VisibleForTesting
-  List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
-    return selectGroups(query, componentId, 0, Integer.MAX_VALUE);
   }
 
 }

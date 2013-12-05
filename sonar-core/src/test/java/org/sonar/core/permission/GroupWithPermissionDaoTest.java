@@ -40,61 +40,71 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all_groups_for_project_permission() throws Exception {
+  public void select_groups_for_project_permission() throws Exception {
     setupData("groups_with_permissions");
 
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").build();
     List<GroupWithPermissionDto> result = dao.selectGroups(query, COMPONENT_ID);
-    assertThat(result).hasSize(3);
+    assertThat(result).hasSize(4);
 
-    GroupWithPermissionDto user1 = result.get(0);
-    assertThat(user1.getName()).isEqualTo("sonar-administrators");
-    assertThat(user1.getPermission()).isNotNull();
+    GroupWithPermissionDto anyone = result.get(0);
+    assertThat(anyone.getName()).isEqualTo("Anyone");
+    assertThat(anyone.getPermission()).isNotNull();
 
-    GroupWithPermissionDto user2 = result.get(1);
-    assertThat(user2.getName()).isEqualTo("sonar-reviewers");
-    assertThat(user2.getPermission()).isNull();
+    GroupWithPermissionDto group1 = result.get(1);
+    assertThat(group1.getName()).isEqualTo("sonar-administrators");
+    assertThat(group1.getPermission()).isNotNull();
 
-    GroupWithPermissionDto user3 = result.get(2);
-    assertThat(user3.getName()).isEqualTo("sonar-users");
-    assertThat(user3.getPermission()).isNotNull();
+    GroupWithPermissionDto group2 = result.get(2);
+    assertThat(group2.getName()).isEqualTo("sonar-reviewers");
+    assertThat(group2.getPermission()).isNull();
+
+    GroupWithPermissionDto group3 = result.get(3);
+    assertThat(group3.getName()).isEqualTo("sonar-users");
+    assertThat(group3.getPermission()).isNotNull();
   }
 
   @Test
-  public void select_all_groups_for_global_permission() throws Exception {
+  public void anyone_group_is_not_returned_when_it_has_no_permission() throws Exception {
+    setupData("groups_with_permissions");
+
+    // Anyone group has not the permission 'admin', so it's not returned
+    WithPermissionQuery query = WithPermissionQuery.builder().permission("admin").build();
+    List<GroupWithPermissionDto> result = dao.selectGroups(query, COMPONENT_ID);
+    assertThat(result).hasSize(3);
+
+    GroupWithPermissionDto group1 = result.get(0);
+    assertThat(group1.getName()).isEqualTo("sonar-administrators");
+    assertThat(group1.getPermission()).isNotNull();
+
+    GroupWithPermissionDto group2 = result.get(1);
+    assertThat(group2.getName()).isEqualTo("sonar-reviewers");
+    assertThat(group2.getPermission()).isNull();
+
+    GroupWithPermissionDto group3 = result.get(2);
+    assertThat(group3.getName()).isEqualTo("sonar-users");
+    assertThat(group3.getPermission()).isNull();
+  }
+
+  @Test
+  public void select_groups_for_global_permission() throws Exception {
     setupData("groups_with_permissions");
 
     WithPermissionQuery query = WithPermissionQuery.builder().permission("admin").build();
     List<GroupWithPermissionDto> result = dao.selectGroups(query, null);
     assertThat(result).hasSize(3);
 
-    GroupWithPermissionDto user1 = result.get(0);
-    assertThat(user1.getName()).isEqualTo("sonar-administrators");
-    assertThat(user1.getPermission()).isNotNull();
+    GroupWithPermissionDto group1 = result.get(0);
+    assertThat(group1.getName()).isEqualTo("sonar-administrators");
+    assertThat(group1.getPermission()).isNotNull();
 
-    GroupWithPermissionDto user2 = result.get(1);
-    assertThat(user2.getName()).isEqualTo("sonar-reviewers");
-    assertThat(user2.getPermission()).isNull();
+    GroupWithPermissionDto group2 = result.get(1);
+    assertThat(group2.getName()).isEqualTo("sonar-reviewers");
+    assertThat(group2.getPermission()).isNull();
 
-    GroupWithPermissionDto user3 = result.get(2);
-    assertThat(user3.getName()).isEqualTo("sonar-users");
-    assertThat(user3.getPermission()).isNull();
-  }
-
-  @Test
-  public void select_only_group_with_permission() throws Exception {
-    setupData("groups_with_permissions");
-
-    // user1 and user2 have permission user
-    assertThat(dao.selectGroups(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
-  }
-
-  @Test
-  public void select_only_group_without_permission() throws Exception {
-    setupData("groups_with_permissions");
-
-    // Only user3 has not the user permission
-    assertThat(dao.selectGroups(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
+    GroupWithPermissionDto group3 = result.get(2);
+    assertThat(group3.getName()).isEqualTo("sonar-users");
+    assertThat(group3.getPermission()).isNull();
   }
 
   @Test
@@ -114,29 +124,11 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
     setupData("groups_with_permissions_should_be_sorted_by_group_name");
 
     List<GroupWithPermissionDto> result = dao.selectGroups(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID);
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
-    assertThat(result.get(1).getName()).isEqualTo("sonar-reviewers");
-    assertThat(result.get(2).getName()).isEqualTo("sonar-users");
-  }
-
-  @Test
-  public void search_groups_should_be_paginated() throws Exception {
-    setupData("groups_with_permissions");
-
-    List<GroupWithPermissionDto> result = dao.selectGroups(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
-    assertThat(result.get(1).getName()).isEqualTo("sonar-reviewers");
-
-    result = dao.selectGroups(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 1, 2);
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("sonar-reviewers");
-    assertThat(result.get(1).getName()).isEqualTo("sonar-users");
-
-    result = dao.selectGroups(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 2, 1);
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("sonar-users");
+    assertThat(result).hasSize(4);
+    assertThat(result.get(0).getName()).isEqualTo("Anyone");
+    assertThat(result.get(1).getName()).isEqualTo("sonar-administrators");
+    assertThat(result.get(2).getName()).isEqualTo("sonar-reviewers");
+    assertThat(result.get(3).getName()).isEqualTo("sonar-users");
   }
 
 }

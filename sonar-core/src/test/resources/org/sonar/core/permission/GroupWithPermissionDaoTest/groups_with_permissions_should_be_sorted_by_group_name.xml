@@ -9,4 +9,7 @@
   <group_roles id="2" group_id="200" resource_id="100" role="admin"/>
   <group_roles id="3" group_id="200" resource_id="100" role="codeviewer"/>
 
+  <!-- Permission for Anyone group -->
+  <group_roles id="4" group_id="[null]" resource_id="100" role="user"/>
+
 </dataset>
