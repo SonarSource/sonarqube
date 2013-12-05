@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
@@ -70,7 +69,7 @@ public class TransitionAction extends Action implements ServerComponent {
       public boolean apply(Transition input) {
         return input.key().equals(transition) &&
           (StringUtils.isBlank(input.requiredProjectPermission()) ||
-          userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, defaultIssue.projectKey()));
+          userSession.hasProjectPermission(input.requiredProjectPermission(), defaultIssue.projectKey()));
       }
     }, null) != null;
   }

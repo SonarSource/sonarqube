@@ -118,24 +118,35 @@ public class IssueService implements ServerComponent {
       DefaultIssue defaultIssue = (DefaultIssue) issue;
       String projectKey = defaultIssue.projectKey();
       if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
-        (projectKey != null && userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey))) {
+        (projectKey != null && userSession.hasProjectPermission(transition.requiredProjectPermission(), projectKey))) {
         allowedTransitions.add(transition);
       }
     }
     return allowedTransitions;
   }
 
-  public Issue doTransition(String issueKey, String transition, UserSession userSession) {
+  public Issue doTransition(String issueKey, String transitionKey, UserSession userSession) {
     verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
-    DefaultIssue issue = (DefaultIssue) queryResult.first();
+    DefaultIssue defaultIssue = (DefaultIssue) queryResult.first();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    if (workflow.doTransition(issue, transition, context)) {
-      issueStorage.save(issue);
-      issueNotifications.sendChanges(issue, context, queryResult);
-      dryRunCache.reportResourceModification(issue.componentKey());
+    checkTransitionPermission(transitionKey, userSession, defaultIssue);
+    if (workflow.doTransition(defaultIssue, transitionKey, context)) {
+      issueStorage.save(defaultIssue);
+      issueNotifications.sendChanges(defaultIssue, context, queryResult);
+      dryRunCache.reportResourceModification(defaultIssue.componentKey());
     }
-    return issue;
+    return defaultIssue;
+  }
+
+  private void checkTransitionPermission(String transitionKey, UserSession userSession, DefaultIssue defaultIssue) {
+    List<Transition> outTransitions = workflow.outTransitions(defaultIssue);
+    for (Transition transition : outTransitions) {
+      String projectKey = defaultIssue.projectKey();
+      if (transition.key().equals(transitionKey) && StringUtils.isNotBlank(transition.requiredProjectPermission()) && projectKey != null) {
+        userSession.checkProjectPermission(transition.requiredProjectPermission(), projectKey);
+      }
+    }
   }
 
   public Issue assign(String issueKey, @Nullable String assignee, UserSession userSession) {
