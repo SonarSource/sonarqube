@@ -15,7 +15,7 @@
     el: '#select-users-permissions',
     width: '100%',
     format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
-    searchUrl: baseUrl + '/permissions/search?permission=<%= @role -%><%= @project ? "&component=" + @project.key : "" -%>',
+    searchUrl: baseUrl + '/permissions/search_users?permission=<%= @role -%><%= @project ? "&component=" + @project.key : "" -%>',
     selectUrl: baseUrl + '/api/permissions/add',
     deselectUrl: baseUrl + '/api/permissions/remove',
     extra: {
@@ -30,8 +30,8 @@
       all: 'All'
     },
     tooltips: {
-      select: 'Click to add this user to the group',
-      deselect: 'Click to remove this member from the group'
+      select: 'Click to grant the permission to the user',
+      deselect: 'Click to revoke the permission from the user'
     }
   });
 </script>
