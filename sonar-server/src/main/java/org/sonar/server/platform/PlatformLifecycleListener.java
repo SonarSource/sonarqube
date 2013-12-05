@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
+
 import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 import org.sonar.core.profiling.Profiling;
@@ -32,6 +33,8 @@ import java.util.Map;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
+
+  private static final String CONFIG_LOG_CONSOLE = "sonar.log.console";
 
   public void contextInitialized(ServletContextEvent event) {
     try {
@@ -65,11 +68,13 @@ public final class PlatformLifecycleListener implements ServletContextListener {
    * Configure Logback from classpath, with configuration from sonar.properties
    */
   private void configureLogback(ServletContextEvent event) {
-    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(
-        event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL));
+    String configProfilingLevel = defaultIfEmpty(
+        event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL),
+        System.getProperty(Profiling.CONFIG_PROFILING_LEVEL));
+    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
     String consoleEnabled = defaultIfEmpty(defaultIfEmpty(
-        event.getServletContext().getInitParameter("sonar.log.console"),
-        System.getProperty("sonar.log.console")),
+        event.getServletContext().getInitParameter(CONFIG_LOG_CONSOLE),
+        System.getProperty(CONFIG_LOG_CONSOLE)),
         // Line below used in last resort
         "false");
     Map<String, String> variables = ImmutableMap.of(
