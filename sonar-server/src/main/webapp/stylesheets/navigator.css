@@ -164,6 +164,10 @@
 .navigator-filter-select-list label > span {
   display: inline-block;
   vertical-align: top;
+  width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .navigator-filter-select-list .single {
   padding: 5px 10px;
