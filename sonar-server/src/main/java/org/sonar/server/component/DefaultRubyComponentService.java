@@ -57,8 +57,8 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return resourceDao.findByKey(key);
   }
 
-  public void createComponent(String kee, String name, String qualifier) {
-    ComponentDto component = (ComponentDto)resourceDao.findByKey(kee);
+  public Long createComponent(String kee, String name, String qualifier) {
+    ComponentDto component = (ComponentDto) resourceDao.findByKey(kee);
     if (component != null) {
       throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
     }
@@ -72,11 +72,12 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setScope(Scopes.PROJECT)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));
-    component = (ComponentDto)resourceDao.findByKey(kee);
+    component = (ComponentDto) resourceDao.findByKey(kee);
     if (component == null) {
       throw new BadRequestException(String.format("%s not created: %s", null, kee));
     }
     resourceIndexerDao.indexResource(component.getId());
+    return component.getId();
   }
 
   public void updateComponent(Long id, String key, String name) {
@@ -134,6 +135,6 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   private String formatMessage(String message, String qualifier, String key) {
-    return String.format(message, i18n.message(Locale.getDefault(), "qualifier."+qualifier, "Project"), key);
+    return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
   }
 }

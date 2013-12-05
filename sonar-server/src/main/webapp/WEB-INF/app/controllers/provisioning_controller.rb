@@ -45,8 +45,14 @@ class ProvisioningController < ApplicationController
       bad_request('provisioning.missing.name') if @name.blank?
 
       if @id.nil? or @id.empty?
-        Internal.component_api.createComponent(@key, @name, 'TRK')
-        Internal.permissions.applyDefaultPermissionTemplate(@key)
+        new_id = Internal.component_api.createComponent(@key, @name, 'TRK')
+        begin
+          Internal.permissions.applyDefaultPermissionTemplate(@key)
+        rescue
+          # Programmatic transaction rollback
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(new_id)
+          raise
+        end
       else
         Internal.component_api.updateComponent(@id.to_i, @key, @name)
       end
