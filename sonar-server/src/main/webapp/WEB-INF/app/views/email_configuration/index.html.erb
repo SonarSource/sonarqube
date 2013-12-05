@@ -18,7 +18,7 @@
     <tr class="property">
       <th><label for="smtp_secure_connection"><h3><%= message('email_configuration.smtp_secure_connection') -%></h3></label></th>
       <td>
-        <%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL' => 'ssl'}, @smtp_secure_connection) %>
+        <%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL/TLS' => 'ssl', 'STARTTLS' => 'starttls'}, @smtp_secure_connection) %>
         <p class="marginbottom10"><%= message('email_configuration.smtp_secure_connection.description') -%></p>
       </td>
     </tr>

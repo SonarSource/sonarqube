@@ -22,23 +22,29 @@ package org.sonar.plugins.emailnotifications;
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import javax.mail.internet.MimeMessage;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
+import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EmailNotificationChannelTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private int port;
   private Wiser server;
@@ -179,6 +185,22 @@ public class EmailNotificationChannelTest {
       .setSubject("Foo")
       .setMessage("Bar");
     channel.deliver(emailMessage);
+  }
+
+  @Test
+  public void shouldSendTestEmailWithSTARTTLS() throws Exception {
+    server.getServer().setEnableTLS(true);
+    server.getServer().setRequireTLS(true);
+    configure();
+    when(configuration.getSecureConnection()).thenReturn("STARTTLS");
+
+    try {
+      channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
+      fail("An SSL exception was expected a a proof that STARTTLS is enabled");
+    } catch (EmailException e) {
+      // We don't have a SSL certificate so we are expecting a SSL error
+      assertThat(e.getCause().getMessage()).isEqualTo("Could not convert socket to TLS");
+    }
   }
 
   private void configure() {

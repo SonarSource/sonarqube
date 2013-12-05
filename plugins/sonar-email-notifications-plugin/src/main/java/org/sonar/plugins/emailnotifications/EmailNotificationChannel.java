@@ -150,9 +150,9 @@ public class EmailNotificationChannel extends NotificationChannel {
       SimpleEmail email = new SimpleEmail();
       if (StringUtils.isNotBlank(host)) {
         /*
-        * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
-        * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
-        */
+         * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
+         * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
+         */
         if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
           String messageId = "<" + emailMessage.getMessageId() + "@" + host + ">";
           email.addHeader(IN_REPLY_TO_HEADER, messageId);
@@ -168,17 +168,21 @@ public class EmailNotificationChannel extends NotificationChannel {
       email.setFrom(configuration.getFrom(), from);
       email.addTo(emailMessage.getTo(), " ");
       String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
-          + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+        + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
       email.setSubject(subject);
       email.setMsg(emailMessage.getMessage());
       // Send
       email.setHostName(configuration.getSmtpHost());
-      if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
-        email.setSSL(true);
+      if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
+        email.setSSLOnConnect(true);
         email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
 
         // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
         // It prevents from getting bad message.
+        email.setSmtpPort(configuration.getSmtpPort());
+      } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "starttls")) {
+        email.setStartTLSEnabled(true);
+        email.setStartTLSRequired(true);
         email.setSmtpPort(configuration.getSmtpPort());
       } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
         email.setSmtpPort(configuration.getSmtpPort());
