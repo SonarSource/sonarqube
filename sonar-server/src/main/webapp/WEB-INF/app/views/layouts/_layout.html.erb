@@ -207,7 +207,8 @@
         <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
         <a href="http://sonar-plugins.codehaus.org" target="plugins">Plugins</a>
         <% unless DatabaseVersion.production? %>
-          <br/><span class="yellowHighlight" id="evaluation_warning">Embedded database should be used for evaluation purpose only</span>
+          <br><br><span class="error big" id="evaluation_warning">Embedded database should be used for evaluation purpose only</span>
+          <br><br><span class="error">The embedded database will not scale, it will not support upgrading to newer versions of SonarQube, and there is no support for migrating your data out of it into a different database engine.</span>
         <% end %>
       </div>
       <!--[if lte IE 8 ]><br/><span class="ie-warn">IE 8 is not supported. Some widgets may not be properly displayed. Please switch to a <a target="_blank" href="http://docs.codehaus.org/x/zYHEBg">supported version or another supported browser</a>.</span><!--<![endif]-->
