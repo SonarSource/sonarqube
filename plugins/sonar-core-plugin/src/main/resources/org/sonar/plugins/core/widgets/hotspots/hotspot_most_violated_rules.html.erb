@@ -28,11 +28,20 @@
     }
     $j('#most-violated-rules-<%= widget.id -%>-' + severity).show();
   }
+
+  function severityForLink() {
+    var severity = $F('select-severity_<%= widget.id -%>');
+    if (severity == 'all') {
+      return '';
+    } else {
+      return severity;
+    }
+  }
 </script>
 
 <div class="line-block">
   <div style="float:right">
-    <a href="#" onclick="window.location.href='<%= url_for(:controller => 'drilldown', :action => 'issues') -%>/<%= @resource.id -%>?period=<%= dashboard_configuration.period_index -%>&severity=' + $F('select-severity_<%= widget.id -%>') ">
+    <a href="#" onclick="window.location.href='<%= url_for(:controller => 'drilldown', :action => 'issues') -%>/<%= @resource.id -%>?period=<%= dashboard_configuration.period_index -%>&severity=' + severityForLink() ">
       <%= message('widget.hotspot_metric.more') -%>
     </a>
   </div>
