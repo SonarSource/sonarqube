@@ -29,6 +29,9 @@ import javax.annotation.Nullable;
 
 import java.util.Set;
 
+/**
+ * Query used to get users and groups from a permission
+ */
 public class WithPermissionQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;

@@ -90,7 +90,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void find_user_with_permissions() throws Exception {
+  public void find_users_with_permissions() throws Exception {
     service.findUsersWithPermission(ImmutableMap.<String, Object>of(
       "permission", "user",
       "component", "org.sample.Sample",
@@ -102,6 +102,22 @@ public class InternalPermissionServiceTest {
     WithPermissionQuery query = argumentCaptor.getValue();
     assertThat(query.component()).isEqualTo("org.sample.Sample");
     assertThat(query.permission()).isEqualTo("user");
+    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
+  }
+
+  @Test
+  public void find_groups_with_permissions() throws Exception {
+    service.findGroupsWithPermission(ImmutableMap.<String, Object>of(
+      "permission", "admin",
+      "component", "org.sample.Sample",
+      "selected", "all"));
+
+    ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
+    verify(finder).findGroupsWithPermission(argumentCaptor.capture());
+
+    WithPermissionQuery query = argumentCaptor.getValue();
+    assertThat(query.component()).isEqualTo("org.sample.Sample");
+    assertThat(query.permission()).isEqualTo("admin");
     assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
   }
 
