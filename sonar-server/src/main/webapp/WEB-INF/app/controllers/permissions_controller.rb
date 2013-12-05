@@ -20,12 +20,12 @@
 class PermissionsController < ApplicationController
 
   #
-  # GET /permissions/search?permission=<permission>&selected=all
+  # GET /permissions/search_users?permission=<permission>&component=<component_key>&selected=all&page=5%pageSize=50&query=john
   #
   # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
   #
-  def search
-    result = Internal.permissions.find(params)
+  def search_users
+    result = Internal.permissions.findUsersWithPermission(params)
     users = result.users()
     more = result.hasMoreResults()
     respond_to do |format|
@@ -36,6 +36,28 @@ class PermissionsController < ApplicationController
                 :login => user.login(),
                 :name => user.name(),
                 :selected => user.hasPermission()
+            }}
+        }
+      }
+    end
+  end
+
+  #
+  # GET /permissions/search_groups?permission=<permission>&component=<component_key>&selected=all&page=5%pageSize=50&query=users
+  #
+  # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
+  #
+  def search_groups
+    result = Internal.permissions.findGroupsWithPermission(params)
+    groups = result.groups()
+    more = result.hasMoreResults()
+    respond_to do |format|
+      format.json {
+        render :json => {
+            :more => more,
+            :results => groups.map { |group| {
+                :name => group.name(),
+                :selected => group.hasPermission()
             }}
         }
       }

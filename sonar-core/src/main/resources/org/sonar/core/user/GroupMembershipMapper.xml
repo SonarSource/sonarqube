@@ -3,20 +3,9 @@
 
 <mapper namespace="org.sonar.core.user.GroupMembershipMapper">
 
-  <sql id="groupColumns">
-    g.id as id,
-    g.name as name,
-    gu.user_id as userId
-  </sql>
-
   <select id="selectGroups" parameterType="map" resultType="GroupMembership">
-    SELECT <include refid="groupColumns"/>
+    SELECT g.id as id, g.name as name, gu.user_id as userId
     FROM groups g
-    <include refid="selectQueryConditions"/>
-    ORDER BY g.name
-  </select>
-
-  <sql id="selectQueryConditions">
     LEFT JOIN groups_users gu ON gu.group_id=g.id AND gu.user_id=#{userId}
     <where>
       <choose>
@@ -31,6 +20,7 @@
         AND (UPPER(g.name) LIKE #{query.groupSearchSql} ESCAPE '/')
       </if>
     </where>
-  </sql>
+    ORDER BY g.name
+  </select>
 
 </mapper>

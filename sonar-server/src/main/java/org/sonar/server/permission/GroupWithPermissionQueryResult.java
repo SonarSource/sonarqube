@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.UserWithPermission;
+import org.sonar.core.permission.GroupWithPermission;
 
 import java.util.List;
 
-public class UserWithPermissionQueryResult {
+public class GroupWithPermissionQueryResult {
 
-  private List<UserWithPermission> users;
+  private List<GroupWithPermission> groups;
   private boolean hasMoreResults;
 
-  public UserWithPermissionQueryResult(List<UserWithPermission> users, boolean hasMoreResults) {
-    this.users = users;
+  public GroupWithPermissionQueryResult(List<GroupWithPermission> groups, boolean hasMoreResults) {
+    this.groups = groups;
     this.hasMoreResults = hasMoreResults;
   }
 
-  public List<UserWithPermission> users() {
-    return users;
+  public List<GroupWithPermission> groups() {
+    return groups;
   }
 
   public boolean hasMoreResults() {

@@ -28,7 +28,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class PermissionDaoTest extends AbstractDaoTestCase {
+public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   private static final long COMPONENT_ID = 100L;
 
@@ -41,7 +41,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_all_users_for_project_permission() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, COMPONENT_ID);
@@ -65,7 +65,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_all_users_for_global_permission() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     WithPermissionQuery query = WithPermissionQuery.builder().permission("admin").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, null);
@@ -86,7 +86,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_only_user_with_permission() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     // user1 and user2 have permission user
     assertThat(dao.selectUsers(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
@@ -94,7 +94,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_only_user_without_permission() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     // Only user3 has not the user permission
     assertThat(dao.selectUsers(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
@@ -102,7 +102,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void search_by_user_name() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
     assertThat(result).hasSize(1);
@@ -114,7 +114,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_be_sorted_by_user_name() throws Exception {
-    setupData("should_be_sorted_by_user_name");
+    setupData("users_with_permissions_should_be_sorted_by_user_name");
 
     List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
@@ -125,7 +125,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_be_paginated() throws Exception {
-    setupData("shared");
+    setupData("users_with_permissions");
 
     List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
     assertThat(result).hasSize(2);

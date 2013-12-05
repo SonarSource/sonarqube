@@ -1,0 +1,17 @@
+<dataset>
+
+  <groups id="200" name="sonar-administrators"/>
+  <groups id="201" name="sonar-users" />
+  <groups id="202" name="sonar-reviewers" />
+
+  <!-- Project permissions -->
+  <group_roles id="1" group_id="200" resource_id="100" role="user"/>
+  <group_roles id="2" group_id="200" resource_id="100" role="admin"/>
+  <group_roles id="3" group_id="200" resource_id="100" role="codeviewer"/>
+
+  <group_roles id="4" group_id="201" resource_id="100" role="user"/>
+
+  <!-- Global permission -->
+  <group_roles id="10" group_id="200" resource_id="[null]" role="admin"/>
+
+</dataset>

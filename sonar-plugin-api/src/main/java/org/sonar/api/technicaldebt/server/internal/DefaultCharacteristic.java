@@ -58,7 +58,8 @@ public class DefaultCharacteristic implements Characteristic {
     return key;
   }
 
-  public DefaultCharacteristic setKey(String key) {
+  @CheckForNull
+  public DefaultCharacteristic setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
@@ -73,11 +74,12 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public Integer order() {
     return order;
   }
 
-  public DefaultCharacteristic setOrder(Integer order) {
+  public DefaultCharacteristic setOrder(@Nullable Integer order) {
     this.order = order;
     return this;
   }

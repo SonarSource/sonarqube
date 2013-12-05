@@ -62,7 +62,7 @@ public class PermissionFinderTest {
       newArrayList(new UserWithPermissionDto().setName("user1"))
     );
 
-    UserWithPermissionQueryResult result = finder.find(query);
+    UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
     assertThat(result.users()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
   }
@@ -70,7 +70,7 @@ public class PermissionFinderTest {
   @Test
   public void find_with_paging() throws Exception {
     WithPermissionQuery query = WithPermissionQuery.builder().permission("user").pageIndex(3).pageSize(10).build();
-    finder.find(query);
+    finder.findUsersWithPermission(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
@@ -88,7 +88,7 @@ public class PermissionFinderTest {
       new UserWithPermissionDto().setName("user2"),
       new UserWithPermissionDto().setName("user3"))
     );
-    UserWithPermissionQueryResult result = finder.find(query);
+    UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
@@ -108,7 +108,7 @@ public class PermissionFinderTest {
       new UserWithPermissionDto().setName("user4"),
       new UserWithPermissionDto().setName("user3"))
     );
-    UserWithPermissionQueryResult result = finder.find(query);
+    UserWithPermissionQueryResult result = finder.findUsersWithPermission(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);

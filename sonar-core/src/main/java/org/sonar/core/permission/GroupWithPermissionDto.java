@@ -18,28 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission;
+package org.sonar.core.permission;
 
-import org.sonar.core.permission.UserWithPermission;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.List;
+public class GroupWithPermissionDto {
 
-public class UserWithPermissionQueryResult {
+  private String name;
+  private String permission;
 
-  private List<UserWithPermission> users;
-  private boolean hasMoreResults;
-
-  public UserWithPermissionQueryResult(List<UserWithPermission> users, boolean hasMoreResults) {
-    this.users = users;
-    this.hasMoreResults = hasMoreResults;
+  public String getName() {
+    return name;
   }
 
-  public List<UserWithPermission> users() {
-    return users;
+  public GroupWithPermissionDto setName(String name) {
+    this.name = name;
+    return this;
   }
 
-  public boolean hasMoreResults() {
-    return hasMoreResults;
+  @CheckForNull
+  public String getPermission() {
+    return permission;
   }
 
+  public GroupWithPermissionDto setPermission(@Nullable String permission) {
+    this.permission = permission;
+    return this;
+  }
+
+  public GroupWithPermission toGroupWithPermission() {
+    return new GroupWithPermission()
+      .setName(name)
+      .hasPermission(permission != null);
+  }
 }

@@ -91,13 +91,13 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void find_user_with_permissions() throws Exception {
-    service.find(ImmutableMap.<String, Object>of(
+    service.findUsersWithPermission(ImmutableMap.<String, Object>of(
       "permission", "user",
       "component", "org.sample.Sample",
       "selected", "all"));
 
     ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
-    verify(finder).find(argumentCaptor.capture());
+    verify(finder).findUsersWithPermission(argumentCaptor.capture());
 
     WithPermissionQuery query = argumentCaptor.getValue();
     assertThat(query.component()).isEqualTo("org.sample.Sample");

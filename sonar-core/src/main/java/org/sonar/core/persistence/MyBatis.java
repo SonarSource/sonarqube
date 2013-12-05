@@ -135,6 +135,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     loadAlias(conf, "Characteristic", CharacteristicDto.class);
     loadAlias(conf, "UserWithPermission", UserWithPermissionDto.class);
+    loadAlias(conf, "GroupWithPermission", GroupWithPermissionDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");

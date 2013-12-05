@@ -3,21 +3,9 @@
 
 <mapper namespace="org.sonar.core.permission.PermissionMapper">
 
-  <sql id="userColumns">
-    u.login as login,
-    u.name as name,
-    user_role.role as permission
-  </sql>
-
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
-    SELECT
-    <include refid="userColumns"/>
+    SELECT u.login as login, u.name as name, user_role.role as permission
     FROM users u
-    <include refid="selectQueryConditions"/>
-    ORDER BY u.name
-  </select>
-
-  <sql id="selectQueryConditions">
     LEFT JOIN user_roles user_role ON user_role.user_id=u.id AND user_role.role=#{query.permission}
     <if test="componentId != null">
       AND user_role.resource_id=#{componentId}
@@ -38,6 +26,33 @@
         AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
       </if>
     </where>
-  </sql>
+    ORDER BY u.name
+  </select>
+
+  <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
+    SELECT g.name as name, group_role.role as permission
+    FROM groups g
+    LEFT JOIN group_roles group_role ON group_role.group_id=g.id AND group_role.role=#{query.permission}
+    <if test="componentId != null">
+      AND group_role.resource_id=#{componentId}
+    </if>
+    <if test="componentId == null">
+      AND group_role.resource_id IS NULL
+    </if>
+    <where>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND group_role.role IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND group_role.role IS NULL
+        </when>
+      </choose>
+      <if test="query.search() != null">
+        AND (UPPER(g.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY g.name
+  </select>
 
 </mapper>

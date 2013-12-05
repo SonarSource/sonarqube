@@ -58,4 +58,21 @@ public class PermissionDao implements ServerComponent {
     return selectUsers(query, componentId, 0, Integer.MAX_VALUE);
   }
 
+  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
+    SqlSession session = mybatis.openSession();
+    try {
+      Map<String, Object> params = newHashMap();
+      params.put("query", query);
+      params.put("componentId", componentId);
+      return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params, new RowBounds(offset, limit));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @VisibleForTesting
+  List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
+    return selectGroups(query, componentId, 0, Integer.MAX_VALUE);
+  }
+
 }

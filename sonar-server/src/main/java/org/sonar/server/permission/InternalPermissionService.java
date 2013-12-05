@@ -77,8 +77,12 @@ public class InternalPermissionService implements ServerComponent {
     return GlobalPermissions.ALL;
   }
 
-  public UserWithPermissionQueryResult find(Map<String, Object> params) {
-    return finder.find(parseQuery(params));
+  public UserWithPermissionQueryResult findUsersWithPermission(Map<String, Object> params) {
+    return finder.findUsersWithPermission(parseQuery(params));
+  }
+
+  public GroupWithPermissionQueryResult findGroupsWithPermission(Map<String, Object> params) {
+    return finder.findGroupsWithPermission(parseQuery(params));
   }
 
   private WithPermissionQuery parseQuery(Map<String, Object> params) {

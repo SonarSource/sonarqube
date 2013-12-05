@@ -20,10 +20,7 @@
 package org.sonar.server.permission;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.PermissionDao;
-import org.sonar.core.permission.UserWithPermission;
-import org.sonar.core.permission.UserWithPermissionDto;
-import org.sonar.core.permission.WithPermissionQuery;
+import org.sonar.core.permission.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -45,7 +42,7 @@ public class PermissionFinder implements ServerComponent {
     this.dao = dao;
   }
 
-  public UserWithPermissionQueryResult find(WithPermissionQuery query) {
+  public UserWithPermissionQueryResult findUsersWithPermission(WithPermissionQuery query) {
     Long componentId = getComponentId(query.component());
     int pageSize = query.pageSize();
     int pageIndex = query.pageIndex();
@@ -63,10 +60,36 @@ public class PermissionFinder implements ServerComponent {
     return new UserWithPermissionQueryResult(toUserWithPermissionList(dtos), hasMoreResults);
   }
 
+  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
+    Long componentId = getComponentId(query.component());
+    int pageSize = query.pageSize();
+    int pageIndex = query.pageIndex();
+
+    int offset = (pageIndex - 1) * pageSize;
+    // Add one to page size in order to be able to know if there's more results or not
+    int limit = pageSize + 1;
+    List<GroupWithPermissionDto> dtos = dao.selectGroups(query, componentId, offset, limit);
+    boolean hasMoreResults = false;
+    if (dtos.size() == limit) {
+      hasMoreResults = true;
+      // Removed last entry as it's only need to know if there more results or not
+      dtos.remove(dtos.size() - 1);
+    }
+    return new GroupWithPermissionQueryResult(toGroupWithPermissionList(dtos), hasMoreResults);
+  }
+
   private List<UserWithPermission> toUserWithPermissionList(List<UserWithPermissionDto> dtos) {
     List<UserWithPermission> users = newArrayList();
     for (UserWithPermissionDto dto : dtos) {
       users.add(dto.toUserWithPermission());
+    }
+    return users;
+  }
+
+  private List<GroupWithPermission> toGroupWithPermissionList(List<GroupWithPermissionDto> dtos) {
+    List<GroupWithPermission> users = newArrayList();
+    for (GroupWithPermissionDto dto : dtos) {
+      users.add(dto.toGroupWithPermission());
     }
     return users;
   }
