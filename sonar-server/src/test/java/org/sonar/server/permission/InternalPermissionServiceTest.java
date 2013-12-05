@@ -27,7 +27,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
@@ -55,27 +58,31 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class InternalPermissionServiceTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  private Map<String, Object> params;
-  private InternalPermissionService service;
-  private UserDao userDao;
-  private ResourceDao resourceDao;
-  private PermissionFacade permissionFacade;
-  private PermissionFinder finder;
+  @Mock
+  UserDao userDao;
+
+  @Mock
+  ResourceDao resourceDao;
+
+  @Mock
+  PermissionFacade permissionFacade;
+
+  @Mock
+  PermissionFinder finder;
+
+  Map<String, Object> params;
+  InternalPermissionService service;
 
   @Before
   public void setUpCommonStubbing() {
-    userDao = mock(UserDao.class);
     when(userDao.selectActiveUserByLogin("user")).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
     when(userDao.selectGroupByName("group")).thenReturn(new GroupDto().setId(2L).setName("group"));
-
-    resourceDao = mock(ResourceDao.class);
-    permissionFacade = mock(PermissionFacade.class);
-    finder = mock(PermissionFinder.class);
 
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 

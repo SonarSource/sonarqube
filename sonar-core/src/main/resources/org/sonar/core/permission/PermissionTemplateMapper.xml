@@ -61,6 +61,28 @@
     </choose>
   </delete>
 
+  <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
+    SELECT u.login as login, u.name as name, ptu.permission_reference as permission
+    FROM users u
+    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
+      AND ptu.permission_reference=#{query.permission}
+      AND ptu.template_id=#{templateId}
+    <where>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND ptu.permission_reference IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND ptu.permission_reference IS NULL
+        </when>
+      </choose>
+      <if test="query.search() != null">
+        AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY u.name
+  </select>
+
   <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
     SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates

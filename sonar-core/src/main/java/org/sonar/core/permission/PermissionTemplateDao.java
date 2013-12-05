@@ -20,7 +20,9 @@
 
 package org.sonar.core.permission;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.task.TaskComponent;
@@ -34,6 +36,9 @@ import javax.annotation.Nullable;
 import java.text.Normalizer;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class PermissionTemplateDao implements TaskComponent, ServerComponent {
 
@@ -47,6 +52,26 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
 
   public PermissionTemplateDao(MyBatis myBatis) {
     this(myBatis, new DefaultDateProvider());
+  }
+
+  /**
+   * @return a paginated list of users.
+   */
+  public List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, Long templateId, int offset, int limit) {
+    SqlSession session = myBatis.openSession();
+    try {
+      Map<String, Object> params = newHashMap();
+      params.put("query", query);
+      params.put("templateId", templateId);
+      return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectUsers", params, new RowBounds(offset, limit));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @VisibleForTesting
+  List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, Long templateId) {
+    return selectUsers(query, templateId, 0, Integer.MAX_VALUE);
   }
 
   @CheckForNull

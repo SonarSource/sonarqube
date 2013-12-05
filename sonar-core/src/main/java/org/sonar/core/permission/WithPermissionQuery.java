@@ -44,6 +44,7 @@ public class WithPermissionQuery {
 
   private final String permission;
   private final String component;
+  private final String template;
   private final String membership;
   private final String search;
 
@@ -60,6 +61,7 @@ public class WithPermissionQuery {
   private WithPermissionQuery(Builder builder) {
     this.permission = builder.permission;
     this.component = builder.component;
+    this.template = builder.template;
     this.membership = builder.membership;
     this.search = builder.search;
     this.searchSql = searchToSql(search);
@@ -82,6 +84,16 @@ public class WithPermissionQuery {
     return permission;
   }
 
+  /**
+   * Used only for permission template
+   */
+  public String template() {
+    return template;
+  }
+
+  /**
+   * Used on project permission
+   */
   @CheckForNull
   public String component() {
     return component;
@@ -112,6 +124,7 @@ public class WithPermissionQuery {
   public static class Builder {
     private String permission;
     private String component;
+    private String template;
     private String membership;
     private String search;
 
@@ -123,6 +136,11 @@ public class WithPermissionQuery {
 
     public Builder permission(String permission) {
       this.permission = permission;
+      return this;
+    }
+
+    public Builder template(String template) {
+      this.template = template;
       return this;
     }
 

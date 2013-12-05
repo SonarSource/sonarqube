@@ -45,6 +45,30 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
+  # GET /permission_templates/search_users?permission=<permission>&template=<template key>selected=<selected>&page=3&pageSize=10&query=<query>
+  #
+  # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
+  #
+  def search_users
+    result = Internal.permission_templates.findUsersWithPermissionTemplate(params)
+    users = result.users()
+    more = result.hasMoreResults()
+
+    respond_to do |format|
+      format.json {
+        render :json => {
+            :more => more,
+            :results => users.map { |user| {
+                :login => user.login(),
+                :name => user.name(),
+                :selected => user.hasPermission()
+            }}
+        }
+      }
+    end
+  end
+
+  #
   # GET (modal form)
   #
   def edit_users

@@ -40,23 +40,45 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class PermissionFinder implements ServerComponent {
 
-  private final PermissionDao dao;
+  private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;
 
-  public PermissionFinder(PermissionDao dao, ResourceDao resourceDao) {
+  private final PermissionTemplateDao permissionTemplateDao;
+
+  public PermissionFinder(PermissionDao permissionDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao) {
     this.resourceDao = resourceDao;
-    this.dao = dao;
+    this.permissionDao = permissionDao;
+    this.permissionTemplateDao = permissionTemplateDao;
   }
 
   public UserWithPermissionQueryResult findUsersWithPermission(WithPermissionQuery query) {
-    Long componentId = getComponentId(query.component());
-    int pageSize = query.pageSize();
-    int pageIndex = query.pageIndex();
+    Long componentId = componentId(query.component());
+    int limit = limit(query);
+    return toQueryResult(permissionDao.selectUsers(query, componentId, offset(query), limit), limit);
+  }
 
-    int offset = (pageIndex - 1) * pageSize;
-    // Add one to page size in order to be able to know if there's more results or not
-    int limit = pageSize + 1;
-    List<UserWithPermissionDto> dtos = dao.selectUsers(query, componentId, offset, limit);
+  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(WithPermissionQuery query) {
+    Long permissionTemplateId = templateId(query.template());
+    int limit = limit(query);
+    return toQueryResult(permissionTemplateDao.selectUsers(query, permissionTemplateId, offset(query), limit), limit);
+  }
+
+  /**
+   * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
+   */
+  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
+    Long componentId = componentId(query.component());
+
+    List<GroupWithPermissionDto> dtos = permissionDao.selectGroups(query, componentId);
+    addAnyoneGroup(dtos, query);
+    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
+
+    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
+    List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
+    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
+  }
+
+  private UserWithPermissionQueryResult toQueryResult(List<UserWithPermissionDto> dtos, int limit) {
     boolean hasMoreResults = false;
     if (dtos.size() == limit) {
       hasMoreResults = true;
@@ -74,19 +96,36 @@ public class PermissionFinder implements ServerComponent {
     return users;
   }
 
-  /**
-   * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
-   */
-  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
-    Long componentId = getComponentId(query.component());
+  @Nullable
+  private Long componentId(String componentKey) {
+    if (componentKey == null) {
+      return null;
+    } else {
+      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
+      if (resourceDto == null) {
+        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+      }
+      return resourceDto.getId();
+    }
+  }
 
-    List<GroupWithPermissionDto> dtos = dao.selectGroups(query, componentId);
-    addAnyoneGroup(dtos, query);
-    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
+  private Long templateId(String templateKey) {
+    PermissionTemplateDto dto = permissionTemplateDao.selectTemplateByKey(templateKey);
+    if (dto == null) {
+      throw new NotFoundException(String.format("Template '%s' does not exist", templateKey));
+    }
+    return dto.getId();
+  }
 
-    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
-    List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
-    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
+  private int offset(WithPermissionQuery query) {
+    int pageSize = query.pageSize();
+    int pageIndex = query.pageIndex();
+    return (pageIndex - 1) * pageSize;
+  }
+
+  private int limit(WithPermissionQuery query) {
+    // Add one to page size in order to be able to know if there's more results or not
+    return query.pageSize() + 1;
   }
 
   private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, final WithPermissionQuery query) {
@@ -133,16 +172,4 @@ public class PermissionFinder implements ServerComponent {
     return groups;
   }
 
-  @Nullable
-  private Long getComponentId(String componentKey) {
-    if (componentKey == null) {
-      return null;
-    } else {
-      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
-      if (resourceDto == null) {
-        throw new NotFoundException(String.format("%s does not exist", componentKey));
-      }
-      return resourceDto.getId();
-    }
-  }
 }

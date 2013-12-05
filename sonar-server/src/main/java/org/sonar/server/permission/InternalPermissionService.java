@@ -28,18 +28,15 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
-import org.sonar.core.permission.WithPermissionQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
 
@@ -78,33 +75,15 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   public UserWithPermissionQueryResult findUsersWithPermission(Map<String, Object> params) {
-    return finder.findUsersWithPermission(parseQuery(params));
+    return finder.findUsersWithPermission(WithPermissionQueryParser.toQuery(params));
+  }
+
+  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
+    return finder.findUsersWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
   }
 
   public GroupWithPermissionQueryResult findGroupsWithPermission(Map<String, Object> params) {
-    return finder.findGroupsWithPermission(parseQuery(params));
-  }
-
-  private WithPermissionQuery parseQuery(Map<String, Object> params) {
-    WithPermissionQuery.Builder builder = WithPermissionQuery.builder();
-    builder.permission((String) params.get("permission"));
-    builder.component((String) params.get("component"));
-    builder.membership(membership(params));
-    builder.search((String) params.get("query"));
-    builder.pageIndex(RubyUtils.toInteger(params.get("page")));
-    builder.pageSize(RubyUtils.toInteger(params.get("pageSize")));
-    return builder.build();
-  }
-
-  private String membership(Map<String, Object> params) {
-    String selected = (String) params.get("selected");
-    if ("selected".equals(selected)) {
-      return GroupMembershipQuery.IN;
-    } else if ("deselected".equals(selected)) {
-      return GroupMembershipQuery.OUT;
-    } else {
-      return GroupMembershipQuery.ANY;
-    }
+    return finder.findGroupsWithPermission(WithPermissionQueryParser.toQuery(params));
   }
 
   public void addPermission(final Map<String, Object> params) {

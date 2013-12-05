@@ -35,6 +35,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -47,10 +48,16 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
+  private final PermissionFinder finder;
 
-  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
+  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
+    this.finder = finder;
+  }
+
+  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
+    return finder.findUsersWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
   }
 
   @CheckForNull
