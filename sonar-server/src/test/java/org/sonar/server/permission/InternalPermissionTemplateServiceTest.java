@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
@@ -70,8 +69,6 @@ public class InternalPermissionTemplateServiceTest {
   @Before
   public void setUp() {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    permissionTemplateDao = mock(PermissionTemplateDao.class);
-    userDao = mock(UserDao.class);
     service = new InternalPermissionTemplateService(permissionTemplateDao, userDao, finder);
   }
 
@@ -81,14 +78,17 @@ public class InternalPermissionTemplateServiceTest {
       "permission", "user",
       "template", "my_template",
       "selected", "all"));
+    verify(finder).findUsersWithPermissionTemplate(any(WithPermissionQuery.class));
+  }
 
-    ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
-    verify(finder).findUsersWithPermissionTemplate(argumentCaptor.capture());
+  @Test
+  public void find_groups_with_permission_template() throws Exception {
+    service.findGroupsWithPermissionTemplate(ImmutableMap.<String, Object>of(
+      "permission", "user",
+      "template", "my_template",
+      "selected", "all"));
 
-    WithPermissionQuery query = argumentCaptor.getValue();
-    assertThat(query.permission()).isEqualTo("user");
-    assertThat(query.template()).isEqualTo("my_template");
-    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
+    verify(finder).findGroupsWithPermissionTemplate(any(WithPermissionQuery.class));
   }
 
   @Test

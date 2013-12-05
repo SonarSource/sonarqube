@@ -47,8 +47,6 @@ class PermissionTemplatesController < ApplicationController
   #
   # GET /permission_templates/search_users?permission=<permission>&template=<template key>selected=<selected>&page=3&pageSize=10&query=<query>
   #
-  # Possible value of 'selected' are 'selected', 'deselected' and 'all' ()
-  #
   def search_users
     result = Internal.permission_templates.findUsersWithPermissionTemplate(params)
     users = result.users()
@@ -62,6 +60,27 @@ class PermissionTemplatesController < ApplicationController
                 :login => user.login(),
                 :name => user.name(),
                 :selected => user.hasPermission()
+            }}
+        }
+      }
+    end
+  end
+
+  #
+  # GET /permission_templates/search_groups?permission=<permission>&template=<template key>selected=<selected>&page=3&pageSize=10&query=<query>
+  #
+  def search_groups
+    result = Internal.permission_templates.findGroupsWithPermissionTemplate(params)
+    groups = result.groups()
+    more = result.hasMoreResults()
+
+    respond_to do |format|
+      format.json {
+        render :json => {
+            :more => more,
+            :results => groups.map { |group| {
+                :name => group.name(),
+                :selected => group.hasPermission()
             }}
         }
       }

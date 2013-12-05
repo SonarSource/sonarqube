@@ -83,6 +83,31 @@
     ORDER BY u.name
   </select>
 
+  <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
+    SELECT name, permission FROM
+    (SELECT g.name as name, ptg.permission_reference as permission
+    FROM groups g
+    LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
+      AND ptg.permission_reference=#{query.permission}
+      AND ptg.template_id=#{templateId}
+    UNION
+    -- Add Anyone group permission
+    SELECT #{anyoneGroup} as name, ptg.permission_reference as permission
+    FROM perm_templates_groups ptg
+    <where>
+      AND ptg.permission_reference=#{query.permission}
+      AND ptg.template_id=#{templateId}
+      AND ptg.group_id IS NULL
+    </where>
+    ) groups
+    <where>
+      <if test="query.search() != null">
+        AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY groups.name
+  </select>
+
   <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
     SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates

@@ -25,6 +25,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.core.date.DateProvider;
 import org.sonar.core.date.DefaultDateProvider;
@@ -32,7 +33,6 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.text.Normalizer;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +72,23 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   @VisibleForTesting
   List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, Long templateId) {
     return selectUsers(query, templateId, 0, Integer.MAX_VALUE);
+  }
+
+  /**
+   * @return a non paginated list of groups.
+   * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
+   */
+  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, Long templateId) {
+    SqlSession session = myBatis.openSession();
+    try {
+      Map<String, Object> params = newHashMap();
+      params.put("query", query);
+      params.put("templateId", templateId);
+      params.put("anyoneGroup", DefaultGroups.ANYONE);
+      return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectGroups", params);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @CheckForNull

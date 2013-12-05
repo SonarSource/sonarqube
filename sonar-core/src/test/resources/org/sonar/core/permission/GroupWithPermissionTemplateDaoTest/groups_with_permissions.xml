@@ -1,0 +1,16 @@
+<dataset>
+
+  <groups id="200" name="sonar-administrators"/>
+  <groups id="201" name="sonar-users" />
+  <groups id="202" name="sonar-reviewers" />
+
+  <perm_templates_groups id="1" group_id="200" permission_reference="user" template_id="50"/>
+  <perm_templates_groups id="2" group_id="200" permission_reference="admin" template_id="50"/>
+  <perm_templates_groups id="3" group_id="200" permission_reference="codeviewer" template_id="50"/>
+
+  <perm_templates_groups id="4" group_id="201" permission_reference="user" template_id="50"/>
+
+  <!-- Permission 'user' for Anyone group -->
+  <perm_templates_groups id="5" group_id="[null]" permission_reference="user" template_id="50"/>
+
+</dataset>

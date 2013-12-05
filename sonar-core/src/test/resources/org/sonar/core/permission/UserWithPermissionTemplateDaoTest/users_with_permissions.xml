@@ -10,6 +10,4 @@
 
   <perm_templates_users id="4" user_id="201" permission_reference="user" template_id="50"/>
 
-  <permission_templates id="50" name="Default template for Projects" kee="default_template_for_projects"/>
-
 </dataset>

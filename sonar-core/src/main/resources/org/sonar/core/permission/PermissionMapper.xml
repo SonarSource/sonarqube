@@ -6,7 +6,8 @@
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, user_role.role as permission
     FROM users u
-    LEFT JOIN user_roles user_role ON user_role.user_id=u.id AND user_role.role=#{query.permission}
+    LEFT JOIN user_roles user_role ON user_role.user_id=u.id
+      AND user_role.role=#{query.permission}
     <if test="componentId != null">
       AND user_role.resource_id=#{componentId}
     </if>
@@ -33,7 +34,8 @@
     SELECT name, permission FROM
     (SELECT g.name as name, group_role.role as permission
     FROM groups g
-    LEFT JOIN group_roles group_role ON group_role.group_id=g.id AND group_role.role=#{query.permission}
+    LEFT JOIN group_roles group_role ON group_role.group_id=g.id
+      AND group_role.role=#{query.permission}
     <if test="componentId != null">
       AND group_role.resource_id=#{componentId}
     </if>
@@ -41,12 +43,12 @@
       AND group_role.resource_id IS NULL
     </if>
     UNION
-    -- Add Anyone group
+    -- Add Anyone group permission
     SELECT #{anyoneGroup} as name, group_role.role as permission
     FROM group_roles group_role
     <where>
-      AND group_role.group_id IS NULL
       AND group_role.role=#{query.permission}
+      AND group_role.group_id IS NULL
       <if test="componentId != null">
         AND group_role.resource_id=#{componentId}
       </if>

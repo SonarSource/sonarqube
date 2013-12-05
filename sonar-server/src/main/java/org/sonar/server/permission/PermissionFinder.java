@@ -32,7 +32,6 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -54,13 +53,13 @@ public class PermissionFinder implements ServerComponent {
   public UserWithPermissionQueryResult findUsersWithPermission(WithPermissionQuery query) {
     Long componentId = componentId(query.component());
     int limit = limit(query);
-    return toQueryResult(permissionDao.selectUsers(query, componentId, offset(query), limit), limit);
+    return toUserQueryResult(permissionDao.selectUsers(query, componentId, offset(query), limit), limit);
   }
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(WithPermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
     int limit = limit(query);
-    return toQueryResult(permissionTemplateDao.selectUsers(query, permissionTemplateId, offset(query), limit), limit);
+    return toUserQueryResult(permissionTemplateDao.selectUsers(query, permissionTemplateId, offset(query), limit), limit);
   }
 
   /**
@@ -68,17 +67,18 @@ public class PermissionFinder implements ServerComponent {
    */
   public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
     Long componentId = componentId(query.component());
-
-    List<GroupWithPermissionDto> dtos = permissionDao.selectGroups(query, componentId);
-    addAnyoneGroup(dtos, query);
-    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
-
-    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
-    List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
-    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
+    return toGroupQueryResult(permissionDao.selectGroups(query, componentId), query);
   }
 
-  private UserWithPermissionQueryResult toQueryResult(List<UserWithPermissionDto> dtos, int limit) {
+  /**
+   * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
+   */
+  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(WithPermissionQuery query) {
+    Long permissionTemplateId = templateId(query.template());
+    return toGroupQueryResult(permissionTemplateDao.selectGroups(query, permissionTemplateId), query);
+  }
+
+  private UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int limit) {
     boolean hasMoreResults = false;
     if (dtos.size() == limit) {
       hasMoreResults = true;
@@ -107,6 +107,15 @@ public class PermissionFinder implements ServerComponent {
       }
       return resourceDto.getId();
     }
+  }
+
+  private GroupWithPermissionQueryResult toGroupQueryResult(List<GroupWithPermissionDto> dtos, WithPermissionQuery query) {
+    addAnyoneGroup(dtos, query);
+    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
+
+    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
+    List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
+    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
   }
 
   private Long templateId(String templateKey) {

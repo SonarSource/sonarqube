@@ -33,7 +33,6 @@ import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -58,6 +57,10 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
     return finder.findUsersWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
+  }
+
+  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(Map<String, Object> params) {
+    return finder.findGroupsWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
   }
 
   @CheckForNull

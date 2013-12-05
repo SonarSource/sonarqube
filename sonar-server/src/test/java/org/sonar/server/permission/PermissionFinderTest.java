@@ -268,4 +268,30 @@ public class PermissionFinderTest {
     }
   }
 
+  @Test
+  public void find_groups_from_permission_template() throws Exception {
+    when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
+
+    when(permissionTemplateDao.selectGroups(any(WithPermissionQuery.class), anyLong())).thenReturn(
+      newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
+    );
+
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermissionTemplate(
+      WithPermissionQuery.builder().permission("user").template("my_template").membership(WithPermissionQuery.OUT).build());
+    assertThat(result.groups()).hasSize(1);
+    assertThat(result.hasMoreResults()).isFalse();
+  }
+
+  @Test
+  public void fail_to_find_groups_from_permission_template_when_template_not_found() throws Exception {
+    when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(null);
+
+    try {
+      finder.findGroupsWithPermissionTemplate(WithPermissionQuery.builder().permission("user").template("Unknown").build());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Template 'Unknown' does not exist");
+    }
+  }
+
 }

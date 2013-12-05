@@ -28,7 +28,6 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class PermissionDao implements ServerComponent {
       params.put("componentId", componentId);
       return session.selectList("org.sonar.core.permission.PermissionMapper.selectUsers", params, new RowBounds(offset, limit));
     } finally {
-      myBatis.closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -64,7 +63,7 @@ public class PermissionDao implements ServerComponent {
 
   /**
    * @return a non paginated list of groups.
-   * Membership parameter from query is not taking into account in order to deal more easily deal the 'Anyone' group
+   * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
    */
   public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
     SqlSession session = myBatis.openSession();
@@ -75,7 +74,7 @@ public class PermissionDao implements ServerComponent {
       params.put("anyoneGroup", DefaultGroups.ANYONE);
       return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params);
     } finally {
-      myBatis.closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
