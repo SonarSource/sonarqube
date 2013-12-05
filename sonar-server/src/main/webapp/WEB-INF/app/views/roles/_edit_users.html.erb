@@ -1,59 +1,37 @@
-<%
-   project_id = (@project && @project.id)
-   granted_users=users(@role, project_id)
-   ungranted_users=(all_users - granted_users)
-%>
-<form id="permission-users-form" action="<%= url_for :controller => :roles, :action => :set_users -%>" method="post">
-  <input name="resource" value="<%= project_id -%>" type="hidden"/>
-  <input name="role" value="<%= @role -%>" type="hidden" />
-  <fieldset>
-    <div class="modal-head">
-      <h2><%= @project ? 'Edit Permissions For: ' + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{@role}")}" -%></h2>
-    </div>
-    <div class="modal-body">
-      <div class="modal-error"/>
-      <table>
-        <tbody>
-          <tr>
-            <td style="padding: 5px 0;" valign="top">
-              <h2>Add Users</h2>
-              <select name="from" id="from" size="30" style="margin: 5px 0; width: 300px;" multiple="multiple">
-                <% ungranted_users.each do |user| %>
-                  <option value="<%= user.id -%>"><%= user.name -%></option>
-                <% end %>
-              </select>
-            </td>
-            <td style="padding: 0 10px;" align="center" nowrap="nowrap">
-              <button id="select_right" onclick="SelectBox.move('from', 'to');SelectBox.sort('to');SelectBox.redisplay('to');return false;">select >></button><br>
-              <button id="select_right_all" onclick="SelectBox.move_all('from', 'to');return false;">select all >></button><br><br>
-              <button id="select_left" onclick="SelectBox.move('to', 'from');return false;"><< unselect</button><br>
-              <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
-            </td>
-            <td class="box" style="padding: 5px 10px;" valign="top">
-              <h2>Permission: <%=  @project ? role_name(@role) : global_role_name(@role) -%></h2>
+<div class="modal-head">
+  <h2><%= @project ? 'Edit Permissions For: ' + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{@role}")}" -%></h2>
+</div>
 
-              <select name="users[]" id="to" size="30" multiple="multiple" style="margin: 5px 0; width: 300px;">
-                <%= options_from_collection_for_select(granted_users, "id", "name") %>
-              </select><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="modal-foot">
-      <input type="submit" onclick="SelectBox.select_all('to');" value="<%= h message('save') -%>" id="submit-permission-users-update"/>
-      <a href="#" onclick="return closeModalWindow()" id="cancel-update-permission-users"><%= h message('cancel') -%></a>
-    </div>
-  </fieldset>
-</form>
+<div class="modal-body">
+  <div id="select-users-permissions"></div>
+</div>
+
+<div class="modal-foot">
+  <a href="#" onclick="window.location.reload();return false" id="cancel-update-permission-users"><%= h message('close') -%></a>
+</div>
+
 <script>
-  SelectBox.init('from');
-  SelectBox.init('to');
-
-  $j("#permission-users-form").modalForm({
-    success: function (data) {
-      window.location.reload();
+  var selectList = new SelectList({
+    el: '#select-users-permissions',
+    width: '100%',
+    format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
+    searchUrl: baseUrl + '/permissions/search?permission=<%= @role -%><%= @project ? "&component=" + @project.key : "" -%>',
+    selectUrl: baseUrl + '/api/permissions/add',
+    deselectUrl: baseUrl + '/api/permissions/remove',
+    extra: {
+      permission: '<%= @role -%>'
+      <%= @project ? ", component: '" + @project.key + "'" : "" %>
+    },
+    selectParameter: 'user',
+    selectParameterValue: 'login',
+    labels: {
+      selected: 'With',
+      deselected: 'Without',
+      all: 'All'
+    },
+    tooltips: {
+      select: 'Click to add this user to the group',
+      deselect: 'Click to remove this member from the group'
     }
   });
 </script>
-
