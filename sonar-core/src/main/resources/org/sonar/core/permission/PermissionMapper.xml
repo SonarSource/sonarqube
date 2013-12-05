@@ -54,7 +54,7 @@
         AND group_role.resource_id IS NULL
       </if>
     </where>
-    ) as groups
+    ) groups
     <where>
       <if test="query.search() != null">
         AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
