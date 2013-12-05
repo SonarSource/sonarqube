@@ -1,7 +1,4 @@
-<h1 class="admin-page-title"><%= message('project_roles.page') -%></h1>
-<p class="admin-page-description"><%= message('project_roles.page.description') -%></p>
-
-<div class="line-block marginbottom10">
+<div>
   <ul class="operations">
     <li class="last">
       <%= link_to message('projects_role.apply_template'), {:controller => :roles, :action => :apply_template_form, :components => [@project.key], :names => @project.name,
@@ -9,6 +6,8 @@
                   :id => "apply-template-#{u @project.kee}", :class => 'open-modal link-action' %>
     </li>
   </ul>
+  <h1 class="admin-page-title"><%= message('project_roles.page') -%></h1>
+  <p class="admin-page-description"><%= message('project_roles.page.description') -%></p>
 </div>
 
 <table class="data width100">
