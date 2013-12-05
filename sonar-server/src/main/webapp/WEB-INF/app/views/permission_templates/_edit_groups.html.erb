@@ -1,6 +1,6 @@
 <form id="permission-template-form" method="post" action="<%= ApplicationController.root_context -%>/permission_templates/update_groups_permissions">
   <input type="hidden" name="id" value="<%= @permission_template.id -%>">
-  <input type="hidden" name="name" value="<%= @permission_template.name -%>">
+  <input type="hidden" name="key" value="<%= @permission_template.key -%>">
   <input type="hidden" name="permission" value="<%= @permission -%>"/>
   <fieldset>
     <div class="modal-head">

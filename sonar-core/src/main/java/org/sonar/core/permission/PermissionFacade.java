@@ -30,11 +30,7 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleDao;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import javax.annotation.Nullable;
 
@@ -163,7 +159,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }
-    PermissionTemplateDto templateWithPermissions = permissionTemplateDao.selectPermissionTemplate(permissionTemplateDto.getName());
+    PermissionTemplateDto templateWithPermissions = permissionTemplateDao.selectPermissionTemplate(permissionTemplateDto.getKee());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
     }

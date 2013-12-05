@@ -35,13 +35,11 @@ public interface PermissionTemplateMapper {
 
   void deleteGroupsPermissions(Long templateId);
 
-  PermissionTemplateDto selectByName(String templateName);
-
   PermissionTemplateDto selectByKey(String templateKey);
 
-  PermissionTemplateDto selectTemplateUsersPermissions(String templateName);
+  PermissionTemplateDto selectTemplateUsersPermissions(String templateKey);
 
-  PermissionTemplateDto selectTemplateGroupsPermissions(String templateName);
+  PermissionTemplateDto selectTemplateGroupsPermissions(String templateKey);
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 

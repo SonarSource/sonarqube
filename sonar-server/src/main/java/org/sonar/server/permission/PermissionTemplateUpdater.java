@@ -37,14 +37,14 @@ import javax.annotation.Nullable;
 
 abstract class PermissionTemplateUpdater {
 
-  private final String templateName;
+  private final String templateKey;
   private final String permission;
   private final String updatedReference;
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
 
-  PermissionTemplateUpdater(String templateName, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
-    this.templateName = templateName;
+  PermissionTemplateUpdater(String templateKey, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
+    this.templateKey = templateKey;
     this.permission = permission;
     this.updatedReference = updatedReference;
     this.permissionTemplateDao = permissionTemplateDao;
@@ -53,7 +53,7 @@ abstract class PermissionTemplateUpdater {
 
   void executeUpdate() {
     checkSystemAdminUser();
-    Long templateId = getTemplateId(templateName);
+    Long templateId = getTemplateId(templateKey);
     validatePermission(permission);
     doExecute(templateId, permission);
   }
@@ -101,10 +101,10 @@ abstract class PermissionTemplateUpdater {
     }
   }
 
-  private Long getTemplateId(String name) {
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByName(name);
+  private Long getTemplateId(String key) {
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(key);
     if (permissionTemplateDto == null) {
-      throw new BadRequestException("Unknown template: " + name);
+      throw new BadRequestException("Unknown template: " + key);
     }
     return permissionTemplateDto.getId();
   }

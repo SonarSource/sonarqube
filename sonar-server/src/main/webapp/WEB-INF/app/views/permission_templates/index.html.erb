@@ -56,16 +56,16 @@
              users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission(permission).collect {|u| u.userName})
              groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission(permission).collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
           %>
-          <span id="u-<%= permission -%>-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-          (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => permission},
-                       :id => "select-u-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
-          <span id="g-<%= permission -%>-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-          (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => permission},
-                       :id => "select-g-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
+          <span id="u-<%= permission -%>-<%= u permission_template.key -%>"><%= users.join(', ') %></span>
+          (<%= link_to message('select users'), {:action => :edit_users, :key => permission_template.key, :permission => permission},
+                       :id => "select-u-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
+          <span id="g-<%= permission -%>-<%= u permission_template.key -%>"><%= groups.join(', ') %></span>
+          (<%= link_to message('select groups'), {:action => :edit_groups, :key => permission_template.key, :permission => permission},
+                       :id => "select-g-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
         </td>
       <% end %>
       <td>
-        <span id="<%= "key-pattern-#{u permission_template.name}" %>">
+        <span id="<%= "key-pattern-#{u permission_template.key}" %>">
           <%= permission_template.key_pattern -%>
         </span>
         <% qualifiers = []
@@ -81,13 +81,13 @@
          <% end %>
       </td>
       <td align="right">
-        <%= link_to message('edit'), {:action => :edit_form, :name => permission_template.name},
-                    :id => "edit-template-#{u permission_template.name}", :class => 'open-modal link-action' %>
+        <%= link_to message('edit'), {:action => :edit_form, :key => permission_template.key},
+                    :id => "edit-template-#{u permission_template.key}", :class => 'open-modal link-action' %>
       </td>
       <td align="right">
         <% unless @default_templates.values.include?(permission_template.key) %>
-          <%= link_to message('delete'), {:action => :delete_form, :name => permission_template.name},
-                      :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action link-red' %>
+          <%= link_to message('delete'), {:action => :delete_form, :key => permission_template.key},
+                      :id => "delete-template-#{u permission_template.key}", :class => 'open-modal link-action link-red' %>
         <% end %>
       </td>
     </tr>

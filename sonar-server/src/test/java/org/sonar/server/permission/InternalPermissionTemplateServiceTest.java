@@ -46,12 +46,12 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class InternalPermissionTemplateServiceTest {
 
-  private static final String DEFAULT_NAME = "my template";
+  private static final String DEFAULT_KEY = "my_template";
   private static final String DEFAULT_DESC = "my description";
   private static final String DEFAULT_PATTERN = "com.foo.(.*)";
   private static final String DEFAULT_PERMISSION = UserRole.USER;
   private static final PermissionTemplateDto DEFAULT_TEMPLATE =
-    new PermissionTemplateDto().setId(1L).setName(DEFAULT_NAME).setDescription(DEFAULT_DESC).setKeyPattern(DEFAULT_PATTERN);
+    new PermissionTemplateDto().setId(1L).setName(DEFAULT_KEY).setDescription(DEFAULT_DESC).setKeyPattern(DEFAULT_PATTERN);
 
   @Mock
   PermissionTemplateDao permissionTemplateDao;
@@ -93,12 +93,12 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_create_permission_template() throws Exception {
-    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
 
-    PermissionTemplate permissionTemplate = service.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, DEFAULT_PATTERN);
+    PermissionTemplate permissionTemplate = service.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN);
 
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
-    assertThat(permissionTemplate.getName()).isEqualTo(DEFAULT_NAME);
+    assertThat(permissionTemplate.getName()).isEqualTo(DEFAULT_KEY);
     assertThat(permissionTemplate.getDescription()).isEqualTo(DEFAULT_DESC);
     assertThat(permissionTemplate.getKeyPattern()).isEqualTo(DEFAULT_PATTERN);
   }
@@ -110,7 +110,7 @@ public class InternalPermissionTemplateServiceTest {
 
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(DEFAULT_TEMPLATE));
 
-    service.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, null);
+    service.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, null);
   }
 
   @Test
@@ -126,12 +126,12 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
 
-    service.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC, "[azerty");
+    service.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, "[azerty");
   }
 
   @Test
   public void should_delete_permission_template() throws Exception {
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     service.deletePermissionTemplate(1L);
 
@@ -257,9 +257,9 @@ public class InternalPermissionTemplateServiceTest {
   public void should_add_user_permission() throws Exception {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.addUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "user");
+    service.addUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
     verify(permissionTemplateDao, times(1)).addUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
@@ -269,19 +269,19 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown user:");
 
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
     when(userDao.selectActiveUserByLogin("unknown")).thenReturn(null);
 
-    service.addUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "unknown");
+    service.addUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "unknown");
   }
 
   @Test
   public void should_remove_user_permission() throws Exception {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.removeUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "user");
+    service.removeUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
     verify(permissionTemplateDao, times(1)).removeUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
@@ -290,9 +290,9 @@ public class InternalPermissionTemplateServiceTest {
   public void should_add_group_permission() throws Exception {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "group");
+    service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
     verify(permissionTemplateDao, times(1)).addGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
@@ -302,28 +302,28 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown group:");
 
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
     when(userDao.selectGroupByName("unknown")).thenReturn(null);
 
-    service.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "unknown");
+    service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "unknown");
   }
 
   @Test
   public void should_remove_group_permission() throws Exception {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.removeGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "group");
+    service.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
     verify(permissionTemplateDao, times(1)).removeGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
   public void should_add_permission_to_anyone_group() throws Exception {
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
+    service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 
     verify(permissionTemplateDao).addGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
@@ -331,9 +331,9 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_remove_permission_from_anyone_group() throws Exception {
-    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
-    service.removeGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
+    service.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 
     verify(permissionTemplateDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);

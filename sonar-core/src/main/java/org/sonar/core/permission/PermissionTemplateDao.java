@@ -75,17 +75,6 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectTemplateByName(String templateName) {
-    SqlSession session = myBatis.openSession();
-    try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      return mapper.selectByName(templateName);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public PermissionTemplateDto selectTemplateByKey(String templateKey) {
     SqlSession session = myBatis.openSession();
     try {
@@ -97,17 +86,17 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectPermissionTemplate(String templateName) {
+  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
     SqlSession session = myBatis.openSession();
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      permissionTemplate = mapper.selectByName(templateName);
-      PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateName);
+      permissionTemplate = mapper.selectByKey(templateKey);
+      PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
       if (templateUsersPermissions != null) {
         permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
       }
-      PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateName);
+      PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateKey);
       if (templateGroupsPermissions != null) {
         permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
       }

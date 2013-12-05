@@ -33,10 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
@@ -93,7 +90,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_select_permission_template() throws Exception {
     setupData("selectPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my template");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -113,26 +110,13 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_select_empty_permission_template() throws Exception {
     setupData("selectEmptyPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my template");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
     assertThat(permissionTemplate.getUsersPermissions()).isNull();
     assertThat(permissionTemplate.getGroupsPermissions()).isNull();
-  }
-
-  @Test
-  public void should_select_permission_template_by_name() throws Exception {
-    setupData("selectPermissionTemplate");
-
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectTemplateByName("my template");
-
-    assertThat(permissionTemplate).isNotNull();
-    assertThat(permissionTemplate.getId()).isEqualTo(1L);
-    assertThat(permissionTemplate.getName()).isEqualTo("my template");
-    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
-    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
   }
 
   @Test

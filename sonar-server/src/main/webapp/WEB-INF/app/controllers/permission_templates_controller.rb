@@ -73,7 +73,7 @@ class PermissionTemplatesController < ApplicationController
   #
   def edit_users
     @permission = params[:permission]
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
     @users_with_permission = @permission_template.getUsersForPermission(params[:permission]).collect {|u| [u.userName, u.userLogin]}
     @users_without_permission = all_users.each.collect {|u| [u.name, u.login]} - @users_with_permission
 
@@ -85,7 +85,7 @@ class PermissionTemplatesController < ApplicationController
   #
   def edit_groups
     @permission = params[:permission]
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
     @groups_with_permission = @permission_template.getGroupsForPermission(params[:permission]).collect {|g| [group_ref(g.groupName), group_ref(g.groupName)]}
     @groups_without_permission = all_groups.each.collect {|g| g.nil? ? ['Anyone', 'Anyone'] : [g.name, g.name]} - @groups_with_permission
 
@@ -97,9 +97,9 @@ class PermissionTemplatesController < ApplicationController
   #
   def update_users_permissions
     verify_post_request
-    require_parameters :name, :permission
+    require_parameters :key, :permission
 
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
 
     selected_users = params[:users] || []
 
@@ -110,11 +110,11 @@ class PermissionTemplatesController < ApplicationController
     demoted_users = previous_users_with_permission - new_users_with_permission
 
     promoted_users.each do |user|
-      Internal.permission_templates.addUserPermission(params[:name], params[:permission], user[1])
+      Internal.permission_templates.addUserPermission(params[:key], params[:permission], user[1])
     end
 
     demoted_users.each do |user|
-      Internal.permission_templates.removeUserPermission(params[:name], params[:permission], user[1])
+      Internal.permission_templates.removeUserPermission(params[:key], params[:permission], user[1])
     end
 
     redirect_to :action => 'index'
@@ -125,9 +125,9 @@ class PermissionTemplatesController < ApplicationController
   #
   def update_groups_permissions
     verify_post_request
-    require_parameters :name, :permission
+    require_parameters :key, :permission
 
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
 
     selected_groups = params[:groups] || []
 
@@ -138,11 +138,11 @@ class PermissionTemplatesController < ApplicationController
     demoted_groups = previous_groups_with_permission - new_groups_with_permission
 
     promoted_groups.each do |group|
-      Internal.permission_templates.addGroupPermission(params[:name], params[:permission], group[1])
+      Internal.permission_templates.addGroupPermission(params[:key], params[:permission], group[1])
     end
 
     demoted_groups.each do |group|
-      Internal.permission_templates.removeGroupPermission(params[:name], params[:permission], group[1])
+      Internal.permission_templates.removeGroupPermission(params[:key], params[:permission], group[1])
     end
 
     redirect_to :action => 'index'
@@ -169,7 +169,7 @@ class PermissionTemplatesController < ApplicationController
   # GET (modal form)
   #
   def edit_form
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
     render :partial => 'permission_templates/permission_template_form',
            :locals => {:form_action => 'edit', :message_title => 'edit_template', :message_submit => 'update_template'}
   end
@@ -188,7 +188,7 @@ class PermissionTemplatesController < ApplicationController
   # GET (modal form)
   #
   def delete_form
-    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
+    @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:key])
     render :partial => 'permission_templates/delete_form'
   end
 
@@ -247,10 +247,10 @@ class PermissionTemplatesController < ApplicationController
   end
 
   def get_templates_and_permissions(permission_templates)
-    templates_names = permission_templates.collect {|t| t.name}
+    templates_keys = permission_templates.collect {|t| t.key}
     permission_templates = []
-    templates_names.each do |template_name|
-      permission_templates << Internal.permission_templates.selectPermissionTemplate(template_name)
+    templates_keys.each do |template_key|
+      permission_templates << Internal.permission_templates.selectPermissionTemplate(template_key)
     end
     permission_templates.sort_by {|t| t.name.downcase}
   end

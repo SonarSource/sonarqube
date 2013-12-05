@@ -61,9 +61,9 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   @CheckForNull
-  public PermissionTemplate selectPermissionTemplate(String templateName) {
+  public PermissionTemplate selectPermissionTemplate(String templateKey) {
     PermissionTemplateUpdater.checkSystemAdminUser();
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectPermissionTemplate(templateName);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectPermissionTemplate(templateKey);
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
@@ -108,8 +108,8 @@ public class InternalPermissionTemplateService implements ServerComponent {
     permissionTemplateDao.deletePermissionTemplate(templateId);
   }
 
-  public void addUserPermission(String templateName, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionTemplateDao, userDao) {
+  public void addUserPermission(String templateKey, String permission, String userLogin) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -119,8 +119,8 @@ public class InternalPermissionTemplateService implements ServerComponent {
     updater.executeUpdate();
   }
 
-  public void removeUserPermission(String templateName, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionTemplateDao, userDao) {
+  public void removeUserPermission(String templateKey, String permission, String userLogin) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -130,8 +130,8 @@ public class InternalPermissionTemplateService implements ServerComponent {
     updater.executeUpdate();
   }
 
-  public void addGroupPermission(String templateName, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionTemplateDao, userDao) {
+  public void addGroupPermission(String templateKey, String permission, String groupName) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
@@ -141,8 +141,8 @@ public class InternalPermissionTemplateService implements ServerComponent {
     updater.executeUpdate();
   }
 
-  public void removeGroupPermission(String templateName, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionTemplateDao, userDao) {
+  public void removeGroupPermission(String templateKey, String permission, String groupName) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();

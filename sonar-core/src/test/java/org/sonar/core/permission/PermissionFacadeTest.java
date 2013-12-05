@@ -160,11 +160,11 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
   @Test
   public void should_retrieve_permission_template() throws Exception {
-    PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template");
-    PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto();
+    PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
+    PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     permissionTemplateDao = mock(PermissionTemplateDao.class);
     when(permissionTemplateDao.selectTemplateByKey("test_template")).thenReturn(permissionTemplateDto);
-    when(permissionTemplateDao.selectPermissionTemplate("Test template")).thenReturn(templateWithPermissions);
+    when(permissionTemplateDao.selectPermissionTemplate("test_template")).thenReturn(templateWithPermissions);
 
     permissionFacade = new PermissionFacade(null, null, null, null, permissionTemplateDao, null);
 

@@ -89,12 +89,6 @@
     WHERE kee = #{kee}
   </select>
 
-  <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
-    FROM permission_templates
-    WHERE name = #{templateName}
-  </select>
-
   <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
     SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
@@ -115,7 +109,7 @@
     FROM permission_templates pt
     INNER JOIN perm_templates_users ptu ON ptu.template_id = pt.id
     INNER JOIN users u ON u.id = ptu.user_id AND u.active = ${_true}
-    WHERE pt.name = #{templateName}
+    WHERE pt.kee = #{templateKey}
   </select>
 
   <select id="selectTemplateGroupsPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult">
@@ -132,7 +126,7 @@
     FROM permission_templates pt
     INNER JOIN perm_templates_groups ptg ON ptg.template_id = pt.id
     LEFT OUTER JOIN groups g ON g.id = ptg.group_id
-    WHERE pt.name = #{templateName}
+    WHERE pt.kee = #{templateKey}
     AND (g.name IS NOT NULL OR ptg.group_id IS NULL)
   </select>
 

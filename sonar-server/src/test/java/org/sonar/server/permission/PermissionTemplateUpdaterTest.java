@@ -60,10 +60,10 @@ public class PermissionTemplateUpdaterTest {
   public void should_execute_on_valid_parameters() throws Exception {
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao) {
       @Override
       void doExecute(Long templateId, String permission) {
         permissionTemplateDao.addUserPermission(1L, 1L, UserRole.USER);
@@ -80,10 +80,10 @@ public class PermissionTemplateUpdaterTest {
     expected.expectMessage("Unknown template:");
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(null);
+    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -97,10 +97,10 @@ public class PermissionTemplateUpdaterTest {
     expected.expectMessage("Invalid permission:");
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", "invalid", "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", "invalid", "user", permissionTemplateDao, userDao) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
