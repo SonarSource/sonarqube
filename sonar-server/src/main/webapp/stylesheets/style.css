@@ -1986,6 +1986,10 @@ table.nowrap td, td.nowrap, th.nowrap {
   white-space: nowrap;
 }
 
+table.nowrap td.small, td.nowrap.small, th.nowrap.small {
+  line-height: 16px;
+}
+
 .background-gray {
   background-color: #EFEFEF;
   color: #444;
