@@ -1,13 +1,13 @@
 <form id="create-resource-form" method="post" action="<%= ApplicationController.root_context -%>/provisioning/create_or_update">
   <input type="hidden" name="id" value="<%= @id -%>"/>
   <fieldset>
-    <% if flash.now[:error] %>
-      <p class="error"><%= h flash.now[:error] -%></p>
-    <% end %>
     <div class="modal-head">
       <h2><%= message((@id.nil? || @id.empty?) ? 'qualifiers.new.TRK' : 'qualifiers.update.TRK') -%></h2>
     </div>
     <div class="modal-body">
+      <% if flash.now[:error] %>
+        <p class="error"><%= h flash.now[:error] -%></p>
+      <% end %>
       <div class="modal-field">
         <label for="key"><%= h message('key') -%> <em class="mandatory">*</em></label>
         <input id="key" name="key" value="<%= h @key -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
