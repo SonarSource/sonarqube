@@ -73,6 +73,13 @@ public class DefaultRequirementTest {
       .isEqualTo(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(characteristic));
     assertThat(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(characteristic))
       .isNotEqualTo(new DefaultRequirement().setRuleKey(RuleKey.of("repo2", "rule2")).setCharacteristic(characteristic));
+
+    assertThat(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(characteristic))
+      .isNotEqualTo(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(
+        new DefaultCharacteristic()
+          .setId(2)
+          .setKey("REUSABILITY")));
+
   }
 
   @Test

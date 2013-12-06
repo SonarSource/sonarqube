@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
-import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.Nullable;
 
