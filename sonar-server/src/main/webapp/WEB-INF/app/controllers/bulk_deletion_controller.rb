@@ -29,11 +29,7 @@ class BulkDeletionController < ApplicationController
       return
     end
         
-    @tabs = deletable_qualifiers
-    
-    @selected_tab = params[:qualifiers]
-    @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
-
+    init_tab
     params['pageSize'] = 20
     params['qualifiers'] = @selected_tab
     @query_result = Internal.component_api.find(params)
@@ -44,7 +40,7 @@ class BulkDeletionController < ApplicationController
       render :template => 'bulk_deletion/pending_deletions'
       return
     end
-      
+
     @tabs = deletable_qualifiers
 
     params['pageSize'] = -1
@@ -52,7 +48,7 @@ class BulkDeletionController < ApplicationController
     @query_result = Internal.component_api.findGhostsProjects(params)
 
     @ghosts = @query_result.components
-    
+
     @ghosts_by_qualifier = {}
     @ghosts.each do |p|
       qualifier = p.qualifier
@@ -63,16 +59,27 @@ class BulkDeletionController < ApplicationController
       end
     end
   end
-  
+
   def delete_resources
     verify_post_request
-    resource_to_delete = params[:resources] || []
-    resource_to_delete = params[:all_resources].split(',') if params[:all_resources] && !params[:all_resources].blank?
-    
+
+    if params[:select_all] && params[:select_all] == 'true'
+      init_tab
+      # Load all matching components to delete when select_all params is present
+      params['pageSize'] = -1
+      params['qualifiers'] = @selected_tab
+      query_result = Internal.component_api.find(params)
+      resource_to_delete = query_result.components.map {|component| component.id}
+    else
+      resource_to_delete = params[:resources] || []
+      # Used by the ghost deletion
+      resource_to_delete = params[:all_resources].split(',') if params[:all_resources] && !params[:all_resources].blank?
+    end
+
     # Ask the resource deletion manager to start the migration
     # => this is an asynchronous AJAX call
     ResourceDeletionManager.instance.delete_resources(resource_to_delete)
-    
+
     redirect_to :action => :pending_deletions
   end
 
@@ -87,15 +94,22 @@ class BulkDeletionController < ApplicationController
       redirect_to :action => 'index', :resource_type => params[:resource_type]
     end
   end
-  
+
   def dismiss_message
     # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
     ResourceDeletionManager.instance.reinit
-    
+
     redirect_to :action => 'index', :resource_type => params[:resource_type]
   end
-  
+
+
   private
+
+  def init_tab
+    @tabs = deletable_qualifiers
+    @selected_tab = params[:qualifiers]
+    @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
+  end
   
   # Tells if a mass deletion is happening or if it has finished with errors
   def pending_mass_deletion?
