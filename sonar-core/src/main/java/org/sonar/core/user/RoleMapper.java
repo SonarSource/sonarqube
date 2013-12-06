@@ -22,7 +22,6 @@ package org.sonar.core.user;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public interface RoleMapper {
   /**
    * @return permissions from to a group
    */
-  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("anyOneGroup") String anyOneGroup);
+  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("isAnyOneGroup") Boolean isAnyOneGroup);
 
   void insertGroupRole(GroupRoleDto groupRole);
 

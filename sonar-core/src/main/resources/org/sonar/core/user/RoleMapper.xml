@@ -23,12 +23,12 @@
   <select id="selectGroupPermissions" parameterType="map" resultType="String">
     SELECT gr.role
     FROM group_roles gr
-    <if test="groupName != anyOneGroup">
+    <if test="isAnyOneGroup != true">
       INNER JOIN groups g ON g.id = gr.group_id
     </if>
     <where>
       <choose>
-        <when test="groupName != anyOneGroup">
+        <when test="isAnyOneGroup != true">
           AND g.name = #{groupName}
         </when>
         <otherwise>

@@ -60,6 +60,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
         GlobalPermissions.DASHBOARD_SHARING);
     assertThat(dao.selectGroupPermissions("sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
     assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions("anyone", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions("AnYoNe", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test

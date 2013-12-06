@@ -27,7 +27,6 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 public class RoleDao implements TaskComponent, ServerComponent {
@@ -52,7 +51,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     try {
-      return mapper.selectGroupPermissions(groupName, resourceId, DefaultGroups.ANYONE);
+      return mapper.selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
     } finally {
       MyBatis.closeQuietly(session);
     }
