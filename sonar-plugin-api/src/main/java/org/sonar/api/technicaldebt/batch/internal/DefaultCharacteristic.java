@@ -80,7 +80,7 @@ public class DefaultCharacteristic implements Characteristic {
   }
 
   // TODO Replace this is a TechnicalDebtFactory class
-  public Characteristic setName(String s, boolean asKey) {
+  public DefaultCharacteristic setName(String s, boolean asKey) {
     this.name = StringUtils.trimToNull(s);
     if (asKey) {
       this.key = StringUtils.upperCase(this.name);
@@ -89,11 +89,12 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public Integer order() {
     return order;
   }
 
-  public DefaultCharacteristic setOrder(Integer order) {
+  public DefaultCharacteristic setOrder(@Nullable Integer order) {
     this.order = order;
     return this;
   }
@@ -112,7 +113,7 @@ public class DefaultCharacteristic implements Characteristic {
   }
 
   @CheckForNull
-  public DefaultCharacteristic getRoot() {
+  public DefaultCharacteristic root() {
     return root;
   }
 

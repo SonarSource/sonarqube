@@ -17,50 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.user;
 
-package org.sonar.core.permission;
+import org.junit.Test;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class UserWithPermissionDto {
+public class GroupMembershipTest {
 
-  private String login;
-  private String name;
-  private String permission;
+  @Test
+  public void test_setters_and_getters() throws Exception {
+    GroupMembership group = new GroupMembership()
+      .setId(1L)
+      .setName("users")
+      .setMember(true);
 
-  public String getLogin() {
-    return login;
+    assertThat(group.id()).isEqualTo(1L);
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.isMember()).isTrue();
   }
 
-  public UserWithPermissionDto setLogin(String login) {
-    this.login = login;
-    return this;
-  }
+  @Test
+  public void test_equals() throws Exception {
+    assertThat(new GroupMembership().setName("users")).isEqualTo(new GroupMembership().setName("users"));
+    assertThat(new GroupMembership().setName("users")).isNotEqualTo(new GroupMembership().setName("reviewers"));
 
-  public String getName() {
-    return name;
-  }
-
-  public UserWithPermissionDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPermission() {
-    return permission;
-  }
-
-  public UserWithPermissionDto setPermission(@Nullable String permission) {
-    this.permission = permission;
-    return this;
-  }
-
-  public UserWithPermission toUserWithPermission() {
-    return new UserWithPermission()
-      .setLogin(login)
-      .setName(name)
-      .hasPermission(permission != null);
+    GroupMembership group = new GroupMembership()
+      .setId(1L)
+      .setName("users")
+      .setMember(true);
+    assertThat(group).isEqualTo(group);
   }
 }

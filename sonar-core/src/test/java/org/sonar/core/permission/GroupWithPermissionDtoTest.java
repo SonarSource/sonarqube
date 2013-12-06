@@ -20,47 +20,31 @@
 
 package org.sonar.core.permission;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.junit.Test;
 
-public class UserWithPermissionDto {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private String login;
-  private String name;
-  private String permission;
+public class GroupWithPermissionDtoTest {
 
-  public String getLogin() {
-    return login;
+  @Test
+  public void to_group_with_permission_having_permission() throws Exception {
+    GroupWithPermission group = new GroupWithPermissionDto()
+      .setName("users")
+      .setPermission("user")
+      .toGroupWithPermission();
+
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.hasPermission()).isTrue();
   }
 
-  public UserWithPermissionDto setLogin(String login) {
-    this.login = login;
-    return this;
-  }
+  @Test
+  public void to_group_with_permission_not_having_permission() throws Exception {
+    GroupWithPermission group = new GroupWithPermissionDto()
+      .setName("users")
+      .setPermission(null)
+      .toGroupWithPermission();
 
-  public String getName() {
-    return name;
-  }
-
-  public UserWithPermissionDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPermission() {
-    return permission;
-  }
-
-  public UserWithPermissionDto setPermission(@Nullable String permission) {
-    this.permission = permission;
-    return this;
-  }
-
-  public UserWithPermission toUserWithPermission() {
-    return new UserWithPermission()
-      .setLogin(login)
-      .setName(name)
-      .hasPermission(permission != null);
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.hasPermission()).isFalse();
   }
 }

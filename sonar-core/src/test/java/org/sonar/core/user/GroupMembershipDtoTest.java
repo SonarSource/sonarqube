@@ -18,49 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.permission;
+package org.sonar.core.user;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.junit.Test;
 
-public class UserWithPermissionDto {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private String login;
-  private String name;
-  private String permission;
+public class GroupMembershipDtoTest {
 
-  public String getLogin() {
-    return login;
+  @Test
+  public void to_group_with_permission_having_permission() throws Exception {
+    GroupMembership group = new GroupMembershipDto()
+      .setId(1L)
+      .setName("users")
+      .setUserId(10L)
+      .toGroupMembership();
+
+    assertThat(group.id()).isEqualTo(1);
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.isMember()).isTrue();
   }
 
-  public UserWithPermissionDto setLogin(String login) {
-    this.login = login;
-    return this;
+  @Test
+  public void to_group_with_permission_not_having_permission() throws Exception {
+    GroupMembership group = new GroupMembershipDto()
+      .setId(1L)
+      .setName("users")
+      .setUserId(null)
+      .toGroupMembership();
+
+    assertThat(group.id()).isEqualTo(1);
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.isMember()).isFalse();
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public UserWithPermissionDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPermission() {
-    return permission;
-  }
-
-  public UserWithPermissionDto setPermission(@Nullable String permission) {
-    this.permission = permission;
-    return this;
-  }
-
-  public UserWithPermission toUserWithPermission() {
-    return new UserWithPermission()
-      .setLogin(login)
-      .setName(name)
-      .hasPermission(permission != null);
-  }
 }

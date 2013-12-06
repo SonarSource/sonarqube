@@ -69,11 +69,11 @@ public class UserWithPermission {
       return false;
     }
     UserWithPermission that = (UserWithPermission) o;
-    return name.equals(that.name);
+    return login.equals(that.login);
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return login.hashCode();
   }
 }

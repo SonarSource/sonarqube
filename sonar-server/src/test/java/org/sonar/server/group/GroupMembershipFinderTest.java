@@ -55,12 +55,17 @@ public class GroupMembershipFinderTest {
   public void find() throws Exception {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
     when(groupMembershipDao.selectGroups(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(
-      newArrayList(new GroupMembershipDto().setId(1L).setName("users"))
+      newArrayList(new GroupMembershipDto().setId(1L).setName("users").setUserId(100L))
     );
 
     GroupMembershipQueryResult result = finder.find(query);
     assertThat(result.groups()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
+
+    GroupMembership group = result.groups().get(0);
+    assertThat(group.id()).isEqualTo(1);
+    assertThat(group.name()).isEqualTo("users");
+    assertThat(group.isMember()).isTrue();
   }
 
   @Test

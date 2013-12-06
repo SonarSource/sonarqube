@@ -149,7 +149,7 @@ public class DefaultCharacteristic implements Characteristic {
   }
 
   public boolean isRequirement() {
-    return ruleKey == null;
+    return ruleKey != null;
   }
 
   @Override
