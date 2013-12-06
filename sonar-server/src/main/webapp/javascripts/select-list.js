@@ -1,4 +1,5 @@
-/*global Backbone:false, Spinner:false*/
+/* global Backbone:false, jQuery:false */
+/* jshint eqnull:true */
 
 (function ($) {
 
@@ -255,6 +256,7 @@
 
       if (hasQuery) {
         this.showFetchSpinner();
+        this.currentFilter = 'all';
 
         this.collection.fetch({
           url: this.settings.searchUrl,
