@@ -29,7 +29,10 @@
     <%= message('no_results') -%>
   <% else %>
 
-    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions', :qualifiers => @selected_tab}';") do %>
+      <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
+        <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
+        <input type="hidden" name="names" value="<%= params[:names] -%>"/>
+        <input type="hidden" name="select_all" value="false" id="select_all"/>
       <table class="data" id="resources-to-delete">
         <thead>
           <tr>
@@ -39,7 +42,6 @@
               <% if found_resources_count - @query_result.components.size > 0 %>
                 <a id="select_all_action" style="padding-left: 10px; font-weight: normal; display: none"
                    href="#" onclick="handleSelectAllAction(); return false;"><%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%></a>
-                <input type="hidden" id="all_resources" name="all_resources" value=""/>
               <% end %>
             </th>
             <th></th>
@@ -70,58 +72,53 @@
             }
         %>
       </table>
-    <% end %>
+    </form>
 
     <script>
       function checkBeforeDeleting() {
         var resource_selected = false;
-        $$("#resources-to-delete input[type='checkbox']").each(function(input) {
+        $j("#resources-to-delete input[type='checkbox']").each(function(index,input) {
           if (input.checked) resource_selected =  true;
         });
         if (!resource_selected) {
           alert("<%= message('bulk_deletion.please_select_at_least_one_resource') -%>");
           return false;
         }
-
-        if (!confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>")) {
-          return false;
-        }
-
-        return true;
+        return confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>");
       }
 
       function selectOrDeselect() {
-        var status = $('r-all').checked;
-        $$('tbody input').each(function(input) {
+        var status = $j('#r-all').prop('checked');
+        $j('tbody input').each(function(index,input) {
           input.checked = status;
         });
         <% if found_resources_count - @query_result.components.size > 0 %>
         selectNotAllResources();
         if (status) {
-          $('select_all_action').show();
+          $j('#select_all_action').show();
         } else {
-          $('select_all_action').hide();
+          $j('#select_all_action').hide();
         }
         <% end %>
       }
 
       function handleSelectAllAction() {
-        if ($('all_resources').value=='') {
+        if ($j('#select_all').val()=='false') {
           selectAllResources();
         } else {
-          $('r-all').checked = false;
+          $j('#r-all').checked = false;
           selectOrDeselect();
         }
       }
 
       function selectAllResources() {
-        $('all_resources').value = '<%= found_resources_ids -%>';
-        $('select_all_action').innerHTML = '<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>';
+        $j('#select_all').val('true');
+        $j('#select_all_action').html('<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>');
       }
 
       function selectNotAllResources() {
-        $('all_resources').value = '';
-        $('select_all_action').innerHTML = '<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>';
+        $j('#select_all').val('false');
+        $j('#select_all_action').html('<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>');
       }
     </script>
 
