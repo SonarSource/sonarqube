@@ -103,10 +103,10 @@
 
 <script id="detailsFavoriteFilterTemplate" type="text/template">
   <ul class="navigator-filter-select-list">
-    {[ if (_.keys(choices).length > 0) { ]}
-    {[ _.each(choices, function(value, key) { ]}
+    {[ if (choicesArray.length > 0) { ]}
+    {[ _.each(choicesArray, function(f) { ]}
     <li>
-      <label data-id="{{ key }}">{{ value }}</label>
+      <label data-id="{{ f.k }}">{{ f.v }}</label>
     </li>
     {[ }); ]}
     <li class="line"></li>

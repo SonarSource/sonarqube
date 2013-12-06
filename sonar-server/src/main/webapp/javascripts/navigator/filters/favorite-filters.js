@@ -22,6 +22,21 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     manage: function() {
       window.location = baseUrl + this.model.get('manageUrl');
+    },
+
+
+    serializeData: function() {
+      var choices = this.model.get('choices'),
+          choicesArray =
+              _.sortBy(
+                  _.map(choices, function (v, k) {
+                    return { v: v, k: k };
+                  }),
+                  'v');
+
+      return _.extend({}, this.model.toJSON(), {
+        choicesArray: choicesArray
+      });
     }
 
   });
