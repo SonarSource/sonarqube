@@ -57,9 +57,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
     RoleDao dao = new RoleDao(getMyBatis());
 
     assertThat(dao.selectGroupPermissions("sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
-        GlobalPermissions.DASHBOARD_SHARING, GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions("sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING, GlobalPermissions.DRY_RUN_EXECUTION,
-        GlobalPermissions.SCAN_EXECUTION);
+        GlobalPermissions.DASHBOARD_SHARING);
+    assertThat(dao.selectGroupPermissions("sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
     assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
   }
 
@@ -69,8 +68,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     RoleDao dao = new RoleDao(getMyBatis());
 
-    assertThat(dao.selectGroupPermissions("sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.USER);
-    assertThat(dao.selectGroupPermissions("sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER, UserRole.USER);
+    assertThat(dao.selectGroupPermissions("sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
+    assertThat(dao.selectGroupPermissions("sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
   }
 
   @Test

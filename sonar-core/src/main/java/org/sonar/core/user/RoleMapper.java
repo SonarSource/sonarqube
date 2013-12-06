@@ -38,7 +38,7 @@ public interface RoleMapper {
   /**
    * @return permissions from to a group
    */
-  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId);
+  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("anyOneGroup") String anyOneGroup);
 
   void insertGroupRole(GroupRoleDto groupRole);
 

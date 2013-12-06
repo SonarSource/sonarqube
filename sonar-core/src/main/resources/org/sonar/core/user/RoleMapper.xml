@@ -23,23 +23,18 @@
   <select id="selectGroupPermissions" parameterType="map" resultType="String">
     SELECT gr.role
     FROM group_roles gr
-    INNER JOIN groups g ON g.id = gr.group_id
+    <if test="groupName != anyOneGroup">
+      INNER JOIN groups g ON g.id = gr.group_id
+    </if>
     <where>
-      AND g.name = #{groupName}
       <choose>
-        <when test="resourceId != null">
-          AND resource_id=#{resourceId}
+        <when test="groupName != anyOneGroup">
+          AND g.name = #{groupName}
         </when>
         <otherwise>
-          AND resource_id IS NULL
+          AND gr.group_id IS NULL
         </otherwise>
       </choose>
-    </where>
-    UNION
-    SELECT gr.role
-    FROM group_roles gr
-    <where>
-      AND gr.group_id IS NULL
       <choose>
         <when test="resourceId != null">
           AND resource_id=#{resourceId}
