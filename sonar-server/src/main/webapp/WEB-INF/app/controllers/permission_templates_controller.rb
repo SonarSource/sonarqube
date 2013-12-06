@@ -67,6 +67,30 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
+  # POST
+  #
+  def add_user_permission
+    verify_post_request
+    require_parameters :template, :permission, :user
+
+    Internal.permission_templates.addUserPermission(params[:template], params[:permission], params[:user])
+    status = 200
+    render :status => status, :text => '{}'
+  end
+
+  #
+  # POST
+  #
+  def remove_user_permission
+    verify_post_request
+    require_parameters :template, :permission, :user
+
+    Internal.permission_templates.removeUserPermission(params[:template], params[:permission], params[:user])
+    status = 200
+    render :status => status, :text => '{}'
+  end
+
+  #
   # GET /permission_templates/search_groups?permission=<permission>&template=<template key>selected=<selected>&page=3&pageSize=10&query=<query>
   #
   def search_groups
@@ -88,7 +112,31 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
-  # GET (modal form)
+  # POST
+  #
+  def add_group_permission
+    verify_post_request
+    require_parameters :template, :permission, :group
+
+    Internal.permission_templates.addGroupPermission(params[:template], params[:permission], params[:group])
+    status = 200
+    render :status => status, :text => '{}'
+  end
+
+  #
+  # POST
+  #
+  def remove_group_permission
+    verify_post_request
+    require_parameters :template, :permission, :group
+
+    Internal.permission_templates.removeGroupPermission(params[:template], params[:permission], params[:group])
+    status = 200
+    render :status => status, :text => '{}'
+  end
+
+  #
+  # TODO delete it
   #
   def edit_users
     @permission = params[:permission]
@@ -100,7 +148,7 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
-  # GET (modal form)
+  # TODO delete it
   #
   def edit_groups
     @permission = params[:permission]
@@ -112,7 +160,7 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
-  # POST
+  # TODO delete it# POST
   #
   def update_users_permissions
     verify_post_request
@@ -140,7 +188,7 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
-  # POST
+  # TODO delete it
   #
   def update_groups_permissions
     verify_post_request
