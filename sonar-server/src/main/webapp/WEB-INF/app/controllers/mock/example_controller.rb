@@ -1,5 +1,5 @@
 #
-# SonarQube, open source software quality management tool.
+# Sonar, entreprise quality control tool.
 # Copyright (C) 2008-2013 SonarSource
 # mailto:contact AT sonarsource DOT com
 #
@@ -19,17 +19,19 @@
 #
 class Mock::ExampleController < Api::ApiController
 
-  # GET /mock/example/search_groups
-  def search_groups
-    render :json => <<RESPONSE
-      {
-        "more": false,
-        "results": [
-          {"id": 1, "name": "sonar-administrators", "selected": false},
-          {"id": 2, "name": "sonar-users", "selected": true}
-        ]
-      }
-RESPONSE
+  # GET /mock/example/index
+  def index
+    # declare JSON response with ruby hash or array
+    render :json => JSON({'foo' => 'bar', 'an_integer' => 4})
   end
 
+  # GET /mock/example/search
+  def search
+    # declare JSON response with string
+    render :json => <<RESPONSE
+      {
+        "foo": "bar"
+      }
+RESPONSE
+    end
 end
