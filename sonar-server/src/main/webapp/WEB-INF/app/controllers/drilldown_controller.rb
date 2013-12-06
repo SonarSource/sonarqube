@@ -176,7 +176,7 @@ class DrilldownController < ApplicationController
     java_facade.getResourceTabsForMetric(resource.scope, resource.qualifier, resource.language, resource.last_snapshot.metric_keys.to_java(:string), metric_key).each do |tab|
       tab.getUserRoles().each do |role|
         if has_role?(role, resource)
-          return resource.file?
+          return true
         end
       end
     end

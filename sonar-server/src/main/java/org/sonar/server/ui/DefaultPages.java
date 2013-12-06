@@ -105,8 +105,7 @@ public final class DefaultPages {
           CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.NEW_TECHNICAL_DEBT_KEY
       })
   @ResourceQualifier(
-      value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,
-          Qualifiers.UNIT_TEST_FILE})
+      value = {Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
   @UserRole(UserRole.USER)
   private static final class IssuesTab implements RubyRailsPage {
     public String getTemplate() {
