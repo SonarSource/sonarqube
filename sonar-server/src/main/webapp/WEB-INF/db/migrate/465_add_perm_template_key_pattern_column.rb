@@ -27,6 +27,6 @@ class AddPermTemplateKeyPatternColumn < ActiveRecord::Migration
 
   def self.up
       add_column 'permission_templates', :key_pattern,       :string,   :null => true,   :limit => 500
-    end
+  end
 
 end

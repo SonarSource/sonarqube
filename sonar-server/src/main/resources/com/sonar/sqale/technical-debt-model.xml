@@ -96,12 +96,16 @@
     <key>EFFICIENCY</key>
     <name>Efficiency</name>
     <chc>
+      <key>CPU_EFFICIENCY</key>
+      <name>Processor use</name>
+    </chc>
+    <chc>
       <key>MEMORY_EFFICIENCY</key>
       <name>Memory use</name>
     </chc>
     <chc>
-      <key>CPU_EFFICIENCY</key>
-      <name>Processor use</name>
+      <key>NETWORK_USE</key>
+      <name>Network use</name>
     </chc>
   </chc>
   <chc>
