@@ -75,15 +75,15 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   public UserWithPermissionQueryResult findUsersWithPermission(Map<String, Object> params) {
-    return finder.findUsersWithPermission(WithPermissionQueryParser.toQuery(params));
+    return finder.findUsersWithPermission(PermissionQueryParser.toQuery(params));
   }
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
-    return finder.findUsersWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
+    return finder.findUsersWithPermissionTemplate(PermissionQueryParser.toQuery(params));
   }
 
   public GroupWithPermissionQueryResult findGroupsWithPermission(Map<String, Object> params) {
-    return finder.findGroupsWithPermission(WithPermissionQueryParser.toQuery(params));
+    return finder.findGroupsWithPermission(PermissionQueryParser.toQuery(params));
   }
 
   public void addPermission(final Map<String, Object> params) {

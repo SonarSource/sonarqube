@@ -42,6 +42,8 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class PermissionTemplateDao implements TaskComponent, ServerComponent {
 
+  public static final String QUERY_PARAMETER = "query";
+  public static final String TEMPLATE_ID_PARAMETER = "templateId";
   private final MyBatis myBatis;
   private final DateProvider dateProvider;
 
@@ -57,12 +59,12 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, Long templateId, int offset, int limit) {
+  public List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId, int offset, int limit) {
     SqlSession session = myBatis.openSession();
     try {
       Map<String, Object> params = newHashMap();
-      params.put("query", query);
-      params.put("templateId", templateId);
+      params.put(QUERY_PARAMETER, query);
+      params.put(TEMPLATE_ID_PARAMETER, templateId);
       return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectUsers", params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
@@ -70,7 +72,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, Long templateId) {
+  List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId) {
     return selectUsers(query, templateId, 0, Integer.MAX_VALUE);
   }
 
@@ -79,12 +81,12 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
    * @return a non paginated list of groups.
    */
-  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, Long templateId) {
+  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, Long templateId) {
     SqlSession session = myBatis.openSession();
     try {
       Map<String, Object> params = newHashMap();
-      params.put("query", query);
-      params.put("templateId", templateId);
+      params.put(QUERY_PARAMETER, query);
+      params.put(TEMPLATE_ID_PARAMETER, templateId);
       params.put("anyoneGroup", DefaultGroups.ANYONE);
       return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectGroups", params);
     } finally {

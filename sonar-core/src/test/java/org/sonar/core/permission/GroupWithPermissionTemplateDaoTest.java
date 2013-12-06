@@ -43,7 +43,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   public void select_groups() throws Exception {
     setupData("groups_with_permissions");
 
-    WithPermissionQuery query = WithPermissionQuery.builder().permission("user").build();
+    PermissionQuery query = PermissionQuery.builder().permission("user").build();
     List<GroupWithPermissionDto> result = dao.selectGroups(query, TEMPLATE_ID);
 
     assertThat(result).hasSize(4);
@@ -70,7 +70,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
     setupData("groups_with_permissions");
 
     // Anyone group has not the permission 'admin', so it's not returned
-    WithPermissionQuery query = WithPermissionQuery.builder().permission("admin").build();
+    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
     List<GroupWithPermissionDto> result = dao.selectGroups(query, TEMPLATE_ID);
     assertThat(result).hasSize(3);
 
@@ -91,11 +91,11 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   public void search_by_groups_name() throws Exception {
     setupData("groups_with_permissions");
 
-    List<GroupWithPermissionDto> result = dao.selectGroups(WithPermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
 
-    result = dao.selectGroups(WithPermissionQuery.builder().permission("user").search("sonar").build(), TEMPLATE_ID);
+    result = dao.selectGroups(PermissionQuery.builder().permission("user").search("sonar").build(), TEMPLATE_ID);
     assertThat(result).hasSize(3);
   }
 
@@ -103,7 +103,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   public void search_groups_should_be_sorted_by_group_name() throws Exception {
     setupData("groups_with_permissions_should_be_sorted_by_group_name");
 
-    List<GroupWithPermissionDto> result = dao.selectGroups(WithPermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
     assertThat(result).hasSize(4);
     assertThat(result.get(0).getName()).isEqualTo("Anyone");
     assertThat(result.get(1).getName()).isEqualTo("sonar-administrators");

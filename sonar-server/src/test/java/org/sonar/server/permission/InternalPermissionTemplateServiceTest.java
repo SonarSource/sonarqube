@@ -78,7 +78,7 @@ public class InternalPermissionTemplateServiceTest {
       "permission", "user",
       "template", "my_template",
       "selected", "all"));
-    verify(finder).findUsersWithPermissionTemplate(any(WithPermissionQuery.class));
+    verify(finder).findUsersWithPermissionTemplate(any(PermissionQuery.class));
   }
 
   @Test
@@ -88,7 +88,7 @@ public class InternalPermissionTemplateServiceTest {
       "template", "my_template",
       "selected", "all"));
 
-    verify(finder).findGroupsWithPermissionTemplate(any(WithPermissionQuery.class));
+    verify(finder).findGroupsWithPermissionTemplate(any(PermissionQuery.class));
   }
 
   @Test

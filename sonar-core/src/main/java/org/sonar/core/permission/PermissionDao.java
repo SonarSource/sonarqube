@@ -35,6 +35,9 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class PermissionDao implements ServerComponent {
 
+  private static final String QUERY_PARAMETER = "query";
+  private static final String COMPONENT_ID_PARAMETER = "componentId";
+
   private final MyBatis myBatis;
 
   public PermissionDao(MyBatis myBatis) {
@@ -44,12 +47,12 @@ public class PermissionDao implements ServerComponent {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
+  public List<UserWithPermissionDto> selectUsers(PermissionQuery query, @Nullable Long componentId, int offset, int limit) {
     SqlSession session = myBatis.openSession();
     try {
       Map<String, Object> params = newHashMap();
-      params.put("query", query);
-      params.put("componentId", componentId);
+      params.put(QUERY_PARAMETER, query);
+      params.put(COMPONENT_ID_PARAMETER, componentId);
       return session.selectList("org.sonar.core.permission.PermissionMapper.selectUsers", params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
@@ -57,7 +60,7 @@ public class PermissionDao implements ServerComponent {
   }
 
   @VisibleForTesting
-  List<UserWithPermissionDto> selectUsers(WithPermissionQuery query, @Nullable Long componentId) {
+  List<UserWithPermissionDto> selectUsers(PermissionQuery query, @Nullable Long componentId) {
     return selectUsers(query, componentId, 0, Integer.MAX_VALUE);
   }
 
@@ -66,12 +69,12 @@ public class PermissionDao implements ServerComponent {
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
    * @return a non paginated list of groups.
    */
-  public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
+  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
     SqlSession session = myBatis.openSession();
     try {
       Map<String, Object> params = newHashMap();
-      params.put("query", query);
-      params.put("componentId", componentId);
+      params.put(QUERY_PARAMETER, query);
+      params.put(COMPONENT_ID_PARAMETER, componentId);
       params.put("anyoneGroup", DefaultGroups.ANYONE);
       return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params);
     } finally {

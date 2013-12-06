@@ -37,7 +37,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
-import org.sonar.core.permission.WithPermissionQuery;
+import org.sonar.core.permission.PermissionQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -103,13 +103,13 @@ public class InternalPermissionServiceTest {
       "component", "org.sample.Sample",
       "selected", "all"));
 
-    ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
+    ArgumentCaptor<PermissionQuery> argumentCaptor = ArgumentCaptor.forClass(PermissionQuery.class);
     verify(finder).findUsersWithPermission(argumentCaptor.capture());
 
-    WithPermissionQuery query = argumentCaptor.getValue();
+    PermissionQuery query = argumentCaptor.getValue();
     assertThat(query.component()).isEqualTo("org.sample.Sample");
     assertThat(query.permission()).isEqualTo("user");
-    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
+    assertThat(query.membership()).isEqualTo(PermissionQuery.ANY);
   }
 
   @Test
@@ -119,13 +119,13 @@ public class InternalPermissionServiceTest {
       "component", "org.sample.Sample",
       "selected", "all"));
 
-    ArgumentCaptor<WithPermissionQuery> argumentCaptor = ArgumentCaptor.forClass(WithPermissionQuery.class);
+    ArgumentCaptor<PermissionQuery> argumentCaptor = ArgumentCaptor.forClass(PermissionQuery.class);
     verify(finder).findGroupsWithPermission(argumentCaptor.capture());
 
-    WithPermissionQuery query = argumentCaptor.getValue();
+    PermissionQuery query = argumentCaptor.getValue();
     assertThat(query.component()).isEqualTo("org.sample.Sample");
     assertThat(query.permission()).isEqualTo("admin");
-    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
+    assertThat(query.membership()).isEqualTo(PermissionQuery.ANY);
   }
 
   @Test

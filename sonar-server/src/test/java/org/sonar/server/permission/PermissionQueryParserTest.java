@@ -21,14 +21,14 @@
 package org.sonar.server.permission;
 
 import org.junit.Test;
-import org.sonar.core.permission.WithPermissionQuery;
+import org.sonar.core.permission.PermissionQuery;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class WithPermissionQueryParserTest {
+public class PermissionQueryParserTest {
 
   @Test
   public void to_query_with_all_params() throws Exception {
@@ -40,7 +40,7 @@ public class WithPermissionQueryParserTest {
     params.put("selected", "all");
     params.put("page", 2);
     params.put("pageSize", 50);
-    WithPermissionQuery query = WithPermissionQueryParser.toQuery(params);
+    PermissionQuery query = PermissionQueryParser.toQuery(params);
 
     assertThat(query.permission()).isEqualTo("admin");
     assertThat(query.component()).isEqualTo("org.sample.Sample");
@@ -48,7 +48,7 @@ public class WithPermissionQueryParserTest {
     assertThat(query.search()).isEqualTo("text");
     assertThat(query.pageSize()).isEqualTo(50);
     assertThat(query.pageIndex()).isEqualTo(2);
-    assertThat(query.membership()).isEqualTo(WithPermissionQuery.ANY);
+    assertThat(query.membership()).isEqualTo(PermissionQuery.ANY);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class WithPermissionQueryParserTest {
     params.put("permission", "admin");
     params.put("selected", "selected");
 
-    assertThat(WithPermissionQueryParser.toQuery(params).membership()).isEqualTo(WithPermissionQuery.IN);
+    assertThat(PermissionQueryParser.toQuery(params).membership()).isEqualTo(PermissionQuery.IN);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class WithPermissionQueryParserTest {
     params.put("permission", "admin");
     params.put("selected", "deselected");
 
-    assertThat(WithPermissionQueryParser.toQuery(params).membership()).isEqualTo(WithPermissionQuery.OUT);
+    assertThat(PermissionQueryParser.toQuery(params).membership()).isEqualTo(PermissionQuery.OUT);
   }
 
   @Test
@@ -75,6 +75,7 @@ public class WithPermissionQueryParserTest {
     params.put("permission", "admin");
     params.put("selected", "all");
 
-    assertThat(WithPermissionQueryParser.toQuery(params).membership()).isEqualTo(WithPermissionQuery.ANY);
+    assertThat(PermissionQueryParser.toQuery(params).membership()).isEqualTo(PermissionQuery.ANY);
   }
+
 }

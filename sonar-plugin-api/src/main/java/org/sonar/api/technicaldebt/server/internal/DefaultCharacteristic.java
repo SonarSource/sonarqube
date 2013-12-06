@@ -54,11 +54,11 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public String key() {
     return key;
   }
 
-  @CheckForNull
   public DefaultCharacteristic setKey(@Nullable String key) {
     this.key = key;
     return this;

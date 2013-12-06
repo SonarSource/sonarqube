@@ -28,9 +28,6 @@ import javax.annotation.Nullable;
 
 import java.util.Set;
 
-/**
- * @since 4.1
- */
 public class GroupMembershipQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
@@ -145,7 +142,8 @@ public class GroupMembershipQuery {
       if (membership == null) {
         membership = GroupMembershipQuery.ANY;
       } else {
-        // TODO check
+        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
+          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
       }
     }
 
@@ -163,7 +161,7 @@ public class GroupMembershipQuery {
     }
 
     public GroupMembershipQuery build() {
-      Preconditions.checkNotNull(login, "User cant be null.");
+      Preconditions.checkNotNull(login, "User login cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();

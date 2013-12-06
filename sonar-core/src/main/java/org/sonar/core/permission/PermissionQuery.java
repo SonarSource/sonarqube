@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * Query used to get users and groups from a permission
  */
-public class WithPermissionQuery {
+public class PermissionQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
@@ -58,7 +58,7 @@ public class WithPermissionQuery {
   private final int pageIndex;
 
 
-  private WithPermissionQuery(Builder builder) {
+  private PermissionQuery(Builder builder) {
     this.permission = builder.permission;
     this.component = builder.component;
     this.template = builder.template;
@@ -171,9 +171,10 @@ public class WithPermissionQuery {
 
     private void initMembership() {
       if (membership == null) {
-        membership = WithPermissionQuery.ANY;
+        membership = PermissionQuery.ANY;
       } else {
-        // TODO check
+        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
+          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
       }
     }
 
@@ -190,12 +191,12 @@ public class WithPermissionQuery {
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
-    public WithPermissionQuery build() {
+    public PermissionQuery build() {
       Preconditions.checkNotNull(permission, "Permission cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();
-      return new WithPermissionQuery(this);
+      return new PermissionQuery(this);
     }
   }
 }

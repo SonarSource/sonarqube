@@ -31,16 +31,16 @@ import java.util.Map;
 
 public class GroupMembershipDao {
 
+  private final MyBatis mybatis;
+
   public GroupMembershipDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  private final MyBatis mybatis;
-
   public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId, int offset, int limit) {
     SqlSession session = mybatis.openSession();
     try {
-      Map<String, Object> params = ImmutableMap.of("query",  query, "userId", userId);
+      Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
       return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);

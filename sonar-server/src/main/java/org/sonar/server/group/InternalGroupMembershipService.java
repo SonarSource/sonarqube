@@ -31,6 +31,9 @@ import java.util.Map;
  */
 public class InternalGroupMembershipService implements ServerComponent {
 
+  private static final String SELECTED_MEMBERSHIP = "selected";
+  private static final String DESELECTED_MEMBERSHIP = "deselected";
+
   private final GroupMembershipFinder finder;
 
   public InternalGroupMembershipService(GroupMembershipFinder finder) {
@@ -53,9 +56,9 @@ public class InternalGroupMembershipService implements ServerComponent {
 
   private String membership(Map<String, Object> params) {
     String selected = (String) params.get("selected");
-    if ("selected".equals(selected)) {
+    if (SELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.IN;
-    } else if ("deselected".equals(selected)) {
+    } else if (DESELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.OUT;
     } else {
       return GroupMembershipQuery.ANY;

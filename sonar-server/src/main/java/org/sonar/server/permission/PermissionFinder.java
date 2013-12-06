@@ -50,13 +50,13 @@ public class PermissionFinder implements ServerComponent {
     this.permissionTemplateDao = permissionTemplateDao;
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermission(WithPermissionQuery query) {
+  public UserWithPermissionQueryResult findUsersWithPermission(PermissionQuery query) {
     Long componentId = componentId(query.component());
     int limit = limit(query);
     return toUserQueryResult(permissionDao.selectUsers(query, componentId, offset(query), limit), limit);
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(WithPermissionQuery query) {
+  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
     int limit = limit(query);
     return toUserQueryResult(permissionTemplateDao.selectUsers(query, permissionTemplateId, offset(query), limit), limit);
@@ -65,7 +65,7 @@ public class PermissionFinder implements ServerComponent {
   /**
    * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
    */
-  public GroupWithPermissionQueryResult findGroupsWithPermission(WithPermissionQuery query) {
+  public GroupWithPermissionQueryResult findGroupsWithPermission(PermissionQuery query) {
     Long componentId = componentId(query.component());
     return toGroupQueryResult(permissionDao.selectGroups(query, componentId), query);
   }
@@ -73,7 +73,7 @@ public class PermissionFinder implements ServerComponent {
   /**
    * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
    */
-  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(WithPermissionQuery query) {
+  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
     return toGroupQueryResult(permissionTemplateDao.selectGroups(query, permissionTemplateId), query);
   }
@@ -109,7 +109,7 @@ public class PermissionFinder implements ServerComponent {
     }
   }
 
-  private GroupWithPermissionQueryResult toGroupQueryResult(List<GroupWithPermissionDto> dtos, WithPermissionQuery query) {
+  private GroupWithPermissionQueryResult toGroupQueryResult(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
     addAnyoneGroup(dtos, query);
     List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
 
@@ -126,24 +126,24 @@ public class PermissionFinder implements ServerComponent {
     return dto.getId();
   }
 
-  private int offset(WithPermissionQuery query) {
+  private int offset(PermissionQuery query) {
     int pageSize = query.pageSize();
     int pageIndex = query.pageIndex();
     return (pageIndex - 1) * pageSize;
   }
 
-  private int limit(WithPermissionQuery query) {
+  private int limit(PermissionQuery query) {
     // Add one to page size in order to be able to know if there's more results or not
     return query.pageSize() + 1;
   }
 
-  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, final WithPermissionQuery query) {
+  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, final PermissionQuery query) {
     return newArrayList(Iterables.filter(dtos, new Predicate<GroupWithPermissionDto>() {
       @Override
       public boolean apply(GroupWithPermissionDto dto) {
-        if (query.membership().equals(WithPermissionQuery.IN)) {
+        if (PermissionQuery.IN.equals(query.membership())) {
           return dto.getPermission() != null;
-        } else if (query.membership().equals(WithPermissionQuery.OUT)) {
+        } else if (PermissionQuery.OUT.equals(query.membership())) {
           return dto.getPermission() == null;
         }
         return true;
@@ -155,7 +155,7 @@ public class PermissionFinder implements ServerComponent {
    * As the anyone group does not exists in db, it's not returned when it has not the permission.
    * We have to manually add it at the begin of the list, if it matched the search text
    */
-  private void addAnyoneGroup(List<GroupWithPermissionDto> groups, WithPermissionQuery query) {
+  private void addAnyoneGroup(List<GroupWithPermissionDto> groups, PermissionQuery query) {
     boolean hasAnyoneGroup = Iterables.any(groups, new Predicate<GroupWithPermissionDto>() {
       @Override
       public boolean apply(GroupWithPermissionDto group) {

@@ -20,16 +20,23 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.WithPermissionQuery;
+import org.sonar.core.permission.PermissionQuery;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.Map;
 
-public class WithPermissionQueryParser {
+public class PermissionQueryParser {
 
-  static WithPermissionQuery toQuery(Map<String, Object> params) {
-    WithPermissionQuery.Builder builder = WithPermissionQuery.builder();
+  private static final String SELECTED_MEMBERSHIP = "selected";
+  private static final String DESELECTED_MEMBERSHIP = "deselected";
+
+  private PermissionQueryParser(){
+    // Utility class
+  }
+
+  static PermissionQuery toQuery(Map<String, Object> params) {
+    PermissionQuery.Builder builder = PermissionQuery.builder();
     builder.permission((String) params.get("permission"));
     builder.component((String) params.get("component"));
     builder.template((String) params.get("template"));
@@ -42,9 +49,9 @@ public class WithPermissionQueryParser {
 
   private static String membership(Map<String, Object> params) {
     String selected = (String) params.get("selected");
-    if ("selected".equals(selected)) {
+    if (SELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.IN;
-    } else if ("deselected".equals(selected)) {
+    } else if (DESELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.OUT;
     } else {
       return GroupMembershipQuery.ANY;

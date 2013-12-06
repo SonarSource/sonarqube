@@ -56,11 +56,11 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
-    return finder.findUsersWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
+    return finder.findUsersWithPermissionTemplate(PermissionQueryParser.toQuery(params));
   }
 
   public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(Map<String, Object> params) {
-    return finder.findGroupsWithPermissionTemplate(WithPermissionQueryParser.toQuery(params));
+    return finder.findGroupsWithPermissionTemplate(PermissionQueryParser.toQuery(params));
   }
 
   @CheckForNull

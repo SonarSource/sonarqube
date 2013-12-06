@@ -43,7 +43,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
   public void select_all_users_for_project_permission() throws Exception {
     setupData("users_with_permissions");
 
-    WithPermissionQuery query = WithPermissionQuery.builder().permission("user").build();
+    PermissionQuery query = PermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, COMPONENT_ID);
     assertThat(result).hasSize(3);
 
@@ -67,7 +67,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
   public void select_all_users_for_global_permission() throws Exception {
     setupData("users_with_permissions");
 
-    WithPermissionQuery query = WithPermissionQuery.builder().permission("admin").build();
+    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, null);
     assertThat(result).hasSize(3);
 
@@ -89,7 +89,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
     setupData("users_with_permissions");
 
     // user1 and user2 have permission user
-    assertThat(dao.selectUsers(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
+    assertThat(dao.selectUsers(PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
   }
 
   @Test
@@ -97,18 +97,18 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
     setupData("users_with_permissions");
 
     // Only user3 has not the user permission
-    assertThat(dao.selectUsers(WithPermissionQuery.builder().permission("user").membership(WithPermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
+    assertThat(dao.selectUsers(PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
   }
 
   @Test
   public void search_by_user_name() throws Exception {
     setupData("users_with_permissions");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
+    List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("User1");
 
-    result = dao.selectUsers(WithPermissionQuery.builder().permission("user").search("user").build(), COMPONENT_ID);
+    result = dao.selectUsers(PermissionQuery.builder().permission("user").search("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
   }
 
@@ -116,7 +116,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
   public void should_be_sorted_by_user_name() throws Exception {
     setupData("users_with_permissions_should_be_sorted_by_user_name");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID);
+    List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
     assertThat(result.get(0).getName()).isEqualTo("User1");
     assertThat(result.get(1).getName()).isEqualTo("User2");
@@ -127,17 +127,17 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
   public void should_be_paginated() throws Exception {
     setupData("users_with_permissions");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
+    List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("User1");
     assertThat(result.get(1).getName()).isEqualTo("User2");
 
-    result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 1, 2);
+    result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 1, 2);
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("User2");
     assertThat(result.get(1).getName()).isEqualTo("User3");
 
-    result = dao.selectUsers(WithPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 2, 1);
+    result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 2, 1);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("User3");
   }
