@@ -62,8 +62,9 @@ public class PermissionDao implements ServerComponent {
   }
 
   /**
-   * @return a non paginated list of groups.
+   * 'Anyone' group is not returned when it has not the asked permission.
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
+   * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, @Nullable Long componentId) {
     SqlSession session = myBatis.openSession();

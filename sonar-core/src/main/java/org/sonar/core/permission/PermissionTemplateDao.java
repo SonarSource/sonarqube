@@ -75,8 +75,9 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   /**
+   * 'Anyone' group is not returned when it has not the asked permission.
+   * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
    * @return a non paginated list of groups.
-   * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
    */
   public List<GroupWithPermissionDto> selectGroups(WithPermissionQuery query, Long templateId) {
     SqlSession session = myBatis.openSession();
