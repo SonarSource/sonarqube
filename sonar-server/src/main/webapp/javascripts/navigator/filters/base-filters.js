@@ -176,6 +176,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     disable: function(e) {
       e.stopPropagation();
       this.hideDetails();
+      this.options.filterBarView.hideDetails();
       this.model.set({
         enabled: false,
         value: null
