@@ -1,13 +1,20 @@
 /* global module:false, karma:false */
 
-// Karma configuration
-// Generated on Mon Dec 02 2013 14:50:55 GMT+0600 (YEKT)
+// Karma configuration for JS application
 
-module.exports = function(karma) {
-  karma.configure({
+// GLOBAL INSTALLATION
+// sonar-server$ npm install -g
+// sonar-server$ karma start
+
+// LOCAL INSTALLATION
+// sonar-server$ npm install
+// sonar-server$ ./node_modules/.bin/karma start
+
+module.exports = function(config) {
+  config.set({
 
     // base path, that will be used to resolve files and exclude
-    basePath: '..',
+    basePath: 'src/main/webapp/javascripts',
 
 
     // frameworks to use
@@ -32,7 +39,7 @@ module.exports = function(karma) {
 
     // list of files to exclude
     exclude: [
-      
+
     ],
 
 
@@ -43,14 +50,17 @@ module.exports = function(karma) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress', 'coverage', 'junit'],
 
 
     coverageReporter: {
       type : 'text',
-      dir : 'coverage/'
+      dir : '../../../../target/karma/coverage/'
     },
 
+    junitReporter: {
+      outputFile : '../../../../target/karma/test-results.xml'
+    },
 
     // web server port
     port: 9876,
@@ -66,7 +76,7 @@ module.exports = function(karma) {
 
     // level of logging
     // possible values: karma.LOG_DISABLE || karma.LOG_ERROR || karma.LOG_WARN || karma.LOG_INFO || karma.LOG_DEBUG
-    logLevel: karma.LOG_INFO,
+    logLevel: config.LOG_INFO,
 
 
     // enable / disable watching file and executing tests whenever any file changes

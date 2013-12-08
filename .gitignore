@@ -1,3 +1,4 @@
+# The following should be moved in related sub-directories
 sonar-server/src/main/webapp/stylesheets/sonar-colorizer.css
 sonar-server/src/main/webapp/deploy/gwt
 sonar-server/src/main/webapp/deploy/plugins
@@ -7,20 +8,19 @@ sonar-server/src/main/webapp/WEB-INF/log/
 sonar-server/src/main/webapp/deploy/*.jar
 sonar-server/src/main/webapp/deploy/jdbc-driver.txt
 
-# javadoc
+# ---- Javadoc
 docs.tar
 
-# Maven
+# ---- Maven
 target/
 
-# IntelliJ IDEA
+# ---- IntelliJ IDEA
 *.iws
 *.iml
 *.ipr
 .idea/
-sonar-server/src/main/webapp/WEB-INF/.rakeTasks
 
-# Eclipse
+# ---- Eclipse
 .classpath
 .project
 .settings
