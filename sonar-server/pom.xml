@@ -594,6 +594,32 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <!-- experimental profile -->
+      <id>js</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.kelveden</groupId>
+            <artifactId>maven-karma-plugin</artifactId>
+            <version>1.5</version>
+            <configuration>
+              <configFile>${basedir}/karma.conf.js</configFile>
+            </configuration>
+            <executions>
+              <execution>
+                <id>karma</id>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <phase>process-test-classes</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>

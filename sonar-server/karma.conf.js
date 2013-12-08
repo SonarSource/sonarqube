@@ -48,8 +48,15 @@ module.exports = function(config) {
     },
 
 
+    plugins: [
+      'karma-qunit',
+      'karma-phantomjs-launcher',
+      'karma-coverage',
+      'karma-junit-reporter'
+    ],
+
+
     // test results reporter to use
-    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress', 'coverage', 'junit'],
 
 
@@ -62,6 +69,7 @@ module.exports = function(config) {
       outputFile : '../../../../target/karma/test-results.xml'
     },
 
+    // WARNING - the 2 following ports should not be hardcoded in CI environments
     // web server port
     port: 9876,
 
