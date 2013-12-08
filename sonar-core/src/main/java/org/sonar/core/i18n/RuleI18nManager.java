@@ -100,7 +100,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
     String ruleDescriptionFilePath = "rules/" + repositoryKey + "/" + ruleKey + ".html";
-    String description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty, true);
+    String description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty);
     if (description == null) {
       // Following line is to ensure backward compatibility (SONAR-3319)
       description = lookUpDescriptionInFormerLocation(ruleKey, relatedProperty);
@@ -115,7 +115,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
    * See http://jira.codehaus.org/browse/SONAR-3319
    */
   private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty) {
-    return i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty, true);
+    return i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
   }
 
   @CheckForNull

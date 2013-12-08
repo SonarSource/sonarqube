@@ -44,7 +44,7 @@ public class I18nManagerTest {
     List<PluginMetadata> plugins = Arrays.asList(newPlugin("sqale"), newPlugin("frpack"), newPlugin("core"), newPlugin("checkstyle"), newPlugin("other"));
     when(pluginRepository.getMetadata()).thenReturn(plugins);
 
-    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[] {
+    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
       newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
     });
     manager = new I18nManager(pluginRepository);
@@ -131,58 +131,32 @@ public class I18nManagerTest {
 
   @Test
   public void should_locate_english_file() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name");
     assertThat(html).isEqualTo("This is the architecture rule");
   }
 
   @Test
   public void should_return_null_if_file_not_found() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name", false);
+    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name");
     assertThat(html).isNull();
   }
 
   @Test
   public void should_return_null_if_rule_not_internationalized() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "foo.rule1.name", false);
+    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "foo.rule1.name");
     assertThat(html).isNull();
   }
 
   @Test
   public void should_locate_french_file() {
-    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name");
     assertThat(html).isEqualTo("Règle d'architecture");
   }
 
   @Test
   public void should_locate_file_with_missing_locale() {
-    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name");
     assertThat(html).isNull();
-  }
-
-  @Test
-  public void should_not_keep_in_cache() {
-    assertThat(manager.getFileContentCache()).isEmpty();
-    boolean keepInCache = false;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
-
-    assertThat(html).isNotNull();
-    assertThat(manager.getFileContentCache()).isEmpty();
-  }
-
-  @Test
-  public void should_keep_in_cache() {
-    assertThat(manager.getFileContentCache()).isEmpty();
-    boolean keepInCache = true;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
-    assertThat(html).isEqualTo("This is the architecture rule");
-
-    html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
-    assertThat(html).isEqualTo("This is the architecture rule");
-    assertThat(manager.getFileContentCache()).hasSize(1);
-
-    html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
-    assertThat(html).isEqualTo("Règle d'architecture");
-    assertThat(manager.getFileContentCache()).hasSize(1);
   }
 
   static URLClassLoader newCoreClassloader() {

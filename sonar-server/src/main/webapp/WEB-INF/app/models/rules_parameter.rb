@@ -33,19 +33,6 @@ class RulesParameter < ActiveRecord::Base
     param_type[2, param_type.length-3].split(",")
   end
 
-  def description
-    @raw_description ||=
-      begin
-        result = Java::OrgSonarServerUi::JRubyFacade.instance.getRuleParamDescription(rule.repository_key, rule.plugin_rule_key, name)
-        result = read_attribute(:description) unless result
-        result
-      end
-  end
-
-  def description=(value)
-    write_attribute(:description, value)
-  end
-
   def validate_value(attribute, errors, value)
     validate_rule_param(attribute, param_type, errors, value)
   end

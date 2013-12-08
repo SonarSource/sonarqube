@@ -43,10 +43,10 @@ import static org.mockito.Mockito.when;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
-  private RegisterRules task;
-  private ProfilesManager profilesManager;
-  private RuleRegistry ruleRegistry;
-  private RuleI18nManager ruleI18nManager;
+  RegisterRules task;
+  ProfilesManager profilesManager;
+  RuleRegistry ruleRegistry;
+  RuleI18nManager ruleI18nManager;
 
   @Before
   public void init() {

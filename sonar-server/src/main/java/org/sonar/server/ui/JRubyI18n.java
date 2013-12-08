@@ -38,12 +38,10 @@ public class JRubyI18n implements ServerComponent {
 
   private I18n i18n;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
-  private RuleI18nManager ruleI18nManager;
   private GwtI18n gwtI18n;
 
-  public JRubyI18n(I18n i18n, RuleI18nManager ruleI18nManager, GwtI18n gwtI18n) {
+  public JRubyI18n(I18n i18n, GwtI18n gwtI18n) {
     this.i18n = i18n;
-    this.ruleI18nManager = ruleI18nManager;
     this.gwtI18n = gwtI18n;
   }
 
@@ -77,18 +75,6 @@ public class JRubyI18n implements ServerComponent {
 
   public String message(String rubyLocale, String key, String defaultValue, Object... parameters) {
     return StringUtils.defaultString(i18n.message(getLocale(rubyLocale), key, defaultValue, parameters), key);
-  }
-
-  public String getRuleName(String repositoryKey, String key) {
-    return ruleI18nManager.getName(repositoryKey, key);
-  }
-
-  public String getRuleDescription(String repositoryKey, String key) {
-    return ruleI18nManager.getDescription(repositoryKey, key);
-  }
-
-  public String getRuleParamDescription(String repositoryKey, String ruleKey, String paramKey) {
-    return ruleI18nManager.getParamDescription(repositoryKey, ruleKey, paramKey);
   }
 
   public String getJsDictionnary(String rubyLocale) {

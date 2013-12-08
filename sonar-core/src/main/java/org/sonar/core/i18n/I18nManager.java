@@ -22,6 +22,7 @@ package org.sonar.core.i18n;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -44,7 +45,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class I18nManager implements I18n, ServerExtension, BatchExtension {
+public class I18nManager implements I18n, ServerExtension, BatchExtension, Startable {
   private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
 
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
@@ -52,7 +53,6 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
   private PluginRepository pluginRepository;
   private I18nClassloader i18nClassloader;
   private Map<String, String> propertyToBundles;
-  private Map<String, Map<Locale, String>> fileContentCache = Maps.newHashMap();
   private final ResourceBundle.Control control;
 
   public I18nManager(PluginRepository pluginRepository) {
@@ -70,6 +70,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     };
   }
 
+  @Override
   public void start() {
     doStart(new I18nClassloader(pluginRepository));
   }
@@ -94,10 +95,10 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
   }
 
+  @Override
   public void stop() {
     i18nClassloader = null;
     propertyToBundles = null;
-    fileContentCache = null;
   }
 
   @CheckForNull
@@ -122,12 +123,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
    * Only the given locale is searched. Contrary to java.util.ResourceBundle, no strategy for locating the bundle is implemented in
    * this method.
    */
-  String messageFromFile(Locale locale, String filename, String relatedProperty, boolean keepInCache) {
-    Map<Locale, String> fileCache = fileContentCache.get(filename);
-    if (fileCache != null && fileCache.containsKey(locale)) {
-      return fileCache.get(locale);
-    }
-
+  String messageFromFile(Locale locale, String filename, String relatedProperty) {
     String result = null;
     String bundleBase = propertyToBundles.get(relatedProperty);
     if (bundleBase == null) {
@@ -143,15 +139,6 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     InputStream input = i18nClassloader.getResourceAsStream(filePath);
     if (input != null) {
       result = readInputStream(filePath, input);
-    }
-
-    if (keepInCache) {
-      if (fileCache == null) {
-        fileCache = Maps.newHashMap();
-        fileContentCache.put(filename, fileCache);
-      }
-      // put null value for negative caching.
-      fileCache.put(locale, result);
     }
     return result;
   }
@@ -183,9 +170,5 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
 
   ClassLoader getBundleClassLoader() {
     return i18nClassloader;
-  }
-
-  Map<String, Map<Locale, String>> getFileContentCache() {
-    return fileContentCache;
   }
 }

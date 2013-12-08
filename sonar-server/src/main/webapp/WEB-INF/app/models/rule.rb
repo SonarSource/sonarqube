@@ -114,13 +114,9 @@ class Rule < ActiveRecord::Base
   def name(unused_deprecated_l10n=true)
     @raw_name ||=
       begin
-        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(repository_key, plugin_rule_key)
-        # if no name present in the bundle, try to find it in the DB
-        result = read_attribute(:name) unless result
         # SONAR-4583
         # name should return an empty string instead of nil
-        result = '' unless result
-        result
+        read_attribute(:name) || ''
       end
   end
 
@@ -131,12 +127,9 @@ class Rule < ActiveRecord::Base
   def description
     @raw_description ||=
       begin
-        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(repository_key, plugin_rule_key)
-        result = read_attribute(:description) unless result
         # SONAR-4583
         # description should return an empty string instead of nil
-        result = '' unless result
-        result
+        read_attribute(:description) || ''
       end
   end
 

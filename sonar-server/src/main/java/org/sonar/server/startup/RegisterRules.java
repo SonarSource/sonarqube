@@ -161,7 +161,7 @@ public final class RegisterRules {
 
   private void validateRuleRepositoryName(Rule rule, String repositoryKey) {
     String nameFromBundle = ruleI18nManager.getName(repositoryKey, rule.getKey());
-    if(! Strings.isNullOrEmpty(nameFromBundle)) {
+    if (!Strings.isNullOrEmpty(nameFromBundle)) {
       rule.setName(nameFromBundle);
     }
     if (Strings.isNullOrEmpty(rule.getName())) {
@@ -171,7 +171,7 @@ public final class RegisterRules {
 
   private void validateRuleDescription(Rule rule, String repositoryKey) {
     String descriptionFromBundle = ruleI18nManager.getDescription(repositoryKey, rule.getKey());
-    if(! Strings.isNullOrEmpty(descriptionFromBundle)) {
+    if (!Strings.isNullOrEmpty(descriptionFromBundle)) {
       rule.setDescription(descriptionFromBundle);
     }
     if (Strings.isNullOrEmpty(rule.getDescription())) {
@@ -211,7 +211,11 @@ public final class RegisterRules {
         if (persistedParam == null) {
           persistedParam = persistedRule.createParameter(param.getKey());
         }
-        persistedParam.setDescription(param.getDescription());
+        String desc = StringUtils.defaultIfEmpty(
+          ruleI18nManager.getParamDescription(rule.getRepositoryKey(), rule.getKey(), param.getKey()),
+          param.getDescription()
+        );
+        persistedParam.setDescription(desc);
         persistedParam.setType(param.getType());
         persistedParam.setDefaultValue(param.getDefaultValue());
       }
