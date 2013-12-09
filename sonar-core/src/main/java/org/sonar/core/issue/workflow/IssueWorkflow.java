@@ -45,15 +45,20 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
   @Override
   public void start() {
-    machine = StateMachine.builder()
-
+    StateMachine.Builder builder = StateMachine.builder()
       // order is important for UI
-      .states(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
+      .states(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
 
-      .transition(Transition.builder(DefaultTransitions.CONFIRM)
-        .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
-        .functions(new SetResolution(null))
-        .build())
+    buildManualTransitions(builder);
+    buildAutomaticTransitions(builder);
+    machine = builder.build();
+  }
+
+  private void buildManualTransitions(StateMachine.Builder builder) {
+    builder.transition(Transition.builder(DefaultTransitions.CONFIRM)
+      .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
+      .functions(new SetResolution(null))
+      .build())
       .transition(Transition.builder(DefaultTransitions.CONFIRM)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CONFIRMED)
         .functions(new SetResolution(null))
@@ -84,7 +89,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
 
-      // resolve as false-positive
+        // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
@@ -99,17 +104,17 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build())
+        .build());
+  }
 
-      // automatic transitions
-
-      // Close the "end of life" issues (disabled/deleted rule, deleted component)
-      .transition(Transition.builder("automaticclose")
-        .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
-        .conditions(new IsEndOfLife(true))
-        .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
-        .automatic()
-        .build())
+  private void buildAutomaticTransitions(StateMachine.Builder builder) {
+    // Close the "end of life" issues (disabled/deleted rule, deleted component)
+    builder.transition(Transition.builder("automaticclose")
+      .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
+      .conditions(new IsEndOfLife(true))
+      .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
+      .automatic()
+      .build())
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CLOSED)
         .conditions(new IsEndOfLife(true))
@@ -135,16 +140,15 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .automatic()
         .build())
 
-      // Reopen issues that are marked as resolved but that are still alive.
-      // Manual issues are kept resolved.
+        // Reopen issues that are marked as resolved but that are still alive.
+        // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
         .functions(new SetResolution(null), new SetCloseDate(false))
         .automatic()
         .build()
-      )
-      .build();
+      );
   }
 
   @Override

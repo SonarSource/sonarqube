@@ -32,7 +32,6 @@ import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -216,7 +216,7 @@ public class JsonReport implements BatchComponent {
   }
 
   private String getRuleName(RuleKey ruleKey) {
-    return ruleI18nManager.getName(ruleKey.repository(), ruleKey.rule(), Locale.getDefault());
+    return ruleI18nManager.getName(ruleKey.repository(), ruleKey.rule());
   }
 
   @VisibleForTesting

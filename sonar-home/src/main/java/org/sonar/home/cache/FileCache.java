@@ -144,7 +144,7 @@ public class FileCache {
       } catch (IOException e) {
         // ignore except the last try
         if (counter == TEMP_FILE_ATTEMPTS - 1) {
-          throw new IllegalStateException();
+          throw new IllegalStateException("Fail to create temp file", e);
         }
       }
     }

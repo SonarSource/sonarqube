@@ -28,7 +28,7 @@ import javax.servlet.*;
 public class DatabaseSessionFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-
+    // nothing to do
   }
 
   @Override
@@ -43,6 +43,6 @@ public class DatabaseSessionFilter implements Filter {
 
   @Override
   public void destroy() {
-
+    // nothing to do
   }
 }

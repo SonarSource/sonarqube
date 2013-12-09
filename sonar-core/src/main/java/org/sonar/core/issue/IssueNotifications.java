@@ -34,14 +34,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -53,11 +50,9 @@ import java.util.Map.Entry;
 public class IssueNotifications implements BatchComponent, ServerComponent {
 
   private final NotificationManager notificationsManager;
-  private final RuleI18nManager ruleI18n;
 
-  public IssueNotifications(NotificationManager notificationsManager, RuleI18nManager ruleI18n) {
+  public IssueNotifications(NotificationManager notificationsManager) {
     this.notificationsManager = notificationsManager;
-    this.ruleI18n = ruleI18n;
   }
 
   public Notification sendNewIssues(Project project, IssuesBySeverity newIssues) {
@@ -66,7 +61,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
       .setFieldValue("projectDate", DateUtils.formatDateTime(project.getAnalysisDate()))
       .setFieldValue("count", String.valueOf(newIssues.size()));
     for (String severity : Severity.ALL) {
-      notification.setFieldValue("count-"+ severity,  String.valueOf(newIssues.issues(severity)));
+      notification.setFieldValue("count-" + severity, String.valueOf(newIssues.issues(severity)));
     }
     notificationsManager.scheduleForSending(notification);
     return notification;
@@ -103,7 +98,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
 
   @CheckForNull
   private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
-    @Nullable Component component, @Nullable String comment) {
+                                                @Nullable Component component, @Nullable String comment) {
     Notification notification = null;
     if (comment != null || issue.mustSendNotifications()) {
       FieldDiffs currentChange = issue.currentChange();
@@ -141,11 +136,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     if (rule == null) {
       return null;
     }
-    String name = ruleI18n.getName(rule.getRepositoryKey(), rule.getKey(), Locale.ENGLISH);
-    if (name == null) {
-      name = rule.getName();
-    }
-    return name;
+    return rule.getName();
   }
 
   private Notification newNotification(Component project, String key) {

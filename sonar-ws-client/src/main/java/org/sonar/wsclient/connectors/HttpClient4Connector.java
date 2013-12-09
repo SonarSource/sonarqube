@@ -146,7 +146,7 @@ public class HttpClient4Connector extends Connector {
       // Generate BASIC scheme object and stick it to the local
       // execution context
       BasicScheme basicAuth = new BasicScheme();
-      localcontext.setAttribute("preemptive-auth", basicAuth);
+      localcontext.setAttribute(PreemptiveAuth.ATTRIBUTE, basicAuth);
 
       // Add as the first request interceptor
       client.addRequestInterceptor(new PreemptiveAuth(), 0);
@@ -200,6 +200,9 @@ public class HttpClient4Connector extends Connector {
   }
 
   static final class PreemptiveAuth implements HttpRequestInterceptor {
+
+    static final String ATTRIBUTE = "preemptive-auth";
+
     public void process(
       final HttpRequest request,
       final HttpContext context) throws HttpException {
@@ -208,7 +211,7 @@ public class HttpClient4Connector extends Connector {
 
       // If no auth scheme available yet, try to initialize it preemptively
       if (authState.getAuthScheme() == null) {
-        AuthScheme authScheme = (AuthScheme) context.getAttribute("preemptive-auth");
+        AuthScheme authScheme = (AuthScheme) context.getAttribute(ATTRIBUTE);
         CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(ClientContext.CREDS_PROVIDER);
         HttpHost targetHost = (HttpHost) context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
         if (authScheme != null) {

@@ -36,10 +36,10 @@ public interface IssueFilter extends BatchExtension {
    *  <li>Switching-off an issue based on its context (<code>//NOSONAR</code> comments, semantic annotations)</li>
    * </ul>
    * The <code>chain</code> parameter allows for fine control of the filtering logic: it is each filter's duty to either pass the issue to the next filter, by calling
-   * the {@link IssueFilterChain#accept()} method, or return directly if the issue has to be accepted or not
+   * the {@link IssueFilterChain#accept(org.sonar.api.issue.Issue)} method, or return directly if the issue has to be accepted or not
    * @param issue the issue being filtered
    * @param chain the rest of the filters
-   * @return <code>true</code> to accept the issue, <code>false</code> to reject it, {@link IssueFilterChain#accept()} to let the other filters decide.
+   * @return <code>true</code> to accept the issue, <code>false</code> to reject it, {@link IssueFilterChain#accept(org.sonar.api.issue.Issue)} to let the other filters decide.
    */
   boolean accept(Issue issue, IssueFilterChain chain);
 }

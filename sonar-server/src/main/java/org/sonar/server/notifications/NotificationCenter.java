@@ -27,7 +27,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class NotificationCenter implements ServerComponent {
   private final NotificationChannel[] channels;
 
   /**
-   * Constructor for {@link NotificationCenter} 
+   * Constructor for {@link NotificationCenter}
    */
   public NotificationCenter(NotificationDispatcherMetadata[] metadata, NotificationChannel[] channels) {
     this.dispatchersMetadata = metadata;
@@ -90,7 +89,7 @@ public class NotificationCenter implements ServerComponent {
       String dispatcherKey = metadata.getDispatcherKey();
       String value = metadata.getProperty(propertyKey);
       if (value != null && (propertyValue == null || value.equals(propertyValue))) {
-          keys.add(dispatcherKey);
+        keys.add(dispatcherKey);
       }
     }
     return keys;

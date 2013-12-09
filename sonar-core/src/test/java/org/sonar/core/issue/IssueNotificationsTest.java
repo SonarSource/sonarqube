@@ -51,14 +51,11 @@ public class IssueNotificationsTest {
   @Mock
   NotificationManager manager;
 
-  @Mock
-  RuleI18nManager ruleI18n;
-
   IssueNotifications issueNotifications;
 
   @Before
   public void setUp() throws Exception {
-    issueNotifications = new IssueNotifications(manager, ruleI18n);
+    issueNotifications = new IssueNotifications(manager);
   }
 
   @Test

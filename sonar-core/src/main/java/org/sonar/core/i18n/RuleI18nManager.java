@@ -57,27 +57,39 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
 
   @Override
   public void stop() {
-
+    // nothing to do
   }
 
+  /**
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   */
   @Override
   @Deprecated
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
     return getName(repositoryKey, ruleKey);
   }
 
+  /**
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   */
   @Override
   @Deprecated
   public String getName(Rule rule, Locale locale) {
     return getName(rule);
   }
 
+  /**
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   */
   @Override
   @Deprecated
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
     return getDescription(repositoryKey, ruleKey);
   }
 
+  /**
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   */
   @Override
   @Deprecated
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
