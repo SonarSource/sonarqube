@@ -35,6 +35,11 @@
     </encoder>
   </appender>
 
+  <logger name="console" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
   <!-- Display Rails warnings and errors  -->
   <logger name="rails">
     <level value="${RAILS_LOGGER_LEVEL}"/>
