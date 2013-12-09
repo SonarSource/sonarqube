@@ -14,7 +14,9 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
 
-      <a id="addMeasureLink" href="<%=ApplicationController.root_context-%>/manual_measures/create_form/<%= @resource.id -%>" class="open-modal link-action"><%= message('manual_measures.add_measure_link') -%></a>
+      <a id="addMeasureLink"
+         href="<%=ApplicationController.root_context-%>/manual_measures/create_form/<%= @resource.id -%>"
+         class="open-modal link-action"><%= message('manual_measures.add_measure') -%></a>
 
     </li>
   </ul>
@@ -69,8 +71,8 @@
                            :class => 'link-action link-red',
                            :id => "delete_#{measure.metric.key}",
                            :confirm_button => message('delete'),
-                           :confirm_title => 'Delete measure: '+measure.metric.short_name,
-                           :confirm_msg => 'Are you sure that you want to delete the measure '+measure.metric.short_name+'?'
+                           :confirm_title => message('manual_measures.delete_measure'),
+                           :confirm_msg => message('manual_measures.delete_measure.desc', :params => [measure.metric.short_name])
         -%>
       </td>
     </tr>

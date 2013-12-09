@@ -1,7 +1,7 @@
 <form action="<%= url_for :action => 'edit' -%>" method="POST" id="measure_edit_form">
     <fieldset>
         <div class="modal-head">
-            <h2>Edit manual measure: <%= h @metric.short_name -%></h2>
+            <h2><%= message('manual_measures.edit_measure', :params => [h(@metric.short_name)]) -%></h2>
         </div>
 
         <div class="modal-body">
@@ -32,7 +32,7 @@
         </div>
 
         <div class="modal-foot">
-          <%= submit_tag 'save'%>
+          <%= submit_tag message('save') %>
           <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
         </div>
     </fieldset>

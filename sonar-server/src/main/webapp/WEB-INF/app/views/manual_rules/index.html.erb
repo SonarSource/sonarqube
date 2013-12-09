@@ -40,8 +40,8 @@
                  :class => 'link-action link-red',
                  :id => "delete_#{rule.key.parameterize}",
                  :confirm_button => message('delete'),
-                 :confirm_title => 'Delete rule: '+rule.name,
-                 :confirm_msg => 'Are you sure that you want to delete the rule '+rule.name+'?',
+                 :confirm_title => message('manual_rules.delete_manual_rule'),
+                 :confirm_msg => message('manual_rules.delete_manual_rule_message', :params => [h(rule.name)]),
                  :confirm_msg_params => [rule.name]
               -%>
             </td>

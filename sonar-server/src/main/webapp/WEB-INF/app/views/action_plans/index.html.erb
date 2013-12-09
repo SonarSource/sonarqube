@@ -1,13 +1,16 @@
 <div>
-    <% if profiles_administrator? %>
-      <ul style="float: right" class="horizontal">
-          <li class="marginleft10 add">
-              <a id="create-link-action_plans" href="<%=ApplicationController.root_context-%>/action_plans/create_form/<%= h(@resource.id) -%>"  class="open-modal link-action">Add new action plan</a>
-          </li>
-      </ul>
-    <% end %>
-    <h1 class="admin-page-title"><%= message('action_plans.page') -%></h1>
-    <p class="admin-page-description"><%= message('action_plans.page.description') -%></p>
+  <% if profiles_administrator? %>
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <a id="create-link-action_plans"
+         href="<%=ApplicationController.root_context-%>/action_plans/create_form/<%= h(@resource.id) -%>"
+         class="open-modal link-action"><%= message('action_plans.add_new_action_plan') -%></a>
+    </li>
+  </ul>
+  <% end %>
+  <h1 class="admin-page-title"><%= message('action_plans.page') -%></h1>
+
+  <p class="admin-page-description"><%= message('action_plans.page.description') -%></p>
 </div>
 <table width="100%" id="action-plans">
   <tr>
@@ -63,8 +66,8 @@
                                    :class => 'link-action link-red',
                                    :id => "delete_#{h(plan.key)}",
                                    :confirm_button => message('delete'),
-                                   :confirm_title => 'Delete action plan: '+ h(plan.name()),
-                                   :confirm_msg => message('action_plans.confirm_delete'),
+                                   :confirm_title => message('action_plans.delete'),
+                                   :confirm_msg => message('action_plans.delete_message', :params => [h(plan.name)]),
                                    :confirm_msg_params => ''
               -%>
             </td>

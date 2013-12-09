@@ -1,13 +1,16 @@
 <div>
-    <% if profiles_administrator? %>
-      <ul style="float: right" class="horizontal">
-          <li class="marginleft10 add">
-              <a id="create-link-metric" href="<%=ApplicationController.root_context-%>/metrics/create_form" class="open-modal link-action">Add new metric</a>
-          </li>
-      </ul>
-    <% end %>
-    <h1 class="admin-page-title"><%= message('manual_metrics.page') -%></h1>
-    <p class="admin-page-description"><%= message('manual_metrics.page.description') -%> </p>
+  <% if profiles_administrator? %>
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <a id="create-link-metric"
+         href="<%=ApplicationController.root_context-%>/metrics/create_form"
+         class="open-modal link-action"><%= message('manual_metrics.add_manual_metric') -%></a>
+    </li>
+  </ul>
+  <% end %>
+  <h1 class="admin-page-title"><%= message('manual_metrics.page') -%></h1>
+
+  <p class="admin-page-description"><%= message('manual_metrics.page.description') -%> </p>
 </div>
 
 <table width="100%">
@@ -45,8 +48,8 @@
                                  :class => 'link-action link-red',
                                  :id => "delete_#{h(metric.short_name)}",
                                  :confirm_button => message('delete'),
-                                 :confirm_title => 'Delete manual metric: '+ metric.key,
-                                 :confirm_msg => 'Warning : all the measures will be deleted.',
+                                 :confirm_title => message('manual_metrics.delete_manual_metric'),
+                                 :confirm_msg => message('manual_metrics.delete_manual_metric_message', :params => [h(metric.key)]),
                                  :confirm_msg_params => [metric.id]
               -%>
             <% end %>

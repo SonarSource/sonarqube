@@ -22,7 +22,7 @@
       </div>
 
       <div class="modal-foot">
-        <input type="submit" value="save"/>
+        <input type="submit" value="<%= message('save') -%>">
         <%= link_to 'Cancel', { :controller => 'manual_rules', :action => 'index'}, { :class => 'action' } %><br/>
       </div>
     </fieldset>

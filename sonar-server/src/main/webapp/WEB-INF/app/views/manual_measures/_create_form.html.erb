@@ -10,7 +10,7 @@
     <form action="<%= url_for :action => 'create' -%>" method="POST" id="measure_create_form">
       <fieldset>
         <div class="modal-head">
-          <h2><%= message('manual_measures.add_measure_title') -%></h2>
+          <h2><%= message('manual_measures.create_measure') -%></h2>
         </div>
         <% if @manual_metrics.empty? %>
           <div class="modal-body">
@@ -39,7 +39,7 @@
                 <%= options_grouped_by_domain(@manual_metrics, nil, :include_empty => true) -%>
               </select>
               &nbsp;
-              <%= link_to message('manual_measures.manage_metrics_link'), :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
+              <%= link_to message('manual_measures.manage_metrics'), :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
             </div>
             <div class="modal-field">
               <label for="measures[]"><%= message('manual_measures.col.value') -%> <em class="mandatory">*</em></label>
@@ -60,7 +60,7 @@
          <% end %>
         <div class="modal-foot">
           <% if ! @manual_metrics.empty? %>
-            <%= submit_tag 'create' %>
+            <%= submit_tag message('create') %>
           <% end %>
           <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
         </div>
