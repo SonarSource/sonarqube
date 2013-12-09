@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -42,16 +40,12 @@ import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
@@ -63,11 +57,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.user.NewUserNotifier;
@@ -79,11 +69,7 @@ import javax.annotation.Nullable;
 
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 

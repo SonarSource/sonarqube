@@ -25,7 +25,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 

@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+@ParametersAreNonnullByDefault
+package org.sonar.api.issue.batch;
 
-import org.sonar.api.BatchExtension;
-
-/**
- * @since 3.6
- * @deprecated since 4.0
- */
-@Deprecated
-public interface IssueFilter extends BatchExtension {
-
-  boolean accept(Issue issue);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
