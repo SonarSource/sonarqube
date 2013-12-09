@@ -6,7 +6,7 @@
       <form method="GET" action="<%= url_for :action => 'measures' -%>" style="display: inline">
         <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
 
-        <select id="select-comparison" name="period" onchange="submit()" class="small">
+        <select id="select-comparison" name="period" onchange="submit()">
           <% if @drilldown.display_value? %>
             <option value=""><%= message('time_changes') -%>...</option>
           <% end %>
@@ -16,7 +16,11 @@
         </select>
         <script>
           $j(function() {
-            $j('#select-comparison').select2({ width: '200px' });
+            $j('#select-comparison').select2({
+              width: '300px',
+              minimumResultsForSearch: 10,
+              dropdownCssClass: 'small'
+            });
           });
         </script>
       </form>
