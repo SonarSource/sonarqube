@@ -378,14 +378,18 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   protected void doOnSetProperty(String key, @Nullable String value) {
+    // can be overridden
   }
 
   protected void doOnRemoveProperty(String key) {
+    // can be overridden
   }
 
   protected void doOnClearProperties() {
+    // can be overridden
   }
 
   protected void doOnGetProperties(String key) {
+    // can be overridden
   }
 }

@@ -153,6 +153,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
   @Override
   public void stop() {
+    // nothing to do
   }
 
   public boolean doTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {

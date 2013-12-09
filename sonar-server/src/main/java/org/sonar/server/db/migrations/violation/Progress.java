@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -58,8 +57,8 @@ class Progress extends TimerTask {
   public void run() {
     long totalIssues = counter.get();
     long durationMinutes = (System.currentTimeMillis() - start) / 60000L;
-    int percents = (int)((100L * totalIssues) / totalViolations);
-    if (totalIssues>0 && durationMinutes > 0) {
+    int percents = (int) ((100L * totalIssues) / totalViolations);
+    if (totalIssues > 0 && durationMinutes > 0) {
       int frequency = (int) (totalIssues / durationMinutes);
       long remaining = (totalViolations - totalIssues) / frequency;
       logger.info(String.format(
