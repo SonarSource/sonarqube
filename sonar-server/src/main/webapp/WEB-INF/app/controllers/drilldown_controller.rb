@@ -61,7 +61,7 @@ class DrilldownController < ApplicationController
       @highlighted_resource=@resource
     end
 
-    @display_viewers=display_metric_viewers?(@highlighted_resource||@resource, @highlighted_metric.key)
+    @display_viewers = display_metric_viewers?(@highlighted_resource || @resource, @highlighted_metric.key)
   end
 
   def issues
@@ -176,7 +176,7 @@ class DrilldownController < ApplicationController
     java_facade.getResourceTabsForMetric(resource.scope, resource.qualifier, resource.language, resource.last_snapshot.metric_keys.to_java(:string), metric_key).each do |tab|
       tab.getUserRoles().each do |role|
         if has_role?(role, resource)
-          return true
+          return resource.file?
         end
       end
     end
