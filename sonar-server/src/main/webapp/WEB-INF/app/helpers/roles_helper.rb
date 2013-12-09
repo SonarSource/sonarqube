@@ -88,12 +88,12 @@ module RolesHelper
 
   def link_to_edit_roles_permission_form(label, role, resource_id, html_id)
     link_to message(label), {:controller => :roles, :action => :edit_users, :role => role, :resource => resource_id},
-            :id => html_id, :class => 'open-modal link-action nowrap', 'modal-width' => '780px'
+            :id => html_id, :class => 'open-modal link-action nowrap', 'modal-width' => '540px'
   end
 
   def link_to_edit_groups_permission_form(label, role, resource_id, html_id)
     link_to message(label), {:controller => :roles, :action => :edit_groups, :role => role, :resource => resource_id},
-            :id => html_id, :class => 'open-modal link-action nowrap', 'modal-width' => '780px'
+            :id => html_id, :class => 'open-modal link-action nowrap', 'modal-width' => '540px'
   end
 
 end

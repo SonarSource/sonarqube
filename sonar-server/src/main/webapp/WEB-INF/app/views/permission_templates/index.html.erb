@@ -58,10 +58,10 @@
           %>
           <span id="u-<%= permission -%>-<%= u permission_template.key -%>"><%= users.join(', ') %></span>
           (<%= link_to message('select users'), {:action => :edit_users, :key => permission_template.key, :permission => permission},
-                       :id => "select-u-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
+                       :id => "select-u-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '540px' %>)<br/>
           <span id="g-<%= permission -%>-<%= u permission_template.key -%>"><%= groups.join(', ') %></span>
           (<%= link_to message('select groups'), {:action => :edit_groups, :key => permission_template.key, :permission => permission},
-                       :id => "select-g-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
+                       :id => "select-g-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '540px' %>)<br/>
         </td>
       <% end %>
       <td>
