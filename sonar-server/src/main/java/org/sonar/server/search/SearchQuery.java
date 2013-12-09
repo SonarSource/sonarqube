@@ -21,30 +21,32 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.MatchAllFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder.Operator;
-import org.elasticsearch.search.facet.FacetBuilders;
 
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
+import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
 
 /**
- * This class can be used to build "AND" form queries, eventually with query facets, to be passed to {@link SearchIndex#findHits(SearchQuery)}
+ * This class can be used to build "AND" form queries, to be passed e.g to {@link SearchIndex#findDocumentIds(SearchQuery)}
  * For instance the following code:
  * <blockquote>
    SearchQuery.create("polop")
       .field("field1", "value1")
       .field("field2", "value2")
    </blockquote>
- * ...yields the following query string:<br/>
+ * ...corresponds to the following query string:<br/>
  * <blockquote>
    polop AND field1:value1 AND field2:value2
    </blockquote>
@@ -57,7 +59,6 @@ public class SearchQuery {
   private List<String> types;
   private Multimap<String, String> fieldCriteria;
   private Multimap<String, String> notFieldCriteria;
-  private Map<String, String> termFacets;
 
   private SearchQuery() {
     scrollSize = 10;
@@ -65,7 +66,6 @@ public class SearchQuery {
     types = Lists.newArrayList();
     fieldCriteria = ArrayListMultimap.create();
     notFieldCriteria = ArrayListMultimap.create();
-    termFacets = Maps.newHashMap();
   }
 
   public static SearchQuery create() {
@@ -106,51 +106,41 @@ public class SearchQuery {
     return this;
   }
 
-  public SearchQuery facet(String facetName, String fieldName) {
-    termFacets.put(facetName, fieldName);
-    return this;
-  }
-
-  private SearchRequestBuilder addFacets(SearchRequestBuilder builder) {
-    for (String facetName: termFacets.keySet()) {
-      builder.addFacet(FacetBuilders.termsFacet(facetName).field(termFacets.get(facetName)));
-    }
-    return builder;
-  }
-
   SearchRequestBuilder toBuilder(Client client) {
     SearchRequestBuilder builder = client.prepareSearch(indices.toArray(new String[0])).setTypes(types.toArray(new String[0]));
-    List<FilterBuilder> filters = Lists.newArrayList();
-    if (StringUtils.isNotBlank(searchString)) {
-      filters.add(queryFilter(QueryBuilders.queryString(searchString)
-        .defaultOperator(Operator.AND)
-        .allowLeadingWildcard(false)));
-    }
 
-    for (String field: fieldCriteria.keySet()) {
-      if (fieldCriteria.get(field).size() > 1) {
-        filters.add(termsFilter(field, fieldCriteria.get(field)));
-      } else {
-        filters.add(termFilter(field, fieldCriteria.get(field)));
-      }
-    }
-
-    for (String field: notFieldCriteria.keySet()) {
-      if (notFieldCriteria.get(field).size() > 1) {
-        filters.add(notFilter(termsFilter(field, notFieldCriteria.get(field))));
-      } else {
-        filters.add(notFilter(termFilter(field, notFieldCriteria.get(field))));
-      }
-    }
-
-    if (filters.isEmpty()) {
-      builder.setFilter(matchAllFilter());
-    } else if(filters.size() == 1) {
-      builder.setFilter(filters.get(0));
+    if (fieldCriteria.isEmpty() && notFieldCriteria.isEmpty() && StringUtils.isBlank(searchString)) {
+      builder.setFilter(new MatchAllFilterBuilder());
     } else {
-      builder.setFilter(andFilter(filters.toArray(new FilterBuilder[0])));
+      BoolFilterBuilder boolFilter = boolFilter();
+
+      Iterator<String> mustCriteriaIterator = fieldCriteria.keySet().iterator();
+      while(mustCriteriaIterator.hasNext()) {
+        String field = mustCriteriaIterator.next();
+        if (fieldCriteria.get(field).size() > 1) {
+          boolFilter.must(termsFilter(field, fieldCriteria.get(field)));
+        } else {
+          boolFilter.must(termFilter(field, fieldCriteria.get(field)));
+        }
+      }
+
+      for (String field: notFieldCriteria.keySet()) {
+        if (notFieldCriteria.get(field).size() > 1) {
+          boolFilter.mustNot(termsFilter(field, notFieldCriteria.get(field)));
+        } else {
+          boolFilter.mustNot(termFilter(field, notFieldCriteria.get(field)));
+        }
+      }
+
+      if (StringUtils.isNotBlank(searchString)) {
+        boolFilter.must(queryFilter(QueryBuilders.queryString(searchString)
+          .defaultOperator(Operator.AND)
+          .allowLeadingWildcard(false)));
+      }
+
+      builder.setFilter(boolFilter);
     }
-    return addFacets(builder);
+    return builder;
   }
 
   public String getQueryString() {
