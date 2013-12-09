@@ -28,6 +28,7 @@ import org.sonar.home.log.Slf4jLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -117,5 +118,30 @@ public class FileCacheTest {
     assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
     assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
     assertThat(FileUtils.readFileToString(cachedFile)).contains("downloaded by");
+  }
+
+  @Test
+  public void unzip_from_cache() throws IOException, URISyntaxException {
+    final File samplePlugin = new File(this.getClass().getResource("/sonar-checkstyle-plugin-2.8.jar").toURI());
+    FileHashes hashes = mock(FileHashes.class);
+    FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
+    when(hashes.of(any(File.class))).thenReturn("ABCDE");
+
+    FileCache.Downloader downloader = new FileCache.Downloader() {
+      public void download(String filename, File toFile) throws IOException {
+        FileUtils.copyFile(samplePlugin, toFile);
+      }
+    };
+    File cachedFile = cache.get("sonar-checkstyle-plugin-2.8.jar", "ABCDE", downloader);
+    assertThat(cachedFile).isNotNull().exists().isFile();
+    assertThat(cachedFile.getName()).isEqualTo("sonar-checkstyle-plugin-2.8.jar");
+
+    File pluginDepsDir = cache.unzip(cachedFile);
+    assertThat(pluginDepsDir.listFiles()).hasSize(1);
+    File metaDir = new File(pluginDepsDir, "META-INF");
+    assertThat(metaDir.listFiles()).hasSize(1);
+    File libDir = new File(metaDir, "lib");
+    assertThat(libDir.listFiles()).hasSize(3);
+    assertThat(libDir.listFiles()).containsOnly(new File(libDir, "antlr-2.7.6.jar"), new File(libDir, "checkstyle-5.1.jar"), new File(libDir, "commons-cli-1.0.jar"));
   }
 }
