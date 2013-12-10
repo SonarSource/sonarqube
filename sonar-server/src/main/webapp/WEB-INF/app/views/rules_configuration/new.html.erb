@@ -1,5 +1,4 @@
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
-
+<div class="page">
 <%= render :partial => 'profiles/tabs', :locals => {:new_tab => message('rules_configuration.tab.new_rule')} %>
 
 <div class="tabs-panel marginbottom10 background-gray">
@@ -50,4 +49,5 @@
   </tr>
 </table>
 </form>
+</div>
 </div>

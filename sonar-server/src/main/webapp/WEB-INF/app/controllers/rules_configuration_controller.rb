@@ -160,6 +160,8 @@ class RulesConfigurationController < ApplicationController
     access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
     @profile = Profile.find(params[:id].to_i)
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+
     @rule = Rule.find(params[:rule_id])
   end
 
