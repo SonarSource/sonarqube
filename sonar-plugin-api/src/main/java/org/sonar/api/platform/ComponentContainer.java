@@ -99,16 +99,15 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   /**
    * This method aims to be overridden
    */
-
   protected void doBeforeStart() {
-
+    // nothing
   }
 
   /**
    * This method aims to be overridden
    */
   protected void doAfterStart() {
-
+    // nothing
   }
 
   /**

@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.dashboards;
 
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.Dashboard.Widget;
 import org.sonar.api.web.DashboardLayout;
@@ -38,7 +39,6 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
   private static final String METRIC5 = "metric5";
   private static final String METRIC6 = "metric6";
   private static final String METRIC7 = "metric7";
-  private static final String COVERAGE = "coverage";
 
   @Override
   public String getName() {
@@ -56,58 +56,58 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
 
   private void addFirstColumn(Dashboard dashboard) {
     Widget timelineWidget = dashboard.addWidget("timeline", 1);
-    timelineWidget.setProperty(METRIC1, "complexity");
-    timelineWidget.setProperty(METRIC2, "violations_density");
-    timelineWidget.setProperty(METRIC3, COVERAGE);
+    timelineWidget.setProperty(METRIC1, CoreMetrics.COMPLEXITY_KEY);
+    timelineWidget.setProperty(METRIC2, CoreMetrics.VIOLATIONS_DENSITY_KEY);
+    timelineWidget.setProperty(METRIC3, CoreMetrics.COVERAGE_KEY);
 
     Widget sizeTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
-    sizeTimeMachineWidget.setProperty(METRIC1, "ncloc");
-    sizeTimeMachineWidget.setProperty(METRIC2, "lines");
-    sizeTimeMachineWidget.setProperty(METRIC3, "statements");
-    sizeTimeMachineWidget.setProperty(METRIC4, "files");
-    sizeTimeMachineWidget.setProperty(METRIC5, "classes");
-    sizeTimeMachineWidget.setProperty(METRIC6, "functions");
-    sizeTimeMachineWidget.setProperty(METRIC7, "accessors");
+    sizeTimeMachineWidget.setProperty(METRIC1, CoreMetrics.NCLOC_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC2, CoreMetrics.LINES_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC3, CoreMetrics.STATEMENTS_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC4, CoreMetrics.FILES_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC5, CoreMetrics.CLASSES_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC6, CoreMetrics.FUNCTIONS_KEY);
+    sizeTimeMachineWidget.setProperty(METRIC7, CoreMetrics.ACCESSORS_KEY);
 
     Widget commentsTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
-    commentsTimeMachineWidget.setProperty(METRIC1, "comment_lines_density");
-    commentsTimeMachineWidget.setProperty(METRIC2, "comment_lines");
-    commentsTimeMachineWidget.setProperty(METRIC3, "public_documented_api_density");
-    commentsTimeMachineWidget.setProperty(METRIC4, "public_undocumented_api");
+    commentsTimeMachineWidget.setProperty(METRIC1, CoreMetrics.COMMENT_LINES_DENSITY_KEY);
+    commentsTimeMachineWidget.setProperty(METRIC2, CoreMetrics.COMMENT_LINES_KEY);
+    commentsTimeMachineWidget.setProperty(METRIC3, CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY);
+    commentsTimeMachineWidget.setProperty(METRIC4, CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY);
 
     Widget duplicationTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
-    duplicationTimeMachineWidget.setProperty(METRIC1, "duplicated_lines_density");
-    duplicationTimeMachineWidget.setProperty(METRIC2, "duplicated_lines");
-    duplicationTimeMachineWidget.setProperty(METRIC3, "duplicated_blocks");
-    duplicationTimeMachineWidget.setProperty(METRIC4, "duplicated_files");
+    duplicationTimeMachineWidget.setProperty(METRIC1, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY);
+    duplicationTimeMachineWidget.setProperty(METRIC2, CoreMetrics.DUPLICATED_LINES_KEY);
+    duplicationTimeMachineWidget.setProperty(METRIC3, CoreMetrics.DUPLICATED_BLOCKS_KEY);
+    duplicationTimeMachineWidget.setProperty(METRIC4, CoreMetrics.DUPLICATED_FILES_KEY);
   }
 
   private void addSecondColumn(Dashboard dashboard) {
     Widget rulesTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
-    rulesTimeMachineWidget.setProperty(METRIC1, "violations");
-    rulesTimeMachineWidget.setProperty(METRIC2, "violation_density");
-    rulesTimeMachineWidget.setProperty(METRIC3, "blocker_violations");
-    rulesTimeMachineWidget.setProperty(METRIC4, "critical_violations");
-    rulesTimeMachineWidget.setProperty(METRIC5, "major_violations");
-    rulesTimeMachineWidget.setProperty(METRIC6, "minor_violations");
-    rulesTimeMachineWidget.setProperty(METRIC7, "info_violations");
-    rulesTimeMachineWidget.setProperty(METRIC7, "weighted_violations");
+    rulesTimeMachineWidget.setProperty(METRIC1, CoreMetrics.VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC2, CoreMetrics.VIOLATIONS_DENSITY_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC3, CoreMetrics.BLOCKER_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC4, CoreMetrics.CRITICAL_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC5, CoreMetrics.MAJOR_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC6, CoreMetrics.MINOR_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC7, CoreMetrics.INFO_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC7, CoreMetrics.WEIGHTED_VIOLATIONS_KEY);
 
     Widget complexityTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
-    complexityTimeMachineWidget.setProperty(METRIC1, "complexity");
-    complexityTimeMachineWidget.setProperty(METRIC2, "function_complexity");
-    complexityTimeMachineWidget.setProperty(METRIC3, "class_complexity");
-    complexityTimeMachineWidget.setProperty(METRIC4, "file_complexity");
+    complexityTimeMachineWidget.setProperty(METRIC1, CoreMetrics.COMPLEXITY_KEY);
+    complexityTimeMachineWidget.setProperty(METRIC2, CoreMetrics.FUNCTION_COMPLEXITY_KEY);
+    complexityTimeMachineWidget.setProperty(METRIC3, CoreMetrics.CLASS_COMPLEXITY_KEY);
+    complexityTimeMachineWidget.setProperty(METRIC4, CoreMetrics.FILE_COMPLEXITY_KEY);
 
     Widget testsTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
-    testsTimeMachineWidget.setProperty(METRIC1, COVERAGE);
-    testsTimeMachineWidget.setProperty(METRIC2, "line_coverage");
-    testsTimeMachineWidget.setProperty(METRIC3, "branch_coverage");
-    testsTimeMachineWidget.setProperty(METRIC4, "test_success_density");
-    testsTimeMachineWidget.setProperty(METRIC5, "test_failures");
-    testsTimeMachineWidget.setProperty(METRIC6, "test_errors");
-    testsTimeMachineWidget.setProperty(METRIC7, "tests");
-    testsTimeMachineWidget.setProperty(METRIC7, "test_execution_time");
+    testsTimeMachineWidget.setProperty(METRIC1, CoreMetrics.COVERAGE_KEY);
+    testsTimeMachineWidget.setProperty(METRIC2, CoreMetrics.LINE_COVERAGE_KEY);
+    testsTimeMachineWidget.setProperty(METRIC3, CoreMetrics.BRANCH_COVERAGE_KEY);
+    testsTimeMachineWidget.setProperty(METRIC4, CoreMetrics.TEST_SUCCESS_DENSITY_KEY);
+    testsTimeMachineWidget.setProperty(METRIC5, CoreMetrics.TEST_FAILURES_KEY);
+    testsTimeMachineWidget.setProperty(METRIC6, CoreMetrics.TEST_ERRORS_KEY);
+    testsTimeMachineWidget.setProperty(METRIC7, CoreMetrics.TESTS_KEY);
+    testsTimeMachineWidget.setProperty(METRIC7, CoreMetrics.TEST_EXECUTION_TIME_KEY);
   }
 
   private Widget addTimeMachineWidgetOnFirstColumn(Dashboard dashboard) {

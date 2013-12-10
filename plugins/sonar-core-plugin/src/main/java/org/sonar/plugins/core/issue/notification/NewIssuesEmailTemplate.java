@@ -41,6 +41,10 @@ import java.util.Locale;
  */
 public class NewIssuesEmailTemplate extends EmailTemplate {
 
+  public static final String FIELD_PROJECT_NAME = "projectName";
+  public static final String FIELD_PROJECT_KEY = "projectKey";
+  public static final String FIELD_PROJECT_DATE = "projectDate";
+
   private final EmailSettings settings;
   private final I18n i18n;
 
@@ -54,7 +58,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     if (!"new-issues".equals(notification.getType())) {
       return null;
     }
-    String projectName = notification.getFieldValue("projectName");
+    String projectName = notification.getFieldValue(FIELD_PROJECT_NAME);
 
     StringBuilder sb = new StringBuilder();
     sb.append("Project: ").append(projectName).append("\n\n");
@@ -73,7 +77,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()
-      .setMessageId("new-issues/" + notification.getFieldValue("projectKey"))
+      .setMessageId("new-issues/" + notification.getFieldValue(FIELD_PROJECT_KEY))
       .setSubject(projectName + ": new issues")
       .setMessage(sb.toString());
 
@@ -81,8 +85,8 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
   }
 
   private void appendFooter(StringBuilder sb, Notification notification) {
-    String projectKey = notification.getFieldValue("projectKey");
-    String dateString = notification.getFieldValue("projectDate");
+    String projectKey = notification.getFieldValue(FIELD_PROJECT_KEY);
+    String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
       String url = String.format("%s/issues/search?componentRoots=%s&createdAt=%s",

@@ -46,11 +46,9 @@ class FileQueryFilter {
       filters.add(new AttributeFilter(entry.getKey(), entry.getValue()));
     }
 
-    // TODO speed-up the following algorithm. Cache ?
     if (analysisMode.isIncremental()) {
       Collection<String> status = query.attributes().get(InputFile.ATTRIBUTE_STATUS);
       if (status == null || status.isEmpty()) {
-        // TODO should be not(SAME) instead of is(ADDED, CHANGED)
         filters.add(new AttributeFilter(InputFile.ATTRIBUTE_STATUS, Lists.newArrayList(InputFile.STATUS_ADDED, InputFile.STATUS_CHANGED)));
       }
     }

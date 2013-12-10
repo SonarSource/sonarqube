@@ -86,7 +86,7 @@ public class DefaultDatabase implements Database {
    * Override to execute post-startup code.
    */
   protected void doAfterStart() {
-
+    // nothing to do
   }
 
   @VisibleForTesting
@@ -203,7 +203,7 @@ public class DefaultDatabase implements Database {
   }
 
   protected void doCompleteProperties(Properties properties) {
-
+    // nothing
   }
 
   private static void completeProperties(Settings settings, Properties properties, String prefix) {

@@ -58,7 +58,7 @@ public final class ClassLoaderUtils {
       try {
         FileUtils.copyURLToFile(resource, toFile);
       } catch (IOException e) {
-        throw new IllegalStateException("Fail to extract " + relativePath + " to " + toFile.getAbsolutePath());
+        throw new IllegalStateException("Fail to extract " + relativePath + " to " + toFile.getAbsolutePath(), e);
       }
     }
 

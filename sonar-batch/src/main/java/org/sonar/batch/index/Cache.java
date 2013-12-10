@@ -349,6 +349,7 @@ public class Cache<K, V extends Serializable> {
 
     @Override
     public void remove() {
+      // nothing to do
     }
   }
 

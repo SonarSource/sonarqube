@@ -27,7 +27,6 @@ import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Used in the Active Record Migration 401
@@ -48,8 +47,13 @@ public class ViolationMigration implements DatabaseMigration {
   @Override
   public void execute() {
     try {
-      migrate();
-
+      logger.info("Initialize input");
+      Referentials referentials = new Referentials(db);
+      if (referentials.totalViolations() > 0) {
+        logger.info("Migrate {} violations", referentials.totalViolations());
+        ViolationConverters converters = new ViolationConverters(settings);
+        converters.execute(referentials, db);
+      }
     } catch (SQLException e) {
       logger.error(FAILURE_MESSAGE, e);
       SqlUtil.log(logger, e);
@@ -60,18 +64,5 @@ public class ViolationMigration implements DatabaseMigration {
       throw MessageException.of(FAILURE_MESSAGE);
     }
   }
-
-  public void migrate() throws SQLException, ExecutionException, InterruptedException {
-    logger.info("Initialize input");
-    Referentials referentials = new Referentials(db);
-
-    if (referentials.totalViolations() > 0) {
-      logger.info("Migrate {} violations", referentials.totalViolations());
-
-      ViolationConverters converters = new ViolationConverters(settings);
-      converters.execute(referentials, db);
-    }
-  }
-
 
 }

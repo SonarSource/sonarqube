@@ -98,6 +98,7 @@ public class RuleMeasure extends Measure {
    */
   @Deprecated
   public void setRuleCategory(Integer ruleCategory) {
+    // nothing
   }
 
   @Override

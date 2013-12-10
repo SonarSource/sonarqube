@@ -109,13 +109,13 @@ public class ApplicationDeployer {
       try {
         FileUtils.deleteDirectory(appsDir);
       } catch (IOException e) {
-        throw new IllegalStateException("Fail to delete temp directory: " + appsDir);
+        throw new IllegalStateException("Fail to delete temp directory: " + appsDir, e);
       }
     }
     try {
       FileUtils.forceMkdir(appsDir);
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to create temp directory: " + appsDir);
+      throw new IllegalStateException("Fail to create temp directory: " + appsDir, e);
     }
   }
 }

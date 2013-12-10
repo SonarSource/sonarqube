@@ -73,5 +73,6 @@ public class RemoteFileHashes implements BatchComponent, Startable {
 
   @Override
   public void stop() {
+    // nothing to do
   }
 }
