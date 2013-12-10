@@ -49,7 +49,7 @@ public class DeprecatedFileFilters implements InputFileFilter {
     return true;
   }
 
-  class DeprecatedContext implements FileSystemFilter.Context {
+  static class DeprecatedContext implements FileSystemFilter.Context {
     private final InputFile inputFile;
 
     DeprecatedContext(InputFile inputFile) {
