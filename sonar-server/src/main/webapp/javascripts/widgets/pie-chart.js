@@ -7,8 +7,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   window.SonarWidgets.PieChart = function () {
     // Set default values
-    this._data = [];
+    this._components = [];
     this._metrics = [];
+    this._metricsPriority = [];
     this._width = window.SonarWidgets.PieChart.defaults.width;
     this._height = window.SonarWidgets.PieChart.defaults.height;
     this._margin = window.SonarWidgets.PieChart.defaults.margin;
@@ -16,13 +17,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this._lineHeight = 20;
 
-    // Export global variables
-    this.data = function (_) {
-      return param.call(this, '_data', _);
-    };
 
+    // Export global variables
     this.metrics = function (_) {
       return param.call(this, '_metrics', _);
+    };
+
+    this.metricsPriority = function (_) {
+      return param.call(this, '_metricsPriority', _);
+    };
+
+    this.components = function (_) {
+      return param.call(this, '_components', _);
     };
 
     this.width = function (_) {
@@ -60,6 +66,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(this.margin().left, this.margin().top));
 
 
+    // Configure metrics
+    this.mainMetric = this.metricsPriority()[0];
+    this.getMainMetric = function(d) {
+      return d.measures[widget.mainMetric].val;
+    };
+
+
     // Configure scales
     this.color = d3.scale.category20();
 
@@ -72,12 +85,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure pie
     this.pie = d3.layout.pie()
         .sort(null)
-        .value(function(d) { return d.metric; });
+        .value(function(d) { return widget.getMainMetric(d); });
 
 
     // Configure sectors
     this.sectors = this.plotWrap.selectAll('.arc')
-        .data(this.pie(this.data()))
+        .data(this.pie(this.components()))
         .enter().append('g').attr('class', 'arc');
 
     this.sectors.append('path')
@@ -89,8 +102,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('width', this.legendWidth());
 
     this.legends = this.legendWrap.selectAll('.legend')
-        .data(this.pie(this.data()))
-        .enter().append('g')
+        .data(this.components());
+
+    this.legends.enter().append('g')
         .attr('class', 'legend')
         .attr('transform', function(d, i) { return trans(0, 10 + i * widget._lineHeight); });
 
@@ -102,7 +116,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.legends.append('text')
         .attr('class', 'legend-text')
         .attr('transform', trans(10, 3))
-        .text(function(d) { return d.data.name; });
+        .text(function(d) { return d.name; });
 
 
     // Configure details
@@ -113,22 +127,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.detailsColorIndicator = this.detailsWrap.append('rect')
         .classed('details-color-indicator', true)
+        .attr('transform', trans(-1, 0))
         .attr('x', 0)
         .attr('y', 0)
-        .attr('width', 4)
+        .attr('width', 3)
         .attr('height', this._detailsHeight)
         .style('opacity', 0);
 
-    this._detailsMetric = [
-      { name: 'Technical Dept', value: 8.5 },
-      { name: 'Lines of Code', value: 362 },
-      { name: 'Issues', value: 3 },
-      { name: 'Coverage', value: 86 }
-    ];
-
 
     // Configure events
-    var enterHandler = function(sector, legend, i) {
+    var enterHandler = function(sector, legend, d, i) {
           var scaleFactor = (widget.radius + 5) / widget.radius;
           d3.select(legend)
               .classed('legend-active', true);
@@ -136,12 +144,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .classed('arc-active', true)
               .style('-webkit-transform', 'scale(' + scaleFactor + ')');
 
-          updateMetrics(widget._detailsMetric);
+          var metrics = widget.metricsPriority().map(function(m) {
+            return {
+              name: widget.metrics()[m].name,
+              value: d.measures[m].val
+            };
+          });
+          updateMetrics(metrics);
 
           widget.detailsColorIndicator
               .style('opacity', 1)
               .style('fill', widget.color(i));
         },
+
         leaveHandler = function(sector, legend) {
           d3.select(legend).classed('legend-active', false);
           d3.select(sector)
@@ -152,25 +167,28 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.detailsMetrics
               .style('opacity', 0);
         },
+
         updateMetrics = function(metrics) {
+
           widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
               .data(metrics);
 
-          widget.detailsMetrics
-              .enter().append('text')
-              .text(function(d) { return d.name + ': ' + d.value; });
-
-          widget.detailsMetrics
+          widget.detailsMetrics.enter().append('text')
               .classed('details-metric', true)
               .classed('details-metric-main', function(d, i) { return i === 0; })
               .attr('transform', function(d, i) { return trans(10, i * widget._lineHeight); })
-              .attr('dy', '1.2em')
+              .attr('dy', '1.2em');
+
+          widget.detailsMetrics
+              .text(function(d) { return d.name + ': ' + d.value; })
               .style('opacity', 1);
+
+          widget.detailsMetrics.exit().remove();
         };
 
     this.legends
         .on('mouseenter', function(d, i) {
-          return enterHandler(widget.sectors[0][i], this, i);
+          return enterHandler(widget.sectors[0][i], this, d, i);
         })
         .on('mouseleave', function(d, i) {
           return leaveHandler(widget.sectors[0][i], this);
@@ -178,7 +196,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.sectors
         .on('mouseenter', function(d, i) {
-          return enterHandler(this, widget.legends[0][i], i);
+          return enterHandler(this, widget.legends[0][i], d.data, i);
         })
         .on('mouseleave', function(d, i) {
           return leaveHandler(this, widget.legends[0][i]);
@@ -213,21 +231,22 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update radius
-    this.radius = Math.min(this.availableWidth - this.legendWidth(), this.availableHeight) / 2;
+    this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
 
 
     // Update plot
     this.plotWrap
-      .attr('transform', trans(this.radius, this.radius));
+        .attr('transform', trans(this.radius, this.radius));
 
 
     // Update arc
-    this.arc.outerRadius(this.radius);
+    this.arc
+        .outerRadius(this.radius);
 
 
     // Update legend
     this.legendWrap
-      .attr('transform', trans(20 + this.radius * 2, 0 ));
+        .attr('transform', trans(20 + this.radius * 2, 0 ));
 
 
     // Update details
@@ -239,9 +258,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.sectors.selectAll('path')
         .transition()
         .attr('d', this.arc);
-
-    this.sectors.selectAll('text')
-        .attr('transform', function(d) { return 'translate(' + widget.arc.centroid(d) + ')'; });
   };
 
 
