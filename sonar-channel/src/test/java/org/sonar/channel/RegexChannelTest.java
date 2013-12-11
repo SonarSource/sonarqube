@@ -40,8 +40,7 @@ public class RegexChannelTest {
     StringBuilder output = new StringBuilder();
     
     CodeReaderConfiguration codeReaderConfiguration = new CodeReaderConfiguration();
-    codeReaderConfiguration.setBufferCapacity(2);
-    
+
     int literalLength = 100000;
     String veryLongLiteral = String.format(String.format("%%0%dd", literalLength), 0).replace("0", "a");
     

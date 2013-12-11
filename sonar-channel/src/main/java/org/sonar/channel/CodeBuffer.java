@@ -127,13 +127,6 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * @deprecated in 2.12, do not use anymore.
-   */
-  @Deprecated
-  public final void close() {
-  }
-  
-  /**
    * @return the current line of the cursor
    */
   public final int getLinePosition() {
