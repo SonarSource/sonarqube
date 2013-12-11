@@ -38,6 +38,7 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.rule.RuleRegistry;
 
 import java.util.*;
 
@@ -49,6 +50,7 @@ public class RegisterNewProfiles {
   private final List<ProfileDefinition> definitions;
   private final LoadedTemplateDao loadedTemplateDao;
   private final RuleFinder ruleFinder;
+  private final RuleRegistry ruleRegistry;
   private final DatabaseSessionFactory sessionFactory;
   private final PersistentSettings settings;
   private DatabaseSession session = null;
@@ -56,11 +58,13 @@ public class RegisterNewProfiles {
   public RegisterNewProfiles(List<ProfileDefinition> definitions,
                              PersistentSettings settings,
                              RuleFinder ruleFinder,
+                             RuleRegistry ruleRegistry,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
                              RegisterRules registerRulesBefore) {
     this.settings = settings;
     this.ruleFinder = ruleFinder;
+    this.ruleRegistry = ruleRegistry;
     this.definitions = definitions;
     this.loadedTemplateDao = loadedTemplateDao;
     this.sessionFactory = sessionFactory;
@@ -68,10 +72,11 @@ public class RegisterNewProfiles {
 
   public RegisterNewProfiles(PersistentSettings settings,
                              RuleFinder ruleFinder,
+                             RuleRegistry ruleRegistry,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
                              RegisterRules registerRulesBefore) {
-    this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, loadedTemplateDao, sessionFactory, registerRulesBefore);
+    this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, ruleRegistry, loadedTemplateDao, sessionFactory, registerRulesBefore);
   }
 
   public void start() {
@@ -93,6 +98,8 @@ public class RegisterNewProfiles {
     }
     session.commit();
     profiler.stop();
+
+    ruleRegistry.bulkRegisterActiveRules();
   }
 
   private void setDefault(String language, List<RulesProfile> profiles) {

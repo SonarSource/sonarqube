@@ -87,15 +87,22 @@ public class SearchIndex {
   }
 
   public void put(String index, String type, String id, BytesStream source) {
-    internalPut(index, type, id, source, false);
+    internalPut(index, type, id, source, false, null);
   }
 
   public void putSynchronous(String index, String type, String id, BytesStream source) {
-    internalPut(index, type, id, source, true);
+    internalPut(index, type, id, source, true, null);
   }
 
-  private void internalPut(String index, String type, String id, BytesStream source, boolean refresh) {
+  public void put(String index, String type, String id, BytesStream source, String parent) {
+    internalPut(index, type, id, source, false, parent);
+  }
+
+  private void internalPut(String index, String type, String id, BytesStream source, boolean refresh, String parent) {
     IndexRequestBuilder builder = client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh);
+    if (parent != null) {
+      builder.setParent(parent);
+    }
     StopWatch watch = createWatch();
     builder.execute().actionGet();
     watch.stop("put document with id '%s' with type '%s' into index '%s'", id, type, index);
@@ -108,24 +115,25 @@ public class SearchIndex {
     }
     StopWatch watch = createWatch();
     try {
-      BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
-      if (bulkResponse.hasFailures()) {
-        // Retry once per failed doc -- ugly
-        for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
-          if(bulkItemResponse.isFailed()) {
-            int itemId = bulkItemResponse.getItemId();
-            put(index, type, ids[itemId], sources[itemId]);
-          }
-        }
-      }
-    } catch (InterruptedException e) {
-      LOG.error(BULK_INTERRUPTED, e);
-    } catch (ExecutionException e) {
-      LOG.error(BULK_EXECUTE_FAILED, e);
+      doBulkOperation(builder);
     } finally {
       watch.stop("bulk index of %d documents with type '%s' into index '%s'", ids.length, type, index);
     }
   }
+
+  public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources, String[] parentIds) {
+    BulkRequestBuilder builder = new BulkRequestBuilder(client);
+    for (int i=0; i<ids.length; i++) {
+      builder.add(client.prepareIndex(index, type, ids[i]).setParent(parentIds[i]).setSource(sources[i].bytes()));
+    }
+    StopWatch watch = createWatch();
+    try {
+      doBulkOperation(builder);
+    } finally {
+      watch.stop("bulk index of %d child documents with type '%s' into index '%s'", ids.length, type, index);
+    }
+  }
+
 
   public void addMappingFromClasspath(String index, String type, String resourcePath) {
     try {
@@ -208,21 +216,26 @@ public class SearchIndex {
     }
     StopWatch watch = createWatch();
     try {
+      doBulkOperation(builder);
+    } finally {
+      watch.stop("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index);
+    }
+  }
+
+  private void doBulkOperation(BulkRequestBuilder builder) {
+    try {
       BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
       if (bulkResponse.hasFailures()) {
         for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
           if(bulkItemResponse.isFailed()) {
-            int itemId = bulkItemResponse.getItemId();
-            client.prepareDelete(index, type, ids[itemId]).execute().actionGet();
+            throw new IllegalStateException("Bulk operation partially executed");
           }
         }
       }
     } catch (InterruptedException e) {
-      LOG.error(BULK_INTERRUPTED, e);
+      throw new IllegalStateException(BULK_INTERRUPTED, e);
     } catch (ExecutionException e) {
-      LOG.error(BULK_EXECUTE_FAILED, e);
-    } finally {
-      watch.stop("bulk delete of %d documents with type '%s' from index '%s'", ids.length, type, index);
+      throw new IllegalStateException(BULK_EXECUTE_FAILED, e);
     }
   }
 

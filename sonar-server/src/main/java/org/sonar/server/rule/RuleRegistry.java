@@ -28,6 +28,9 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.RuleDao;
@@ -52,17 +55,21 @@ public class RuleRegistry {
   private static final String PARAM_STATUS = "status";
   private static final String INDEX_RULES = "rules";
   private static final String TYPE_RULE = "rule";
+  private static final String TYPE_ACTIVE_RULE = "active_rule";
 
   private SearchIndex searchIndex;
   private RuleDao ruleDao;
+  private DatabaseSession session;
 
-  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao) {
+  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao, DatabaseSession session) {
     this.searchIndex = searchIndex;
     this.ruleDao = ruleDao;
+    this.session = session;
   }
 
   public void start() {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/com/sonar/search/rule_mapping.json");
+    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/com/sonar/search/active_rule_mapping.json");
   }
 
   public void bulkRegisterRules() {
@@ -82,6 +89,19 @@ public class RuleRegistry {
       bulkIndex(rules, paramsByRule);
     } catch(IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
+    }
+  }
+
+  public void bulkRegisterActiveRules() {
+    TimeProfiler profiler = new TimeProfiler();
+    profiler.start("Rebuilding active rules index - query");
+    List<ActiveRule> rules = session.getResults(ActiveRule.class);
+    profiler.stop();
+
+    try {
+      bulkIndex(rules);
+    } catch (IOException ioe) {
+      throw new IllegalStateException("Unable to index active rules", ioe);
     }
   }
 
@@ -159,8 +179,37 @@ public class RuleRegistry {
     if (! indexIds.isEmpty()) {
       profiler.start("Remove deleted rule documents");
       searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
+      profiler.stop();
     }
   }
+
+  private void bulkIndex(List<ActiveRule> rules) throws IOException {
+    String[] ids = new String[rules.size()];
+    BytesStream[] docs = new BytesStream[rules.size()];
+    String[] parentIds = new String[rules.size()];
+    int index = 0;
+    TimeProfiler profiler = new TimeProfiler();
+    profiler.start("Build active rules documents");
+    for (ActiveRule rule: rules) {
+      ids[index] = rule.getId().toString();
+      docs[index] = activeRuleDocument(rule);
+      parentIds[index] = rule.getRule().getId().toString();
+      index ++;
+    }
+    profiler.stop();
+    profiler.start("Index active rules");
+    searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
+    profiler.stop();
+
+    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));
+    indexIds.removeAll(Arrays.asList(ids));
+    if (! indexIds.isEmpty()) {
+      profiler.start("Remove deleted active rule documents");
+      searchIndex.bulkDelete(INDEX_RULES, TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
+      profiler.stop();
+    }
+  }
+
 
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
@@ -184,6 +233,27 @@ public class RuleRegistry {
           .field("type", param.getType())
           .field("defaultValue", param.getDefaultValue())
           .field("description", param.getDescription())
+          .endObject();
+      }
+      document.endArray();
+    }
+    document.endObject();
+    return document;
+  }
+
+  private XContentBuilder activeRuleDocument(ActiveRule rule) throws IOException {
+    XContentBuilder document = XContentFactory.jsonBuilder()
+        .startObject()
+        .field("id", rule.getId())
+        .field("severity", rule.getSeverity())
+        .field("profileId", rule.getRulesProfile().getId())
+        .field("inheritance", rule.getInheritance());
+    if(!rule.getActiveRuleParams().isEmpty()) {
+      document.startArray("params");
+      for (ActiveRuleParam param: rule.getActiveRuleParams()) {
+        document.startObject()
+          .field("key", param.getKey())
+          .field("value", param.getValue())
           .endObject();
       }
       document.endArray();

@@ -24,10 +24,16 @@ import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
@@ -39,6 +45,9 @@ import org.sonar.test.TestUtils;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,6 +57,7 @@ public class RuleRegistryTest {
   private EsSetup esSetup;
   private SearchIndex searchIndex;
   private RuleDao ruleDao;
+  private DatabaseSession session;
   RuleRegistry registry;
 
   @Before
@@ -65,7 +75,9 @@ public class RuleRegistryTest {
     searchIndex = new SearchIndex(node, profiling);
     searchIndex.start();
 
-    registry = new RuleRegistry(searchIndex, ruleDao);
+    session = mock(DatabaseSession.class);
+
+    registry = new RuleRegistry(searchIndex, ruleDao, session);
     registry.start();
 
     String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());
@@ -89,7 +101,7 @@ public class RuleRegistryTest {
   @Test
   public void should_register_mapping_at_startup() {
     assertThat(esSetup.exists("rules")).isTrue();
-    assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule").execute().actionGet().isExists()).isTrue();
+    assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule", "active_rule").execute().actionGet().isExists()).isTrue();
   }
 
   @Test
@@ -201,5 +213,42 @@ public class RuleRegistryTest {
       .hasSize(2)
       .containsOnly((int) ruleId1, (int) ruleId2);
     assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
+  }
+
+  @Test
+  public void should_index_all_active_rules() {
+    int id = 1;
+    int profileId = 42;
+    ActiveRule rule = mock(ActiveRule.class);
+    when(rule.getId()).thenReturn(id);
+    Rule refRule = Rule.create();
+    refRule.setId(1);
+    when(rule.getRule()).thenReturn(refRule );
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(profileId);
+    when(rule.getRulesProfile()).thenReturn(profile );
+    ActiveRuleParam param = mock(ActiveRuleParam.class);
+    when(param.getKey()).thenReturn("string");
+    when(param.getValue()).thenReturn("polop");
+    List<ActiveRuleParam> params = ImmutableList.of(param);
+    when(rule.getActiveRuleParams()).thenReturn(params );
+    List<ActiveRule> rules = ImmutableList.of(rule);
+
+    when(session.getResults(ActiveRule.class)).thenReturn(rules);
+    registry.bulkRegisterActiveRules();
+    assertThat(esSetup.exists("rules", "active_rule", "1"));
+
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasChildFilter("active_rule", termFilter("profileId", profileId))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(parentHit).hasSize(1);
+    assertThat(parentHit[0].getId()).isEqualTo("1");
+
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(childHit).hasSize(1);
+    assertThat(childHit[0].getId()).isEqualTo("1");
+
   }
 }

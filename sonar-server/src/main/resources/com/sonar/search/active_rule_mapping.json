@@ -1,0 +1,40 @@
+{
+  "active_rule": {
+    "_id": {
+      "path": "id"
+    },
+    "_parent": {
+      "type": "rule"
+    },
+    "properties": {
+      "id": {
+        "type": "integer",
+        "index": "not_analyzed"
+      },
+      "severity": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "profileId": {
+        "type": "integer",
+        "index": "not_analyzed"
+      },
+      "inheritance": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "params": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "index": "no"
+          },
+          "value": {
+            "type": "string",
+            "index": "no"
+          }
+        }
+      }
+    }
+  }
+}
