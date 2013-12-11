@@ -6,7 +6,7 @@
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h @issue_results.rule(issue).getName() -%></a>
     &nbsp;
     <% if issue.resolution %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>

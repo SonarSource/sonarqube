@@ -46,23 +46,6 @@ public class RubyRuleService implements ServerComponent, Startable {
     this.ruleRegistry = ruleRegistry;
   }
 
-  @CheckForNull
-  public String ruleL10nName(Rule rule) {
-    String name = i18n.getName(rule.getRepositoryKey(), rule.getKey());
-    if (name == null) {
-      name = rule.getName();
-    }
-    return name;
-  }
-
-  public String ruleL10nDescription(Rule rule) {
-    String desc = i18n.getDescription(rule.getRepositoryKey(), rule.getKey());
-    if (desc == null) {
-      desc = rule.getDescription();
-    }
-    return desc;
-  }
-
   public Integer[] findIds(Map<String, String> options) {
     Map<String, String> params = Maps.newHashMap();
     translateNonBlankKey(options, params, OPTIONS_STATUS, OPTIONS_STATUS);

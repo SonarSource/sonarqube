@@ -32,13 +32,13 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.test.TestUtils;
 
@@ -48,7 +48,6 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -67,7 +66,7 @@ public class JsonReportTest {
   Resource resource = mock(Resource.class);
   ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
   Server server = mock(Server.class);
-  RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+  RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings;
   IssueCache issueCache = mock(IssueCache.class);
   private AnalysisMode mode;
@@ -83,7 +82,7 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
   }
 
   @Test
@@ -103,7 +102,7 @@ public class JsonReportTest {
       .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
-    when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(new Rule().setName("Avoid Cycles"));
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
     DefaultUser user1 = new DefaultUser().setLogin("julien").setName("Julien");
     DefaultUser user2 = new DefaultUser().setLogin("simon").setName("Simon");
@@ -118,17 +117,18 @@ public class JsonReportTest {
 
   @Test
   public void should_exclude_resolved_issues() throws Exception {
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
       .setComponentKey("struts:org.apache.struts.Action")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setRuleKey(ruleKey)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
       .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
-    when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create(ruleKey.repository(), ruleKey.rule()).setName("Avoid Cycles"));
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
     StringWriter writer = new StringWriter();
@@ -152,8 +152,8 @@ public class JsonReportTest {
   public void should_export_issues_to_file() throws IOException {
     File sonarDirectory = temporaryFolder.newFolder("sonar");
 
-    Rule rule = Rule.create("squid", "AvoidCycles");
-    when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycles");
+    Rule rule = Rule.create("squid", "AvoidCycles").setName("Avoid Cycles");
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(rule);
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
