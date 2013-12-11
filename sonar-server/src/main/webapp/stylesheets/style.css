@@ -2458,6 +2458,45 @@ textarea.width100 {
   opacity: 0.25;
 }
 
+.sonar-d3 .arc {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .arc-active {
+  -webkit-transform: scale(1.05);
+}
+
+.sonar-d3 .legend {
+  cursor: pointer;
+}
+
+.sonar-d3 .legend-bullet {
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .legend-text {
+  font-size: 11px;
+}
+
+.sonar-d3 .legend-active .legend-bullet {
+  -webkit-transform: scale(1.4);
+  -webkit-transform-origin: center;
+}
+
+.sonar-d3 .details-color-indicator {
+  fill: #fff;
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .details-metric {
+  font-size: 11px;
+}
+
+.sonar-d3 .details-metric-main {
+  font-weight: bold;
+}
+
 .sonar-d3 .info {
 
 }

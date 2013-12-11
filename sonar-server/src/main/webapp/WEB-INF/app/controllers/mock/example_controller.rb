@@ -33,5 +33,9 @@ class Mock::ExampleController < Api::ApiController
         "foo": "bar"
       }
 RESPONSE
-    end
+  end
+
+  def pie_chart
+
+  end
 end

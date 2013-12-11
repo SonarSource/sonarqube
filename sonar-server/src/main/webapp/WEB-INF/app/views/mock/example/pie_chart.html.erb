@@ -1,0 +1,80 @@
+<div id="pie-chart"></div>
+
+<script>
+  var pieChartData = [
+
+    {
+      key: 'org.codehaus.sonar:sonar-duplications:net.sourceforge.pmd.cpd.SourceCode',
+      name: 'SourceCode',
+      longName: 'net.sourceforge.pmd.cpd.SourceCode',
+      metric: 107.0,
+      metricFormatted: '107'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-duplications:net.sourceforge.pmd.cpd.TokenEntry',
+      name: 'TokenEntry',
+      longName: 'net.sourceforge.pmd.cpd.TokenEntry',
+      metric: 74.0,
+      metricFormatted: '74'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-duplications:net.sourceforge.pmd.cpd.Tokenizer',
+      name: 'Tokenizer',
+      longName: 'net.sourceforge.pmd.cpd.Tokenizer',
+      metric: 50.0,
+      metricFormatted: '50'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-duplications:net.sourceforge.pmd.cpd.Tokens',
+      name: 'Tokens',
+      longName: 'net.sourceforge.pmd.cpd.Tokens',
+      metric: 19.0,
+      metricFormatted: '19'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-deprecated:org.sonar.api.batch.AbstractCoverageExtension',
+      name: 'AbstractCoverageExtension',
+      longName: 'org.sonar.api.batch.AbstractCoverageExtension',
+      metric: 12.0,
+      metricFormatted: '12'
+    },
+
+    {
+      id: 3447,
+      key: 'org.codehaus.sonar:sonar-plugin-api:org.sonar.api.batch.AbstractSourceImporter',
+      name: 'AbstractSourceImporter',
+      longName: 'org.sonar.api.batch.AbstractSourceImporter',
+      metric: 70.0,
+      metricFormatted: '70'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-plugin-api:org.sonar.api.batch.AbstractSumChildrenDecorator',
+      name: 'AbstractSumChildrenDecorator',
+      longName: 'org.sonar.api.batch.AbstractSumChildrenDecorator',
+      metric: 35.0,
+      metricFormatted: '35'
+    },
+
+    {
+      key: 'org.codehaus.sonar:sonar-deprecated:org.sonar.api.batch.BatchExtensionDictionnary',
+      name: 'BatchExtensionDictionnary',
+      longName: 'org.sonar.api.batch.BatchExtensionDictionnary',
+      metric: 176.0,
+      metricFormatted: '176'
+    }
+  ];
+
+  var pieChart = new SonarWidgets.PieChart();
+  pieChart
+    .data(pieChartData)
+    .render('#pie-chart');
+
+  autoResize(500, function() {
+    pieChart.update('#pie-chart');
+  });
+</script>
