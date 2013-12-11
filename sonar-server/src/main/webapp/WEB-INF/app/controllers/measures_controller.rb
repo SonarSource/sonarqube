@@ -286,7 +286,7 @@ class MeasuresController < ApplicationController
     hash[:metrics] = {}
     filter.metrics.each do |metric|
       hash[:metrics][metric.key] = {
-        :name => metric.name,
+        :name => metric.short_name,
         :type => metric.val_type
       }
     end
