@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "devDependencies": {
     "qunitjs": "*",
-    "karma": "0.10.8",
+    "karma": "~0.10.8",
     "karma-qunit": "*",
     "karma-phantomjs-launcher": "*",
     "karma-coverage": "*",
     "karma-junit-reporter": "*"
+  },
+  "engines": {
+    "node": "~0.8 || ~0.10"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/karma start --single-run"
   }
 }
