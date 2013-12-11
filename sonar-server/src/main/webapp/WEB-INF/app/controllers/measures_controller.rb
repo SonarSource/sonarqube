@@ -117,7 +117,7 @@ class MeasuresController < ApplicationController
     access_denied unless logged_in?
     @filter = MeasureFilter.new
     @shared_filters = MeasureFilter.all(:include => :user,
-                                         :conditions => ['shared=? and (user_id is null or user_id<>?)', true, current_user.id])
+                                        :conditions => ['shared=? and (user_id is null or user_id<>?)', true, current_user.id])
     Api::Utils.insensitive_sort!(@shared_filters) { |elt| elt.name }
     @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
   end
@@ -220,6 +220,90 @@ class MeasuresController < ApplicationController
     render :text => is_favourite.to_s, :status => 200
   end
 
+  #
+  # GET /measures/search_filter?<parameters>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/measures/search_filter?filter=123&metrics=ncloc,complexity
+  #   &fields=name,longName,date,links,favorite,measureTrend,measureStatus,measureVariation&pageSize=100&page=1&sort=metric:ncloc&asc=true'
+  #
+  def search_filter
+    require_parameters :filter
+
+    fields = (params[:fields].split(',') if params[:fields]) || []
+    display_links = fields.include?('links')
+    display_variation = fields.include?('measureVariation')
+    metrics = params[:metrics].split(',') if params[:metrics]
+
+    filter = find_filter(params[:filter])
+    filter.load_criteria_from_data
+    params[:display] = 'none'
+    filter.override_criteria(criteria_params)
+    filter.metrics= params[:metrics].split(',') if metrics
+    filter.require_links= display_links
+    filter.execute(self, :user => current_user)
+
+    hash = {}
+    components_json = []
+    filter.rows.each do |row|
+      component = row.snapshot.resource
+      component_hash = {}
+      component_hash[:key] = component.key
+      component_hash[:name] = component.name if fields.include? 'name' && component.name
+      component_hash[:longName] = component.long_name if fields.include? 'longName' && component.long_name
+      component_hash[:qualifier] = component.qualifier if component.qualifier
+      component_hash[:favorite] = logged_in? && current_user.favourite?(component.id) if fields.include?('favourite')
+      component_hash[:date] = Api::Utils.format_datetime(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
+
+      if display_links && row.links
+        links_hash = {}
+        row.links.each do |link|
+          links_hash[:name] = link.name if link.name
+          links_hash[:type] = link.link_type if link.link_type
+          links_hash[:url] = link.href if link.href
+        end
+        component_hash[:links] = links_hash
+      end
+
+      if metrics
+        component_hash[:measures] = {}
+        row.measures.each do |measure|
+          component_hash[:measures][measure.metric.key] = {}
+          component_hash[:measures][measure.metric.key][:val] = measure.value if measure.value
+          component_hash[:measures][measure.metric.key][:text] = measure.data if measure.data
+          component_hash[:measures][measure.metric.key][:trend] = measure.tendency if fields.include?('measureTrend') && measure.tendency
+          component_hash[:measures][measure.metric.key][:status] = measure.alert_status if fields.include?('measureStatus') && measure.alert_status
+          component_hash[:measures][measure.metric.key][:p1] = measure.variation_value_1 if display_variation && measure.variation_value_1
+          component_hash[:measures][measure.metric.key][:p2] = measure.variation_value_2 if display_variation && measure.variation_value_2
+          component_hash[:measures][measure.metric.key][:p3] = measure.variation_value_3 if display_variation && measure.variation_value_3
+          component_hash[:measures][measure.metric.key][:p4] = measure.variation_value_4 if display_variation && measure.variation_value_4
+          component_hash[:measures][measure.metric.key][:p5] = measure.variation_value_5 if display_variation && measure.variation_value_5
+        end
+      end
+      components_json << component_hash
+    end
+
+    hash[:metrics] = {}
+    filter.metrics.each do |metric|
+      hash[:metrics][metric.key] = {
+        :name => metric.name,
+        :type => metric.val_type
+      }
+    end
+
+    hash[:components] = components_json
+    hash[:maxResultsReached] = filter.security_exclusions
+    hash[:paging] = {}
+    hash[:paging][:page] = filter.pagination.page
+    hash[:paging][:pages] = filter.pagination.pages
+    hash[:paging][:pageSize] = filter.pagination.limit
+    hash[:paging][:total] = filter.pagination.count
+
+    respond_to do |format|
+      format.json { render :json => hash }
+    end
+  end
+
 
   private
 
@@ -241,7 +325,8 @@ class MeasuresController < ApplicationController
 
   def render_measures_error(filter)
     errors = []
-    filter.errors.full_messages.each{|msg| errors<<CGI.escapeHTML(msg) + '<br/>'}
+    filter.errors.full_messages.each { |msg| errors<<CGI.escapeHTML(msg) + '<br/>' }
     render :text => errors, :status => 400
   end
+
 end
