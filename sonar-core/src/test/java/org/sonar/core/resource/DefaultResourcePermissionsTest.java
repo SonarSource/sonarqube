@@ -135,7 +135,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
     throwable.expect(IllegalStateException.class);
     throwable
-      .expectMessage("The following permission templates have a key pattern that matches the 'foo.project' key: 'Start with foo', 'Start with foo again'. The administrator must update them to make sure that only one permission template can be selected for foo.project component.");
+      .expectMessage("The \"foo.project\" key matches multiple permission templates: \"Start with foo\", \"Start with foo again\". A system administrator must update these templates so that only one of them matches the key.");
 
     permissions.grantDefaultRoles(project);
 

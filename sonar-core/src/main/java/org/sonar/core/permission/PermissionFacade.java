@@ -30,7 +30,11 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserRoleDto;
 
 import javax.annotation.Nullable;
 
@@ -249,14 +253,14 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
       for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
-        templatesNames.append("'").append(it.next().getName()).append("'");
+        templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");
         }
       }
       throw new IllegalStateException(MessageFormat.format(
-        "The following permission templates have a key pattern that matches the ''{0}'' key: {1}."
-          + " The administrator must update them to make sure that only one permission template can be selected for 'foo.project' component.", componentKey,
+        "The \"{0}\" key matches multiple permission templates: {1}."
+          + " A system administrator must update these templates so that only one of them matches the key.", componentKey,
         templatesNames.toString()));
     }
   }
