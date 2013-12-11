@@ -1009,13 +1009,9 @@
         <version>1.4</version>
       </dependency>
       <dependency>
-        <!--
-        Do not upgrade to 1.7.4 because of https://github.com/jruby/jruby/issues/802
-        Waiting for 1.7.5
-        -->
         <groupId>org.jruby</groupId>
         <artifactId>jruby-complete</artifactId>
-        <version>1.7.6</version>
+        <version>1.7.9</version>
       </dependency>
       <dependency>
         <groupId>geronimo-spec</groupId>
