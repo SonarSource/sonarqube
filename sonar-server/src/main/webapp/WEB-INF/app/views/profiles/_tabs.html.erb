@@ -21,6 +21,9 @@
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
   </li>
+  <li>
+    <a href="<%= url_for :controller => 'new_rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules reloaded' -%> id="tab-rules"><%= message('Coding rules reloaded') -%></a>
+  </li>
   <% if new_tab %>
   <li>
     <a href="#" class='selected'><%= new_tab -%></a>
