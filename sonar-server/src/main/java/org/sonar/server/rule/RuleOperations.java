@@ -18,22 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rules;
+package org.sonar.server.rule;
 
 import org.sonar.api.ServerComponent;
 
-public class Rules implements ServerComponent {
-
-  public void createManualRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void editManualRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void deleteManualRule() {
-    throw new UnsupportedOperationException();
-  }
-
+public class RuleOperations implements ServerComponent {
 }
