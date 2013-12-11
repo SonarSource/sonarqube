@@ -20,23 +20,25 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.*;
+
+import static org.sonar.api.web.WidgetScope.GLOBAL;
 
 @WidgetCategory("Global")
+@WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "300"),
-  @WidgetProperty(key = "xMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "yMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "xLogarithmic", type = WidgetPropertyType.BOOLEAN),
-  @WidgetProperty(key = "yLogarithmic", type = WidgetPropertyType.BOOLEAN)
+  @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
+  @WidgetProperty(key = "mainMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "extraMetric1", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "extraMetric2", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "extraMetric3", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS})
 })
-public class BubbleChartWidget extends CoreWidget {
-  public BubbleChartWidget() {
-    super("bubble_chart", "Bubble Chart", "/org/sonar/plugins/core/widgets/bubbleChart.html.erb");
+public class PieChartWidget extends CoreWidget {
+
+  public PieChartWidget() {
+    super("pie_chart", "Pie Chart", "/org/sonar/plugins/core/widgets/pie_chart.html.erb");
   }
+
 }
