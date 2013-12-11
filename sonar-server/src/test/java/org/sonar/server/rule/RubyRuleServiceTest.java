@@ -22,17 +22,13 @@ package org.sonar.server.rule;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.server.user.MockUserSession;
 
-import java.util.Locale;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class RubyRuleServiceTest {
 
@@ -41,29 +37,7 @@ public class RubyRuleServiceTest {
   RubyRuleService facade = new RubyRuleService(i18n, ruleRegistry);
 
   @Test
-  public void should_get_raw_name_if_no_l10n_name() throws Exception {
-    MockUserSession.set().setLocale(Locale.FRENCH);
-    when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn(null);
-
-    Rule rule = new Rule("squid", "AvoidCycle");
-    rule.setName("Avoid cycles");
-    String name = facade.ruleL10nName(rule);
-    assertThat(name).isEqualTo("Avoid cycles");
-  }
-
-  @Test
-  public void should_get_raw_description_if_no_l10n_description() throws Exception {
-    MockUserSession.set().setLocale(Locale.FRENCH);
-    when(i18n.getDescription("squid", "AvoidCycle", Locale.FRENCH)).thenReturn(null);
-
-    Rule rule = new Rule("squid", "AvoidCycle");
-    rule.setDescription("Cycles are evil");
-    String desc = facade.ruleL10nDescription(rule);
-    assertThat(desc).isEqualTo("Cycles are evil");
-  }
-
-  @Test
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void should_translate_arguments_ind_find_ids() {
     Map<String, String> options = Maps.newHashMap();
     String status = " ";
@@ -73,7 +47,7 @@ public class RubyRuleServiceTest {
     options.put("status", status);
     options.put("repositories", repositories);
     // language not specified to cover blank option case
-    options.put("searchtext", searchText );
+    options.put("searchtext", searchText);
 
     facade.findIds(options);
     ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);

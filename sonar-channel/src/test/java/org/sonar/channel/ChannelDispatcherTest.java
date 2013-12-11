@@ -63,7 +63,8 @@ public class ChannelDispatcherTest {
   private static class FakeChannel extends Channel<StringBuilder> {
     @Override
     public boolean consume(CodeReader code, StringBuilder output) {
-      return true;
+      boolean b = true;
+      return b;
     }
   }
 
