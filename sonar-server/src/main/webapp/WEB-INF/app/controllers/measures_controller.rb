@@ -249,8 +249,8 @@ class MeasuresController < ApplicationController
       component = row.snapshot.resource
       component_hash = {}
       component_hash[:key] = component.key
-      component_hash[:name] = component.name if fields.include? 'name' && component.name
-      component_hash[:longName] = component.long_name if fields.include? 'longName' && component.long_name
+      component_hash[:name] = component.name if fields.include?('name') && component.name
+      component_hash[:longName] = component.long_name if fields.include?('longName') && component.long_name
       component_hash[:qualifier] = component.qualifier if component.qualifier
       component_hash[:favorite] = logged_in? && current_user.favourite?(component.id) if fields.include?('favourite')
       component_hash[:date] = Api::Utils.format_datetime(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
