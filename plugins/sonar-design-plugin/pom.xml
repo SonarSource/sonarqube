@@ -15,6 +15,10 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-gwt-pages</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -30,24 +34,8 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-gwt-api</artifactId>
-      <version>${sonarGwt.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
       <version>3.3.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-incubator</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -74,25 +62,25 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>gwt-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
-            <configuration>
-              <modules>
-                <module>org.sonar.plugins.design.ui.page.DesignPage${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.design.ui.libraries.LibrariesPage${gwt.permutationSuffix}</module>
-              </modules>
-              <skip>${skipGwt}</skip>
-              <webappDirectory>${project.build.directory}/classes</webappDirectory>
-              <extraJvmArgs>${gwt.extraJvmArgs}</extraJvmArgs>
-            </configuration>
+            <phase>package</phase>
             <goals>
-              <goal>compile</goal>
+              <goal>shade</goal>
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>org.codehaus.sonar:sonar-gwt-pages</include>
+            </includes>
+          </artifactSet>
+        </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>

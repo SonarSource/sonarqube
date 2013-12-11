@@ -43,12 +43,12 @@ public class DesignPlugin extends SonarPlugin {
         ProjectDsmDecorator.class,
         PackageTangleIndexDecorator.class,
         FileTangleIndexDecorator.class,
-        GwtLibrariesPage.class,
 
-        // UI
-        GwtDesignPage.class,
-        FileDesignWidget.class,
-        PackageDesignWidget.class,
-        ResponseForClassWidget.class);
+      // UI
+      GwtLibrariesPage.class,
+      GwtDesignPage.class,
+      FileDesignWidget.class,
+      PackageDesignWidget.class,
+      ResponseForClassWidget.class);
   }
 }
