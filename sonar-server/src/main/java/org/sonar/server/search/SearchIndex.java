@@ -86,6 +86,13 @@ public class SearchIndex {
     }
   }
 
+  /**
+   * For full access to the underlying ES client; all other methods are shortcuts.
+   */
+  public Client client() {
+    return client;
+  }
+
   public void put(String index, String type, String id, BytesStream source) {
     internalPut(index, type, id, source, false, null);
   }
