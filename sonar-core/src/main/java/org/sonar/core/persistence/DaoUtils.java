@@ -31,6 +31,7 @@ import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
@@ -70,6 +71,7 @@ public final class DaoUtils {
       PermissionDao.class,
       PermissionTemplateDao.class,
       PropertiesDao.class,
+      QualityProfileDao.class,
       PurgeDao.class,
       CharacteristicDao.class,
       ResourceIndexerDao.class,

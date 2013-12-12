@@ -20,15 +20,36 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfiles implements ServerComponent {
 
-  public void searchProfiles() {
-    throw new UnsupportedOperationException();
+  private final QualityProfileDao dao;
+
+  public QProfiles(QualityProfileDao dao) {
+    this.dao = dao;
   }
 
-  public void searchProfile(String profile) {
+  public List<QProfile> searchProfiles() {
+    List<QualityProfileDto> dtos = dao.selectAll();
+    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
+      @Override
+      public QProfile apply(QualityProfileDto input) {
+        return QProfile.from(input);
+      }
+    }));
+  }
+
+  public void searchProfile(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
@@ -52,11 +73,11 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void exportProfile(String profile, String language) {
+  public void exportProfile(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
-  public void exportProfile(String profile, String language, String plugin) {
+  public void exportProfile(QProfileKey profile, String plugin) {
     throw new UnsupportedOperationException();
   }
 
@@ -70,49 +91,49 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void inherit(String currentProfile, String parentProfile, String language) {
+  public void inherit(QProfileKey currentProfile, QProfileKey parentProfile) {
     throw new UnsupportedOperationException();
   }
 
   // CHANGELOG
 
-  public void changelog(String profile, String language) {
+  public void changelog(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
   // PROJECTS
 
-  public void projects(String profile, String language) {
+  public void projects(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
-  public void addProject(String projectKey, String profile, String language) {
+  public void addProject(QProfileKey profile, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeProject(String projectKey, String profile, String language) {
+  public void removeProject(QProfileKey profile, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeAllProjects(String profile, String language) {
+  public void removeAllProjects(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
   // ACTIVE RULES
 
-  public void searchActiveRules() {
+  public void searchActiveRules(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
-  public void searchInactiveRules() {
+  public void searchInactiveRules(QProfileKey profile) {
     throw new UnsupportedOperationException();
   }
 
-  public void activeRule() {
+  public void activeRule(QProfileKey profile, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void deactiveRule() {
+  public void deactiveRule(QProfileKey profile, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 

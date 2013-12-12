@@ -42,7 +42,7 @@
     </tr>
     </thead>
     <tbody>
-    <% @profiles.select { |p| p.language==language.getKey() }.each do |profile| %>
+    <% @profiles.select { |p| p.language == language.getKey() }.each do |profile| %>
       <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key %>">
         <td  width="40%">
           <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>" id="rules-<%= language.getKey() -%>-<%= u(profile.name) -%>"><%= h profile.name %></a>

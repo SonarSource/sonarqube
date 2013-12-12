@@ -90,6 +90,8 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
+import org.sonar.server.qualityprofile.QProfiles;
+import org.sonar.server.qualityprofile.RubyQProfilesService;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rules.ProfilesConsole;
@@ -264,6 +266,10 @@ public final class Platform {
     servicesContainer.addSingleton(PreviewCache.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+
+    // quality profiles
+    servicesContainer.addSingleton(QProfiles.class);
+    servicesContainer.addSingleton(RubyQProfilesService.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

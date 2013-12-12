@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.qualityprofile.db.QualityProfileMapper">
+
+  <sql id="profilesColumns">
+    p.id,
+    p.name as name,
+    p.language as language,
+    p.parent_name as parent,
+    p.version as version,
+    p.used_profile as used
+  </sql>
+
+  <select id="selectAll" parameterType="map" resultType="QualityProfile">
+    select <include refid="profilesColumns"/>
+    from rules_profiles p
+  </select>
+
+</mapper>
+

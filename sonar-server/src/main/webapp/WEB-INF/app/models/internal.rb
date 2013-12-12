@@ -66,6 +66,10 @@ class Internal
     component(Java::OrgSonarServerGroup::InternalGroupMembershipService.java_class)
   end
 
+  def self.qprofiles
+    component(Java::OrgSonarServerQualityprofile::RubyQProfilesService.java_class)
+  end
+
   private
 
   def self.component(component_java_class)

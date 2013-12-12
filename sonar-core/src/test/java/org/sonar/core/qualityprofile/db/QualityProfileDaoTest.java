@@ -1,0 +1,65 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.core.qualityprofile.db;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class QualityProfileDaoTest extends AbstractDaoTestCase {
+
+  QualityProfileDao dao;
+
+  @Before
+  public void createDao() {
+    dao = new QualityProfileDao(getMyBatis());
+  }
+
+  @Test
+  public void select_all() {
+    setupData("shared");
+
+    List<QualityProfileDto> dtos = dao.selectAll();
+
+    assertThat(dtos).hasSize(2);
+
+    QualityProfileDto dto1 = dtos.get(0);
+    assertThat(dto1.getId()).isEqualTo(1);
+    assertThat(dto1.getName()).isEqualTo("Sonar way");
+    assertThat(dto1.getLanguage()).isEqualTo("java");
+    assertThat(dto1.getParent()).isNull();
+    assertThat(dto1.getVersion()).isEqualTo(1);
+    assertThat(dto1.isUsed()).isFalse();
+
+    QualityProfileDto dto2 = dtos.get(1);
+    assertThat(dto2.getId()).isEqualTo(2);
+    assertThat(dto2.getName()).isEqualTo("Sonar way");
+    assertThat(dto2.getLanguage()).isEqualTo("js");
+    assertThat(dto2.getParent()).isNull();
+    assertThat(dto2.getVersion()).isEqualTo(1);
+    assertThat(dto2.isUsed()).isFalse();
+  }
+
+}
