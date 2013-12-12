@@ -23,10 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
-
-import javax.annotation.CheckForNull;
 
 import java.util.Map;
 
@@ -60,7 +57,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   }
 
   private static void translateNonBlankKey(Map<String, String> options, Map<String, String> params, String optionKey, String paramKey) {
-    if(options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
+    if (options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
       params.put(paramKey, options.get(optionKey).toString());
     }
   }
