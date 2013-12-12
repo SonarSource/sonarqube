@@ -25,10 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -38,32 +34,22 @@ import static org.mockito.Mockito.when;
 public class QProfilesTest {
 
   @Mock
-  QualityProfileDao dao;
+  QProfileSearch search;
 
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(dao);
+    qProfiles = new QProfiles(search);
   }
 
   @Test
   public void search_profiles() throws Exception {
-    when(dao.selectAll()).thenReturn(newArrayList(
-      new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
+    when(qProfiles.searchProfiles()).thenReturn(newArrayList(
+      new QProfile().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
     ));
 
-    List<QProfile> result = qProfiles.searchProfiles();
-    assertThat(result).hasSize(1);
-
-    QProfile qProfile = result.get(0);
-    assertThat(qProfile.id()).isEqualTo(1);
-    assertThat(qProfile.name()).isEqualTo("Sonar Way with Findbugs");
-    assertThat(qProfile.language()).isEqualTo("java");
-    assertThat(qProfile.key()).isEqualTo(QProfileKey.of("Sonar Way with Findbugs", "java"));
-    assertThat(qProfile.parent()).isEqualTo("Sonar Way");
-    assertThat(qProfile.version()).isEqualTo(1);
-    assertThat(qProfile.used()).isFalse();
+    assertThat(qProfiles.searchProfiles()).hasSize(1);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -98,7 +84,7 @@ public class QProfilesTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testExportProfile() throws Exception {
-    qProfiles.exportProfile(null, null);
+    qProfiles.exportProfile(QProfileKey.of("Default profile", "java"));
   }
 
   @Test(expected = UnsupportedOperationException.class)

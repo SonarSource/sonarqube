@@ -20,7 +20,32 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileSearch implements ServerComponent {
+
+  private final QualityProfileDao dao;
+
+  public QProfileSearch(QualityProfileDao dao) {
+    this.dao = dao;
+  }
+
+  public List<QProfile> searchProfiles() {
+    List<QualityProfileDto> dtos = dao.selectAll();
+    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
+      @Override
+      public QProfile apply(QualityProfileDto input) {
+        return QProfile.from(input);
+      }
+    }));
+  }
+
 }

@@ -28,7 +28,6 @@ class ProfilesController < ApplicationController
   # GET /profiles/index
   def index
     add_breadcrumbs ProfilesController::root_breadcrumb
-    #@profiles = Internal.qprofiles.searchProfiles()
     @profiles = Profile.all
     Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
   end
