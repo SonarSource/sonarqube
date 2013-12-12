@@ -1193,6 +1193,82 @@
     </license>
   </licenses>
 
+  <!-- Developers information should not be removed as it's
+  required for deployment -->
+
+  <developers>
+    <developer>
+      <id>racodond</id>
+      <name>David Racodon</name>
+      <email>david.racodon@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>dbolkensteyn</id>
+      <name>Dinesh Bolkensteyn</name>
+      <email>dinesh.bolkensteyn@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>godin</id>
+      <name>Evgeny Mandrikov</name>
+      <email>evgeny.mandrikov@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+3</timezone>
+    </developer>
+    <developer>
+      <id>bellingard</id>
+      <name>Fabrice Bellingard</name>
+      <email>fabrice.bellingard@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>freddy.mallet</id>
+      <name>Freddy Mallet</name>
+      <email>freddy.mallet@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <email>julien.henry@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>julienlancelot</id>
+      <name>Julien Lancelot</name>
+      <email>julien.lancelot@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>olivier.gaudin</id>
+      <name>Olivier Gaudin</name>
+      <email>olivier.gaudin@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>simonbrandhof</id>
+      <name>Simon Brandhof</name>
+      <email>simon.brandhof@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <email>julien.henry@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
   <profiles>
 
     <profile>
