@@ -220,6 +220,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
+          <!-- Workaround for http://jira.sonarsource.com/browse/PARENT-34 -->
           <version>2.4.2</version>
           <dependencies>
             <dependency>
