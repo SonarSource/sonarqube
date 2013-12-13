@@ -1,0 +1,12 @@
+<dataset>
+
+  <rules_profiles id="1" name="Sonar way" language="java" parent_name="[null]" version="1"
+                  used_profile="[false]"/>
+
+  <rules_profiles id="2" name="Sonar way" language="js" parent_name="[null]" version="1"
+                  used_profile="[false]"/>
+
+  <rules_profiles id="3" name="Sonar Way with Findbugs" language="xoo" parent_name="Sonar Way" version="2"
+                  used_profile="[true]"/>
+
+</dataset>

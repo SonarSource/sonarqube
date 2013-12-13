@@ -26,4 +26,10 @@ public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectAll();
 
+  void insert(QualityProfileDto dto);
+
+  void update(QualityProfileDto dto);
+
+  void delete(Integer id);
+
 }

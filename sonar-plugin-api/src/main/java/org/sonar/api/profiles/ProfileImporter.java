@@ -42,7 +42,7 @@ public abstract class ProfileImporter implements ServerExtension {
 
   public abstract RulesProfile importProfile(Reader reader, ValidationMessages messages);
 
-  public final String getKey() {
+  public String getKey() {
     return importerKey;
   }
 

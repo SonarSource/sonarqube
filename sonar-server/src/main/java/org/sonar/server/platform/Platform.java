@@ -90,6 +90,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
+import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileSearch;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RubyQProfilesService;
@@ -271,6 +272,7 @@ public final class Platform {
     // quality profiles
     servicesContainer.addSingleton(QProfiles.class);
     servicesContainer.addSingleton(QProfileSearch.class);
+    servicesContainer.addSingleton(QProfileOperations.class);
     servicesContainer.addSingleton(RubyQProfilesService.class);
 
     // users

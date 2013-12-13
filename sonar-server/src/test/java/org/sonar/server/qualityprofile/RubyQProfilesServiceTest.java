@@ -20,14 +20,19 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,5 +55,14 @@ public class RubyQProfilesServiceTest {
     ));
 
     assertThat(service.searchProfiles()).hasSize(1);
+  }
+
+  @Test
+  public void new_profile() throws Exception {
+    service.newProfile(ImmutableMap.<String, Object>of(
+      "name", "Default",
+      "language", "java")
+    );
+    verify(qProfiles).newProfile(eq("Default"), eq("java"), any(UserSession.class));
   }
 }

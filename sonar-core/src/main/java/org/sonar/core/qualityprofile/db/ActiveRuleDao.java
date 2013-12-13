@@ -24,30 +24,19 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.List;
-
-public class QualityProfileDao implements ServerComponent {
+public class ActiveRuleDao implements ServerComponent {
 
   private final MyBatis mybatis;
 
-  public QualityProfileDao(MyBatis mybatis) {
+  public ActiveRuleDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public List<QualityProfileDto> selectAll() {
-    SqlSession session = mybatis.openSession();
-    try {
-      return session.getMapper(QualityProfileMapper.class).selectAll();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public void insert(ActiveRuleDto dto, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).insert(dto);
   }
 
-  public void insert(QualityProfileDto dto, SqlSession session) {
-    session.getMapper(QualityProfileMapper.class).insert(dto);
-  }
-
-  public void insert(QualityProfileDto dto) {
+  public void insert(ActiveRuleDto dto) {
     SqlSession session = mybatis.openSession();
     try {
       insert(dto, session);
@@ -57,20 +46,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public void update(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession();
-    try {
-      session.getMapper(QualityProfileMapper.class).update(dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public void insert(ActiveRuleParamDto dto, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).insertParameter(dto);
   }
 
-  public void delete(Integer id) {
+  public void insert(ActiveRuleParamDto dto) {
     SqlSession session = mybatis.openSession();
     try {
-      session.getMapper(QualityProfileMapper.class).delete(id);
+      insert(dto, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

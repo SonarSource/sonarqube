@@ -28,10 +28,6 @@ import java.util.List;
  */
 public final class Severity {
 
-  private Severity() {
-    // utility
-  }
-
   public static final String INFO = "INFO";
   public static final String MINOR = "MINOR";
   public static final String MAJOR = "MAJOR";
@@ -42,4 +38,9 @@ public final class Severity {
    * All the supported severity values, ordered from {@link #INFO} to {@link #BLOCKER}.
    */
   public static final List<String> ALL = ImmutableList.of(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
+
+  private Severity() {
+    // utility
+  }
+
 }

@@ -18,22 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule;
+package org.sonar.core.qualityprofile.db;
 
-import org.sonar.api.ServerComponent;
+public interface ActiveRuleMapper {
 
-public class Rules implements ServerComponent {
+  void insert(ActiveRuleDto dto);
 
-  public void createManualRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void editManualRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void deleteManualRule() {
-    throw new UnsupportedOperationException();
-  }
+  void insertParameter(ActiveRuleParamDto dto);
 
 }

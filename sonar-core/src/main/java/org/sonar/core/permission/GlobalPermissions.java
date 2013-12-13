@@ -42,4 +42,8 @@ public final class GlobalPermissions {
    */
   public static final List<String> ALL = ImmutableList.of(SYSTEM_ADMIN, QUALITY_PROFILE_ADMIN, DASHBOARD_SHARING, SCAN_EXECUTION, DRY_RUN_EXECUTION, PROVISIONING);
 
+  private GlobalPermissions() {
+    // only static methods
+  }
+
 }

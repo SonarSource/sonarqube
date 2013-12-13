@@ -27,6 +27,7 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,19 @@ public class RubyUtils {
     }
     return result;
   }
+
+//  public static Map<String, String> toMap(@Nullable Object o) {
+//    Map<String, String> result = null;
+//    if (o != null) {
+//      if (o instanceof List) {
+//        // assume that it contains only strings
+//        result = (List) o;
+//      } else if (o instanceof CharSequence) {
+//        result = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) o));
+//      }
+//    }
+//    return result;
+//  }
 
   @CheckForNull
   public static Integer toInteger(@Nullable Object o) {

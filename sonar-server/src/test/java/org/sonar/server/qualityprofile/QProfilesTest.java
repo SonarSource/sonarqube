@@ -25,10 +25,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
@@ -36,20 +38,20 @@ public class QProfilesTest {
   @Mock
   QProfileSearch search;
 
+  @Mock
+  QProfileOperations operations;
+
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(search);
+    qProfiles = new QProfiles(search, operations);
   }
 
   @Test
   public void search_profiles() throws Exception {
-    when(qProfiles.searchProfiles()).thenReturn(newArrayList(
-      new QProfile().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
-    ));
-
-    assertThat(qProfiles.searchProfiles()).hasSize(1);
+    qProfiles.searchProfiles();
+    verify(search).searchProfiles();
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -57,9 +59,10 @@ public class QProfilesTest {
     qProfiles.searchProfile(null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testNewProfile() throws Exception {
-    qProfiles.newProfile();
+  @Test
+  public void new_profile() throws Exception {
+    qProfiles.newProfile("Default", "java", MockUserSession.create());
+    verify(operations).newProfile(eq("Default"), eq("java"), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -150,5 +153,20 @@ public class QProfilesTest {
   @Test(expected = UnsupportedOperationException.class)
   public void testDeactiveRule() throws Exception {
     qProfiles.deactiveRule(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void createTemplateRule() throws Exception {
+    qProfiles.createTemplateRule();;
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void editTemplateRule() throws Exception {
+    qProfiles.editTemplateRule();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void deleteTemplateRule() throws Exception {
+    qProfiles.deleteTemplateRule();
   }
 }

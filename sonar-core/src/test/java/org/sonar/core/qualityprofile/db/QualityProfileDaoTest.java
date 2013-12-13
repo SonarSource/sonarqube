@@ -62,4 +62,46 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     assertThat(dto2.isUsed()).isFalse();
   }
 
+  @Test
+  public void insert() {
+    setupData("shared");
+
+    QualityProfileDto dto = new QualityProfileDto()
+      .setName("Sonar Way with Findbugs")
+      .setLanguage("xoo")
+      .setParent("Sonar Way")
+      .setVersion(2)
+      .setUsed(true);
+
+    dao.insert(dto);
+
+    checkTables("insert", "rules_profiles");
+  }
+
+  @Test
+  public void update() {
+    setupData("shared");
+
+    QualityProfileDto dto = new QualityProfileDto()
+      .setId(1)
+      .setName("New Sonar Way with Findbugs")
+      .setLanguage("js")
+      .setParent("New Sonar Way")
+      .setVersion(3)
+      .setUsed(false);
+
+    dao.update(dto);
+
+    checkTables("update", "rules_profiles");
+  }
+
+  @Test
+  public void delete() {
+    setupData("shared");
+
+    dao.delete(1);
+
+    checkTables("delete", "rules_profiles");
+  }
+
 }

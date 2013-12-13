@@ -21,8 +21,11 @@
 package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.util.RubyValidation;
 
 import java.util.List;
+import java.util.Map;
 
 public class RubyQProfilesService implements ServerComponent {
 
@@ -34,5 +37,15 @@ public class RubyQProfilesService implements ServerComponent {
 
   public List<QProfile> searchProfiles() {
     return qProfiles.searchProfiles();
+  }
+
+  public void newProfile(Map<String, Object> params) {
+    String name = (String) params.get("name");
+    String language = (String) params.get("language");
+//    RubyUtils.toStrings()
+
+    RubyValidation.checkMandatoryParameter(name, "name");
+    RubyValidation.checkMandatoryParameter(language, "language");
+    qProfiles.newProfile(name, language, UserSession.get());
   }
 }

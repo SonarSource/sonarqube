@@ -18,32 +18,49 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule;
+package org.sonar.core.qualityprofile.db;
 
-import org.junit.Before;
-import org.junit.Test;
+public class ActiveRuleParamDto {
 
-public class RulesTest {
+  private Integer id;
+  private Integer activeRuleId;
+  private Integer rulesParameterId;
+  private String value;
 
-  Rules rules;
-
-  @Before
-  public void setUp() throws Exception {
-    rules = new Rules();
+  public Integer getId() {
+    return id;
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testCreateManualRule() throws Exception {
-    rules.createManualRule();
+  public ActiveRuleParamDto setId(Integer id) {
+    this.id = id;
+    return this;
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testEditManualRule() throws Exception {
-    rules.editManualRule();
+  public Integer getActiveRuleId() {
+    return activeRuleId;
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testDeleteManualRule() throws Exception {
-    rules.deleteManualRule();
+  public ActiveRuleParamDto setActiveRuleId(Integer activeRuleId) {
+    this.activeRuleId = activeRuleId;
+    return this;
   }
+
+  public Integer getRulesParameterId() {
+    return rulesParameterId;
+  }
+
+  public ActiveRuleParamDto setRulesParameterId(Integer rulesParameterId) {
+    this.rulesParameterId = rulesParameterId;
+    return this;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public ActiveRuleParamDto setValue(String value) {
+    this.value = value;
+    return this;
+  }
+
 }

@@ -47,6 +47,7 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
+import org.sonar.server.util.RubyValidation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -70,8 +71,6 @@ public class InternalRubyIssueService implements ServerComponent {
   private static final String USER_PARAM = "user";
 
   private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
-  private static final String ERRORS_CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
-  private static final String ERRORS_IS_TOO_LONG_MESSAGE = "errors.is_too_long";
 
   private final IssueService issueService;
   private final IssueCommentService commentService;
@@ -354,7 +353,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkProject(String projectParam, Result<ActionPlan> result) {
     if (Strings.isNullOrEmpty(projectParam)) {
-      result.addError(Result.Message.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
+      result.addError(Result.Message.ofL10n(RubyValidation.ERRORS_CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
@@ -554,12 +553,12 @@ public class InternalRubyIssueService implements ServerComponent {
     boolean shared = sharedParam != null ? sharedParam : false;
 
     if (checkId) {
-      checkMandatoryParameter(id, ID_PARAM);
+      RubyValidation.checkMandatoryParameter(id, ID_PARAM);
     }
     if (checkUser) {
-      checkMandatoryParameter(user, USER_PARAM);
+      RubyValidation.checkMandatoryParameter(user, USER_PARAM);
     }
-    checkMandatorySizeParameter(name, NAME_PARAM, 100);
+    RubyValidation.checkMandatorySizeParameter(name, NAME_PARAM, 100);
     checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 4000);
 
     DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
@@ -595,39 +594,26 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
-      result.addError(Result.Message.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, paramName));
+      result.addError(Result.Message.ofL10n(RubyValidation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName));
     }
   }
 
   private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
     checkMandatoryParameter(value, paramName, result);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
+      result.addError(Result.Message.ofL10n(RubyValidation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
-    }
-  }
-
-  private void checkMandatoryParameter(String value, String paramName) {
-    if (Strings.isNullOrEmpty(value)) {
-      throw BadRequestException.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
-    }
-  }
-
-  private void checkMandatorySizeParameter(String value, String paramName, Integer size) {
-    checkMandatoryParameter(value, paramName);
-    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+      result.addError(Result.Message.ofL10n(RubyValidation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+      throw BadRequestException.ofL10n(RubyValidation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

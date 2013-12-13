@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.qualityprofile.db.ActiveRuleMapper">
+
+  <sql id="activeRuleColumns">
+    p.id,
+    p.profile_id as profileId,
+    p.rule_id as ruleId,
+    p.failure_level as severity,
+    p.version as version,
+    p.used_profile as used
+  </sql>
+
+  <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance)
+    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance})
+  </insert>
+
+  <insert id="insertParameter" parameterType="ActiveRuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO active_rule_parameters (active_rule_id, rules_parameter_id, value)
+    VALUES (#{activeRuleId}, #{rulesParameterId}, #{value})
+  </insert>
+
+</mapper>
+

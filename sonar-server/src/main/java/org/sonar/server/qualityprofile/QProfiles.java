@@ -22,15 +22,18 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.server.user.UserSession;
 
 import java.util.List;
 
 public class QProfiles implements ServerComponent {
 
   private final QProfileSearch search;
+  private final QProfileOperations operations;
 
-  public QProfiles(QProfileSearch search) {
+  public QProfiles(QProfileSearch search, QProfileOperations operations) {
     this.search = search;
+    this.operations = operations;
   }
 
   public List<QProfile> searchProfiles() {
@@ -41,8 +44,8 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void newProfile() {
-    throw new UnsupportedOperationException();
+  public void newProfile(String name, String language, UserSession userSession) {
+    operations.newProfile(name, language, userSession);
   }
 
   public void deleteProfile() {
@@ -122,6 +125,20 @@ public class QProfiles implements ServerComponent {
   }
 
   public void deactiveRule(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  // TEMPLATE RULES
+
+  public void createTemplateRule() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void editTemplateRule() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void deleteTemplateRule() {
     throw new UnsupportedOperationException();
   }
 
