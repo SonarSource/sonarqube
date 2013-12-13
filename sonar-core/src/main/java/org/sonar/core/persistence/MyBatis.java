@@ -155,7 +155,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
-      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper2.class
+      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

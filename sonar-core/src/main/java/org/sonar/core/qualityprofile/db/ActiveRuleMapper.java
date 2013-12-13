@@ -20,7 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
-public interface ActiveRuleMapper2 {
+public interface ActiveRuleMapper {
 
   void insert(ActiveRuleDto dto);
 
