@@ -57,7 +57,7 @@ public class QProfiles implements ServerComponent {
     operations.renameProfile(name, language, newName, UserSession.get());
   }
 
-  public void setDefaultProfile() {
+  public void updateDefaultProfile() {
     throw new UnsupportedOperationException();
   }
 
@@ -126,6 +126,26 @@ public class QProfiles implements ServerComponent {
   }
 
   public void deactiveRule(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void updateParameters(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void activeNote(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void editNote(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void deleteNote(QProfileKey profile, RuleKey ruleKey) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void extendDescription(QProfileKey profile, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 

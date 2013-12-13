@@ -81,7 +81,7 @@ public class QProfilesTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testSetDefaultProfile() throws Exception {
-    qProfiles.setDefaultProfile();
+    qProfiles.updateDefaultProfile();
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -157,6 +157,31 @@ public class QProfilesTest {
   @Test(expected = UnsupportedOperationException.class)
   public void testDeactiveRule() throws Exception {
     qProfiles.deactiveRule(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void updateParameters() {
+    qProfiles.updateParameters(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void activeNote() {
+    qProfiles.activeNote(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void editNote() {
+    qProfiles.editNote(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void deleteNote() {
+    qProfiles.deleteNote(null, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void extendDescription() {
+    qProfiles.extendDescription(null, null);
   }
 
   @Test(expected = UnsupportedOperationException.class)
