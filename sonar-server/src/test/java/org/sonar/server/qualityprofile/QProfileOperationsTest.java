@@ -43,6 +43,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -86,12 +87,19 @@ public class QProfileOperationsTest {
   }
 
   @Test
-  public void new_profile() throws Exception {
+  public void create_profile() throws Exception {
     NewProfileResult result = operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile().name()).isEqualTo("Default");
     assertThat(result.profile().language()).isEqualTo("java");
 
     verify(dao).insert(any(QualityProfileDto.class), eq(session));
+
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    verify(dao).insert(profileArgument.capture(), eq(session));
+    assertThat(profileArgument.getValue().getName()).isEqualTo("Default");
+    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+    assertThat(profileArgument.getValue().getVersion()).isEqualTo(1);
+    assertThat(profileArgument.getValue().isUsed()).isFalse();
   }
 
   @Test
@@ -130,7 +138,7 @@ public class QProfileOperationsTest {
   }
 
   @Test
-  public void new_profile_from_xml_plugin() throws Exception {
+  public void create_profile_from_xml_plugin() throws Exception {
     RulesProfile profile = RulesProfile.create("Default", "java");
     Rule rule = Rule.create("pmd", "rule1");
     rule.createParameter("paramKey");
@@ -182,6 +190,54 @@ public class QProfileOperationsTest {
       }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
 
       operations.newProfile("Default", "java", xmlProfilesByPlugin, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+    verify(session, never()).commit();
+  }
+
+  @Test
+  public void rename_profile() throws Exception {
+    QualityProfileDto dto = new QualityProfileDto().setName("Default").setLanguage("java");
+    when(dao.selectByNameAndLanguage(eq("Default"), anyString())).thenReturn(dto);
+    operations.renameProfile("Default", "java", "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    verify(dao).update(profileArgument.capture());
+
+    assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
+    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+  }
+
+  @Test
+  public void fail_to_rename_profile_on_unknown_profile() throws Exception {
+    try {
+      operations.renameProfile("Default", "java", "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verify(dao, never()).update(any(QualityProfileDto.class));
+  }
+
+  @Test
+  public void fail_to_rename_profile_when_missing_new_name() throws Exception {
+    try {
+      operations.renameProfile("Default", "java", "", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+    verify(dao, never()).update(any(QualityProfileDto.class));
+  }
+
+  @Test
+  public void fail_to_rename_profile_if_already_exists() throws Exception {
+    try {
+      when(dao.selectByNameAndLanguage(eq("Default"), anyString())).thenReturn(new QualityProfileDto().setName("Default").setLanguage("java"));
+      when(dao.selectByNameAndLanguage(eq("New Default"), anyString())).thenReturn(new QualityProfileDto().setName("New Default").setLanguage("java"));
+      operations.renameProfile("Default", "java", "New Default", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);

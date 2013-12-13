@@ -64,20 +64,14 @@ class ProfilesController < ApplicationController
       end
 
       # TODO manage these exceptions at a higher level
-    rescue NativeException => exception
-      if exception.cause.java_kind_of? Java::OrgSonarServerExceptions::ServerException
-        error = exception.cause
-        flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
-        if error.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !error.errors.empty?
-          flash[:error] += '<br/>' + error.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
-        end
-      else
-        flash[:error] = 'Error when creating the quality profile : ' + exception.cause.getMessage
+    rescue Java::OrgSonarServerExceptions::ServerException => error
+      flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
+      if error.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !error.errors.empty?
+        flash[:error] += '<br/>' + error.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
       end
     end
     redirect_to :action => 'index'
   end
-
 
   # POST /profiles/delete/<id>
   def delete
@@ -343,16 +337,9 @@ class ProfilesController < ApplicationController
   def rename
     verify_post_request
     verify_ajax_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters 'id'
 
-    @profile = Profile.find(params[:id])
-
-    if @profile.rename(params[:name]).errors.empty?
-      render :text => 'ok', :status => 200
-    else
-      render :partial => 'profiles/rename_form', :status => 400
-    end
+    Internal.qprofiles.renameProfile(params[:name], params[:language], params[:new_name])
+    render :text => 'ok', :status => 200
   end
 
   # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>

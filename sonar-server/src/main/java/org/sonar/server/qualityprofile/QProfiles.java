@@ -53,8 +53,8 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void renameProfile() {
-    throw new UnsupportedOperationException();
+  public void renameProfile(String name, String language, String newName) {
+    operations.renameProfile(name, language, newName, UserSession.get());
   }
 
   public void setDefaultProfile() {

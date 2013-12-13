@@ -178,6 +178,9 @@ class ApplicationController < ActionController::Base
 
   def render_server_exception(exception)
     message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
+    if exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
+      message += '<br/>' + exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+    end
     render :text => CGI.escapeHTML(message), :status => exception.httpCode
   end
 

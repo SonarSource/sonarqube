@@ -37,6 +37,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -70,11 +71,10 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    validate(name, language);
+    validateNewProfile(name, language, userSession);
 
     NewProfileResult result = new NewProfileResult();
-    List<RulesProfile> importProfiles = readProfiles(result, xmlProfilesByPlugin);
+    List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
 
     SqlSession sqlSession = myBatis.openSession();
     try {
@@ -91,17 +91,17 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void validate(String name, String language){
-    if (Strings.isNullOrEmpty(name)) {
-      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
-    }
-    Validation.checkMandatoryParameter(language, "language");
-    if (dao.selectByNameAndLanguage(name, language) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
-    }
+  public void renameProfile(String name, String language, String newName, UserSession userSession) {
+    QualityProfileDto qualityProfile = validateRenameProfile(name, language, newName, userSession);
+    qualityProfile.setName(newName);
+    dao.update(qualityProfile);
   }
 
-  private List<RulesProfile> readProfiles(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
+  private QualityProfileDto find(String name, String language) {
+    return dao.selectByNameAndLanguage(name, language);
+  }
+
+  private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
     List<RulesProfile> profiles = newArrayList();
     ValidationMessages messages = ValidationMessages.create();
     for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
@@ -163,6 +163,39 @@ public class QProfileOperations implements ServerComponent {
       .setActiveRuleId(activeRuleDto.getId())
       .setRulesParameterId(activeRuleParam.getRuleParam().getId())
       .setValue(activeRuleParam.getValue());
+  }
+
+  private void validateNewProfile(String name, String language, UserSession userSession) {
+    checkPermission(userSession);
+    validateName(name);
+    Validation.checkMandatoryParameter(language, "language");
+    if (find(name, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+  }
+
+  private QualityProfileDto validateRenameProfile(String name, String language, String newName, UserSession userSession) {
+    checkPermission(userSession);
+    validateName(newName);
+    if (find(newName, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+
+    QualityProfileDto qualityProfile = find(name, language);
+    if (qualityProfile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return qualityProfile;
+  }
+
+  private void validateName(String name) {
+    if (Strings.isNullOrEmpty(name)) {
+      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
+    }
+  }
+
+  private void checkPermission(UserSession userSession) {
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
 }

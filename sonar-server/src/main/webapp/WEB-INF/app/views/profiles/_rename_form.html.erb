@@ -1,19 +1,18 @@
 <form id="rename-profile-form" method="post" action="profiles/rename">
-  <input type="hidden" name="id" value="<%= @profile.id -%>"/>
+  <input type="hidden" name="name" value="<%= @profile.name -%>"/>
+  <input type="hidden" name="language" value="<%=  @profile.language -%>"/>
   <fieldset>
 
     <div class="modal-head">
-      <h2>Rename Profile: <%= h @profile.name_was -%></h2>
+      <h2>Rename Profile: <%= h @profile.name -%></h2>
     </div>
 
     <div class="modal-body">
-      <% @profile.errors.each do |attr, msg| %>
-        <p class="error"><%= h msg -%></p>
-      <% end %>
+      <div class="modal-error"/>
 
       <div class="modal-field">
-        <label for="name">New name <em class="mandatory">*</em></label>
-        <input id="new-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
+        <label for="new_name">New name <em class="mandatory">*</em></label>
+        <input id="new-name" name="new_name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
     </div>
     <div class="modal-foot">

@@ -73,9 +73,10 @@ public class QProfilesTest {
     qProfiles.deleteProfile();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testRenameProfile() throws Exception {
-    qProfiles.renameProfile();
+  @Test
+  public void rename_profile() throws Exception {
+    qProfiles.renameProfile("Default", "java", "Default profile");
+    verify(operations).renameProfile(eq("Default"), eq("java"), eq("Default profile"), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
