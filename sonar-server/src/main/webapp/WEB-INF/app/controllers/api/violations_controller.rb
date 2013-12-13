@@ -70,7 +70,7 @@ class Api::ViolationsController < Api::ApiController
       hash[:switchedOff]=true if issue.resolution=='FALSE-POSITIVE'
       rule = results.rule(issue)
       if rule
-        hash[:rule] = {:key => rule.ruleKey.toString(), :name => Internal.rules.ruleL10nName(rule)}
+        hash[:rule] = {:key => rule.ruleKey.toString(), :name => rule.getName()}
       end
       resource = results.component(issue)
       if resource

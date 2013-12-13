@@ -29,6 +29,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -62,25 +64,25 @@ public class JsonReport implements BatchComponent {
   private final Settings settings;
   private final ModuleFileSystem fileSystem;
   private final Server server;
-  private final RuleI18nManager ruleI18nManager;
+  private final RuleFinder ruleFinder;
   private final IssueCache issueCache;
   private final EventBus eventBus;
   private final ComponentSelector componentSelector;
   private AnalysisMode analysisMode;
   private UserFinder userFinder;
 
-  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
+  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
     EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
-    this(settings, fileSystem, server, ruleI18nManager, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
+    this(settings, fileSystem, server, ruleFinder, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
   }
 
   @VisibleForTesting
-  JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache,
+  JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
     EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
-    this.ruleI18nManager = ruleI18nManager;
+    this.ruleFinder = ruleFinder;
     this.issueCache = issueCache;
     this.eventBus = eventBus;
     this.componentSelector = componentSelector;
@@ -216,7 +218,8 @@ public class JsonReport implements BatchComponent {
   }
 
   private String getRuleName(RuleKey ruleKey) {
-    return ruleI18nManager.getName(ruleKey.repository(), ruleKey.rule());
+    Rule rule = ruleFinder.findByKey(ruleKey);
+    return rule != null ? rule.getName() : null;
   }
 
   @VisibleForTesting

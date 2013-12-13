@@ -189,8 +189,8 @@ class Rule < ActiveRecord::Base
   end
 
   def self.to_hash(java_rule)
-    l10n_name = Internal.rules.ruleL10nName(java_rule)
-    l10n_desc = Internal.rules.ruleL10nDescription(java_rule)
+    l10n_name = java_rule.getName()
+    l10n_desc = java_rule.getDescription()
     hash = {:key => java_rule.ruleKey().toString()}
     hash[:name] = l10n_name if l10n_name
     hash[:desc] = l10n_desc if l10n_desc
