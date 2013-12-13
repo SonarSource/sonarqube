@@ -37,6 +37,7 @@ import org.sonar.server.search.SearchIndex;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -63,13 +64,13 @@ public class ProfileRules {
       .setFrom(paging.offset());
     SearchHits hits = index.executeRequest(builder);
 
-    String[] activeRuleSources = new String[hits.getHits().length];
+    List<Map<String, Object>> activeRuleSources = Lists.newArrayList();
     String[] parentIds = new String[hits.getHits().length];
     int hitCounter = 0;
 
     List<QProfileRule> result = Lists.newArrayList();
     for (SearchHit hit: hits.getHits()) {
-      activeRuleSources[hitCounter] = hit.sourceAsString();
+      activeRuleSources.add(hit.sourceAsMap());
       parentIds[hitCounter] = hit.field("_parent").value();
       hitCounter ++;
     }
@@ -79,7 +80,7 @@ public class ProfileRules {
         .execute().actionGet().getResponses();
 
       for (int i = 0; i < hitCounter; i ++) {
-        result.add(new QProfileRule(responses[i].getResponse().getSourceAsString(), activeRuleSources[i]));
+        result.add(new QProfileRule(responses[i].getResponse().getSourceAsMap(), activeRuleSources.get(i)));
       }
     }
 

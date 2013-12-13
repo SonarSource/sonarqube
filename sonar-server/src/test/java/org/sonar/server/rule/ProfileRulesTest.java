@@ -26,11 +26,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.qualityprofile.Paging;
+import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -68,18 +72,26 @@ public class ProfileRulesTest {
     esSetup.client().prepareBulk()
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
       .setRefresh(true).execute().actionGet();
 
     Paging paging = Paging.create(10, 1);
 
     // All rules for profile 1
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging).rules()).hasSize(2);
+    List<QProfileRule> rules1 = profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging).rules();
+    assertThat(rules1).hasSize(3);
+    assertThat(rules1.get(0).key()).isEqualTo("DM_CONVERT_CASE");
+    assertThat(rules1.get(0).severity()).isEqualTo(RulePriority.MINOR);
 
     // All rules for profile 2
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules()).hasSize(1);
+    List<QProfileRule> rules2 = profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules();
+    assertThat(rules2).hasSize(1);
+    assertThat(rules2.get(0).ruleSource().get("id")).isEqualTo(759);
+    assertThat(rules2.get(0).activeRuleSource().get("id")).isEqualTo(523);
 
     // Inexistent profile
     assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
@@ -95,6 +107,11 @@ public class ProfileRulesTest {
 
     // Match on repositoryKey
     assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
+
+    // Match on key, rule has parameters
+    List<QProfileRule> rulesWParam = profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
+    assertThat(rulesWParam).hasSize(1);
+    assertThat(rulesWParam.get(0).params()).hasSize(2);
   }
 
   private String testFileAsString(String testFile) throws Exception {
