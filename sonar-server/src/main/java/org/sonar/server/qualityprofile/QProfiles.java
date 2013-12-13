@@ -38,7 +38,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public List<QProfile> searchProfiles() {
-    return search.searchProfiles();
+    throw new UnsupportedOperationException();
   }
 
   public void searchProfile(QProfileKey profile) {

@@ -50,10 +50,9 @@ public class QProfilesTest {
     qProfiles = new QProfiles(search, operations);
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void search_profiles() throws Exception {
     qProfiles.searchProfiles();
-    verify(search).searchProfiles();
   }
 
   @Test(expected = UnsupportedOperationException.class)
