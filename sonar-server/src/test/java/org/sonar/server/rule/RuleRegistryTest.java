@@ -24,6 +24,7 @@ import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
@@ -147,6 +148,14 @@ public class RuleRegistryTest {
   @Test(expected = IllegalArgumentException.class)
   public void should_wrap_parse_exceptions() {
     registry.findIds(ImmutableMap.of("nameOrKey", "\"'"));
+  }
+
+  @Test
+  public void should_remove_all_rules_when_ro_rule_registered() {
+    List<RuleDto> rules = Lists.newArrayList();
+    when(ruleDao.selectNonManual()).thenReturn(rules);
+    registry.bulkRegisterRules();
+    assertThat(registry.findIds(new HashMap<String, String>())).hasSize(0);
   }
 
   @Test

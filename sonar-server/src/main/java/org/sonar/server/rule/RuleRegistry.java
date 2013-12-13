@@ -170,9 +170,12 @@ public class RuleRegistry {
       index ++;
     }
     profiler.stop();
-    profiler.start("Index rules");
-    searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
-    profiler.stop();
+
+    if (! rules.isEmpty()) {
+      profiler.start("Index rules");
+      searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
+      profiler.stop();
+    }
 
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
