@@ -89,6 +89,7 @@
           <exclude>**/app</exclude>
           <exclude>**/*.bat</exclude>
           <exclude>**/sample*/**</exclude>
+          <exclude>**/macosx-universal-32/**</exclude>
         </excludes>
       </unpackOptions>
       <fileMode>0755</fileMode>
