@@ -141,4 +141,9 @@ public class BadRequestException extends ServerException {
     }
   }
 
+  public void checkMessages() {
+    if (! errors.isEmpty()) {
+      throw this;
+    }
+  }
 }

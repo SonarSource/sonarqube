@@ -23,6 +23,7 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.CheckForNull;
 
@@ -48,30 +49,28 @@ public class ProfileRuleQuery {
     statuses = Lists.newArrayList();
   }
 
-  public static ProfileRuleQuery parse(Map<String, Object> params) throws ValidationException {
-    List<String> validationMessages = Lists.newArrayList();
+  public static ProfileRuleQuery parse(Map<String, Object> params) {
+    BadRequestException validationException = BadRequestException.of("Incorrect rule search parameters");
 
-    validatePresenceOf(params, validationMessages, "profileId");
+    validatePresenceOf(params, validationException, "profileId");
 
     ProfileRuleQuery result = new ProfileRuleQuery();
 
     try {
       result.profileId = Integer.parseInt((String) params.get("profileId"));
     } catch (Exception badProfileId) {
-      validationMessages.add("profileId could not be parsed");
+      validationException.addError("profileId could not be parsed");
     }
 
-    if (! validationMessages.isEmpty()) {
-      throw new ValidationException(validationMessages);
-    }
+    validationException.checkMessages();
 
     return result;
   }
 
-  private static void validatePresenceOf(Map<String, Object> params, List<String> validationMessages, String... paramNames) {
+  private static void validatePresenceOf(Map<String, Object> params, BadRequestException validationException, String... paramNames) {
     for (String param: paramNames) {
       if (params.get(param) == null) {
-        validationMessages.add("Missing parameter "+param);
+        validationException.addError("Missing parameter "+param);
       }
     }
   }

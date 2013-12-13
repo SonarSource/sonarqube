@@ -19,17 +19,15 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.utils.Paging;
-
 import java.util.Collection;
 import java.util.List;
 
 public class QProfileRuleResult {
 
   private final List<QProfileRule> rules;
-  private final Paging paging;
+  private final PagingResult paging;
 
-  public QProfileRuleResult(List<QProfileRule> rules, Paging paging) {
+  public QProfileRuleResult(List<QProfileRule> rules, PagingResult paging) {
     this.rules = rules;
     this.paging = paging;
   }
@@ -38,7 +36,7 @@ public class QProfileRuleResult {
     return rules;
   }
 
-  public Paging paging() {
+  public PagingResult paging() {
     return paging;
   }
 }

@@ -30,7 +30,9 @@ import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.sonar.server.qualityprofile.Paging;
+import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
+import org.sonar.server.qualityprofile.QProfileRuleResult;
 import org.sonar.server.search.SearchIndex;
 
 import java.util.Collection;
@@ -47,7 +49,7 @@ public class ProfileRules {
     this.index = index;
   }
 
-  public List<QProfileRule> searchActiveRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
     BoolFilterBuilder filter = boolFilter().must(
             termFilter("profileId", query.profileId()),
             hasParentFilter("rule", parentRuleFilter(query))
@@ -81,7 +83,7 @@ public class ProfileRules {
       }
     }
 
-    return result;
+    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
   private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {

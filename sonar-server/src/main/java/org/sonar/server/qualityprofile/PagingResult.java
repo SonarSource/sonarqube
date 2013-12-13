@@ -26,9 +26,9 @@ package org.sonar.server.qualityprofile;
  */
 public class PagingResult extends Paging {
 
-  private final int total;
+  private final long total;
 
-  private PagingResult(int pageSize, int pageIndex, int total) {
+  private PagingResult(int pageSize, int pageIndex, long total) {
     super(pageSize, pageIndex);
     this.total = total;
   }
@@ -36,8 +36,8 @@ public class PagingResult extends Paging {
   /**
    * Number of pages. It is greater than or equal 0.
    */
-  public int pages() {
-    int p = total / pageSize();
+  public long pages() {
+    long p = total / pageSize();
     if (total % pageSize() > 0) {
       p++;
     }
@@ -51,11 +51,11 @@ public class PagingResult extends Paging {
   /**
    * Total number of items. It is greater than or equal 0.
    */
-  public int total() {
+  public long total() {
     return total;
   }
 
-  public static PagingResult create(int pageSize, int pageIndex, int totalItems) {
+  public static PagingResult create(int pageSize, int pageIndex, long totalItems) {
     checkPageSize(pageSize);
     checkPageIndex(pageIndex);
     checkTotalItems(totalItems);
@@ -63,7 +63,7 @@ public class PagingResult extends Paging {
     return new PagingResult(pageSize, pageIndex, totalItems);
   }
 
-  protected static void checkTotalItems(int totalItems) {
+  protected static void checkTotalItems(long totalItems) {
     if (totalItems<0) {
       throw new IllegalArgumentException("Total items must be positive. Got " + totalItems);
     }

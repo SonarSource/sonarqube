@@ -76,25 +76,25 @@ public class ProfileRulesTest {
     Paging paging = Paging.create(10, 1);
 
     // All rules for profile 1
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging)).hasSize(2);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging).rules()).hasSize(2);
 
     // All rules for profile 2
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging)).hasSize(1);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules()).hasSize(1);
 
     // Inexistent profile
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(3), paging)).hasSize(0);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
 
     // Inexistent name/key
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging)).hasSize(0);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
 
     // Match on key
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging)).hasSize(1);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
 
     // Match on name
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging)).hasSize(1);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
 
     // Match on repositoryKey
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging)).hasSize(1);
+    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
   }
 
   private String testFileAsString(String testFile) throws Exception {
