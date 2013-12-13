@@ -140,7 +140,7 @@
     </li>
 
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%> class="marginbottom5">
-      <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favourites' %>:
+      <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favorites' %>:
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true', :id => 'check-fav' -%>
     </li>
 

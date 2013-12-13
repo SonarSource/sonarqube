@@ -113,7 +113,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           e.preventDefault();
           this.selectNextChoice();
           break;
-        case 32:
         case 13:
           e.preventDefault();
           this.selectCurrent();

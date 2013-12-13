@@ -164,7 +164,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     keydown: function(e) {
-      if (_([37, 38, 39, 40, 32, 13]).indexOf(e.keyCode) !== -1) {
+      if (_([37, 38, 39, 40, 13]).indexOf(e.keyCode) !== -1) {
         e.preventDefault();
       }
     },
