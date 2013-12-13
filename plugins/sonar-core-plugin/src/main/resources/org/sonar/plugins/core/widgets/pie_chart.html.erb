@@ -20,14 +20,16 @@
   (function () {
     var metrics = [
           '<%= widget_properties["mainMetric"].name %>',
-          '<%= widget_properties["extraMetric1"].name %>',
-          '<%= widget_properties["extraMetric2"].name %>'
+          '<%= widget_properties["extraMetric1"].name %>'
+          <% if (widget_properties["extraMetric2"]) %>
+          , '<%= widget_properties["extraMetric2"].name %>'
+          <% end %>
         ],
         query = [
           'filter=<%= filterId %>',
           'metrics=' + metrics.join(','),
           'fields=name',
-          'pageSize=9',
+          'pageSize=10',
           'page=1',
           'sort=metric:' + metrics[0],
           'asc=false'

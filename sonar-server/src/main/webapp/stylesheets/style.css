@@ -2440,6 +2440,18 @@ textarea.width100 {
   fill: #444;
 }
 
+.sonar-d3 .plot {
+  transition: all 0.2s ease;
+}
+
+.sonar-d3 .plot:hover .arc {
+  opacity: 0.4;
+}
+
+.sonar-d3 .plot .arc:hover {
+  opacity: 1;
+}
+
 .sonar-d3 .plot .line {
   fill: none;
   stroke: #000;
@@ -2460,11 +2472,9 @@ textarea.width100 {
 
 .sonar-d3 .arc {
   cursor: pointer;
+  stroke: #fff;
+  stroke-width: 1px;
   transition: all 0.2s ease;
-}
-
-.sonar-d3 .arc-active {
-  -webkit-transform: scale(1.05);
 }
 
 .sonar-d3 .legend {
