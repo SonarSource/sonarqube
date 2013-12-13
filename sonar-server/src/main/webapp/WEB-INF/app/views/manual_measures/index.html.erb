@@ -64,9 +64,8 @@
         <%= l(measure.updated_at) -%>
       </td>
       <td class="thin nowrap">
-        <a href="<%= url_for :controller => 'manual_measures', :action => 'edit_form', :metric => measure.metric.key, :id => @resource.id -%>" class="open-modal link-action"><%= message('edit')
-        -%></a>
-        &nbsp;
+        <a href="<%= url_for :controller => 'manual_measures', :action => 'edit_form', :metric => measure.metric.key, :id => @resource.id -%>" class="open-modal link-action"><%= message('edit') -%></a>&nbsp;
+
         <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_measures/delete/#{ @resource.id}?metric=#{measure.metric.key}",
                            :class => 'link-action link-red',
                            :id => "delete_#{measure.metric.key}",

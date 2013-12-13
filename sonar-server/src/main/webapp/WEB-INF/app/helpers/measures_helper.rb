@@ -108,7 +108,7 @@ module MeasuresHelper
     more_criteria_options << [message('measure_filter.criteria.metric'), 'metric']
     more_criteria_options << [message('measure_filter.criteria.age'), 'age'] unless filter.criteria('ageMinDays') || filter.criteria('ageMaxDays')
     more_criteria_options << [message('measure_filter.criteria.date'), 'date'] unless filter.criteria('fromDate') || filter.criteria('toDate')
-    more_criteria_options << [message('measure_filter.criteria.only_favourites'), 'fav'] unless filter.criteria('onFavourites')
+    more_criteria_options << [message('measure_filter.criteria.only_favorites'), 'fav'] unless filter.criteria('onFavourites')
     more_criteria_options << [message('measure_filter.criteria.key'), 'key'] unless filter.criteria('keySearch')
     more_criteria_options << [message('measure_filter.criteria.language'), 'lang'] unless filter.criteria('languages')
     more_criteria_options << [message('measure_filter.criteria.name'), 'name'] unless filter.criteria('nameSearch')
