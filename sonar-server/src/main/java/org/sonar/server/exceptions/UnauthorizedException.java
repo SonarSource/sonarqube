@@ -22,7 +22,7 @@ package org.sonar.server.exceptions;
 /**
  * User needs to be authenticated. HTTP request is generally redirected to login form.
  */
-public class UnauthorizedException extends HttpException {
+public class UnauthorizedException extends ServerException {
 
   private static final int UNAUTHORIZED = 401;
 

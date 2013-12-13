@@ -27,26 +27,26 @@ import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class HttpException extends RuntimeException {
+public class ServerException extends RuntimeException {
   private final int httpCode;
 
   private final String l10nKey;
   private final Collection<Object> l10nParams;
 
-  public HttpException(int httpCode) {
+  public ServerException(int httpCode) {
     this.httpCode = httpCode;
     this.l10nKey = null;
     this.l10nParams = null;
   }
 
-  public HttpException(int httpCode, String message) {
+  public ServerException(int httpCode, String message) {
     super(message);
     this.httpCode = httpCode;
     this.l10nKey = null;
     this.l10nParams = null;
   }
 
-  public HttpException(int httpCode, @Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
+  public ServerException(int httpCode, @Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
     super(message);
     this.httpCode = httpCode;
     this.l10nKey = l10nKey;

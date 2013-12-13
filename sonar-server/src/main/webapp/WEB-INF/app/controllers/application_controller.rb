@@ -196,7 +196,7 @@ class ApplicationController < ActionController::Base
       render_native_access_denied(error)
     elsif error.java_kind_of? Java::OrgSonarServerExceptions::ForbiddenException
       render_native_access_denied(error)
-    elsif error.java_kind_of? Java::OrgSonarServerExceptions::HttpException
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::ServerException
       render_server_exception(error)
     else
       render_error(error)

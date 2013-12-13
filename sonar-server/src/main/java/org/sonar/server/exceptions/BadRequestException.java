@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 /**
  * Request is not valid and can not be processed.
  */
-public class BadRequestException extends HttpException {
+public class BadRequestException extends ServerException {
 
   private static final int BAD_REQUEST = 400;
 

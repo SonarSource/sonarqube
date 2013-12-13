@@ -22,7 +22,7 @@ package org.sonar.server.exceptions;
 /**
  * Permission denied. User does not have the required permissions.
  */
-public class ForbiddenException extends HttpException {
+public class ForbiddenException extends ServerException {
 
   private static final int FORBIDDEN = 403;
 

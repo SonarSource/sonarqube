@@ -19,7 +19,7 @@
  */
 package org.sonar.server.exceptions;
 
-public class NotFoundException extends HttpException {
+public class NotFoundException extends ServerException {
 
   private static final int NOT_FOUND = 404;
 

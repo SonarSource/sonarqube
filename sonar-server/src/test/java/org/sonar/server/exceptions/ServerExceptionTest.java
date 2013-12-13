@@ -24,24 +24,24 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class HttpExceptionTest {
+public class ServerExceptionTest {
 
   @Test
   public void should_create_exception_with_status(){
-    HttpException exception = new HttpException(400);
+    ServerException exception = new ServerException(400);
     assertThat(exception.httpCode()).isEqualTo(400);
   }
 
   @Test
   public void should_create_exception_with_status_and_message(){
-    HttpException exception = new HttpException(404, "Not found");
+    ServerException exception = new ServerException(404, "Not found");
     assertThat(exception.httpCode()).isEqualTo(404);
     assertThat(exception.getMessage()).isEqualTo("Not found");
   }
 
   @Test
   public void should_create_exception_with_status_and_l10n_message_with_param(){
-    HttpException exception = new HttpException(404, null, "key", new String[]{"value"});
+    ServerException exception = new ServerException(404, null, "key", new String[]{"value"});
     assertThat(exception.httpCode()).isEqualTo(404);
     assertThat(exception.l10nKey()).isEqualTo("key");
     assertThat(exception.l10nParams()).containsOnly("value");
@@ -49,7 +49,7 @@ public class HttpExceptionTest {
 
   @Test
   public void should_create_exception_with_status_and_l10n_message_without_param(){
-    HttpException exception = new HttpException(404, null, "key", null);
+    ServerException exception = new ServerException(404, null, "key", null);
     assertThat(exception.httpCode()).isEqualTo(404);
     assertThat(exception.l10nKey()).isEqualTo("key");
     assertThat(exception.l10nParams()).isEmpty();

@@ -29,10 +29,10 @@ import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -91,11 +91,6 @@ public class InternalPermissionTemplateService implements ServerComponent {
     validateTemplateName(null, name);
     validateKeyPattern(keyPattern);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
-    if (permissionTemplateDto.getId() == null) {
-      String errorMsg = "Template creation failed";
-      LOG.error(errorMsg);
-      throw new ServerErrorException(errorMsg);
-    }
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
