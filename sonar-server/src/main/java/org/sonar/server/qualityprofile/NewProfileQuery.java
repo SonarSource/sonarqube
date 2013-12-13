@@ -20,31 +20,5 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.server.util.Validation;
-
-import java.util.List;
-import java.util.Map;
-
-public class RubyQProfilesService implements ServerComponent {
-
-  private final QProfiles qProfiles;
-
-  public RubyQProfilesService(QProfiles qProfiles) {
-    this.qProfiles = qProfiles;
-  }
-
-  public List<QProfile> searchProfiles() {
-    return qProfiles.searchProfiles();
-  }
-
-  public void newProfile(Map<String, Object> params) {
-    String name = (String) params.get("name");
-    String language = (String) params.get("language");
-//    RubyUtils.toStrings()
-
-    Validation.checkMandatoryParameter(name, "name");
-    Validation.checkMandatoryParameter(language, "language");
-//    qProfiles.newProfile(name, language, UserSession.get());
-  }
+public class NewProfileQuery {
 }

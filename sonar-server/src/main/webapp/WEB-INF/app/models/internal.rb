@@ -67,7 +67,7 @@ class Internal
   end
 
   def self.qprofiles
-    component(Java::OrgSonarServerQualityprofile::RubyQProfilesService.java_class)
+    component(Java::OrgSonarServerQualityprofile::QProfiles.java_class)
   end
 
   private

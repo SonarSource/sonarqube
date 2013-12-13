@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 3.6
@@ -53,18 +54,18 @@ public class RubyUtils {
     return result;
   }
 
-//  public static Map<String, String> toMap(@Nullable Object o) {
-//    Map<String, String> result = null;
-//    if (o != null) {
-//      if (o instanceof List) {
-//        // assume that it contains only strings
-//        result = (List) o;
-//      } else if (o instanceof CharSequence) {
-//        result = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) o));
-//      }
-//    }
-//    return result;
-//  }
+  public static Map<String, Object> toMap(@Nullable Object o) {
+    Map<String, Object> result = null;
+    if (o != null) {
+      if (o instanceof Map) {
+        // assume that it contains only strings
+        result = (Map) o;
+      } else {
+        throw new IllegalArgumentException("Unsupported type for map: " + o.getClass());
+      }
+    }
+    return result;
+  }
 
   @CheckForNull
   public static Integer toInteger(@Nullable Object o) {

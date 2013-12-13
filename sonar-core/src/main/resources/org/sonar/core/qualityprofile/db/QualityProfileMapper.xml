@@ -17,6 +17,15 @@
     from rules_profiles p
   </select>
 
+  <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
+    select <include refid="profilesColumns"/>
+    from rules_profiles p
+    <where>
+      and p.name=#{name}
+      and p.language=#{language}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_profiles (name, language, parent_name, version, used_profile)
     VALUES (#{name}, #{language}, #{parent}, #{version}, #{used})

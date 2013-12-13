@@ -22,25 +22,25 @@ package org.sonar.server.util;
 import com.google.common.base.Strings;
 import org.sonar.server.exceptions.BadRequestException;
 
-public class RubyValidation {
+public class Validation {
 
   public static final String ERRORS_CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
   public static final String ERRORS_IS_TOO_LONG_MESSAGE = "errors.is_too_long";
 
-  private RubyValidation() {
+  private Validation() {
     // only static methods
   }
 
   public static void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw BadRequestException.ofL10n(RubyValidation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
+      throw BadRequestException.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
     }
   }
 
   public static void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(RubyValidation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+      throw BadRequestException.ofL10n(Validation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

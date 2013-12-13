@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -33,13 +34,17 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.*;
-import org.sonar.server.issue.Result;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.Validation;
 
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileOperations implements ServerComponent {
 
@@ -48,59 +53,74 @@ public class QProfileOperations implements ServerComponent {
   private final ActiveRuleDao activeRuleDao;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
+  private final PreviewCache dryRunCache;
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao) {
-    this(myBatis, dao, activeRuleDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList());
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PreviewCache dryRunCache) {
+    this(myBatis, dao, activeRuleDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, List<ProfileExporter> exporters, List<ProfileImporter> importers) {
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, List<ProfileExporter> exporters, List<ProfileImporter> importers,
+                            PreviewCache dryRunCache) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
     this.exporters = exporters;
     this.importers = importers;
+    this.dryRunCache = dryRunCache;
   }
 
-  public Result<QProfile> newProfile(String name, String language, UserSession userSession) {
+  public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language);
-    dao.insert(dto);
-    return Result.of(QProfile.from(dto));
-  }
+    validate(name, language);
 
-  public Result<QProfile> newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    // TODO check name not already exists
+    NewProfileResult result = new NewProfileResult();
+    List<RulesProfile> importProfiles = readProfiles(result, xmlProfilesByPlugin);
 
     SqlSession sqlSession = myBatis.openSession();
-    Result<QProfile> result = Result.of();
     try {
-      QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language);
+      QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
       dao.insert(dto, sqlSession);
-      for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
-        importProfile(dto, entry.getKey(), entry.getValue(), result, sqlSession);
+      for (RulesProfile rulesProfile : importProfiles) {
+        importProfile(dto, rulesProfile, sqlSession);
       }
-      result.set(QProfile.from(dto));
+      result.setProfile(QProfile.from(dto));
     } finally {
       sqlSession.commit();
+      dryRunCache.reportGlobalModification();
       return result;
     }
   }
 
-  private void importProfile(QualityProfileDto qualityProfileDto, String pluginKey, String xmlProfile, Result<QProfile> result, SqlSession sqlSession) {
-    ProfileImporter importer = getProfileImporter(pluginKey);
-    ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = importer.importProfile(new StringReader(xmlProfile), messages);
-    completeErrorResult(result, messages);
+  public void validate(String name, String language){
+    if (Strings.isNullOrEmpty(name)) {
+      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
+    }
+    Validation.checkMandatoryParameter(language, "language");
+    if (dao.selectByNameAndLanguage(name, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+  }
 
-    if (result.ok()) {
-      for (ActiveRule activeRule : profile.getActiveRules()) {
-        ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, qualityProfileDto);
-        activeRuleDao.insert(activeRuleDto, sqlSession);
-        for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-          activeRuleDao.insert(toActiveRuleParamDto(activeRuleParam, activeRuleDto), sqlSession);
-        }
+  private List<RulesProfile> readProfiles(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
+    List<RulesProfile> profiles = newArrayList();
+    ValidationMessages messages = ValidationMessages.create();
+    for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
+      String pluginKey = entry.getKey();
+      String file = entry.getValue();
+      ProfileImporter importer = getProfileImporter(pluginKey);
+      RulesProfile profile = importer.importProfile(new StringReader(file), messages);
+      processValidationMessages(messages, result);
+      profiles.add(profile);
+    }
+    return profiles;
+  }
+
+  private void importProfile(QualityProfileDto qualityProfileDto, RulesProfile rulesProfile, SqlSession sqlSession) {
+    for (ActiveRule activeRule : rulesProfile.getActiveRules()) {
+      ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, qualityProfileDto);
+      activeRuleDao.insert(activeRuleDto, sqlSession);
+      for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
+        activeRuleDao.insert(toActiveRuleParamDto(activeRuleParam, activeRuleDto), sqlSession);
       }
     }
   }
@@ -114,13 +134,17 @@ public class QProfileOperations implements ServerComponent {
     return null;
   }
 
-  private void completeErrorResult(Result<QProfile> result, ValidationMessages messages) {
+  private void processValidationMessages(ValidationMessages messages, NewProfileResult result) {
+    BadRequestException exception = BadRequestException.of("Fail to create profile");
     for (String error : messages.getErrors()) {
-      result.addError(error);
+      exception.addError(error);
     }
-    for (String warning : messages.getWarnings()) {
-      result.addError(warning);
+    if (!exception.errors().isEmpty()) {
+      throw exception;
     }
+
+    result.setWarnings(messages.getWarnings());
+    result.setInfos(messages.getInfos());
   }
 
   private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, QualityProfileDto dto) {

@@ -43,30 +43,38 @@ class ProfilesController < ApplicationController
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   def create
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters 'language'
-
-    profile_name=params[:name]
-    language=params[:language]
-
-    profile = Profile.create(:name => profile_name, :language => language)
-    ok = profile.errors.empty?
-    if ok && params[:backup]
-      params[:backup].each_pair do |importer_key, file|
-        if !file.blank? && ok
-          profile.import_configuration(importer_key, file)
-          ok &= profile.errors.empty?
+    begin
+      files_by_key = {}
+      if params[:backup]
+        params[:backup].each_pair do |importer_key, file|
+          unless file.blank?
+            files_by_key[importer_key] = Api::Utils.read_post_request_param(file)
+          end
         end
       end
-    end
+      result = Internal.qprofiles.newProfile(params[:name], params[:language], files_by_key)
+      flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
 
-    flash_profile(profile)
-    if ok
-      flash[:notice]=message('quality_profiles.profile_x_created', :params => profile.name)
-    elsif profile.id
-      Profile.destroy(profile.id)
-    end
+      # only 4 messages are kept each time to avoid cookie overflow.
+      unless result.infos.empty?
+        flash[:notice] += result.infos.to_a[0...4].join('<br/>')
+      end
+      unless result.warnings.empty?
+        flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
+      end
 
+      # TODO manage these exceptions at a higher level
+    rescue NativeException => exception
+      if exception.cause.java_kind_of? Java::OrgSonarServerExceptions::ServerException
+        error = exception.cause
+        flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
+        if error.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !error.errors.empty?
+          flash[:error] += '<br/>' + error.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+        end
+      else
+        flash[:error] = 'Error when creating the quality profile : ' + exception.cause.getMessage
+      end
+    end
     redirect_to :action => 'index'
   end
 
@@ -508,16 +516,6 @@ class ProfilesController < ApplicationController
       end
     end while !arules1.empty? || !arules2.empty?
     return {:same => same, :added => added, :removed => removed, :modified => modified, :rules => rules}
-  end
-
-  def flash_profile(profile)
-    # only 4 messages are kept each time to avoid cookie overflow.
-    if !profile.errors.empty?
-      flash[:error]=profile.errors.full_messages.to_a[0...4].join('<br/>')
-    end
-    if profile.warnings?
-      flash[:warning]=profile.warnings.full_messages.to_a[0...4].join('<br/>')
-    end
   end
 
   def flash_messages(messages)

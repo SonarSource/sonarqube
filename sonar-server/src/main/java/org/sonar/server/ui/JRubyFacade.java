@@ -280,10 +280,6 @@ public final class JRubyFacade {
     return get(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
 
-  public ValidationMessages importProfile(String profileName, String language, String importerKey, String fileContent) {
-    return get(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
-  }
-
   public String getProfileExporterMimeType(String exporterKey) {
     return get(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }

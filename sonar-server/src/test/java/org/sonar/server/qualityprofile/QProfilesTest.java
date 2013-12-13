@@ -25,9 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -61,8 +63,9 @@ public class QProfilesTest {
 
   @Test
   public void new_profile() throws Exception {
-    qProfiles.newProfile("Default", "java", MockUserSession.create());
-    verify(operations).newProfile(eq("Default"), eq("java"), any(UserSession.class));
+    Map<String, String> xmlProfilesByPlugin = newHashMap();
+    qProfiles.newProfile("Default", "java", xmlProfilesByPlugin);
+    verify(operations).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)

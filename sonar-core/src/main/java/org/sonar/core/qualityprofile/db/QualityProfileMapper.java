@@ -20,11 +20,18 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.apache.ibatis.annotations.Param;
+
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectAll();
+
+  @CheckForNull
+  QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
 
   void insert(QualityProfileDto dto);
 

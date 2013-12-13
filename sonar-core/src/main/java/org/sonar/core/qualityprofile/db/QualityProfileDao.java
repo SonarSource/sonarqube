@@ -43,6 +43,15 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public QualityProfileDto selectByNameAndLanguage(String name, String language) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void insert(QualityProfileDto dto, SqlSession session) {
     session.getMapper(QualityProfileMapper.class).insert(dto);
   }

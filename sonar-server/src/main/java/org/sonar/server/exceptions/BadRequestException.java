@@ -19,7 +19,15 @@
  */
 package org.sonar.server.exceptions;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Request is not valid and can not be processed.
@@ -27,6 +35,8 @@ import javax.annotation.Nullable;
 public class BadRequestException extends ServerException {
 
   private static final int BAD_REQUEST = 400;
+
+  private final List<Message> errors = newArrayList();
 
   public BadRequestException(String message) {
     super(BAD_REQUEST, message);
@@ -42,6 +52,93 @@ public class BadRequestException extends ServerException {
 
   public static BadRequestException ofL10n(String l10nKey, Object... l10nParams) {
     return new BadRequestException(null, l10nKey, l10nParams);
+  }
+
+  public BadRequestException addError(String text) {
+    return addError(Message.of(text));
+  }
+
+  public BadRequestException addError(Message message) {
+    errors.add(message);
+    return this;
+  }
+
+  /**
+   * List of error messages. Empty if there are no errors.
+   */
+  public List<Message> errors() {
+    return errors;
+  }
+
+  public static class Message {
+    private final String l10nKey;
+    private final Object[] l10nParams;
+    private final String text;
+
+    private Message(@Nullable String l10nKey, @Nullable Object[] l10nParams, @Nullable String text) {
+      this.l10nKey = l10nKey;
+      this.l10nParams = l10nParams;
+      this.text = text;
+    }
+
+    public static Message of(String text) {
+      return new Message(null, null, text);
+    }
+
+    public static Message ofL10n(String l10nKey, Object... l10nParams) {
+      return new Message(l10nKey, l10nParams, null);
+    }
+
+    @CheckForNull
+    public String text() {
+      return text;
+    }
+
+    @CheckForNull
+    public String l10nKey() {
+      return l10nKey;
+    }
+
+    @CheckForNull
+    public Object[] l10nParams() {
+      return l10nParams;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Message message = (Message) o;
+
+      if (l10nKey != null ? !l10nKey.equals(message.l10nKey) : message.l10nKey != null) {
+        return false;
+      }
+      // Probably incorrect - comparing Object[] arrays with Arrays.equals
+      if (!Arrays.equals(l10nParams, message.l10nParams)) {
+        return false;
+      }
+      if (text != null ? !text.equals(message.text) : message.text != null) {
+        return false;
+      }
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = l10nKey != null ? l10nKey.hashCode() : 0;
+      result = 31 * result + (l10nParams != null ? Arrays.hashCode(l10nParams) : 0);
+      result = 31 * result + (text != null ? text.hashCode() : 0);
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return new ReflectionToStringBuilder(this).toString();
+    }
   }
 
 }

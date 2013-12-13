@@ -20,20 +20,13 @@
 
 package org.sonar.server.rules;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.profiles.XMLProfileParser;
-import org.sonar.api.profiles.XMLProfileSerializer;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.profiles.*;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.StringReader;
@@ -142,28 +135,6 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
-  /**
-   * Important : the ruby controller has already create the profile
-   */
-  public ValidationMessages importProfile(String profileName, String language, String importerKey, String profileDefinition) {
-    ValidationMessages messages = ValidationMessages.create();
-    ProfileImporter importer = getProfileImporter(importerKey);
-    RulesProfile profile = importer.importProfile(new StringReader(profileDefinition), messages);
-    if (!messages.hasErrors()) {
-      DatabaseSession session = sessionFactory.getSession();
-      RulesProfile persistedProfile = session.getSingleResult(RulesProfile.class, "name", profileName, "language", language);
-      for (ActiveRule activeRule : profile.getActiveRules()) {
-        ActiveRule persistedActiveRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getSeverity());
-        for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-          persistedActiveRule.setParameter(activeRuleParam.getKey(), activeRuleParam.getValue());
-        }
-      }
-      session.saveWithoutFlush(persistedProfile);
-      session.commit();
-    }
-    return messages;
-  }
-
   public ProfileExporter getProfileExporter(String exporterKey) {
     for (ProfileExporter exporter : exporters) {
       if (StringUtils.equals(exporterKey, exporter.getKey())) {
@@ -173,12 +144,4 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
-  public ProfileImporter getProfileImporter(String exporterKey) {
-    for (ProfileImporter importer : importers) {
-      if (StringUtils.equals(exporterKey, importer.getKey())) {
-        return importer;
-      }
-    }
-    return null;
-  }
 }

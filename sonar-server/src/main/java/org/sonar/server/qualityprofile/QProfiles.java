@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
+import java.util.Map;
 
 public class QProfiles implements ServerComponent {
 
@@ -44,8 +45,8 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void newProfile(String name, String language, UserSession userSession) {
-    operations.newProfile(name, language, userSession);
+  public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
+    return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
 
   public void deleteProfile() {

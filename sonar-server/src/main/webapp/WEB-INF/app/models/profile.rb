@@ -141,19 +141,6 @@ class Profile < ActiveRecord::Base
       end
   end
 
-  def import_configuration(importer_key, file)
-    messages = Api::Utils.java_facade.importProfile(name, language, importer_key, Api::Utils.read_post_request_param(file))
-    messages.getErrors().each do |msg|
-      errors.add_to_base msg
-    end
-    messages.getWarnings().each do |msg|
-      warnings.add_to_base msg
-    end
-    messages.getInfos().each do |msg|
-      notices.add_to_base msg
-    end
-  end
-
   def before_destroy
     raise 'This profile can not be deleted' unless deletable?
     Property.clear_for_resources("sonar.profile.#{language}", name)
