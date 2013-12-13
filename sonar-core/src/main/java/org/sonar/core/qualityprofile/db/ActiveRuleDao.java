@@ -33,7 +33,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void insert(ActiveRuleDto dto, SqlSession session) {
-    session.getMapper(ActiveRuleMapper.class).insert(dto);
+    session.getMapper(ActiveRuleMapper2.class).insert(dto);
   }
 
   public void insert(ActiveRuleDto dto) {
@@ -47,7 +47,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void insert(ActiveRuleParamDto dto, SqlSession session) {
-    session.getMapper(ActiveRuleMapper.class).insertParameter(dto);
+    session.getMapper(ActiveRuleMapper2.class).insertParameter(dto);
   }
 
   public void insert(ActiveRuleParamDto dto) {
