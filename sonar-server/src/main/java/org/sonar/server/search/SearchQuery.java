@@ -142,8 +142,4 @@ public class SearchQuery {
     }
     return builder;
   }
-
-  public String getQueryString() {
-    return "";
-  }
 }
