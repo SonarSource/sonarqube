@@ -40,6 +40,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.profiling.Profiling;
@@ -204,6 +205,15 @@ public class SearchIndex {
     watch.stop("findDocumentIds with request: %s", builderToString(builder));
 
     return result;
+  }
+
+  public SearchHits executeRequest(SearchRequestBuilder builder) {
+    StopWatch watch = createWatch();
+    try {
+      return builder.execute().actionGet().getHits();
+    } finally {
+      watch.stop("Request executed: %s", builderToString(builder));
+    }
   }
 
   private String builderToString(SearchRequestBuilder builder) {

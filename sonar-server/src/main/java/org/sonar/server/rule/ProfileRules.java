@@ -19,19 +19,25 @@
  */
 package org.sonar.server.rule;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.sonar.api.utils.Paging;
-import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.search.SearchIndex;
 
+import java.util.Collection;
 import java.util.List;
 
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 
 public class ProfileRules {
 
@@ -41,16 +47,19 @@ public class ProfileRules {
     this.index = index;
   }
 
-  public List<QProfileRule> searchActiveRules(QProfile profile, Paging paging) {
-    SearchHits hits = index.client().prepareSearch("rules").setTypes("active_rule")
-      .setFilter(boolFilter()
-          .must(
-              termFilter("profileId", profile.id())
-          ))
+  public List<QProfileRule> searchActiveRules(ProfileRuleQuery query, Paging paging) {
+    BoolFilterBuilder filter = boolFilter().must(
+            termFilter("profileId", query.profileId()),
+            hasParentFilter("rule", parentRuleFilter(query))
+        );
+    addMustTermOrTerms(filter, "severity", query.severities());
+
+    SearchRequestBuilder builder = index.client().prepareSearch("rules").setTypes("active_rule")
+      .setFilter(filter)
       .addFields("_source", "_parent")
       .setSize(paging.pageSize())
-      .setFrom(paging.offset())
-      .execute().actionGet().getHits();
+      .setFrom(paging.offset());
+    SearchHits hits = index.executeRequest(builder);
 
     String[] activeRuleSources = new String[hits.getHits().length];
     String[] parentIds = new String[hits.getHits().length];
@@ -63,13 +72,54 @@ public class ProfileRules {
       hitCounter ++;
     }
 
-    MultiGetItemResponse[] responses = index.client().prepareMultiGet().add("rules", "rule", parentIds)
-      .execute().actionGet().getResponses();
+    if (hitCounter > 0) {
+      MultiGetItemResponse[] responses = index.client().prepareMultiGet().add("rules", "rule", parentIds)
+        .execute().actionGet().getResponses();
 
-    for (int i = 0; i < hitCounter; i ++) {
-      result.add(new QProfileRule(responses[i].getResponse().getSourceAsString(), activeRuleSources[i]));
+      for (int i = 0; i < hitCounter; i ++) {
+        result.add(new QProfileRule(responses[i].getResponse().getSourceAsString(), activeRuleSources[i]));
+      }
     }
 
     return result;
+  }
+
+  private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {
+    if (! query.hasParentRuleCriteria()) {
+      return FilterBuilders.matchAllFilter();
+    }
+
+    BoolFilterBuilder result = boolFilter();
+
+    addMustTermOrTerms(result, "repositoryKey", query.repositoryKeys());
+    addMustTermOrTerms(result, "status", query.statuses());
+
+    if (StringUtils.isNotBlank(query.nameOrKey())) {
+      result.must(
+        queryFilter(
+          multiMatchQuery(query.nameOrKey(), "name", "key")
+            .operator(Operator.AND)));
+    }
+
+    return result;
+  }
+
+  private void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {
+    FilterBuilder termOrTerms = getTermOrTerms(field, terms);
+    if (termOrTerms != null) {
+      filter.must(termOrTerms);
+    }
+  }
+
+  private FilterBuilder getTermOrTerms(String field, Collection<String> terms) {
+    if (terms.isEmpty()) {
+      return null;
+    } else {
+      if (terms.size() == 1) {
+        return termFilter(field, terms.iterator().next());
+      } else {
+        return termsFilter(field, terms.toArray());
+      }
+    }
   }
 }
