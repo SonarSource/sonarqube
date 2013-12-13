@@ -62,8 +62,6 @@ class ProfilesController < ApplicationController
       unless result.warnings.empty?
         flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
       end
-
-      # TODO manage these exceptions at a higher level
     rescue Java::OrgSonarServerExceptions::ServerException => error
       flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
       if error.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !error.errors.empty?

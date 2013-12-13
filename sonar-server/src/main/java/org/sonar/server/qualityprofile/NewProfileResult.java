@@ -22,12 +22,19 @@ package org.sonar.server.qualityprofile;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class NewProfileResult {
 
   private List<String> warnings;
   private List<String> infos;
 
   private QProfile profile;
+
+  public NewProfileResult() {
+    warnings = newArrayList();
+    infos = newArrayList();
+  }
 
   public List<String> warnings() {
     return warnings;
