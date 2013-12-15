@@ -84,11 +84,12 @@ public class QProfileOperations implements ServerComponent {
         importProfile(dto, rulesProfile, sqlSession);
       }
       result.setProfile(QProfile.from(dto));
-    } finally {
       sqlSession.commit();
+    } finally {
+      MyBatis.closeQuietly(sqlSession);
       dryRunCache.reportGlobalModification();
-      return result;
     }
+    return result;
   }
 
   public void renameProfile(String name, String language, String newName, UserSession userSession) {
