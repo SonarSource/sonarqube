@@ -1,7 +1,7 @@
 <% if logged_in? %>
   {
     <% @favourite_filters.each do |filter| %>
-        '<%= filter.id -%>': '<%= h filter.name -%>',
+      "<%= h filter.id -%>": "<%= escape_javascript filter.name %>",
     <% end %>
   }
 <% else %>
