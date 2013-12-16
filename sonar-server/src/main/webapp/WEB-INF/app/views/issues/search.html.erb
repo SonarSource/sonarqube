@@ -46,7 +46,8 @@
 <script>
   _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g,
-    evaluate: /\{\[(.+?)\]\}/g
+    evaluate: /\{\[(.+?)\]\}/g,
+    escape: /\{\{\{(.+?)\}\}\}/g
   };
 
   _.extend(window.SS, {
