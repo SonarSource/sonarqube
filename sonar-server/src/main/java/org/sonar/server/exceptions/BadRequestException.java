@@ -101,7 +101,7 @@ public class BadRequestException extends ServerException {
 
     @CheckForNull
     public Object[] l10nParams() {
-      return l10nParams;
+      return Arrays.copyOf(l10nParams, l10nParams.length);
     }
 
     @Override

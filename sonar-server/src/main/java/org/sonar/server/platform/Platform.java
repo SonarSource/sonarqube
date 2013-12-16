@@ -93,7 +93,6 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileSearch;
 import org.sonar.server.qualityprofile.QProfiles;
-import org.sonar.server.qualityprofile.RubyQProfilesService;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rules.ProfilesConsole;
@@ -273,7 +272,6 @@ public final class Platform {
     servicesContainer.addSingleton(QProfiles.class);
     servicesContainer.addSingleton(QProfileSearch.class);
     servicesContainer.addSingleton(QProfileOperations.class);
-    servicesContainer.addSingleton(RubyQProfilesService.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

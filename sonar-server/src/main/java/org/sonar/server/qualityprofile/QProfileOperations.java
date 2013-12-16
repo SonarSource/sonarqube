@@ -58,6 +58,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class QProfileOperations implements ServerComponent {
 
   private static final String PROPERTY_PREFIX = "sonar.profile.";
+  private static final String QUALITY_PROFILES_ALREADY_EXISTS = "quality_profiles.already_exists";
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
@@ -200,7 +201,7 @@ public class QProfileOperations implements ServerComponent {
     validateName(name);
     Validation.checkMandatoryParameter(language, "language");
     if (find(name, language) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+      throw BadRequestException.ofL10n(QUALITY_PROFILES_ALREADY_EXISTS);
     }
   }
 
@@ -209,7 +210,7 @@ public class QProfileOperations implements ServerComponent {
     validateName(newName);
     QualityProfileDto profileDto = findNeverNull(profileId);
     if (!profileDto.getName().equals(newName) && find(newName, profileDto.getLanguage()) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+      throw BadRequestException.ofL10n(QUALITY_PROFILES_ALREADY_EXISTS);
     }
     return profileDto;
   }
@@ -221,14 +222,15 @@ public class QProfileOperations implements ServerComponent {
 
   private QualityProfileDto findNeverNull(Integer id) {
     QualityProfileDto qualityProfile = find(id);
-    if (qualityProfile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
-    return qualityProfile;
+    return checkNotNull((qualityProfile));
   }
 
   private QualityProfileDto findNeverNull(String name, String language) {
     QualityProfileDto qualityProfile = find(name, language);
+    return checkNotNull(qualityProfile);
+  }
+
+  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
     if (qualityProfile == null) {
       throw new NotFoundException("This quality profile does not exists.");
     }
