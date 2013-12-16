@@ -276,19 +276,14 @@ class ProfilesController < ApplicationController
   end
 
 
-  # POST /profiles/add_project?id=<profile id>&project=<project id or key>
+  # POST /profiles/add_project?id=<profile id>&project=<project id>
   def add_project
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters 'id', 'project'
-
-    profile=Profile.find(params[:id])
-    bad_request('Unknown profile') unless profile
-    project=Project.by_key(params[:project])
-    bad_request('Unknown project') unless project
-
-    profile.add_project_id(project.id)
-    redirect_to :action => 'projects', :id => profile.id
+    profile_id = params[:id].to_i
+    call_backend do
+      Internal.qprofiles.addProject(profile_id, params[:project].to_i)
+    end
+    redirect_to :action => 'projects', :id => profile_id
   end
 
   # POST /profiles/remove_project?id=<profile id>&project=<project id or key>

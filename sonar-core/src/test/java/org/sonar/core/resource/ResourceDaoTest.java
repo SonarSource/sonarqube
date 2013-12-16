@@ -315,6 +315,15 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_find_component_by_id(){
+    setupData("fixture");
+
+    assertThat(dao.findById(1L)).isNotNull();
+    assertThat(dao.findById(4L)).isNotNull();
+    assertThat(dao.findById(555L)).isNull();
+  }
+
+  @Test
   public void should_select_projects_by_qualifiers(){
     setupData("fixture-including-ghost-projects-and-technical-project");
 

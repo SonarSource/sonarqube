@@ -41,11 +41,13 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -74,10 +76,13 @@ public class QProfileOperationsTest {
   ActiveRuleDao activeRuleDao;
 
   @Mock
-  PreviewCache dryRunCache;
+  ResourceDao resourceDao;
 
   @Mock
-  PersistentSettings persistentSettings;
+  PropertiesDao propertiesDao;
+
+  @Mock
+  PreviewCache dryRunCache;
 
   List<ProfileExporter> exporters = newArrayList();
 
@@ -88,7 +93,7 @@ public class QProfileOperationsTest {
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
-    operations = new QProfileOperations(myBatis, dao, activeRuleDao, exporters, importers, dryRunCache, persistentSettings);
+    operations = new QProfileOperations(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, exporters, importers, dryRunCache);
   }
 
   @Test
@@ -256,7 +261,10 @@ public class QProfileOperationsTest {
 
     operations.updateDefaultProfile(1, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
-    verify(persistentSettings).saveProperty("sonar.profile.java", "My profile");
+    ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
+    verify(propertiesDao).setProperty(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
   }
 
   @Test
@@ -266,7 +274,10 @@ public class QProfileOperationsTest {
 
     operations.updateDefaultProfile("My profile", "java", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
-    verify(persistentSettings).saveProperty("sonar.profile.java", "My profile");
+    ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
+    verify(propertiesDao).setProperty(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
   }
 
   @Test
@@ -277,5 +288,33 @@ public class QProfileOperationsTest {
     QProfileProjects result = operations.projects(1);
     assertThat(result.profile()).isNotNull();
     assertThat(result.projects()).hasSize(1);
+  }
+
+  @Test
+  public void add_project() throws Exception {
+    when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+    when(resourceDao.findById(10L)).thenReturn(new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube"));
+
+    operations.addProject(1, 10L, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
+    verify(propertiesDao).setProperty(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
+    assertThat(argumentCaptor.getValue().getResourceId()).isEqualTo(10);
+  }
+
+  @Test
+  public void fail_to_add_project_if_project_not_found() throws Exception {
+    try {
+      when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+      when(resourceDao.findById(10L)).thenReturn(null);
+
+      operations.addProject(1, 10L, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verify(propertiesDao, never()).setProperty(any(PropertyDto.class));
   }
 }

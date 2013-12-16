@@ -35,7 +35,7 @@
   </select>
 
   <select id="selectProjects" parameterType="Integer" resultType="Component">
-    SELECT projects.id as id, projects.name as name, projects.kee as key
+    SELECT projects.id as id, projects.name as name, projects.kee as kee
     FROM projects projects
     LEFT JOIN properties ON properties.resource_id = projects.id
     <where>

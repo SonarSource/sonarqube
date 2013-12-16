@@ -37,6 +37,12 @@ public class Validation {
     }
   }
 
+  public static void checkMandatoryParameter(Object value, String paramName) {
+    if (value == null) {
+      throw BadRequestException.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
+    }
+  }
+
   public static void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {

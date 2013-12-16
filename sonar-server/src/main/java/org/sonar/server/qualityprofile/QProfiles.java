@@ -111,8 +111,8 @@ public class QProfiles implements ServerComponent {
     return operations.projects(profileId);
   }
 
-  public void addProject(Integer profileId, String projectKey) {
-    throw new UnsupportedOperationException();
+  public void addProject(Integer profileId, Long projectId) {
+    operations.addProject(profileId, projectId, UserSession.get());
   }
 
   public void removeProject(Integer profileId, String projectKey) {

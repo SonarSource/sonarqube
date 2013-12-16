@@ -169,6 +169,12 @@ public class ResourceDao {
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
+  @CheckForNull
+  public Component findById(Long id) {
+    ResourceDto resourceDto = getResource(id);
+    return resourceDto != null ? toComponent(resourceDto) : null;
+  }
+
   public List<Integer> findAuthorizedChildrenComponentIds(Collection<String> componentRootKeys, @Nullable Integer userId, String role){
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();

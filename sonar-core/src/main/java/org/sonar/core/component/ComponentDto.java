@@ -24,7 +24,7 @@ import org.sonar.api.component.Component;
 public class ComponentDto implements Component {
 
   private Long id;
-  private String key;
+  private String kee;
   private String name;
   private String longName;
   private String qualifier;
@@ -40,11 +40,11 @@ public class ComponentDto implements Component {
 
   @Override
   public String key() {
-    return key;
+    return kee;
   }
 
   public ComponentDto setKey(String key) {
-    this.key = key;
+    this.kee = key;
     return this;
   }
 

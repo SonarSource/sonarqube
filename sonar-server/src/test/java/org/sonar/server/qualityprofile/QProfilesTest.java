@@ -139,9 +139,10 @@ public class QProfilesTest {
     verify(operations).projects(1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testAddProject() throws Exception {
-    qProfiles.addProject(null, null);
+  @Test
+  public void add_project() throws Exception {
+    qProfiles.addProject(1, 10L);
+    verify(operations).addProject(eq(1), eq(10L), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)

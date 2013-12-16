@@ -39,10 +39,12 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -58,29 +60,31 @@ import static com.google.common.collect.Lists.newArrayList;
 public class QProfileOperations implements ServerComponent {
 
   private static final String PROPERTY_PREFIX = "sonar.profile.";
-  private static final String QUALITY_PROFILES_ALREADY_EXISTS = "quality_profiles.already_exists";
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
+  private final ResourceDao resourceDao;
+  private final PropertiesDao propertiesDao;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
-  private final PersistentSettings persistentSettings;
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PreviewCache dryRunCache, PersistentSettings persistentSettings) {
-    this(myBatis, dao, activeRuleDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, persistentSettings);
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
+                            PreviewCache dryRunCache) {
+    this(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, List<ProfileExporter> exporters, List<ProfileImporter> importers,
-                            PreviewCache dryRunCache, PersistentSettings persistentSettings) {
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
+                            List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
+    this.resourceDao = resourceDao;
+    this.propertiesDao = propertiesDao;
     this.exporters = exporters;
     this.importers = importers;
     this.dryRunCache = dryRunCache;
-    this.persistentSettings = persistentSettings;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -113,15 +117,16 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateDefaultProfile(Integer id, UserSession userSession) {
     QualityProfileDto qualityProfile = validateUpdateDefaultProfile(id, userSession);
-    persistentSettings.saveProperty(PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
+    propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
   }
 
   public void updateDefaultProfile(String name, String language, UserSession userSession) {
-    updateDefaultProfile(findNeverNull(name, language).getId(), userSession);
+    updateDefaultProfile(findNotNull(name, language).getId(), userSession);
   }
 
   public QProfileProjects projects(Integer profileId) {
-    QualityProfileDto dto = findNeverNull(profileId);
+    Validation.checkMandatoryParameter(profileId, "profile");
+    QualityProfileDto dto = findNotNull(profileId);
     List<ComponentDto> componentDtos = dao.selectProjects(PROPERTY_PREFIX + dto.getLanguage(), dto.getName());
     List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
       @Override
@@ -130,6 +135,15 @@ public class QProfileOperations implements ServerComponent {
       }
     }));
     return new QProfileProjects(QProfile.from(dto), projects);
+  }
+
+  public void addProject(Integer profileId, Long projectId, UserSession userSession) {
+    checkPermission(userSession);
+    Validation.checkMandatoryParameter(profileId, "profile");
+    Validation.checkMandatoryParameter(projectId, "project");
+    ComponentDto component = (ComponentDto) findNotNull(projectId);
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
@@ -200,34 +214,46 @@ public class QProfileOperations implements ServerComponent {
     checkPermission(userSession);
     validateName(name);
     Validation.checkMandatoryParameter(language, "language");
-    if (find(name, language) != null) {
-      throw BadRequestException.ofL10n(QUALITY_PROFILES_ALREADY_EXISTS);
-    }
+    checkNotAlreadyExists(name, language);
   }
 
   private QualityProfileDto validateRenameProfile(Integer profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
     validateName(newName);
-    QualityProfileDto profileDto = findNeverNull(profileId);
-    if (!profileDto.getName().equals(newName) && find(newName, profileDto.getLanguage()) != null) {
-      throw BadRequestException.ofL10n(QUALITY_PROFILES_ALREADY_EXISTS);
+    QualityProfileDto profileDto = findNotNull(profileId);
+    if (!profileDto.getName().equals(newName)) {
+      checkNotAlreadyExists(newName, profileDto.getLanguage());
     }
     return profileDto;
   }
 
   private QualityProfileDto validateUpdateDefaultProfile(Integer id, UserSession userSession) {
     checkPermission(userSession);
-    return findNeverNull(id);
+    return findNotNull(id);
   }
 
-  private QualityProfileDto findNeverNull(Integer id) {
+  private void checkNotAlreadyExists(String name, String language) {
+    if (find(name, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+  }
+
+  private QualityProfileDto findNotNull(Integer id) {
     QualityProfileDto qualityProfile = find(id);
     return checkNotNull((qualityProfile));
   }
 
-  private QualityProfileDto findNeverNull(String name, String language) {
+  private QualityProfileDto findNotNull(String name, String language) {
     QualityProfileDto qualityProfile = find(name, language);
     return checkNotNull(qualityProfile);
+  }
+
+  private Component findNotNull(Long projectId) {
+    Component component = resourceDao.findById(projectId);
+    if (component == null) {
+      throw new NotFoundException("This project does not exists.");
+    }
+    return component;
   }
 
   private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
