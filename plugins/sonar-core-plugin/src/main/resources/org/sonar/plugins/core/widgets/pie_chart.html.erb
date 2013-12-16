@@ -28,7 +28,7 @@
         query = [
           'filter=<%= filterId %>',
           'metrics=' + metrics.join(','),
-          'fields=name',
+          'fields=name,qualifier',
           'pageSize=10',
           'page=1',
           'sort=metric:' + metrics[0],

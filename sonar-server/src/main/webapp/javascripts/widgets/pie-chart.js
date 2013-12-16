@@ -311,7 +311,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         })
         .on('mouseleave', leaveHandler)
         .on('click', function(d) {
-          window.open(widget.options().baseUrl + encodeURIComponent(d.data.key));
+          switch (d.data.qualifier) {
+            case 'CLA':
+            case 'FIL':
+              window.location = widget.options().baseUrl + encodeURIComponent(d.data.key) +
+                  '?metric=' + encodeURIComponent(widget.mainMetric);
+              break;
+            default:
+              window.location = widget.options().baseUrl + encodeURIComponent(d.data.key);
+          }
         });
   };
 
