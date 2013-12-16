@@ -59,7 +59,7 @@ class NewRulesConfigurationController < ApplicationController
       @rules = []
       @pagination = Api::Pagination.new(params)
 
-      call_java do
+      call_backend do
         query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
         paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
