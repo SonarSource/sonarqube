@@ -23,6 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
@@ -57,6 +58,15 @@ public class QualityProfileDao implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(StringUtils.upperCase(name), language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ComponentDto> selectProjects(String propertyKey, String propertyValue) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).selectProjects(propertyKey, propertyValue);
     } finally {
       MyBatis.closeQuietly(session);
     }

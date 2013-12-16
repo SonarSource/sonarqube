@@ -37,6 +37,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
@@ -266,5 +267,15 @@ public class QProfileOperationsTest {
     operations.updateDefaultProfile("My profile", "java", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     verify(persistentSettings).saveProperty("sonar.profile.java", "My profile");
+  }
+
+  @Test
+  public void search_projects() throws Exception {
+    when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+    when(dao.selectProjects("sonar.profile.java", "My profile")).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
+
+    QProfileProjects result = operations.projects(1);
+    assertThat(result.profile()).isNotNull();
+    assertThat(result.projects()).hasSize(1);
   }
 }

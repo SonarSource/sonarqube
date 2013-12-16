@@ -174,10 +174,6 @@ class Profile < ActiveRecord::Base
       end
   end
 
-  def sorted_projects
-    Api::Utils.insensitive_sort(projects) { |p| p.name }
-  end
-
   def add_project_id(project_id)
     Property.set("sonar.profile.#{language}", name, project_id)
     @projects = nil

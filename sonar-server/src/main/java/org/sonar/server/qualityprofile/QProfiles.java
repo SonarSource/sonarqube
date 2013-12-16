@@ -103,8 +103,8 @@ public class QProfiles implements ServerComponent {
 
   // PROJECTS
 
-  public void projects(Integer profileId) {
-    throw new UnsupportedOperationException();
+  public QProfileProjects projects(Integer profileId) {
+    return operations.projects(profileId);
   }
 
   public void addProject(Integer profileId, String projectKey) {

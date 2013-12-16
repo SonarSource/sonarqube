@@ -267,9 +267,12 @@ class ProfilesController < ApplicationController
   #
   #
   def projects
-    require_parameters 'id'
-    @profile = Profile.find(params[:id])
-    set_profile_breadcrumbs
+    call_backend do
+      result = Internal.qprofiles.projects(params[:id].to_i)
+      @profile = result.profile
+      @projects = Api::Utils.insensitive_sort(result.projects.to_a) { |p| p.name }
+      set_profile_breadcrumbs
+    end
   end
 
 

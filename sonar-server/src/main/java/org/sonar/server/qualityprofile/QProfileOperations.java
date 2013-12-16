@@ -20,11 +20,14 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -32,6 +35,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
@@ -43,6 +47,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.StringReader;
 import java.util.List;
@@ -51,6 +56,8 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileOperations implements ServerComponent {
+
+  private static final String PROPERTY_PREFIX = "sonar.profile.";
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
@@ -105,11 +112,23 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateDefaultProfile(Integer id, UserSession userSession) {
     QualityProfileDto qualityProfile = validateUpdateDefaultProfile(id, userSession);
-    persistentSettings.saveProperty("sonar.profile." + qualityProfile.getLanguage(), qualityProfile.getName());
+    persistentSettings.saveProperty(PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
   }
 
   public void updateDefaultProfile(String name, String language, UserSession userSession) {
     updateDefaultProfile(findNeverNull(name, language).getId(), userSession);
+  }
+
+  public QProfileProjects projects(Integer profileId) {
+    QualityProfileDto dto = findNeverNull(profileId);
+    List<ComponentDto> componentDtos = dao.selectProjects(PROPERTY_PREFIX + dto.getLanguage(), dto.getName());
+    List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
+      @Override
+      public Component apply(@Nullable ComponentDto dto) {
+        return (Component) dto;
+      }
+    }));
+    return new QProfileProjects(QProfile.from(dto), projects);
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {

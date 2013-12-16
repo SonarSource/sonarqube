@@ -13,24 +13,35 @@
   </sql>
 
   <select id="selectAll" parameterType="map" resultType="QualityProfile">
-    select <include refid="profilesColumns"/>
-    from rules_profiles p
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
   </select>
 
   <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
-    select <include refid="profilesColumns"/>
-    from rules_profiles p
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
     <where>
       AND UPPER(p.name)=#{name}
-      and p.language=#{language}
+      AND p.language=#{language}
     </where>
   </select>
 
   <select id="selectById" parameterType="Integer" resultType="QualityProfile">
-    select <include refid="profilesColumns"/>
-    from rules_profiles p
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
     <where>
-      and p.id=#{id}
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="selectProjects" parameterType="Integer" resultType="Component">
+    SELECT projects.id as id, projects.name as name, projects.kee as key
+    FROM projects projects
+    LEFT JOIN properties ON properties.resource_id = projects.id
+    <where>
+      AND properties.resource_id IS NOT NULL
+      AND properties.prop_key=#{key}
+      AND properties.text_value like #{value}
     </where>
   </select>
 

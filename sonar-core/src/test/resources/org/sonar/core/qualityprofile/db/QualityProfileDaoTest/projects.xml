@@ -1,0 +1,22 @@
+<dataset>
+
+  <rules_profiles id="1" name="Sonar way" language="java" parent_name="[null]" version="1"
+                  used_profile="[false]"/>
+
+  <rules_profiles id="2" name="Sonar way" language="js" parent_name="[null]" version="1"
+                  used_profile="[false]"/>
+
+  <projects id="1" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
+  <projects id="2" kee="org.codehaus.sonar-plugins.java:java" name="SonarQube Java"/>
+
+  <properties id="1" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="1"/>
+  <properties id="2" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="2"/>
+
+  <!-- Property used to know the default profile, should not be returned when searching for projects -->
+  <properties id="3" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="[null]"/>
+
+  <properties id="4" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="3"/>
+  <properties id="5" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="4"/>
+  <properties id="6" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="[null]"/>
+
+</dataset>

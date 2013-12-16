@@ -17,7 +17,7 @@
       })</script>
     </form>
 
-    <% if @profile.projects? %>
+    <% unless @projects.empty? %>
       <table class="data" id="projects-table">
         <thead>
         <tr>
@@ -26,7 +26,7 @@
         </tr>
         </thead>
         <tbody>
-        <% @profile.sorted_projects.each do |project| %>
+        <% @projects.each do |project| %>
           <tr class="<%= cycle('even', 'odd') -%>">
             <td class="thin">
               <%= link_to_action message('quality_profiles.remove_project_action'),
@@ -61,7 +61,7 @@
     <% end %>
   <% else %>
 
-    <% if !@profile.projects? %>
+    <% if @projects.empty? %>
       <p><%= message('quality_profiles.no_projects_associated_to_profile_x', :params => @profile.name) -%></p>
     <% else %>
       <p><%= message('quality_profiles.projects_warning') -%></p>
@@ -73,7 +73,7 @@
         </tr>
         </thead>
         <tbody>
-        <% @profile.sorted_projects.each do |project| %>
+        <% @projects.each do |project| %>
           <tr class="<%= cycle('even', 'odd') -%>">
             <td><%= h project.name -%> <span class="small gray"><%= h project.key -%></span></td>
           </tr>

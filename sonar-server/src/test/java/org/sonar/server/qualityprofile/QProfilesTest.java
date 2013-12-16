@@ -125,9 +125,10 @@ public class QProfilesTest {
     qProfiles.changelog(null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testProjects() throws Exception {
-    qProfiles.projects(null);
+  @Test
+  public void projects() throws Exception {
+    qProfiles.projects(1);
+    verify(operations).projects(1);
   }
 
   @Test(expected = UnsupportedOperationException.class)

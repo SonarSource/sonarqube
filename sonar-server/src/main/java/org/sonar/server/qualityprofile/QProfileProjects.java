@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.qualityprofile;
 
-package org.sonar.core.qualityprofile.db;
-
-import org.apache.ibatis.annotations.Param;
-import org.sonar.core.component.ComponentDto;
-
-import javax.annotation.CheckForNull;
+import org.sonar.api.component.Component;
 
 import java.util.List;
 
-public interface QualityProfileMapper {
+public class QProfileProjects {
 
-  List<QualityProfileDto> selectAll();
+  private QProfile profile;
+  private List<Component> projects;
 
-  @CheckForNull
-  QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
+  public QProfileProjects(QProfile profile, List<Component> projects) {
+    this.profile = profile;
+    this.projects = projects;
+  }
 
-  @CheckForNull
-  QualityProfileDto selectById(@Param("id") Integer id);
+  public QProfile profile() {
+    return profile;
+  }
 
-  List<ComponentDto> selectProjects(@Param("key") String propertyKey, @Param("value") String propertyValue);
-
-  void insert(QualityProfileDto dto);
-
-  void update(QualityProfileDto dto);
-
-  void delete(Integer id);
-
+  public List<Component> projects() {
+    return projects;
+  }
 }
