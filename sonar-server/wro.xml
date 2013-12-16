@@ -32,6 +32,7 @@
     <js>/javascripts/widgets/timeline.js</js>
     <js>/javascripts/widgets/stack-area.js</js>
     <js>/javascripts/widgets/pie-chart.js</js>
+    <js>/javascripts/widgets/histogram.js</js>
 
     <js>/javascripts/select-list.js</js>
 

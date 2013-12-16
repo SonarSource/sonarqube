@@ -1,8 +1,53 @@
+<%
+containerId = 'pie-chart-widget' + widget.id.to_s
+chartHeight = widget_properties["chartHeight"]
+chartTitle = widget_properties["chartTitle"]
+filterId = widget_properties["filter"].to_i
+%>
+
+<div class="histogram-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+  <h3 style="text-align: center;"><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
 <script>
-  var filterId = <%= widget_properties['filter'].to_s %>;
-  var chartTitle = <%= widget_properties['chartTitle'].to_s %>;
-  var chartHeight = <%= widget_properties['chartHeight'].to_i %>;
-  var metric = <%= widget_properties['metric'].key.to_s %>;
+  (function () {
+    var metrics = [
+          '<%= widget_properties["metric"].name %>',
+        ],
+        query = [
+          'filter=<%= filterId %>',
+          'metrics=' + metrics.join(','),
+          'fields=name',
+          'pageSize=40',
+          'page=1',
+          'sort=metric:' + metrics[0],
+          'asc=false'
+        ].join('&');
+        widget = new SonarWidgets.Widget();
+
+    widget
+      .type('Histogram')
+      .source(baseUrl + '/measures/search_filter?' + query)
+      .metricsPriority(metrics)
+      .height(<%= chartHeight %>)
+      .options({
+        baseUrl: baseUrl + '/dashboard/index/'
+      })
+      .render('#<%= containerId %>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId %>');
+    });
+  })();
 </script>
+<!--<![endif]-->
+
 
 

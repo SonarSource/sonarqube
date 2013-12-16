@@ -2444,11 +2444,13 @@ textarea.width100 {
   transition: all 0.2s ease;
 }
 
-.sonar-d3 .plot:hover .arc {
+.sonar-d3 .plot:hover .arc,
+.sonar-d3 .plot:hover .bar {
   opacity: 0.4;
 }
 
-.sonar-d3 .plot .arc:hover {
+.sonar-d3 .plot .arc:hover,
+.sonar-d3 .plot .bar:hover {
   opacity: 1;
 }
 
@@ -2470,7 +2472,8 @@ textarea.width100 {
   opacity: 0.25;
 }
 
-.sonar-d3 .arc {
+.sonar-d3 .arc,
+.sonar-d3 .bar {
   cursor: pointer;
   stroke: #fff;
   stroke-width: 1px;
