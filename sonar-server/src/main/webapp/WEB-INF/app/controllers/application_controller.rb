@@ -215,7 +215,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def call_java(&block)
+  def call_backend(&block)
     begin
       block.call
     rescue Java::OrgSonarServerExceptions::ServerException => exception

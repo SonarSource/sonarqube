@@ -43,7 +43,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   def create
     verify_post_request
-    call_java do
+    call_backend do
       files_by_key = {}
       if params[:backup]
         params[:backup].each_pair do |importer_key, file|
@@ -83,7 +83,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/set_as_default/<id>
   def set_as_default
     verify_post_request
-    call_java do
+    call_backend do
       Internal.qprofiles.updateDefaultProfile(params[:id].to_i)
     end
     redirect_to :action => 'index'
@@ -329,7 +329,7 @@ class ProfilesController < ApplicationController
     verify_post_request
     verify_ajax_request
 
-    call_java do
+    call_backend do
       Internal.qprofiles.renameProfile(params[:id].to_i, params[:new_name])
     end
     render :text => 'ok', :status => 200
