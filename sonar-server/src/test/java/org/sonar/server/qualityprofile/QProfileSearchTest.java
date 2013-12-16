@@ -60,7 +60,6 @@ public class QProfileSearchTest {
     assertThat(qProfile.id()).isEqualTo(1);
     assertThat(qProfile.name()).isEqualTo("Sonar Way with Findbugs");
     assertThat(qProfile.language()).isEqualTo("java");
-    assertThat(qProfile.key()).isEqualTo(QProfileKey.of("Sonar Way with Findbugs", "java"));
     assertThat(qProfile.parent()).isEqualTo("Sonar Way");
     assertThat(qProfile.version()).isEqualTo(1);
     assertThat(qProfile.used()).isFalse();

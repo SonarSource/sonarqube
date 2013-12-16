@@ -85,10 +85,6 @@ public class QProfile {
     return this;
   }
 
-  public QProfileKey key() {
-    return QProfileKey.of(name, language);
-  }
-
   public static QProfile from(QualityProfileDto dto) {
     return new QProfile()
       .setId(dto.getId())

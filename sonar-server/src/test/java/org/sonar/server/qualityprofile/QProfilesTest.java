@@ -97,7 +97,7 @@ public class QProfilesTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testExportProfile() throws Exception {
-    qProfiles.exportProfile(QProfileKey.of("Default profile", "java"));
+    qProfiles.exportProfile(1);
   }
 
   @Test(expected = UnsupportedOperationException.class)

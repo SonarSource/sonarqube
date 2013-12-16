@@ -41,7 +41,7 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void searchProfile(QProfileKey profile) {
+  public void searchProfile(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
@@ -50,15 +50,16 @@ public class QProfiles implements ServerComponent {
   }
 
   public void deleteProfile() {
+    // Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects
     throw new UnsupportedOperationException();
   }
 
-  public void renameProfile(Integer id, String newName) {
-    operations.renameProfile(id, newName, UserSession.get());
+  public void renameProfile(Integer profileId, String newName) {
+    operations.renameProfile(profileId, newName, UserSession.get());
   }
 
-  public void updateDefaultProfile(Integer id) {
-    operations.updateDefaultProfile(id, UserSession.get());
+  public void updateDefaultProfile(Integer profileId) {
+    operations.updateDefaultProfile(profileId, UserSession.get());
   }
 
   /**
@@ -72,11 +73,11 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void exportProfile(QProfileKey profile) {
+  public void exportProfile(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
-  public void exportProfile(QProfileKey profile, String plugin) {
+  public void exportProfile(Integer profileId, String plugin) {
     throw new UnsupportedOperationException();
   }
 
@@ -90,69 +91,69 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void inherit(QProfileKey currentProfile, QProfileKey parentProfile) {
+  public void inherit(Integer profileId, Integer parentProfileId) {
     throw new UnsupportedOperationException();
   }
 
   // CHANGELOG
 
-  public void changelog(QProfileKey profile) {
+  public void changelog(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
   // PROJECTS
 
-  public void projects(QProfileKey profile) {
+  public void projects(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
-  public void addProject(QProfileKey profile, String projectKey) {
+  public void addProject(Integer profileId, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeProject(QProfileKey profile, String projectKey) {
+  public void removeProject(Integer profileId, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeAllProjects(QProfileKey profile) {
+  public void removeAllProjects(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
   // ACTIVE RULES
 
-  public void searchActiveRules(QProfileKey profile) {
+  public void searchActiveRules(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
-  public void searchInactiveRules(QProfileKey profile) {
+  public void searchInactiveRules(Integer profileId) {
     throw new UnsupportedOperationException();
   }
 
-  public void activeRule(QProfileKey profile, RuleKey ruleKey) {
+  public void activeRule(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void deactiveRule(QProfileKey profile, RuleKey ruleKey) {
+  public void deactiveRule(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void updateParameters(QProfileKey profile, RuleKey ruleKey) {
+  public void updateParameters(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void activeNote(QProfileKey profile, RuleKey ruleKey) {
+  public void activeNote(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void editNote(QProfileKey profile, RuleKey ruleKey) {
+  public void editNote(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void deleteNote(QProfileKey profile, RuleKey ruleKey) {
+  public void deleteNote(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
-  public void extendDescription(QProfileKey profile, RuleKey ruleKey) {
+  public void extendDescription(Integer profileId, RuleKey ruleKey) {
     throw new UnsupportedOperationException();
   }
 
