@@ -35,7 +35,4 @@ class Mock::ExampleController < Api::ApiController
 RESPONSE
   end
 
-  def pie_chart
-
-  end
 end
