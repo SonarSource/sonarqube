@@ -22,6 +22,8 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -31,10 +33,12 @@ public class QProfiles implements ServerComponent {
 
   private final QProfileSearch search;
   private final QProfileOperations operations;
+  private final ProfileRules rules;
 
-  public QProfiles(QProfileSearch search, QProfileOperations operations) {
+  public QProfiles(QProfileSearch search, QProfileOperations operations, ProfileRules rules) {
     this.search = search;
     this.operations = operations;
+    this.rules = rules;
   }
 
   public List<QProfile> searchProfiles() {
@@ -121,8 +125,8 @@ public class QProfiles implements ServerComponent {
 
   // ACTIVE RULES
 
-  public void searchActiveRules(Integer profileId) {
-    throw new UnsupportedOperationException();
+  public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
+    return rules.searchActiveRules(query, paging);
   }
 
   public void searchInactiveRules(Integer profileId) {

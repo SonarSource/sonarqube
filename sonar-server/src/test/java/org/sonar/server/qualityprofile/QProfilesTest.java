@@ -25,14 +25,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
@@ -43,11 +48,14 @@ public class QProfilesTest {
   @Mock
   QProfileOperations operations;
 
+  @Mock
+  ProfileRules rules;
+
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(search, operations);
+    qProfiles = new QProfiles(search, operations, rules);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -146,9 +154,13 @@ public class QProfilesTest {
     qProfiles.removeAllProjects(null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
   public void testSearchActiveRules() throws Exception {
-    qProfiles.searchActiveRules(null);
+    final int profileId = 42;
+    ProfileRuleQuery query = ProfileRuleQuery.create(profileId );
+    Paging paging = Paging.create(20, 1);
+    QProfileRuleResult result = mock(QProfileRuleResult.class);
+    when(rules.searchActiveRules(query, paging)).thenReturn(result);
+    assertThat(qProfiles.searchActiveRules(query, paging)).isEqualTo(result);
   }
 
   @Test(expected = UnsupportedOperationException.class)

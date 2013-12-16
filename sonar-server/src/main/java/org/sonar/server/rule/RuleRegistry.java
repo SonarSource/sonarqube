@@ -51,11 +51,12 @@ import java.util.Map;
  */
 public class RuleRegistry {
 
+  public static final String INDEX_RULES = "rules";
+  public static final String TYPE_RULE = "rule";
+  public static final String TYPE_ACTIVE_RULE = "active_rule";
+
   private static final String PARAM_NAMEORKEY = "nameOrKey";
   private static final String PARAM_STATUS = "status";
-  private static final String INDEX_RULES = "rules";
-  private static final String TYPE_RULE = "rule";
-  private static final String TYPE_ACTIVE_RULE = "active_rule";
 
   private SearchIndex searchIndex;
   private RuleDao ruleDao;

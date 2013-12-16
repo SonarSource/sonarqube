@@ -41,8 +41,14 @@ import java.util.Map;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
+import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
 public class ProfileRules {
+
+  private static final String FIELD_PARENT = "_parent";
+  private static final String FIELD_SOURCE = "_source";
 
   private final SearchIndex index;
 
@@ -53,13 +59,13 @@ public class ProfileRules {
   public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
     BoolFilterBuilder filter = boolFilter().must(
             termFilter("profileId", query.profileId()),
-            hasParentFilter("rule", parentRuleFilter(query))
+            hasParentFilter(TYPE_RULE, parentRuleFilter(query))
         );
     addMustTermOrTerms(filter, "severity", query.severities());
 
-    SearchRequestBuilder builder = index.client().prepareSearch("rules").setTypes("active_rule")
+    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
       .setFilter(filter)
-      .addFields("_source", "_parent")
+      .addFields(FIELD_SOURCE, FIELD_PARENT)
       .setSize(paging.pageSize())
       .setFrom(paging.offset());
     SearchHits hits = index.executeRequest(builder);
@@ -71,12 +77,12 @@ public class ProfileRules {
     List<QProfileRule> result = Lists.newArrayList();
     for (SearchHit hit: hits.getHits()) {
       activeRuleSources.add(hit.sourceAsMap());
-      parentIds[hitCounter] = hit.field("_parent").value();
+      parentIds[hitCounter] = hit.field(FIELD_PARENT).value();
       hitCounter ++;
     }
 
     if (hitCounter > 0) {
-      MultiGetItemResponse[] responses = index.client().prepareMultiGet().add("rules", "rule", parentIds)
+      MultiGetItemResponse[] responses = index.client().prepareMultiGet().add(INDEX_RULES, TYPE_RULE, parentIds)
         .execute().actionGet().getResponses();
 
       for (int i = 0; i < hitCounter; i ++) {
