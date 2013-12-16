@@ -2478,7 +2478,7 @@ textarea.width100 {
 }
 
 .sonar-d3 .legend {
-  cursor: pointer;
+
 }
 
 .sonar-d3 .legend-bullet {
@@ -2496,7 +2496,7 @@ textarea.width100 {
 
 .sonar-d3 .details-color-indicator {
   fill: #fff;
-  transition: all 0.2s ease;
+  transition: fill 0.2s ease;
 }
 
 .sonar-d3 .details-metric {

@@ -11,6 +11,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._source = null;
     this._metricsPriority = null;
     this._height = null;
+    this._options = {};
 
 
     // Export global variables
@@ -29,6 +30,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.height = function (_) {
       return param.call(this, '_height', _);
     };
+
+    this.options = function (_) {
+      return param.call(this, '_options', _);
+    };
   };
 
 
@@ -42,7 +47,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             .metrics(response.metrics)
             .metricsPriority(that.metricsPriority())
             .components(response.components)
-            .height(that.height());
+            .height(that.height())
+            .options(that.options());
         that.widget.render(container);
       }
     });

@@ -41,6 +41,9 @@
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .height(<%= chartHeight %>)
+      .options({
+        baseUrl: baseUrl + '/dashboard/index/'
+      })
       .render('#<%= containerId %>');
 
     autoResize(500, function() {

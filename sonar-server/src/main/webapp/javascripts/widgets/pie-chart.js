@@ -16,6 +16,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._legendWidth = window.SonarWidgets.PieChart.defaults.legendWidth;
     this._legendMargin = window.SonarWidgets.PieChart.defaults.legendMargin;
     this._detailsWidth = window.SonarWidgets.PieChart.defaults.detailsWidth;
+    this._options = {};
 
     this._lineHeight = 20;
 
@@ -55,6 +56,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.detailsWidth = function (_) {
       return param.call(this, '_detailsWidth', _);
+    };
+
+    this.options = function (_) {
+      return param.call(this, '_options', _);
     };
   };
 
@@ -111,6 +116,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .value(function(d) { return widget.getMainMetric(d); });
 
 
+    // Configure legend
+    this.legendWrap = this.gWrap.append('g');
+
+
     // Configure details
     this._metricsCount = Object.keys(this.metrics()).length + 1;
     this._detailsHeight = this._lineHeight * this._metricsCount;
@@ -128,9 +137,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('opacity', 0);
 
     this.donutLabel = this.plotWrap.append('text')
-        .attr('dy', '0.35em')
         .style('text-anchor', 'middle')
         .style('opacity', 0);
+
+    this.donutLabel2 = this.plotWrap.append('text')
+        .style('text-anchor', 'middle')
+        .style('opacity', 0)
+        .text(this.metrics()[this.mainMetric].name);
 
 
     // Update widget
@@ -160,6 +173,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         this.legendWidth() - this.legendMargin();
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
     this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
+    this._legendSize = Math.floor(this.availableHeight / this._lineHeight);
 
 
     // Update plot
@@ -191,6 +205,32 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .exit().remove();
 
 
+    // Update legend
+    this.legendWrap
+        .attr('transform', trans(
+            this.legendMargin() + 2 * this.radius,
+            (this.availableHeight - this._legendSize * this._lineHeight) / 2
+        ));
+
+    this.legends = this.legendWrap.selectAll('.legend')
+        .data(this.components().slice(0, this._legendSize));
+
+    this.legendsEnter = this.legends.enter()
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', function(d, i) { return trans(0, 10 + i * widget._lineHeight); });
+
+    this.legendsEnter.append('circle')
+        .attr('class', 'legend-bullet')
+        .attr('r', 4)
+        .style('fill', function(d, i) { return widget.color(i); });
+
+    this.legendsEnter.append('text')
+        .attr('class', 'legend-text')
+        .attr('transform', trans(10, 3))
+        .text(function(d) { return d.name; });
+
+
     // Update details
     this.detailsWrap
         .attr('width', this.legendWidth())
@@ -201,6 +241,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.donutLabel
         .transition()
         .style('font-size', (this.radius / 6) + 'px');
+
+    this.donutLabel2
+        .transition()
+        .style('font-size', (this.radius / 10) + 'px')
+        .attr('transform', trans(0, this.radius / 6));
 
 
     // Configure events
@@ -214,16 +259,23 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           metrics.unshift({ name: d.name });
           updateMetrics(metrics);
 
+          widget.legendWrap
+              .style('opacity', 0);
           widget.donutLabel
               .style('opacity', 1)
               .text(widget.fm(widget.getMainMetric(d), widget.mainMetric));
-
+          widget.donutLabel
+              .style('opacity', 1);
+          widget.donutLabel2
+              .style('opacity', 1);
           widget.detailsColorIndicator
               .style('opacity', 1)
               .style('fill', widget.color(i));
         },
 
         leaveHandler = function() {
+          widget.legendWrap
+              .style('opacity', 1);
           widget.detailsColorIndicator
               .style('opacity', 0);
           widget.detailsMetrics
@@ -231,6 +283,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.donutLabel
               .style('opacity', 0)
               .text('');
+          widget.donutLabel2
+              .style('opacity', 0);
         },
 
         updateMetrics = function(metrics) {
@@ -255,7 +309,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .on('mouseenter', function(d, i) {
           return enterHandler(this, d.data, i);
         })
-        .on('mouseleave', leaveHandler);
+        .on('mouseleave', leaveHandler)
+        .on('click', function(d) {
+          window.open(widget.options().baseUrl + encodeURIComponent(d.data.key));
+        });
   };
 
 
