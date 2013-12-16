@@ -218,25 +218,25 @@ public class RuleRegistry {
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
         .startObject()
-        .field("id", rule.getId())
-        .field("key", rule.getRuleKey())
-        .field("language", rule.getLanguage())
-        .field("name", rule.getName())
-        .field("description", rule.getDescription())
-        .field("parentKey", rule.getParentId() == null ? null : rule.getParentId())
-        .field("repositoryKey", rule.getRepositoryKey())
-        .field("severity", rule.getPriority())
-        .field("status", rule.getStatus())
-        .field("createdAt", rule.getCreatedAt())
-        .field("updatedAt", rule.getUpdatedAt());
+        .field(RuleDocument.FIELD_ID, rule.getId())
+        .field(RuleDocument.FIELD_KEY, rule.getRuleKey())
+        .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
+        .field(RuleDocument.FIELD_NAME, rule.getName())
+        .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
+        .field(RuleDocument.FIELD_PARENT_KEY, rule.getParentId() == null ? null : rule.getParentId())
+        .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
+        .field(RuleDocument.FIELD_SEVERITY, rule.getPriority())
+        .field(RuleDocument.FIELD_STATUS, rule.getStatus())
+        .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
+        .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
     if(!params.isEmpty()) {
-      document.startArray("params");
+      document.startArray(RuleDocument.FIELD_PARAMS);
       for (RuleParamDto param: params) {
         document.startObject()
-          .field("key", param.getName())
-          .field("type", param.getType())
-          .field("defaultValue", param.getDefaultValue())
-          .field("description", param.getDescription())
+          .field(RuleDocument.FIELD_PARAM_KEY, param.getName())
+          .field(RuleDocument.FIELD_PARAM_TYPE, param.getType())
+          .field(RuleDocument.FIELD_PARAM_DEFAULT_VALUE, param.getDefaultValue())
+          .field(RuleDocument.FIELD_PARAM_DESCRIPTION, param.getDescription())
           .endObject();
       }
       document.endArray();
@@ -248,16 +248,16 @@ public class RuleRegistry {
   private XContentBuilder activeRuleDocument(ActiveRule rule) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
         .startObject()
-        .field("id", rule.getId())
-        .field("severity", rule.getSeverity())
-        .field("profileId", rule.getRulesProfile().getId())
-        .field("inheritance", rule.getInheritance());
+        .field(ActiveRuleDocument.FIELD_ID, rule.getId())
+        .field(ActiveRuleDocument.FIELD_SEVERITY, rule.getSeverity())
+        .field(ActiveRuleDocument.FIELD_PROFILE_ID, rule.getRulesProfile().getId())
+        .field(ActiveRuleDocument.FIELD_INHERITANCE, rule.getInheritance());
     if(!rule.getActiveRuleParams().isEmpty()) {
-      document.startArray("params");
+      document.startArray(ActiveRuleDocument.FIELD_PARAMS);
       for (ActiveRuleParam param: rule.getActiveRuleParams()) {
         document.startObject()
-          .field("key", param.getKey())
-          .field("value", param.getValue())
+          .field(ActiveRuleDocument.FIELD_PARAM_KEY, param.getKey())
+          .field(ActiveRuleDocument.FIELD_PARAM_VALUE, param.getValue())
           .endObject();
       }
       document.endArray();

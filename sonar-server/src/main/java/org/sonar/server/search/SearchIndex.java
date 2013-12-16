@@ -222,7 +222,7 @@ public class SearchIndex {
     try {
       return builder.execute().actionGet().getCount();
     } finally {
-      watch.stop("Request executed: %s", builder.toString());
+      watch.stop("Count executed: %s", builder.toString());
     }
   }
 

@@ -38,6 +38,12 @@ import java.util.Map;
  */
 public class ProfileRuleQuery {
 
+  private static final String PARAM_PROFILE_ID = "profileId";
+  private static final String PARAM_NAME_OR_KEY = "nameOrKey";
+  private static final String PARAM_REPOSITORY_KEYS = "repositoryKeys";
+  private static final String PARAM_SEVERITIES = "severities";
+  private static final String PARAM_STATUSES = "statuses";
+
   private int profileId;
   private String nameOrKey;
   private List<String> repositoryKeys;
@@ -53,40 +59,28 @@ public class ProfileRuleQuery {
   public static ProfileRuleQuery parse(Map<String, Object> params) {
     BadRequestException validationException = BadRequestException.of("Incorrect rule search parameters");
 
-    validatePresenceOf(params, validationException, "profileId");
+    validatePresenceOf(params, validationException, PARAM_PROFILE_ID);
 
     ProfileRuleQuery result = new ProfileRuleQuery();
 
     try {
-      result.profileId = RubyUtils.toInteger(params.get("profileId"));
+      result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
     } catch (Exception badProfileId) {
       validationException.addError("profileId could not be parsed");
     }
 
 
-    if (params.containsKey("nameOrKey")) {
-      result.setNameOrKey((String) params.get("nameOrKey"));
+    if (params.containsKey(PARAM_NAME_OR_KEY)) {
+      result.setNameOrKey((String) params.get(PARAM_NAME_OR_KEY));
     }
-    if (params.get("repositoryKeys") != null) {
-      for (Object param: (Object[]) params.get("repositoryKeys")) {
-        if (! "".equals(param)) {
-          result.addRepositoryKeys((String) param);
-        }
-      }
+    if (params.get(PARAM_REPOSITORY_KEYS) != null) {
+      result.addRepositoryKeys(optionalVarargs(params.get(PARAM_REPOSITORY_KEYS)));
     }
-    if (params.get("severities") != null) {
-      for (Object param: (Object[]) params.get("severities")) {
-        if (! "".equals(param)) {
-          result.addSeverities((String) param);
-        }
-      }
+    if (params.get(PARAM_SEVERITIES) != null) {
+      result.addSeverities(optionalVarargs(params.get(PARAM_SEVERITIES)));
     }
-    if (params.get("statuses") != null) {
-      for (Object param: (Object[]) params.get("statuses")) {
-        if (! "".equals(param)) {
-          result.addStatuses((String) param);
-        }
-      }
+    if (params.get(PARAM_STATUSES) != null) {
+      result.addStatuses(optionalVarargs(params.get(PARAM_STATUSES)));
     }
 
     validationException.checkMessages();
@@ -132,7 +126,8 @@ public class ProfileRuleQuery {
     return profileId;
   }
 
-  public @CheckForNull String nameOrKey() {
+  @CheckForNull
+  public String nameOrKey() {
     return nameOrKey;
   }
 
@@ -154,5 +149,15 @@ public class ProfileRuleQuery {
       && repositoryKeys.isEmpty()
       && statuses.isEmpty()
     );
+  }
+
+  private static String[] optionalVarargs(Object jRubyArray) {
+    List<String> items = RubyUtils.toStrings(jRubyArray);
+    String[] empty = new String[0];
+    if (items == null) {
+      return empty;
+    } else {
+      return items.toArray(empty);
+    }
   }
 }

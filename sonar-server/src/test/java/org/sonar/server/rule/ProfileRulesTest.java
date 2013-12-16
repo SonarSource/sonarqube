@@ -90,8 +90,8 @@ public class ProfileRulesTest {
     // All rules for profile 2
     List<QProfileRule> rules2 = profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules();
     assertThat(rules2).hasSize(1);
-    assertThat(rules2.get(0).ruleSource().get("id")).isEqualTo(759);
-    assertThat(rules2.get(0).activeRuleSource().get("id")).isEqualTo(523);
+    assertThat(rules2.get(0).id()).isEqualTo(759);
+    assertThat(rules2.get(0).activeRuleId()).isEqualTo(523);
 
     // Inexistent profile
     assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);

@@ -24,15 +24,16 @@ import org.elasticsearch.common.collect.Maps;
 import org.joda.time.format.ISODateTimeFormat;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.check.Cardinality;
+import org.sonar.server.rule.ActiveRuleDocument;
+import org.sonar.server.rule.RuleDocument;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class QProfileRule {
-
-  private final Map<String, Object> ruleSource;
-  private final Map<String, Object> activeRuleSource;
 
   private final Integer id;
   private final String key;
@@ -51,63 +52,53 @@ public class QProfileRule {
   private final List<Param> params;
 
   public QProfileRule(Map<String, Object> ruleSource, Map<String, Object> activeRuleSource) {
-    this.ruleSource = ruleSource;
-    this.activeRuleSource = activeRuleSource;
 
-    id = (Integer) ruleSource.get("id");
-    key = (String) ruleSource.get("key");
-    repositoryKey = (String) ruleSource.get("repositoryKey");
-    name = (String) ruleSource.get("name");
-    description = (String) ruleSource.get("description");
-    status = (String) ruleSource.get("status");
+    id = (Integer) ruleSource.get(RuleDocument.FIELD_ID);
+    key = (String) ruleSource.get(RuleDocument.FIELD_KEY);
+    repositoryKey = (String) ruleSource.get(RuleDocument.FIELD_REPOSITORY_KEY);
+    name = (String) ruleSource.get(RuleDocument.FIELD_NAME);
+    description = (String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION);
+    status = (String) ruleSource.get(RuleDocument.FIELD_STATUS);
     cardinality = (String) ruleSource.get("cardinality");
-    parentKey = (String) ruleSource.get("parentKey");
-    createdAt = parseOptionalDate("createdAt", ruleSource);
-    updatedAt = parseOptionalDate("updatedAt", ruleSource);
+    parentKey = (String) ruleSource.get(RuleDocument.FIELD_PARENT_KEY);
+    createdAt = parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource);
+    updatedAt = parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource);
 
-    activeRuleId = (Integer) activeRuleSource.get("id");
-    severity = (String) activeRuleSource.get("severity");
-    inheritance = (String) activeRuleSource.get("inheritance");
+    activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
+    severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
+    inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
     params = Lists.newArrayList();
-    if (ruleSource.containsKey("params")) {
+    if (ruleSource.containsKey(RuleDocument.FIELD_PARAMS)) {
       Map<String, Map<String, Object>> ruleParams = Maps.newHashMap();
-      for (Map<String, Object> ruleParam: (List<Map<String, Object>>) ruleSource.get("params")) {
-        ruleParams.put((String) ruleParam.get("key"), ruleParam);
+      for (Map<String, Object> ruleParam: (List<Map<String, Object>>) ruleSource.get(RuleDocument.FIELD_PARAMS)) {
+        ruleParams.put((String) ruleParam.get(RuleDocument.FIELD_PARAM_KEY), ruleParam);
       }
       Map<String, Map<String, Object>> activeRuleParams = Maps.newHashMap();
-      if (activeRuleSource.containsKey("params")) {
-        for (Map<String, Object> activeRuleParam: (List<Map<String, Object>>) activeRuleSource.get("params")) {
-          activeRuleParams.put((String) activeRuleParam.get("key"), activeRuleParam);
+      if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_PARAMS)) {
+        for (Map<String, Object> activeRuleParam: (List<Map<String, Object>>) activeRuleSource.get(ActiveRuleDocument.FIELD_PARAMS)) {
+          activeRuleParams.put((String) activeRuleParam.get(ActiveRuleDocument.FIELD_PARAM_KEY), activeRuleParam);
         }
       }
       for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
         params.add(new Param(
-          (String) ruleParam.getValue().get("key"),
+          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
           activeRuleParams.containsKey(ruleParam.getKey()) ? (String) activeRuleParams.get(ruleParam.getKey())
-            .get("value") : null,
-          (String) ruleParam.getValue().get("description"),
-          (String) ruleParam.getValue().get("defaultValue"),
-          (String) ruleParam.getValue().get("type")
+            .get(ActiveRuleDocument.FIELD_PARAM_VALUE) : null,
+          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DESCRIPTION),
+          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DEFAULT_VALUE),
+          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE)
         ));
       }
     }
   }
 
-  protected Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
+  private static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
     String dateValue = (String) ruleSource.get(field);
     if (dateValue == null) {
       return null;
     } else {
       return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(dateValue).toDate();
     }
-  }
-
-  public Map<String, Object> ruleSource() {
-    return ruleSource;
-  }
-
-  public Map<String, Object> activeRuleSource() {
-    return activeRuleSource;
   }
 
   public int id() {
@@ -142,6 +133,7 @@ public class QProfileRule {
     return createdAt;
   }
 
+  @CheckForNull
   public Date updatedAt() {
     return updatedAt;
   }
@@ -150,6 +142,7 @@ public class QProfileRule {
     return severity;
   }
 
+  @CheckForNull
   public String inheritance() {
     return inheritance;
   }
@@ -178,7 +171,7 @@ public class QProfileRule {
     return null;
   }
 
-  class Param {
+  static class Param {
     private final String key;
     private final String value;
     private final String description;
@@ -207,10 +200,5 @@ public class QProfileRule {
     public String type() {
       return type;
     }
-  }
-
-  @Override
-  public String toString() {
-    return ruleSource + " / " + activeRuleSource;
   }
 }

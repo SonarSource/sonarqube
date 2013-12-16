@@ -90,10 +90,10 @@ public class ProfileRules implements ServerExtension {
 
   protected BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
     BoolFilterBuilder filter = boolFilter().must(
-            termFilter("profileId", query.profileId()),
+            termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
             hasParentFilter(TYPE_RULE, parentRuleFilter(query))
         );
-    addMustTermOrTerms(filter, "severity", query.severities());
+    addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
     return filter;
   }
 
@@ -107,7 +107,7 @@ public class ProfileRules implements ServerExtension {
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         boolFilter()
           .must(parentRuleFilter(query))
-          .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter("profileId", query.profileId()))))));
+          .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()))))));
   }
 
   private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {
@@ -117,13 +117,13 @@ public class ProfileRules implements ServerExtension {
 
     BoolFilterBuilder result = boolFilter();
 
-    addMustTermOrTerms(result, "repositoryKey", query.repositoryKeys());
-    addMustTermOrTerms(result, "status", query.statuses());
+    addMustTermOrTerms(result, RuleDocument.FIELD_REPOSITORY_KEY, query.repositoryKeys());
+    addMustTermOrTerms(result, RuleDocument.FIELD_STATUS, query.statuses());
 
     if (StringUtils.isNotBlank(query.nameOrKey())) {
       result.must(
         queryFilter(
-          multiMatchQuery(query.nameOrKey(), "name", "key")
+          multiMatchQuery(query.nameOrKey(), RuleDocument.FIELD_NAME, RuleDocument.FIELD_KEY)
             .operator(Operator.AND)));
     }
 
