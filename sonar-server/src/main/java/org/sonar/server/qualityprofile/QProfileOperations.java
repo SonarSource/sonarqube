@@ -240,7 +240,7 @@ public class QProfileOperations implements ServerComponent {
 
   private QualityProfileDto findNotNull(Integer id) {
     QualityProfileDto qualityProfile = find(id);
-    return checkNotNull((qualityProfile));
+    return checkNotNull(qualityProfile);
   }
 
   private QualityProfileDto findNotNull(String name, String language) {
