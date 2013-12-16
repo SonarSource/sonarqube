@@ -44,6 +44,7 @@ import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -74,6 +75,9 @@ public class QProfileOperationsTest {
   @Mock
   PreviewCache dryRunCache;
 
+  @Mock
+  PersistentSettings persistentSettings;
+
   List<ProfileExporter> exporters = newArrayList();
 
   List<ProfileImporter> importers = newArrayList();
@@ -83,7 +87,7 @@ public class QProfileOperationsTest {
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
-    operations = new QProfileOperations(myBatis, dao, activeRuleDao, exporters, importers, dryRunCache);
+    operations = new QProfileOperations(myBatis, dao, activeRuleDao, exporters, importers, dryRunCache, persistentSettings);
   }
 
   @Test
@@ -199,9 +203,9 @@ public class QProfileOperationsTest {
 
   @Test
   public void rename_profile() throws Exception {
-    QualityProfileDto dto = new QualityProfileDto().setName("Default").setLanguage("java");
-    when(dao.selectByNameAndLanguage(eq("Default"), anyString())).thenReturn(dto);
-    operations.renameProfile("Default", "java", "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    QualityProfileDto dto = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(dao.selectById(1)).thenReturn(dto);
+    operations.renameProfile(1, "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(dao).update(profileArgument.capture());
@@ -213,7 +217,7 @@ public class QProfileOperationsTest {
   @Test
   public void fail_to_rename_profile_on_unknown_profile() throws Exception {
     try {
-      operations.renameProfile("Default", "java", "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      operations.renameProfile(1, "Default profile", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -224,7 +228,7 @@ public class QProfileOperationsTest {
   @Test
   public void fail_to_rename_profile_when_missing_new_name() throws Exception {
     try {
-      operations.renameProfile("Default", "java", "", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      operations.renameProfile(1, "", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -235,13 +239,32 @@ public class QProfileOperationsTest {
   @Test
   public void fail_to_rename_profile_if_already_exists() throws Exception {
     try {
-      when(dao.selectByNameAndLanguage(eq("Default"), anyString())).thenReturn(new QualityProfileDto().setName("Default").setLanguage("java"));
+      when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
       when(dao.selectByNameAndLanguage(eq("New Default"), anyString())).thenReturn(new QualityProfileDto().setName("New Default").setLanguage("java"));
-      operations.renameProfile("Default", "java", "New Default", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+      operations.renameProfile(1, "New Default", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
     verify(session, never()).commit();
+  }
+
+  @Test
+  public void update_default_profile() throws Exception {
+    when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+
+    operations.updateDefaultProfile(1, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    verify(persistentSettings).saveProperty("sonar.profile.java", "My profile");
+  }
+
+  @Test
+  public void update_default_profile_from_name_and_language() throws Exception {
+    when(dao.selectByNameAndLanguage("My profile", "java")).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+    when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+
+    operations.updateDefaultProfile("My profile", "java", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    verify(persistentSettings).saveProperty("sonar.profile.java", "My profile");
   }
 }

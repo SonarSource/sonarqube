@@ -75,12 +75,7 @@ class Api::ProfilesController < Api::ApiController
   # Since v.3.3
   def set_as_default
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters :language, :name
-
-    profile=Profile.find_by_name_and_language(params[:name], params[:language])
-    not_found('Profile not found') unless profile
-    profile.set_as_default
+    Internal.qprofiles.updateDefaultProfile(params[:name], params[:language])
     render_success
   end
 

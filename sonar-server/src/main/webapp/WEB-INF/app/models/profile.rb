@@ -61,11 +61,6 @@ class Profile < ActiveRecord::Base
     Property.value("sonar.profile.#{language}")==name
   end
 
-  def set_as_default
-    Property.set("sonar.profile.#{language}", name)
-    self
-  end
-
   def active_by_rule_id(rule_id)
     active_hash_by_rule_id[rule_id]
   end

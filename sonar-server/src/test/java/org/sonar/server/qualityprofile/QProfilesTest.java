@@ -74,13 +74,20 @@ public class QProfilesTest {
 
   @Test
   public void rename_profile() throws Exception {
-    qProfiles.renameProfile("Default", "java", "Default profile");
-    verify(operations).renameProfile(eq("Default"), eq("java"), eq("Default profile"), any(UserSession.class));
+    qProfiles.renameProfile(1, "Default profile");
+    verify(operations).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testSetDefaultProfile() throws Exception {
-    qProfiles.updateDefaultProfile();
+  @Test
+  public void update_default_profile() throws Exception {
+    qProfiles.updateDefaultProfile(1);
+    verify(operations).updateDefaultProfile(eq(1), any(UserSession.class));
+  }
+
+  @Test
+  public void update_default_profile_from_name_and_language() throws Exception {
+    qProfiles.updateDefaultProfile("Default", "java");
+    verify(operations).updateDefaultProfile(eq("Default"), eq("java"), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)

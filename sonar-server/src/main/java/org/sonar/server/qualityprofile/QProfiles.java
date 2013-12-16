@@ -53,12 +53,19 @@ public class QProfiles implements ServerComponent {
     throw new UnsupportedOperationException();
   }
 
-  public void renameProfile(String name, String language, String newName) {
-    operations.renameProfile(name, language, newName, UserSession.get());
+  public void renameProfile(Integer id, String newName) {
+    operations.renameProfile(id, newName, UserSession.get());
   }
 
-  public void updateDefaultProfile() {
-    throw new UnsupportedOperationException();
+  public void updateDefaultProfile(Integer id) {
+    operations.updateDefaultProfile(id, UserSession.get());
+  }
+
+  /**
+   * Used by WS
+   */
+  public void updateDefaultProfile(String name, String language) {
+    operations.updateDefaultProfile(name, language, UserSession.get());
   }
 
   public void copyProfile() {

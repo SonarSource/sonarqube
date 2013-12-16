@@ -38,8 +38,11 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
+
+import javax.annotation.CheckForNull;
 
 import java.io.StringReader;
 import java.util.List;
@@ -55,19 +58,21 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
+  private final PersistentSettings persistentSettings;
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PreviewCache dryRunCache) {
-    this(myBatis, dao, activeRuleDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache);
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PreviewCache dryRunCache, PersistentSettings persistentSettings) {
+    this(myBatis, dao, activeRuleDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, persistentSettings);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, List<ProfileExporter> exporters, List<ProfileImporter> importers,
-                            PreviewCache dryRunCache) {
+                            PreviewCache dryRunCache, PersistentSettings persistentSettings) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
     this.exporters = exporters;
     this.importers = importers;
     this.dryRunCache = dryRunCache;
+    this.persistentSettings = persistentSettings;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -85,21 +90,26 @@ public class QProfileOperations implements ServerComponent {
       }
       result.setProfile(QProfile.from(dto));
       sqlSession.commit();
+      dryRunCache.reportGlobalModification();
     } finally {
       MyBatis.closeQuietly(sqlSession);
-      dryRunCache.reportGlobalModification();
     }
     return result;
   }
 
-  public void renameProfile(String name, String language, String newName, UserSession userSession) {
-    QualityProfileDto qualityProfile = validateRenameProfile(name, language, newName, userSession);
+  public void renameProfile(Integer profileId, String newName, UserSession userSession) {
+    QualityProfileDto qualityProfile = validateRenameProfile(profileId, newName, userSession);
     qualityProfile.setName(newName);
     dao.update(qualityProfile);
   }
 
-  private QualityProfileDto find(String name, String language) {
-    return dao.selectByNameAndLanguage(name, language);
+  public void updateDefaultProfile(Integer id, UserSession userSession) {
+    QualityProfileDto qualityProfile = validateUpdateDefaultProfile(id, userSession);
+    persistentSettings.saveProperty("sonar.profile." + qualityProfile.getLanguage(), qualityProfile.getName());
+  }
+
+  public void updateDefaultProfile(String name, String language, UserSession userSession) {
+    updateDefaultProfile(findNeverNull(name, language).getId(), userSession);
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
@@ -175,18 +185,45 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  private QualityProfileDto validateRenameProfile(String name, String language, String newName, UserSession userSession) {
+  private QualityProfileDto validateRenameProfile(Integer profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
     validateName(newName);
-    if (find(newName, language) != null) {
+    QualityProfileDto profileDto = findNeverNull(profileId);
+    if (!profileDto.getName().equals(newName) && find(newName, profileDto.getLanguage()) != null) {
       throw BadRequestException.ofL10n("quality_profiles.already_exists");
     }
+    return profileDto;
+  }
 
+  private QualityProfileDto validateUpdateDefaultProfile(Integer id, UserSession userSession) {
+    checkPermission(userSession);
+    return findNeverNull(id);
+  }
+
+  private QualityProfileDto findNeverNull(Integer id) {
+    QualityProfileDto qualityProfile = find(id);
+    if (qualityProfile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return qualityProfile;
+  }
+
+  private QualityProfileDto findNeverNull(String name, String language) {
     QualityProfileDto qualityProfile = find(name, language);
     if (qualityProfile == null) {
       throw new NotFoundException("This quality profile does not exists.");
     }
     return qualityProfile;
+  }
+
+  @CheckForNull
+  private QualityProfileDto find(String name, String language) {
+    return dao.selectByNameAndLanguage(name, language);
+  }
+
+  @CheckForNull
+  private QualityProfileDto find(Integer id) {
+    return dao.selectById(id);
   }
 
   private void validateName(String name) {

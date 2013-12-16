@@ -181,7 +181,11 @@ class ApplicationController < ActionController::Base
     if exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
       message += '<br/>' + exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
     end
-    render :text => CGI.escapeHTML(message), :status => exception.httpCode
+    if request.xhr?
+      render :text => CGI.escapeHTML(message), :status => exception.httpCode
+    else
+      flash[:error] = message
+    end
   end
 
   def render_native_access_denied(exception)

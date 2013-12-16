@@ -33,6 +33,9 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
 
+  @CheckForNull
+  QualityProfileDto selectById(@Param("id") Integer id);
+
   void insert(QualityProfileDto dto);
 
   void update(QualityProfileDto dto);

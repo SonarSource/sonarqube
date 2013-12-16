@@ -63,10 +63,7 @@ class ProfilesController < ApplicationController
         flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
       end
     rescue Java::OrgSonarServerExceptions::ServerException => error
-      flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
-      if error.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !error.errors.empty?
-        flash[:error] += '<br/>' + error.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
-      end
+      render_server_exception(error)
     end
     redirect_to :action => 'index'
   end
@@ -88,11 +85,11 @@ class ProfilesController < ApplicationController
   # POST /profiles/set_as_default/<id>
   def set_as_default
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters 'id'
-
-    profile = Profile.find(params[:id])
-    profile.set_as_default
+    begin
+      Internal.qprofiles.updateDefaultProfile(params[:id].to_i)
+    rescue Java::OrgSonarServerExceptions::ServerException => error
+      render_server_exception(error)
+    end
     redirect_to :action => 'index'
   end
 
@@ -336,7 +333,7 @@ class ProfilesController < ApplicationController
     verify_post_request
     verify_ajax_request
 
-    Internal.qprofiles.renameProfile(params[:name], params[:language], params[:new_name])
+    Internal.qprofiles.renameProfile(params[:id].to_i, params[:new_name])
     render :text => 'ok', :status => 200
   end
 

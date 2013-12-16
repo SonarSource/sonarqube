@@ -107,6 +107,7 @@ class Api::ApiController < ApplicationController
     render_error(message, 200)
   end
 
+  # Override
   def render_server_exception(exception)
     render_response(exception.httpCode, exception.getMessage)
   end
