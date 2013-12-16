@@ -178,14 +178,7 @@ class ApplicationController < ActionController::Base
 
   def render_server_exception(exception)
     message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
-    if exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
-      message += '<br/>' + exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
-    end
-    if request.xhr?
-      render :text => CGI.escapeHTML(message), :status => exception.httpCode
-    else
-      flash[:error] = message
-    end
+    render :text => CGI.escapeHTML(message), :status => exception.httpCode
   end
 
   def render_native_access_denied(exception)
@@ -223,6 +216,21 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def call_java(&block)
+    begin
+      block.call
+    rescue Java::OrgSonarServerExceptions::ServerException => exception
+      if request.xhr?
+        raise exception
+      else
+        message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
+        if exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
+          message += '<br/>' + exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+        end
+        flash[:error] = message
+      end
+    end
+  end
 
   #
   # RAILS FILTERS

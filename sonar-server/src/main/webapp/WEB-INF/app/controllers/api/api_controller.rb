@@ -78,10 +78,6 @@ class Api::ApiController < ApplicationController
   #
   #
 
-  def render_native_access_denied(exception)
-    render_access_denied
-  end
-
   def render_error(exception, status=500)
     # TODO manage exception with l10n parameters
     message = exception.respond_to?('message') ? Api::Utils.exception_message(exception, :backtrace => true) : exception.to_s
@@ -108,8 +104,18 @@ class Api::ApiController < ApplicationController
   end
 
   # Override
-  def render_server_exception(exception)
-    render_response(exception.httpCode, exception.getMessage)
+  def render_java_exception(error)
+    if error.java_kind_of? Java::JavaLang::IllegalArgumentException
+      render_bad_request(error.getMessage)
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::UnauthorizedException
+      render_access_denied
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::ForbiddenException
+      render_access_denied
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::ServerException
+      render_response(error.httpCode, error.getMessage)
+    else
+      render_error(error)
+    end
   end
 
   def render_response(status, message)

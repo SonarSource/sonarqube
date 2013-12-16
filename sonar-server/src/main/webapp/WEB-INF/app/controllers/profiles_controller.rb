@@ -43,7 +43,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   def create
     verify_post_request
-    begin
+    call_java {
       files_by_key = {}
       if params[:backup]
         params[:backup].each_pair do |importer_key, file|
@@ -62,9 +62,7 @@ class ProfilesController < ApplicationController
       unless result.warnings.empty?
         flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
       end
-    rescue Java::OrgSonarServerExceptions::ServerException => error
-      render_server_exception(error)
-    end
+    }
     redirect_to :action => 'index'
   end
 
@@ -85,11 +83,9 @@ class ProfilesController < ApplicationController
   # POST /profiles/set_as_default/<id>
   def set_as_default
     verify_post_request
-    begin
+    call_java {
       Internal.qprofiles.updateDefaultProfile(params[:id].to_i)
-    rescue Java::OrgSonarServerExceptions::ServerException => error
-      render_server_exception(error)
-    end
+    }
     redirect_to :action => 'index'
   end
 
@@ -333,7 +329,9 @@ class ProfilesController < ApplicationController
     verify_post_request
     verify_ajax_request
 
-    Internal.qprofiles.renameProfile(params[:id].to_i, params[:new_name])
+    call_java {
+      Internal.qprofiles.renameProfile(params[:id].to_i, params[:new_name])
+    }
     render :text => 'ok', :status => 200
   end
 
