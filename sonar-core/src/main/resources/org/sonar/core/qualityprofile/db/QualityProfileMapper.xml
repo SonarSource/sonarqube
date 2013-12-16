@@ -21,7 +21,7 @@
     select <include refid="profilesColumns"/>
     from rules_profiles p
     <where>
-      and p.name=#{name}
+      AND UPPER(p.name)=#{name}
       and p.language=#{language}
     </where>
   </select>

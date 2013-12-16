@@ -74,6 +74,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     assertThat(dto.getVersion()).isEqualTo(1);
     assertThat(dto.isUsed()).isFalse();
 
+    assertThat(dao.selectByNameAndLanguage("Sonar WAY", "java")).isNotNull();
     assertThat(dao.selectByNameAndLanguage("Sonar way", "unknown")).isNull();
   }
 

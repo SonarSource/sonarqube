@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
@@ -55,7 +56,7 @@ public class QualityProfileDao implements ServerComponent {
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
+      return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(StringUtils.upperCase(name), language);
     } finally {
       MyBatis.closeQuietly(session);
     }
