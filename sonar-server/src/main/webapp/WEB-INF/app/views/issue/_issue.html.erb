@@ -22,7 +22,7 @@
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
     <%= message('issue.updated') -%>&nbsp;<a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
-       id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+       id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
