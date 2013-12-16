@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
 
@@ -57,9 +58,35 @@ public class ProfileRuleQuery {
     ProfileRuleQuery result = new ProfileRuleQuery();
 
     try {
-      result.profileId = Integer.parseInt((String) params.get("profileId"));
+      result.profileId = RubyUtils.toInteger(params.get("profileId"));
     } catch (Exception badProfileId) {
       validationException.addError("profileId could not be parsed");
+    }
+
+
+    if (params.containsKey("nameOrKey")) {
+      result.setNameOrKey((String) params.get("nameOrKey"));
+    }
+    if (params.get("repositoryKeys") != null) {
+      for (Object param: (Object[]) params.get("repositoryKeys")) {
+        if (! "".equals(param)) {
+          result.addRepositoryKeys((String) param);
+        }
+      }
+    }
+    if (params.get("severities") != null) {
+      for (Object param: (Object[]) params.get("severities")) {
+        if (! "".equals(param)) {
+          result.addSeverities((String) param);
+        }
+      }
+    }
+    if (params.get("statuses") != null) {
+      for (Object param: (Object[]) params.get("statuses")) {
+        if (! "".equals(param)) {
+          result.addStatuses((String) param);
+        }
+      }
     }
 
     validationException.checkMessages();
@@ -125,7 +152,6 @@ public class ProfileRuleQuery {
     return !(
       StringUtils.isEmpty(nameOrKey)
       && repositoryKeys.isEmpty()
-      && severities.isEmpty()
       && statuses.isEmpty()
     );
   }

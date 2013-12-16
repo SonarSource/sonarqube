@@ -26,6 +26,7 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -213,6 +214,15 @@ public class SearchIndex {
       return builder.execute().actionGet().getHits();
     } finally {
       watch.stop("Request executed: %s", builderToString(builder));
+    }
+  }
+
+  public long executeCount(CountRequestBuilder builder) {
+    StopWatch watch = createWatch();
+    try {
+      return builder.execute().actionGet().getCount();
+    } finally {
+      watch.stop("Request executed: %s", builder.toString());
     }
   }
 

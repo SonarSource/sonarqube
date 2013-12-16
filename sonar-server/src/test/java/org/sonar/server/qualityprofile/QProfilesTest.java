@@ -165,7 +165,10 @@ public class QProfilesTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testSearchInactiveRules() throws Exception {
-    qProfiles.searchInactiveRules(null);
+    final int profileId = 42;
+    ProfileRuleQuery query = ProfileRuleQuery.create(profileId );
+    Paging paging = Paging.create(20, 1);
+    qProfiles.searchInactiveRules(query, paging);
   }
 
   @Test(expected = UnsupportedOperationException.class)

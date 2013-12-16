@@ -23,12 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.sonar.api.ServerExtension;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
@@ -45,7 +44,7 @@ import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
 import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
-public class ProfileRules {
+public class ProfileRules implements ServerExtension {
 
   private static final String FIELD_PARENT = "_parent";
   private static final String FIELD_SOURCE = "_source";
@@ -57,11 +56,7 @@ public class ProfileRules {
   }
 
   public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
-    BoolFilterBuilder filter = boolFilter().must(
-            termFilter("profileId", query.profileId()),
-            hasParentFilter(TYPE_RULE, parentRuleFilter(query))
-        );
-    addMustTermOrTerms(filter, "severity", query.severities());
+    BoolFilterBuilder filter = activeRuleFilter(query);
 
     SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
       .setFilter(filter)
@@ -91,6 +86,28 @@ public class ProfileRules {
     }
 
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+  }
+
+  protected BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
+    BoolFilterBuilder filter = boolFilter().must(
+            termFilter("profileId", query.profileId()),
+            hasParentFilter(TYPE_RULE, parentRuleFilter(query))
+        );
+    addMustTermOrTerms(filter, "severity", query.severities());
+    return filter;
+  }
+
+  public long countActiveRules(ProfileRuleQuery query) {
+    return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query))));
+  }
+
+  public long countInactiveRules(ProfileRuleQuery query) {
+    return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_RULE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        boolFilter()
+          .must(parentRuleFilter(query))
+          .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter("profileId", query.profileId()))))));
   }
 
   private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {

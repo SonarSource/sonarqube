@@ -85,7 +85,7 @@ public class ProfileRulesTest {
     List<QProfileRule> rules1 = profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging).rules();
     assertThat(rules1).hasSize(3);
     assertThat(rules1.get(0).key()).isEqualTo("DM_CONVERT_CASE");
-    assertThat(rules1.get(0).severity()).isEqualTo(RulePriority.MINOR);
+    assertThat(rules1.get(0).severity()).isEqualTo(RulePriority.MINOR.toString());
 
     // All rules for profile 2
     List<QProfileRule> rules2 = profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules();

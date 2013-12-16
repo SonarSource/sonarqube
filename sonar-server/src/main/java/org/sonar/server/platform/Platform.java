@@ -93,6 +93,7 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileSearch;
 import org.sonar.server.qualityprofile.QProfiles;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rules.ProfilesConsole;
@@ -269,6 +270,7 @@ public final class Platform {
     servicesContainer.addSingleton(Periods.class);
 
     // quality profiles
+    servicesContainer.addSingleton(ProfileRules.class);
     servicesContainer.addSingleton(QProfiles.class);
     servicesContainer.addSingleton(QProfileSearch.class);
     servicesContainer.addSingleton(QProfileOperations.class);

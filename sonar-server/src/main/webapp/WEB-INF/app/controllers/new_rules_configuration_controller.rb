@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 require 'cgi'
+require 'java'
 
 class NewRulesConfigurationController < ApplicationController
 
@@ -40,7 +41,7 @@ class NewRulesConfigurationController < ApplicationController
 
     @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
-    @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
+    @select_activation = [[message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
     @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
                            [message('rules_configuration.overrides'), 'OVERRIDES']]
     @select_status = ANY_SELECTION + [[message('rules.status.beta'), Rule::STATUS_BETA],
@@ -52,20 +53,31 @@ class NewRulesConfigurationController < ApplicationController
       stop_watch = Internal.profiling.start("rules", "BASIC")
 
       criteria = {
-      :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
-      :repositories => @repositories, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by}
-      @rules = Rule.search(java_facade, criteria)
+      "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities.to_java, "inheritance" => @inheritance, "statuses" => @status.to_java,
+      "repositoryKeys" => @repositories.to_java, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
 
-      unless @searchtext.blank?
+      @rules = []
+      @pagination = Api::Pagination.new(params)
+
+      call_java do
+        query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+        paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
+
         if @activation==STATUS_ACTIVE
-          @hidden_inactives = Rule.search(java_facade, {
-              :profile => @profile, :activation => STATUS_INACTIVE, :priorities => @priorities, :status => @status,
-              :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+          result = Internal.qprofiles.searchActiveRules(query, paging)
+        else
+          result = Internal.qprofiles.searchInactiveRules(query, paging)
+        end
 
-        elsif @activation==STATUS_INACTIVE
-          @hidden_actives = Rule.search(java_facade, {
-              :profile => @profile, :activation => STATUS_ACTIVE, :priorities => @priorities, :status => @status,
-              :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+        @rules = result.rules
+        @pagination.count = result.paging.total
+
+        unless @searchtext.blank?
+          if @activation==STATUS_ACTIVE
+            @hidden_inactives = Internal.qprofiles.countInactiveRules(query)
+          else
+            @hidden_actives = Internal.qprofiles.countInactiveRules(query)
+          end
         end
       end
 
@@ -73,9 +85,8 @@ class NewRulesConfigurationController < ApplicationController
     rescue
       @rules = []
     end
-      @pagination = Api::Pagination.new(params)
-      @pagination.count = @rules.size
-      @current_rules = @rules[@pagination.offset, @pagination.limit]
+
+    @current_rules = @rules
   end
 
 
