@@ -1,0 +1,22 @@
+<dataset>
+
+  <!-- global -->
+  <properties id="1" prop_key="global.one" text_value="one" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="global.two" text_value="two" resource_id="[null]" user_id="[null]"/>
+
+  <!-- struts -->
+  <properties id="3" prop_key="struts.one" text_value="one" resource_id="10" user_id="[null]"/>
+
+  <!-- commons -->
+  <properties id="4" prop_key="commonslang.one" text_value="two" resource_id="11" user_id="[null]"/>
+
+  <!-- user -->
+  <properties id="5" prop_key="user.one" text_value="one" resource_id="[null]" user_id="100"/>
+  <properties id="6" prop_key="user.two" text_value="two" resource_id="10" user_id="100"/>
+
+  <properties id="7" prop_key="commonslang.one" text_value="one" resource_id="12" user_id="[null]"/>
+
+  <projects id="10" kee="org.struts:struts"/>
+  <projects id="11" kee="org.apache:commons-lang"/>
+  <projects id="12" kee="other"/>
+</dataset>

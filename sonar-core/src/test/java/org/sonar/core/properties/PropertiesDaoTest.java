@@ -166,6 +166,15 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void delete_project_property() {
+    setupData("delete_project_property");
+
+    dao.deleteProjectProperty("struts.one", 10L);
+
+    checkTables("delete_project_property", "properties");
+  }
+
+  @Test
   public void deleteGlobalProperties() {
     setupData("deleteGlobalProperties");
 

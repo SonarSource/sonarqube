@@ -78,27 +78,27 @@ class ProjectController < ApplicationController
   # GET /project/profile?id=<project id>
   def profile
     require_parameters :id
-    @project=get_current_project_for_profile(params[:id])
-    @snapshot=@project.last_snapshot
+    @project = get_current_project_for_profile(params[:id])
+    @snapshot = @project.last_snapshot
   end
 
   # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
   def set_profile
-    require_parameters :id, :language
     verify_post_request
 
-    language=params[:language]
-    project = get_current_project_for_profile(params[:id])
+    language = params[:language]
+    project = params[:id].to_i
+    profile_id = params[:profile_id]
 
-    if params[:profile_id].blank?
-      Profile.reset_default_profile_for_project_id(language, project.id)
-    else
-      profile = Profile.find(params[:profile_id])
-      bad_request('Bad language') if profile.language!=language
-      profile.add_project_id(project.id)
+    call_backend do
+      if profile_id.blank?
+        Internal.qprofiles.removeProjectByLanguage(language, project)
+      else
+        Internal.qprofiles.addProject(profile_id.to_i, project)
+      end
     end
 
-    redirect_to :action => 'profile', :id => project.id
+    redirect_to :action => 'profile', :id => project
   end
 
   def get_current_project_for_profile(project_id)

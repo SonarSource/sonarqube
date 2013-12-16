@@ -317,4 +317,23 @@ public class QProfileOperationsTest {
     }
     verify(propertiesDao, never()).setProperty(any(PropertyDto.class));
   }
+
+  @Test
+  public void remove_project_by_quality_profile() throws Exception {
+    when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+    when(resourceDao.findById(10L)).thenReturn(new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube"));
+
+    operations.removeProject(1, 10L, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L);
+  }
+
+  @Test
+  public void remove_project_by_language() throws Exception {
+    when(resourceDao.findById(10L)).thenReturn(new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube"));
+
+    operations.removeProject("java", 10L, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L);
+  }
 }

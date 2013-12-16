@@ -111,12 +111,30 @@ public class QProfiles implements ServerComponent {
     return operations.projects(profileId);
   }
 
+  /**
+   * Used in /project/profile
+   */
+  public QProfile profile(Integer projectId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Used in /project/profile
+   */
+  public List<QProfile> profiles(String language) {
+    throw new UnsupportedOperationException();
+  }
+
   public void addProject(Integer profileId, Long projectId) {
     operations.addProject(profileId, projectId, UserSession.get());
   }
 
-  public void removeProject(Integer profileId, String projectKey) {
-    throw new UnsupportedOperationException();
+  public void removeProject(Integer profileId, Long projectId) {
+    operations.removeProject(profileId, projectId, UserSession.get());
+  }
+
+  public void removeProjectByLanguage(String language, Long projectId) {
+    operations.removeProject(language, projectId, UserSession.get());
   }
 
   public void removeAllProjects(Integer profileId) {

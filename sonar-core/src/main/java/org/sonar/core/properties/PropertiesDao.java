@@ -46,8 +46,8 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
    * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
    *
    * @param notificationDispatcherKey the key of the notification dispatcher
-   * @param notificationChannelKey the key of the notification channel
-   * @param resourceId the resource id
+   * @param notificationChannelKey    the key of the notification channel
+   * @param resourceId                the resource id
    * @return the list of logins (maybe be empty - obviously)
    */
   public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable Long resourceId) {
@@ -124,6 +124,17 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
         mapper.insert(property);
         session.commit();
       }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteProjectProperty(String key, Long projectId) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      mapper.deleteProjectProperty(key, projectId);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

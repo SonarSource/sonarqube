@@ -146,6 +146,25 @@ public class QProfileOperations implements ServerComponent {
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
   }
 
+  public void removeProject(Integer profileId, Long projectId, UserSession userSession) {
+    checkPermission(userSession);
+    Validation.checkMandatoryParameter(profileId, "profile");
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    removeProject(qualityProfile.getLanguage(), projectId);
+  }
+
+  public void removeProject(String language, Long projectId, UserSession userSession) {
+    checkPermission(userSession);
+    Validation.checkMandatoryParameter(language, "language");
+    removeProject(language, projectId);
+  }
+
+  private void removeProject(String language, Long projectId) {
+    Validation.checkMandatoryParameter(language, "project");
+    ComponentDto component = (ComponentDto) findNotNull(projectId);
+    propertiesDao.deleteProjectProperty(PROPERTY_PREFIX + language, component.getId());
+  }
+
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
     List<RulesProfile> profiles = newArrayList();
     ValidationMessages messages = ValidationMessages.create();

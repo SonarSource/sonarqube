@@ -35,9 +35,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
@@ -139,15 +137,32 @@ public class QProfilesTest {
     verify(operations).projects(1);
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void get_profile_from_project_id() throws Exception {
+    qProfiles.profile(1);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void get_profiles_from_language() throws Exception {
+    qProfiles.profiles("java");
+  }
+
   @Test
   public void add_project() throws Exception {
     qProfiles.addProject(1, 10L);
     verify(operations).addProject(eq(1), eq(10L), any(UserSession.class));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testRemoveProject() throws Exception {
-    qProfiles.removeProject(null, null);
+  @Test
+  public void remove_project_by_quality_profile_id() throws Exception {
+    qProfiles.removeProject(1, 10L);
+    verify(operations).removeProject(eq(1), eq(10L), any(UserSession.class));
+  }
+
+  @Test
+  public void remove_project_by_language() throws Exception {
+    qProfiles.removeProjectByLanguage("java", 10L);
+    verify(operations).removeProject(eq("java"), eq(10L), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
