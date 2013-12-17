@@ -122,7 +122,6 @@ public class QProfiles implements ServerComponent {
   // PROJECTS
 
   public QProfileProjects projects(int profileId) {
-    Validation.checkMandatoryParameter(profileId, "profile");
     QualityProfileDto qualityProfile = findNotNull(profileId);
     return projectService.projects(qualityProfile);
   }
@@ -135,8 +134,6 @@ public class QProfiles implements ServerComponent {
   }
 
   public void addProject(int profileId, long projectId) {
-    Validation.checkMandatoryParameter(profileId, "profile");
-    Validation.checkMandatoryParameter(projectId, "project");
     ComponentDto project = (ComponentDto) findNotNull(projectId);
     QualityProfileDto qualityProfile = findNotNull(profileId);
 
@@ -144,7 +141,6 @@ public class QProfiles implements ServerComponent {
   }
 
   public void removeProject(int profileId, long projectId) {
-    Validation.checkMandatoryParameter(profileId, "profile");
     QualityProfileDto qualityProfile = findNotNull(profileId);
     ComponentDto project = (ComponentDto) findNotNull(projectId);
 
