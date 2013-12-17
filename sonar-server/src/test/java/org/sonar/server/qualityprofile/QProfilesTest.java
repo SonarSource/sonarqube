@@ -74,6 +74,15 @@ public class QProfilesTest {
   }
 
   @Test
+  public void search_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
+    qProfiles.profile(1);
+    verify(qualityProfileDao).selectById(1);
+  }
+
+  @Test
   public void search_profiles() throws Exception {
     qProfiles.allProfiles();
     verify(search).allProfiles();

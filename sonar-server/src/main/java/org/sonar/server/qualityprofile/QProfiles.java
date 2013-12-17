@@ -92,6 +92,11 @@ public class QProfiles implements ServerComponent {
   // edit template rule
   // delete template rule
 
+  public QProfile profile(int id) {
+    QualityProfileDto dto = findNotNull(id);
+    return QProfile.from(dto);
+  }
+
   public List<QProfile> allProfiles() {
     return search.allProfiles();
   }

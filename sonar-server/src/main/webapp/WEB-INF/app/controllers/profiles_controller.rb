@@ -35,7 +35,6 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/create_form?language=<language>
   def create_form
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'language'
     render :partial => 'profiles/create_form', :locals => {:language_key => params[:language]}
   end
@@ -325,9 +324,10 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/rename_form?id=<id>
   def rename_form
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
-    @profile = Profile.find(params[:id])
+    call_backend do
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    end
     render :partial => 'profiles/rename_form'
   end
 
