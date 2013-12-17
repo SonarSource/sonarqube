@@ -22,10 +22,6 @@ package org.sonar.server.rule;
 
 public final class RuleDocument {
 
-  private RuleDocument() {
-    // Only constants
-  }
-
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_CREATED_AT = "createdAt";
@@ -43,4 +39,9 @@ public final class RuleDocument {
   public static final String FIELD_PARAM_TYPE = "type";
   public static final String FIELD_PARAM_DEFAULT_VALUE = "defaultValue";
   public static final String FIELD_PARAM_DESCRIPTION = "description";
+
+  private RuleDocument() {
+    // Only constants
+  }
+
 }

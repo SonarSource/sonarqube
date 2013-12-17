@@ -22,10 +22,6 @@ package org.sonar.server.rule;
 
 public class ActiveRuleDocument {
 
-  private ActiveRuleDocument() {
-    // Only constants
-  }
-
   public static final String FIELD_ID = "id";
   public static final String FIELD_SEVERITY = "severity";
   public static final String FIELD_PROFILE_ID = "profileId";
@@ -34,4 +30,9 @@ public class ActiveRuleDocument {
 
   public static final String FIELD_PARAM_KEY = "key";
   public static final String FIELD_PARAM_VALUE = "value";
+
+  private ActiveRuleDocument() {
+    // Only constants
+  }
+
 }
