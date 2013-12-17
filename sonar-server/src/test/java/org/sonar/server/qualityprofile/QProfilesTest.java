@@ -27,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.resource.ResourceDao;
@@ -53,9 +52,6 @@ public class QProfilesTest {
   QualityProfileDao qualityProfileDao;
 
   @Mock
-  ActiveRuleDao activeRuleDao;
-
-  @Mock
   ResourceDao resourceDao;
 
   @Mock
@@ -74,18 +70,13 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, resourceDao, projectService, search, service, rules);
+    qProfiles = new QProfiles(qualityProfileDao, resourceDao, projectService, search, service, rules);
   }
 
   @Test
   public void search_profiles() throws Exception {
     qProfiles.searchProfiles();
     verify(search).searchProfiles();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testSearchProfile() throws Exception {
-    qProfiles.searchProfile(null);
   }
 
   @Test
@@ -114,11 +105,6 @@ public class QProfilesTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testDeleteProfile() throws Exception {
-    qProfiles.deleteProfile();
   }
 
   @Test
@@ -182,41 +168,6 @@ public class QProfilesTest {
     verify(service).setDefaultProfile(eq(qualityProfile), any(UserSession.class));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testCopyProfile() throws Exception {
-    qProfiles.copyProfile();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testExportProfile() throws Exception {
-    qProfiles.exportProfile(1);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testExportProfileByPlugin() throws Exception {
-    qProfiles.exportProfile(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testRestoreProfile() throws Exception {
-    qProfiles.restoreProfile();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testInheritance() throws Exception {
-    qProfiles.inheritance();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testInherit() throws Exception {
-    qProfiles.inherit(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testChangelog() throws Exception {
-    qProfiles.changelog(null);
-  }
-
   @Test
   public void projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
@@ -276,14 +227,10 @@ public class QProfilesTest {
     verify(projectService).removeProject(eq("java"), eq(project), any(UserSession.class));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testRemoveAllProjects() throws Exception {
-    qProfiles.removeAllProjects(null);
-  }
-
+  @Test
   public void testSearchActiveRules() throws Exception {
     final int profileId = 42;
-    ProfileRuleQuery query = ProfileRuleQuery.create(profileId );
+    ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     QProfileRuleResult result = mock(QProfileRuleResult.class);
     when(rules.searchActiveRules(query, paging)).thenReturn(result);
@@ -293,58 +240,9 @@ public class QProfilesTest {
   @Test(expected = UnsupportedOperationException.class)
   public void testSearchInactiveRules() throws Exception {
     final int profileId = 42;
-    ProfileRuleQuery query = ProfileRuleQuery.create(profileId );
+    ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     qProfiles.searchInactiveRules(query, paging);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testActiveRule() throws Exception {
-    qProfiles.activeRule(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testDeactiveRule() throws Exception {
-    qProfiles.deactiveRule(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void updateParameters() {
-    qProfiles.updateParameters(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void activeNote() {
-    qProfiles.activeNote(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void editNote() {
-    qProfiles.editNote(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void deleteNote() {
-    qProfiles.deleteNote(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void extendDescription() {
-    qProfiles.extendDescription(null, null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createTemplateRule() throws Exception {
-    qProfiles.createTemplateRule();;
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void editTemplateRule() throws Exception {
-    qProfiles.editTemplateRule();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void deleteTemplateRule() throws Exception {
-    qProfiles.deleteTemplateRule();
-  }
 }

@@ -23,9 +23,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.resource.ResourceDao;
@@ -44,7 +42,6 @@ import java.util.Map;
 public class QProfiles implements ServerComponent {
 
   private final QualityProfileDao qualityProfileDao;
-  private final ActiveRuleDao activeRuleDao;
   private final ResourceDao resourceDao;
 
   private final QProfileProjectService projectService;
@@ -53,10 +50,9 @@ public class QProfiles implements ServerComponent {
   private final QProfileOperations operations;
   private final ProfileRules rules;
 
-  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, QProfileProjectService projectService, QProfileSearch search,
+  public QProfiles(QualityProfileDao qualityProfileDao, ResourceDao resourceDao, QProfileProjectService projectService, QProfileSearch search,
                    QProfileOperations operations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
-    this.activeRuleDao = activeRuleDao;
     this.resourceDao = resourceDao;
     this.projectService = projectService;
     this.search = search;
@@ -64,12 +60,40 @@ public class QProfiles implements ServerComponent {
     this.rules = rules;
   }
 
+  // TODO
+  //
+  // PROFILES
+  //
+  // search profile from profile id
+  // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects)
+  // copy profile
+  // export profile from profile id
+  // export profile from profile id and plugin key
+  // restore profile
+  //
+  // INHERITANCE
+  // get inheritance of profile id
+  // change inheritance of a profile id
+  //
+  // CHANGELOG
+  // display changelog for a profile id
+  //
+  // ACTIVE RULES
+  // activate a rule
+  // deactivate a rule
+  // update parameter on a active rule
+  // add note on an active rule
+  // delete note on an active rule
+  // edit note on an active rule
+  // extends extension of a rule
+  //
+  // TEMPLATE RULES
+  // create template rule
+  // edit template rule
+  // delete template rule
+
   public List<QProfile> searchProfiles() {
     return search.searchProfiles();
-  }
-
-  public void searchProfile(Integer profileId) {
-    throw new UnsupportedOperationException();
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
@@ -77,17 +101,12 @@ public class QProfiles implements ServerComponent {
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
 
-  public void deleteProfile() {
-    // Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects
-    throw new UnsupportedOperationException();
-  }
-
-  public void renameProfile(Integer profileId, String newName) {
+  public void renameProfile(int profileId, String newName) {
     QualityProfileDto qualityProfile = validateRenameProfile(profileId, newName);
     operations.renameProfile(qualityProfile, newName, UserSession.get());
   }
 
-  public void setDefaultProfile(Integer profileId) {
+  public void setDefaultProfile(int profileId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
@@ -100,41 +119,9 @@ public class QProfiles implements ServerComponent {
     operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
 
-  public void copyProfile() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void exportProfile(Integer profileId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void exportProfile(Integer profileId, String plugin) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void restoreProfile() {
-    throw new UnsupportedOperationException();
-  }
-
-  // INHERITANCE
-
-  public void inheritance() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void inherit(Integer profileId, Integer parentProfileId) {
-    throw new UnsupportedOperationException();
-  }
-
-  // CHANGELOG
-
-  public void changelog(Integer profileId) {
-    throw new UnsupportedOperationException();
-  }
-
   // PROJECTS
 
-  public QProfileProjects projects(Integer profileId) {
+  public QProfileProjects projects(int profileId) {
     Validation.checkMandatoryParameter(profileId, "profile");
     QualityProfileDto qualityProfile = findNotNull(profileId);
     return projectService.projects(qualityProfile);
@@ -143,11 +130,11 @@ public class QProfiles implements ServerComponent {
   /**
    * Used in /project/profile
    */
-  public QProfile profile(Integer projectId) {
+  public QProfile profile(int projectId) {
     throw new UnsupportedOperationException();
   }
 
-  public void addProject(Integer profileId, Long projectId) {
+  public void addProject(int profileId, long projectId) {
     Validation.checkMandatoryParameter(profileId, "profile");
     Validation.checkMandatoryParameter(projectId, "project");
     ComponentDto project = (ComponentDto) findNotNull(projectId);
@@ -156,7 +143,7 @@ public class QProfiles implements ServerComponent {
     projectService.addProject(qualityProfile, project, UserSession.get());
   }
 
-  public void removeProject(Integer profileId, Long projectId) {
+  public void removeProject(int profileId, long projectId) {
     Validation.checkMandatoryParameter(profileId, "profile");
     QualityProfileDto qualityProfile = findNotNull(profileId);
     ComponentDto project = (ComponentDto) findNotNull(projectId);
@@ -164,14 +151,14 @@ public class QProfiles implements ServerComponent {
     projectService.removeProject(qualityProfile, project, UserSession.get());
   }
 
-  public void removeProjectByLanguage(String language, Long projectId) {
+  public void removeProjectByLanguage(String language, long projectId) {
     Validation.checkMandatoryParameter(language, "language");
     ComponentDto project = (ComponentDto) findNotNull(projectId);
 
     projectService.removeProject(language, project, UserSession.get());
   }
 
-  public void removeAllProjects(Integer profileId) {
+  public void removeAllProjects(int profileId) {
     throw new UnsupportedOperationException();
   }
 
@@ -191,48 +178,6 @@ public class QProfiles implements ServerComponent {
 
   public long countInactiveRules(ProfileRuleQuery query) {
     return rules.countInactiveRules(query);
-  }
-
-  public void activeRule(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void deactiveRule(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void updateParameters(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void activeNote(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void editNote(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void deleteNote(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void extendDescription(Integer profileId, RuleKey ruleKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  // TEMPLATE RULES
-
-  public void createTemplateRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void editTemplateRule() {
-    throw new UnsupportedOperationException();
-  }
-
-  public void deleteTemplateRule() {
-    throw new UnsupportedOperationException();
   }
 
   private void validateNewProfile(String name, String language) {
@@ -256,7 +201,7 @@ public class QProfiles implements ServerComponent {
     }
   }
 
-  private QualityProfileDto findNotNull(Integer id) {
+  private QualityProfileDto findNotNull(int id) {
     QualityProfileDto qualityProfile = find(id);
     return checkNotNull(qualityProfile);
   }
@@ -266,7 +211,7 @@ public class QProfiles implements ServerComponent {
     return checkNotNull(qualityProfile);
   }
 
-  private Component findNotNull(Long projectId) {
+  private Component findNotNull(long projectId) {
     Component component = resourceDao.findById(projectId);
     if (component == null) {
       throw new NotFoundException("This project does not exists.");
@@ -287,7 +232,7 @@ public class QProfiles implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto find(Integer id) {
+  private QualityProfileDto find(int id) {
     return qualityProfileDao.selectById(id);
   }
 
