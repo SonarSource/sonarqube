@@ -22,7 +22,6 @@ package org.sonar.core.qualityprofile.db;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -98,18 +97,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_projects() {
     setupData("projects");
 
-    List<ComponentDto> dtos = dao.selectProjects("sonar.profile.java", "Sonar Way");
-    assertThat(dtos).hasSize(2);
-
-    ComponentDto componentDto1 = dtos.get(0);
-    assertThat(componentDto1.getId()).isEqualTo(1);
-    assertThat(componentDto1.key()).isEqualTo("org.codehaus.sonar:sonar");
-    assertThat(componentDto1.name()).isEqualTo("SonarQube");
-
-    ComponentDto componentDto2 = dtos.get(1);
-    assertThat(componentDto2.getId()).isEqualTo(2);
-    assertThat(componentDto2.key()).isEqualTo("org.codehaus.sonar-plugins.java:java");
-    assertThat(componentDto2.name()).isEqualTo("SonarQube Java");
+    assertThat(dao.selectProjects("sonar.profile.java", "Sonar Way")).hasSize(2);
   }
 
   @Test
