@@ -20,11 +20,19 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
@@ -33,6 +41,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -41,10 +50,22 @@ import static org.mockito.Mockito.*;
 public class QProfilesTest {
 
   @Mock
+  QualityProfileDao qualityProfileDao;
+
+  @Mock
+  ActiveRuleDao activeRuleDao;
+
+  @Mock
+  ResourceDao resourceDao;
+
+  @Mock
+  QProfileProjectService projectService;
+
+  @Mock
   QProfileSearch search;
 
   @Mock
-  QProfileOperations operations;
+  QProfileOperations service;
 
   @Mock
   ProfileRules rules;
@@ -53,7 +74,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(search, operations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, resourceDao, projectService, search, service, rules);
   }
 
   @Test
@@ -68,10 +89,31 @@ public class QProfilesTest {
   }
 
   @Test
-  public void new_profile() throws Exception {
+  public void create_new_profile() throws Exception {
     Map<String, String> xmlProfilesByPlugin = newHashMap();
     qProfiles.newProfile("Default", "java", xmlProfilesByPlugin);
-    verify(operations).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
+    verify(service).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_create_profile_without_name() throws Exception {
+    try {
+      qProfiles.newProfile("", "java", Maps.<String, String>newHashMap());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+  }
+
+  @Test
+  public void fail_to_create_profile_if_already_exists() throws Exception {
+    try {
+      when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
+      qProfiles.newProfile("Default", "java", Maps.<String, String>newHashMap());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -81,20 +123,63 @@ public class QProfilesTest {
 
   @Test
   public void rename_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
     qProfiles.renameProfile(1, "Default profile");
-    verify(operations).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
+    verify(service).renameProfile(eq(qualityProfile), eq("Default profile"), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_rename_profile_on_unknown_profile() throws Exception {
+    try {
+      when(qualityProfileDao.selectById(1)).thenReturn(null);
+      qProfiles.renameProfile(1, "Default profile");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+  }
+
+  @Test
+  public void fail_to_rename_profile_when_missing_new_name() throws Exception {
+    try {
+      qProfiles.renameProfile(1, "");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+    verify(qualityProfileDao, never()).update(any(QualityProfileDto.class));
+  }
+
+  @Test
+  public void fail_to_rename_profile_if_already_exists() throws Exception {
+    try {
+      when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+      when(qualityProfileDao.selectByNameAndLanguage(eq("New Default"), anyString())).thenReturn(new QualityProfileDto().setName("New Default").setLanguage("java"));
+      qProfiles.renameProfile(1, "New Default");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   @Test
   public void update_default_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
     qProfiles.setDefaultProfile(1);
-    verify(operations).setDefaultProfile(eq(1), any(UserSession.class));
+    verify(service).setDefaultProfile(eq(qualityProfile), any(UserSession.class));
   }
 
   @Test
   public void update_default_profile_from_name_and_language() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectByNameAndLanguage("Default", "java")).thenReturn(qualityProfile);
+
     qProfiles.setDefaultProfile("Default", "java");
-    verify(operations).setDefaultProfile(eq("Default"), eq("java"), any(UserSession.class));
+    verify(service).setDefaultProfile(eq(qualityProfile), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -134,8 +219,10 @@ public class QProfilesTest {
 
   @Test
   public void projects() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
     qProfiles.projects(1);
-    verify(operations).projects(1);
+    verify(projectService).projects(qualityProfile);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -145,20 +232,48 @@ public class QProfilesTest {
 
   @Test
   public void add_project() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+    when(resourceDao.findById(10L)).thenReturn(project);
+
     qProfiles.addProject(1, 10L);
-    verify(operations).addProject(eq(1), eq(10L), any(UserSession.class));
+    verify(projectService).addProject(eq(qualityProfile), eq(project), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_add_project_if_project_not_found() throws Exception {
+    try {
+      QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+      when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+      when(resourceDao.findById(10L)).thenReturn(null);
+
+      qProfiles.addProject(1, 10L);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verifyZeroInteractions(projectService);
   }
 
   @Test
   public void remove_project_by_quality_profile_id() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+    when(resourceDao.findById(10L)).thenReturn(project);
+
     qProfiles.removeProject(1, 10L);
-    verify(operations).removeProject(eq(1), eq(10L), any(UserSession.class));
+    verify(projectService).removeProject(eq(qualityProfile), eq(project), any(UserSession.class));
   }
 
   @Test
   public void remove_project_by_language() throws Exception {
+    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(resourceDao.findById(10L)).thenReturn(project);
+
     qProfiles.removeProjectByLanguage("java", 10L);
-    verify(operations).removeProject(eq("java"), eq(10L), any(UserSession.class));
+    verify(projectService).removeProject(eq("java"), eq(project), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)

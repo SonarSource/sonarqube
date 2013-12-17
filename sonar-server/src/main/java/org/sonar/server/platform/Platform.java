@@ -91,6 +91,7 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.QProfileOperations;
+import org.sonar.server.qualityprofile.QProfileProjectService;
 import org.sonar.server.qualityprofile.QProfileSearch;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.rule.ProfileRules;
@@ -274,6 +275,7 @@ public final class Platform {
     servicesContainer.addSingleton(QProfiles.class);
     servicesContainer.addSingleton(QProfileSearch.class);
     servicesContainer.addSingleton(QProfileOperations.class);
+    servicesContainer.addSingleton(QProfileProjectService.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

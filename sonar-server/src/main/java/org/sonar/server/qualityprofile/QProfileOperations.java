@@ -20,16 +20,12 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -37,22 +33,15 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.Validation;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.io.StringReader;
 import java.util.List;
@@ -67,24 +56,25 @@ public class QProfileOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
-  private final ResourceDao resourceDao;
   private final PropertiesDao propertiesDao;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
+  /**
+   * Used by pico when no plugin provide profile exporter / importer
+   */
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
-    this(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
+    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
-    this.resourceDao = resourceDao;
     this.propertiesDao = propertiesDao;
     this.exporters = exporters;
     this.importers = importers;
@@ -93,7 +83,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    validateNewProfile(name, language, userSession);
+    checkPermission(userSession);
 
     NewProfileResult result = new NewProfileResult();
     List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
@@ -114,60 +104,15 @@ public class QProfileOperations implements ServerComponent {
     return result;
   }
 
-  public void renameProfile(Integer profileId, String newName, UserSession userSession) {
-    QualityProfileDto qualityProfile = validateRenameProfile(profileId, newName, userSession);
+  public void renameProfile(QualityProfileDto qualityProfile, String newName, UserSession userSession) {
+    checkPermission(userSession);
     qualityProfile.setName(newName);
     dao.update(qualityProfile);
   }
 
-  public void setDefaultProfile(Integer id, UserSession userSession) {
-    QualityProfileDto qualityProfile = validateUpdateDefaultProfile(id, userSession);
+  public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
+    checkPermission(userSession);
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
-  }
-
-  public void setDefaultProfile(String name, String language, UserSession userSession) {
-    setDefaultProfile(findNotNull(name, language).getId(), userSession);
-  }
-
-  public QProfileProjects projects(Integer profileId) {
-    Validation.checkMandatoryParameter(profileId, "profile");
-    QualityProfileDto dto = findNotNull(profileId);
-    List<ComponentDto> componentDtos = dao.selectProjects(PROPERTY_PREFIX + dto.getLanguage(), dto.getName());
-    List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
-      @Override
-      public Component apply(@Nullable ComponentDto dto) {
-        return (Component) dto;
-      }
-    }));
-    return new QProfileProjects(QProfile.from(dto), projects);
-  }
-
-  public void addProject(Integer profileId, Long projectId, UserSession userSession) {
-    checkPermission(userSession);
-    Validation.checkMandatoryParameter(profileId, "profile");
-    Validation.checkMandatoryParameter(projectId, "project");
-    ComponentDto component = (ComponentDto) findNotNull(projectId);
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
-  }
-
-  public void removeProject(Integer profileId, Long projectId, UserSession userSession) {
-    checkPermission(userSession);
-    Validation.checkMandatoryParameter(profileId, "profile");
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    removeProject(qualityProfile.getLanguage(), projectId);
-  }
-
-  public void removeProject(String language, Long projectId, UserSession userSession) {
-    checkPermission(userSession);
-    Validation.checkMandatoryParameter(language, "language");
-    removeProject(language, projectId);
-  }
-
-  private void removeProject(String language, Long projectId) {
-    Validation.checkMandatoryParameter(language, "project");
-    ComponentDto component = (ComponentDto) findNotNull(projectId);
-    propertiesDao.deleteProjectProperty(PROPERTY_PREFIX + language, component.getId());
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
@@ -200,7 +145,7 @@ public class QProfileOperations implements ServerComponent {
     ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
   }
 
-  public ProfileImporter getProfileImporter(String exporterKey) {
+  private ProfileImporter getProfileImporter(String exporterKey) {
     for (ProfileImporter importer : importers) {
       if (StringUtils.equals(exporterKey, importer.getKey())) {
         return importer;
@@ -239,75 +184,6 @@ public class QProfileOperations implements ServerComponent {
       .setRulesParameterId(activeRuleParam.getRuleParam().getId())
       .setKey(activeRuleParam.getKey())
       .setValue(activeRuleParam.getValue());
-  }
-
-  private void validateNewProfile(String name, String language, UserSession userSession) {
-    checkPermission(userSession);
-    validateName(name);
-    Validation.checkMandatoryParameter(language, "language");
-    checkNotAlreadyExists(name, language);
-  }
-
-  private QualityProfileDto validateRenameProfile(Integer profileId, String newName, UserSession userSession) {
-    checkPermission(userSession);
-    validateName(newName);
-    QualityProfileDto profileDto = findNotNull(profileId);
-    if (!profileDto.getName().equals(newName)) {
-      checkNotAlreadyExists(newName, profileDto.getLanguage());
-    }
-    return profileDto;
-  }
-
-  private QualityProfileDto validateUpdateDefaultProfile(Integer id, UserSession userSession) {
-    checkPermission(userSession);
-    return findNotNull(id);
-  }
-
-  private void checkNotAlreadyExists(String name, String language) {
-    if (find(name, language) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
-    }
-  }
-
-  private QualityProfileDto findNotNull(Integer id) {
-    QualityProfileDto qualityProfile = find(id);
-    return checkNotNull(qualityProfile);
-  }
-
-  private QualityProfileDto findNotNull(String name, String language) {
-    QualityProfileDto qualityProfile = find(name, language);
-    return checkNotNull(qualityProfile);
-  }
-
-  private Component findNotNull(Long projectId) {
-    Component component = resourceDao.findById(projectId);
-    if (component == null) {
-      throw new NotFoundException("This project does not exists.");
-    }
-    return component;
-  }
-
-  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
-    if (qualityProfile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
-    return qualityProfile;
-  }
-
-  @CheckForNull
-  private QualityProfileDto find(String name, String language) {
-    return dao.selectByNameAndLanguage(name, language);
-  }
-
-  @CheckForNull
-  private QualityProfileDto find(Integer id) {
-    return dao.selectById(id);
-  }
-
-  private void validateName(String name) {
-    if (Strings.isNullOrEmpty(name)) {
-      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
-    }
   }
 
   private void checkPermission(UserSession userSession) {

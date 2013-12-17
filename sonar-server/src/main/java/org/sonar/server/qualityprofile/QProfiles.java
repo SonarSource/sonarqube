@@ -20,22 +20,45 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.Validation;
+
+import javax.annotation.CheckForNull;
 
 import java.util.List;
 import java.util.Map;
 
 public class QProfiles implements ServerComponent {
 
+  private final QualityProfileDao qualityProfileDao;
+  private final ActiveRuleDao activeRuleDao;
+  private final ResourceDao resourceDao;
+
+  private final QProfileProjectService projectService;
+
   private final QProfileSearch search;
   private final QProfileOperations operations;
   private final ProfileRules rules;
 
-  public QProfiles(QProfileSearch search, QProfileOperations operations, ProfileRules rules) {
+  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, QProfileProjectService projectService, QProfileSearch search,
+                   QProfileOperations operations, ProfileRules rules) {
+    this.qualityProfileDao = qualityProfileDao;
+    this.activeRuleDao = activeRuleDao;
+    this.resourceDao = resourceDao;
+    this.projectService = projectService;
     this.search = search;
     this.operations = operations;
     this.rules = rules;
@@ -50,6 +73,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
+    validateNewProfile(name, language);
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
 
@@ -59,18 +83,21 @@ public class QProfiles implements ServerComponent {
   }
 
   public void renameProfile(Integer profileId, String newName) {
-    operations.renameProfile(profileId, newName, UserSession.get());
+    QualityProfileDto qualityProfile = validateRenameProfile(profileId, newName);
+    operations.renameProfile(qualityProfile, newName, UserSession.get());
   }
 
   public void setDefaultProfile(Integer profileId) {
-    operations.setDefaultProfile(profileId, UserSession.get());
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
 
   /**
    * Used by WS
    */
   public void setDefaultProfile(String name, String language) {
-    operations.setDefaultProfile(name, language, UserSession.get());
+    QualityProfileDto qualityProfile = findNotNull(name, language);
+    operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
 
   public void copyProfile() {
@@ -108,7 +135,9 @@ public class QProfiles implements ServerComponent {
   // PROJECTS
 
   public QProfileProjects projects(Integer profileId) {
-    return operations.projects(profileId);
+    Validation.checkMandatoryParameter(profileId, "profile");
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    return projectService.projects(qualityProfile);
   }
 
   /**
@@ -119,15 +148,27 @@ public class QProfiles implements ServerComponent {
   }
 
   public void addProject(Integer profileId, Long projectId) {
-    operations.addProject(profileId, projectId, UserSession.get());
+    Validation.checkMandatoryParameter(profileId, "profile");
+    Validation.checkMandatoryParameter(projectId, "project");
+    ComponentDto project = (ComponentDto) findNotNull(projectId);
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+
+    projectService.addProject(qualityProfile, project, UserSession.get());
   }
 
   public void removeProject(Integer profileId, Long projectId) {
-    operations.removeProject(profileId, projectId, UserSession.get());
+    Validation.checkMandatoryParameter(profileId, "profile");
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    ComponentDto project = (ComponentDto) findNotNull(projectId);
+
+    projectService.removeProject(qualityProfile, project, UserSession.get());
   }
 
   public void removeProjectByLanguage(String language, Long projectId) {
-    operations.removeProject(language, projectId, UserSession.get());
+    Validation.checkMandatoryParameter(language, "language");
+    ComponentDto project = (ComponentDto) findNotNull(projectId);
+
+    projectService.removeProject(language, project, UserSession.get());
   }
 
   public void removeAllProjects(Integer profileId) {
@@ -192,6 +233,68 @@ public class QProfiles implements ServerComponent {
 
   public void deleteTemplateRule() {
     throw new UnsupportedOperationException();
+  }
+
+  private void validateNewProfile(String name, String language) {
+    validateName(name);
+    Validation.checkMandatoryParameter(language, "language");
+    checkNotAlreadyExists(name, language);
+  }
+
+  private QualityProfileDto validateRenameProfile(Integer profileId, String newName) {
+    validateName(newName);
+    QualityProfileDto profileDto = findNotNull(profileId);
+    if (!profileDto.getName().equals(newName)) {
+      checkNotAlreadyExists(newName, profileDto.getLanguage());
+    }
+    return profileDto;
+  }
+
+  private void checkNotAlreadyExists(String name, String language) {
+    if (find(name, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+  }
+
+  private QualityProfileDto findNotNull(Integer id) {
+    QualityProfileDto qualityProfile = find(id);
+    return checkNotNull(qualityProfile);
+  }
+
+  private QualityProfileDto findNotNull(String name, String language) {
+    QualityProfileDto qualityProfile = find(name, language);
+    return checkNotNull(qualityProfile);
+  }
+
+  private Component findNotNull(Long projectId) {
+    Component component = resourceDao.findById(projectId);
+    if (component == null) {
+      throw new NotFoundException("This project does not exists.");
+    }
+    return component;
+  }
+
+  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
+    if (qualityProfile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return qualityProfile;
+  }
+
+  @CheckForNull
+  private QualityProfileDto find(String name, String language) {
+    return qualityProfileDao.selectByNameAndLanguage(name, language);
+  }
+
+  @CheckForNull
+  private QualityProfileDto find(Integer id) {
+    return qualityProfileDao.selectById(id);
+  }
+
+  private void validateName(String name) {
+    if (Strings.isNullOrEmpty(name)) {
+      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
+    }
   }
 
 }
