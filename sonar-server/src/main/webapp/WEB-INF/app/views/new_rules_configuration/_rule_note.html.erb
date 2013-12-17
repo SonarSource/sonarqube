@@ -9,10 +9,12 @@
 
 <div id="<%= note_detail_div_id -%>">
   <div class="marginbottom10">
-  <% if rule.description.strip.start_with?('<p>') %>
-    <%= Internal.text.interpretMacros(rule.description) %>
-  <% else %>
-    <p><%= Internal.text.interpretMacros(rule.description) %></p>
+  <% unless rule.description.nil? %>
+    <% if rule.description.strip.start_with?('<p>') %>
+      <%= Internal.text.interpretMacros(rule.description) %>
+    <% else %>
+      <p><%= Internal.text.interpretMacros(rule.description) %></p>
+    <% end %>
   <% end %>
   </div>
 

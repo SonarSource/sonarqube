@@ -4,11 +4,13 @@
          plugin_rule_key="checkstyle.rule1" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules_profiles id="1" version="1" used_profile="true" name="parent" language="java" parent_name="[null]" />
-  
+
   <rules_profiles id="2" version="2" used_profile="false" name="child" language="java" parent_name="parent" />
 
-  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
+  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"
+    note_created_at="[null]" note_updated_at="[null]" note_user_login="[null]" note_data="[null]" />
 
-  <active_rules id="2" profile_id="2" rule_id="1" failure_level="2" inheritance="INHERITED"/>
+  <active_rules id="2" profile_id="2" rule_id="1" failure_level="2" inheritance="INHERITED"
+    note_created_at="[null]" note_updated_at="[null]" note_user_login="[null]" note_data="[null]" />
 
 </dataset>

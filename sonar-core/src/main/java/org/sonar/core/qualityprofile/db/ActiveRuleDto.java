@@ -20,6 +20,8 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import java.util.Date;
+
 public class ActiveRuleDto {
 
   private Integer id;
@@ -27,6 +29,10 @@ public class ActiveRuleDto {
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
+  private Date noteCreatedAt;
+  private Date noteUpdatedAt;
+  private String noteUserLogin;
+  private String noteData;
 
   public Integer getId() {
     return id;
@@ -71,5 +77,37 @@ public class ActiveRuleDto {
   public ActiveRuleDto setInheritance(String inheritance) {
     this.inheritance = inheritance;
     return this;
+  }
+
+  public Date getNoteCreatedAt() {
+    return noteCreatedAt;
+  }
+
+  public void setNoteCreatedAt(Date noteCreatedAt) {
+    this.noteCreatedAt = noteCreatedAt;
+  }
+
+  public Date getNoteUpdatedAt() {
+    return noteUpdatedAt;
+  }
+
+  public void setNoteUpdatedAt(Date noteUpdatedAt) {
+    this.noteUpdatedAt = noteUpdatedAt;
+  }
+
+  public String getNoteUserLogin() {
+    return noteUserLogin;
+  }
+
+  public void setNoteUserLogin(String noteUserLogin) {
+    this.noteUserLogin = noteUserLogin;
+  }
+
+  public String getNoteData() {
+    return noteData;
+  }
+
+  public void setNoteData(String noteData) {
+    this.noteData = noteData;
   }
 }

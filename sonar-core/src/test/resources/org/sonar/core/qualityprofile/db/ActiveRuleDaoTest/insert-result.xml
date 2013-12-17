@@ -1,5 +1,6 @@
 <dataset>
 
-  <active_rules id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"/>
+  <active_rules id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"
+    note_created_at="[null]" note_updated_at="[null]" note_user_login="[null]" note_data="[null]"/>
 
 </dataset>
