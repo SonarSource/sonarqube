@@ -53,7 +53,7 @@ public interface CoreProperties {
   String SUBCATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
 
   /**
-   *@since 4.0
+   * @since 4.0
    */
   String SUBCATEGORY_L10N = "localization";
 
@@ -63,9 +63,9 @@ public interface CoreProperties {
   String CATEGORY_CODE_COVERAGE = "codeCoverage";
 
   /**
+   * @see #SUBCATEGORY_DUPLICATIONS
    * @since 2.11
    * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   * @see #SUBCATEGORY_DUPLICATIONS
    */
   @Deprecated
   String CATEGORY_DUPLICATIONS = "duplications";
@@ -76,9 +76,9 @@ public interface CoreProperties {
   String CATEGORY_SECURITY = "security";
 
   /**
+   * @see #SUBCATEGORY_L10N
    * @since 2.11
    * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   * @see #SUBCATEGORY_L10N
    */
   @Deprecated
   String CATEGORY_L10N = "localization";
@@ -89,9 +89,9 @@ public interface CoreProperties {
   String CATEGORY_JAVA = "java";
 
   /**
+   * @see #SUBCATEGORY_DIFFERENTIAL_VIEWS
    * @since 2.11
    * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   * @see #SUBCATEGORY_DIFFERENTIAL_VIEWS
    */
   @Deprecated
   String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
@@ -255,35 +255,6 @@ public interface CoreProperties {
    */
   @Deprecated
   boolean SKIP_TENDENCIES_DEFAULT_VALUE = false;
-
-  String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
-  String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
-
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}
-   */
-  @Deprecated
-  String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE}
-   */
-  @Deprecated
-  String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
-
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS}
-   */
-  @Deprecated
-  String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE}
-   */
-  @Deprecated
-  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
 
   /**
    * @since 2.10
@@ -475,7 +446,7 @@ public interface CoreProperties {
 
   /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
-   *             See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
+   * See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
    */
   @Deprecated
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";
@@ -527,11 +498,40 @@ public interface CoreProperties {
    * @since 4.0
    */
   String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
-  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
+  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "buildstability,devcockpit,pdfreport,report,scmactivity,views,jira";
 
   /**
    * @since 4.0
    */
   String WORKING_DIRECTORY = "sonar.working.directory";
   String WORKING_DIRECTORY_DEFAULT_VALUE = ".sonar";
+
+  String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
+  String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
+
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}
+   */
+  @Deprecated
+  String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE}
+   */
+  @Deprecated
+  String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE;
+
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS}
+   */
+  @Deprecated
+  String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
+  /**
+   * @since 3.4
+   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE}
+   */
+  @Deprecated
+  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE;
 }
