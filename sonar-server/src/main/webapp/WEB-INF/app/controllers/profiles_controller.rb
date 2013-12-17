@@ -279,9 +279,17 @@ class ProfilesController < ApplicationController
   # POST /profiles/add_project?id=<profile id>&project=<project id>
   def add_project
     verify_post_request
+
+    # Used for Selenium test as it send a project key instead of a project id
+    begin
+      project_id = Integer(params[:project])
+    rescue
+      project_id = Project.first(:conditions => {:kee => params[:project].to_s}).id
+    end
     profile_id = params[:id].to_i
+
     call_backend do
-      Internal.qprofiles.addProject(profile_id, params[:project].to_i)
+      Internal.qprofiles.addProject(profile_id, project_id.to_i)
     end
     redirect_to :action => 'projects', :id => profile_id
   end
