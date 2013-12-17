@@ -17,13 +17,6 @@
     return !localModifications;
   }
 
-  function downloadCsv() {
-    if (localModifications) {
-      alert("Please refresh the search results before.");
-    }
-    return !localModifications;
-  }
-
   function expand_rules(){
      $j('.rule-desc').show();
   }
@@ -101,15 +94,8 @@
 <% end %>
 </div>
 <div class="line-block marginbottom10">
-  <ul style="float: right" class="horizontal">
-    <li class="marginleft10">
-      <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @repositories.join(','),
-                           :status => @activation, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>"
-         onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
-      </div>
-    </li>
     <% if enable_modification && @rules.size>0 %>
+      <ul style="float: right" class="horizontal">
       <li class="marginleft10">
         <div class="bulk-edit"><%= message('bulk_change') -%>:
         <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" id="bulk-form"
@@ -122,8 +108,8 @@
         </form>
         </div>
       </li>
+      </ul>
     <% end %>
-  </ul>
   <h2>
      <% if @hidden_actives && @hidden_actives>0 %>
       <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
