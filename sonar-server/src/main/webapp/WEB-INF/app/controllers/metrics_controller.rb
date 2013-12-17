@@ -144,7 +144,7 @@ class MetricsController < ApplicationController
   
   def prepare_metrics_and_domains
     @metrics = Metric.all.select { |metric| metric.user_managed? }
-    @domains = Metric.all.map { |metric| metric.domain(false) }.compact.uniq.sort
+    @domains = Api::Utils.insensitive_sort(Metric.all.map { |metric| metric.domain(false) }.compact.uniq)
   end
   
 end
