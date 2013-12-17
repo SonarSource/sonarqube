@@ -83,6 +83,11 @@ public class QProfileProjectService implements ServerComponent {
     propertiesDao.deleteProjectProperty(PROPERTY_PREFIX + language, project.getId());
   }
 
+  public void removeAllProjects(QualityProfileDto qualityProfile, UserSession userSession) {
+    checkPermission(userSession);
+    propertiesDao.deleteProjectProperties(PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
+  }
+
   private void checkPermission(UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }

@@ -235,6 +235,15 @@ public class QProfilesTest {
   }
 
   @Test
+  public void remove_all_projects() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
+    qProfiles.removeAllProjects(1);
+    verify(projectService).removeAllProjects(eq(qualityProfile), any(UserSession.class));
+  }
+
+  @Test
   public void testSearchActiveRules() throws Exception {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);

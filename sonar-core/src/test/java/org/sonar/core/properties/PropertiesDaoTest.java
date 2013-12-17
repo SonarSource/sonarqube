@@ -175,6 +175,15 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void delete_project_properties() {
+    setupData("delete_project_properties");
+
+    dao.deleteProjectProperties("sonar.profile.java", "Sonar Way");
+
+    checkTables("delete_project_properties", "properties");
+  }
+
+  @Test
   public void deleteGlobalProperties() {
     setupData("deleteGlobalProperties");
 

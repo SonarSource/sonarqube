@@ -45,6 +45,8 @@ public interface PropertiesMapper {
 
   void deleteProjectProperty(@Param("key") String key, @Param("rId") Long resourceId);
 
+  void deleteProjectProperties(@Param("key") String key, @Param("value") String value);
+
   void deleteGlobalProperty(String key);
 
   void deleteAllProperties(String key);

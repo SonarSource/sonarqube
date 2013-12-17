@@ -160,7 +160,9 @@ public class QProfiles implements ServerComponent {
   }
 
   public void removeAllProjects(int profileId) {
-    throw new UnsupportedOperationException();
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+
+    projectService.removeAllProjects(qualityProfile, UserSession.get());
   }
 
   // ACTIVE RULES

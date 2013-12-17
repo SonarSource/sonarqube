@@ -314,14 +314,13 @@ class ProfilesController < ApplicationController
   # POST /profiles/remove_projects?id=<profile id>
   def remove_projects
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
-    profile=Profile.find(params[:id])
-    bad_request('Unknown profile') unless profile
-
-    profile.remove_projects
-    redirect_to :action => 'projects', :id => profile.id
+    profile_id = params[:id].to_i
+    call_backend do
+      Internal.quality_profiles.removeAllProjects(profile_id)
+    end
+    redirect_to :action => 'projects', :id => profile_id
   end
 
   # GET /profiles/rename_form?id=<id>

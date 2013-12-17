@@ -127,4 +127,13 @@ public class QProfileProjectServiceTest {
 
     verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L);
   }
+
+  @Test
+  public void remove_all_projects() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+
+    service.removeAllProjects(qualityProfile, authorizedSession);
+
+    verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "My profile");
+  }
 }
