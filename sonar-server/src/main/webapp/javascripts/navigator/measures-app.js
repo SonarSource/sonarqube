@@ -36,7 +36,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
-        choices: window.SS.qualifiers
+        choices: window.SS.qualifiers,
+        defaultValue: window.SS.phrases.any
       }),
 
       new window.SS.Filter({
