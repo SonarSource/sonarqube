@@ -47,8 +47,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             .metrics(response.metrics)
             .metricsPriority(that.metricsPriority())
             .components(response.components)
-            .height(that.height())
             .options(that.options());
+        if (that.height()) {
+          that.widget.height(that.height());
+        }
         that.widget.render(container);
       }
     });

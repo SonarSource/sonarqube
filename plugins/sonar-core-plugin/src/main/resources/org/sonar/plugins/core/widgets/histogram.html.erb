@@ -19,13 +19,13 @@ maxItems = widget_properties["maxItems"].to_i
 <script>
   (function () {
     var metrics = [
-          '<%= widget_properties["metric"].name %>',
+          '<%= widget_properties["metric"].name %>'
         ],
         query = [
           'filter=<%= filterId %>',
           'metrics=' + metrics.join(','),
           'fields=name,qualifier',
-          'pageSize=40',
+          'pageSize=<%= maxItems %>',
           'page=1',
           'sort=metric:' + metrics[0],
           'asc=false'
@@ -36,7 +36,6 @@ maxItems = widget_properties["maxItems"].to_i
       .type('Histogram')
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
-      .height(<%= chartHeight %>)
       .options({
         baseUrl: baseUrl + '/dashboard/index/'
       })
