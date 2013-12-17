@@ -56,9 +56,10 @@ public class QProfilesTest {
     qProfiles = new QProfiles(search, operations, rules);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void search_profiles() throws Exception {
     qProfiles.searchProfiles();
+    verify(search).searchProfiles();
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -86,14 +87,14 @@ public class QProfilesTest {
 
   @Test
   public void update_default_profile() throws Exception {
-    qProfiles.updateDefaultProfile(1);
-    verify(operations).updateDefaultProfile(eq(1), any(UserSession.class));
+    qProfiles.setDefaultProfile(1);
+    verify(operations).setDefaultProfile(eq(1), any(UserSession.class));
   }
 
   @Test
   public void update_default_profile_from_name_and_language() throws Exception {
-    qProfiles.updateDefaultProfile("Default", "java");
-    verify(operations).updateDefaultProfile(eq("Default"), eq("java"), any(UserSession.class));
+    qProfiles.setDefaultProfile("Default", "java");
+    verify(operations).setDefaultProfile(eq("Default"), eq("java"), any(UserSession.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -140,11 +141,6 @@ public class QProfilesTest {
   @Test(expected = UnsupportedOperationException.class)
   public void get_profile_from_project_id() throws Exception {
     qProfiles.profile(1);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void get_profiles_from_language() throws Exception {
-    qProfiles.profiles("java");
   }
 
   @Test

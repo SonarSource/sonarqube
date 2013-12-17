@@ -115,13 +115,13 @@ public class QProfileOperations implements ServerComponent {
     dao.update(qualityProfile);
   }
 
-  public void updateDefaultProfile(Integer id, UserSession userSession) {
+  public void setDefaultProfile(Integer id, UserSession userSession) {
     QualityProfileDto qualityProfile = validateUpdateDefaultProfile(id, userSession);
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
   }
 
-  public void updateDefaultProfile(String name, String language, UserSession userSession) {
-    updateDefaultProfile(findNotNull(name, language).getId(), userSession);
+  public void setDefaultProfile(String name, String language, UserSession userSession) {
+    setDefaultProfile(findNotNull(name, language).getId(), userSession);
   }
 
   public QProfileProjects projects(Integer profileId) {

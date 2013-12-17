@@ -52,7 +52,7 @@ class ProfilesController < ApplicationController
           end
         end
       end
-      result = Internal.qprofiles.newProfile(params[:name], params[:language], files_by_key)
+      result = Internal.quality_profiles.newProfile(params[:name], params[:language], files_by_key)
       flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
 
       # only 4 messages are kept each time to avoid cookie overflow.
@@ -83,8 +83,10 @@ class ProfilesController < ApplicationController
   # POST /profiles/set_as_default/<id>
   def set_as_default
     verify_post_request
+    require_parameters 'id'
+
     call_backend do
-      Internal.qprofiles.updateDefaultProfile(params[:id].to_i)
+      Internal.quality_profiles.setDefaultProfile(params[:id].to_i)
     end
     redirect_to :action => 'index'
   end
@@ -267,8 +269,10 @@ class ProfilesController < ApplicationController
   #
   #
   def projects
+    require_parameters 'id'
+
     call_backend do
-      result = Internal.qprofiles.projects(params[:id].to_i)
+      result = Internal.quality_profiles.projects(params[:id].to_i)
       @profile = result.profile
       @projects = Api::Utils.insensitive_sort(result.projects.to_a) { |p| p.name }
       set_profile_breadcrumbs
@@ -279,6 +283,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/add_project?id=<profile id>&project=<project id>
   def add_project
     verify_post_request
+    require_parameters 'id', 'project'
 
     # Used for Selenium test as it send a project key instead of a project id
     begin
@@ -289,7 +294,7 @@ class ProfilesController < ApplicationController
     profile_id = params[:id].to_i
 
     call_backend do
-      Internal.qprofiles.addProject(profile_id, project_id.to_i)
+      Internal.quality_profiles.addProject(profile_id, project_id.to_i)
     end
     redirect_to :action => 'projects', :id => profile_id
   end
@@ -297,9 +302,11 @@ class ProfilesController < ApplicationController
   # POST /profiles/remove_project?id=<profile id>&project=<project id>
   def remove_project
     verify_post_request
+    require_parameters 'id', 'project'
+
     profile_id = params[:id].to_i
     call_backend do
-      Internal.qprofiles.removeProject(profile_id, params[:project].to_i)
+      Internal.quality_profiles.removeProject(profile_id, params[:project].to_i)
     end
     redirect_to :action => 'projects', :id => profile_id
   end
@@ -329,9 +336,10 @@ class ProfilesController < ApplicationController
   def rename
     verify_post_request
     verify_ajax_request
+    require_parameters 'id'
 
     call_backend do
-      Internal.qprofiles.renameProfile(params[:id].to_i, params[:new_name])
+      Internal.quality_profiles.renameProfile(params[:id].to_i, params[:new_name])
     end
     render :text => 'ok', :status => 200
   end

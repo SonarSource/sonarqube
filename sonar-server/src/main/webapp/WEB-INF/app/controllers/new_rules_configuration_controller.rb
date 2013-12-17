@@ -64,9 +64,9 @@ class NewRulesConfigurationController < ApplicationController
         paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
         if @activation==STATUS_ACTIVE
-          result = Internal.qprofiles.searchActiveRules(query, paging)
+          result = Internal.quality_profiles.searchActiveRules(query, paging)
         else
-          result = Internal.qprofiles.searchInactiveRules(query, paging)
+          result = Internal.quality_profiles.searchInactiveRules(query, paging)
         end
 
         @rules = result.rules
@@ -74,9 +74,9 @@ class NewRulesConfigurationController < ApplicationController
 
         unless @searchtext.blank?
           if @activation==STATUS_ACTIVE
-            @hidden_inactives = Internal.qprofiles.countInactiveRules(query)
+            @hidden_inactives = Internal.quality_profiles.countInactiveRules(query)
           else
-            @hidden_actives = Internal.qprofiles.countInactiveRules(query)
+            @hidden_actives = Internal.quality_profiles.countInactiveRules(query)
           end
         end
       end

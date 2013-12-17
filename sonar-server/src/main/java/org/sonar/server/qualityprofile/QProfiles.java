@@ -42,7 +42,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public List<QProfile> searchProfiles() {
-    throw new UnsupportedOperationException();
+    return search.searchProfiles();
   }
 
   public void searchProfile(Integer profileId) {
@@ -62,15 +62,15 @@ public class QProfiles implements ServerComponent {
     operations.renameProfile(profileId, newName, UserSession.get());
   }
 
-  public void updateDefaultProfile(Integer profileId) {
-    operations.updateDefaultProfile(profileId, UserSession.get());
+  public void setDefaultProfile(Integer profileId) {
+    operations.setDefaultProfile(profileId, UserSession.get());
   }
 
   /**
    * Used by WS
    */
-  public void updateDefaultProfile(String name, String language) {
-    operations.updateDefaultProfile(name, language, UserSession.get());
+  public void setDefaultProfile(String name, String language) {
+    operations.setDefaultProfile(name, language, UserSession.get());
   }
 
   public void copyProfile() {
@@ -115,13 +115,6 @@ public class QProfiles implements ServerComponent {
    * Used in /project/profile
    */
   public QProfile profile(Integer projectId) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Used in /project/profile
-   */
-  public List<QProfile> profiles(String language) {
     throw new UnsupportedOperationException();
   }
 

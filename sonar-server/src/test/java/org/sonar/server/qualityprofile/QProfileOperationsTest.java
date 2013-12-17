@@ -259,7 +259,7 @@ public class QProfileOperationsTest {
   public void update_default_profile() throws Exception {
     when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
 
-    operations.updateDefaultProfile(1, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    operations.setDefaultProfile(1, MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(argumentCaptor.capture());
@@ -272,7 +272,7 @@ public class QProfileOperationsTest {
     when(dao.selectByNameAndLanguage("My profile", "java")).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
     when(dao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
 
-    operations.updateDefaultProfile("My profile", "java", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    operations.setDefaultProfile("My profile", "java", MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(argumentCaptor.capture());
