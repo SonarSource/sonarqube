@@ -22,7 +22,8 @@ package org.sonar.api.rules;
 import org.sonar.check.Priority;
 
 /**
- * A class to hold rules priority
+ * @deprecated since 4.2
+ * @see org.sonar.api.rule.Severity
  */
 public enum RulePriority {
 

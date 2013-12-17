@@ -22,8 +22,10 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -45,6 +47,7 @@ import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -69,14 +72,15 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
+  private final RuleRegistry ruleRegistry;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache) {
-    this(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache);
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
+    this(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, PropertiesDao propertiesDao,
-                            List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache) {
+                            List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -85,6 +89,7 @@ public class QProfileOperations implements ServerComponent {
     this.exporters = exporters;
     this.importers = importers;
     this.dryRunCache = dryRunCache;
+    this.ruleRegistry = ruleRegistry;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -180,13 +185,19 @@ public class QProfileOperations implements ServerComponent {
   }
 
   private void importProfile(QualityProfileDto qualityProfileDto, RulesProfile rulesProfile, SqlSession sqlSession) {
+    List<ActiveRuleDto> activeRuleDtos = newArrayList();
+    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
     for (ActiveRule activeRule : rulesProfile.getActiveRules()) {
       ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, qualityProfileDto);
       activeRuleDao.insert(activeRuleDto, sqlSession);
+      activeRuleDtos.add(activeRuleDto);
       for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-        activeRuleDao.insert(toActiveRuleParamDto(activeRuleParam, activeRuleDto), sqlSession);
+        ActiveRuleParamDto activeRuleParamDto = toActiveRuleParamDto(activeRuleParam, activeRuleDto);
+        activeRuleDao.insert(activeRuleParamDto, sqlSession);
+        paramsByActiveRule.put(activeRuleDto.getId(), activeRuleParamDto);
       }
     }
+    ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
   }
 
   public ProfileImporter getProfileImporter(String exporterKey) {
@@ -219,13 +230,14 @@ public class QProfileOperations implements ServerComponent {
   }
 
   private Integer toSeverityLevel(RulePriority rulePriority) {
-    return rulePriority.ordinal() + 1;
+    return rulePriority.ordinal();
   }
 
   private ActiveRuleParamDto toActiveRuleParamDto(ActiveRuleParam activeRuleParam, ActiveRuleDto activeRuleDto) {
     return new ActiveRuleParamDto()
       .setActiveRuleId(activeRuleDto.getId())
       .setRulesParameterId(activeRuleParam.getRuleParam().getId())
+      .setKey(activeRuleParam.getKey())
       .setValue(activeRuleParam.getValue());
   }
 

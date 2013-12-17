@@ -21,6 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -84,6 +86,9 @@ public class QProfileOperationsTest {
   @Mock
   PreviewCache dryRunCache;
 
+  @Mock
+  RuleRegistry ruleRegistry;
+
   List<ProfileExporter> exporters = newArrayList();
 
   List<ProfileImporter> importers = newArrayList();
@@ -93,7 +98,7 @@ public class QProfileOperationsTest {
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
-    operations = new QProfileOperations(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, exporters, importers, dryRunCache);
+    operations = new QProfileOperations(myBatis, dao, activeRuleDao, resourceDao, propertiesDao, exporters, importers, dryRunCache, ruleRegistry);
   }
 
   @Test
@@ -174,11 +179,14 @@ public class QProfileOperationsTest {
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
     assertThat(activeRuleArgument.getValue().getRulId()).isEqualTo(10);
-    assertThat(activeRuleArgument.getValue().getSeverity()).isEqualTo(5);
+    assertThat(activeRuleArgument.getValue().getSeverity()).isEqualTo(4);
 
     ArgumentCaptor<ActiveRuleParamDto> activeRuleParamArgument = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
     verify(activeRuleDao).insert(activeRuleParamArgument.capture(), eq(session));
+    assertThat(activeRuleParamArgument.getValue().getKey()).isEqualTo("paramKey");
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("paramValue");
+
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
   }
 
   @Test

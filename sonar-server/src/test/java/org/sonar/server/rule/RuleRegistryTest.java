@@ -21,8 +21,10 @@
 package org.sonar.server.rule;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.search.SearchHit;
@@ -36,6 +38,8 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -43,12 +47,12 @@ import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -258,6 +262,27 @@ public class RuleRegistryTest {
     ).execute().actionGet().getHits().getHits();
     assertThat(childHit).hasSize(1);
     assertThat(childHit[0].getId()).isEqualTo("1");
+  }
 
+  @Test
+  public void bulk_index_active_rules() throws IOException {
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2));
+    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
+    paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
+
+    registry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
+    assertThat(esSetup.exists("rules", "active_rule", "1"));
+
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasChildFilter("active_rule", termFilter("profileId", 10))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(parentHit).hasSize(1);
+    assertThat(parentHit[0].getId()).isEqualTo("1");
+
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(childHit).hasSize(1);
+    assertThat(childHit[0].getId()).isEqualTo("1");
   }
 }

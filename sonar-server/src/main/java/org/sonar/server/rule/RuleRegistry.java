@@ -29,10 +29,13 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -47,6 +50,7 @@ import java.util.Map;
 
 /**
  * Fill search index with rules
+ *
  * @since 4.1
  */
 public class RuleRegistry {
@@ -82,13 +86,13 @@ public class RuleRegistry {
     profiler.stop();
 
     Multimap<Long, RuleParamDto> paramsByRule = ArrayListMultimap.create();
-    for (RuleParamDto param: flatParams) {
+    for (RuleParamDto param : flatParams) {
       paramsByRule.put(param.getRuleId(), param);
     }
 
     try {
       bulkIndex(rules, paramsByRule);
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
     }
   }
@@ -108,13 +112,14 @@ public class RuleRegistry {
 
   /**
    * <p>Find rule IDs matching the given criteria.</p>
+   *
    * @param query <p>A collection of (optional) criteria with the following meaning:
-   * <ul>
-   *  <li><em>nameOrKey</em>: will be used as a query string over the "name" field</li>
-   *  <li><em>&lt;anyField&gt;</em>: will be used to match the given field against the passed value(s);
-   *  mutiple values must be separated by the '<code>|</code>' (vertical bar) character</li>
-   * </ul>
-   * </p>
+   *              <ul>
+   *              <li><em>nameOrKey</em>: will be used as a query string over the "name" field</li>
+   *              <li><em>&lt;anyField&gt;</em>: will be used to match the given field against the passed value(s);
+   *              mutiple values must be separated by the '<code>|</code>' (vertical bar) character</li>
+   *              </ul>
+   *              </p>
    * @return
    */
   public List<Integer> findIds(Map<String, String> query) {
@@ -126,27 +131,28 @@ public class RuleRegistry {
     if (params.containsKey(PARAM_NAMEORKEY)) {
       searchQuery.searchString(params.remove(PARAM_NAMEORKEY));
     }
-    if (! params.containsKey(PARAM_STATUS)) {
+    if (!params.containsKey(PARAM_STATUS)) {
       searchQuery.notField(PARAM_STATUS, Rule.STATUS_REMOVED);
     }
 
-    for(Map.Entry<String, String> param: params.entrySet()) {
+    for (Map.Entry<String, String> param : params.entrySet()) {
       searchQuery.field(param.getKey(), param.getValue().split("\\|"));
     }
 
     try {
       List<Integer> result = Lists.newArrayList();
-      for(String docId: searchIndex.findDocumentIds(searchQuery)) {
+      for (String docId : searchIndex.findDocumentIds(searchQuery)) {
         result.add(Integer.parseInt(docId));
       }
       return result;
-    } catch(ElasticSearchException searchException) {
+    } catch (ElasticSearchException searchException) {
       throw new IllegalArgumentException("Unable to perform search, please check query", searchException);
     }
   }
 
   /**
    * Create or update definition of rule identified by <code>ruleId</code>
+   *
    * @param ruleId
    */
   public void saveOrUpdate(int ruleId) {
@@ -154,8 +160,8 @@ public class RuleRegistry {
     Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
     try {
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params));
-    } catch(IOException ioexception) {
-      throw new IllegalStateException("Unable to index rule with id="+ruleId, ioexception);
+    } catch (IOException ioexception) {
+      throw new IllegalStateException("Unable to index rule with id=" + ruleId, ioexception);
     }
   }
 
@@ -165,14 +171,14 @@ public class RuleRegistry {
     int index = 0;
     TimeProfiler profiler = new TimeProfiler();
     profiler.start("Build rules documents");
-    for (RuleDto rule: rules) {
+    for (RuleDto rule : rules) {
       ids[index] = rule.getId().toString();
       docs[index] = ruleDocument(rule, paramsByRule.get(rule.getId()));
-      index ++;
+      index++;
     }
     profiler.stop();
 
-    if (! rules.isEmpty()) {
+    if (!rules.isEmpty()) {
       profiler.start("Index rules");
       searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
       profiler.stop();
@@ -180,7 +186,7 @@ public class RuleRegistry {
 
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
-    if (! indexIds.isEmpty()) {
+    if (!indexIds.isEmpty()) {
       profiler.start("Remove deleted rule documents");
       searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
       profiler.stop();
@@ -194,11 +200,11 @@ public class RuleRegistry {
     int index = 0;
     TimeProfiler profiler = new TimeProfiler();
     profiler.start("Build active rules documents");
-    for (ActiveRule rule: rules) {
+    for (ActiveRule rule : rules) {
       ids[index] = rule.getId().toString();
       docs[index] = activeRuleDocument(rule);
       parentIds[index] = rule.getRule().getId().toString();
-      index ++;
+      index++;
     }
     profiler.stop();
     profiler.start("Index active rules");
@@ -207,31 +213,30 @@ public class RuleRegistry {
 
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
-    if (! indexIds.isEmpty()) {
+    if (!indexIds.isEmpty()) {
       profiler.start("Remove deleted active rule documents");
       searchIndex.bulkDelete(INDEX_RULES, TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
       profiler.stop();
     }
   }
 
-
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
-        .startObject()
-        .field(RuleDocument.FIELD_ID, rule.getId())
-        .field(RuleDocument.FIELD_KEY, rule.getRuleKey())
-        .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
-        .field(RuleDocument.FIELD_NAME, rule.getName())
-        .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
-        .field(RuleDocument.FIELD_PARENT_KEY, rule.getParentId() == null ? null : rule.getParentId())
-        .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
-        .field(RuleDocument.FIELD_SEVERITY, rule.getPriority())
-        .field(RuleDocument.FIELD_STATUS, rule.getStatus())
-        .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
-        .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
-    if(!params.isEmpty()) {
+      .startObject()
+      .field(RuleDocument.FIELD_ID, rule.getId())
+      .field(RuleDocument.FIELD_KEY, rule.getRuleKey())
+      .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
+      .field(RuleDocument.FIELD_NAME, rule.getName())
+      .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
+      .field(RuleDocument.FIELD_PARENT_KEY, rule.getParentId() == null ? null : rule.getParentId())
+      .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
+      .field(RuleDocument.FIELD_SEVERITY, rule.getPriority())
+      .field(RuleDocument.FIELD_STATUS, rule.getStatus())
+      .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
+      .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
+    if (!params.isEmpty()) {
       document.startArray(RuleDocument.FIELD_PARAMS);
-      for (RuleParamDto param: params) {
+      for (RuleParamDto param : params) {
         document.startObject()
           .field(RuleDocument.FIELD_PARAM_KEY, param.getName())
           .field(RuleDocument.FIELD_PARAM_TYPE, param.getType())
@@ -247,14 +252,54 @@ public class RuleRegistry {
 
   private XContentBuilder activeRuleDocument(ActiveRule rule) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
-        .startObject()
-        .field(ActiveRuleDocument.FIELD_ID, rule.getId())
-        .field(ActiveRuleDocument.FIELD_SEVERITY, rule.getSeverity())
-        .field(ActiveRuleDocument.FIELD_PROFILE_ID, rule.getRulesProfile().getId())
-        .field(ActiveRuleDocument.FIELD_INHERITANCE, rule.getInheritance());
-    if(!rule.getActiveRuleParams().isEmpty()) {
+      .startObject()
+      .field(ActiveRuleDocument.FIELD_ID, rule.getId())
+      .field(ActiveRuleDocument.FIELD_SEVERITY, rule.getSeverity())
+      .field(ActiveRuleDocument.FIELD_PROFILE_ID, rule.getRulesProfile().getId())
+      .field(ActiveRuleDocument.FIELD_INHERITANCE, rule.getInheritance());
+    if (!rule.getActiveRuleParams().isEmpty()) {
       document.startArray(ActiveRuleDocument.FIELD_PARAMS);
-      for (ActiveRuleParam param: rule.getActiveRuleParams()) {
+      for (ActiveRuleParam param : rule.getActiveRuleParams()) {
+        document.startObject()
+          .field(ActiveRuleDocument.FIELD_PARAM_KEY, param.getKey())
+          .field(ActiveRuleDocument.FIELD_PARAM_VALUE, param.getValue())
+          .endObject();
+      }
+      document.endArray();
+    }
+    document.endObject();
+    return document;
+  }
+
+  public void bulkIndexActiveRules(List<ActiveRuleDto> activeRules, Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule) {
+    try {
+      int size = activeRules.size();
+      String[] ids = new String[size];
+      BytesStream[] docs = new BytesStream[size];
+      String[] parentIds = new String[size];
+      int index = 0;
+      for (ActiveRuleDto activeRule : activeRules) {
+        ids[index] = activeRule.getId().toString();
+        docs[index] = activeRuleDocument(activeRule, paramsByActiveRule.get(activeRule.getId()));
+        parentIds[index] = activeRule.getRulId().toString();
+        index++;
+      }
+      searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to index active rules", e);
+    }
+  }
+
+  private XContentBuilder activeRuleDocument(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) throws IOException {
+    XContentBuilder document = XContentFactory.jsonBuilder()
+      .startObject()
+      .field(ActiveRuleDocument.FIELD_ID, activeRule.getId())
+      .field(ActiveRuleDocument.FIELD_SEVERITY, Severity.get(activeRule.getSeverity()))
+      .field(ActiveRuleDocument.FIELD_PROFILE_ID, activeRule.getProfileId())
+      .field(ActiveRuleDocument.FIELD_INHERITANCE, activeRule.getInheritance());
+    if (!params.isEmpty()) {
+      document.startArray(ActiveRuleDocument.FIELD_PARAMS);
+      for (ActiveRuleParamDto param : params) {
         document.startObject()
           .field(ActiveRuleDocument.FIELD_PARAM_KEY, param.getKey())
           .field(ActiveRuleDocument.FIELD_PARAM_VALUE, param.getValue())

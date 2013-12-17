@@ -19,6 +19,11 @@
  */
 package org.sonar.check;
 
+/**
+ * @deprecated since 4.2
+ * @see org.sonar.api.rule.Severity
+ */
+@Deprecated
 public enum Priority {
   /**
    * WARNING : DO NOT CHANGE THE ENUMERATION ORDER
