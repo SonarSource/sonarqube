@@ -13,7 +13,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._width = window.SonarWidgets.Histogram.defaults.width;
     this._height = window.SonarWidgets.Histogram.defaults.height;
     this._margin = window.SonarWidgets.Histogram.defaults.margin;
-    this._axisWidth = window.SonarWidgets.Histogram.defaults.axisWidth;
+    this._legendWidth = window.SonarWidgets.Histogram.defaults.legendWidth;
     this._options = {};
 
     this._lineHeight = 20;
@@ -44,8 +44,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       return param.call(this, '_margin', _);
     };
 
-    this.axisWidth = function (_) {
-      return param.call(this, '_axisWidth', _);
+    this.legendWidth = function (_) {
+      return param.call(this, '_legendWidth', _);
     };
 
     this.options = function (_) {
@@ -92,8 +92,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Configure scales
-    this.x = d3.scale.ordinal();
-    this.y = d3.scale.linear();
+    this.x = d3.scale.linear();
+    this.y = d3.scale.ordinal();
     this.color = d3.scale.ordinal()
         .range([
           '#1f77b4', '#aec7e8', '#3182bd', '#6baed6',
@@ -109,32 +109,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         ]);
 
 
-    // Configure axis
-    this.y1 = d3.scale.linear();
-
-    this.axis = d3.svg.axis()
-        .scale(this.y1)
-        .orient("left");
-
-    this.gAxis = this.gWrap.append("g")
-        .attr("class", "y axis");
-
-
-    // Configure details
-    this._metricsCount = Object.keys(this.metrics()).length + 1;
-
-    this.detailsWrap = this.gWrap.append('g');
-
-    this.detailsColorIndicator = this.detailsWrap.append('rect')
-        .classed('details-color-indicator', true)
-        .attr('transform', trans(-1, 0))
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', 3)
-        .attr('height', 2 * this._lineHeight)
-        .style('opacity', 1);
-
-
     // Update widget
     this.update(containerS);
 
@@ -147,8 +121,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     container = d3.select(container);
 
     var widget = this,
+        barHeight = 16,
         width = container.property('offsetWidth');
     this.width(width > 100 ? width : 100);
+
+
+    // Update available size
+    this.availableWidth = this.width() - this.margin().left - this.margin().right - this.legendWidth();
+    this.availableHeight = barHeight * this.components().length;
+    this.height(this.availableHeight + this.margin().top + this.margin().bottom);
 
 
     // Update svg canvas
@@ -157,30 +138,17 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('height', this.height());
 
 
-    // Update available size
-    var detailsHeight = 3 * this._lineHeight;
-    this.availableWidth = this.width() - this.margin().left - this.margin().right - this.axisWidth();
-    this.availableHeight = this.height() - this.margin().top - this.margin().bottom - detailsHeight;
-    var minHeight = this.availableHeight / 6;
-
-
-    // Update plot
-    this.plotWrap
-        .attr('transform', trans(this.axisWidth(), detailsHeight));
-
-
     // Update scales
-    this.x
-        .domain(this.components().map(function(d, i) { return i; }))
-        .rangeRoundBands([0, this.availableWidth], 0);
-
-    var yDomain = d3.extent(this.components(), function(d) {
+    var xDomain = d3.extent(this.components(), function(d) {
       return widget.getMainMetric(d);
     });
+    this.x
+        .domain(xDomain)
+        .range([this.availableWidth / 8, this.availableWidth]);
+
     this.y
-        .domain(yDomain)
-        .range([minHeight, this.availableHeight])
-        .nice();
+        .domain(this.components().map(function(d, i) { return i; }))
+        .rangeRoundBands([0, this.availableHeight], 0);
 
     if (this.components().length < 11) {
       this.color = d3.scale.category10();
@@ -189,90 +157,57 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
 
 
-    // Update axis
-    this.y1
-        .domain(yDomain)
-        .range([this.availableHeight, minHeight])
-        .nice();
-
-    this.gAxis
-        .attr('transform', trans(this.axisWidth(), detailsHeight - minHeight))
-        .call(this.axis);
-
-
-    // Update details
-    this.detailsWrap
-        .transition()
-        .attr('transform', trans(this.axisWidth() + widget.x(0) + 3, 0));
-
-
     // Configure bars
     this.bars = this.plotWrap.selectAll('.bar')
         .data(this.components());
 
-    this.bars
-        .enter()
-        .append('rect')
+    this.barsEnter = this.bars.enter()
+        .append('g')
         .classed('bar', true)
+        .attr('transform', function(d, i) { return trans(0, i * barHeight); });
+
+    this.barsEnter
+        .append('rect')
         .style('fill', function(d, i) { return widget.color(i); })
         .style('stroke', '#fff');
 
-    this.bars
+    this.barsEnter
+        .append('text')
+        .classed('legend-text component', true)
+        .style('text-anchor', 'end')
+        .attr('dy', '-0.35em')
+        .text(function(d) {
+          var l = d.name.length;
+          return l > 42 ? d.name.substr(0, 39) + '...' : d.name;
+        })
+        .attr('transform', function() { return trans(widget.legendWidth() - 10, barHeight); });
+
+    this.barsEnter
+        .append('text')
+        .classed('legend-text value', true)
+        .attr('dy', '-0.35em')
+        .text(function(d) { return widget.fm(widget.getMainMetric(d), widget.mainMetric); })
+        .attr('transform', function(d) { return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight); });
+
+    this.bars.selectAll('rect')
         .transition()
-        .attr('x', function(d, i) { return widget.x(i); })
-        .attr('y', function(d) { return widget.availableHeight - widget.y(widget.getMainMetric(d)); })
-        .attr('width', this.x.rangeBand())
-        .attr('height', function(d) { return  widget.y(widget.getMainMetric(d)); });
+        .attr('x', this.legendWidth())
+        .attr('y', 0)
+        .attr('width', function(d) { return widget.x(widget.getMainMetric(d)); })
+        .attr('height', barHeight);
+
+    this.bars.selectAll('.component')
+        .transition()
+        .attr('transform', function() { return trans(widget.legendWidth() - 10, barHeight); });
+
+    this.bars.selectAll('.value')
+        .transition()
+        .attr('transform', function(d) { return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight); });
 
     this.bars
         .exit().remove();
 
-
-    // Configure events
-    var enterHandler = function(bar, d, i) {
-          var metrics = widget.metricsPriority().map(function(m) {
-            return {
-              name: widget.metrics()[m].name,
-              value: widget.fm(d.measures[m].val, m)
-            };
-          });
-          metrics.unshift({ name: d.name });
-          updateMetrics(metrics);
-
-          widget.detailsColorIndicator
-              .style('opacity', 1)
-              .style('fill', widget.color(i));
-        },
-
-        leaveHandler = function() {
-          widget.detailsColorIndicator
-              .style('opacity', 0);
-          widget.detailsMetrics
-              .style('opacity', 0);
-        },
-
-        updateMetrics = function(metrics) {
-          widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
-              .data(metrics);
-
-          widget.detailsMetrics.enter().append('text')
-              .classed('details-metric', true)
-              .classed('details-metric-main', function(d, i) { return i === 0; })
-              .attr('transform', function(d, i) { return trans(10, i * widget._lineHeight); })
-              .attr('dy', '1.2em');
-
-          widget.detailsMetrics
-              .text(function(d) { return d.name + (d.value ? ': ' + d.value : ''); })
-              .style('opacity', 1);
-
-          widget.detailsMetrics.exit().remove();
-        };
-
     this.bars
-        .on('mouseenter', function(d, i) {
-          return enterHandler(this, d, i);
-        })
-        .on('mouseleave', leaveHandler)
         .on('click', function(d) {
           switch (d.qualifier) {
             case 'CLA':
@@ -291,8 +226,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.Histogram.defaults = {
     width: 350,
     height: 300,
-    margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    axisWidth: 40
+    margin: { top: 4, right: 50, bottom: 4, left: 10 },
+    legendWidth: 220
   };
 
 
