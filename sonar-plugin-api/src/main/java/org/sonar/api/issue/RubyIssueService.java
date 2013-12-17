@@ -62,7 +62,7 @@ public interface RubyIssueService extends ServerComponent {
    *   <li>'planned': true to get only issues associated to an action plan, false to get only non associated issues. By default no filtering is done.</li>
    *   <li>'reporters': list of reporter logins. Note that reporters are defined only on "manual" issues.</li>
    *   <li>'assignees': list of assignee logins.</li>
-   *   <li>'assigned': true to get only assigned issues, false to get only unassigned issues. By default no filtering is done.</li>
+   *   <li>'assigned': true to get only assigned issues, false to get only not assigned issues. By default no filtering is done.</li>
    *   <li>'createdAfter': match all the issues created after the given date (strictly).
    *   Both date and datetime ISO formats are supported: 2013-05-18 or 2010-05-18T15:50:45+0100</li>
    *   <li>'createdAt': match all the issues created at the given date (require second precision).
