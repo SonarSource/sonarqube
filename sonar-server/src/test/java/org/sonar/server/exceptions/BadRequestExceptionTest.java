@@ -22,6 +22,7 @@ package org.sonar.server.exceptions;
 
 import org.junit.Test;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class BadRequestExceptionTest {
@@ -42,8 +43,7 @@ public class BadRequestExceptionTest {
 
   @Test
   public void test_text_error_message() throws Exception {
-    BadRequestException exception = BadRequestException.of("error");
-    exception.addError("new error");
+    BadRequestException exception = BadRequestException.of("error", newArrayList(BadRequestException.Message.of("new error")));
 
     assertThat(exception.errors()).hasSize(1);
     assertThat(exception.errors().get(0).text()).isEqualTo("new error");

@@ -155,14 +155,13 @@ public class QProfileOperations implements ServerComponent {
   }
 
   private void processValidationMessages(ValidationMessages messages, NewProfileResult result) {
-    BadRequestException exception = BadRequestException.of("Fail to create profile");
-    for (String error : messages.getErrors()) {
-      exception.addError(error);
+    if (!messages.getErrors().isEmpty()) {
+      List<BadRequestException.Message> errors = newArrayList();
+      for (String error : messages.getErrors()) {
+        errors.add(BadRequestException.Message.of(error));
+      }
+      throw BadRequestException.of("Fail to create profile", errors);
     }
-    if (!exception.errors().isEmpty()) {
-      throw exception;
-    }
-
     result.setWarnings(messages.getWarnings());
     result.setInfos(messages.getInfos());
   }

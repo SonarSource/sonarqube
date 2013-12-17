@@ -33,6 +33,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * @since 4.2
  */
@@ -57,16 +59,16 @@ public class ProfileRuleQuery {
   }
 
   public static ProfileRuleQuery parse(Map<String, Object> params) {
-    BadRequestException validationException = BadRequestException.of("Incorrect rule search parameters");
+    List<BadRequestException.Message> errors = newArrayList();
 
-    validatePresenceOf(params, validationException, PARAM_PROFILE_ID);
+    validatePresenceOf(params, errors, PARAM_PROFILE_ID);
 
     ProfileRuleQuery result = new ProfileRuleQuery();
 
     try {
       result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
     } catch (Exception badProfileId) {
-      validationException.addError("profileId could not be parsed");
+      errors.add(BadRequestException.Message.of("profileId could not be parsed"));
     }
 
 
@@ -83,15 +85,16 @@ public class ProfileRuleQuery {
       result.addStatuses(optionalVarargs(params.get(PARAM_STATUSES)));
     }
 
-    validationException.checkMessages();
-
+    if (!errors.isEmpty()) {
+      throw BadRequestException.of("Incorrect rule search parameters", errors);
+    }
     return result;
   }
 
-  private static void validatePresenceOf(Map<String, Object> params, BadRequestException validationException, String... paramNames) {
+  private static void validatePresenceOf(Map<String, Object> params, List<BadRequestException.Message> errors, String... paramNames) {
     for (String param: paramNames) {
       if (params.get(param) == null) {
-        validationException.addError("Missing parameter "+param);
+        errors.add(BadRequestException.Message.of("Missing parameter " + param));
       }
     }
   }

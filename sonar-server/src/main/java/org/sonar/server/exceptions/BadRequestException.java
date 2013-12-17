@@ -36,31 +36,44 @@ public class BadRequestException extends ServerException {
 
   private static final int BAD_REQUEST = 400;
 
-  private final List<Message> errors = newArrayList();
+  private List<Message> errors = newArrayList();
 
   public BadRequestException(String message) {
     super(BAD_REQUEST, message);
+  }
+
+  public BadRequestException(String message, List<Message> errors) {
+    super(BAD_REQUEST, message);
+    this.errors = errors;
   }
 
   public BadRequestException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
     super(BAD_REQUEST, message, l10nKey, l10nParams);
   }
 
+  public BadRequestException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams, List<Message> errors) {
+    super(BAD_REQUEST, message, l10nKey, l10nParams);
+    this.errors = errors;
+  }
+
   public static BadRequestException of(String message) {
     return new BadRequestException(message);
+  }
+
+  public static BadRequestException of(String message, List<Message> errors) {
+    return new BadRequestException(message, errors);
+  }
+
+  public static BadRequestException of(List<Message> errors) {
+    return new BadRequestException(null, errors);
   }
 
   public static BadRequestException ofL10n(String l10nKey, Object... l10nParams) {
     return new BadRequestException(null, l10nKey, l10nParams);
   }
 
-  public BadRequestException addError(String text) {
-    return addError(Message.of(text));
-  }
-
-  public BadRequestException addError(Message message) {
-    errors.add(message);
-    return this;
+  public static BadRequestException ofL10n(List<Message> errors, String l10nKey, Object... l10nParams) {
+    return new BadRequestException(null, l10nKey, l10nParams, errors);
   }
 
   /**
@@ -141,9 +154,4 @@ public class BadRequestException extends ServerException {
     }
   }
 
-  public void checkMessages() {
-    if (! errors.isEmpty()) {
-      throw this;
-    }
-  }
 }
