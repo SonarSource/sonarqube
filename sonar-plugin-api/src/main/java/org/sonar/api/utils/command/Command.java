@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.sonar.api.utils.System2;
 
 import java.io.File;
 import java.util.Collections;
@@ -39,13 +39,25 @@ import java.util.Map;
 public class Command {
   private final String executable;
   private final List<String> arguments = Lists.newArrayList();
-  private final Map<String, String> env = Maps.newHashMap(System.getenv());
+  private final Map<String, String> env;
   private File directory;
   private boolean newShell = false;
+  private final System2 system;
 
-  private Command(String executable) {
+  /**
+   * Create a command line without any arguments
+   *
+   * @param executable
+   */
+  public static Command create(String executable) {
+    return new Command(executable, System2.INSTANCE);
+  }
+
+  Command(String executable, System2 system) {
     Preconditions.checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
     this.executable = executable;
+    this.env = Maps.newHashMap(system.envVariables());
+    this.system = system;
   }
 
   public String getExecutable() {
@@ -130,7 +142,7 @@ public class Command {
   List<String> toStrings() {
     ImmutableList.Builder<String> command = ImmutableList.builder();
     if (newShell) {
-      if (SystemUtils.IS_OS_WINDOWS) {
+      if (system.isOsWindows()) {
         command.add("cmd", "/C", "call");
       } else {
         command.add("sh");
@@ -148,14 +160,5 @@ public class Command {
   @Override
   public String toString() {
     return toCommandLine();
-  }
-
-  /**
-   * Create a command line without any arguments
-   *
-   * @param executable
-   */
-  public static Command create(String executable) {
-    return new Command(executable);
   }
 }

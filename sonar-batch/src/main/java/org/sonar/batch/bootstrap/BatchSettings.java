@@ -46,6 +46,7 @@ public class BatchSettings extends Settings {
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
     ServerClient client, Configuration deprecatedConfiguration, AnalysisMode mode) {
+
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(bootstrapSettings.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));

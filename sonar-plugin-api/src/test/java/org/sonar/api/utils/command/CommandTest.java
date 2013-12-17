@@ -19,15 +19,18 @@
  */
 package org.sonar.api.utils.command;
 
-import org.apache.commons.lang.SystemUtils;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
 
 import java.io.File;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CommandTest {
 
@@ -82,24 +85,34 @@ public class CommandTest {
 
   @Test
   public void override_env_variables() {
-    Command command = Command.create("java");
-    command.setEnvironmentVariable("JAVA_HOME", "/path/to/java");
-    assertThat(command.getEnvironmentVariables().get("JAVA_HOME")).isEqualTo("/path/to/java");
+    System2 system = mock(System2.class);
+    when(system.envVariables()).thenReturn(ImmutableMap.of("JAVA_HOME", "/default/path/to/java"));
+
+    Command command = new Command("java", system);
+    command.setEnvironmentVariable("JAVA_HOME", "/new/path/to/java");
+    assertThat(command.getEnvironmentVariables().get("JAVA_HOME")).isEqualTo("/new/path/to/java");
   }
 
   @Test
-  public void should_use_new_shell() {
-    if (SystemUtils.IS_OS_WINDOWS) {
-      Command command = Command.create("foo.bat");
-      command.setNewShell(true);
-      assertThat(command.toCommandLine()).isEqualTo("cmd /C call foo.bat");
+  public void should_use_cmd_for_new_shell_on_windows() {
+    System2 system = mock(System2.class);
+    when(system.isOsWindows()).thenReturn(true);
+    Command command = new Command("foo.bat", system);
+    command.setNewShell(true);
+    assertThat(command.toCommandLine()).isEqualTo("cmd /C call foo.bat");
       assertThat(command.isNewShell()).isTrue();
-    } else {
-      Command command = Command.create("foo.sh");
-      command.setNewShell(true);
-      assertThat(command.toCommandLine()).isEqualTo("sh foo.sh");
-      assertThat(command.isNewShell()).isTrue();
-    }
+
+  }
+
+  @Test
+  public void should_use_sh_for_new_shell_on_unix() {
+    System2 system = mock(System2.class);
+    when(system.isOsWindows()).thenReturn(false);
+    Command command = new Command("foo.sh", system);
+
+    command.setNewShell(true);
+    assertThat(command.toCommandLine()).isEqualTo("sh foo.sh");
+    assertThat(command.isNewShell()).isTrue();
   }
 
   @Test

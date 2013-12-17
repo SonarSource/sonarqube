@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
+import org.sonar.api.utils.System2;
 
 import java.io.File;
 import java.io.IOException;
@@ -145,7 +146,7 @@ public class CommandExecutorTest {
 
   private static String getScript(String name) throws IOException {
     String filename;
-    if (SystemUtils.IS_OS_WINDOWS) {
+    if (System2.INSTANCE.isOsWindows()) {
       filename = name + ".bat";
     } else {
       filename = name + ".sh";

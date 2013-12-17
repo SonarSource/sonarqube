@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 
 import javax.annotation.Nullable;
@@ -37,11 +38,15 @@ public abstract class AbstractTimeProfiling {
 
   private long totalTime;
 
-  private Clock clock;
+  private System2 system;
 
-  public AbstractTimeProfiling(Clock clock) {
-    this.clock = clock;
-    this.startTime = clock.now();
+  public AbstractTimeProfiling(System2 system) {
+    this.system = system;
+    this.startTime = system.now();
+  }
+
+  protected System2 system() {
+    return system;
   }
 
   public long startTime() {
@@ -49,7 +54,7 @@ public abstract class AbstractTimeProfiling {
   }
 
   public void stop() {
-    this.totalTime = clock.now() - startTime;
+    this.totalTime = system.now() - startTime;
   }
 
   public long totalTime() {

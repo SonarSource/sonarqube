@@ -42,6 +42,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.phases.Phases.Phase;
 
@@ -55,12 +56,12 @@ import static org.mockito.Mockito.when;
 
 public class PhasesSumUpTimeProfilerTest {
 
-  private MockedClock clock;
+  private MockedSystem clock;
   private PhasesSumUpTimeProfiler profiler;
 
   @Before
   public void prepare() {
-    clock = new MockedClock();
+    clock = new MockedSystem();
     profiler = new PhasesSumUpTimeProfiler(clock);
   }
 
@@ -68,7 +69,7 @@ public class PhasesSumUpTimeProfilerTest {
   public void testSimpleProject() throws InterruptedException {
 
     final Project project = mockProject("project", true);
-    when(project.getModules()).thenReturn(Collections.<Project> emptyList());
+    when(project.getModules()).thenReturn(Collections.<Project>emptyList());
 
     fakeAnalysis(profiler, project);
 
@@ -109,7 +110,7 @@ public class PhasesSumUpTimeProfilerTest {
 
   @Test
   public void testDisplayTimings() {
-    AbstractTimeProfiling profiling = new AbstractTimeProfiling(new Clock()) {
+    AbstractTimeProfiling profiling = new AbstractTimeProfiling(System2.INSTANCE) {
     };
 
     profiling.setTotalTime(5);
@@ -125,7 +126,7 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiling.totalTimeAsString()).isEqualTo("5min");
   }
 
-  private class MockedClock extends Clock {
+  private class MockedSystem extends System2 {
     private long now = 0;
 
     @Override

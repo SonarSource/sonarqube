@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.utils.System2;
+
 public class ItemProfiling extends AbstractTimeProfiling {
 
   private final String itemName;
 
-  public ItemProfiling(Clock clock, String itemName) {
-    super(clock);
+  public ItemProfiling(System2 system, String itemName) {
+    super(system);
     this.itemName = itemName;
   }
 

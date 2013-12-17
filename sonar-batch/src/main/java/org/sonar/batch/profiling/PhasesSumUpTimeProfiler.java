@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.events.*;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
@@ -50,15 +51,17 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   @VisibleForTesting
   ModuleProfiling currentModuleProfiling;
+
   @VisibleForTesting
   ModuleProfiling totalProfiling;
+
   private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<Project, ModuleProfiling>();
   private DecoratorsProfiler decoratorsProfiler;
 
-  private Clock clock;
+  private final System2 system;
 
   public PhasesSumUpTimeProfiler() {
-    this(new Clock());
+    this(System2.INSTANCE);
   }
 
   static void println(String msg) {
@@ -75,9 +78,9 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   }
 
   @VisibleForTesting
-  PhasesSumUpTimeProfiler(Clock clock) {
-    this.clock = clock;
-    totalProfiling = new ModuleProfiling(null, clock);
+  PhasesSumUpTimeProfiler(System2 system) {
+    this.totalProfiling = new ModuleProfiling(null, system);
+    this.system = system;
   }
 
   @Override
@@ -85,7 +88,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     Project module = event.getProject();
     if (event.isStart()) {
       decoratorsProfiler = new DecoratorsProfiler();
-      currentModuleProfiling = new ModuleProfiling(module, clock);
+      currentModuleProfiling = new ModuleProfiling(module, system);
     } else {
       currentModuleProfiling.stop();
       modulesProfilings.put(module, currentModuleProfiling);
@@ -227,7 +230,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
 
     void start(Decorator decorator) {
-      this.startTime = clock.now();
+      this.startTime = system.now();
       this.currentDecorator = decorator;
     }
 
@@ -239,7 +242,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
         decorators.add(currentDecorator);
         cumulatedDuration = 0L;
       }
-      durations.put(currentDecorator, cumulatedDuration + (clock.now() - startTime));
+      durations.put(currentDecorator, cumulatedDuration + (system.now() - startTime));
     }
 
     public Map<Decorator, Long> getDurations() {

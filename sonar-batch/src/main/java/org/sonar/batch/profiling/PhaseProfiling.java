@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.utils.System2;
 import org.sonar.batch.phases.Phases.Phase;
 
 import java.util.HashMap;
@@ -31,16 +32,13 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   private Map<String, ItemProfiling> profilingPerItem = new HashMap<String, ItemProfiling>();
 
-  private Clock clock;
-
-  public PhaseProfiling(Clock clock, Phase phase) {
-    super(clock);
-    this.clock = clock;
+  PhaseProfiling(System2 system, Phase phase) {
+    super(system);
     this.phase = phase;
   }
 
-  public static PhaseProfiling create(Clock clock, Phase phase) {
-    return new PhaseProfiling(clock, phase);
+  public static PhaseProfiling create(System2 system, Phase phase) {
+    return new PhaseProfiling(system, phase);
   }
 
   public Phase phase() {
@@ -58,11 +56,11 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   public void newItemProfiling(Object item) {
     String stringOrSimpleName = toStringOrSimpleName(item);
-    profilingPerItem.put(stringOrSimpleName, new ItemProfiling(clock, stringOrSimpleName));
+    profilingPerItem.put(stringOrSimpleName, new ItemProfiling(system(), stringOrSimpleName));
   }
 
   public void newItemProfiling(String itemName) {
-    profilingPerItem.put(itemName, new ItemProfiling(clock, itemName));
+    profilingPerItem.put(itemName, new ItemProfiling(system(), itemName));
   }
 
   public void merge(PhaseProfiling other) {

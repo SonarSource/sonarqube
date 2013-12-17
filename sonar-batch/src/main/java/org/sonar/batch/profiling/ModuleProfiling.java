@@ -21,6 +21,7 @@ package org.sonar.batch.profiling;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
 
@@ -35,13 +36,11 @@ public class ModuleProfiling extends AbstractTimeProfiling {
 
   private Map<Phases.Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phases.Phase, PhaseProfiling>();
   private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<String, ItemProfiling>();
-  private Clock clock;
-  private Project module;
+  private final Project module;
 
-  public ModuleProfiling(@CheckForNull Project module, Clock clock) {
-    super(clock);
+  public ModuleProfiling(@CheckForNull Project module, System2 system) {
+    super(system);
     this.module = module;
-    this.clock = clock;
   }
 
   public String moduleName() {
@@ -60,11 +59,11 @@ public class ModuleProfiling extends AbstractTimeProfiling {
   }
 
   public void addPhaseProfiling(Phase phase) {
-    profilingPerPhase.put(phase, PhaseProfiling.create(clock, phase));
+    profilingPerPhase.put(phase, PhaseProfiling.create(system(), phase));
   }
 
   public void addBatchStepProfiling(String stepName) {
-    profilingPerBatchStep.put(stepName, new ItemProfiling(clock, stepName));
+    profilingPerBatchStep.put(stepName, new ItemProfiling(system(), stepName));
   }
 
   public void dump() {
@@ -96,7 +95,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
     }
     for (Map.Entry<String, ItemProfiling> entry : other.profilingPerBatchStep.entrySet()) {
       if (!this.profilingPerBatchStep.containsKey(entry.getKey())) {
-        profilingPerBatchStep.put(entry.getKey(), new ItemProfiling(clock, entry.getKey()));
+        profilingPerBatchStep.put(entry.getKey(), new ItemProfiling(system(), entry.getKey()));
       }
       this.getProfilingPerBatchStep(entry.getKey()).add(entry.getValue());
     }
