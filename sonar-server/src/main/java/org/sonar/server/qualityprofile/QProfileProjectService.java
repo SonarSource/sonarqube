@@ -32,15 +32,13 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileProjectService implements ServerComponent {
 
-  private static final String PROPERTY_PREFIX = "sonar.profile.";
+  public static final String PROPERTY_PREFIX = "sonar.profile.";
 
   private final QualityProfileDao qualityProfileDao;
   private final PropertiesDao propertiesDao;
@@ -51,14 +49,24 @@ public class QProfileProjectService implements ServerComponent {
   }
 
   public QProfileProjects projects(QualityProfileDto qualityProfile) {
-    List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
+    List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(qualityProfile.getName(), PROPERTY_PREFIX + qualityProfile.getLanguage());
     List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
       @Override
-      public Component apply(@Nullable ComponentDto dto) {
+      public Component apply(ComponentDto dto) {
         return (Component) dto;
       }
     }));
     return new QProfileProjects(QProfile.from(qualityProfile), projects);
+  }
+
+  public List<QProfile> profiles(long projectId) {
+    List<QualityProfileDto> dtos = qualityProfileDao.selectByProject(projectId, PROPERTY_PREFIX  + "%");
+    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
+      @Override
+      public QProfile apply(QualityProfileDto dto) {
+        return QProfile.from(dto);
+      }
+    }));
   }
 
   public void addProject(QualityProfileDto qualityProfile, ComponentDto component, UserSession userSession) {

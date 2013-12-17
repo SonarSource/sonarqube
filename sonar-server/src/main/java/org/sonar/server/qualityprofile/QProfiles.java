@@ -92,8 +92,13 @@ public class QProfiles implements ServerComponent {
   // edit template rule
   // delete template rule
 
-  public List<QProfile> searchProfiles() {
-    return search.searchProfiles();
+  public List<QProfile> allProfiles() {
+    return search.allProfiles();
+  }
+
+  @CheckForNull
+  public QProfile defaultProfile(String language) {
+    return search.defaultProfile(language);
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
@@ -129,8 +134,8 @@ public class QProfiles implements ServerComponent {
   /**
    * Used in /project/profile
    */
-  public QProfile profile(int projectId) {
-    throw new UnsupportedOperationException();
+  public List<QProfile> profiles(int projectId) {
+    return projectService.profiles(projectId);
   }
 
   public void addProject(int profileId, long projectId) {

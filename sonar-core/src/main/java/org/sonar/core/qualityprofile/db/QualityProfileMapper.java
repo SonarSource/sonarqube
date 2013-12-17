@@ -32,12 +32,17 @@ public interface QualityProfileMapper {
   List<QualityProfileDto> selectAll();
 
   @CheckForNull
+  QualityProfileDto selectDefaultProfile(@Param("language") String language, @Param("key") String key);
+
+  @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
 
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
 
-  List<ComponentDto> selectProjects(@Param("key") String propertyKey, @Param("value") String propertyValue);
+  List<ComponentDto> selectProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
+
+  List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);
 
   void insert(QualityProfileDto dto);
 

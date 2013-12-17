@@ -1,9 +1,12 @@
 <dataset>
 
-  <rules_profiles id="1" name="Sonar way" language="java" parent_name="[null]" version="1"
+  <rules_profiles id="1" name="Sonar Way" language="java" parent_name="[null]" version="1"
                   used_profile="[false]"/>
 
-  <rules_profiles id="2" name="Sonar way" language="js" parent_name="[null]" version="1"
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_name="[null]" version="1"
                   used_profile="[false]"/>
+
+  <properties id="1" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="[null]"/>
+  <properties id="2" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="1"/>
 
 </dataset>

@@ -36,6 +36,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import java.util.List;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -62,11 +64,20 @@ public class QProfileProjectServiceTest {
   @Test
   public void search_projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectProjects("sonar.profile.java", "My profile")).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
+    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java")).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
 
     QProfileProjects result = service.projects(qualityProfile);
     assertThat(result.profile()).isNotNull();
     assertThat(result.projects()).hasSize(1);
+  }
+
+  @Test
+  public void search_profiles_from_project() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectByProject(1L, "sonar.profile.%")).thenReturn(newArrayList(qualityProfile));
+
+    List<QProfile> result = service.profiles(1L);
+    assertThat(result).hasSize(1);
   }
 
   @Test

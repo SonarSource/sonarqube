@@ -31,24 +31,37 @@ class Api::ProfilesController < Api::ApiController
   # - get the profiles used by the project 'foo' : GET /api/profiles/list?project=foo
   # - get the Java profile used by the project 'foo' : GET /api/profiles/list?project=foo&language=java
   def list
-    language=params[:language]
-    project_key=params[:project]
+    language = params[:language]
+    project_key = params[:project]
 
     if project_key.present?
       project = Project.by_key(project_key)
       not_found('Unknown project') unless project
+      profiles = Internal.quality_profiles.profiles(project.id).to_a
       if language.present?
-        profiles=[Profile.by_project_id(language, project.id, true)]
+        profile = profiles.find {|profile| profile.language == language} if profiles
+        # Return default if null
+        profiles = [profile] if profile
+        profiles = [Internal.quality_profiles.defaultProfile(language.to_s)] unless profile
       else
-        profiles=Api::Utils.languages.map { |lang| Profile.by_project_id(lang.getKey(), project.id, true) }
+        profiles = [Internal.quality_profiles.defaultProfile(project.language.to_s)] if profiles.empty?
       end
     elsif language.present?
-      profiles=Profile.all_by_language(language)
+      profiles = Internal.quality_profiles.allProfiles().select {|profile| profile.language == language}
     else
-      profiles=Profile.all
+      profiles = Internal.quality_profiles.allProfiles().to_a
     end
 
-    json=profiles.compact.map { |profile| {:name => profile.name, :language => profile.language, :default => profile.default_profile?} }
+    default_profile_by_language = {}
+    profiles.each do |p|
+      lang = p.language
+      unless default_profile_by_language[lang]
+        default_profile_by_language[lang] = Internal.quality_profiles.defaultProfile(lang.to_s)
+      end
+    end
+    profiles = [default_profile_by_language[project.language]] if profiles.empty?
+
+    json = profiles.compact.map { |profile| {:name => profile.name, :language => profile.language, :default => default_profile_by_language[profile.language].name == profile.name } }
     respond_to do |format|
       format.json { render :json => jsonp(json) }
       format.xml { render :xml => xml_not_supported }

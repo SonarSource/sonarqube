@@ -47,7 +47,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     QualityProfileDto dto1 = dtos.get(0);
     assertThat(dto1.getId()).isEqualTo(1);
-    assertThat(dto1.getName()).isEqualTo("Sonar way");
+    assertThat(dto1.getName()).isEqualTo("Sonar Way");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParent()).isNull();
     assertThat(dto1.getVersion()).isEqualTo(1);
@@ -55,7 +55,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     QualityProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
-    assertThat(dto2.getName()).isEqualTo("Sonar way");
+    assertThat(dto2.getName()).isEqualTo("Sonar Way");
     assertThat(dto2.getLanguage()).isEqualTo("js");
     assertThat(dto2.getParent()).isNull();
     assertThat(dto2.getVersion()).isEqualTo(1);
@@ -63,19 +63,27 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_default_profile() {
+    setupData("shared");
+
+    assertThat(dao.selectDefaultProfile("java", "sonar.profile.java")).isNotNull();
+    assertThat(dao.selectDefaultProfile("js", "sonar.profile.js")).isNull();
+  }
+
+  @Test
   public void select_by_name_and_language() {
     setupData("shared");
 
-    QualityProfileDto dto = dao.selectByNameAndLanguage("Sonar way", "java");
+    QualityProfileDto dto = dao.selectByNameAndLanguage("Sonar Way", "java");
     assertThat(dto.getId()).isEqualTo(1);
-    assertThat(dto.getName()).isEqualTo("Sonar way");
+    assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParent()).isNull();
     assertThat(dto.getVersion()).isEqualTo(1);
     assertThat(dto.isUsed()).isFalse();
 
-    assertThat(dao.selectByNameAndLanguage("Sonar WAY", "java")).isNotNull();
-    assertThat(dao.selectByNameAndLanguage("Sonar way", "unknown")).isNull();
+    assertThat(dao.selectByNameAndLanguage("Sonar Way", "java")).isNotNull();
+    assertThat(dao.selectByNameAndLanguage("Sonar Way", "unknown")).isNull();
   }
 
   @Test
@@ -84,7 +92,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     QualityProfileDto dto = dao.selectById(1);
     assertThat(dto.getId()).isEqualTo(1);
-    assertThat(dto.getName()).isEqualTo("Sonar way");
+    assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParent()).isNull();
     assertThat(dto.getVersion()).isEqualTo(1);
@@ -97,7 +105,14 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_projects() {
     setupData("projects");
 
-    assertThat(dao.selectProjects("sonar.profile.java", "Sonar Way")).hasSize(2);
+    assertThat(dao.selectProjects("Sonar Way", "sonar.profile.java")).hasSize(2);
+  }
+
+  @Test
+  public void select_by_project() {
+    setupData("projects");
+
+    assertThat(dao.selectByProject(1L, "sonar.profile.%")).hasSize(2);
   }
 
   @Test

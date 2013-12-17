@@ -11,7 +11,7 @@
   <tbody>
   <%
      Api::Utils.languages.each do |language|
-       selected_profile=@project.profile(language.getKey(), false)
+       selected_profile = @project_quality_profiles.find {|profile| profile.language == language.getKey()}
   %>
     <tr class="<%= cycle 'even', 'odd' -%>">
       <td class="thin" nowrap><%= h language.getName() -%></td>
@@ -24,7 +24,7 @@
             <option value="" <%= "selected='selected'" unless selected_profile -%>><%= message 'project_quality_profile.default_profile' -%></option>
             <optgroup>
               <%
-                 profiles = Api::Utils.insensitive_sort(Profile.all_by_language(language.getKey())) { |profile| profile.name }
+                 profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select {|profile| profile.language == language.getKey()}) { |profile| profile.name }
                  profiles.each do |profile|
               %>
                 <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && selected_profile.id==profile.id -%>><%= h profile.name -%></option>

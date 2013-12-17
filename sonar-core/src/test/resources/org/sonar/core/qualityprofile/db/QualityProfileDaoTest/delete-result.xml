@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules_profiles id="2" name="Sonar way" language="js" parent_name="[null]" version="1"
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_name="[null]" version="1"
                   used_profile="[false]"/>
 
 </dataset>

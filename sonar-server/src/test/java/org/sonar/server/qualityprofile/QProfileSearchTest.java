@@ -53,7 +53,7 @@ public class QProfileSearchTest {
       new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
     ));
 
-    List<QProfile> result = search.searchProfiles();
+    List<QProfile> result = search.allProfiles();
     assertThat(result).hasSize(1);
 
     QProfile qProfile = result.get(0);
@@ -64,4 +64,22 @@ public class QProfileSearchTest {
     assertThat(qProfile.version()).isEqualTo(1);
     assertThat(qProfile.used()).isFalse();
   }
+
+  @Test
+  public void default_profile() throws Exception {
+    when(dao.selectDefaultProfile("java", "sonar.profile.java")).thenReturn(
+      new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
+    );
+
+    assertThat(search.defaultProfile("java")).isNotNull();
+  }
+
+  @Test
+  public void not_find_default_profile() throws Exception {
+    when(dao.selectDefaultProfile("java", "sonar.profile.java")).thenReturn(null);
+
+    assertThat(search.defaultProfile("java")).isNull();
+  }
+
 }
+

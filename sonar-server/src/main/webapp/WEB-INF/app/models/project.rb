@@ -196,10 +196,6 @@ class Project < ActiveRecord::Base
     last_snapshot && last_snapshot.path_name
   end
 
-  def profile(lang, returns_default_if_nil=false)
-    Profile.by_project_id(lang, id, returns_default_if_nil)
-  end
-
   private
 
   def create_chart_measures(results, date_column_name, value_column_name)

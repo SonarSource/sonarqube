@@ -34,6 +34,17 @@
     </where>
   </select>
 
+  <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    INNER JOIN properties prop ON prop.text_value = p.name
+    <where>
+      AND p.language=#{language}
+      AND prop.prop_key=#{key}
+      AND prop.resource_id IS NULL
+    </where>
+  </select>
+
   <select id="selectProjects" parameterType="Integer" resultType="Component">
     SELECT projects.id as id, projects.name as name, projects.kee as kee
     FROM projects projects
@@ -42,6 +53,16 @@
       AND properties.resource_id IS NOT NULL
       AND properties.prop_key=#{key}
       AND properties.text_value like #{value}
+    </where>
+  </select>
+
+  <select id="selectByProject" parameterType="map" resultType="QualityProfile">
+    SELECT DISTINCT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    INNER JOIN properties prop ON prop.text_value = p.name
+    <where>
+      AND prop.resource_id=#{projectId}
+      AND prop.prop_key like #{key}
     </where>
   </select>
 

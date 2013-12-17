@@ -75,8 +75,14 @@ public class QProfilesTest {
 
   @Test
   public void search_profiles() throws Exception {
-    qProfiles.searchProfiles();
-    verify(search).searchProfiles();
+    qProfiles.allProfiles();
+    verify(search).allProfiles();
+  }
+
+  @Test
+  public void search_default_profile_by_language() throws Exception {
+    qProfiles.defaultProfile("java");
+    verify(search).defaultProfile("java");
   }
 
   @Test
@@ -176,9 +182,10 @@ public class QProfilesTest {
     verify(projectService).projects(qualityProfile);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void get_profile_from_project_id() throws Exception {
-    qProfiles.profile(1);
+  @Test
+  public void get_profiles_from_project_id() throws Exception {
+    qProfiles.profiles(1);
+    verify(projectService).profiles(1);
   }
 
   @Test

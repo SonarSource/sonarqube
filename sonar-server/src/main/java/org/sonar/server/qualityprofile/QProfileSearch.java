@@ -26,6 +26,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -38,7 +40,7 @@ public class QProfileSearch implements ServerComponent {
     this.dao = dao;
   }
 
-  public List<QProfile> searchProfiles() {
+  public List<QProfile> allProfiles() {
     List<QualityProfileDto> dtos = dao.selectAll();
     return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
       @Override
@@ -46,6 +48,15 @@ public class QProfileSearch implements ServerComponent {
         return QProfile.from(input);
       }
     }));
+  }
+
+  @CheckForNull
+  public QProfile defaultProfile(String language) {
+    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileProjectService.PROPERTY_PREFIX + language);
+    if (dto != null) {
+      return QProfile.from(dto);
+    }
+    return null;
   }
 
 }

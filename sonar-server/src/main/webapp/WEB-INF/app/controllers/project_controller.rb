@@ -78,8 +78,13 @@ class ProjectController < ApplicationController
   # GET /project/profile?id=<project id>
   def profile
     require_parameters :id
-    @project = get_current_project_for_profile(params[:id])
+    project_id = params[:id]
+    @project = get_current_project(project_id)
     @snapshot = @project.last_snapshot
+    call_backend do
+      @project_quality_profiles = Internal.quality_profiles.profiles(project_id.to_i).to_a
+      @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
+    end
   end
 
   # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
@@ -99,13 +104,6 @@ class ProjectController < ApplicationController
     end
 
     redirect_to :action => 'profile', :id => project
-  end
-
-  def get_current_project_for_profile(project_id)
-    project=Project.by_key(project_id)
-    not_found("Project not found") unless project
-    access_denied unless (is_admin?(project) || has_role?(:profileadmin))
-    project
   end
 
   def key
