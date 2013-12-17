@@ -13,9 +13,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._width = window.SonarWidgets.Histogram.defaults.width;
     this._height = window.SonarWidgets.Histogram.defaults.height;
     this._margin = window.SonarWidgets.Histogram.defaults.margin;
-    this._legendWidth = window.SonarWidgets.Histogram.defaults.legendWidth;
-    this._legendMargin = window.SonarWidgets.Histogram.defaults.legendMargin;
-    this._detailsWidth = window.SonarWidgets.Histogram.defaults.detailsWidth;
+    this._axisWidth = window.SonarWidgets.Histogram.defaults.axisWidth;
     this._options = {};
 
     this._lineHeight = 20;
@@ -46,16 +44,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       return param.call(this, '_margin', _);
     };
 
-    this.legendWidth = function (_) {
-      return param.call(this, '_legendWidth', _);
-    };
-
-    this.legendMargin = function (_) {
-      return param.call(this, '_legendMargin', _);
-    };
-
-    this.detailsWidth = function (_) {
-      return param.call(this, '_detailsWidth', _);
+    this.axisWidth = function (_) {
+      return param.call(this, '_axisWidth', _);
     };
 
     this.options = function (_) {
@@ -119,6 +109,17 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         ]);
 
 
+    // Configure axis
+    this.y1 = d3.scale.linear();
+
+    this.axis = d3.svg.axis()
+        .scale(this.y1)
+        .orient("left");
+
+    this.gAxis = this.gWrap.append("g")
+        .attr("class", "y axis");
+
+
     // Configure details
     this._metricsCount = Object.keys(this.metrics()).length + 1;
 
@@ -157,14 +158,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update available size
-    var detailsHeight = 2 * this._lineHeight;
-    this.availableWidth = this.width() - this.margin().left - this.margin().right;
+    var detailsHeight = 3 * this._lineHeight;
+    this.availableWidth = this.width() - this.margin().left - this.margin().right - this.axisWidth();
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom - detailsHeight;
+    var minHeight = this.availableHeight / 6;
 
 
     // Update plot
     this.plotWrap
-        .attr('transform', trans(0, detailsHeight));
+        .attr('transform', trans(this.axisWidth(), detailsHeight));
 
 
     // Update scales
@@ -177,13 +179,31 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
     this.y
         .domain(yDomain)
-        .range([this.availableHeight, this.availableHeight / 3]);
+        .range([minHeight, this.availableHeight])
+        .nice();
 
     if (this.components().length < 11) {
       this.color = d3.scale.category10();
     } else if (this.components().length < 21) {
       this.color = d3.scale.category20();
     }
+
+
+    // Update axis
+    this.y1
+        .domain(yDomain)
+        .range([this.availableHeight, minHeight])
+        .nice();
+
+    this.gAxis
+        .attr('transform', trans(this.axisWidth(), detailsHeight - minHeight))
+        .call(this.axis);
+
+
+    // Update details
+    this.detailsWrap
+        .transition()
+        .attr('transform', trans(this.axisWidth() + widget.x(0) + 3, 0));
 
 
     // Configure bars
@@ -264,8 +284,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     width: 350,
     height: 300,
     margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    legendWidth: 160,
-    legendMargin: 30
+    axisWidth: 40
   };
 
 

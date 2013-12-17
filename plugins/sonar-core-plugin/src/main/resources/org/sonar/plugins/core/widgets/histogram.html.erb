@@ -24,7 +24,7 @@ filterId = widget_properties["filter"].to_i
         query = [
           'filter=<%= filterId %>',
           'metrics=' + metrics.join(','),
-          'fields=name',
+          'fields=name,qualifier',
           'pageSize=40',
           'page=1',
           'sort=metric:' + metrics[0],
