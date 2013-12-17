@@ -274,7 +274,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         })
         .on('mouseleave', leaveHandler)
         .on('click', function(d) {
-          switch (d.data.qualifier) {
+          switch (d.qualifier) {
             case 'CLA':
             case 'FIL':
               window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
