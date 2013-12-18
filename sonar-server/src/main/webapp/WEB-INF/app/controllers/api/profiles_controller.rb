@@ -58,6 +58,7 @@ class Api::ProfilesController < Api::ApiController
     end
 
     # Populate the map of default profile by language by searching for all profiles languages
+    # We have to do that as the profiles list do not contain this information (maybe we should add it?)
     profiles.each do |p|
       lang = p.language
       unless default_profile_by_language[lang]
