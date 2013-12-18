@@ -64,12 +64,13 @@ public class QProfiles implements ServerComponent {
   //
   // PROFILES
   //
-  // search profile from profile id
+  // startup synchronisation
   // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects)
   // copy profile
   // export profile from profile id
   // export profile from profile id and plugin key
   // restore profile
+  // profiles comparison
   //
   // INHERITANCE
   // get inheritance of profile id

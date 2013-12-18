@@ -82,7 +82,7 @@ class ProjectController < ApplicationController
     @project = get_current_project(project_id)
     @snapshot = @project.last_snapshot
     call_backend do
-      @project_quality_profiles = Internal.quality_profiles.profiles(project_id.to_i).to_a
+      @project_quality_profiles = Internal.quality_profiles.profiles(@project.id.to_i).to_a
       @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
     end
   end

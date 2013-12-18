@@ -27,7 +27,7 @@
                  profiles = Api::Utils.insensitive_sort(@all_quality_profiles.select {|profile| profile.language == language.getKey()}) { |profile| profile.name }
                  profiles.each do |profile|
               %>
-                <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && selected_profile.id==profile.id -%>><%= h profile.name -%></option>
+                <option value="<%= profile.id -%>" <%= "selected='selected'" if selected_profile && (selected_profile.id == profile.id) -%>><%= h profile.name -%></option>
               <% end %>
             </optgroup>
           </select>
