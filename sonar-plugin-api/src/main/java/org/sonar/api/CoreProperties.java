@@ -534,4 +534,9 @@ public interface CoreProperties {
    */
   @Deprecated
   String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE;
+
+  /**
+   * @since 4.2
+   */
+  String CORE_AUTHENTICATOR_LOCAL_USERS = "sonar.security.localUsers";
 }

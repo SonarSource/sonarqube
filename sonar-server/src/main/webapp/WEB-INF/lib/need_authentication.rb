@@ -49,58 +49,64 @@ class PluginRealm
   end
 
   def authenticate?(username, password, servlet_request)
-    details=nil
-    if @java_users_provider
-      begin
-        provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
-        details = @java_users_provider.doGetUserDetails(provider_context)
-      rescue Exception => e
-        Rails.logger.error("Error from external users provider: #{e.message}")
-        @save_password ? fallback(username, password) : false
-      else
-        if details
-          # User exist in external system
-          auth(username, password, servlet_request, details)
-        else
-          # No such user in external system
-          fallback(username, password)
-        end
-      end
+    local_users = Api::Utils.java_facade.getSettings().getStringArray('sonar.security.localUsers')
+    if local_users.include? username
+      local_auth(username, password)
     else
-      # Legacy authenticator
-      auth(username, password, servlet_request, nil)
+      auth(username, password, servlet_request)
     end
   end
 
   #
-  # Fallback to password from Sonar Database
+  # Authenticate using password from Sonar Database
   #
-  def fallback(username, password)
-    result=nil
+  def local_auth(username, password)
+    result = nil
     if !username.blank? && !password.blank?
-      user=User.find_active_by_login(username)
+      user = User.find_active_by_login(username)
       result = user if user && user.authenticated?(password)
     end
     result
   end
 
   #
-  # Authenticate user using external system. Return the user.
+  # Authenticate using external system
   #
-  def auth(username, password, servlet_request, user_details)
+  def external_auth(username, password, servlet_request, details)
     if @java_authenticator
-      begin
-        authenticator_context=org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
-        status = @java_authenticator.doAuthenticate(authenticator_context)
-      rescue Exception => e
-        Rails.logger.error("Error from external authenticator: #{e.message}")
-        fallback(username, password)
-      else
-        status ? synchronize(username, password, user_details) : nil
-      end
+      context = org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
+      status = @java_authenticator.doAuthenticate(context)
+      status ? synchronize(username, password, details) : nil
     else
       # No authenticator
       nil
+    end
+  end
+
+  #
+  # Authenticate user using external system. Can fallback on local auth if external system is not available. Return the user.
+  #
+  def auth(username, password, servlet_request)
+    if @java_users_provider
+      begin
+        provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
+        details = @java_users_provider.doGetUserDetails(provider_context)
+      rescue => e
+        # Maybe LDAP server is not available
+        Rails.logger.error("Error from external users provider: exception #{e.class.name}: #{e.message}")
+        @save_password ? local_auth(username, password) : false
+      else
+        if details
+          # User exist in external system
+          external_auth(username, password, servlet_request, details)
+        else
+          # No such user in external system
+          nil
+        end
+      end
+    else
+      # Legacy authenticator
+      external_auth(username, password, servlet_request, nil)
     end
   end
 

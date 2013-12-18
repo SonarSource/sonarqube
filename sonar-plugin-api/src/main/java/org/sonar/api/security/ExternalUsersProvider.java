@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class ExternalUsersProvider {
 
   /**
-   * This method is overridden by old versions of plugins such as LDAP 1.1. It should be overridden anymore.
+   * This method is overridden by old versions of plugins such as LDAP 1.1. It should not be overridden anymore.
    *
    * @param username the username
    * @return details for specified user, or null if such user doesn't exist
