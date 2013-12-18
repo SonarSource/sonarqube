@@ -282,7 +282,8 @@ import java.util.List;
     project = false,
     global = false,
     defaultValue = "admin",
-    type = PropertyType.STRING)
+    type = PropertyType.STRING,
+    multiValues = true)
 })
 public final class CorePlugin extends SonarPlugin {
 
