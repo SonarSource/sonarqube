@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.measures;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.*;
+import org.sonar.plugins.core.widgets.CoreWidget;
+import org.sonar.plugins.core.widgets.WidgetConstants;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
@@ -34,10 +36,10 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = "extraMetric1", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "extraMetric2", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS})
 })
-public class PieChartWidget extends CoreWidget {
+public class MeasureFilterAsPieChartWidget extends CoreWidget {
 
-  public PieChartWidget() {
-    super("pie_chart", "Pie Chart", "/org/sonar/plugins/core/widgets/pie_chart.html.erb");
+  public MeasureFilterAsPieChartWidget() {
+    super("measure_filter_pie_chart", "Measure Filter as Pie Chart", "/org/sonar/plugins/core/widgets/measures/measure_filter_pie_chart.html.erb");
   }
 
 }

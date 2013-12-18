@@ -22,7 +22,7 @@ package org.sonar.plugins.core.widgets;
 /**
  * Constants shared accross multiple widgets
  */
-interface WidgetConstants {
+public interface WidgetConstants {
 
   /**
    * Widget property option used to filter out all the metrics which keys start with "new_".

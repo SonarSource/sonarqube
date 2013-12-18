@@ -3,6 +3,8 @@ containerId = 'pie-chart-widget' + widget.id.to_s
 chartTitle = widget_properties["chartTitle"]
 filterId = widget_properties["filter"].to_i
 maxItems = widget_properties["maxItems"].to_i
+reverseOrder = widget_properties["reverseOrder"]
+displayWorstBestValues = widget_properties["displayWorstBestValues"]
 %>
 
 <div class="histogram-widget" id="<%= containerId %>">
@@ -19,8 +21,7 @@ maxItems = widget_properties["maxItems"].to_i
 <script>
   (function () {
     var metrics = [
-          '<%= widget_properties["colorMetric"].name -%>',
-          '<%= widget_properties["sizeMetric"].name -%>'
+          '<%= widget_properties["metric"].name -%>'
         ],
         query = [
           'filter=<%= filterId -%>',
@@ -34,7 +35,7 @@ maxItems = widget_properties["maxItems"].to_i
         widget = new SonarWidgets.Widget();
 
     widget
-      .type('WordCloud')
+      .type('Histogram')
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
@@ -48,7 +49,6 @@ maxItems = widget_properties["maxItems"].to_i
   })();
 </script>
 <!--<![endif]-->
-
 
 
 

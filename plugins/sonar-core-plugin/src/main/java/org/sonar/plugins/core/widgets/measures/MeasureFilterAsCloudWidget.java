@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.measures;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.*;
+import org.sonar.plugins.core.widgets.CoreWidget;
+import org.sonar.plugins.core.widgets.WidgetConstants;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
@@ -32,12 +34,13 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "50")
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "50"),
+  @WidgetProperty(key = "reverseColor", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
-public class CloudWidget extends CoreWidget {
+public class MeasureFilterAsCloudWidget extends CoreWidget {
 
-  public CloudWidget() {
-    super("cloud", "Cloud", "/org/sonar/plugins/core/widgets/cloud.html.erb");
+  public MeasureFilterAsCloudWidget() {
+    super("measure_filter_cloud", "Measure Filter as Cloud", "/org/sonar/plugins/core/widgets/measures/measure_filter_cloud.html.erb");
   }
 
 }
