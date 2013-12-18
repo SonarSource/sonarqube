@@ -84,8 +84,6 @@ public class QProfiles implements ServerComponent {
   // display changelog for a profile id
   //
   // ACTIVE RULES
-  // activate a rule
-  // deactivate a rule
   // update parameter on a active rule
   // add note on an active rule
   // delete note on an active rule
