@@ -78,7 +78,13 @@
   </delete>
 
   <delete id="deleteProjectProperties" parameterType="map">
-    delete from properties where prop_key=#{key} and text_value=#{value} and resource_id is not null and user_id is null
+    DELETE FROM properties
+    <where>
+      AND prop_key=#{key}
+      AND text_value LIKE #{value}
+      AND resource_id IS NOT NULL
+      AND user_id IS NULL
+    </where>
   </delete>
 
   <delete id="deleteGlobalProperty" parameterType="string">

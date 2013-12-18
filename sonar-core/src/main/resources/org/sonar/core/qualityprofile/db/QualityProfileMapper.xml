@@ -37,11 +37,11 @@
   <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN properties prop ON prop.text_value = p.name
+    INNER JOIN properties prop ON prop.prop_key=#{key}
+      AND prop.resource_id IS NULL
+      AND prop.text_value LIKE p.name
     <where>
       AND p.language=#{language}
-      AND prop.prop_key=#{key}
-      AND prop.resource_id IS NULL
     </where>
   </select>
 
@@ -52,18 +52,16 @@
     <where>
       AND properties.resource_id IS NOT NULL
       AND properties.prop_key=#{key}
-      AND properties.text_value like #{value}
+      AND properties.text_value LIKE #{value}
     </where>
   </select>
 
   <select id="selectByProject" parameterType="map" resultType="QualityProfile">
     SELECT DISTINCT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN properties prop ON prop.text_value = p.name
-    <where>
-      AND prop.resource_id=#{projectId}
-      AND prop.prop_key like #{key}
-    </where>
+    INNER JOIN properties prop ON prop.resource_id=#{projectId}
+      AND prop.prop_key LIKE #{key}
+      AND prop.text_value LIKE p.name
   </select>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
