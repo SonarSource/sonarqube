@@ -76,14 +76,10 @@
           </tr>
         <% end %>
         <% rule.params.each do |parameter| %>
-        <%
-=begin %>
-          <tr id="param_<%= parameter.id -%>">
+          <tr id="param_<%= parameter.key -%>">
             <%= render :partial => 'rule_param', :object => nil,
                        :locals => {:parameter => parameter, :profile => profile, :rule => rule, :ancestor_active_rule => ancestor_active_rule} %>
           </tr>
-          <%
-=end %>
         <%
            end
         %>

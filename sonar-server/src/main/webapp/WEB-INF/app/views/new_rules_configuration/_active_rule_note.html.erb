@@ -1,5 +1,5 @@
-<% #locals = active_rule, profile
-  note = rule.note
+<% #locals = rule, profile
+  note = rule.activeRuleNote
   active_note_detail_div_id = "and_" + rule.activeRuleId.to_s
   add_active_note_button_id = "aanb_" + rule.activeRuleId.to_s
   edit_active_note_link_id = "eanl_" + rule.activeRuleId.to_s
@@ -10,10 +10,10 @@
 %>
 
 <div id="<%= active_note_detail_div_id -%>">
-  <% if note %>
+  <% if !note.nil? %>
     <blockquote class="spacer-bottom">
       <cite>
-        <b><%= note.user.name -%></b> (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
+        <b><%= User.find_active_by_login(note.userLogin).name -%></b> (<%= distance_of_time_in_words_to_now(Time.at(note.updatedAt.time/1000)) -%>)&nbsp;
         <% if profiles_administrator? %>
           | &nbsp;
           <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
@@ -29,7 +29,7 @@
              href="#!"><%=message('delete')-%></a>
         <% end %>
       </cite>
-      <p><%= note.html_text -%></p>
+      <p><%= note.data -%></p>
     </blockquote>
   <% elsif profiles_administrator? %>
     <a href="#" onclick="$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_textarea_id -%>').focus(); return false;"
@@ -52,7 +52,7 @@
       <tr>
         <td class="width100" colspan="2">
           <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
-                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.plain_text) if note -%></textarea>
+                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.data) unless note.nil? -%></textarea>
         </td>
       </tr>
     <tr>

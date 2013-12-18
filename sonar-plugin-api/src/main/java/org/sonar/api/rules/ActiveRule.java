@@ -25,10 +25,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * A class to map an ActiveRule to the hibernate model
@@ -63,6 +64,21 @@ public class ActiveRule implements Cloneable {
   @Column(name = "inheritance", updatable = true, nullable = true)
   private String inheritance;
 
+  @Lob
+  @Column(name = "note_data", updatable = true, nullable = true)
+  private String noteData;
+
+  @Column(name = "note_user_login", updatable = true, nullable = true)
+  private String noteUserLogin;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "note_created_at", updatable = true, nullable = true)
+  private Date noteCreatedAt;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "note_updated_at", updatable = true, nullable = true)
+  private Date noteUpdatedAt;
+
   /**
    * @deprecated visibility should be reduced to protected or package
    */
@@ -91,7 +107,7 @@ public class ActiveRule implements Cloneable {
 
   /**
    * For internal use only.
-   * 
+   *
    * @since 2.5
    */
   public String getInheritance() {
@@ -100,7 +116,7 @@ public class ActiveRule implements Cloneable {
 
   /**
    * For internal use only.
-   * 
+   *
    * @since 2.5
    */
   public void setInheritance(String s) {
@@ -232,6 +248,34 @@ public class ActiveRule implements Cloneable {
    */
   public String getRuleKey() {
     return rule.getKey();
+  }
+
+  /**
+   * @since 4.2
+   */
+  public String getNoteData() {
+    return noteData;
+  }
+
+  /**
+   * @since 4.2
+   */
+  public String getNoteUserLogin() {
+    return noteUserLogin;
+  }
+
+  /**
+   * @since 4.2
+   */
+  public Date getNoteCreatedAt() {
+    return noteCreatedAt;
+  }
+
+  /**
+   * @since 4.2
+   */
+  public Date getNoteUpdatedAt() {
+    return noteUpdatedAt;
   }
 
   @Override

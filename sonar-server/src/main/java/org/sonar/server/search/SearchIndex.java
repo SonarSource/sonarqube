@@ -255,7 +255,7 @@ public class SearchIndex {
       if (bulkResponse.hasFailures()) {
         for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
           if(bulkItemResponse.isFailed()) {
-            throw new IllegalStateException("Bulk operation partially executed");
+            throw new IllegalStateException("Bulk operation partially executed: " + bulkItemResponse.getFailure().getMessage());
           }
         }
       }

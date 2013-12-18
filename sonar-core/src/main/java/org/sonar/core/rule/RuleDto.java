@@ -38,6 +38,10 @@ public final class RuleDto {
   private Long parentId;
   private Date createdAt;
   private Date updatedAt;
+  private String noteData;
+  private String noteUserLogin;
+  private Date noteCreatedAt;
+  private Date noteUpdatedAt;
 
   public Long getId() {
     return id;
@@ -149,5 +153,37 @@ public final class RuleDto {
 
   public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public String getNoteData() {
+    return noteData;
+  }
+
+  public void setNoteData(String noteData) {
+    this.noteData = noteData;
+  }
+
+  public String getNoteUserLogin() {
+    return noteUserLogin;
+  }
+
+  public void setNoteUserLogin(String noteUserLogin) {
+    this.noteUserLogin = noteUserLogin;
+  }
+
+  public Date getNoteCreatedAt() {
+    return noteCreatedAt;
+  }
+
+  public void setNoteCreatedAt(Date noteCreatedAt) {
+    this.noteCreatedAt = noteCreatedAt;
+  }
+
+  public Date getNoteUpdatedAt() {
+    return noteUpdatedAt;
+  }
+
+  public void setNoteUpdatedAt(Date noteUpdatedAt) {
+    this.noteUpdatedAt = noteUpdatedAt;
   }
 }

@@ -207,9 +207,12 @@ public class RuleRegistry {
       index++;
     }
     profiler.stop();
-    profiler.start("Index active rules");
-    searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
-    profiler.stop();
+
+    if (!rules.isEmpty()) {
+      profiler.start("Index active rules");
+      searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
+      profiler.stop();
+    }
 
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
@@ -232,8 +235,17 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
       .field(RuleDocument.FIELD_SEVERITY, rule.getPriority())
       .field(RuleDocument.FIELD_STATUS, rule.getStatus())
+      .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
       .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
+    if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
+      document.startObject(RuleDocument.FIELD_NOTE)
+        .field(RuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
+        .field(RuleDocument.FIELD_NOTE_USER_LOGIN, rule.getNoteUserLogin())
+        .field(RuleDocument.FIELD_NOTE_CREATED_AT, rule.getNoteCreatedAt())
+        .field(RuleDocument.FIELD_NOTE_UPDATED_AT, rule.getNoteUpdatedAt())
+        .endObject();
+    }
     if (!params.isEmpty()) {
       document.startArray(RuleDocument.FIELD_PARAMS);
       for (RuleParamDto param : params) {
@@ -257,6 +269,14 @@ public class RuleRegistry {
       .field(ActiveRuleDocument.FIELD_SEVERITY, rule.getSeverity())
       .field(ActiveRuleDocument.FIELD_PROFILE_ID, rule.getRulesProfile().getId())
       .field(ActiveRuleDocument.FIELD_INHERITANCE, rule.getInheritance());
+    if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
+      document.startObject(RuleDocument.FIELD_NOTE)
+        .field(ActiveRuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
+        .field(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN, rule.getNoteUserLogin())
+        .field(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, rule.getNoteCreatedAt())
+        .field(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, rule.getNoteUpdatedAt())
+        .endObject();
+    }
     if (!rule.getActiveRuleParams().isEmpty()) {
       document.startArray(ActiveRuleDocument.FIELD_PARAMS);
       for (ActiveRuleParam param : rule.getActiveRuleParams()) {

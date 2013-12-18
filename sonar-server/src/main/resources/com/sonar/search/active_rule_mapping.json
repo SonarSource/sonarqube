@@ -23,6 +23,26 @@
         "type": "string",
         "index": "not_analyzed"
       },
+      "note": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "index": "no"
+          },
+          "userLogin": {
+            "type": "string",
+            "index": "no"
+          },
+          "createdAt": {
+            "type": "date",
+            "format": "date_optional_time"
+          },
+          "updatedAt": {
+            "type": "date",
+            "format": "date_optional_time"
+          }
+        }
+      },
       "params": {
         "properties": {
           "key": {

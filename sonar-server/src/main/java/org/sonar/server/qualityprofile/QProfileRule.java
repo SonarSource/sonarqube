@@ -45,11 +45,13 @@ public class QProfileRule {
   private final String parentKey;
   private final Date createdAt;
   private final Date updatedAt;
+  private final QProfileRuleNote ruleNote;
 
   private final int activeRuleId;
   private final String severity;
   private final String inheritance;
-  private final List<Param> params;
+  private final QProfileRuleNote activeRuleNote;
+  private final List<QProfileRuleParam> params;
 
   public QProfileRule(Map<String, Object> ruleSource, Map<String, Object> activeRuleSource) {
 
@@ -64,9 +66,34 @@ public class QProfileRule {
     createdAt = parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource);
     updatedAt = parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource);
 
+    if (ruleSource.containsKey(RuleDocument.FIELD_NOTE)) {
+      Map<String, Object> ruleNoteDocument = (Map<String, Object>) ruleSource.get(RuleDocument.FIELD_NOTE);
+      ruleNote = new QProfileRuleNote(
+        (String) ruleNoteDocument.get(RuleDocument.FIELD_NOTE_DATA),
+        (String) ruleNoteDocument.get(RuleDocument.FIELD_NOTE_USER_LOGIN),
+        parseOptionalDate(RuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
+        parseOptionalDate(RuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
+      );
+    } else {
+      ruleNote = null;
+    }
+
     activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
     severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
     inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
+
+    if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
+      Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
+      activeRuleNote = new QProfileRuleNote(
+        (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
+        (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
+        parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
+        parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
+      );
+    } else {
+      activeRuleNote = null;
+    }
+
     params = Lists.newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_PARAMS)) {
       Map<String, Map<String, Object>> ruleParams = Maps.newHashMap();
@@ -80,7 +107,7 @@ public class QProfileRule {
         }
       }
       for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
-        params.add(new Param(
+        params.add(new QProfileRuleParam(
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
           activeRuleParams.containsKey(ruleParam.getKey()) ? (String) activeRuleParams.get(ruleParam.getKey())
             .get(ActiveRuleDocument.FIELD_PARAM_VALUE) : null,
@@ -163,42 +190,15 @@ public class QProfileRule {
     return parentKey != null;
   }
 
-  public List<Param> params() {
+  public List<QProfileRuleParam> params() {
     return params;
   }
 
-  public String note() {
-    return null;
+  public QProfileRuleNote ruleNote() {
+    return ruleNote;
   }
 
-  static class Param {
-    private final String key;
-    private final String value;
-    private final String description;
-    private final String defaultValue;
-    private final String type;
-    public Param(String key, String value, String description, String defaultValue, String type) {
-      super();
-      this.key = key;
-      this.value = value;
-      this.description = description;
-      this.defaultValue = defaultValue;
-      this.type = type;
-    }
-    public String key() {
-      return key;
-    }
-    public String value() {
-      return value;
-    }
-    public String description() {
-      return description;
-    }
-    public String defaultValue() {
-      return defaultValue;
-    }
-    public String type() {
-      return type;
-    }
+  public QProfileRuleNote activeRuleNote() {
+    return activeRuleNote;
   }
 }

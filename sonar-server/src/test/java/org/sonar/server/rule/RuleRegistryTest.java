@@ -52,7 +52,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -169,6 +171,8 @@ public class RuleRegistryTest {
     rule1.setRepositoryKey("repo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
+    rule1.setNoteData("noteData");
+    rule1.setNoteUserLogin("userLogin");
     long ruleId2 = 4L;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("repo");

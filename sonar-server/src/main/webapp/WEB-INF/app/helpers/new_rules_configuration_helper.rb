@@ -48,7 +48,7 @@ module NewRulesConfigurationHelper
   end
 
   def param_value_input(parameter, value, options = {})
-    type=type_with_compatibility(parameter.param_type)
+    type=type_with_compatibility(parameter.type)
     name = options[:name] || 'value'
     property_input_field name, type, value, 'WIDGET', {:id => parameter.id, :size => options[:size] }.update(options)
   end

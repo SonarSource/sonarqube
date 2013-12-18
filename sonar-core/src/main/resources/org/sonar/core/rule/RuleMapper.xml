@@ -6,7 +6,8 @@
   <sql id="selectColumns">
     id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name, plugin_config_key as "configKey",
     priority as "priorityOrdinal", cardinality, language as "language", parent_id as "parentId",
-    created_at as "createdAt", updated_at as "updatedAt"
+    created_at as "createdAt", updated_at as "updatedAt",
+    note_data as "noteData", note_user_login as "noteUserLogin", note_created_at as "noteCreatedAt", note_updated_at as "noteUpdatedAt"
   </sql>
 
   <select id="selectAll" resultType="Rule">

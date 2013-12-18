@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
 
+import java.util.Date;
 
-public class ActiveRuleDocument {
-
-  public static final String FIELD_ID = "id";
-  public static final String FIELD_SEVERITY = "severity";
-  public static final String FIELD_PROFILE_ID = "profileId";
-  public static final String FIELD_INHERITANCE = "inheritance";
-  public static final String FIELD_PARAMS = "params";
-
-  public static final String FIELD_NOTE = "note";
-  public static final String FIELD_NOTE_DATA = "data";
-  public static final String FIELD_NOTE_USER_LOGIN = "userLogin";
-  public static final String FIELD_NOTE_CREATED_AT = "createdAt";
-  public static final String FIELD_NOTE_UPDATED_AT = "updatedAt";
-
-  public static final String FIELD_PARAM_KEY = "key";
-  public static final String FIELD_PARAM_VALUE = "value";
-
-  private ActiveRuleDocument() {
-    // Only constants
+public class QProfileRuleNote {
+  private final String data;
+  private final String userLogin;
+  private final Date createdAt;
+  private final Date updatedAt;
+  public QProfileRuleNote(String data, String userLogin, Date createdAt, Date updatedAt) {
+    super();
+    this.data = data;
+    this.userLogin = userLogin;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
-
+  public String data() {
+    return data;
+  }
+  public String userLogin() {
+    return userLogin;
+  }
+  public Date createdAt() {
+    return createdAt;
+  }
+  public Date updatedAt() {
+    return updatedAt;
+  }
 }

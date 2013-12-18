@@ -39,6 +39,13 @@ public final class RuleDocument {
   public static final String FIELD_PARAM_TYPE = "type";
   public static final String FIELD_PARAM_DEFAULT_VALUE = "defaultValue";
   public static final String FIELD_PARAM_DESCRIPTION = "description";
+  public static final String FIELD_CARDINALITY = "cardinality";
+
+  public static final String FIELD_NOTE = "note";
+  public static final String FIELD_NOTE_DATA = "data";
+  public static final String FIELD_NOTE_USER_LOGIN = "userLogin";
+  public static final String FIELD_NOTE_CREATED_AT = "createdAt";
+  public static final String FIELD_NOTE_UPDATED_AT = "updatedAt";
 
   private RuleDocument() {
     // Only constants

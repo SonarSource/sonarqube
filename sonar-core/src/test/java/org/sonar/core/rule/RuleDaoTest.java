@@ -53,6 +53,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+    assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
   }
 
   @Test
