@@ -19,13 +19,13 @@ maxItems = widget_properties["maxItems"].to_i
 <script>
   (function () {
     var metrics = [
-          '<%= widget_properties["metric"].name %>'
+          '<%= widget_properties["metric"].name -%>'
         ],
         query = [
-          'filter=<%= filterId %>',
+          'filter=<%= filterId -%>',
           'metrics=' + metrics.join(','),
           'fields=name,qualifier',
-          'pageSize=<%= maxItems %>',
+          'pageSize=<%= maxItems -%>',
           'page=1',
           'sort=metric:' + metrics[0],
           'asc=false'
@@ -39,10 +39,10 @@ maxItems = widget_properties["maxItems"].to_i
       .options({
         baseUrl: baseUrl + '/dashboard/index/'
       })
-      .render('#<%= containerId %>');
+      .render('#<%= containerId -%>');
 
     autoResize(500, function() {
-      widget.update('#<%= containerId %>');
+      widget.update('#<%= containerId -%>');
     });
   })();
 </script>
