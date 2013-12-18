@@ -40,12 +40,14 @@ import static com.google.common.collect.Lists.newArrayList;
 public class ProfileRuleQuery {
 
   private static final String PARAM_PROFILE_ID = "profileId";
+  private static final String PARAM_LANGUAGE = "language";
   private static final String PARAM_NAME_OR_KEY = "nameOrKey";
   private static final String PARAM_REPOSITORY_KEYS = "repositoryKeys";
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
 
   private int profileId;
+  private String language;
   private String nameOrKey;
   private List<String> repositoryKeys;
   private List<String> severities;
@@ -70,6 +72,9 @@ public class ProfileRuleQuery {
       errors.add(BadRequestException.Message.of("profileId could not be parsed"));
     }
 
+    if (params.containsKey(PARAM_LANGUAGE)) {
+      result.setLanguage((String) params.get(PARAM_LANGUAGE));
+    }
     if (params.containsKey(PARAM_NAME_OR_KEY)) {
       result.setNameOrKey((String) params.get(PARAM_NAME_OR_KEY));
     }
@@ -108,6 +113,11 @@ public class ProfileRuleQuery {
     return this;
   }
 
+  public ProfileRuleQuery setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
+
   public ProfileRuleQuery addRepositoryKeys(String... repositoryKeys) {
     this.repositoryKeys.addAll(Arrays.asList(repositoryKeys));
     return this;
@@ -125,6 +135,11 @@ public class ProfileRuleQuery {
 
   public int profileId() {
     return profileId;
+  }
+
+  @CheckForNull
+  public String language() {
+    return language;
   }
 
   @CheckForNull

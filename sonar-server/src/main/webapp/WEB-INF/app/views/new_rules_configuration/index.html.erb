@@ -112,10 +112,10 @@
   <% end %>
   <h2>
      <% if @hidden_actives && @hidden_actives>0 %>
-      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => 'ACTIVE'}) -%>"
         id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
      <% if @hidden_inactives && @hidden_inactives>0 %>
-      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => 'INACTIVE'}) -%>"
         id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
   </h2>
 </div>

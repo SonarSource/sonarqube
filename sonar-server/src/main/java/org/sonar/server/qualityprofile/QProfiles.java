@@ -181,8 +181,8 @@ public class QProfiles implements ServerComponent {
     return rules.countActiveRules(query);
   }
 
-  public void searchInactiveRules(ProfileRuleQuery query, Paging paging) {
-    throw new UnsupportedOperationException();
+  public QProfileRuleResult searchInactiveRules(ProfileRuleQuery query, Paging paging) {
+    return rules.searchInactiveRules(query, paging);
   }
 
   public long countInactiveRules(ProfileRuleQuery query) {

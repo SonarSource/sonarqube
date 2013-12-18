@@ -47,10 +47,10 @@ module NewRulesConfigurationHelper
     ""
   end
 
-  def param_value_input(parameter, value, options = {})
+  def param_value_input(rule, parameter, value, options = {})
     type=type_with_compatibility(parameter.type)
     name = options[:name] || 'value'
-    property_input_field name, type, value, 'WIDGET', {:id => parameter.id, :size => options[:size] }.update(options)
+    property_input_field name, type, value, 'WIDGET', {:id => "#{rule.id}#{parameter.key}", :size => options[:size] }.update(options)
   end
 
   def is_set(type)

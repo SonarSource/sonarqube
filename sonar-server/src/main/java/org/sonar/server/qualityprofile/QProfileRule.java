@@ -47,7 +47,7 @@ public class QProfileRule {
   private final Date updatedAt;
   private final QProfileRuleNote ruleNote;
 
-  private final int activeRuleId;
+  private final Integer activeRuleId;
   private final String severity;
   private final String inheritance;
   private final QProfileRuleNote activeRuleNote;
@@ -78,20 +78,27 @@ public class QProfileRule {
       ruleNote = null;
     }
 
-    activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
-    severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
-    inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
-
-    if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
-      Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
-      activeRuleNote = new QProfileRuleNote(
-        (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
-        (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
-        parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
-        parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
-      );
-    } else {
+    if (activeRuleSource.isEmpty()) {
+      activeRuleId = null;
+      severity = (String) ruleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
+      inheritance = null;
       activeRuleNote = null;
+    } else {
+      activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
+      severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
+      inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
+
+      if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
+        Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
+        activeRuleNote = new QProfileRuleNote(
+          (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
+          (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
+          parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
+          parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
+        );
+      } else {
+        activeRuleNote = null;
+      }
     }
 
     params = Lists.newArrayList();
@@ -119,6 +126,10 @@ public class QProfileRule {
     }
   }
 
+  public QProfileRule(Map<String, Object> ruleSource) {
+    this(ruleSource, Maps.<String, Object> newHashMap());
+  }
+
   private static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
     String dateValue = (String) ruleSource.get(field);
     if (dateValue == null) {
@@ -132,7 +143,8 @@ public class QProfileRule {
     return id;
   }
 
-  public int activeRuleId() {
+  @CheckForNull
+  public Integer activeRuleId() {
     return activeRuleId;
   }
 
@@ -198,6 +210,7 @@ public class QProfileRule {
     return ruleNote;
   }
 
+  @CheckForNull
   public QProfileRuleNote activeRuleNote() {
     return activeRuleNote;
   }

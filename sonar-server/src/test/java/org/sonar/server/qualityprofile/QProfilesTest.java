@@ -42,6 +42,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -262,12 +263,14 @@ public class QProfilesTest {
     assertThat(qProfiles.searchActiveRules(query, paging)).isEqualTo(result);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testSearchInactiveRules() throws Exception {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
-    qProfiles.searchInactiveRules(query, paging);
+    QProfileRuleResult result = mock(QProfileRuleResult.class);
+    when(rules.searchInactiveRules(query, paging)).thenReturn(result);
+    assertThat(qProfiles.searchInactiveRules(query, paging)).isEqualTo(result);
   }
 
 }

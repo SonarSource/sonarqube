@@ -76,7 +76,7 @@ class NewRulesConfigurationController < ApplicationController
           if @activation==STATUS_ACTIVE
             @hidden_inactives = Internal.quality_profiles.countInactiveRules(query)
           else
-            @hidden_actives = Internal.quality_profiles.countInactiveRules(query)
+            @hidden_actives = Internal.quality_profiles.countActiveRules(query)
           end
         end
       end

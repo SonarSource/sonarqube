@@ -91,6 +91,29 @@ public class ProfileRules implements ServerExtension {
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
+  public QProfileRuleResult searchInactiveRules(ProfileRuleQuery query, Paging paging) {
+    BoolFilterBuilder filter = parentRuleFilter(query);
+    addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
+    filter.mustNot(
+      hasChildFilter(TYPE_ACTIVE_RULE,
+        termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
+
+    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+      .setFilter(filter)
+      .addFields(FIELD_SOURCE, FIELD_PARENT)
+      .setSize(paging.pageSize())
+      .setFrom(paging.offset());
+
+    SearchHits hits = index.executeRequest(builder);
+    List<QProfileRule> result = Lists.newArrayList();
+    for (SearchHit hit: hits.getHits()) {
+      result.add(new QProfileRule(hit.sourceAsMap()));
+    }
+
+    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+  }
+
+
   protected BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
     BoolFilterBuilder filter = boolFilter().must(
             termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
@@ -113,8 +136,12 @@ public class ProfileRules implements ServerExtension {
           .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()))))));
   }
 
-  private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {
+  private BoolFilterBuilder parentRuleFilter(ProfileRuleQuery query) {
     BoolFilterBuilder result = boolFilter();
+
+    if (StringUtils.isNotBlank(query.language())) {
+      result.must(termFilter(RuleDocument.FIELD_LANGUAGE, query.language()));
+    }
 
     addMustTermOrTerms(result, RuleDocument.FIELD_REPOSITORY_KEY, query.repositoryKeys());
     if (query.statuses().isEmpty()) {
