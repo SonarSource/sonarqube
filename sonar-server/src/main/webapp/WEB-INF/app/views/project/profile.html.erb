@@ -17,7 +17,7 @@
       <td class="thin" nowrap><%= h language.getName() -%></td>
       <td>
         <form id="form-<%= language.getKey().parameterize -%>" method="POST" action="<%= ApplicationController.root_context -%>/project/set_profile">
-          <input type="hidden" name="id" value="<%= @project.id -%>"/>
+          <input type="hidden" name="id" value="<%= @project_id -%>"/>
           <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
 
           <select id="select-profiles-<%= language.getKey().parameterize -%>" name="profile_id">

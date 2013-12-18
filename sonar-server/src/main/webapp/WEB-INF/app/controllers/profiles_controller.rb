@@ -284,12 +284,7 @@ class ProfilesController < ApplicationController
     verify_post_request
     require_parameters 'id', 'project'
 
-    # Used for Selenium test as it send a project key instead of a project id
-    begin
-      project_id = Integer(params[:project])
-    rescue
-      project_id = Project.first(:conditions => {:kee => params[:project].to_s}).id
-    end
+    project_id = Api::Utils.project_id(params[:project])
     profile_id = params[:id].to_i
 
     call_backend do

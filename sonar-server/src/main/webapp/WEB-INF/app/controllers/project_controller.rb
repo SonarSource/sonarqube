@@ -78,11 +78,11 @@ class ProjectController < ApplicationController
   # GET /project/profile?id=<project id>
   def profile
     require_parameters :id
-    project_id = params[:id]
-    @project = get_current_project(project_id)
-    @snapshot = @project.last_snapshot
+    @project_id = Api::Utils.project_id(params[:id])
+    access_denied unless (is_admin?(@project_id) || has_role?(:profileadmin))
+
     call_backend do
-      @project_quality_profiles = Internal.quality_profiles.profiles(@project.id.to_i).to_a
+      @project_quality_profiles = Internal.quality_profiles.profiles(@project_id.to_i).to_a
       @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
     end
   end

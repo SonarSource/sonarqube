@@ -227,4 +227,14 @@ class Api::Utils
       url
     end
   end
+
+  # Return the project id from an id or a key
+  # Mostly used for Selenium test as it send a project key instead of a project id
+  def self.project_id(project_id_or_key)
+    begin
+      project_id = Integer(project_id_or_key)
+    rescue
+      project_id = Project.first(:conditions => {:kee => project_id_or_key.to_s}).id
+    end
+  end
 end
