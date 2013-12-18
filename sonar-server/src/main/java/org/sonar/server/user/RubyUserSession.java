@@ -27,8 +27,8 @@ public class RubyUserSession {
   /**
    * Invoked by Ruby code - see application_controller.rb
    */
-  public static void setSession(@Nullable Integer userId, @Nullable String login, @Nullable String localeRubyKey) {
-    UserSession session = new UserSession().setLogin(login).setUserId(userId).setLocale(JRubyI18n.toLocale(localeRubyKey));
+  public static void setSession(@Nullable Integer userId, @Nullable String login, @Nullable String name, @Nullable String localeRubyKey) {
+    UserSession session = new UserSession().setLogin(login).setName(name).setUserId(userId).setLocale(JRubyI18n.toLocale(localeRubyKey));
     UserSession.set(session);
   }
 

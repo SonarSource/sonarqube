@@ -85,7 +85,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   public void insert(Collection<RuleDto> rules) {
     SqlSession session = mybatis.openBatchSession();
     try {
-      for (RuleDto rule: rules) {
+      for (RuleDto rule : rules) {
         getMapper(session).insert(rule);
       }
       session.commit();
@@ -106,10 +106,14 @@ public class RuleDao implements BatchComponent, ServerComponent {
   public List<RuleParamDto> selectParameters(Long id) {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectParamsForRule(id);
+      return selectParameters(id, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<RuleParamDto> selectParameters(Long id, SqlSession session) {
+    return getMapper(session).selectParamsForRule(id);
   }
 
   private RuleMapper getMapper(SqlSession session) {

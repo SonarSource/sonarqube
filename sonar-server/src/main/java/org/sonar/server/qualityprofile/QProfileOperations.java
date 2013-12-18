@@ -29,8 +29,10 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
@@ -39,9 +41,14 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
 
 import java.io.StringReader;
 import java.util.List;
@@ -56,30 +63,38 @@ public class QProfileOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
+  private final RuleDao ruleDao;
   private final PropertiesDao propertiesDao;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
 
+  // Should not be used as it still uses Hibernate
+  private final ProfilesManager profilesManager;
+
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
+      profilesManager);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
+                            List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
+                            ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
+    this.ruleDao = ruleDao;
     this.propertiesDao = propertiesDao;
     this.exporters = exporters;
     this.importers = importers;
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
+    this.profilesManager = profilesManager;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -88,18 +103,18 @@ public class QProfileOperations implements ServerComponent {
     NewProfileResult result = new NewProfileResult();
     List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
 
-    SqlSession sqlSession = myBatis.openSession();
+    SqlSession session = myBatis.openSession();
     try {
       QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
-      dao.insert(dto, sqlSession);
+      dao.insert(dto, session);
       for (RulesProfile rulesProfile : importProfiles) {
-        importProfile(dto, rulesProfile, sqlSession);
+        importProfile(dto, rulesProfile, session);
       }
       result.setProfile(QProfile.from(dto));
-      sqlSession.commit();
+      session.commit();
       dryRunCache.reportGlobalModification();
     } finally {
-      MyBatis.closeQuietly(sqlSession);
+      MyBatis.closeQuietly(session);
     }
     return result;
   }
@@ -113,6 +128,69 @@ public class QProfileOperations implements ServerComponent {
   public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
     checkPermission(userSession);
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
+  }
+
+  public void activateRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession) {
+    checkPermission(userSession);
+
+    SqlSession session = myBatis.openSession();
+    try {
+      ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
+      if (activeRule == null) {
+        newActiveRule(qualityProfile, rule, severity, userSession, session);
+      } else {
+        updateSeverity(activeRule, severity, userSession, session);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void newActiveRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession, SqlSession session) {
+    ActiveRuleDto activeRuleDto = new ActiveRuleDto()
+      .setProfileId(qualityProfile.getId())
+      .setRuleId(rule.getId())
+      .setSeverity(Severity.ordinal(severity));
+    activeRuleDao.insert(activeRuleDto, session);
+
+    List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId().longValue(), session);
+    for (RuleParamDto ruleParam : ruleParams) {
+      ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
+        .setActiveRuleId(activeRuleDto.getId())
+        .setRulesParameterId(ruleParam.getId())
+        .setKey(ruleParam.getName())
+        .setValue(ruleParam.getDefaultValue());
+      activeRuleDao.insert(activeRuleParam, session);
+    }
+    session.commit();
+
+    profilesManager.activated(qualityProfile.getId(), activeRuleDto.getId(), userSession.name());
+  }
+
+  private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, SqlSession session) {
+    Integer oldSeverity = activeRule.getSeverity();
+    activeRule.setSeverity(Severity.ordinal(newSeverity));
+    activeRuleDao.update(activeRule, session);
+    session.commit();
+
+    profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(), RulePriority.valueOfInt(oldSeverity), RulePriority.valueOf(newSeverity),
+      userSession.name());
+  }
+
+  public void deactivateRule(QualityProfileDto qualityProfile, Rule rule, UserSession userSession) {
+    checkPermission(userSession);
+
+    SqlSession session = myBatis.openSession();
+    try {
+      ActiveRuleDto activeRule = validate(qualityProfile, rule);
+
+      activeRuleDao.delete(activeRule.getId(), session);
+      activeRuleDao.deleteParameters(activeRule.getId(), session);
+      session.commit();
+      profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
@@ -189,4 +267,16 @@ public class QProfileOperations implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
+  private ActiveRuleDto validate(QualityProfileDto qualityProfile, Rule rule) {
+    ActiveRuleDto activeRuleDto = findActiveRule(qualityProfile, rule);
+    if (activeRuleDto == null) {
+      throw new BadRequestException("No rule has been activated on this profile.");
+    }
+    return activeRuleDto;
+  }
+
+  @CheckForNull
+  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, Rule rule) {
+    return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
+  }
 }

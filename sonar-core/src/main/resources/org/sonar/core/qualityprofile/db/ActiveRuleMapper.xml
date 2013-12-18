@@ -4,27 +4,64 @@
 <mapper namespace="org.sonar.core.qualityprofile.db.ActiveRuleMapper">
 
   <sql id="activeRuleColumns">
-    p.id,
-    p.profile_id as profileId,
-    p.rule_id as ruleId,
-    p.failure_level as severity,
-    p.version as version,
-    p.used_profile as used,
-    p.note_created_at,
-    p.note_updated_at,
-    p.note_user_login,
-    p.note_data
+    a.id,
+    a.profile_id as profileId,
+    a.rule_id as ruleId,
+    a.failure_level as severity,
+    a.inheritance as inheritance,
+    a.note_data as noteData,
+    a.note_user_login as noteUserLogin,
+    a.note_updated_at as noteUpdatedAt,
+    a.note_created_at as noteCreatedAt
   </sql>
+
+  <select id="selectById" parameterType="Integer" resultType="ActiveRule">
+    SELECT <include refid="activeRuleColumns"/>
+    FROM active_rules a
+    <where>
+      AND id=#{id}
+    </where>
+  </select>
+
+  <select id="selectByProfileAndRule" parameterType="map" resultType="ActiveRule">
+    SELECT <include refid="activeRuleColumns"/>
+    FROM active_rules a
+    <where>
+      AND profile_id=#{profileId}
+      AND rule_id=#{ruleId}
+    </where>
+  </select>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, note_created_at, note_updated_at, note_user_login, note_data)
     VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{noteCreatedAt}, #{noteUpdatedAt}, #{noteUserLogin}, #{noteData})
   </insert>
 
+  <update id="update" parameterType="ActiveRule">
+    UPDATE active_rules SET
+    profile_id=#{profileId},
+    rule_id=#{ruleId},
+    failure_level=#{severity},
+    inheritance=#{inheritance},
+    note_created_at=#{noteCreatedAt},
+    note_updated_at=#{noteUpdatedAt},
+    note_user_login=#{noteUserLogin},
+    note_data=#{noteData}
+    WHERE id=#{id}
+  </update>
+
   <insert id="insertParameter" parameterType="ActiveRuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rule_parameters (active_rule_id, rules_parameter_id, value)
-    VALUES (#{activeRuleId}, #{rulesParameterId}, #{value})
+    INSERT INTO active_rule_parameters (active_rule_id, rules_parameter_id, rules_parameter_key, value)
+    VALUES (#{activeRuleId}, #{rulesParameterId}, #{key}, #{value})
   </insert>
+
+  <update id="delete" parameterType="Integer">
+    DELETE FROM active_rules WHERE id=#{id}
+  </update>
+
+  <update id="deleteParameters" parameterType="Integer">
+    DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
+  </update>
 
 </mapper>
 

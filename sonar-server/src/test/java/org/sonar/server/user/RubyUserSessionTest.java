@@ -28,12 +28,13 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RubyUserSessionTest {
   @Test
   public void should_set_session() throws Exception {
-    RubyUserSession.setSession(123, "karadoc", "fr");
+    RubyUserSession.setSession(123, "karadoc", "Karadoc", "fr");
 
     UserSession session = UserSession.get();
 
     assertThat(session).isNotNull();
     assertThat(session.login()).isEqualTo("karadoc");
+    assertThat(session.name()).isEqualTo("Karadoc");
     assertThat(session.userId()).isEqualTo(123);
     assertThat(session.isLoggedIn()).isTrue();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);
@@ -41,12 +42,13 @@ public class RubyUserSessionTest {
 
   @Test
   public void should_set_anonymous_session() throws Exception {
-    RubyUserSession.setSession(null, null, "fr");
+    RubyUserSession.setSession(null, null, null, "fr");
 
     UserSession session = UserSession.get();
 
     assertThat(session).isNotNull();
     assertThat(session.login()).isNull();
+    assertThat(session.name()).isNull();
     assertThat(session.userId()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);

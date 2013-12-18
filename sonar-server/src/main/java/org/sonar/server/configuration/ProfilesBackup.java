@@ -19,8 +19,6 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.core.preview.PreviewCache;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -33,19 +31,11 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.*;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProfilesBackup implements Backupable {
 
@@ -244,7 +234,7 @@ public class ProfilesBackup implements Backupable {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
-              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get(KEY), null, null),
+              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get(KEY), null, null), valuesParam.get(KEY),
                 valuesParam.get(VALUE));
               params.add(activeRuleParam);
               reader.moveUp();

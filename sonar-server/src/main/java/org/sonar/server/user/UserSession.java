@@ -32,6 +32,7 @@ import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +53,7 @@ public class UserSession {
 
   private Integer userId;
   private String login;
+  private String name;
   private Locale locale = Locale.ENGLISH;
   List<String> globalPermissions = null;
 
@@ -68,6 +70,16 @@ public class UserSession {
 
   UserSession setLogin(@Nullable String s) {
     this.login = Strings.emptyToNull(s);
+    return this;
+  }
+
+  @CheckForNull
+  public String name() {
+    return name;
+  }
+
+  UserSession setName(@Nullable String s) {
+    this.name = Strings.emptyToNull(s);
     return this;
   }
 

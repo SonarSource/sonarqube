@@ -33,47 +33,53 @@ public class RuleParamDto {
     return id;
   }
 
-  public void setId(int id) {
+  public RuleParamDto setId(int id) {
     this.id = id;
+    return this;
   }
 
   public Long getRuleId() {
     return ruleId;
   }
 
-  public void setRuleId(Long ruleId) {
+  public RuleParamDto setRuleId(Long ruleId) {
     this.ruleId = ruleId;
+    return this;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public RuleParamDto setName(String name) {
     this.name = name;
+    return this;
   }
 
   public String getType() {
     return type;
   }
 
-  public void setType(String type) {
+  public RuleParamDto setType(String type) {
     this.type = type;
+    return this;
   }
 
   public String getDefaultValue() {
     return defaultValue;
   }
 
-  public void setDefaultValue(String defaultValue) {
+  public RuleParamDto setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+    return this;
   }
 
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
+  public RuleParamDto setDescription(String description) {
     this.description = description;
+    return this;
   }
 }

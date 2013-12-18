@@ -83,31 +83,35 @@ public class ActiveRuleDto {
     return noteCreatedAt;
   }
 
-  public void setNoteCreatedAt(Date noteCreatedAt) {
+  public ActiveRuleDto setNoteCreatedAt(Date noteCreatedAt) {
     this.noteCreatedAt = noteCreatedAt;
+    return this;
   }
 
   public Date getNoteUpdatedAt() {
     return noteUpdatedAt;
   }
 
-  public void setNoteUpdatedAt(Date noteUpdatedAt) {
+  public ActiveRuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
+    return this;
   }
 
   public String getNoteUserLogin() {
     return noteUserLogin;
   }
 
-  public void setNoteUserLogin(String noteUserLogin) {
+  public ActiveRuleDto setNoteUserLogin(String noteUserLogin) {
     this.noteUserLogin = noteUserLogin;
+    return this;
   }
 
   public String getNoteData() {
     return noteData;
   }
 
-  public void setNoteData(String noteData) {
+  public ActiveRuleDto setNoteData(String noteData) {
     this.noteData = noteData;
+    return this;
   }
 }

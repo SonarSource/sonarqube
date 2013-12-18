@@ -126,6 +126,7 @@ public class ProfilesManager extends BaseDao {
     dryRunCache.reportGlobalModification();
   }
 
+
   /**
    * Rule was activated
    */

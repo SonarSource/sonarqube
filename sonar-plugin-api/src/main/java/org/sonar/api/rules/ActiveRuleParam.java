@@ -19,14 +19,7 @@
  */
 package org.sonar.api.rules;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "active_rule_parameters")
@@ -44,6 +37,9 @@ public class ActiveRuleParam implements Cloneable {
   @ManyToOne(fetch = FetchType.LAZY, optional = true)
   @JoinColumn(name = "rules_parameter_id")
   private RuleParam ruleParam;
+
+  @Column(name = "rules_parameter_key", updatable = false, nullable = false, length = 128)
+  private String paramKey;
 
   @Column(name = "value", updatable = false, nullable = true, length = 4000)
   private String value;
@@ -71,10 +67,11 @@ public class ActiveRuleParam implements Cloneable {
    * @deprecated visibility should be decreased to protected or package
    */
   @Deprecated
-  public ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String value) {
+  public ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String paramKey, String value) {
     this.activeRule = activeRule;
     this.ruleParam = ruleParam;
     this.value = value;
+    this.paramKey = paramKey;
   }
 
   public ActiveRule getActiveRule() {
@@ -109,6 +106,15 @@ public class ActiveRuleParam implements Cloneable {
     this.value = value;
   }
 
+  public String getParamKey() {
+    return paramKey;
+  }
+
+  public void setParamKey(String paramKey) {
+    this.paramKey = paramKey;
+  }
+
+
   public String getKey() {
     return ruleParam.getKey();
   }
@@ -132,7 +138,7 @@ public class ActiveRuleParam implements Cloneable {
 
   @Override
   public Object clone() {
-    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getValue());
+    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getParamKey(), getValue());
   }
 
 }

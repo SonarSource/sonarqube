@@ -20,10 +20,26 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.apache.ibatis.annotations.Param;
+
+import javax.annotation.CheckForNull;
+
 public interface ActiveRuleMapper {
+
+  @CheckForNull
+  ActiveRuleDto selectById(Integer id);
+
+  @CheckForNull
+  ActiveRuleDto selectByProfileAndRule(@Param("profileId") Integer profileId, @Param("ruleId") Integer ruleId);
 
   void insert(ActiveRuleDto dto);
 
+  void update(ActiveRuleDto dto);
+
   void insertParameter(ActiveRuleParamDto dto);
+
+  void delete(Integer activeRuleId);
+
+  void deleteParameters(Integer activeRuleId);
 
 }

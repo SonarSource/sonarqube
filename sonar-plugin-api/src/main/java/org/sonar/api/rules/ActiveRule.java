@@ -208,7 +208,7 @@ public class ActiveRule implements Cloneable {
   public ActiveRule setParameter(String key, String value) {
     RuleParam ruleParameter = rule.getParam(key);
     if (ruleParameter != null) {
-      activeRuleParams.add(new ActiveRuleParam(this, ruleParameter, value));
+      activeRuleParams.add(new ActiveRuleParam(this, ruleParameter, key, value));
     }
     return this;
   }

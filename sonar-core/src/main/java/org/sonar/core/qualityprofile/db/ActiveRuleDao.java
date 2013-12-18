@@ -32,6 +32,28 @@ public class ActiveRuleDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public ActiveRuleDto selectById(Integer id) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ActiveRuleMapper.class).selectById(id);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public ActiveRuleDto selectByProfileAndRule(Integer profileId, Integer ruleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByProfileAndRule(profileId, ruleId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public ActiveRuleDto selectByProfileAndRule(Integer profileId, Integer ruleId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectByProfileAndRule(profileId, ruleId);
+  }
+
   public void insert(ActiveRuleDto dto, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).insert(dto);
   }
@@ -46,6 +68,20 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
+  public void update(ActiveRuleDto dto, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).update(dto);
+  }
+
+  public void update(ActiveRuleDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      update(dto, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void insert(ActiveRuleParamDto dto, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).insertParameter(dto);
   }
@@ -54,6 +90,34 @@ public class ActiveRuleDao implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       insert(dto, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void delete(Integer activeRuleId, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).delete(activeRuleId);
+  }
+
+  public void delete(Integer activeRuleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      delete(activeRuleId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteParameters(Integer activeRuleIdo, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).deleteParameters(activeRuleIdo);
+  }
+
+  public void deleteParameters(Integer activeRuleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteParameters(activeRuleId, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

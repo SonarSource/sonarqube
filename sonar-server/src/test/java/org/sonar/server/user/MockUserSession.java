@@ -56,6 +56,11 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
+  public MockUserSession setName(@Nullable String name) {
+    super.setName(name);
+    return this;
+  }
+
   public MockUserSession setUserId(@Nullable Integer userId) {
     super.setUserId(userId);
     return this;

@@ -35,7 +35,6 @@ public enum RulePriority {
 
   private static final String UNKNOWN_PRIORITY = "Unknown priority ";
 
-
   /**
    * A class to map priority level prior to Sonar 1.10 to the new ones
    *
@@ -77,5 +76,9 @@ public enum RulePriority {
       return RulePriority.INFO;
     }
     throw new IllegalArgumentException(UNKNOWN_PRIORITY + checkPriority);
+  }
+
+  public static RulePriority valueOfInt(int ordinal) {
+    return RulePriority.values()[ordinal];
   }
 }

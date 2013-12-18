@@ -10,6 +10,6 @@
   <rules_profiles id="2" version="1" used_profile="true" name="child" language="java" parent_name="parent" />
 
   <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
-  <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="30"/>
+  <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" rules_parameter_key="param1" value="30"/>
 
 </dataset>
