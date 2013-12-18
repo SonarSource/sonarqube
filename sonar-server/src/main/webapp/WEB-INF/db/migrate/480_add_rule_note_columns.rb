@@ -28,12 +28,12 @@ class AddRuleNoteColumns < ActiveRecord::Migration
     add_column 'rules',          :note_created_at,   :datetime,   :null => true
     add_column 'rules',          :note_updated_at,   :datetime,   :null => true
     add_column 'rules',          :note_user_login,   :string,     :null => true, :limit => 40
-    add_column 'rules',          :note_data,         :binary,     :null => true
+    add_column 'rules',          :note_data,         :text,       :null => true
 
     add_column 'active_rules',   :note_created_at,   :datetime,   :null => true
     add_column 'active_rules',   :note_updated_at,   :datetime,   :null => true
     add_column 'active_rules',   :note_user_login,   :string,     :null => true, :limit => 40
-    add_column 'active_rules',   :note_data,         :binary,     :null => true
+    add_column 'active_rules',   :note_data,         :text,       :null => true
   end
 
 end
