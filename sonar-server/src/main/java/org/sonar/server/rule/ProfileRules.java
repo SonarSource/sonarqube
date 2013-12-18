@@ -23,11 +23,14 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.rules.Rule;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
@@ -111,14 +114,14 @@ public class ProfileRules implements ServerExtension {
   }
 
   private FilterBuilder parentRuleFilter(ProfileRuleQuery query) {
-    if (! query.hasParentRuleCriteria()) {
-      return FilterBuilders.matchAllFilter();
-    }
-
     BoolFilterBuilder result = boolFilter();
 
     addMustTermOrTerms(result, RuleDocument.FIELD_REPOSITORY_KEY, query.repositoryKeys());
-    addMustTermOrTerms(result, RuleDocument.FIELD_STATUS, query.statuses());
+    if (query.statuses().isEmpty()) {
+      result.mustNot(termFilter(RuleDocument.FIELD_STATUS, Rule.STATUS_REMOVED));
+    } else {
+      addMustTermOrTerms(result, RuleDocument.FIELD_STATUS, query.statuses());
+    }
 
     if (StringUtils.isNotBlank(query.nameOrKey())) {
       result.must(

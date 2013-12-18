@@ -36,7 +36,6 @@ public class ProfileRuleQueryTest {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     assertThat(query.profileId()).isEqualTo(profileId);
-    assertThat(query.hasParentRuleCriteria()).isFalse();
   }
 
   @Test
@@ -45,7 +44,6 @@ public class ProfileRuleQueryTest {
     Map<String, Object> params = ImmutableMap.of("profileId", (Object) Integer.toString(profileId));
     ProfileRuleQuery query = ProfileRuleQuery.parse(params);
     assertThat(query.profileId()).isEqualTo(profileId);
-    assertThat(query.hasParentRuleCriteria()).isFalse();
   }
 
   @Test

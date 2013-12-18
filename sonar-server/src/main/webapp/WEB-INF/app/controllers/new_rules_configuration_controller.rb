@@ -53,8 +53,8 @@ class NewRulesConfigurationController < ApplicationController
       stop_watch = Internal.profiling.start("rules", "BASIC")
 
       criteria = {
-      "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities.to_java, "inheritance" => @inheritance, "statuses" => @status.to_java,
-      "repositoryKeys" => @repositories.to_java, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
+      "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
+      "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
 
       @rules = []
       @pagination = Api::Pagination.new(params)

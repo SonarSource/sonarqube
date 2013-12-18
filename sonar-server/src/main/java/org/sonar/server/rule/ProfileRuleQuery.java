@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
@@ -71,7 +70,6 @@ public class ProfileRuleQuery {
       errors.add(BadRequestException.Message.of("profileId could not be parsed"));
     }
 
-
     if (params.containsKey(PARAM_NAME_OR_KEY)) {
       result.setNameOrKey((String) params.get(PARAM_NAME_OR_KEY));
     }
@@ -92,7 +90,7 @@ public class ProfileRuleQuery {
   }
 
   private static void validatePresenceOf(Map<String, Object> params, List<BadRequestException.Message> errors, String... paramNames) {
-    for (String param: paramNames) {
+    for (String param : paramNames) {
       if (params.get(param) == null) {
         errors.add(BadRequestException.Message.of("Missing parameter " + param));
       }
@@ -146,20 +144,13 @@ public class ProfileRuleQuery {
     return ImmutableList.copyOf(statuses);
   }
 
-  public boolean hasParentRuleCriteria() {
-    return !(
-      StringUtils.isEmpty(nameOrKey)
-      && repositoryKeys.isEmpty()
-      && statuses.isEmpty()
-    );
-  }
-
   private static String[] optionalVarargs(Object jRubyArray) {
     List<String> items = RubyUtils.toStrings(jRubyArray);
     String[] empty = new String[0];
     if (items == null) {
       return empty;
     } else {
+      items.remove("");
       return items.toArray(empty);
     }
   }
