@@ -49,42 +49,38 @@ class NewRulesConfigurationController < ApplicationController
                       [message('rules.status.ready'), Rule::STATUS_READY]]
     @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
 
-    begin
-      stop_watch = Internal.profiling.start("rules", "BASIC")
+    stop_watch = Internal.profiling.start("rules", "BASIC")
 
-      criteria = {
-      "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
-      "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
+    criteria = {
+    "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
+    "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
 
-      @rules = []
-      @pagination = Api::Pagination.new(params)
+    @rules = []
+    @pagination = Api::Pagination.new(params)
 
-      call_backend do
-        query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
-        paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
+    call_backend do
+      query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+      paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
-        if @activation==STATUS_ACTIVE
-          result = Internal.quality_profiles.searchActiveRules(query, paging)
-        else
-          result = Internal.quality_profiles.searchInactiveRules(query, paging)
-        end
-
-        @rules = result.rules
-        @pagination.count = result.paging.total
-
-        unless @searchtext.blank?
-          if @activation==STATUS_ACTIVE
-            @hidden_inactives = Internal.quality_profiles.countInactiveRules(query)
-          else
-            @hidden_actives = Internal.quality_profiles.countActiveRules(query)
-          end
-        end
+      if @activation==STATUS_ACTIVE
+        result = Internal.quality_profiles.searchActiveRules(query, paging)
+      else
+        result = Internal.quality_profiles.searchInactiveRules(query, paging)
       end
 
-      stop_watch.stop("found #{@rules.size} rules with criteria #{criteria.to_json}")
-    rescue
-      @rules = []
+      @rules = result.rules
+      @pagination.count = result.paging.total
+
+      unless @searchtext.blank?
+        if @activation==STATUS_ACTIVE
+          @hidden_inactives = Internal.quality_profiles.countInactiveRules(query)
+        else
+          @hidden_actives = Internal.quality_profiles.countActiveRules(query)
+        end
+      end
     end
+
+    stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
 
     @current_rules = @rules
   end

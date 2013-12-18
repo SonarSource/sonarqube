@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
-import org.joda.time.format.ISODateTimeFormat;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.check.Cardinality;
 import org.sonar.server.rule.ActiveRuleDocument;

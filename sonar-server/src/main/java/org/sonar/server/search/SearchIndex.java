@@ -26,8 +26,12 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.action.count.CountRequestBuilder;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -50,6 +54,7 @@ import org.sonar.core.profiling.StopWatch;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -213,17 +218,34 @@ public class SearchIndex {
     try {
       return builder.execute().actionGet().getHits();
     } finally {
-      watch.stop("Request executed: %s", builderToString(builder));
+      SearchRequest request = builder.request();
+      watch.stop("Executed search on ind(ex|ices) '%s' and type(s) '%s' with request: %s",
+        Arrays.toString(request.indices()), Arrays.toString(request.types()), builderToString(builder));
     }
+  }
+
+  public MultiGetItemResponse[] executeMultiGet(MultiGetRequestBuilder builder) {
+    StopWatch watch = createWatch();
+    MultiGetItemResponse[] result = null;
+    try {
+      result = builder.execute().actionGet().getResponses();
+    } finally {
+      watch.stop("Got %d documents by multiget", result == null ? 0 : result.length);
+    }
+    return result;
   }
 
   public long executeCount(CountRequestBuilder builder) {
     StopWatch watch = createWatch();
+    long count = 0;
     try {
-      return builder.execute().actionGet().getCount();
+      count = builder.execute().actionGet().getCount();
     } finally {
-      watch.stop("Count executed: %s", builder.toString());
+      CountRequest request = builder.request();
+      watch.stop("Counted %d documents on ind(ex|ices) '%s'",
+        count, Arrays.toString(request.indices()));
     }
+    return count;
   }
 
   private String builderToString(SearchRequestBuilder builder) {

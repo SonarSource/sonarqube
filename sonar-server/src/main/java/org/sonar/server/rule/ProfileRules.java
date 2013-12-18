@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -80,8 +81,8 @@ public class ProfileRules implements ServerExtension {
     }
 
     if (hitCounter > 0) {
-      MultiGetItemResponse[] responses = index.client().prepareMultiGet().add(INDEX_RULES, TYPE_RULE, parentIds)
-        .execute().actionGet().getResponses();
+      MultiGetRequestBuilder getParentRules = index.client().prepareMultiGet().add(INDEX_RULES, TYPE_RULE, parentIds);
+      MultiGetItemResponse[] responses = index.executeMultiGet(getParentRules);
 
       for (int i = 0; i < hitCounter; i ++) {
         result.add(new QProfileRule(responses[i].getResponse().getSourceAsMap(), activeRuleSources.get(i)));
