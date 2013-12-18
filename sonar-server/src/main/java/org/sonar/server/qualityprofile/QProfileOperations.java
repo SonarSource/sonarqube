@@ -130,23 +130,24 @@ public class QProfileOperations implements ServerComponent {
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
   }
 
-  public void activateRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession) {
+  public RuleActivationResult activateRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
       if (activeRule == null) {
-        newActiveRule(qualityProfile, rule, severity, userSession, session);
+        activeRule = newActiveRule(qualityProfile, rule, severity, userSession, session);
       } else {
         updateSeverity(activeRule, severity, userSession, session);
       }
+      return new RuleActivationResult(QProfile.from(qualityProfile), rule, activeRule);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void newActiveRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession, SqlSession session) {
+  private ActiveRuleDto newActiveRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession, SqlSession session) {
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileId(qualityProfile.getId())
       .setRuleId(rule.getId())
@@ -165,6 +166,7 @@ public class QProfileOperations implements ServerComponent {
     session.commit();
 
     profilesManager.activated(qualityProfile.getId(), activeRuleDto.getId(), userSession.name());
+    return activeRuleDto;
   }
 
   private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, SqlSession session) {
@@ -177,17 +179,19 @@ public class QProfileOperations implements ServerComponent {
       userSession.name());
   }
 
-  public void deactivateRule(QualityProfileDto qualityProfile, Rule rule, UserSession userSession) {
+  public RuleActivationResult deactivateRule(QualityProfileDto qualityProfile, Rule rule, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = validate(qualityProfile, rule);
+      profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
 
       activeRuleDao.delete(activeRule.getId(), session);
       activeRuleDao.deleteParameters(activeRule.getId(), session);
       session.commit();
-      profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+
+      return new RuleActivationResult(QProfile.from(qualityProfile), rule, null);
     } finally {
       MyBatis.closeQuietly(session);
     }

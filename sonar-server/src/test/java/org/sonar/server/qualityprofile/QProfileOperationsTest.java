@@ -240,7 +240,10 @@ public class QProfileOperationsTest {
     rule.setId(10);
     when(ruleDao.selectParameters(eq(10L), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
 
-    operations.activateRule(qualityProfile, rule, Severity.CRITICAL, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    RuleActivationResult result = operations.activateRule(qualityProfile, rule, Severity.CRITICAL, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    assertThat(result.profile()).isNotNull();
+    assertThat(result.rule()).isNotNull();
+    assertThat(result.activeRule()).isNotNull();
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
@@ -264,7 +267,10 @@ public class QProfileOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
 
-    operations.activateRule(qualityProfile, rule, Severity.MAJOR, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    RuleActivationResult result = operations.activateRule(qualityProfile, rule, Severity.MAJOR, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    assertThat(result.profile()).isNotNull();
+    assertThat(result.rule()).isNotNull();
+    assertThat(result.activeRule()).isNotNull();
 
     verify(activeRuleDao).update(eq(activeRule), eq(session));
 
@@ -280,7 +286,10 @@ public class QProfileOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
 
-    operations.deactivateRule(qualityProfile, rule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    RuleActivationResult result = operations.deactivateRule(qualityProfile, rule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    assertThat(result.profile()).isNotNull();
+    assertThat(result.rule()).isNotNull();
+    assertThat(result.activeRule()).isNull();
 
     verify(activeRuleDao).delete(eq(5), eq(session));
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));

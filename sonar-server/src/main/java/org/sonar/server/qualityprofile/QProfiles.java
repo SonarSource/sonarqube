@@ -193,16 +193,16 @@ public class QProfiles implements ServerComponent {
     return rules.countInactiveRules(query);
   }
 
-  public void activateRule(int profileId, int ruleId, String severity) {
+  public RuleActivationResult activateRule(int profileId, int ruleId, String severity) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     Rule rule = findRuleNotNull(ruleId);
-    operations.activateRule(qualityProfile, rule, severity, UserSession.get());
+    return operations.activateRule(qualityProfile, rule, severity, UserSession.get());
   }
 
-  public void deactivateRule(int profileId, int ruleId) {
+  public RuleActivationResult deactivateRule(int profileId, int ruleId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     Rule rule = findRuleNotNull(ruleId);
-    operations.deactivateRule(qualityProfile, rule, UserSession.get());
+    return operations.deactivateRule(qualityProfile, rule, UserSession.get());
   }
 
   //
