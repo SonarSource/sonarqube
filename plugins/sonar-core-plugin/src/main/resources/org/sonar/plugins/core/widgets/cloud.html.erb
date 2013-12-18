@@ -1,10 +1,54 @@
+<%
+containerId = 'pie-chart-widget' + widget.id.to_s
+chartTitle = widget_properties["chartTitle"]
+filterId = widget_properties["filter"].to_i
+maxItems = widget_properties["maxItems"].to_i
+%>
+
+<div class="histogram-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+  <h3 style="text-align: center;"><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
 <script>
-  var filterId = <%= widget_properties['filter'].to_s %>;
-  var chartTitle = <%= widget_properties['chartTitle'].to_s %>;
-  var chartHeight = <%= widget_properties['chartHeight'].to_i %>;
-  var colorMetric = <%= widget_properties['colorMetric'].key.to_s %>;
-  var sizeMetric = <%= widget_properties['sizeMetric'].key.to_s %>;
-  var maxItems = <%= widget_properties['maxItems'].to_i %>;
+  (function () {
+    var metrics = [
+          '<%= widget_properties["colorMetric"].name -%>',
+          '<%= widget_properties["sizeMetric"].name -%>'
+        ],
+        query = [
+          'filter=<%= filterId -%>',
+          'metrics=' + metrics.join(','),
+          'fields=name,qualifier',
+          'pageSize=<%= maxItems -%>',
+          'page=1',
+          'sort=metric:' + metrics[0],
+          'asc=false'
+        ].join('&'),
+        widget = new SonarWidgets.Widget();
+
+    widget
+      .type('WordCloud')
+      .source(baseUrl + '/measures/search_filter?' + query)
+      .metricsPriority(metrics)
+      .options({
+        baseUrl: baseUrl + '/dashboard/index/'
+      })
+      .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
 </script>
+<!--<![endif]-->
+
+
 
 
