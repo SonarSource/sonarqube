@@ -65,7 +65,7 @@ public final class FileHashSensor implements Sensor {
     }
     if (!map.isEmpty()) {
       String data = KeyValueFormat.format(map);
-      componentDataCache.setStringData(project.getKey(), SnapshotDataTypes.FILE_HASHES, data);
+      componentDataCache.setStringData(project.key(), SnapshotDataTypes.FILE_HASHES, data);
     }
   }
 

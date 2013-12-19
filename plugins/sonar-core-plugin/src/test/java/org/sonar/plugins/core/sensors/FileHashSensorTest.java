@@ -27,8 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -36,7 +36,10 @@ import org.sonar.core.source.SnapshotDataTypes;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class FileHashSensorTest {
 
@@ -56,12 +59,27 @@ public class FileHashSensorTest {
     when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
       DefaultInputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
       DefaultInputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
-    ));
+      ));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);
 
     verify(componentDataCache).setStringData("struts", SnapshotDataTypes.FILE_HASHES, "src/Foo.java=ABC;src/Bar.java=DEF");
+    verifyZeroInteractions(sensorContext);
+  }
+
+  @Test
+  public void store_file_hashes_for_branches() throws Exception {
+    project = new Project("struts", "branch-2.x", "Struts 2.x");
+    when(fileCache.byModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
+      DefaultInputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
+      DefaultInputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
+      ));
+
+    SensorContext sensorContext = mock(SensorContext.class);
+    sensor.analyse(project, sensorContext);
+
+    verify(componentDataCache).setStringData("struts:branch-2.x", SnapshotDataTypes.FILE_HASHES, "src/Foo.java=ABC;src/Bar.java=DEF");
     verifyZeroInteractions(sensorContext);
   }
 

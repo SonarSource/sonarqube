@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.internal.InputFile;
@@ -60,13 +59,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   private AnalysisMode analysisMode;
   private boolean dirsChanged = false;
 
-  public DefaultModuleFileSystem(ProjectDefinition module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
-    this(module.getKey(), settings, index, initializer, analysisMode);
-  }
-
-  @VisibleForTesting
-  DefaultModuleFileSystem(String moduleKey, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
-    this.moduleKey = moduleKey;
+  public DefaultModuleFileSystem(Project module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
+    this.moduleKey = module.getKey();
     this.settings = settings;
     this.index = index;
     this.analysisMode = analysisMode;
