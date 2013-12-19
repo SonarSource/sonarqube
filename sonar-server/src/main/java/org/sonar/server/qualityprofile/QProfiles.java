@@ -74,7 +74,6 @@ public class QProfiles implements ServerComponent {
   // export profile from profile id
   // export profile from profile id and plugin key
   // restore profile
-  // profiles comparison
   //
   // INHERITANCE
   // get inheritance of profile id
