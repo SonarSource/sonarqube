@@ -16,6 +16,8 @@
   <!--[if (gte IE 9)|!(IE)]><!-->
   <% if chartTitle %>
   <h3 style="text-align: center;"><%= h(chartTitle) -%></h3>
+  <% else %>
+  <h3 style="text-align: center;"><%= h widget_properties["metric"].short_name -%></h3>
   <% end %>
   <!--<![endif]-->
 </div>
@@ -43,8 +45,8 @@
       .metricsPriority(metrics)
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
-        maxItems: <%= maxItems -%>,
-        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached") -%>'
+        displayWorstBestValues: <%= displayWorstBestValues -%>,
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>'
       })
       .render('#<%= containerId -%>');
 

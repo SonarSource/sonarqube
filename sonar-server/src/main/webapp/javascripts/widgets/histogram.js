@@ -126,7 +126,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Show maxResultsReached message
-    this.maxResultsReached(this.options().maxItems === this.components().length);
     if (this.maxResultsReached()) {
       this.maxResultsReachedLabel = this.gWrap.append('text')
           .classed('max-results-reached', true)
@@ -170,9 +169,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update scales
-    var xDomain = d3.extent(this.components(), function(d) {
-      return widget.getMainMetric(d);
-    });
+    var xDomain;
+    if (this.options().displayWorstBestValues) {
+      var metric = this.metrics()[this.mainMetric];
+      xDomain = [metric.worstValue, metric.bestValue];
+    } else {
+      xDomain = d3.extent(this.components(), function(d) {
+        return widget.getMainMetric(d);
+      });
+    }
     this.x
         .domain(xDomain)
         .range([this.availableWidth / 8, this.availableWidth]);
@@ -245,7 +250,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Show maxResultsReached message
     if (this.maxResultsReached()) {
       this.maxResultsReachedLabel
-          .attr('transform', trans(this.legendWidth(), this.height() - this.margin().bottom));
+          .attr('transform', trans(this.legendWidth(), this.height() - this.margin().bottom - 3));
     }
   };
 
