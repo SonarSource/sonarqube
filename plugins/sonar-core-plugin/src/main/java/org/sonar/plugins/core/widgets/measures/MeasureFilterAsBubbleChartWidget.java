@@ -30,16 +30,19 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
+  @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "300"),
   @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
-  @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "40"),
-  @WidgetProperty(key = "reverseOrder", type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
-  @WidgetProperty(key = "displayWorstBestValues", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
+  @WidgetProperty(key = "xMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "yMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "xLogarithmic", type = WidgetPropertyType.BOOLEAN),
+  @WidgetProperty(key = "yLogarithmic", type = WidgetPropertyType.BOOLEAN),
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER)
 })
-public class MeasureFilterAsHistogramWidget extends CoreWidget {
+public class MeasureFilterAsBubbleChartWidget extends CoreWidget {
 
-  public MeasureFilterAsHistogramWidget() {
-    super("measure_filter_histogram", "Measure Filter as Histogram", "/org/sonar/plugins/core/widgets/measures/measure_filter_histogram.html.erb");
+  public MeasureFilterAsBubbleChartWidget() {
+    super("measure_filter_bubble_chart", "Measure Filter as Bubble Chart", "/org/sonar/plugins/core/widgets/measures/measure_filter_bubble_chart.html.erb");
   }
 
 }

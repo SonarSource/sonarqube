@@ -26,7 +26,7 @@ import org.sonar.plugins.core.widgets.WidgetConstants;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-@WidgetCategory("Global")
+@WidgetCategory({"Filters", "Global"})
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
