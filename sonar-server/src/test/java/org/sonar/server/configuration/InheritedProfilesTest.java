@@ -19,12 +19,14 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.qualityprofile.RuleInheritanceActions;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -79,15 +81,28 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldDeactivateInChildren() {
     setupData("shouldDeactivateInChildren");
-    profilesManager.deactivated(1, 1, "admin");
+    RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
     checkTables("shouldDeactivateInChildren", "active_rules", "rules_profiles");
+    assertThat(actions.idsToIndex()).containsOnly(1);
+    assertThat(actions.idsToDelete()).containsOnly(2);
+  }
+
+  @Test
+  public void shouldNotDeactivateOverridingChildren() {
+    setupData("shouldNotDeactivateOverridingChildren");
+    RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
+    checkTables("shouldNotDeactivateOverridingChildren", "active_rules", "rules_profiles");
+    assertThat(actions.idsToIndex()).containsOnly(1, 2);
+    assertThat(actions.idsToDelete()).isEmpty();
   }
 
   @Test
   public void shouldActivateInChildren() {
     setupData("shouldActivateInChildren");
-    profilesManager.activated(1, 1, "admin");
+    RuleInheritanceActions actions = profilesManager.activated(1, 1, "admin");
     checkTables("shouldActivateInChildren", "active_rules", "rules_profiles", "active_rule_parameters");
+    assertThat(actions.idsToIndex()).containsOnly(1, 2);
+    assertThat(actions.idsToDelete()).isEmpty();
   }
 
 }

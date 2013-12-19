@@ -29,6 +29,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
+import org.sonar.server.qualityprofile.RuleInheritanceActions;
 
 import java.util.List;
 
@@ -130,12 +131,12 @@ public class ProfilesManager extends BaseDao {
   /**
    * Rule was activated
    */
-  public void activated(int profileId, int activeRuleId, String userName) {
+  public RuleInheritanceActions activated(int profileId, int activeRuleId, String userName) {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ruleEnabled(profile, activeRule, userName);
     // Notify child profiles
-    activatedOrChanged(profileId, activeRuleId, userName);
+    return activatedOrChanged(profileId, activeRuleId, userName);
   }
 
   /**
@@ -167,31 +168,37 @@ public class ProfilesManager extends BaseDao {
   /**
    * Rule was activated/changed in parent profile.
    */
-  private void activatedOrChanged(int parentProfileId, int activeRuleId, String userName) {
+  private RuleInheritanceActions activatedOrChanged(int parentProfileId, int activeRuleId, String userName) {
+    RuleInheritanceActions actions = new RuleInheritanceActions();
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     if (parentActiveRule.isInherited()) {
       parentActiveRule.setInheritance(ActiveRule.OVERRIDES);
       getSession().saveWithoutFlush(parentActiveRule);
     }
+    actions.addToIndex(activeRuleId);
     for (RulesProfile child : getChildren(parentProfileId)) {
-      activateOrChange(child, parentActiveRule, userName);
+      actions.add(activateOrChange(child, parentActiveRule, userName));
     }
     getSession().commit();
     dryRunCache.reportGlobalModification();
+    return actions;
   }
 
   /**
    * Rule was deactivated in parent profile.
    */
-  public void deactivated(int parentProfileId, int deactivatedRuleId, String userName) {
+  public RuleInheritanceActions deactivated(int parentProfileId, int deactivatedRuleId, String userName) {
+    RuleInheritanceActions actions = new RuleInheritanceActions();
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, deactivatedRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, parentProfileId);
     ruleDisabled(profile, parentActiveRule, userName);
+    actions.addToIndex(parentActiveRule.getId());
     for (RulesProfile child : getChildren(parentProfileId)) {
-      deactivate(child, parentActiveRule.getRule(), userName);
+      actions.add(deactivate(child, parentActiveRule.getRule(), userName));
     }
     getSession().commit();
     dryRunCache.reportGlobalModification();
+    return actions;
   }
 
   /**
@@ -326,16 +333,19 @@ public class ProfilesManager extends BaseDao {
     getSession().saveWithoutFlush(rc);
   }
 
-  private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule, String userName) {
+  private RuleInheritanceActions activateOrChange(RulesProfile profile, ActiveRule parentActiveRule, String userName) {
     ActiveRule oldActiveRule = profile.getActiveRule(parentActiveRule.getRule());
+    RuleInheritanceActions actions = new RuleInheritanceActions();
     if (oldActiveRule != null) {
       if (oldActiveRule.isInherited()) {
         removeActiveRule(oldActiveRule);
+        actions.addToDelete(oldActiveRule.getId());
       } else {
         oldActiveRule.setInheritance(ActiveRule.OVERRIDES);
         getSession().saveWithoutFlush(oldActiveRule);
         // no need to change in children
-        return;
+        actions.addToIndex(oldActiveRule.getId());
+        return actions;
       }
     }
     ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
@@ -344,6 +354,8 @@ public class ProfilesManager extends BaseDao {
     profile.addActiveRule(newActiveRule);
     getSession().saveWithoutFlush(newActiveRule);
 
+    actions.addToIndex(newActiveRule.getId());
+
     if (oldActiveRule != null) {
       ruleChanged(profile, oldActiveRule, newActiveRule, userName);
     } else {
@@ -351,27 +363,33 @@ public class ProfilesManager extends BaseDao {
     }
 
     for (RulesProfile child : getChildren(profile)) {
-      activateOrChange(child, newActiveRule, userName);
+      actions.add(activateOrChange(child, newActiveRule, userName));
     }
+
+    return actions;
   }
 
-  private void deactivate(RulesProfile profile, Rule rule, String userName) {
+  private RuleInheritanceActions deactivate(RulesProfile profile, Rule rule, String userName) {
+    RuleInheritanceActions actions = new RuleInheritanceActions();
     ActiveRule activeRule = profile.getActiveRule(rule);
     if (activeRule != null) {
       if (activeRule.isInherited()) {
         ruleDisabled(profile, activeRule, userName);
+        actions.addToDelete(activeRule.getId());
         removeActiveRule(activeRule);
       } else {
         activeRule.setInheritance(null);
         getSession().saveWithoutFlush(activeRule);
+        actions.addToIndex(activeRule.getId());
         // no need to change in children
-        return;
+        return actions;
       }
 
       for (RulesProfile child : getChildren(profile)) {
-        deactivate(child, rule, userName);
+        actions.add(deactivate(child, rule, userName));
       }
     }
+    return actions;
   }
 
   private List<RulesProfile> getChildren(int parentId) {
