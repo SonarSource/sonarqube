@@ -26,11 +26,11 @@ displayWorstBestValues = widget_properties["displayWorstBestValues"]
         query = [
           'filter=<%= filterId -%>',
           'metrics=' + metrics.join(','),
-          'fields=name,qualifier',
+          'fields=name,longName,qualifier',
           'pageSize=<%= maxItems -%>',
           'page=1',
           'sort=metric:' + metrics[0],
-          'asc=false'
+          'asc=<%= reverseOrder -%>'
         ].join('&'),
         widget = new SonarWidgets.Widget();
 
@@ -39,7 +39,8 @@ displayWorstBestValues = widget_properties["displayWorstBestValues"]
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
-        baseUrl: baseUrl + '/dashboard/index/'
+        baseUrl: baseUrl + '/dashboard/index/',
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached") -%>'
       })
       .render('#<%= containerId -%>');
 

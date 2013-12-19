@@ -14,6 +14,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._height = window.SonarWidgets.Histogram.defaults.height;
     this._margin = window.SonarWidgets.Histogram.defaults.margin;
     this._legendWidth = window.SonarWidgets.Histogram.defaults.legendWidth;
+    this._maxResultsReached = false;
     this._options = {};
 
     this._lineHeight = 20;
@@ -46,6 +47,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.legendWidth = function (_) {
       return param.call(this, '_legendWidth', _);
+    };
+
+    this.maxResultsReached = function (_) {
+      return param.call(this, '_maxResultsReached', _);
     };
 
     this.options = function (_) {
@@ -94,19 +99,40 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure scales
     this.x = d3.scale.linear();
     this.y = d3.scale.ordinal();
-    this.color = d3.scale.ordinal()
-        .range([
-          '#1f77b4', '#aec7e8', '#3182bd', '#6baed6',
-          '#ff7f0e', '#ffbb78', '#e6550d', '#fd8d3c',
-          '#2ca02c', '#98df8a', '#31a354', '#74c476',
-          '#d62728', '#ff9896', '#ad494a', '#d6616b',
-          '#9467bd', '#c5b0d5', '#756bb1', '#9e9ac8',
-          '#8c564b', '#c49c94', '#ad494a', '#d6616b',
-          '#e377c2', '#f7b6d2', '#ce6dbd', ' #de9ed6',
-          '#7f7f7f', '#c7c7c7', '#969696', ' #bdbdbd',
-          '#bcbd22', '#dbdb8d', '#8ca252', ' #b5cf6b',
-          '#17becf', '#9edae5', '#6baed6', ' #9ecae1'
-        ]);
+
+
+    // Configure truncate function
+    this.truncate = function(text, type) {
+      var maxLength = 40;
+
+      switch (type) {
+        case 'FIL':
+        case 'CLA':
+          var n = text.length;
+          if (n > maxLength) {
+            var shortText = text.substr(n - maxLength + 2, n - 1),
+                dotIndex = shortText.indexOf('.');
+            return '...' + shortText.substr(dotIndex + 1);
+          } else {
+            return text;
+          }
+          break;
+        default:
+          return text.length > maxLength ?
+              text.substr(0, maxLength - 3) + '...' :
+              text;
+      }
+    };
+
+
+    // Show maxResultsReached message
+    if (this.maxResultsReached()) {
+      this.maxResultsReachedLabel = this.gWrap.append('text')
+          .classed('max-results-reached', true)
+          .style('font-size', '11px')
+          .style('fill', '#777')
+          .text(this.options().maxItemsReachedMessage);
+    }
 
 
     // Update widget
@@ -129,7 +155,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update available size
     this.availableWidth = this.width() - this.margin().left - this.margin().right - this.legendWidth();
     this.availableHeight = barHeight * this.components().length;
-    this.height(this.availableHeight + this.margin().top + this.margin().bottom);
+    var totalHeight = this.availableHeight + this.margin().top + this.margin().bottom;
+    if (this.maxResultsReached()) {
+      totalHeight += this._lineHeight;
+    }
+    this.height(totalHeight);
 
 
     // Update svg canvas
@@ -150,12 +180,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .domain(this.components().map(function(d, i) { return i; }))
         .rangeRoundBands([0, this.availableHeight], 0);
 
-    if (this.components().length < 11) {
-      this.color = d3.scale.category10();
-    } else if (this.components().length < 21) {
-      this.color = d3.scale.category20();
-    }
-
 
     // Configure bars
     this.bars = this.plotWrap.selectAll('.bar')
@@ -168,18 +192,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.barsEnter
         .append('rect')
-        .style('fill', function(d, i) { return widget.color(i); })
-        .style('stroke', '#fff');
+        .style('fill', '#1f77b4');
 
     this.barsEnter
         .append('text')
         .classed('legend-text component', true)
         .style('text-anchor', 'end')
         .attr('dy', '-0.35em')
-        .text(function(d) {
-          var l = d.name.length;
-          return l > 42 ? d.name.substr(0, 39) + '...' : d.name;
-        })
+        .text(function(d) { return widget.truncate(d.longName, d.qualifier); })
         .attr('transform', function() { return trans(widget.legendWidth() - 10, barHeight); });
 
     this.barsEnter
@@ -219,6 +239,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               window.location = widget.options().baseUrl + encodeURIComponent(d.key);
           }
         });
+
+
+    // Show maxResultsReached message
+    if (this.maxResultsReached()) {
+      this.maxResultsReachedLabel
+          .attr('transform', trans(this.legendWidth(), this.height() - this.margin().bottom));
+    }
   };
 
 
