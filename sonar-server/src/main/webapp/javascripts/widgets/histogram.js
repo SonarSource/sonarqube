@@ -126,6 +126,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Show maxResultsReached message
+    this.maxResultsReached(this.options().maxItems === this.components().length);
     if (this.maxResultsReached()) {
       this.maxResultsReachedLabel = this.gWrap.append('text')
           .classed('max-results-reached', true)

@@ -48,9 +48,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             .metricsPriority(that.metricsPriority())
             .components(response.components)
             .options(that.options());
-        if (typeof that.widget.maxResultsReached === 'function') {
-          that.widget.maxResultsReached(!response.maxResultsReached);
-        }
         if (that.height()) {
           that.widget.height(that.height());
         }

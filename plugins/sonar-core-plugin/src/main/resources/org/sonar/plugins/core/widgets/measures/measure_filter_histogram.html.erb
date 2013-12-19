@@ -40,6 +40,7 @@ displayWorstBestValues = widget_properties["displayWorstBestValues"]
       .metricsPriority(metrics)
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
+        maxItems: <%= maxItems -%>,
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached") -%>'
       })
       .render('#<%= containerId -%>');
