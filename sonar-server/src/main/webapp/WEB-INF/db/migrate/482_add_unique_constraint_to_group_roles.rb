@@ -40,5 +40,7 @@ class AddUniqueConstraintToGroupRoles < ActiveRecord::Migration
         end
       end
     end
+
+    add_index 'group_roles', ['group_id', 'resource_id', 'role'], :unique => true, :name => 'uniq_group_roles'
   end
 end
