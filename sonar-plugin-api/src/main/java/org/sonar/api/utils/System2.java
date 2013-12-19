@@ -40,16 +40,19 @@ import java.util.Properties;
  *   public long xxx() {
  *     return system.now();
  *   }
- *  }
+ * }
  *
  * @Test
  * public void should_return_xxx() {
  *   System2 system = mock(System2.class);
- *   long now = parse("2013-12-25");
+ *   long now = System.currentTimeMillis();
  *   doReturn(now).when(system).now();
  *   assertThat(new MyClass(system).xxx()).isEqualTo(now);
  * }
  * </pre>
+ *
+ * <p/>
+ * Note that the name System2 was chosen to not conflict with {@link java.lang.System}.
  *
  * @since 4.2
  */
@@ -98,5 +101,9 @@ public class System2 {
    */
   public boolean isOsWindows() {
     return SystemUtils.IS_OS_WINDOWS;
+  }
+
+  public void println(String obj) {
+    System.out.print(obj);
   }
 }

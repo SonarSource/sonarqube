@@ -69,4 +69,10 @@ public class System2Test {
   public void testIsOsWindows() throws Exception {
     assertThat(System2.INSTANCE.isOsWindows()).isEqualTo(SystemUtils.IS_OS_WINDOWS);
   }
+
+  @Test
+  public void testPrintln() throws Exception {
+    // well, how to assert that ? Adding a System3 dependency to System2 ? :-)
+    System2.INSTANCE.println("foo");
+  }
 }
