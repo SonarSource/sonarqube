@@ -165,6 +165,14 @@ public class RuleRegistry {
     }
   }
 
+  public void save(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) {
+    try {
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_ACTIVE_RULE, Long.toString(activeRule.getId()), activeRuleDocument(activeRule, params), activeRule.getRulId().toString());
+    } catch (IOException ioexception) {
+      throw new IllegalStateException("Unable to index active rule with id=" + activeRule.getId(), ioexception);
+    }
+  }
+
   private void bulkIndex(List<RuleDto> rules, Multimap<Long, RuleParamDto> paramsByRule) throws IOException {
     String[] ids = new String[rules.size()];
     BytesStream[] docs = new BytesStream[rules.size()];

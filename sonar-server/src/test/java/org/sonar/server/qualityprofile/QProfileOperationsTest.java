@@ -50,10 +50,12 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +63,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -91,6 +94,9 @@ public class QProfileOperationsTest {
   RuleRegistry ruleRegistry;
 
   @Mock
+  ProfileRules profileRules;
+
+  @Mock
   ProfilesManager profilesManager;
 
   List<ProfileExporter> exporters = newArrayList();
@@ -115,7 +121,8 @@ public class QProfileOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, ruleDao, propertiesDao, exporters, importers, dryRunCache, ruleRegistry, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, ruleDao, propertiesDao, exporters, importers, dryRunCache, ruleRegistry, profilesManager,
+      profileRules);
   }
 
   @Test
@@ -239,11 +246,12 @@ public class QProfileOperationsTest {
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
     when(ruleDao.selectParameters(eq(10L), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
     RuleActivationResult result = operations.activateRule(qualityProfile, rule, Severity.CRITICAL, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile()).isNotNull();
     assertThat(result.rule()).isNotNull();
-    assertThat(result.activeRule()).isNotNull();
+    assertThat(result.rule().activeRuleId()).isNotNull();
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
@@ -256,6 +264,8 @@ public class QProfileOperationsTest {
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
 
     verify(session).commit();
+    verify(ruleRegistry).save(activeRuleArgument.capture(), (Collection<ActiveRuleParamDto>) anyCollection());
+    verify(profileRules).getFromActiveRuleId(anyInt());
     verify(profilesManager).activated(eq(1), anyInt(), eq("nicolas"));
   }
 
@@ -266,15 +276,16 @@ public class QProfileOperationsTest {
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
+    when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
     RuleActivationResult result = operations.activateRule(qualityProfile, rule, Severity.MAJOR, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile()).isNotNull();
     assertThat(result.rule()).isNotNull();
-    assertThat(result.activeRule()).isNotNull();
+    assertThat(result.rule().activeRuleId()).isNotNull();
 
     verify(activeRuleDao).update(eq(activeRule), eq(session));
-
     verify(session).commit();
+    verify(profileRules).getFromActiveRuleId(anyInt());
     verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("nicolas"));
   }
 
@@ -285,15 +296,16 @@ public class QProfileOperationsTest {
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
+    when(profileRules.getFromRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
     RuleActivationResult result = operations.deactivateRule(qualityProfile, rule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile()).isNotNull();
     assertThat(result.rule()).isNotNull();
-    assertThat(result.activeRule()).isNull();
 
     verify(activeRuleDao).delete(eq(5), eq(session));
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));
     verify(session).commit();
+    verify(profileRules).getFromRuleId(anyInt());
     verify(profilesManager).deactivated(eq(1), anyInt(), eq("nicolas"));
   }
 

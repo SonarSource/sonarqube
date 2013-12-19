@@ -125,13 +125,11 @@ class NewRulesConfigurationController < ApplicationController
       end
     end
 
-    # TODO replace it by QProfileRule
-    profile = Profile.find(params[:id].to_i)
-    rule = Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED]) if profile
-    active_rule = ActiveRule.first(:conditions => ['id = ?', result.activeRule().getId()]) if result && result.activeRule()
+    profile = result.profile
+    rule = result.rule
 
     render :update do |page|
-      page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule})
+      page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule})
       page.assign('localModifications', true)
     end
   end

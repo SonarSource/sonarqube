@@ -45,6 +45,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -69,6 +70,7 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
+  private final ProfileRules profileRules;
 
   // Should not be used as it still uses Hibernate
   private final ProfilesManager profilesManager;
@@ -77,14 +79,14 @@ public class QProfileOperations implements ServerComponent {
    * Used by pico when no plugin provide profile exporter / importer
    */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager, ProfileRules profileRules) {
     this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileExporter>newArrayList(), Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
-      profilesManager);
+      profilesManager, profileRules);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                             List<ProfileExporter> exporters, List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
-                            ProfilesManager profilesManager) {
+                            ProfilesManager profilesManager, ProfileRules profileRules) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -95,6 +97,7 @@ public class QProfileOperations implements ServerComponent {
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
+    this.profileRules = profileRules;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -141,7 +144,7 @@ public class QProfileOperations implements ServerComponent {
       } else {
         updateSeverity(activeRule, severity, userSession, session);
       }
-      return new RuleActivationResult(QProfile.from(qualityProfile), rule, activeRule);
+      return new RuleActivationResult(QProfile.from(qualityProfile), profileRules.getFromActiveRuleId(activeRule.getId()));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -155,15 +158,19 @@ public class QProfileOperations implements ServerComponent {
     activeRuleDao.insert(activeRuleDto, session);
 
     List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId().longValue(), session);
+    List<ActiveRuleParamDto> activeRuleParams = Lists.newArrayList();
     for (RuleParamDto ruleParam : ruleParams) {
       ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
         .setActiveRuleId(activeRuleDto.getId())
         .setRulesParameterId(ruleParam.getId())
         .setKey(ruleParam.getName())
         .setValue(ruleParam.getDefaultValue());
+      activeRuleParams.add(activeRuleParam);
       activeRuleDao.insert(activeRuleParam, session);
     }
     session.commit();
+
+    ruleRegistry.save(activeRuleDto, activeRuleParams);
 
     profilesManager.activated(qualityProfile.getId(), activeRuleDto.getId(), userSession.name());
     return activeRuleDto;
@@ -191,7 +198,7 @@ public class QProfileOperations implements ServerComponent {
       activeRuleDao.deleteParameters(activeRule.getId(), session);
       session.commit();
 
-      return new RuleActivationResult(QProfile.from(qualityProfile), rule, null);
+      return new RuleActivationResult(QProfile.from(qualityProfile), profileRules.getFromRuleId(rule.getId()));
     } finally {
       MyBatis.closeQuietly(session);
     }

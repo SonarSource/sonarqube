@@ -112,6 +112,10 @@ public class SearchIndex {
     internalPut(index, type, id, source, false, parent);
   }
 
+  public void putSynchronous(String index, String type, String id, BytesStream source, String parent) {
+    internalPut(index, type, id, source, true, parent);
+  }
+
   private void internalPut(String index, String type, String id, BytesStream source, boolean refresh, String parent) {
     IndexRequestBuilder builder = client.prepareIndex(index, type, id).setSource(source.bytes()).setRefresh(refresh);
     if (parent != null) {

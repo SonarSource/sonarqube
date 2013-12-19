@@ -48,6 +48,7 @@ import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -289,4 +290,26 @@ public class RuleRegistryTest {
     assertThat(childHit).hasSize(1);
     assertThat(childHit[0].getId()).isEqualTo("1");
   }
+
+  @Test
+  public void save_active_rule() throws IOException {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2);
+    ArrayList<ActiveRuleParamDto> params = newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters"));
+
+    registry.save(activeRule, params);
+    assertThat(esSetup.exists("rules", "active_rule", "1"));
+
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasChildFilter("active_rule", termFilter("profileId", 10))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(parentHit).hasSize(1);
+    assertThat(parentHit[0].getId()).isEqualTo("1");
+
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(childHit).hasSize(1);
+    assertThat(childHit[0].getId()).isEqualTo("1");
+  }
+
 }

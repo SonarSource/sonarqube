@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -57,6 +58,22 @@ public class ProfileRules implements ServerExtension {
 
   public ProfileRules(SearchIndex index) {
     this.index = index;
+  }
+
+  public QProfileRule getFromActiveRuleId(int activeRuleId) {
+    GetResponse activeRuleResponse = index.client().prepareGet(INDEX_RULES, TYPE_ACTIVE_RULE, Integer.toString(activeRuleId))
+      .setFields(FIELD_SOURCE, FIELD_PARENT)
+      .execute().actionGet();
+    Map<String, Object> activeRuleSource = activeRuleResponse.getSourceAsMap();
+    Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, (String) activeRuleResponse.getField(FIELD_PARENT).getValue())
+      .execute().actionGet().getSourceAsMap();
+    return new QProfileRule(ruleSource, activeRuleSource);
+  }
+
+  public QProfileRule getFromRuleId(Integer ruleId) {
+    Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, Integer.toString(ruleId))
+      .execute().actionGet().getSourceAsMap();
+    return new QProfileRule(ruleSource);
   }
 
   public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {

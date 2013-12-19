@@ -46,7 +46,7 @@ public class ProfileRulesTest {
   private EsSetup esSetup;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     esSetup = new EsSetup();
     esSetup.execute(EsSetup.deleteAll());
 
@@ -60,6 +60,16 @@ public class ProfileRulesTest {
     RuleRegistry registry = new RuleRegistry(index, null, null);
     registry.start();
     profileRules = new ProfileRules(index);
+
+    esSetup.client().prepareBulk()
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
+    .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
+    .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
+    .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
+    .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
+    .setRefresh(true).execute().actionGet();
   }
 
   @After
@@ -69,15 +79,6 @@ public class ProfileRulesTest {
 
   @Test
   public void should_find_active_rules() throws Exception {
-    esSetup.client().prepareBulk()
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
-      .setRefresh(true).execute().actionGet();
 
     Paging paging = Paging.create(10, 1);
 
@@ -112,6 +113,16 @@ public class ProfileRulesTest {
     List<QProfileRule> rulesWParam = profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
     assertThat(rulesWParam).hasSize(1);
     assertThat(rulesWParam.get(0).params()).hasSize(2);
+  }
+
+  @Test
+  public void should_get_from_active_rule() {
+    assertThat(profileRules.getFromActiveRuleId(391)).isNotNull();
+  }
+
+  @Test
+  public void should_get_from_rule() {
+    assertThat(profileRules.getFromActiveRuleId(25)).isNotNull();
   }
 
   private String testFileAsString(String testFile) throws Exception {

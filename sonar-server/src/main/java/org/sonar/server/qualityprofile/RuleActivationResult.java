@@ -20,34 +20,22 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.rules.Rule;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 public class RuleActivationResult {
 
   private QProfile profile;
-  private Rule rule;
-  private ActiveRuleDto activeRule;
+  private QProfileRule rule;
 
-  public RuleActivationResult(QProfile profile, Rule rule, @Nullable ActiveRuleDto activeRule) {
+  public RuleActivationResult(QProfile profile, QProfileRule rule) {
     this.profile = profile;
     this.rule = rule;
-    this.activeRule = activeRule;
   }
 
   public QProfile profile() {
     return profile;
   }
 
-  public Rule rule() {
+  public QProfileRule rule() {
     return rule;
-  }
-
-  @CheckForNull
-  public ActiveRuleDto activeRule() {
-    return activeRule;
   }
 }
