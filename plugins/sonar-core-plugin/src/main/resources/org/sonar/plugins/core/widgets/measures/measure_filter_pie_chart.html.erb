@@ -33,7 +33,7 @@
           'filter=<%= filterId -%>',
           'metrics=' + metrics.join(','),
           'fields=name,qualifier',
-          'pageSize=10',
+          'pageSize=<%= maxItems -%>',
           'page=1',
           'sort=metric:' + metrics[0],
           'asc=false'
