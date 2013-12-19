@@ -9,6 +9,9 @@
    xLog = !!widget_properties["xLogarithmic"]
    yLog = !!widget_properties["yLogarithmic"]
    maxItems = widget_properties["maxItems"].to_i
+
+   filter = MeasureFilter.find_by_id(filterId.to_i)
+   @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
 
 

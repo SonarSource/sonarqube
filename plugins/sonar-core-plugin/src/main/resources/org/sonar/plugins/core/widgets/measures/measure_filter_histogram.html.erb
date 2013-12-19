@@ -1,10 +1,13 @@
 <%
-containerId = 'pie-chart-widget' + widget.id.to_s
-chartTitle = widget_properties["chartTitle"]
-filterId = widget_properties["filter"].to_i
-maxItems = widget_properties["maxItems"].to_i
-reverseOrder = widget_properties["reverseOrder"]
-displayWorstBestValues = widget_properties["displayWorstBestValues"]
+  containerId = 'pie-chart-widget' + widget.id.to_s
+  chartTitle = widget_properties["chartTitle"]
+  filterId = widget_properties["filter"].to_i
+  maxItems = widget_properties["maxItems"].to_i
+  reverseOrder = widget_properties["reverseOrder"]
+  displayWorstBestValues = widget_properties["displayWorstBestValues"]
+
+  filter = MeasureFilter.find_by_id(filterId.to_i)
+  @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
 
 <div class="histogram-widget" id="<%= containerId %>">

@@ -4,6 +4,9 @@
   chartTitle = widget_properties["chartTitle"]
   filterId = widget_properties["filter"].to_i
   maxItems = widget_properties["maxItems"].to_i
+
+  filter = MeasureFilter.find_by_id(filterId.to_i)
+  @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
 
 <div class="pie-chart-widget" id="<%= containerId %>">
