@@ -104,28 +104,48 @@ class RulesConfigurationController < ApplicationController
   #
   def activate_rule
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
+    profile = Profile.find(params[:id].to_i)
+    if profile
+      rule=Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED])
+      priority=params[:level]
 
-    result = nil
-    call_backend do
-      severity = params[:level]
-      if severity.blank?
+      active_rule=profile.active_by_rule_id(rule.id)
+      if priority.blank?
         # deactivate the rule
-        result = Internal.quality_profiles.deactivateRule(params[:id].to_i, params[:rule_id].to_i)
+        if active_rule
+          java_facade.ruleDeactivated(profile.id, active_rule.id, current_user.name)
+          active_rule.destroy
+          active_rule=nil
+        end
       else
         # activate the rule
-        result = Internal.quality_profiles.activateRule(params[:id].to_i, params[:rule_id].to_i, severity)
+        activated = false
+        if active_rule.nil?
+          active_rule = ActiveRule.new(:profile_id => profile.id, :rule => rule)
+          rule.parameters.select { |p| p.default_value.present? }.each do |p|
+            active_rule.active_rule_parameters.build(:rules_parameter => p, :value => p.default_value)
+          end
+          activated = true
+        end
+        old_severity = active_rule.failure_level
+        active_rule.failure_level=Sonar::RulePriority.id(priority)
+        active_rule.save!
+        if activated
+          java_facade.ruleActivated(profile.id, active_rule.id, current_user.name)
+        else
+          java_facade.ruleSeverityChanged(profile.id, active_rule.id, old_severity, active_rule.failure_level, current_user.name)
+        end
       end
-    end
+      if active_rule
+        active_rule.reload
+      end
 
-    # Load rails objects needed to the display. Remove this when ui use java objects (existing in the result object) instead of rails objects
-    profile = Profile.find(params[:id].to_i)
-    rule = Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED]) if profile
-    active_rule = ActiveRule.first(:conditions => ['id = ?', result.activeRule().getId()]) if result && result.activeRule()
-
-    render :update do |page|
-      page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule})
-      page.assign('localModifications', true)
+      render :update do |page|
+        page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule})
+        page.assign('localModifications', true)
+      end
     end
   end
 
@@ -322,7 +342,7 @@ class RulesConfigurationController < ApplicationController
       java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
     end
     # let's reload the active rule
-    active_rule = ActiveRule.find(active_rule.id)
+    active_rule = ActiveRule.find(params[:active_rule_id].to_i)
     render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
   end
 
