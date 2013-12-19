@@ -167,9 +167,12 @@
 
       this.$list = this.$('.select-list-list');
 
-      this.$('.select-list-search-control input')
-          .focus()
+      var searchInput = this.$('.select-list-search-control input')
           .on('keyup', $.debounce(250, keyup));
+
+      setTimeout(function() {
+        searchInput.focus();
+      }, 250);
 
       this.listItemViews = [];
 
