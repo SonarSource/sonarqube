@@ -30,7 +30,6 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
-
 import java.sql.*;
 import java.util.Comparator;
 import java.util.List;
@@ -290,7 +289,7 @@ class MeasureFilterSql {
     }
 
     Ordering sortFieldOrdering(boolean ascending) {
-      return newObjectOrdering(ascending);
+      return ascending ? Ordering.natural().nullsLast() : Ordering.natural().reverse().nullsLast();
     }
   }
 
