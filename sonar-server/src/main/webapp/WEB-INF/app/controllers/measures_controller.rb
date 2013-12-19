@@ -289,6 +289,8 @@ class MeasuresController < ApplicationController
         :name => metric.short_name,
         :type => metric.val_type
       }
+      hash[:metrics][metric.key][:worstValue] = metric.worst_value if metric.worst_value
+      hash[:metrics][metric.key][:bestValue] = metric.best_value if metric.best_value
     end
 
     hash[:components] = components_json
