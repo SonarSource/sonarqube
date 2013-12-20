@@ -206,18 +206,20 @@ public class QProfiles implements ServerComponent {
     return operations.deactivateRule(qualityProfile, rule, UserSession.get());
   }
 
-  public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
+  public QProfileRule updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
     String sanitizedValue = Strings.emptyToNull(value);
     ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     UserSession userSession = UserSession.get();
+    QProfileRule result = null;
     if (activeRuleParam == null && sanitizedValue != null) {
-      operations.createActiveRuleParam(activeRule, key, value, userSession);
+      result = operations.createActiveRuleParam(activeRule, key, value, userSession);
     } else if (activeRuleParam != null && sanitizedValue == null) {
-      operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
+      result = operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
     } else if (activeRuleParam != null) {
       operations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
     }
+    return result;
   }
 
   public void updateActiveRuleNote(int activeRuleId, String note) {

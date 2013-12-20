@@ -175,16 +175,6 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  private void reindexInheritanceResult(RuleInheritanceActions actions, SqlSession session) {
-    ruleRegistry.deleteActiveRules(actions.idsToDelete());
-    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(actions.idsToIndex(), session);
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    for(ActiveRuleParamDto param: activeRuleDao.selectParamsByRuleIds(actions.idsToIndex(), session)) {
-      paramsByActiveRule.put(param.getActiveRuleId(), param);
-    }
-    ruleRegistry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
-  }
-
   public RuleActivationResult updateSeverity(QualityProfileDto qualityProfile, ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
@@ -194,8 +184,9 @@ public class QProfileOperations implements ServerComponent {
       activeRuleDao.update(activeRule, session);
       session.commit();
 
-      profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(), RulePriority.valueOfInt(oldSeverity), RulePriority.valueOf(newSeverity),
+      RuleInheritanceActions actions = profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(), RulePriority.valueOfInt(oldSeverity), RulePriority.valueOf(newSeverity),
         userSession.name());
+      reindexInheritanceResult(actions, session);
       return new RuleActivationResult(QProfile.from(qualityProfile), profileRules.getFromActiveRuleId(activeRule.getId()));
     } finally {
       MyBatis.closeQuietly(session);
@@ -223,7 +214,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession) {
+  public QProfileRule createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();
@@ -235,26 +226,32 @@ public class QProfileOperations implements ServerComponent {
       ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
       activeRuleDao.insert(activeRuleParam, session);
       session.commit();
-      profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
+      RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
+      reindexInheritanceResult(actions, session);
+
+      return profileRules.getFromActiveRuleId(activeRule.getId());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession) {
+  public QProfileRule deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
       activeRuleDao.deleteParameter(activeRuleParam.getId(), session);
       session.commit();
-      profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), activeRuleParam.getValue(), null, userSession.name());
+      RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), activeRuleParam.getValue(), null, userSession.name());
+      reindexInheritanceResult(actions, session);
+
+      return profileRules.getFromActiveRuleId(activeRule.getId());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession) {
+  public QProfileRule updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();
@@ -264,7 +261,10 @@ public class QProfileOperations implements ServerComponent {
       activeRuleParam.setValue(sanitizedValue);
       activeRuleDao.update(activeRuleParam, session);
       session.commit();
-      profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), oldValue, sanitizedValue, userSession.name());
+      RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), oldValue, sanitizedValue, userSession.name());
+      reindexInheritanceResult(actions, session);
+
+      return profileRules.getFromActiveRuleId(activeRule.getId());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -282,6 +282,16 @@ public class QProfileOperations implements ServerComponent {
     activeRule.setNoteData(note);
     activeRuleDao.update(activeRule);
     // TODO notify E/S of active rule change
+  }
+
+  private void reindexInheritanceResult(RuleInheritanceActions actions, SqlSession session) {
+    ruleRegistry.deleteActiveRules(actions.idsToDelete());
+    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(actions.idsToIndex(), session);
+    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
+    for(ActiveRuleParamDto param: activeRuleDao.selectParamsByRuleIds(actions.idsToIndex(), session)) {
+      paramsByActiveRule.put(param.getActiveRuleId(), param);
+    }
+    ruleRegistry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
   }
 
   public void deleteActiveRuleNote(ActiveRuleDto activeRule, UserSession userSession) {

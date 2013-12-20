@@ -142,27 +142,28 @@ public class ProfilesManager extends BaseDao {
   /**
    * Rule param was changed
    */
-  public void ruleParamChanged(int profileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
+  public RuleInheritanceActions ruleParamChanged(int profileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
+    RuleInheritanceActions actions = new RuleInheritanceActions();
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
 
     ruleParamChanged(profile, activeRule.getRule(), paramKey, oldValue, newValue, userName);
 
     // Notify child profiles
-    activatedOrChanged(profileId, activeRuleId, userName);
+    return activatedOrChanged(profileId, activeRuleId, userName);
   }
 
   /**
    * Rule severity was changed
    */
-  public void ruleSeverityChanged(int profileId, int activeRuleId, RulePriority oldSeverity, RulePriority newSeverity, String userName) {
+  public RuleInheritanceActions ruleSeverityChanged(int profileId, int activeRuleId, RulePriority oldSeverity, RulePriority newSeverity, String userName) {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
 
     ruleSeverityChanged(profile, activeRule.getRule(), oldSeverity, newSeverity, userName);
 
     // Notify child profiles
-    activatedOrChanged(profileId, activeRuleId, userName);
+    return activatedOrChanged(profileId, activeRuleId, userName);
   }
 
   /**
