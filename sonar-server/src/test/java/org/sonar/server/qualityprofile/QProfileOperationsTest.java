@@ -62,11 +62,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -248,6 +244,10 @@ public class QProfileOperationsTest {
     rule.setId(10);
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
+    final int idActiveRuleToUpdate = 42;
+    final int idActiveRuleToDelete = 24;
+    RuleInheritanceActions inheritanceActions = new RuleInheritanceActions().addToIndex(idActiveRuleToUpdate).addToDelete(idActiveRuleToDelete);
+    when(profilesManager.activated(eq(1), anyInt(), eq("nicolas"))).thenReturn(inheritanceActions);
 
     RuleActivationResult result = operations.createActiveRule(qualityProfile, rule, Severity.CRITICAL, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile()).isNotNull();

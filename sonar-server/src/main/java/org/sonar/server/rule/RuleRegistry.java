@@ -224,10 +224,22 @@ public class RuleRegistry {
 
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
-    if (!indexIds.isEmpty()) {
-      profiler.start("Remove deleted active rule documents");
+    profiler.start("Remove deleted active rule documents");
+    bulkDeleteActiveRules(indexIds);
+    profiler.stop();
+  }
+
+  public void deleteActiveRules(List<Integer> activeRuleIds) {
+    List<String> indexIds = Lists.newArrayList();
+    for (Integer ruleId: activeRuleIds) {
+      indexIds.add(ruleId.toString());
+    }
+    bulkDeleteActiveRules(indexIds);
+  }
+
+  protected void bulkDeleteActiveRules(List<String> indexIds) {
+    if (! indexIds.isEmpty()) {
       searchIndex.bulkDelete(INDEX_RULES, TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
-      profiler.stop();
     }
   }
 

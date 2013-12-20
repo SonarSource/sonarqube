@@ -38,17 +38,20 @@ public class RuleInheritanceActions {
     idsToDelete = Lists.newArrayList();
   }
 
-  public void add(RuleInheritanceActions actions) {
+  public RuleInheritanceActions add(RuleInheritanceActions actions) {
     idsToIndex.addAll(actions.idsToIndex);
     idsToDelete.addAll(actions.idsToDelete);
+    return this;
   }
 
-  public void addToIndex(Integer activeRuleId) {
+  public RuleInheritanceActions addToIndex(Integer activeRuleId) {
     idsToIndex.add(activeRuleId);
+    return this;
   }
 
-  public void addToDelete(Integer activeRuleId) {
+  public RuleInheritanceActions addToDelete(Integer activeRuleId) {
     idsToDelete.add(activeRuleId);
+    return this;
   }
 
   public List<Integer> idsToIndex() {

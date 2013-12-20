@@ -154,11 +154,23 @@ public class QProfileOperations implements ServerComponent {
 
       ruleRegistry.save(activeRule, activeRuleParams);
 
-      profilesManager.activated(qualityProfile.getId(), activeRule.getId(), userSession.name());
+      RuleInheritanceActions actions = profilesManager.activated(qualityProfile.getId(), activeRule.getId(), userSession.name());
+      reindexInheritanceResult(actions, session);
+
       return new RuleActivationResult(QProfile.from(qualityProfile), profileRules.getFromActiveRuleId(activeRule.getId()));
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void reindexInheritanceResult(RuleInheritanceActions actions, SqlSession session) {
+    ruleRegistry.deleteActiveRules(actions.idsToDelete());
+    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(actions.idsToIndex(), session);
+    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
+    for(ActiveRuleParamDto param: activeRuleDao.selectParamsByRuleIds(actions.idsToIndex(), session)) {
+      paramsByActiveRule.put(param.getActiveRuleId(), param);
+    }
+    ruleRegistry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
   }
 
   public RuleActivationResult updateSeverity(QualityProfileDto qualityProfile, ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {

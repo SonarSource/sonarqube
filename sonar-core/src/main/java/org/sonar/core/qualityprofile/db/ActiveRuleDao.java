@@ -20,9 +20,16 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class ActiveRuleDao implements ServerComponent {
 
@@ -173,6 +180,50 @@ public class ActiveRuleDao implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<ActiveRuleDto> selectByIds(List<Integer> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByIds(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleDto> selectByIds(Collection<Integer> ids, SqlSession session) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ActiveRuleDto> dtosList = newArrayList();
+    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Integer> idsPartition : idsPartitionList) {
+      List<ActiveRuleDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectByIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByRuleIds(List<Integer> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectParamsByRuleIds(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByRuleIds(Collection<Integer> ids, SqlSession session) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ActiveRuleParamDto> dtosList = newArrayList();
+    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Integer> idsPartition : idsPartitionList) {
+      List<ActiveRuleParamDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectParamsByRuleIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
   }
 
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -51,6 +52,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getNoteCreatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
     assertThat(result.getNoteUpdatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
   }
+
+  @Test
+  public void select_by_ids() {
+    setupData("shared");
+
+    assertThat(dao.selectByIds(ImmutableList.of(1))).hasSize(1);
+    assertThat(dao.selectByIds(ImmutableList.of(1, 2))).hasSize(2);
+  }
+
 
   @Test
   public void select_by_profile_and_rule() {
@@ -90,6 +100,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getRulesParameterId()).isEqualTo(1);
     assertThat(result.getKey()).isEqualTo("max");
     assertThat(result.getValue()).isEqualTo("20");
+  }
+
+  @Test
+  public void select_params_by_active_rule_ids() {
+    setupData("shared");
+
+    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(1))).hasSize(2);
+    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(2))).hasSize(1);
+    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(1, 2))).hasSize(3);
   }
 
   @Test
