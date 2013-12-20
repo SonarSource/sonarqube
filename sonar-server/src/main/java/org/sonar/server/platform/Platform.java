@@ -110,6 +110,7 @@ import org.sonar.server.ui.*;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 
 /**
@@ -144,8 +145,12 @@ public final class Platform {
   /**
    * Used by ruby code
    */
+  @Nullable
   public static <T> T component(Class<T> type) {
-    return getInstance().getContainer().getComponentByType(type);
+    if (INSTANCE.started) {
+      return INSTANCE.getContainer().getComponentByType(type);
+    }
+    return null;
   }
 
   public void init(ServletContext servletContext) {

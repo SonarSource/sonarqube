@@ -56,6 +56,7 @@
     </init-param>
   </filter>
 
+  <!-- order of execution is important -->
   <filter-mapping>
     <filter-name>ProfilingFilter</filter-name>
     <url-pattern>/*</url-pattern>
