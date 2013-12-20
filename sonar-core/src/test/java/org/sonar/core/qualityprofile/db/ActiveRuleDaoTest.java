@@ -98,7 +98,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileId(1)
-      .setRuleId(10L)
+      .setRuleId(10)
       .setSeverity(2)
       .setInheritance("INHERITED");
 
@@ -114,7 +114,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setId(1)
       .setProfileId(1)
-      .setRuleId(10L)
+      .setRuleId(10)
       .setSeverity(4)
       .setInheritance(null)
       .setNoteData("text");

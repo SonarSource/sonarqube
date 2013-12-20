@@ -23,7 +23,7 @@ package org.sonar.core.rule;
 public class RuleParamDto {
 
   private int id;
-  private Long ruleId;
+  private Integer ruleId;
   private String name;
   private String type;
   private String defaultValue;
@@ -38,11 +38,11 @@ public class RuleParamDto {
     return this;
   }
 
-  public Long getRuleId() {
+  public Integer getRuleId() {
     return ruleId;
   }
 
-  public RuleParamDto setRuleId(Long ruleId) {
+  public RuleParamDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
   }

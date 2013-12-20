@@ -214,4 +214,6 @@ public class QProfileRule {
   public QProfileRuleNote activeRuleNote() {
     return activeRuleNote;
   }
+
+
 }

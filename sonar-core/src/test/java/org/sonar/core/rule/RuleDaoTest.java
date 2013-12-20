@@ -48,7 +48,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1L);
+    assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
@@ -59,9 +59,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void testSelectById() throws Exception {
     setupData("selectById");
-    RuleDto ruleDto = dao.selectById(2L);
+    RuleDto ruleDto = dao.selectById(2);
 
-    assertThat(ruleDto.getId()).isEqualTo(2L);
+    assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
@@ -75,7 +75,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1L);
+    assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
@@ -86,7 +86,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   public void testUpdate() {
     setupData("update");
     RuleDto ruleToUpdate = new RuleDto();
-    final long ruleId = 1L;
+    final int ruleId = 1;
     String newRuleKey = "NewRuleKey";
     String newRepositoryKey = "plugin";
     String newName = "new name";
@@ -97,7 +97,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date updatedAt = new Date();
-    Long newParentId = 3L;
+    Integer newParentId = 3;
 
     ruleToUpdate.setId(ruleId);
     ruleToUpdate.setRuleKey(newRuleKey);
@@ -131,7 +131,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date updatedAt = new Date();
-    Long newParentId = 3L;
+    Integer newParentId = 3;
 
     ruleToInsert.setRuleKey(newRuleKey);
     ruleToInsert.setRepositoryKey(newRepositoryKey);
@@ -150,7 +150,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto insertedRule = ruleDtos.get(0);
     // First inserted rule, auto generated ID should be 1
-    assertThat(insertedRule.getId()).isEqualTo(1L);
+    assertThat(insertedRule.getId()).isEqualTo(1);
     assertThat(insertedRule.getRuleKey()).isEqualTo(newRuleKey);
     assertThat(insertedRule.getRepositoryKey()).isEqualTo(newRepositoryKey);
     assertThat(insertedRule.getName()).isEqualTo(newName);
@@ -220,8 +220,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     List<RuleDto> ruleDtos = dao.selectAll();
     assertThat(ruleDtos.size()).isEqualTo(2);
-    assertThat(ruleDtos.get(0).getId()).isEqualTo(1L);
-    assertThat(ruleDtos.get(1).getId()).isEqualTo(2L);
+    assertThat(ruleDtos.get(0).getId()).isEqualTo(1);
+    assertThat(ruleDtos.get(1).getId()).isEqualTo(2);
   }
 
   @Test
@@ -241,7 +241,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void testSelectParamsForRule() throws Exception {
     setupData("selectParamsForRule");
-    long ruleId = 1L;
+    int ruleId = 1;
     List<RuleParamDto> ruleDtos = dao.selectParameters(ruleId);
 
     assertThat(ruleDtos.size()).isEqualTo(1);

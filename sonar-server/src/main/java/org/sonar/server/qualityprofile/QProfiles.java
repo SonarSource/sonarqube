@@ -83,7 +83,7 @@ public class QProfiles implements ServerComponent {
   // ACTIVE RULES
   // deactivate a rule (only E/S indexing)
   // update severity (only E/S indexing)
-  // update parameter on a active rule
+  // update parameter on a active rule (only E/S indexing)
   // add note on an active rule
   // delete note on an active rule
   // edit note on an active rule

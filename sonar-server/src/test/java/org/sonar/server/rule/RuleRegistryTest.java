@@ -165,14 +165,14 @@ public class RuleRegistryTest {
 
   @Test
   public void should_index_all_rules() {
-    long ruleId1 = 3L;
+    int ruleId1 = 3;
     RuleDto rule1 = new RuleDto();
     rule1.setRepositoryKey("repo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
     rule1.setNoteData("noteData");
     rule1.setNoteUserLogin("userLogin");
-    long ruleId2 = 4L;
+    int ruleId2 = 4;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("repo");
     rule2.setRuleKey("key2");
@@ -197,8 +197,8 @@ public class RuleRegistryTest {
     rule.setRepositoryKey("repo");
     rule.setRuleKey("key");
     int id = 3;
-    rule.setId((long) id);
-    when(ruleDao.selectById((long) id)).thenReturn(rule);
+    rule.setId(id);
+    when(ruleDao.selectById(id)).thenReturn(rule);
     registry.saveOrUpdate(id);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
     rule.setName("polop");
@@ -208,12 +208,12 @@ public class RuleRegistryTest {
 
   @Test
   public void should_update_existing_rules_and_forget_deleted_rules() {
-    long ruleId1 = 1L;
+    int ruleId1 = 1;
     RuleDto rule1 = new RuleDto();
     rule1.setRepositoryKey("xoo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
-    long ruleId2 = 2L;
+    int ruleId2 = 2;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("xoo");
     rule2.setRuleKey("key2");
@@ -269,7 +269,7 @@ public class RuleRegistryTest {
 
   @Test
   public void bulk_index_active_rules() throws IOException {
-    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1L).setSeverity(2));
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2));
     Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
     paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
 
@@ -291,7 +291,7 @@ public class RuleRegistryTest {
 
   @Test
   public void save_active_rule() throws IOException {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1L).setSeverity(2);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2);
     ArrayList<ActiveRuleParamDto> params = newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters"));
 
     registry.save(activeRule, params);

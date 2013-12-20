@@ -246,7 +246,7 @@ public class QProfileOperationsTest {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
-    when(ruleDao.selectParameters(eq(10L), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
     RuleActivationResult result = operations.activateRule(qualityProfile, rule, Severity.CRITICAL, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
@@ -275,7 +275,7 @@ public class QProfileOperationsTest {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
     when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
@@ -295,7 +295,7 @@ public class QProfileOperationsTest {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
     when(profileRules.getFromRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
 
@@ -330,7 +330,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void update_active_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
 
     operations.updateActiveRuleParam(activeRule, activeRuleParam, "30", MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
@@ -345,7 +345,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void remove_active_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
 
     operations.deleteActiveRuleParam(activeRule, activeRuleParam, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
@@ -356,11 +356,9 @@ public class QProfileOperationsTest {
 
   @Test
   public void create_active_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
-//    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(null);
-
-    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10L).setName("max").setDefaultValue("20");
-    when(ruleDao.selectParamByRuleAndKey(10L, "max", session)).thenReturn(ruleParam);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20");
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
 
     operations.createActiveRuleParam(activeRule, "max", "30", MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
@@ -375,9 +373,8 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_create_active_rule_if_no_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10L).setSeverity(1);
-//    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(null);
-    when(ruleDao.selectParamByRuleAndKey(10L, "max", session)).thenReturn(null);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(null);
     try {
       operations.createActiveRuleParam(activeRule, "max", "30", MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
       fail();

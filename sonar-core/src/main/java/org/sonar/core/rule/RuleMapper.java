@@ -28,7 +28,7 @@ public interface RuleMapper {
 
   List<RuleDto> selectNonManual();
 
-  RuleDto selectById(Long id);
+  RuleDto selectById(Integer id);
 
   void update(RuleDto rule);
 
@@ -36,7 +36,7 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectAllParams();
 
-  List<RuleParamDto> selectParamsForRule(Long id);
+  List<RuleParamDto> selectParamsForRule(Integer id);
 
-  RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Long ruleId, @Param("key") String key);
+  RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 }

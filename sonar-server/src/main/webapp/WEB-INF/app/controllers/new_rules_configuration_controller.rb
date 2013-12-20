@@ -306,35 +306,15 @@ class NewRulesConfigurationController < ApplicationController
   def update_param
     verify_post_request
 
-
     access_denied unless has_role?(:profileadmin)
-    require_parameters :profile_id, :param_id, :active_rule_id
-    profile = Profile.find(params[:profile_id].to_i)
-    rule_param = RulesParameter.find(params[:param_id].to_i)
-    active_rule = ActiveRule.find(params[:active_rule_id].to_i)
-    # As the active param can be null, we should not raise a RecordNotFound exception when it's not found (as it would be done when using find(:id) function)
-    active_param = ActiveRuleParameter.find_by_id(params[:id].to_i) if params[:id].to_i > 0
+    require_parameters :param_id, :active_rule_id, :profile_id
 
     call_backend do
-      Internal.quality_profiles.updateActiveRuleParam(params[:active_rule_id].to_i, rule_param.name, params[:value])
+      Internal.quality_profiles.updateActiveRuleParam(params[:active_rule_id].to_i, params[:param_id], params[:value])
     end
 
-    #value = params[:value]
-    #if value != ""
-    #  active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule) if active_param.nil?
-    #  old_value = active_param.value
-    #  active_param.value = value
-    #  if active_param.save! && active_param.valid?
-    #    active_param.reload
-    #    java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, value, current_user.name)
-    #  end
-    #elsif !active_param.nil?
-    #  old_value = active_param.value
-    #  active_param.destroy
-    #  java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
-    #end
-
-    # let's reload the active rule
+    # TODO use a QProfileRule instead of rails objects
+    profile = Profile.find(params[:profile_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
     render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
   end

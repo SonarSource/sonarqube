@@ -85,7 +85,7 @@ public class RuleRegistry {
     List<RuleParamDto> flatParams = ruleDao.selectParameters();
     profiler.stop();
 
-    Multimap<Long, RuleParamDto> paramsByRule = ArrayListMultimap.create();
+    Multimap<Integer, RuleParamDto> paramsByRule = ArrayListMultimap.create();
     for (RuleParamDto param : flatParams) {
       paramsByRule.put(param.getRuleId(), param);
     }
@@ -156,7 +156,7 @@ public class RuleRegistry {
    * @param ruleId
    */
   public void saveOrUpdate(int ruleId) {
-    RuleDto rule = ruleDao.selectById(Long.valueOf(ruleId));
+    RuleDto rule = ruleDao.selectById(ruleId);
     Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
     try {
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params));
@@ -173,7 +173,7 @@ public class RuleRegistry {
     }
   }
 
-  private void bulkIndex(List<RuleDto> rules, Multimap<Long, RuleParamDto> paramsByRule) throws IOException {
+  private void bulkIndex(List<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule) throws IOException {
     String[] ids = new String[rules.size()];
     BytesStream[] docs = new BytesStream[rules.size()];
     int index = 0;

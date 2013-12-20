@@ -149,11 +149,11 @@ public class QProfileOperations implements ServerComponent {
   private ActiveRuleDto newActiveRule(QualityProfileDto qualityProfile, Rule rule, String severity, UserSession userSession, SqlSession session) {
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileId(qualityProfile.getId())
-      .setRuleId(rule.getId().longValue())
+      .setRuleId(rule.getId())
       .setSeverity(Severity.ordinal(severity));
     activeRuleDao.insert(activeRuleDto, session);
 
-    List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId().longValue(), session);
+    List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId(), session);
     List<ActiveRuleParamDto> activeRuleParams = Lists.newArrayList();
     for (RuleParamDto ruleParam : ruleParams) {
       ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
@@ -312,7 +312,7 @@ public class QProfileOperations implements ServerComponent {
   private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, QualityProfileDto dto) {
     return new ActiveRuleDto()
       .setProfileId(dto.getId())
-      .setRuleId(activeRule.getRule().getId().longValue())
+      .setRuleId(activeRule.getRule().getId())
       .setSeverity(toSeverityLevel(activeRule.getSeverity()));
   }
 

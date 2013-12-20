@@ -14,7 +14,7 @@
     select <include refid="selectColumns"/> from rules
   </select>
 
-  <select id="selectById" parameterType="long" resultType="Rule">
+  <select id="selectById" parameterType="Integer" resultType="Rule">
     select <include refid="selectColumns"/> from rules WHERE id=#{id}
   </select>
 
@@ -50,7 +50,7 @@
       #{priorityOrdinal}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <delete id="deleteParams" parameterType="long" >
+  <delete id="deleteParams" parameterType="Integer" >
     delete from active_rule_parameters where rules_parameter_id=#{id}
   </delete>
 

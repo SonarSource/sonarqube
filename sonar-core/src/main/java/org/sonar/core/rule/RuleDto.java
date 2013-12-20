@@ -25,7 +25,7 @@ import org.sonar.check.Priority;
 import java.util.Date;
 
 public final class RuleDto {
-  private Long id;
+  private Integer id;
   private String repositoryKey;
   private String ruleKey;
   private String description;
@@ -35,7 +35,7 @@ public final class RuleDto {
   private Priority priority;
   private Cardinality cardinality;
   private String language;
-  private Long parentId;
+  private Integer parentId;
   private Date createdAt;
   private Date updatedAt;
   private String noteData;
@@ -43,11 +43,11 @@ public final class RuleDto {
   private Date noteCreatedAt;
   private Date noteUpdatedAt;
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -131,11 +131,11 @@ public final class RuleDto {
     this.language = language;
   }
 
-  public Long getParentId() {
+  public Integer getParentId() {
     return parentId;
   }
 
-  public void setParentId(Long parentId) {
+  public void setParentId(Integer parentId) {
     this.parentId = parentId;
   }
 

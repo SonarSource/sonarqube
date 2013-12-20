@@ -298,9 +298,9 @@ public class QProfilesTest {
   public void fail_to_activate_rule_if_rule_not_found() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
-    rule.setId(10);
-    when(ruleFinder.findById(10)).thenReturn(null);
+    QProfileRule rule = mock(QProfileRule.class);
+    when(rule.id()).thenReturn(10);
+    when(rules.getFromRuleId(10)).thenReturn(null);
 
     try {
       qProfiles.activateRule(1, 10, Severity.BLOCKER);

@@ -20,31 +20,37 @@
 package org.sonar.server.qualityprofile;
 
 public class QProfileRuleParam {
+
   private final String key;
   private final String value;
   private final String description;
   private final String defaultValue;
   private final String type;
+
   public QProfileRuleParam(String key, String value, String description, String defaultValue, String type) {
-    super();
     this.key = key;
     this.value = value;
     this.description = description;
     this.defaultValue = defaultValue;
     this.type = type;
   }
+
   public String key() {
     return key;
   }
+
   public String value() {
     return value;
   }
+
   public String description() {
     return description;
   }
+
   public String defaultValue() {
     return defaultValue;
   }
+
   public String type() {
     return type;
   }

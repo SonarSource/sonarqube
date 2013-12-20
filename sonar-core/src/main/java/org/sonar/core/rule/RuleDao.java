@@ -55,7 +55,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public RuleDto selectById(Long id) {
+  public RuleDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
       return getMapper(session).selectById(id);
@@ -105,7 +105,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleParamDto> selectParameters(Long id) {
+  public List<RuleParamDto> selectParameters(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
       return selectParameters(id, session);
@@ -114,12 +114,12 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleParamDto> selectParameters(Long ruleId, SqlSession session) {
+  public List<RuleParamDto> selectParameters(Integer ruleId, SqlSession session) {
     return getMapper(session).selectParamsForRule(ruleId);
   }
 
   @CheckForNull
-  public RuleParamDto selectParamByRuleAndKey(Long ruleId, String key, SqlSession session) {
+  public RuleParamDto selectParamByRuleAndKey(Integer ruleId, String key, SqlSession session) {
     return getMapper(session).selectParamByRuleAndKey(ruleId, key);
   }
 
