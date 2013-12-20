@@ -15,6 +15,14 @@
     a.note_created_at as noteCreatedAt
   </sql>
 
+  <sql id="activeRuleParamColumns">
+    p.id,
+    p.active_rule_id as activeRuleId,
+    p.rules_parameter_id as rulesParameterId,
+    p.rules_parameter_key as key,
+    p.value as value
+  </sql>
+
   <select id="selectById" parameterType="Integer" resultType="ActiveRule">
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
@@ -29,6 +37,23 @@
     <where>
       AND profile_id=#{profileId}
       AND rule_id=#{ruleId}
+    </where>
+  </select>
+
+  <select id="selectParamById" parameterType="Integer" resultType="ActiveRuleParam">
+    SELECT <include refid="activeRuleParamColumns"/>
+    FROM active_rule_parameters p
+    <where>
+      AND id=#{id}
+    </where>
+  </select>
+
+  <select id="selectParamByActiveRuleAndKey" parameterType="map" resultType="ActiveRuleParam">
+    SELECT <include refid="activeRuleParamColumns"/>
+    FROM active_rule_parameters p
+    <where>
+      AND active_rule_id=#{activeRuleId}
+      AND rules_parameter_key=#{key}
     </where>
   </select>
 
@@ -55,6 +80,15 @@
     VALUES (#{activeRuleId}, #{rulesParameterId}, #{key}, #{value})
   </insert>
 
+  <update id="updateParameter" parameterType="ActiveRuleParam">
+    UPDATE active_rule_parameters SET
+    active_rule_id=#{activeRuleId},
+    rules_parameter_id=#{rulesParameterId},
+    rules_parameter_key=#{key},
+    value=#{value}
+    WHERE id=#{id}
+  </update>
+
   <update id="delete" parameterType="Integer">
     DELETE FROM active_rules WHERE id=#{id}
   </update>
@@ -62,6 +96,11 @@
   <update id="deleteParameters" parameterType="Integer">
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
   </update>
+
+  <update id="deleteParameter" parameterType="Integer">
+    DELETE FROM active_rule_parameters WHERE id=#{id}
+  </update>
+
 
 </mapper>
 

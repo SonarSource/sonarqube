@@ -24,6 +24,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -112,8 +114,13 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleParamDto> selectParameters(Long id, SqlSession session) {
-    return getMapper(session).selectParamsForRule(id);
+  public List<RuleParamDto> selectParameters(Long ruleId, SqlSession session) {
+    return getMapper(session).selectParamsForRule(ruleId);
+  }
+
+  @CheckForNull
+  public RuleParamDto selectParamByRuleAndKey(Long ruleId, String key, SqlSession session) {
+    return getMapper(session).selectParamByRuleAndKey(ruleId, key);
   }
 
   private RuleMapper getMapper(SqlSession session) {

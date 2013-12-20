@@ -26,7 +26,7 @@ public class ActiveRuleDto {
 
   private Integer id;
   private Integer profileId;
-  private Integer ruleId;
+  private Long ruleId;
   private Integer severity;
   private String inheritance;
   private Date noteCreatedAt;
@@ -52,11 +52,11 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public Integer getRulId() {
+  public Long getRulId() {
     return ruleId;
   }
 
-  public ActiveRuleDto setRuleId(Integer ruleId) {
+  public ActiveRuleDto setRuleId(Long ruleId) {
     this.ruleId = ruleId;
     return this;
   }

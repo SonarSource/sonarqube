@@ -30,8 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -56,6 +55,9 @@ public class QProfilesTest {
   QualityProfileDao qualityProfileDao;
 
   @Mock
+  ActiveRuleDao activeRuleDao;
+
+  @Mock
   ResourceDao resourceDao;
 
   @Mock
@@ -77,7 +79,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, resourceDao, ruleFinder, projectService, search, service, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, resourceDao, ruleFinder, projectService, search, service, rules);
   }
 
   @Test
@@ -320,6 +322,70 @@ public class QProfilesTest {
     qProfiles.deactivateRule(1, 10);
 
     verify(service).deactivateRule(eq(qualityProfile), eq(rule), any(UserSession.class));
+  }
+
+  @Test
+  public void update_active_rule_param() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
+
+    qProfiles.updateActiveRuleParam(50, "max", "20");
+
+    verify(service).updateActiveRuleParam(eq(activeRule), eq(activeRuleParam), eq("20"), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_update_active_rule_param_if_active_rule_not_found() throws Exception {
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
+
+    when(activeRuleDao.selectById(50)).thenReturn(null);
+
+    try {
+      qProfiles.updateActiveRuleParam(50, "max", "20");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verifyZeroInteractions(service);
+  }
+
+  @Test
+  public void create_active_rule_param() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+    when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(null);
+
+    qProfiles.updateActiveRuleParam(50, "max", "20");
+
+    verify(service).createActiveRuleParam(eq(activeRule), eq("max"), eq("20"), any(UserSession.class));
+  }
+
+  @Test
+  public void delete_active_rule_param() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
+
+    qProfiles.updateActiveRuleParam(50, "max", "");
+
+    verify(service).deleteActiveRuleParam(eq(activeRule), eq(activeRuleParam), any(UserSession.class));
+  }
+
+  @Test
+  public void do_nothing_when_updating_active_rule_param_with_no_param_and_empty_value() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+    when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(null);
+
+    qProfiles.updateActiveRuleParam(50, "max", "");
+
+    verifyZeroInteractions(service);
   }
 
 }

@@ -32,14 +32,24 @@ public interface ActiveRuleMapper {
   @CheckForNull
   ActiveRuleDto selectByProfileAndRule(@Param("profileId") Integer profileId, @Param("ruleId") Integer ruleId);
 
+  @CheckForNull
+  ActiveRuleParamDto selectParamById(Integer activeRuleParamId);
+
+  @CheckForNull
+  ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") Integer activeRuleId, @Param("key") String key);
+
   void insert(ActiveRuleDto dto);
 
   void update(ActiveRuleDto dto);
 
   void insertParameter(ActiveRuleParamDto dto);
 
+  void updateParameter(ActiveRuleParamDto dto);
+
   void delete(Integer activeRuleId);
 
   void deleteParameters(Integer activeRuleId);
+
+  void deleteParameter(Integer activeRuleParamId);
 
 }

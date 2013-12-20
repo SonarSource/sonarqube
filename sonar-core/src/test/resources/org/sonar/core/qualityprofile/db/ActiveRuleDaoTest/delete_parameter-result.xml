@@ -1,0 +1,14 @@
+<dataset>
+
+  <active_rules id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"
+    note_created_at="[null]" note_updated_at="[null]" note_user_login="[null]" note_data="[null]"/>
+
+  <active_rules id="2" profile_id="1" rule_id="11" failure_level="0" inheritance="[null]"
+                note_created_at="[null]" note_updated_at="[null]" note_user_login="[null]" note_data="[null]"/>
+
+  <!--<active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" rules_parameter_key="max" value="20"/>-->
+  <active_rule_parameters id="2" active_rule_id="1" rules_parameter_id="2" rules_parameter_key="format" value="html"/>
+
+  <active_rule_parameters id="3" active_rule_id="2" rules_parameter_id="1" rules_parameter_key="max" value="15"/>
+
+</dataset>

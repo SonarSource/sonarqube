@@ -69,12 +69,36 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_param_by_id() {
+    setupData("shared");
+
+    ActiveRuleParamDto result = dao.selectParamById(1);
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getActiveRuleId()).isEqualTo(1);
+    assertThat(result.getRulesParameterId()).isEqualTo(1);
+    assertThat(result.getKey()).isEqualTo("max");
+    assertThat(result.getValue()).isEqualTo("20");
+  }
+
+  @Test
+  public void select_param_by_active_rule_and_key() {
+    setupData("shared");
+
+    ActiveRuleParamDto result = dao.selectParamByActiveRuleAndKey(1, "max");
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getActiveRuleId()).isEqualTo(1);
+    assertThat(result.getRulesParameterId()).isEqualTo(1);
+    assertThat(result.getKey()).isEqualTo("max");
+    assertThat(result.getValue()).isEqualTo("20");
+  }
+
+  @Test
   public void insert() {
     setupData("empty");
 
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileId(1)
-      .setRuleId(10)
+      .setRuleId(10L)
       .setSeverity(2)
       .setInheritance("INHERITED");
 
@@ -90,7 +114,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setId(1)
       .setProfileId(1)
-      .setRuleId(10)
+      .setRuleId(10L)
       .setSeverity(4)
       .setInheritance(null)
       .setNoteData("text");
@@ -112,7 +136,23 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    checkTables("insertParameter", "active_rule_parameters");
+    checkTables("insert_parameter", "active_rule_parameters");
+  }
+
+  @Test
+  public void update_parameter() {
+    setupData("shared");
+
+    ActiveRuleParamDto dto = new ActiveRuleParamDto()
+      .setId(1)
+      .setActiveRuleId(2)
+      .setRulesParameterId(3)
+      .setKey("newMax")
+      .setValue("30");
+
+    dao.update(dto);
+
+    checkTables("update_parameter", "active_rule_parameters");
   }
 
   @Test
@@ -131,5 +171,14 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     dao.deleteParameters(1);
 
     checkTables("delete_parameters", "active_rule_parameters");
+  }
+
+  @Test
+  public void delete_parameter() {
+    setupData("shared");
+
+    dao.deleteParameter(1);
+
+    checkTables("delete_parameter", "active_rule_parameters");
   }
 }

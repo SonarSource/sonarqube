@@ -167,7 +167,7 @@ public class RuleRegistry {
 
   public void save(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) {
     try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_ACTIVE_RULE, Long.toString(activeRule.getId()), activeRuleDocument(activeRule, params), activeRule.getRulId().toString());
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_ACTIVE_RULE, Long.toString(activeRule.getId()), activeRuleDocument(activeRule, params), Long.toString(activeRule.getRulId()));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index active rule with id=" + activeRule.getId(), ioexception);
     }

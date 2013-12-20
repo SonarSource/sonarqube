@@ -26,8 +26,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -37,6 +36,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,7 @@ import java.util.Map;
 public class QProfiles implements ServerComponent {
 
   private final QualityProfileDao qualityProfileDao;
+  private final ActiveRuleDao activeRuleDao;
   private final ResourceDao resourceDao;
   private final RuleFinder ruleFinder;
 
@@ -53,9 +54,10 @@ public class QProfiles implements ServerComponent {
   private final QProfileOperations operations;
   private final ProfileRules rules;
 
-  public QProfiles(QualityProfileDao qualityProfileDao, ResourceDao resourceDao, RuleFinder ruleFinder, QProfileProjectService projectService, QProfileSearch search,
-                   QProfileOperations operations, ProfileRules rules) {
+  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, RuleFinder ruleFinder,
+                   QProfileProjectService projectService, QProfileSearch search, QProfileOperations operations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
+    this.activeRuleDao = activeRuleDao;
     this.resourceDao = resourceDao;
     this.ruleFinder = ruleFinder;
     this.projectService = projectService;
@@ -67,8 +69,7 @@ public class QProfiles implements ServerComponent {
   // TODO
   //
   // PROFILES
-  //
-  // startup synchronisation
+  // list all profiles (including activated rules count)
   // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects)
   // copy profile
   // export profile from profile id
@@ -79,10 +80,9 @@ public class QProfiles implements ServerComponent {
   // get inheritance of profile id
   // change inheritance of a profile id
   //
-  // CHANGELOG
-  // display changelog for a profile id
-  //
   // ACTIVE RULES
+  // deactivate a rule (only E/S indexing)
+  // update severity (only E/S indexing)
   // update parameter on a active rule
   // add note on an active rule
   // delete note on an active rule
@@ -202,6 +202,20 @@ public class QProfiles implements ServerComponent {
     return operations.deactivateRule(qualityProfile, rule, UserSession.get());
   }
 
+  public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
+    String sanitizedValue = Strings.emptyToNull(value);
+    ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
+    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
+    UserSession userSession = UserSession.get();
+    if (activeRuleParam == null && sanitizedValue != null) {
+      operations.createActiveRuleParam(activeRule, key, value, userSession);
+    } else if (activeRuleParam != null && sanitizedValue == null) {
+      operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
+    } else if (activeRuleParam != null) {
+      operations.updateActiveRuleParam(activeRule, activeRuleParam, value, UserSession.get());
+    }
+  }
+
   //
   // Quality profile validation
   //
@@ -283,6 +297,23 @@ public class QProfiles implements ServerComponent {
       throw new NotFoundException("This rule does not exists.");
     }
     return rule;
+  }
+
+  //
+  // Active Rule validation
+  //
+
+  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId) {
+    ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId);
+    if (activeRule == null) {
+      throw new NotFoundException("This active rule does not exists.");
+    }
+    return activeRule;
+  }
+
+  @CheckForNull
+  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key) {
+    return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
 

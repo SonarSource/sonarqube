@@ -69,5 +69,14 @@
     where rule_id=#{id}
   </select>
 
+  <select id="selectParamByRuleAndKey" resultType="RuleParam">
+    SELECT <include refid="paramColumns"/>
+    FROM rules_parameters
+    <where>
+      AND rule_id=#{ruleId}
+      AND name=#{key}
+    </where>
+  </select>
+
 </mapper>
 

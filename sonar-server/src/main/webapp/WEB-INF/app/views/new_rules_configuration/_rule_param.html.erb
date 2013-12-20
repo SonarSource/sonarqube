@@ -1,6 +1,6 @@
 <% # locals = rule, profile, parameter
    param_id = "#{rule.id}#{parameter.key}"
-   param_value = parameter.defaultValue || parameter.value || ''
+   param_value = parameter.value || ''
    active_rule_id = rule.activeRuleId
    read_only = rule.activeRuleId.nil? || !profiles_administrator?
 %>

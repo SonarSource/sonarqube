@@ -53,9 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -271,7 +269,7 @@ public class RuleRegistryTest {
 
   @Test
   public void bulk_index_active_rules() throws IOException {
-    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2));
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1L).setSeverity(2));
     Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
     paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
 
@@ -293,7 +291,7 @@ public class RuleRegistryTest {
 
   @Test
   public void save_active_rule() throws IOException {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1L).setSeverity(2);
     ArrayList<ActiveRuleParamDto> params = newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters"));
 
     registry.save(activeRule, params);

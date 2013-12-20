@@ -19,14 +19,24 @@
  */
 package org.sonar.core.rule;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface RuleMapper {
   List<RuleDto> selectAll();
+
   List<RuleDto> selectNonManual();
+
   RuleDto selectById(Long id);
+
   void update(RuleDto rule);
+
   void insert(RuleDto rule);
+
   List<RuleParamDto> selectAllParams();
+
   List<RuleParamDto> selectParamsForRule(Long id);
+
+  RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Long ruleId, @Param("key") String key);
 }
