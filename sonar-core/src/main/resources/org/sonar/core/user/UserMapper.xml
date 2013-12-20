@@ -28,10 +28,10 @@
   <select id="selectUsersByLogins" parameterType="map" resultType="User">
     SELECT
     <include refid="userColumns"/>
-    FROM users u WHERE u.login IN
-    <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
-      #{login}
-    </foreach>
+    FROM users u WHERE
+    (<foreach item="login" index="index" collection="logins" open="(" separator=" or " close=")">
+      u.login=#{login}
+    </foreach>)
   </select>
 
   <select id="selectUsers" parameterType="map" resultType="User">
