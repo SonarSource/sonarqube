@@ -113,11 +113,10 @@ public class ProfilingFilter implements Filter {
 
   @VisibleForTesting
   Profiling getProfiling() {
-    try {
-      return (Profiling) Platform.component(Profiling.class);
-    } catch(Exception initException) {
-      LOG.error("Could not initialize platform profiling", initException);
-      return new Profiling(new Settings());
+    Profiling profiling = Platform.component(Profiling.class);
+    if (profiling != null) {
+      return profiling;
     }
+    return new Profiling(new Settings());
   }
 }
