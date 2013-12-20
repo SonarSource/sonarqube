@@ -47,56 +47,63 @@ public final class RuleDto {
     return id;
   }
 
-  public void setId(Integer id) {
+  public RuleDto setId(Integer id) {
     this.id = id;
+    return this;
   }
 
   public String getRepositoryKey() {
     return repositoryKey;
   }
 
-  public void setRepositoryKey(String repositoryKey) {
+  public RuleDto setRepositoryKey(String repositoryKey) {
     this.repositoryKey = repositoryKey;
+    return this;
   }
 
   public String getRuleKey() {
     return ruleKey;
   }
 
-  public void setRuleKey(String ruleKey) {
+  public RuleDto setRuleKey(String ruleKey) {
     this.ruleKey = ruleKey;
+    return this;
   }
 
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
+  public RuleDto setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   public String getStatus() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public RuleDto setStatus(String status) {
     this.status = status;
+    return this;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public RuleDto setName(String name) {
     this.name = name;
+    return this;
   }
 
   public String getConfigKey() {
     return configKey;
   }
 
-  public void setConfigKey(String configKey) {
+  public RuleDto setConfigKey(String configKey) {
     this.configKey = configKey;
+    return this;
   }
 
   public Priority getPriority() {
@@ -107,83 +114,95 @@ public final class RuleDto {
     return priority.ordinal();
   }
 
-  public void setPriority(Priority priority) {
+  // TODO do not use Priority
+  public RuleDto setPriority(Priority priority) {
     this.priority = priority;
+    return this;
   }
 
-  public void setPriorityOrdinal(int ordinal) {
+  public RuleDto setPriorityOrdinal(int ordinal) {
     this.priority = Priority.values()[ordinal];
+    return this;
   }
 
   public Cardinality getCardinality() {
     return cardinality;
   }
 
-  public void setCardinality(Cardinality cardinality) {
+  public RuleDto setCardinality(Cardinality cardinality) {
     this.cardinality = cardinality;
+    return this;
   }
 
   public String getLanguage() {
     return language;
   }
 
-  public void setLanguage(String language) {
+  public RuleDto setLanguage(String language) {
     this.language = language;
+    return this;
   }
 
   public Integer getParentId() {
     return parentId;
   }
 
-  public void setParentId(Integer parentId) {
+  public RuleDto setParentId(Integer parentId) {
     this.parentId = parentId;
+    return this;
   }
 
   public Date getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(Date createdAt) {
+  public RuleDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
   public Date getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(Date updatedAt) {
+  public RuleDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
   }
 
   public String getNoteData() {
     return noteData;
   }
 
-  public void setNoteData(String noteData) {
+  public RuleDto setNoteData(String noteData) {
     this.noteData = noteData;
+    return this;
   }
 
   public String getNoteUserLogin() {
     return noteUserLogin;
   }
 
-  public void setNoteUserLogin(String noteUserLogin) {
+  public RuleDto setNoteUserLogin(String noteUserLogin) {
     this.noteUserLogin = noteUserLogin;
+    return this;
   }
 
   public Date getNoteCreatedAt() {
     return noteCreatedAt;
   }
 
-  public void setNoteCreatedAt(Date noteCreatedAt) {
+  public RuleDto setNoteCreatedAt(Date noteCreatedAt) {
     this.noteCreatedAt = noteCreatedAt;
+    return this;
   }
 
   public Date getNoteUpdatedAt() {
     return noteUpdatedAt;
   }
 
-  public void setNoteUpdatedAt(Date noteUpdatedAt) {
+  public RuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
+    return this;
   }
 }

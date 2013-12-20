@@ -41,6 +41,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Used through ruby code <pre>Internal.quality_profiles</pre>
+ */
 public class QProfiles implements ServerComponent {
 
   private final QualityProfileDao qualityProfileDao;
@@ -81,9 +84,8 @@ public class QProfiles implements ServerComponent {
   // change inheritance of a profile id
   //
   // ACTIVE RULES
-  // deactivate a rule (only E/S indexing)
-  // update severity (only E/S indexing)
-  // update parameter on a active rule (only E/S indexing)
+  // bulk activate all
+  // bulk deactivate all
   // update note on an active rule (only E/S indexing)
   // delete note on an active rule (only E/S indexing)
   // extends extension of a rule

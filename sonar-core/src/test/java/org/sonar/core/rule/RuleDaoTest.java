@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -83,38 +84,30 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void testUpdate() {
+  public void update() {
     setupData("update");
-    RuleDto ruleToUpdate = new RuleDto();
-    final int ruleId = 1;
-    String newRuleKey = "NewRuleKey";
-    String newRepositoryKey = "plugin";
-    String newName = "new name";
-    String newDescription = "new description";
-    String newStatus = Rule.STATUS_DEPRECATED;
-    String newConfigKey = "NewConfigKey";
-    Priority newPriority = Priority.INFO;
-    Cardinality newCardinality = Cardinality.MULTIPLE;
-    String newLanguage = "dart";
-    Date updatedAt = new Date();
-    Integer newParentId = 3;
 
-    ruleToUpdate.setId(ruleId);
-    ruleToUpdate.setRuleKey(newRuleKey);
-    ruleToUpdate.setRepositoryKey(newRepositoryKey);
-    ruleToUpdate.setName(newName);
-    ruleToUpdate.setDescription(newDescription);
-    ruleToUpdate.setStatus(newStatus);
-    ruleToUpdate.setConfigKey(newConfigKey);
-    ruleToUpdate.setPriority(newPriority);
-    ruleToUpdate.setCardinality(newCardinality);
-    ruleToUpdate.setLanguage(newLanguage);
-    ruleToUpdate.setUpdatedAt(updatedAt);
-    ruleToUpdate.setParentId(newParentId);
+    RuleDto ruleToUpdate = new RuleDto()
+      .setId(1)
+      .setRuleKey("NewRuleKey")
+      .setRepositoryKey("plugin")
+      .setName("new name")
+      .setDescription("new description")
+      .setStatus(Rule.STATUS_DEPRECATED)
+      .setConfigKey("NewConfigKey")
+      .setPriority(Priority.INFO)
+      .setCardinality(Cardinality.MULTIPLE)
+      .setLanguage("dart")
+      .setParentId(3)
+      .setUpdatedAt(DateUtils.parseDate("2013-12-17"))
+      .setNoteData("My note")
+      .setNoteUserLogin("admin")
+      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
+      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"));
+
     dao.update(ruleToUpdate);
 
-    RuleDto updatedRule = dao.selectById(ruleId);
-    assertThat(updatedRule.getRuleKey()).isEqualTo(newRuleKey);
+    checkTables("update", "rules");
   }
 
   @Test

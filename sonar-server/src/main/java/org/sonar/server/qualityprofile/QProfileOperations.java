@@ -44,6 +44,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
@@ -303,6 +304,32 @@ public class QProfileOperations implements ServerComponent {
     activeRule.setNoteCreatedAt(null);
     activeRule.setNoteUpdatedAt(null);
     activeRuleDao.update(activeRule);
+    // TODO notify E/S of active rule change
+  }
+
+  public void updateRuleNote(RuleDto rule, String note, UserSession userSession) {
+    checkPermission(userSession);
+    Date now = new Date(system.now());
+
+    if (rule.getNoteData() == null) {
+      rule.setNoteCreatedAt(now);
+      rule.setNoteUserLogin(userSession.login());
+    }
+    rule.setNoteUpdatedAt(now);
+    rule.setNoteData(note);
+    ruleDao.update(rule);
+    // TODO notify E/S of active rule change
+  }
+
+  public void deleteRuleNote(RuleDto rule, UserSession userSession) {
+    checkPermission(userSession);
+
+    rule.setNoteUpdatedAt(new Date(system.now()));
+    rule.setNoteData(null);
+    rule.setNoteUserLogin(null);
+    rule.setNoteCreatedAt(null);
+    rule.setNoteUpdatedAt(null);
+    ruleDao.update(rule);
     // TODO notify E/S of active rule change
   }
 

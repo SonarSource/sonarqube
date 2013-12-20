@@ -48,6 +48,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
@@ -65,7 +66,12 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -438,7 +444,8 @@ public class QProfileOperationsTest {
   @Test
   public void delete_active_rule_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setNoteCreatedAt(createdAt).setNoteData("My note");
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1)
+      .setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -447,6 +454,59 @@ public class QProfileOperationsTest {
 
     ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
+  }
+
+  @Test
+  public void update_rule_note_when_no_note() throws Exception {
+    RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(null).setNoteData(null);
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.updateRuleNote(rule, "My note", MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My note");
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt().getTime()).isEqualTo(now);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+  }
+
+  @Test
+  public void update_rule_note_when_already_note() throws Exception {
+    Date createdAt = DateUtils.parseDate("2013-12-20");
+    RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.updateRuleNote(rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My new note");
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(createdAt);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+  }
+
+  @Test
+  public void delete_rule_note() throws Exception {
+    Date createdAt = DateUtils.parseDate("2013-12-20");
+    RuleDto rule = new RuleDto().setId(10).setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.deleteRuleNote(rule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getNoteData()).isNull();
     assertThat(argumentCaptor.getValue().getNoteUserLogin()).isNull();
     assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isNull();
