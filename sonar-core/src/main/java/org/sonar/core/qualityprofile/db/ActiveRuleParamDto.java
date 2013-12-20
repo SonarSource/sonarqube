@@ -25,7 +25,7 @@ public class ActiveRuleParamDto {
   private Integer id;
   private Integer activeRuleId;
   private Integer rulesParameterId;
-  private String key;
+  private String kee;
   private String value;
 
   public Integer getId() {
@@ -56,11 +56,11 @@ public class ActiveRuleParamDto {
   }
 
   public String getKey() {
-    return key;
+    return kee;
   }
 
   public ActiveRuleParamDto setKey(String key) {
-    this.key = key;
+    this.kee = key;
     return this;
   }
 

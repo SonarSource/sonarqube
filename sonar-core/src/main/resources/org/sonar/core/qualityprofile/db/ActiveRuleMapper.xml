@@ -19,7 +19,7 @@
     p.id,
     p.active_rule_id as activeRuleId,
     p.rules_parameter_id as rulesParameterId,
-    p.rules_parameter_key as key,
+    p.rules_parameter_key as kee,
     p.value as value
   </sql>
 
