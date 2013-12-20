@@ -80,7 +80,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure metrics
     this.mainMetric = this.metricsPriority()[0];
     this.getMainMetric = function(d) {
-      return d.measures[widget.mainMetric].val;
+      if (d.measures[widget.mainMetric]) {
+        return d.measures[widget.mainMetric].val;
+      } else {
+        return 0;
+      }
     };
     this.fm = function(value, name) {
       var type = this.metrics()[name].type;
