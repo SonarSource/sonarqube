@@ -1,6 +1,9 @@
 <% # locals = rule, profile, parameter
+   # Display default value only for inactive rules
    param_id = "#{rule.id}#{parameter.key}"
-   param_value = parameter.value || ''
+   # Display default value only for inactive rules
+   param_value = parameter.default_value if !rule.activeRuleId
+   param_value = parameter.value if !param_value
    active_rule_id = rule.activeRuleId
    read_only = rule.activeRuleId.nil? || !profiles_administrator?
 %>
