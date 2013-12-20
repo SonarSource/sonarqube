@@ -166,8 +166,6 @@ public class QProfileOperations implements ServerComponent {
       }
       session.commit();
 
-      ruleRegistry.save(activeRule, activeRuleParams);
-
       RuleInheritanceActions actions = profilesManager.activated(qualityProfile.getId(), activeRule.getId(), userSession.name());
       reindexInheritanceResult(actions, session);
 
@@ -210,11 +208,14 @@ public class QProfileOperations implements ServerComponent {
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = validate(qualityProfile, rule);
-      profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+      RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
 
       activeRuleDao.delete(activeRule.getId(), session);
       activeRuleDao.deleteParameters(activeRule.getId(), session);
+      actions.addToDelete(activeRule.getId());
       session.commit();
+
+      reindexInheritanceResult(actions, session);
 
       return new RuleActivationResult(QProfile.from(qualityProfile), profileRules.getFromRuleId(rule.getId()));
     } finally {

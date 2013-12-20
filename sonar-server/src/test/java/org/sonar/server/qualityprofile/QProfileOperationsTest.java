@@ -56,7 +56,6 @@ import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
@@ -275,7 +273,6 @@ public class QProfileOperationsTest {
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
 
     verify(session).commit();
-    verify(ruleRegistry).save(activeRuleArgument.capture(), (Collection<ActiveRuleParamDto>) anyCollection());
     verify(profileRules).getFromActiveRuleId(anyInt());
     verify(profilesManager).activated(eq(1), anyInt(), eq("nicolas"));
   }
@@ -307,6 +304,7 @@ public class QProfileOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
     when(profileRules.getFromRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
+    when(profilesManager.deactivated(eq(1), anyInt(), eq("nicolas"))).thenReturn(new RuleInheritanceActions());
 
     RuleActivationResult result = operations.deactivateRule(qualityProfile, rule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
     assertThat(result.profile()).isNotNull();

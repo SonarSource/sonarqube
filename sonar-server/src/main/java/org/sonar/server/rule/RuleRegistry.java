@@ -324,7 +324,9 @@ public class RuleRegistry {
         parentIds[index] = activeRule.getRulId().toString();
         index++;
       }
-      searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
+      if (! activeRules.isEmpty()) {
+        searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
+      }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to index active rules", e);
     }
