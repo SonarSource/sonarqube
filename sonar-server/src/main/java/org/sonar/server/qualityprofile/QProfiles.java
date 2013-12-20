@@ -193,7 +193,12 @@ public class QProfiles implements ServerComponent {
   public RuleActivationResult activateRule(int profileId, int ruleId, String severity) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     Rule rule = findRuleNotNull(ruleId);
-    return operations.activateRule(qualityProfile, rule, severity, UserSession.get());
+    ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
+    if (activeRule == null) {
+      return operations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
+    } else {
+      return operations.updateSeverity(qualityProfile, activeRule, severity, UserSession.get());
+    }
   }
 
   public RuleActivationResult deactivateRule(int profileId, int ruleId) {
@@ -309,6 +314,11 @@ public class QProfiles implements ServerComponent {
       throw new NotFoundException("This active rule does not exists.");
     }
     return activeRule;
+  }
+
+  @CheckForNull
+  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, Rule rule) {
+    return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
   }
 
   @CheckForNull

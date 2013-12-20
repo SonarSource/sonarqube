@@ -291,7 +291,7 @@ public class QProfilesTest {
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
-    verify(service).activateRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class));
+    verify(service).createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
@@ -309,6 +309,23 @@ public class QProfilesTest {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
     verifyZeroInteractions(service);
+  }
+
+  @Test
+  public void update_severity() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
+
+    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
+    rule.setId(10);
+    when(ruleFinder.findById(10)).thenReturn(rule);
+
+    qProfiles.activateRule(1, 10, Severity.BLOCKER);
+
+    verify(service).updateSeverity(eq(qualityProfile), eq(activeRule), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
