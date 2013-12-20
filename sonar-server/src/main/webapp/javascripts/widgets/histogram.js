@@ -125,6 +125,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     };
 
 
+    // Configure metric label
+    this.metricLabel = this.gWrap.append('text')
+        .text(this.metrics()[this.mainMetric].name)
+        .attr('dy', '9px')
+        .style('font-size', '11px');
+
+
     // Show maxResultsReached message
     if (this.maxResultsReached()) {
       this.maxResultsReachedLabel = this.gWrap.append('text')
@@ -154,7 +161,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Update available size
     this.availableWidth = this.width() - this.margin().left - this.margin().right - this.legendWidth();
-    this.availableHeight = barHeight * this.components().length;
+    this.availableHeight = barHeight * this.components().length + this._lineHeight;
     var totalHeight = this.availableHeight + this.margin().top + this.margin().bottom;
     if (this.maxResultsReached()) {
       totalHeight += this._lineHeight;
@@ -168,10 +175,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('height', this.height());
 
 
+    // Update plot
+    this.plotWrap
+        .attr('transform', trans(0, this._lineHeight));
+
+
     // Update scales
-    var xDomain;
-    if (this.options().displayWorstBestValues) {
-      var metric = this.metrics()[this.mainMetric];
+    var xDomain,
+        metric = this.metrics()[this.mainMetric];
+    if (this.options().displayWorstBestValues && metric.worstValue != null && metric.bestValue != null) {
       xDomain = [metric.worstValue, metric.bestValue];
     } else {
       xDomain = d3.extent(this.components(), function(d) {
@@ -180,7 +192,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
     this.x
         .domain(xDomain)
-        .range([this.availableWidth / 8, this.availableWidth]);
+        .range([0, this.availableWidth]);
 
     this.y
         .domain(this.components().map(function(d, i) { return i; }))
@@ -219,7 +231,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .transition()
         .attr('x', this.legendWidth())
         .attr('y', 0)
-        .attr('width', function(d) { return widget.x(widget.getMainMetric(d)); })
+        .attr('width', function(d) { return Math.max(2, widget.x(widget.getMainMetric(d))); })
         .attr('height', barHeight);
 
     this.bars.selectAll('.component')
@@ -245,6 +257,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               window.location = widget.options().baseUrl + encodeURIComponent(d.key);
           }
         });
+
+
+    // Configure metric label
+    this.metricLabel
+        .attr('transform', trans(this.legendWidth(), 0));
 
 
     // Show maxResultsReached message
