@@ -1,5 +1,5 @@
 <%
-   container_id = 'bubble-chart-widget' + widget.id.to_s
+   containerId = 'bubble-chart-widget' + widget.id.to_s
    xMetric = widget_properties["xMetric"]
    yMetric = widget_properties["yMetric"]
    sizeMetric = widget_properties["sizeMetric"]
@@ -9,7 +9,7 @@
    chartTitle = widget_properties["chartTitle"]
 %>
 
-<div class="bubble-chart-widget" id="<%= container_id %>">
+<div class="bubble-chart-widget" id="<%= containerId %>">
     <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
 
     <!--[if (gte IE 9)|!(IE)]><!-->
@@ -21,55 +21,68 @@
 
 <!--[if (gte IE 9)|!(IE)]><!-->
 <script>
-
-  var bubbleChartData = [
+  (function () {
     <%
        filter = MeasureFilter.new
        filter.criteria = {:qualifiers => Api::Utils.java_facade.getResourceLeavesQualifiers(@project.qualifier).to_a, :baseId => @project.id}
        filter.metrics = [xMetric.name, yMetric.name, sizeMetric.name]
        filter.execute(self, :user => current_user)
-       filter.rows.each  do |row|
-         x = row.measure(xMetric)
-         y = row.measure(yMetric)
-         size = row.measure(sizeMetric)
     %>
-    {
-      id: <%= row.resource.id -%>,
-      key: '<%= escape_javascript row.resource.key -%>',
-      name: '<%= escape_javascript row.resource.name -%>',
-      longName: '<%= escape_javascript row.resource.long_name -%>',
 
-      xMetric: <%= x ? x.value : 0 -%>,
-      xMetricFormatted: '<%= escape_javascript x ? x.formatted_value : "-" -%>',
+    var data = {
+          metrics: {
+            <%= xMetric.name -%>: {
+              name: '<%= xMetric.short_name -%>',
+              type: '<%= xMetric.type -%>'
+            },
+            <%= yMetric.name -%>: {
+              name: '<%= yMetric.short_name -%>',
+              type: '<%= yMetric.type -%>'
+            },
+            <%= sizeMetric.name -%>: {
+              name: '<%= sizeMetric.short_name -%>',
+              type: '<%= sizeMetric.type -%>'
+            }
+          },
+          components: [
+            <%
+            filter.rows.each  do |row|
+              x = row.measure(xMetric)
+              y = row.measure(yMetric)
+              size = row.measure(sizeMetric)
+            %>
+            {
+              key: '<%= escape_javascript row.resource.key -%>',
+              name: '<%= escape_javascript row.resource.name -%>',
+              longName: '<%= escape_javascript row.resource.long_name -%>',
+              qualifier: '<%= escape_javascript row.resource.qualifier -%>',
+              measures: {
+                <%= xMetric.name -%>: { val: <%= x ? x.value : 0 -%> },
+                <%= yMetric.name -%>: { val: <%= y ? y.value : 0 -%> },
+                <%= sizeMetric.name -%>: { val: <%= size ? size.value : 0 -%> }
+              }
+            },
+            <% end %>
+          ]
+        },
+        widget = new SonarWidgets.BubbleChart();
 
-      yMetric: <%= y ? y.value : 0 -%>,
-      yMetricFormatted: '<%= escape_javascript y ? y.formatted_value : "-" -%>',
+    widget
+      .metrics(data.metrics)
+      .metricsPriority(['<%= xMetric.name -%>', '<%= yMetric.name -%>', '<%= sizeMetric.name -%>'])
+      .components(data.components)
+      .height(<%= chartHeight -%>)
+      .options({
+        baseUrl: baseUrl + '/dashboard/index/',
+        xLog: <%= xLog -%>,
+        yLog: <%= yLog -%>
+      })
+      .render('#<%= containerId -%>');
 
-      sizeMetric: <%= size ? size.value : 0 -%>,
-      sizeMetricFormatted: '<%= escape_javascript size ? size.formatted_value : "-" -%>'
-    },
-    <% end %>
-  ];
-
-  var bubbleChartMetrics = {
-    x: '<%= escape_javascript xMetric.short_name -%>',
-    y: '<%= escape_javascript yMetric.short_name -%>',
-    size: '<%= escape_javascript sizeMetric.short_name -%>'
-  };
-
-
-  var bubbleChart = new SonarWidgets.BubbleChart();
-  bubbleChart
-    .data(bubbleChartData)
-    .metrics(bubbleChartMetrics)
-    .xLog(<%= xLog %>)
-    .yLog(<%= yLog %>)
-    .height(<%= chartHeight %>)
-    .render('#<%= container_id %>');
-
-  autoResize(500, function() {
-    bubbleChart.update('#<%= container_id %>');
-  });
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
 </script>
 <!--<![endif]-->
 

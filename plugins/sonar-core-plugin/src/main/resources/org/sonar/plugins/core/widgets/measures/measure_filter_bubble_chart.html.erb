@@ -1,5 +1,5 @@
 <%
-   container_id = 'bubble-chart-widget' + widget.id.to_s
+   containerId = 'bubble-chart-widget' + widget.id.to_s
    chartTitle = widget_properties["chartTitle"]
    chartHeight = widget_properties["chartHeight"]
    filterId = widget_properties["filter"].to_i
@@ -13,6 +13,55 @@
    filter = MeasureFilter.find_by_id(filterId.to_i)
    @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
+
+<div class="bubble-chart-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+  <h3 style="text-align:center;"><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script>
+  (function () {
+    var metrics = [
+          '<%= xMetric.name -%>', '<%= yMetric.name -%>', '<%= sizeMetric.name -%>'
+        ],
+        query = [
+          'filter=<%= filterId -%>',
+          'metrics=' + metrics.join(','),
+          'fields=name,longName,qualifier',
+          <% if (maxItems > 0) %>
+          'pageSize=<%= maxItems -%>',
+          <% end %>
+          'page=1',
+          'sort=metric:' + metrics[0]
+        ].join('&'),
+        widget = new SonarWidgets.Widget();
+
+    widget
+      .type('BubbleChart')
+      .source(baseUrl + '/measures/search_filter?' + query)
+      .metricsPriority(metrics)
+      .height(<%= chartHeight -%>)
+      .options({
+        baseUrl: baseUrl + '/dashboard/index/',
+        xLog: <%= xLog -%>,
+        yLog: <%= yLog -%>
+      })
+      .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
+</script>
+<!--<![endif]-->
+
+
 
 
 

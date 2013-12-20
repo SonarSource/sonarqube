@@ -6,8 +6,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   window.SonarWidgets.BubbleChart = function () {
     // Set default values
-    this._data = [];
+    this._components = [];
     this._metrics = [];
+    this._metricsPriority = [];
     this._width = window.SonarWidgets.BubbleChart.defaults.width;
     this._height = window.SonarWidgets.BubbleChart.defaults.height;
     this._margin = window.SonarWidgets.BubbleChart.defaults.margin;
@@ -15,14 +16,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._yLog = window.SonarWidgets.BubbleChart.defaults.yLog;
     this._bubbleColor = window.SonarWidgets.BubbleChart.defaults.bubbleColor;
     this._bubbleColorUndefined = window.SonarWidgets.BubbleChart.defaults.bubbleColorUndefined;
+    this._options = {};
 
     // Export global variables
-    this.data = function (_) {
-      return param.call(this, '_data', _);
-    };
-
     this.metrics = function (_) {
       return param.call(this, '_metrics', _);
+    };
+
+    this.metricsPriority = function (_) {
+      return param.call(this, '_metricsPriority', _);
+    };
+
+    this.components = function (_) {
+      return param.call(this, '_components', _);
     };
 
     this.width = function (_) {
@@ -51,6 +57,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.bubbleColorUndefined = function (_) {
       return param.call(this, '_bubbleColorUndefined', _);
+    };
+
+    this.options = function (_) {
+      return param.call(this, '_options', _);
     };
   };
 
@@ -82,33 +92,67 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(this.margin().left, this.margin().top));
 
 
+    // Configure metrics
+    this.xMetric = this.metricsPriority()[0];
+    this.getXMetric = function(d) {
+      return d.measures[widget.xMetric].val;
+    };
+
+    this.yMetric = this.metricsPriority()[1];
+    this.getYMetric = function(d) {
+      return d.measures[widget.yMetric].val;
+    };
+
+    this.sizeMetric = this.metricsPriority()[2];
+    this.getSizeMetric = function(d) {
+      return d.measures[widget.sizeMetric].val;
+    };
+
+    this.fm = function(value, name) {
+      var type = this.metrics()[name].type;
+
+      switch (type) {
+        case 'FLOAT':
+          return d3.format('.1f')(value);
+        case 'INT':
+          return d3.format('d')(value);
+        default :
+          return value;
+      }
+    };
+
+
     // Configure scales
+    this
+        .xLog(this.options().xLog)
+        .yLog(this.options().yLog);
+
     this.x = this.xLog() ? d3.scale.log() : d3.scale.linear();
     this.y = this.yLog() ? d3.scale.log() : d3.scale.linear();
     this.size = d3.scale.linear();
 
     this.x
-        .domain(d3.extent(this.data(), function (d) {
-          return d.xMetric;
+        .domain(d3.extent(this.components(), function (d) {
+          return widget.getXMetric(d)
         }))
         .range([0, this.availableWidth]);
 
     this.y
-        .domain(d3.extent(this.data(), function (d) {
-          return d.yMetric;
+        .domain(d3.extent(this.components(), function (d) {
+          return widget.getYMetric(d)
         }))
         .range([this.availableHeight, 0]);
 
     this.size
-        .domain(d3.extent(this.data(), function (d) {
-          return d.sizeMetric;
+        .domain(d3.extent(this.components(), function (d) {
+          return widget.getSizeMetric(d)
         }))
         .range([5, 45]);
 
 
     // Create bubbles
     this.items = this.plotWrap.selectAll('.item')
-        .data(this.data());
+        .data(this.components());
 
 
     // Render bubbles
@@ -120,25 +164,23 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('cursor', 'pointer')
         .append('circle')
         .attr('r', function (d) {
-          return widget.size(d.sizeMetric);
+          return widget.size(widget.getSizeMetric(d));
         })
         .style('fill', function (d) {
-          return d.sizeMetricFormatted !== '-' ?
-              widget.bubbleColor() :
-              widget.bubbleColorUndefined();
+          // TODO widget.bubbleColorUndefined()
+          return widget.bubbleColor();
         })
         .style('fill-opacity', 0.2)
         .style('stroke', function (d) {
-          return d.sizeMetricFormatted !== '-' ?
-              widget.bubbleColor() :
-              widget.bubbleColorUndefined();
+          // TODO widget.bubbleColorUndefined()
+          return widget.bubbleColor();
         })
         .style('transition', 'all 0.2s ease');
 
     this.items.exit().remove();
 
     this.items.sort(function (a, b) {
-      return b.sizeMetric - a.sizeMetric;
+      return widget.getSizeMetric(b) - widget.getSizeMetric(a);
     });
 
 
@@ -155,9 +197,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.infoDate.text(d.longName);
 
           var metricLines = [
-            { metric: widget.metrics().x, value: d.xMetricFormatted },
-            { metric: widget.metrics().y, value: d.yMetricFormatted },
-            { metric: widget.metrics().size, value: d.sizeMetricFormatted }
+            { metric: widget.metrics()[widget.xMetric].name, value: widget.fm(widget.getXMetric(d), widget.xMetric) },
+            { metric: widget.metrics()[widget.yMetric].name, value: widget.fm(widget.getYMetric(d), widget.yMetric) },
+            { metric: widget.metrics()[widget.sizeMetric].name, value: widget.fm(widget.getSizeMetric(d), widget.sizeMetric) }
           ];
 
           var lastX = 0;
@@ -231,7 +273,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .text(function(d) { return d; });
     widget.infoMetricWidth = [];
     widget.infoMetrics.each(function() {
-      widget.infoMetricWidth.push(this.getComputedTextLength() + 80);
+      widget.infoMetricWidth.push(this.getComputedTextLength() + 140);
     });
     widget.infoMetrics.text('');
 
@@ -266,14 +308,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Update scales
     this.x
-        .domain(d3.extent(this.data(), function (d) {
-          return d.xMetric;
+        .domain(d3.extent(this.components(), function (d) {
+          return widget.getXMetric(d);
         }))
         .range([0, this.availableWidth]);
 
     this.y
-        .domain(d3.extent(this.data(), function (d) {
-          return d.yMetric;
+        .domain(d3.extent(this.components(), function (d) {
+          return widget.getYMetric(d);
         }))
         .range([this.availableHeight, 0]);
 
@@ -305,22 +347,22 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Adjust the scale domain so the circles don't cross the bounds
     // X
-    var minX = d3.min(this.data(), function (d) {
-          return widget.x(d.xMetric) - widget.size(d.sizeMetric);
+    var minX = d3.min(this.components(), function (d) {
+          return widget.x(widget.getXMetric(d)) - widget.size(widget.getSizeMetric(d));
         }),
-        maxX = d3.max(this.data(), function (d) {
-          return widget.x(d.xMetric) + widget.size(d.sizeMetric);
+        maxX = d3.max(this.components(), function (d) {
+          return widget.x(widget.getXMetric(d)) + widget.size(widget.getSizeMetric(d));
         }),
         dMinX = minX < 0 ? this.x.range()[0] - minX : this.x.range()[0],
         dMaxX = maxX > this.x.range()[1] ? maxX - this.x.range()[1] : 0;
     this.x.range([dMinX, this.availableWidth - dMaxX]);
 
     // Y
-    var minY = d3.min(this.data(), function (d) {
-          return widget.y(d.yMetric) - widget.size(d.sizeMetric);
+    var minY = d3.min(this.components(), function (d) {
+          return widget.y(widget.getYMetric(d)) - widget.size(widget.getSizeMetric(d));
         }),
-        maxY = d3.max(this.data(), function (d) {
-          return widget.y(d.yMetric) + widget.size(d.sizeMetric);
+        maxY = d3.max(this.components(), function (d) {
+          return widget.y(widget.getYMetric(d)) + widget.size(widget.getSizeMetric(d));
         }),
         dMinY = minY < 0 ? this.y.range()[1] - minY: this.y.range()[1],
         dMaxY = maxY > this.y.range()[0] ? maxY - this.y.range()[0] : 0;
@@ -354,7 +396,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.items
         .transition()
         .attr('transform', function (d) {
-          return trans(widget.x(d.xMetric), widget.y(d.yMetric));
+          return trans(widget.x(widget.getXMetric(d)), widget.y(widget.getYMetric(d)));
         });
 
 
