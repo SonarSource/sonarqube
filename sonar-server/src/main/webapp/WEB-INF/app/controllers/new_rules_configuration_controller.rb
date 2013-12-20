@@ -340,29 +340,28 @@ class NewRulesConfigurationController < ApplicationController
 
   def update_active_rule_note
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :active_rule_id, :note
-    active_rule = ActiveRule.find(params[:active_rule_id])
-    note = active_rule.note
-    unless note
-      note = ActiveRuleNote.new({:active_rule => active_rule})
-      # set the note on the rule to avoid reloading the rule
-      active_rule.note = note
+
+    call_backend do
+      Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
     end
-    note.text = params[:note]
-    note.user_login = current_user.login
-    note.save!
+
+    # TODO use a QProfileRule instead of rails objects
+    active_rule = ActiveRule.find(params[:active_rule_id])
     render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
   end
 
 
   def delete_active_rule_note
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :active_rule_id
+
+    call_backend do
+      Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
+    end
+
+    # TODO use a QProfileRule instead of rails objects
     active_rule = ActiveRule.find(params[:active_rule_id])
-    active_rule.note.destroy if active_rule.note
-    active_rule.note = nil
     render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
   end
 

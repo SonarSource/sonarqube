@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -34,6 +35,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -52,6 +54,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 
 import java.io.StringReader;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,18 +75,28 @@ public class QProfileOperations implements ServerComponent {
   private final ProfileRules profileRules;
   private final ProfilesManager profilesManager;
 
+  private final System2 system;
+
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager, ProfileRules profileRules) {
     this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
-      profilesManager, profileRules);
+      profilesManager, profileRules, System2.INSTANCE);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                             List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
                             ProfilesManager profilesManager, ProfileRules profileRules) {
+    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
+      profilesManager, profileRules, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
+                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
+                            ProfilesManager profilesManager, ProfileRules profileRules, System2 system) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -94,6 +107,7 @@ public class QProfileOperations implements ServerComponent {
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
     this.profileRules = profileRules;
+    this.system = system;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -213,7 +227,12 @@ public class QProfileOperations implements ServerComponent {
 
     SqlSession session = myBatis.openSession();
     try {
-      createActiveRuleParam(activeRule, key, value, session);
+      RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(activeRule.getRulId(), key, session);
+      if (ruleParam == null) {
+        throw new IllegalArgumentException("No rule param found");
+      }
+      ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
+      activeRuleDao.insert(activeRuleParam, session);
       session.commit();
       profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
     } finally {
@@ -250,14 +269,30 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  private ActiveRuleParamDto createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, SqlSession session) {
-    RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(activeRule.getRulId(), key, session);
-    if (ruleParam == null) {
-      throw new IllegalArgumentException("No rule param found");
+  public void updateActiveRuleNote(ActiveRuleDto activeRule, String note, UserSession userSession) {
+    checkPermission(userSession);
+    Date now = new Date(system.now());
+
+    if (activeRule.getNoteData() == null) {
+      activeRule.setNoteCreatedAt(now);
+      activeRule.setNoteUserLogin(userSession.login());
     }
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
-    activeRuleDao.insert(activeRuleParam, session);
-    return activeRuleParam;
+    activeRule.setNoteUpdatedAt(now);
+    activeRule.setNoteData(note);
+    activeRuleDao.update(activeRule);
+    // TODO notify E/S of active rule change
+  }
+
+  public void deleteActiveRuleNote(ActiveRuleDto activeRule, UserSession userSession) {
+    checkPermission(userSession);
+
+    activeRule.setNoteUpdatedAt(new Date(system.now()));
+    activeRule.setNoteData(null);
+    activeRule.setNoteUserLogin(null);
+    activeRule.setNoteCreatedAt(null);
+    activeRule.setNoteUpdatedAt(null);
+    activeRuleDao.update(activeRule);
+    // TODO notify E/S of active rule change
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {

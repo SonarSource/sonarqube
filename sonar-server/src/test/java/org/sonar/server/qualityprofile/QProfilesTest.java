@@ -405,4 +405,34 @@ public class QProfilesTest {
     verifyZeroInteractions(service);
   }
 
+  @Test
+  public void create_active_rule_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    qProfiles.updateActiveRuleNote(50, "My note");
+
+    verify(service).updateActiveRuleNote(eq(activeRule), eq("My note"), any(UserSession.class));
+  }
+
+  @Test
+  public void do_nothing_when_create_active_rule_note_with_empty_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    qProfiles.updateActiveRuleNote(50, "");
+
+    verifyZeroInteractions(service);
+  }
+
+  @Test
+  public void delete_active_rule_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    qProfiles.deleteActiveRuleNote(50);
+
+    verify(service).deleteActiveRuleNote(eq(activeRule), any(UserSession.class));
+  }
+
 }

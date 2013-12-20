@@ -84,9 +84,8 @@ public class QProfiles implements ServerComponent {
   // deactivate a rule (only E/S indexing)
   // update severity (only E/S indexing)
   // update parameter on a active rule (only E/S indexing)
-  // add note on an active rule
-  // delete note on an active rule
-  // edit note on an active rule
+  // update note on an active rule (only E/S indexing)
+  // delete note on an active rule (only E/S indexing)
   // extends extension of a rule
   //
   // TEMPLATE RULES
@@ -217,8 +216,21 @@ public class QProfiles implements ServerComponent {
     } else if (activeRuleParam != null && sanitizedValue == null) {
       operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
     } else if (activeRuleParam != null) {
-      operations.updateActiveRuleParam(activeRule, activeRuleParam, value, UserSession.get());
+      operations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
     }
+  }
+
+  public void updateActiveRuleNote(int activeRuleId, String note) {
+    String sanitizedNote = Strings.emptyToNull(note);
+    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
+    if (sanitizedNote != null) {
+      operations.updateActiveRuleNote(activeRule, sanitizedNote, UserSession.get());
+    }
+  }
+
+  public void deleteActiveRuleNote(int activeRuleId) {
+    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
+    operations.deleteActiveRuleNote(activeRule, UserSession.get());
   }
 
   //

@@ -37,6 +37,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -55,6 +57,7 @@ import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +65,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -98,6 +105,9 @@ public class QProfileOperationsTest {
   @Mock
   ProfilesManager profilesManager;
 
+  @Mock
+  System2 system;
+
   List<ProfileImporter> importers = newArrayList();
 
   QProfileOperations operations;
@@ -119,7 +129,7 @@ public class QProfileOperationsTest {
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
     operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, ruleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager,
-      profileRules);
+      profileRules, system);
   }
 
   @Test
@@ -384,6 +394,58 @@ public class QProfileOperationsTest {
     verifyZeroInteractions(profilesManager);
   }
 
+  @Test
+  public void update_active_rule_note_when_no_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setNoteCreatedAt(null).setNoteData(null);
 
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.updateActiveRuleNote(activeRule, "My note", MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My note");
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt().getTime()).isEqualTo(now);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+  }
+
+  @Test
+  public void update_active_rule_note_when_already_note() throws Exception {
+    Date createdAt = DateUtils.parseDate("2013-12-20");
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1)
+      .setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.updateActiveRuleNote(activeRule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My new note");
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(createdAt);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+  }
+
+  @Test
+  public void delete_active_rule_note() throws Exception {
+    Date createdAt = DateUtils.parseDate("2013-12-20");
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setNoteCreatedAt(createdAt).setNoteData("My note");
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.deleteActiveRuleNote(activeRule, MockUserSession.create().setName("nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getNoteData()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isNull();
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
+  }
 
 }
