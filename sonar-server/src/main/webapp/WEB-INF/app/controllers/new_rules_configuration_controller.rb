@@ -309,14 +309,13 @@ class NewRulesConfigurationController < ApplicationController
     access_denied unless has_role?(:profileadmin)
     require_parameters :param_id, :active_rule_id, :profile_id
 
+    result = nil
     call_backend do
-      Internal.quality_profiles.updateActiveRuleParam(params[:active_rule_id].to_i, params[:param_id], params[:value])
+      result = Internal.quality_profiles.updateActiveRuleParam(params[:profile_id].to_i, params[:active_rule_id].to_i, params[:param_id], params[:value])
     end
-
-    # TODO use a QProfileRule instead of rails objects
-    profile = Profile.find(params[:profile_id].to_i)
-    active_rule = ActiveRule.find(params[:active_rule_id].to_i)
-    render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
+    profile = result.profile
+    rule = result.rule
+    render :partial => 'rule', :locals => {:profile => profile, :rule => rule}
   end
 
 
@@ -342,13 +341,11 @@ class NewRulesConfigurationController < ApplicationController
     verify_post_request
     require_parameters :active_rule_id, :note
 
+    rule = nil
     call_backend do
-      Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
+      rule = Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
     end
-
-    # TODO use a QProfileRule instead of rails objects
-    active_rule = ActiveRule.find(params[:active_rule_id])
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
+    render :partial => 'active_rule_note', :locals => {:rule => rule}
   end
 
 
@@ -356,13 +353,11 @@ class NewRulesConfigurationController < ApplicationController
     verify_post_request
     require_parameters :active_rule_id
 
+    rule = nil
     call_backend do
-      Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
+      rule = Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
     end
-
-    # TODO use a QProfileRule instead of rails objects
-    active_rule = ActiveRule.find(params[:active_rule_id])
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
+    render :partial => 'active_rule_note', :locals => {:rule => rule}
   end
 
 

@@ -23,11 +23,11 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
@@ -48,8 +48,8 @@ public class QProfiles implements ServerComponent {
 
   private final QualityProfileDao qualityProfileDao;
   private final ActiveRuleDao activeRuleDao;
+  private final RuleDao ruleDao;
   private final ResourceDao resourceDao;
-  private final RuleFinder ruleFinder;
 
   private final QProfileProjectService projectService;
 
@@ -57,12 +57,12 @@ public class QProfiles implements ServerComponent {
   private final QProfileOperations operations;
   private final ProfileRules rules;
 
-  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao, RuleFinder ruleFinder,
+  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
                    QProfileProjectService projectService, QProfileSearch search, QProfileOperations operations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
+    this.ruleDao = ruleDao;
     this.resourceDao = resourceDao;
-    this.ruleFinder = ruleFinder;
     this.projectService = projectService;
     this.search = search;
     this.operations = operations;
@@ -191,51 +191,73 @@ public class QProfiles implements ServerComponent {
     return rules.countInactiveRules(query);
   }
 
-  public RuleActivationResult activateRule(int profileId, int ruleId, String severity) {
+  public ActiveRuleChanged activateRule(int profileId, int ruleId, String severity) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
-    Rule rule = findRuleNotNull(ruleId);
+    RuleDto rule = findRuleNotNull(ruleId);
     ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
     if (activeRule == null) {
-      return operations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
+      activeRule = operations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
     } else {
-      return operations.updateSeverity(qualityProfile, activeRule, severity, UserSession.get());
+      operations.updateSeverity(qualityProfile, activeRule, severity, UserSession.get());
     }
+    return activeRuleChanged(qualityProfile, activeRule);
   }
 
-  public RuleActivationResult deactivateRule(int profileId, int ruleId) {
+  public ActiveRuleChanged deactivateRule(int profileId, int ruleId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
-    Rule rule = findRuleNotNull(ruleId);
-    return operations.deactivateRule(qualityProfile, rule, UserSession.get());
+    RuleDto rule = findRuleNotNull(ruleId);
+    ActiveRuleDto activeRule = findActiveRuleNotNull(qualityProfile, rule);
+    operations.deactivateRule(activeRule, UserSession.get());
+    return activeRuleChanged(qualityProfile, activeRule);
   }
 
-  public QProfileRule updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
+  public ActiveRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
     String sanitizedValue = Strings.emptyToNull(value);
+    QualityProfileDto qualityProfile = findNotNull(profileId);
     ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     UserSession userSession = UserSession.get();
-    QProfileRule result = null;
     if (activeRuleParam == null && sanitizedValue != null) {
-      result = operations.createActiveRuleParam(activeRule, key, value, userSession);
+      operations.createActiveRuleParam(activeRule, key, value, userSession);
     } else if (activeRuleParam != null && sanitizedValue == null) {
-      result = operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
+      operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
     } else if (activeRuleParam != null) {
       operations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
+    } else {
+      // No active rule param and no value -> do nothing
     }
-    return result;
+    return activeRuleChanged(qualityProfile, activeRule);
   }
 
-  public void updateActiveRuleNote(int activeRuleId, String note) {
-    String sanitizedNote = Strings.emptyToNull(note);
+  public QProfileRule updateActiveRuleNote(int activeRuleId, String note) {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
+    String sanitizedNote = Strings.emptyToNull(note);
     if (sanitizedNote != null) {
-      operations.updateActiveRuleNote(activeRule, sanitizedNote, UserSession.get());
+      operations.updateActiveRuleNote(activeRule, note, UserSession.get());
+    } else {
+      // Empty note -> do nothing
     }
+    return rules.getFromActiveRuleId(activeRule.getId());
   }
 
-  public void deleteActiveRuleNote(int activeRuleId) {
+  public QProfileRule deleteActiveRuleNote(int activeRuleId) {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     operations.deleteActiveRuleNote(activeRule, UserSession.get());
+    return rules.getFromActiveRuleId(activeRule.getId());
   }
+
+  public QProfileRule updateRuleNote(int activeRuleId, int ruleId, String note) {
+    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
+    RuleDto rule = findRuleNotNull(ruleId);
+    String sanitizedNote = Strings.emptyToNull(note);
+    if (sanitizedNote != null) {
+      operations.updateRuleNote(activeRule, rule, note, UserSession.get());
+    } else {
+      operations.deleteRuleNote(activeRule, rule, UserSession.get());
+    }
+    return rules.getFromActiveRuleId(activeRule.getId());
+  }
+
 
   //
   // Quality profile validation
@@ -312,8 +334,8 @@ public class QProfiles implements ServerComponent {
   // Rule validation
   //
 
-  private Rule findRuleNotNull(int ruleId) {
-    Rule rule = ruleFinder.findById(ruleId);
+  private RuleDto findRuleNotNull(int ruleId) {
+    RuleDto rule = ruleDao.selectById(ruleId);
     if (rule == null) {
       throw new NotFoundException("This rule does not exists.");
     }
@@ -332,8 +354,16 @@ public class QProfiles implements ServerComponent {
     return activeRule;
   }
 
+  private ActiveRuleDto findActiveRuleNotNull(QualityProfileDto qualityProfile, RuleDto rule) {
+    ActiveRuleDto activeRuleDto = findActiveRule(qualityProfile, rule);
+    if (activeRuleDto == null) {
+      throw new BadRequestException("No rule has been activated on this profile.");
+    }
+    return activeRuleDto;
+  }
+
   @CheckForNull
-  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, Rule rule) {
+  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, RuleDto rule) {
     return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
   }
 
@@ -342,5 +372,8 @@ public class QProfiles implements ServerComponent {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
+  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule){
+    return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
+  }
 
 }

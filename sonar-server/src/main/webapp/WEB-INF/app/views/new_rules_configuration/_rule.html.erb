@@ -1,3 +1,5 @@
+<% #locals = rule, profile -%>
+
 <td nowrap valign="top" class="left" x="<%= rule.severity -%>" width="1%">
   <form id="levels_<%= rule.id -%>" action="" class="rule-levels-form">
     <% enable_modification = profiles_administrator?
@@ -87,7 +89,7 @@
     <% end %>
 
     <div id="active_rule_note_<%= rule.activeRuleId -%>">
-      <%= render :partial => 'active_rule_note', :locals => {:rule => rule, :profile => profile} %>
+      <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
     </div>
 
     <% if profiles_administrator? %>

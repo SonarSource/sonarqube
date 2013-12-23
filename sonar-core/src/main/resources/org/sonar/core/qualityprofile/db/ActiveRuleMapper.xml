@@ -106,22 +106,29 @@
     <include refid="activeRuleColumns"/>
     from active_rules a
     <where>
-      and a.id in
-      <foreach collection="list" open="(" close=")" item="id" separator=",">
-        #{id}
-      </foreach>
+      (<foreach collection="list" item="id" open="(" separator=" or " close=")">
+        a.id=#{id}
+      </foreach>)
     </where>
   </select>
 
-  <select id="selectParamsByRuleIds" parameterType="map" resultType="ActiveRuleParam">
+  <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-      and p.active_rule_id in
-      <foreach collection="list" open="(" close=")" item="id" separator=",">
-        #{id}
-      </foreach>
+      p.active_rule_id=#{id}
+    </where>
+  </select>
+
+  <select id="selectParamsByActiveRuleIds" parameterType="map" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+    <where>
+      (<foreach collection="list" item="id" open="(" separator=" or " close=")">
+        p.active_rule_id=#{id}
+      </foreach>)
     </where>
   </select>
 </mapper>

@@ -339,6 +339,14 @@ public class RuleRegistry {
       .field(ActiveRuleDocument.FIELD_SEVERITY, Severity.get(activeRule.getSeverity()))
       .field(ActiveRuleDocument.FIELD_PROFILE_ID, activeRule.getProfileId())
       .field(ActiveRuleDocument.FIELD_INHERITANCE, activeRule.getInheritance());
+    if (activeRule.getNoteData() != null || activeRule.getNoteUserLogin() != null) {
+      document.startObject(RuleDocument.FIELD_NOTE)
+        .field(ActiveRuleDocument.FIELD_NOTE_DATA, activeRule.getNoteData())
+        .field(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN, activeRule.getNoteUserLogin())
+        .field(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, activeRule.getNoteCreatedAt())
+        .field(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, activeRule.getNoteUpdatedAt())
+        .endObject();
+    }
     if (!params.isEmpty()) {
       document.startArray(ActiveRuleDocument.FIELD_PARAMS);
       for (ActiveRuleParamDto param : params) {

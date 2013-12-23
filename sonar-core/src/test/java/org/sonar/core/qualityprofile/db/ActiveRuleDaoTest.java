@@ -91,6 +91,14 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_params_by_active_rule_id() {
+    setupData("shared");
+
+    assertThat(dao.selectParamsByActiveRuleId(1)).hasSize(2);
+    assertThat(dao.selectParamsByActiveRuleId(2)).hasSize(1);
+  }
+
+  @Test
   public void select_param_by_active_rule_and_key() {
     setupData("shared");
 
@@ -106,9 +114,9 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void select_params_by_active_rule_ids() {
     setupData("shared");
 
-    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(1))).hasSize(2);
-    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(2))).hasSize(1);
-    assertThat(dao.selectParamsByRuleIds(ImmutableList.of(1, 2))).hasSize(3);
+    assertThat(dao.selectParamsByActiveRuleIds(ImmutableList.of(1))).hasSize(2);
+    assertThat(dao.selectParamsByActiveRuleIds(ImmutableList.of(2))).hasSize(1);
+    assertThat(dao.selectParamsByActiveRuleIds(ImmutableList.of(1, 2))).hasSize(3);
   }
 
   @Test

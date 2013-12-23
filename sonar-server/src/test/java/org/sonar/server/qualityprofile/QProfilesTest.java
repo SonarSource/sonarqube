@@ -27,11 +27,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
@@ -58,10 +58,10 @@ public class QProfilesTest {
   ActiveRuleDao activeRuleDao;
 
   @Mock
-  ResourceDao resourceDao;
+  RuleDao ruleDao;
 
   @Mock
-  RuleFinder ruleFinder;
+  ResourceDao resourceDao;
 
   @Mock
   QProfileProjectService projectService;
@@ -79,7 +79,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, resourceDao, ruleFinder, projectService, search, service, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectService, search, service, rules);
   }
 
   @Test
@@ -285,9 +285,11 @@ public class QProfilesTest {
   public void activate_rule() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
-    rule.setId(10);
-    when(ruleFinder.findById(10)).thenReturn(rule);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    when(service.createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class)))
+      .thenReturn(new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1));
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
@@ -319,9 +321,8 @@ public class QProfilesTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
 
-    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
-    rule.setId(10);
-    when(ruleFinder.findById(10)).thenReturn(rule);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
@@ -332,37 +333,57 @@ public class QProfilesTest {
   public void deactivate_rule() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
-    rule.setId(10);
-    when(ruleFinder.findById(10)).thenReturn(rule);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
 
     qProfiles.deactivateRule(1, 10);
 
-    verify(service).deactivateRule(eq(qualityProfile), eq(rule), any(UserSession.class));
+    verify(service).deactivateRule(eq(activeRule), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_deactivate_rule_if_no_active_rule_on_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+    when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(null);
+
+    try {
+      qProfiles.deactivateRule(1, 10);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   @Test
   public void update_active_rule_param() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
     when(activeRuleDao.selectById(50)).thenReturn(activeRule);
 
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
     when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
 
-    qProfiles.updateActiveRuleParam(50, "max", "20");
+    qProfiles.updateActiveRuleParam(1, 50, "max", "20");
 
     verify(service).updateActiveRuleParam(eq(activeRule), eq(activeRuleParam), eq("20"), any(UserSession.class));
   }
 
   @Test
   public void fail_to_update_active_rule_param_if_active_rule_not_found() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
     when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
 
     when(activeRuleDao.selectById(50)).thenReturn(null);
 
     try {
-      qProfiles.updateActiveRuleParam(50, "max", "20");
+      qProfiles.updateActiveRuleParam(1, 50, "max", "20");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -372,35 +393,38 @@ public class QProfilesTest {
 
   @Test
   public void create_active_rule_param() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
     when(activeRuleDao.selectById(50)).thenReturn(activeRule);
     when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(null);
 
-    qProfiles.updateActiveRuleParam(50, "max", "20");
+    qProfiles.updateActiveRuleParam(1, 50, "max", "20");
 
     verify(service).createActiveRuleParam(eq(activeRule), eq("max"), eq("20"), any(UserSession.class));
   }
 
   @Test
   public void delete_active_rule_param() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
     when(activeRuleDao.selectById(50)).thenReturn(activeRule);
 
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
     when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(activeRuleParam);
 
-    qProfiles.updateActiveRuleParam(50, "max", "");
+    qProfiles.updateActiveRuleParam(1, 50, "max", "");
 
     verify(service).deleteActiveRuleParam(eq(activeRule), eq(activeRuleParam), any(UserSession.class));
   }
 
   @Test
   public void do_nothing_when_updating_active_rule_param_with_no_param_and_empty_value() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
     when(activeRuleDao.selectById(50)).thenReturn(activeRule);
     when(activeRuleDao.selectParamByActiveRuleAndKey(50, "max")).thenReturn(null);
 
-    qProfiles.updateActiveRuleParam(50, "max", "");
+    qProfiles.updateActiveRuleParam(1, 50, "max", "");
 
     verifyZeroInteractions(service);
   }
@@ -416,13 +440,13 @@ public class QProfilesTest {
   }
 
   @Test
-  public void do_nothing_when_create_active_rule_note_with_empty_note() throws Exception {
+  public void not_update_rule_note_when_empty_note() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
     when(activeRuleDao.selectById(50)).thenReturn(activeRule);
 
     qProfiles.updateActiveRuleNote(50, "");
 
-    verifyZeroInteractions(service);
+    verify(service, never()).updateActiveRuleNote(eq(activeRule), anyString(), any(UserSession.class));
   }
 
   @Test
@@ -433,6 +457,32 @@ public class QProfilesTest {
     qProfiles.deleteActiveRuleNote(50);
 
     verify(service).deleteActiveRuleNote(eq(activeRule), any(UserSession.class));
+  }
+
+  @Test
+  public void create_rule_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    qProfiles.updateRuleNote(50, 10, "My note");
+
+    verify(service).updateRuleNote(eq(activeRule), eq(rule), eq("My note"), any(UserSession.class));
+  }
+
+  @Test
+  public void delete_rule_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    qProfiles.updateRuleNote(50, 10, "");
+
+    verify(service).deleteRuleNote(eq(activeRule), eq(rule), any(UserSession.class));
   }
 
 }

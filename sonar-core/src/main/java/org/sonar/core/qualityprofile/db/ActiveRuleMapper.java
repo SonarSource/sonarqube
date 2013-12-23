@@ -24,6 +24,8 @@ import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public interface ActiveRuleMapper {
 
   @CheckForNull
@@ -31,6 +33,8 @@ public interface ActiveRuleMapper {
 
   @CheckForNull
   ActiveRuleDto selectByProfileAndRule(@Param("profileId") Integer profileId, @Param("ruleId") Integer ruleId);
+
+  List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId);
 
   @CheckForNull
   ActiveRuleParamDto selectParamById(Integer activeRuleParamId);
