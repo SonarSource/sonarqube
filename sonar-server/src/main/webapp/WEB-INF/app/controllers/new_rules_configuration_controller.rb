@@ -158,36 +158,18 @@ class NewRulesConfigurationController < ApplicationController
   #
   def create
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
-    profile = Profile.find(params[:id].to_i)
-    template=Rule.find(params[:rule_id])
-    # TODO Call Internal.rule.create(...) ?
-    rule=Rule.create(params[:rule].merge(
-                         {
-                             :priority => Sonar::RulePriority.id(params[:rule][:priority]),
-                             :parent_id => template.id,
-                             :plugin_name => template.plugin_name,
-                             :cardinality => 'SINGLE',
-                             :plugin_rule_key => "#{template.plugin_rule_key}_#{Time.now.to_i}",
-                             :plugin_config_key => template.plugin_config_key,
-                             :status => Rule::STATUS_READY,
-                             :language => profile.language
-                         }
-                     ))
 
-    template.parameters.each do |template_parameter|
-      rule.rules_parameters.build(:name => template_parameter.name, :param_type => template_parameter.param_type, :description => template_parameter.description,
-                                  :default_value => params[:rule_param][template_parameter.name])
+    profile_id = params[:id].to_i
+    rule_id = params[:rule_id].to_i
+    new_rule = nil
+    call_backend do
+      new_rule = Internal.quality_profiles.newRule(profile_id, rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
     end
-
-    if rule.save
-      Internal.rules.saveOrUpdate(rule.id)
-      redirect_to :action => 'index', :id => profile.id, :searchtext => "\"#{rule.name}\"", :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
-
+    if new_rule
+      redirect_to :action => 'index', :id => profile_id, :searchtext => "\"#{new_rule.name()}\"", :rule_activation => 'INACTIVE', "plugins[]" => new_rule.repositoryKey()
     else
-      flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
-      redirect_to :action => 'new', :id => profile.id, :rule_id => params[:rule_id]
+      redirect_to :action => 'new', :id => profile_id, :rule_id => rule_id
     end
   end
 

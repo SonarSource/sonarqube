@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
-import org.sonar.check.Priority;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Date;
@@ -95,7 +94,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDescription("new description")
       .setStatus(Rule.STATUS_DEPRECATED)
       .setConfigKey("NewConfigKey")
-      .setPriority(Priority.INFO)
+      .setSeverity(0)
       .setCardinality(Cardinality.MULTIPLE)
       .setLanguage("dart")
       .setParentId(3)
@@ -120,7 +119,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription = "new description";
     String newStatus = Rule.STATUS_DEPRECATED;
     String newConfigKey = "NewConfigKey";
-    Priority newPriority = Priority.INFO;
+    Integer newSeverity = 0;
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date updatedAt = new Date();
@@ -132,7 +131,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     ruleToInsert.setDescription(newDescription);
     ruleToInsert.setStatus(newStatus);
     ruleToInsert.setConfigKey(newConfigKey);
-    ruleToInsert.setPriority(newPriority);
+    ruleToInsert.setSeverity(0);
     ruleToInsert.setCardinality(newCardinality);
     ruleToInsert.setLanguage(newLanguage);
     ruleToInsert.setUpdatedAt(updatedAt);
@@ -150,7 +149,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(insertedRule.getDescription()).isEqualTo(newDescription);
     assertThat(insertedRule.getStatus()).isEqualTo(newStatus);
     assertThat(insertedRule.getConfigKey()).isEqualTo(newConfigKey);
-    assertThat(insertedRule.getPriority()).isEqualTo(newPriority);
+    assertThat(insertedRule.getSeverity()).isEqualTo(newSeverity);
     assertThat(insertedRule.getCardinality()).isEqualTo(newCardinality);
     assertThat(insertedRule.getLanguage()).isEqualTo(newLanguage);
     assertThat(insertedRule.getParentId()).isEqualTo(newParentId);
@@ -166,7 +165,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription = "new description1";
     String newStatus = Rule.STATUS_DEPRECATED;
     String newConfigKey = "NewConfigKey1";
-    Priority newPriority = Priority.INFO;
+    Integer newSeverity = 0;
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date createdAt = new Date();
@@ -178,7 +177,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     ruleToInsert1.setDescription(newDescription);
     ruleToInsert1.setStatus(newStatus);
     ruleToInsert1.setConfigKey(newConfigKey);
-    ruleToInsert1.setPriority(newPriority);
+    ruleToInsert1.setSeverity(newSeverity);
     ruleToInsert1.setCardinality(newCardinality);
     ruleToInsert1.setLanguage(newLanguage);
     ruleToInsert1.setCreatedAt(createdAt);
@@ -191,7 +190,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription1 = "new description2";
     String newStatus1 = Rule.STATUS_DEPRECATED;
     String newConfigKey1 = "NewConfigKey2";
-    Priority newPriority1 = Priority.INFO;
+    Integer newSeverity1 = 0;
     Cardinality newCardinality1 = Cardinality.MULTIPLE;
     String newLanguage1 = "dart";
     Date createdAt1 = new Date();
@@ -203,7 +202,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     ruleToInsert2.setDescription(newDescription1);
     ruleToInsert2.setStatus(newStatus1);
     ruleToInsert2.setConfigKey(newConfigKey1);
-    ruleToInsert2.setPriority(newPriority1);
+    ruleToInsert2.setSeverity(newSeverity1);
     ruleToInsert2.setCardinality(newCardinality1);
     ruleToInsert2.setLanguage(newLanguage1);
     ruleToInsert2.setCreatedAt(createdAt1);
@@ -244,5 +243,21 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
     assertThat(ruleDto.getType()).isEqualTo("plop");
     assertThat(ruleDto.getRuleId()).isEqualTo(ruleId);
+  }
+
+  @Test
+  public void insert_parameter() {
+    setupData("insert_parameter");
+
+    RuleParamDto param = new RuleParamDto()
+      .setRuleId(1)
+      .setName("max")
+      .setType("INTEGER")
+      .setDefaultValue("30")
+      .setDescription("My Parameter");
+
+    dao.insert(param);
+
+    checkTables("insert_parameter", "rules_parameters");
   }
 }

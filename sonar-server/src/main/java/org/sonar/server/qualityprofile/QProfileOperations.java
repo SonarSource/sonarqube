@@ -35,9 +35,11 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
@@ -318,6 +320,7 @@ public class QProfileOperations implements ServerComponent {
       }
       rule.setNoteUpdatedAt(now);
       rule.setNoteData(note);
+      // TODO also update rule.updatedAt ?
       ruleDao.update(rule);
       session.commit();
 
@@ -332,15 +335,59 @@ public class QProfileOperations implements ServerComponent {
 
     SqlSession session = myBatis.openSession();
     try {
-      rule.setNoteUpdatedAt(new Date(system.now()));
       rule.setNoteData(null);
       rule.setNoteUserLogin(null);
       rule.setNoteCreatedAt(null);
       rule.setNoteUpdatedAt(null);
+      // TODO also update rule.updatedAt ?
       ruleDao.update(rule);
       session.commit();
 
       // TODO notify E/S of rule change
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public RuleDto createRule(QualityProfileDto qualityProfile, RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
+                            UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      RuleDto rule = new RuleDto()
+        .setParentId(templateRule.getId())
+        .setName(name)
+        .setDescription(description)
+        .setSeverity(Severity.ordinal(severity))
+        .setRepositoryKey(templateRule.getRepositoryKey())
+        .setConfigKey(templateRule.getConfigKey())
+        .setRuleKey(templateRule.getRuleKey() + "_" + system.now())
+        .setCardinality(Cardinality.SINGLE)
+        .setStatus(Rule.STATUS_READY)
+        .setLanguage(templateRule.getLanguage())
+        .setCreatedAt(new Date(system.now()))
+        .setUpdatedAt(new Date(system.now()));
+      ruleDao.insert(rule, session);
+
+      List<RuleParamDto> templateRuleParams = ruleDao.selectParameters(templateRule.getId(), session);
+      List<RuleParamDto> ruleParams = newArrayList();
+      for (RuleParamDto templateRuleParam : templateRuleParams) {
+        String key = templateRuleParam.getName();
+        String value = paramsByKey.get(key);
+
+        RuleParamDto param = new RuleParamDto()
+          .setRuleId(rule.getId())
+          .setName(key)
+          .setDescription(templateRuleParam.getDescription())
+          .setType(templateRuleParam.getType())
+          .setDefaultValue(value);
+        ruleDao.insert(param, session);
+        ruleParams.add(param);
+      }
+      session.commit();
+      ruleRegistry.save(rule, ruleParams);
+
+      return rule;
     } finally {
       MyBatis.closeQuietly(session);
     }

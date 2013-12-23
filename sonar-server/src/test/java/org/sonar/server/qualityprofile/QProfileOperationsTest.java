@@ -21,6 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
@@ -42,6 +43,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
@@ -537,6 +539,37 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
+  }
+
+  @Test
+  public void create_new_rule() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
+    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
+    RuleDto result = operations.createRule(qualityProfile, templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
+    assertThat(result).isNotNull();
+
+    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).insert(ruleArgument.capture(), eq(session));
+    assertThat(ruleArgument.getValue().getParentId()).isEqualTo(10);
+    assertThat(ruleArgument.getValue().getName()).isEqualTo("My New Rule");
+    assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Rule Description");
+    assertThat(ruleArgument.getValue().getSeverity()).isEqualTo(4);
+    assertThat(ruleArgument.getValue().getConfigKey()).isEqualTo("Xpath");
+    assertThat(ruleArgument.getValue().getRepositoryKey()).isEqualTo("squid");
+    assertThat(ruleArgument.getValue().getRuleKey()).startsWith("AvoidCycle");
+    assertThat(ruleArgument.getValue().getStatus()).isEqualTo("READY");
+    assertThat(ruleArgument.getValue().getCardinality()).isEqualTo(Cardinality.SINGLE);
+
+    ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
+    verify(ruleDao).insert(ruleParamArgument.capture(), eq(session));
+    assertThat(ruleParamArgument.getValue().getName()).isEqualTo("max");
+    assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("20");
+
+    verify(session).commit();
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));
   }
 
 }

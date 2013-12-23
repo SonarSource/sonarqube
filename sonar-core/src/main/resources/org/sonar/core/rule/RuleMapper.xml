@@ -11,7 +11,7 @@
     status,
     name,
     plugin_config_key as "configKey",
-    priority as "priorityOrdinal",
+    priority as "severity",
     cardinality,
     language as "language",
     parent_id as "parentId",
@@ -44,7 +44,7 @@
     status=#{status},
     name=#{name},
     plugin_config_key=#{configKey},
-    priority=#{priorityOrdinal},
+    priority=#{severity},
     cardinality=#{cardinality},
     language=#{language},
     parent_id=#{parentId},
@@ -61,10 +61,16 @@
       parent_id, created_at, updated_at)
   </sql>
 
-  <insert id="insert" parameterType="Rule" useGeneratedKeys="false">
+  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-      #{priorityOrdinal}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
+      #{severity}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
+    insert into rules <include refid="insertColumns"/>
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
+    #{severity}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
   </insert>
 
   <delete id="deleteParams" parameterType="Integer" >
@@ -94,6 +100,11 @@
       AND name=#{key}
     </where>
   </select>
+
+  <insert id="insertParameter" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO RULES_PARAMETERS (rule_id, name, param_type, default_value, description)
+    VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
+  </insert>
 
 </mapper>
 

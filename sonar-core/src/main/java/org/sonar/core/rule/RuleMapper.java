@@ -32,6 +32,8 @@ public interface RuleMapper {
 
   void update(RuleDto rule);
 
+  void batchInsert(RuleDto rule);
+
   void insert(RuleDto rule);
 
   List<RuleParamDto> selectAllParams();
@@ -39,4 +41,6 @@ public interface RuleMapper {
   List<RuleParamDto> selectParamsForRule(Integer id);
 
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
+
+  void insertParameter(RuleParamDto param);
 }

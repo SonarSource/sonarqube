@@ -158,10 +158,14 @@ public class RuleRegistry {
   public void saveOrUpdate(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
     Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
+    save(rule, params);
+  }
+
+  public void save(RuleDto rule, Collection<RuleParamDto> params) {
     try {
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params));
     } catch (IOException ioexception) {
-      throw new IllegalStateException("Unable to index rule with id=" + ruleId, ioexception);
+      throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
     }
   }
 
@@ -253,7 +257,7 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
       .field(RuleDocument.FIELD_PARENT_KEY, rule.getParentId() == null ? null : rule.getParentId())
       .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
-      .field(RuleDocument.FIELD_SEVERITY, rule.getPriority())
+      .field(RuleDocument.FIELD_SEVERITY, Severity.get(rule.getSeverity()))
       .field(RuleDocument.FIELD_STATUS, rule.getStatus())
       .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())

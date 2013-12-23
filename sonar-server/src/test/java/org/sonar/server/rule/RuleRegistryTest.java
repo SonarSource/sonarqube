@@ -170,6 +170,7 @@ public class RuleRegistryTest {
     rule1.setRepositoryKey("repo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
+    rule1.setSeverity(1);
     rule1.setNoteData("noteData");
     rule1.setNoteUserLogin("userLogin");
     int ruleId2 = 4;
@@ -177,6 +178,7 @@ public class RuleRegistryTest {
     rule2.setRepositoryKey("repo");
     rule2.setRuleKey("key2");
     rule2.setId(ruleId2);
+    rule2.setSeverity(2);
     rule2.setParentId(ruleId1);
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
@@ -196,6 +198,7 @@ public class RuleRegistryTest {
     RuleDto rule = new RuleDto();
     rule.setRepositoryKey("repo");
     rule.setRuleKey("key");
+    rule.setSeverity(1);
     int id = 3;
     rule.setId(id);
     when(ruleDao.selectById(id)).thenReturn(rule);
@@ -213,12 +216,14 @@ public class RuleRegistryTest {
     rule1.setRepositoryKey("xoo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
+    rule1.setSeverity(1);
     int ruleId2 = 2;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("xoo");
     rule2.setRuleKey("key2");
     rule2.setId(ruleId2);
     rule2.setParentId(ruleId1);
+    rule2.setSeverity(1);
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
     assertThat(esSetup.exists("rules", "rule", "3")).isTrue();

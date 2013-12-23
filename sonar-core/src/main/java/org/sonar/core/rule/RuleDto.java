@@ -20,7 +20,6 @@
 package org.sonar.core.rule;
 
 import org.sonar.check.Cardinality;
-import org.sonar.check.Priority;
 
 import java.util.Date;
 
@@ -32,7 +31,7 @@ public final class RuleDto {
   private String status;
   private String name;
   private String configKey;
-  private Priority priority;
+  private Integer severity;
   private Cardinality cardinality;
   private String language;
   private Integer parentId;
@@ -106,22 +105,12 @@ public final class RuleDto {
     return this;
   }
 
-  public Priority getPriority() {
-    return priority;
+  public Integer getSeverity() {
+    return severity;
   }
 
-  public int getPriorityOrdinal() {
-    return priority.ordinal();
-  }
-
-  // TODO do not use Priority
-  public RuleDto setPriority(Priority priority) {
-    this.priority = priority;
-    return this;
-  }
-
-  public RuleDto setPriorityOrdinal(int ordinal) {
-    this.priority = Priority.values()[ordinal];
+  public RuleDto setSeverity(Integer severity) {
+    this.severity = severity;
     return this;
   }
 

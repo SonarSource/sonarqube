@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -533,6 +534,23 @@ public class QProfilesTest {
     qProfiles.rule(10);
 
     verify(rules).getFromRuleId(10);
+  }
+
+  @Test
+  public void create_new_rule() throws Exception {
+    QualityProfileDto profile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(profile);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    RuleDto newRule = new RuleDto().setId(11);
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
+    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+
+    qProfiles.newRule(1, 10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
+
+    verify(service).createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
+    verify(rules).getFromRuleId(11);
   }
 
 }

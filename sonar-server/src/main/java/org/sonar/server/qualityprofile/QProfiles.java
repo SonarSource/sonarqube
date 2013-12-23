@@ -294,10 +294,17 @@ public class QProfiles implements ServerComponent {
 
   @CheckForNull
   public QProfileRule rule(int ruleId) {
-//    "".indexOf();
     return rules.getFromRuleId(ruleId);
   }
 
+  public QProfileRule newRule(int profileId, int ruleId,  String name, String severity, String description, Map<String, String> paramsByKey) {
+    QualityProfileDto qualityProfile = findNotNull(profileId);
+    RuleDto rule = findRuleNotNull(ruleId);
+
+    // TODO fail if empty name, description, severity (in one error)
+    RuleDto newRule = operations.createRule(qualityProfile, rule, name, severity, description, paramsByKey, UserSession.get());
+    return rules.getFromRuleId(newRule.getId());
+  }
 
   //
   // Quality profile validation
