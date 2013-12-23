@@ -26,7 +26,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -50,8 +52,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
 
 import java.io.StringReader;
 import java.util.Date;
@@ -145,6 +145,7 @@ public class QProfileOperations implements ServerComponent {
 
   public ActiveRuleDto createActiveRule(QualityProfileDto qualityProfile, RuleDto rule, String severity, UserSession userSession) {
     checkPermission(userSession);
+    checkSeverity(severity);
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = new ActiveRuleDto()
@@ -177,6 +178,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateSeverity(QualityProfileDto qualityProfile, ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
     checkPermission(userSession);
+    checkSeverity(newSeverity);
     SqlSession session = myBatis.openSession();
     try {
       Integer oldSeverity = activeRule.getSeverity();
@@ -216,10 +218,8 @@ public class QProfileOperations implements ServerComponent {
 
     SqlSession session = myBatis.openSession();
     try {
-      RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(activeRule.getRulId(), key, session);
-      if (ruleParam == null) {
-        throw new IllegalArgumentException("No rule param found");
-      }
+      RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
+      validateParam(ruleParam.getType(), value);
       ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
       activeRuleDao.insert(activeRuleParam, session);
       session.commit();
@@ -252,6 +252,9 @@ public class QProfileOperations implements ServerComponent {
 
     SqlSession session = myBatis.openSession();
     try {
+      RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
+      validateParam(ruleParam.getType(), value);
+
       String sanitizedValue = Strings.emptyToNull(value);
       String oldValue = activeRuleParam.getValue();
       activeRuleParam.setValue(sanitizedValue);
@@ -434,11 +437,6 @@ public class QProfileOperations implements ServerComponent {
       .setValue(activeRuleParam.getValue());
   }
 
-  @CheckForNull
-  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, RuleDto rule) {
-    return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
-  }
-
   private void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -450,6 +448,26 @@ public class QProfileOperations implements ServerComponent {
       throw new BadRequestException("User name can't be null");
     }
     return name;
+  }
+
+  private void checkSeverity(String severity) {
+    if (!Severity.ALL.contains(severity)) {
+      throw new BadRequestException("The severity is not valid");
+    }
+  }
+
+  private RuleParamDto findRuleParamNotNull(Integer ruleId, String key, SqlSession session) {
+    RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(ruleId, key, session);
+    if (ruleParam == null) {
+      throw new IllegalArgumentException("No rule param found");
+    }
+    return ruleParam;
+  }
+
+  private void validateParam(String type, String value) {
+    if (type.equals(PropertyType.INTEGER.name()) && !NumberUtils.isDigits(value)) {
+      throw new BadRequestException(String.format("Value '%s' must be an integer.", value));
+    }
   }
 
 }

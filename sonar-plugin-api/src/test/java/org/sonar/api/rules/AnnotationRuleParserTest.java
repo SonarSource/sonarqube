@@ -75,7 +75,7 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void should_reject_invalid_prroperty_types() {
+  public void should_reject_invalid_property_types() {
     exception.expect(SonarException.class);
     exception.expectMessage("Invalid property type [INVALID]");
 

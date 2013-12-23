@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.PropertyType;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
@@ -265,8 +266,8 @@ public class QProfileOperationsTest {
       .addToIndex(idActiveRuleToUpdate)
       .addToDelete(idActiveRuleToDelete);
     when(profilesManager.activated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(inheritanceActions);
-    when(activeRuleDao.selectByIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleDto> of(mock(ActiveRuleDto.class)));
-    when(activeRuleDao.selectParamsByActiveRuleIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleParamDto> of(mock(ActiveRuleParamDto.class)));
+    when(activeRuleDao.selectByIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleDto>of(mock(ActiveRuleDto.class)));
+    when(activeRuleDao.selectParamsByActiveRuleIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleParamDto>of(mock(ActiveRuleParamDto.class)));
 
     ActiveRuleDto result = operations.createActiveRule(qualityProfile, rule, Severity.CRITICAL, authorizedUserSession);
     assertThat(result).isNotNull();
@@ -304,6 +305,23 @@ public class QProfileOperationsTest {
   }
 
   @Test
+  public void fail_to_update_severity_on_invalid_severity() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
+    rule.setId(10);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+
+    try {
+      operations.updateSeverity(qualityProfile, activeRule, "Unknown", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+    verify(activeRuleDao, never()).update(eq(activeRule), eq(session));
+    verifyZeroInteractions(profilesManager);
+  }
+
+  @Test
   public void deactivate_rule() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
@@ -323,6 +341,10 @@ public class QProfileOperationsTest {
   public void update_active_rule_param() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+
     when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
 
     operations.updateActiveRuleParam(activeRule, activeRuleParam, "30", authorizedUserSession);
@@ -354,7 +376,7 @@ public class QProfileOperationsTest {
   @Test
   public void create_active_rule_param() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20");
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
     when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
     when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
 
@@ -380,6 +402,22 @@ public class QProfileOperationsTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
+    verify(activeRuleDao, never()).insert(any(ActiveRuleParamDto.class), eq(session));
+    verifyZeroInteractions(profilesManager);
+  }
+
+  @Test
+  public void fail_to_create_active_rule_if_type_is_invalid() throws Exception {
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    try {
+      operations.createActiveRuleParam(activeRule, "max", "invalid integer", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
     }
     verify(activeRuleDao, never()).insert(any(ActiveRuleParamDto.class), eq(session));
     verifyZeroInteractions(profilesManager);

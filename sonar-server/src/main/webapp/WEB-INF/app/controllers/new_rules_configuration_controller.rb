@@ -314,6 +314,7 @@ class NewRulesConfigurationController < ApplicationController
     call_backend do
       result = Internal.quality_profiles.updateActiveRuleParam(params[:profile_id].to_i, params[:active_rule_id].to_i, params[:param_id], params[:value])
     end
+
     profile = result.profile
     rule = result.rule
     render :partial => 'rule', :locals => {:profile => profile, :rule => rule}

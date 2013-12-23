@@ -90,6 +90,7 @@ public class QProfiles implements ServerComponent {
   // delete note on an active rule (only E/S indexing)
   // extends extension of a rule (only E/S indexing)
   // revert modification on active rule with inheritance
+  // active rule parameter validation (only Integer types are checked)
   //
   // TEMPLATE RULES
   // create template rule

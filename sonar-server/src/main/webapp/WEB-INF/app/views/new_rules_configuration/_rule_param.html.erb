@@ -1,5 +1,4 @@
 <% # locals = rule, profile, parameter, ancestor_active_rule
-   # Display default value only for inactive rules
    param_id = "#{rule.id}#{parameter.key}"
    # Display default value only for inactive rules
    param_value = parameter.default_value if !rule.activeRuleId
@@ -21,20 +20,13 @@
            name="form-<%=u parameter.key-%>" method="post"
            action="<%= ApplicationController.root_context -%>/new_rules_configuration/update_param/?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.key-%>&profile_id=<%=profile.id-%>">
 
-  <div id="error_<%= active_rule_id -%><%= parameter.key -%>" class="error" style="display: none"></div>
+  <div id="error_<%= param_id -%>" class="error" style="display: none"></div>
 
-  <span id="text_<%= active_rule_id -%><%= parameter.key -%>"><%= param_value_input(rule, parameter, param_value, :disabled => read_only) -%></span>
+  <span id="text_<%= param_id -%>"><%= param_value_input(rule, parameter, param_value, :disabled => read_only) -%></span>
 
   <% unless read_only %>
     <%= submit_tag(message('update_verb'), :id => 'submit_' + param_id.to_s) %>
     <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= param_id -%>" class="rule-param-loading">
-<%
-=begin %>
-    <% if active_parameter and active_parameter.errors.size>0 %>
-      <span class="error"><%= active_parameter.errors.on 'value' %></span>
-    <% end %>
-<%
-=end %>
   <% end %>
 
   <% if !rule.nil? && rule.overrides? && ancestor_active_rule
