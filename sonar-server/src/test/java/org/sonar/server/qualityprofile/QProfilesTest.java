@@ -332,7 +332,6 @@ public class QProfilesTest {
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
     QProfileRule rule = mock(QProfileRule.class);
     when(rule.id()).thenReturn(10);
-    when(rules.getFromRuleId(10)).thenReturn(null);
 
     try {
       qProfiles.activateRule(1, 10, Severity.BLOCKER);
@@ -527,6 +526,13 @@ public class QProfilesTest {
     qProfiles.updateRuleNote(50, 10, "");
 
     verify(service).deleteRuleNote(eq(rule), any(UserSession.class));
+  }
+
+  @Test
+  public void get_rule_from_id() throws Exception {
+    qProfiles.rule(10);
+
+    verify(rules).getFromRuleId(10);
   }
 
 }

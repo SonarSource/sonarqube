@@ -143,12 +143,12 @@ class NewRulesConfigurationController < ApplicationController
   #
   def new
     # form to duplicate a rule
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
-    @profile = Profile.find(params[:id].to_i)
-    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}
+    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
+                    {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}
 
-    @rule = Rule.find(params[:rule_id])
+    @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
   end
 
   #

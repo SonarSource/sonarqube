@@ -54,7 +54,6 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -104,9 +103,6 @@ public class QProfileOperationsTest {
   RuleRegistry ruleRegistry;
 
   @Mock
-  ProfileRules profileRules;
-
-  @Mock
   ProfilesManager profilesManager;
 
   @Mock
@@ -136,7 +132,7 @@ public class QProfileOperationsTest {
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
     operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, ruleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager,
-      profileRules, system);
+      system);
   }
 
   @Test
@@ -259,7 +255,6 @@ public class QProfileOperationsTest {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
-    when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
     final int idActiveRuleToUpdate = 42;
     final int idActiveRuleToDelete = 24;
     RuleInheritanceActions inheritanceActions = new RuleInheritanceActions()
@@ -293,7 +288,6 @@ public class QProfileOperationsTest {
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(profileRules.getFromActiveRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
     when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
 
     operations.updateSeverity(qualityProfile, activeRule, Severity.MAJOR, authorizedUserSession);
@@ -325,7 +319,6 @@ public class QProfileOperationsTest {
   public void deactivate_rule() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
-    when(profileRules.getFromRuleId(anyInt())).thenReturn(mock(QProfileRule.class));
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
 
     operations.deactivateRule(activeRule, authorizedUserSession);

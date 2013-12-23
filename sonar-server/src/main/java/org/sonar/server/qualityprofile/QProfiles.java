@@ -86,8 +86,6 @@ public class QProfiles implements ServerComponent {
   // ACTIVE RULES
   // bulk activate all
   // bulk deactivate all
-  // update note on an active rule (only E/S indexing)
-  // delete note on an active rule (only E/S indexing)
   // extends extension of a rule (only E/S indexing)
   // revert modification on active rule with inheritance
   // active rule parameter validation (only Integer types are checked)
@@ -280,6 +278,8 @@ public class QProfiles implements ServerComponent {
     return rules.getFromActiveRuleId(activeRule.getId());
   }
 
+  // RULES
+
   public QProfileRule updateRuleNote(int activeRuleId, int ruleId, String note) {
     RuleDto rule = findRuleNotNull(ruleId);
     String sanitizedNote = Strings.emptyToNull(note);
@@ -290,6 +290,12 @@ public class QProfiles implements ServerComponent {
     }
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     return rules.getFromActiveRuleId(activeRule.getId());
+  }
+
+  @CheckForNull
+  public QProfileRule rule(int ruleId) {
+//    "".indexOf();
+    return rules.getFromRuleId(ruleId);
   }
 
 

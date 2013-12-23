@@ -72,7 +72,6 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
-  private final ProfileRules profileRules;
   private final ProfilesManager profilesManager;
 
   private final System2 system;
@@ -83,20 +82,20 @@ public class QProfileOperations implements ServerComponent {
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager, ProfileRules profileRules) {
     this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
-      profilesManager, profileRules, System2.INSTANCE);
+      profilesManager, System2.INSTANCE);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                             List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
                             ProfilesManager profilesManager, ProfileRules profileRules) {
     this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
-      profilesManager, profileRules, System2.INSTANCE);
+      profilesManager, System2.INSTANCE);
   }
 
   @VisibleForTesting
   QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
                      List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
-                     ProfilesManager profilesManager, ProfileRules profileRules, System2 system) {
+                     ProfilesManager profilesManager, System2 system) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -106,7 +105,6 @@ public class QProfileOperations implements ServerComponent {
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
-    this.profileRules = profileRules;
     this.system = system;
   }
 

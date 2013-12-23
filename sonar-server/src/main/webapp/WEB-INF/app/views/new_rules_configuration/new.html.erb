@@ -24,15 +24,18 @@
       </select>
     </td>
   </tr>
-  <% @rule.parameters.sort{|x,y| x.name <=> y.name}.each do |parameter| %>
-    <tr>
-      <td width="1%" nowrap><%= parameter.name %>:</td>
-      <td class="sep"> </td>
-      <td>
-        <%= param_value_input(parameter, "", {:name => "rule_param[#{h parameter.name}]", :size => '80x10'}) -%>
-        <span class="small"><%= h parameter.description %></span>
-      </td>
-    </tr>
+  <% if @rule.params && @rule.params.to_a.size > 0 %>
+     <% @rule.params.to_a.sort{|x,y| x.key() <=> y.key()}.each do |parameter| %>
+      <% puts "### parameter : " + parameter.inspect %>
+      <tr>
+        <td width="1%" nowrap><%= parameter.key() %>:</td>
+        <td class="sep"> </td>
+        <td>
+          <%= param_value_input(@rule, parameter, "", {:name => "rule_param[#{h parameter.key()}]", :size => '80x10'}) -%>
+          <span class="small"><%= h parameter.description() %></span>
+        </td>
+      </tr>
+    <% end %>
   <% end %>
   <tr>
     <td width="1%" nowrap style="vertical-align: top"><%= message('description') -%>:</td>
