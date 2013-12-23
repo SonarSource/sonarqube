@@ -30,6 +30,8 @@ public interface RuleMapper {
 
   RuleDto selectById(Integer id);
 
+  RuleDto selectByName(String name);
+
   void update(RuleDto rule);
 
   void batchInsert(RuleDto rule);

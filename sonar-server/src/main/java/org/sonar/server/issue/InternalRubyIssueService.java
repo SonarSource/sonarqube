@@ -51,7 +51,6 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -353,7 +352,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkProject(String projectParam, Result<ActionPlan> result) {
     if (Strings.isNullOrEmpty(projectParam)) {
-      result.addError(Result.Message.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
+      result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
@@ -594,26 +593,26 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
-      result.addError(Result.Message.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName));
+      result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName));
     }
   }
 
   private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
     checkMandatoryParameter(value, paramName, result);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(Validation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
+      result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(Validation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
+      result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(Validation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+      throw BadRequestException.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

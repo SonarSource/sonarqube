@@ -31,6 +31,10 @@
     select <include refid="selectColumns"/> from rules WHERE id=#{id}
   </select>
 
+  <select id="selectByName" parameterType="String" resultType="Rule">
+    select <include refid="selectColumns"/> from rules WHERE name=#{name}
+  </select>
+
   <select id="selectNonManual" resultType="Rule">
     select <include refid="selectColumns"/> from rules
     where plugin_name != 'manual'

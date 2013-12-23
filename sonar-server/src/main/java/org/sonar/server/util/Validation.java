@@ -24,8 +24,9 @@ import org.sonar.server.exceptions.BadRequestException;
 
 public class Validation {
 
-  public static final String ERRORS_CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
-  public static final String ERRORS_IS_TOO_LONG_MESSAGE = "errors.is_too_long";
+  public static final String CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
+  public static final String IS_TOO_LONG_MESSAGE = "errors.is_too_long";
+  public static final String IS_ALREADY_USED_MESSAGE = "errors.is_already_used";
 
   private Validation() {
     // only static methods
@@ -33,20 +34,20 @@ public class Validation {
 
   public static void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw BadRequestException.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
+      throw BadRequestException.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
     }
   }
 
   public static void checkMandatoryParameter(Object value, String paramName) {
     if (value == null) {
-      throw BadRequestException.ofL10n(Validation.ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
+      throw BadRequestException.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
     }
   }
 
   public static void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(Validation.ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+      throw BadRequestException.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

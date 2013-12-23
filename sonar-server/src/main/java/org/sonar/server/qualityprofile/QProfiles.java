@@ -37,9 +37,10 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Used through ruby code <pre>Internal.quality_profiles</pre>
@@ -101,7 +102,7 @@ public class QProfiles implements ServerComponent {
 
   @CheckForNull
   public QProfile parent(QProfile profile) {
-    QualityProfileDto parent = find(profile.parent(), profile.language());
+    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
     if (parent != null) {
       return QProfile.from(parent);
     }
@@ -185,7 +186,7 @@ public class QProfiles implements ServerComponent {
 
   /**
    * Used to load ancestor active rule of an active rule
-   *
+   * <p/>
    * TODO Ancestor active rules should be integrated into QProfileRule or elsewhere in order to load all ancestor active rules once a time
    */
   @CheckForNull
@@ -235,7 +236,7 @@ public class QProfiles implements ServerComponent {
 
   /**
    * Used to load ancestor param of an active rule param
-   *
+   * <p/>
    * TODO Ancestor params should be integrated into QProfileRuleParam or elsewhere in order to load all ancestor params once a time
    */
   @CheckForNull
@@ -297,11 +298,10 @@ public class QProfiles implements ServerComponent {
     return rules.getFromRuleId(ruleId);
   }
 
-  public QProfileRule newRule(int profileId, int ruleId,  String name, String severity, String description, Map<String, String> paramsByKey) {
+  public QProfileRule newRule(int profileId, int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
-
-    // TODO fail if empty name, description, severity (in one error)
+    validateNewRule(name, severity, description);
     RuleDto newRule = operations.createRule(qualityProfile, rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(newRule.getId());
   }
@@ -320,25 +320,24 @@ public class QProfiles implements ServerComponent {
     validateProfileName(newName);
     QualityProfileDto profileDto = findNotNull(profileId);
     if (!profileDto.getName().equals(newName)) {
-      // TODO move this check to the service
       checkNotAlreadyExists(newName, profileDto.getLanguage());
     }
     return profileDto;
   }
 
   private void checkNotAlreadyExists(String name, String language) {
-    if (find(name, language) != null) {
+    if (findQualityProfile(name, language) != null) {
       throw BadRequestException.ofL10n("quality_profiles.already_exists");
     }
   }
 
   private QualityProfileDto findNotNull(int id) {
-    QualityProfileDto qualityProfile = find(id);
+    QualityProfileDto qualityProfile = findQualityProfile(id);
     return checkNotNull(qualityProfile);
   }
 
   private QualityProfileDto findNotNull(String name, String language) {
-    QualityProfileDto qualityProfile = find(name, language);
+    QualityProfileDto qualityProfile = findQualityProfile(name, language);
     return checkNotNull(qualityProfile);
   }
 
@@ -350,12 +349,12 @@ public class QProfiles implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto find(String name, String language) {
+  private QualityProfileDto findQualityProfile(String name, String language) {
     return qualityProfileDao.selectByNameAndLanguage(name, language);
   }
 
   @CheckForNull
-  private QualityProfileDto find(int id) {
+  private QualityProfileDto findQualityProfile(int id) {
     return qualityProfileDao.selectById(id);
   }
 
@@ -377,9 +376,34 @@ public class QProfiles implements ServerComponent {
     return component;
   }
 
+
   //
   // Rule validation
   //
+
+  private void validateNewRule(@Nullable String name, @Nullable String severity, @Nullable String description) {
+    List<BadRequestException.Message> messages = newArrayList();
+    if (Strings.isNullOrEmpty(name)){
+      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
+    } else {
+      checkRuleNotAlreadyExists(name, messages);
+    }
+    if (Strings.isNullOrEmpty(description)){
+      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Description"));
+    }
+    if (Strings.isNullOrEmpty(severity)){
+      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Severity"));
+    }
+    if (!messages.isEmpty()) {
+      throw new BadRequestException(null, messages);
+    }
+  }
+
+  private void checkRuleNotAlreadyExists(String name, List<BadRequestException.Message> messages) {
+    if (ruleDao.selectByName(name) != null) {
+      messages.add(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+    }
+  }
 
   private RuleDto findRuleNotNull(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
@@ -424,7 +448,7 @@ public class QProfiles implements ServerComponent {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
-  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule){
+  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
     return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
   }
 

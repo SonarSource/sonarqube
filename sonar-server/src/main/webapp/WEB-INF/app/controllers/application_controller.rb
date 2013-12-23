@@ -228,9 +228,12 @@ class ApplicationController < ActionController::Base
   end
 
   def java_error_message(exception)
-    message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
-    if exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
-      message += '<br/>' + exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+    message = ''
+    message += (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a)) if exception.getMessage or exception.l10nKey
+    has_errors = exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
+    message += '<br/>' unless message.blank? or !has_errors
+    if has_errors
+      message += exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
     end
     message
   end

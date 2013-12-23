@@ -25,7 +25,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -59,6 +58,15 @@ public class RuleDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       return getMapper(session).selectById(id);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public RuleDto selectByName(String name) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getMapper(session).selectByName(name);
     } finally {
       MyBatis.closeQuietly(session);
     }

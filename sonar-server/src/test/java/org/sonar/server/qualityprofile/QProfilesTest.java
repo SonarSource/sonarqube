@@ -553,4 +553,50 @@ public class QProfilesTest {
     verify(rules).getFromRuleId(11);
   }
 
+  @Test
+  public void fail_to_create_new_rule_on_empty_parameters() throws Exception {
+    QualityProfileDto profile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(profile);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    RuleDto newRule = new RuleDto().setId(11);
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
+    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+
+    try {
+      qProfiles.newRule(1, 10, "", "", "", paramsByKey);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      assertThat(((BadRequestException) e).errors()).hasSize(3);
+    }
+    verifyZeroInteractions(service);
+    verifyZeroInteractions(rules);
+  }
+
+  @Test
+  public void fail_to_create_new_rule_when_rule_name_already_exists() throws Exception {
+    QualityProfileDto profile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(profile);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    when(ruleDao.selectByName("Rule name")).thenReturn(new RuleDto());
+
+    RuleDto newRule = new RuleDto().setId(11);
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
+    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+
+    try {
+      qProfiles.newRule(1, 10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      assertThat(((BadRequestException) e).errors()).hasSize(1);
+    }
+    verifyZeroInteractions(service);
+    verifyZeroInteractions(rules);
+  }
+
 }

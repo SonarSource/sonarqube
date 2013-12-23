@@ -69,6 +69,18 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_name() throws Exception {
+    setupData("select_by_name");
+    RuleDto ruleDto = dao.selectByName("Avoid Null");
+
+    assertThat(ruleDto.getId()).isEqualTo(2);
+    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
+    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+  }
+
+  @Test
   public void testSelectNonManual() throws Exception {
     setupData("selectNonManual");
     List<RuleDto> ruleDtos = dao.selectNonManual();
