@@ -221,7 +221,7 @@ public class QProfiles implements ServerComponent {
     if (activeRule == null) {
       activeRule = operations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
     } else {
-      operations.updateSeverity(qualityProfile, activeRule, severity, UserSession.get());
+      operations.updateSeverity(activeRule, severity, UserSession.get());
     }
     return activeRuleChanged(qualityProfile, activeRule);
   }
@@ -302,7 +302,7 @@ public class QProfiles implements ServerComponent {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
     validateNewRule(name, severity, description);
-    RuleDto newRule = operations.createRule(qualityProfile, rule, name, severity, description, paramsByKey, UserSession.get());
+    RuleDto newRule = operations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(newRule.getId());
   }
 

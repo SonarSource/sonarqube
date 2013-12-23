@@ -28,7 +28,6 @@ import org.sonar.server.rule.ActiveRuleDocument;
 import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -116,8 +115,7 @@ public class QProfileRule {
       for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
         params.add(new QProfileRuleParam(
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
-          activeRuleParams.containsKey(ruleParam.getKey()) ? (String) activeRuleParams.get(ruleParam.getKey())
-            .get(ActiveRuleDocument.FIELD_PARAM_VALUE) : null,
+          activeRuleParams.containsKey(ruleParam.getKey()) ? (String) activeRuleParams.get(ruleParam.getKey()).get(ActiveRuleDocument.FIELD_PARAM_VALUE) : null,
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DESCRIPTION),
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DEFAULT_VALUE),
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE)

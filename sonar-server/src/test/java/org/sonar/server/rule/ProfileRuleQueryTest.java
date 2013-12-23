@@ -63,8 +63,8 @@ public class ProfileRuleQueryTest {
     try {
       ProfileRuleQuery.parse(params);
       Fail.fail("Expected BadRequestException");
-    } catch(BadRequestException bre) {
-      assertThat(bre.errors().get(0).text()).isEqualTo("profileId could not be parsed");
+    } catch(Exception e) {
+      assertThat(e).isInstanceOf(NumberFormatException.class);
     }
   }
 }

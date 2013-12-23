@@ -20,6 +20,8 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.Date;
 
 public class ActiveRuleDto {
@@ -70,47 +72,52 @@ public class ActiveRuleDto {
     return this;
   }
 
+  @CheckForNull
   public String getInheritance() {
     return inheritance;
   }
 
-  public ActiveRuleDto setInheritance(String inheritance) {
+  public ActiveRuleDto setInheritance(@Nullable String inheritance) {
     this.inheritance = inheritance;
     return this;
   }
 
+  @CheckForNull
   public Date getNoteCreatedAt() {
     return noteCreatedAt;
   }
 
-  public ActiveRuleDto setNoteCreatedAt(Date noteCreatedAt) {
+  public ActiveRuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
     this.noteCreatedAt = noteCreatedAt;
     return this;
   }
 
+  @CheckForNull
   public Date getNoteUpdatedAt() {
     return noteUpdatedAt;
   }
 
-  public ActiveRuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
+  public ActiveRuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
     return this;
   }
 
+  @CheckForNull
   public String getNoteUserLogin() {
     return noteUserLogin;
   }
 
-  public ActiveRuleDto setNoteUserLogin(String noteUserLogin) {
+  public ActiveRuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
     this.noteUserLogin = noteUserLogin;
     return this;
   }
 
+  @CheckForNull
   public String getNoteData() {
     return noteData;
   }
 
-  public ActiveRuleDto setNoteData(String noteData) {
+  public ActiveRuleDto setNoteData(@Nullable String noteData) {
     this.noteData = noteData;
     return this;
   }

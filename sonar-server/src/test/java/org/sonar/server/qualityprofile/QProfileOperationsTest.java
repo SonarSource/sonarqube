@@ -286,13 +286,12 @@ public class QProfileOperationsTest {
 
   @Test
   public void update_severity() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
 
-    operations.updateSeverity(qualityProfile, activeRule, Severity.MAJOR, authorizedUserSession);
+    operations.updateSeverity(activeRule, Severity.MAJOR, authorizedUserSession);
 
     verify(activeRuleDao).update(eq(activeRule), eq(session));
     verify(session).commit();
@@ -302,13 +301,12 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_update_severity_on_invalid_severity() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
 
     try {
-      operations.updateSeverity(qualityProfile, activeRule, "Unknown", authorizedUserSession);
+      operations.updateSeverity(activeRule, "Unknown", authorizedUserSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -543,12 +541,11 @@ public class QProfileOperationsTest {
 
   @Test
   public void create_new_rule() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    RuleDto result = operations.createRule(qualityProfile, templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
+    RuleDto result = operations.createRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);

@@ -26,7 +26,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -66,12 +65,6 @@ public class ProfileRuleQuery {
 
     ProfileRuleQuery result = new ProfileRuleQuery();
 
-    try {
-      result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
-    } catch (Exception badProfileId) {
-      errors.add(BadRequestException.Message.of("profileId could not be parsed"));
-    }
-
     if (params.containsKey(PARAM_LANGUAGE)) {
       result.setLanguage((String) params.get(PARAM_LANGUAGE));
     }
@@ -90,6 +83,8 @@ public class ProfileRuleQuery {
 
     if (!errors.isEmpty()) {
       throw BadRequestException.of("Incorrect rule search parameters", errors);
+    } else {
+      result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
     }
     return result;
   }

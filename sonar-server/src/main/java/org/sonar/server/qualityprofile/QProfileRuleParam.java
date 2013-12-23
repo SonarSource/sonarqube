@@ -19,6 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class QProfileRuleParam {
 
   private final String key;
@@ -27,7 +30,7 @@ public class QProfileRuleParam {
   private final String defaultValue;
   private final String type;
 
-  public QProfileRuleParam(String key, String value, String description, String defaultValue, String type) {
+  public QProfileRuleParam(String key, @Nullable String value, String description, @Nullable String defaultValue, String type) {
     this.key = key;
     this.value = value;
     this.description = description;
@@ -39,6 +42,7 @@ public class QProfileRuleParam {
     return key;
   }
 
+  @CheckForNull
   public String value() {
     return value;
   }
@@ -47,6 +51,7 @@ public class QProfileRuleParam {
     return description;
   }
 
+  @CheckForNull
   public String defaultValue() {
     return defaultValue;
   }

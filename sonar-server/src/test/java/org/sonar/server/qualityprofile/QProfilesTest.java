@@ -356,7 +356,7 @@ public class QProfilesTest {
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
-    verify(service).updateSeverity(eq(qualityProfile), eq(activeRule), eq(Severity.BLOCKER), any(UserSession.class));
+    verify(service).updateSeverity(eq(activeRule), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
@@ -545,11 +545,11 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     qProfiles.newRule(1, 10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
 
-    verify(service).createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
+    verify(service).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
     verify(rules).getFromRuleId(11);
   }
 
@@ -562,7 +562,7 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
       qProfiles.newRule(1, 10, "", "", "", paramsByKey);
@@ -586,7 +586,7 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(profile), eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
       qProfiles.newRule(1, 10, "Rule name", Severity.MAJOR, "My note", paramsByKey);

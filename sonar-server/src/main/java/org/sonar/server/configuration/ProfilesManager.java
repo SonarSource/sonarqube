@@ -143,7 +143,6 @@ public class ProfilesManager extends BaseDao {
    * Rule param was changed
    */
   public RuleInheritanceActions ruleParamChanged(int profileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
-    RuleInheritanceActions actions = new RuleInheritanceActions();
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
 

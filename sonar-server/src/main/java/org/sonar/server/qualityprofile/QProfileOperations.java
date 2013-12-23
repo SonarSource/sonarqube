@@ -51,7 +51,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -82,15 +81,14 @@ public class QProfileOperations implements ServerComponent {
    * Used by pico when no plugin provide profile exporter / importer
    */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager, ProfileRules profileRules) {
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
     this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
       profilesManager, System2.INSTANCE);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
-                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
-                            ProfilesManager profilesManager, ProfileRules profileRules) {
-    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry,
+                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, importers, dryRunCache, ruleRegistry,
       profilesManager, System2.INSTANCE);
   }
 
@@ -176,7 +174,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void updateSeverity(QualityProfileDto qualityProfile, ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
+  public void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
     checkPermission(userSession);
     checkSeverity(newSeverity);
     SqlSession session = myBatis.openSession();
@@ -294,7 +292,6 @@ public class QProfileOperations implements ServerComponent {
 
     SqlSession session = myBatis.openSession();
     try {
-      activeRule.setNoteUpdatedAt(new Date(system.now()));
       activeRule.setNoteData(null);
       activeRule.setNoteUserLogin(null);
       activeRule.setNoteCreatedAt(null);
@@ -316,11 +313,13 @@ public class QProfileOperations implements ServerComponent {
     try {
       if (rule.getNoteData() == null) {
         rule.setNoteCreatedAt(now);
-        rule.setNoteUserLogin(userSession.login());
+        rule.setNoteUserLogin(getLoggedLogin(userSession));
       }
       rule.setNoteUpdatedAt(now);
       rule.setNoteData(note);
-      // TODO also update rule.updatedAt ?
+
+      // TODO should we update rule.updatedAt ???
+
       ruleDao.update(rule);
       session.commit();
 
@@ -349,7 +348,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public RuleDto createRule(QualityProfileDto qualityProfile, RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
+  public RuleDto createRule(RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
                             UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
@@ -493,6 +492,14 @@ public class QProfileOperations implements ServerComponent {
       throw new BadRequestException("User name can't be null");
     }
     return name;
+  }
+
+  private String getLoggedLogin(UserSession userSession) {
+    String login = userSession.login();
+    if (Strings.isNullOrEmpty(login)) {
+      throw new BadRequestException("User login can't be null");
+    }
+    return login;
   }
 
   private void checkSeverity(String severity) {

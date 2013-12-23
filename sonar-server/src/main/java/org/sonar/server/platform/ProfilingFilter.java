@@ -23,8 +23,6 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
@@ -32,7 +30,6 @@ import org.sonar.core.profiling.StopWatch;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.util.Set;
 
@@ -42,11 +39,10 @@ import java.util.Set;
  * filter parameter can be set in the servlet context descriptor. This parameter should
  * contain a comma-separated list of paths, starting at the context root;
  * requests on subpaths of these paths will not be profiled.</p>
+ *
  * @since 4.1
  */
 public class ProfilingFilter implements Filter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ProfilingFilter.class);
 
   private static final String CONFIG_SEPARATOR = ",";
   private static final String URL_SEPARATOR = "/";
