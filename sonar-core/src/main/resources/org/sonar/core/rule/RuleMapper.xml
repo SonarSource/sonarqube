@@ -102,7 +102,7 @@
   </select>
 
   <insert id="insertParameter" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO RULES_PARAMETERS (rule_id, name, param_type, default_value, description)
+    INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
     VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
   </insert>
 
