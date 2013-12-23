@@ -77,7 +77,7 @@
             :placeholder => message('any')
         }, {:id => 'search_status', :multiple => true} -%>
       </div>
-      <% if @profile.inherited? %>
+      <% if @profile.isInherited() %>
         <div class="rule-search top">
           <span class="note"><%= message('inheritance') -%></span><br/>
           <%= dropdown_tag "inheritance", options_for_select(@select_inheritance, @inheritance), {

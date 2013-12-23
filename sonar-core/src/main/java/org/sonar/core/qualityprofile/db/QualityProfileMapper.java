@@ -40,6 +40,9 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
 
+  @CheckForNull
+  QualityProfileDto selectParent(@Param("childId") Integer childId);
+
   List<ComponentDto> selectProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
 
   List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);

@@ -88,7 +88,8 @@ public class QProfiles implements ServerComponent {
   // bulk deactivate all
   // update note on an active rule (only E/S indexing)
   // delete note on an active rule (only E/S indexing)
-  // extends extension of a rule
+  // extends extension of a rule (only E/S indexing)
+  // revert modification on active rule with inheritance
   //
   // TEMPLATE RULES
   // create template rule
@@ -96,8 +97,16 @@ public class QProfiles implements ServerComponent {
   // delete template rule
 
   public QProfile profile(int id) {
-    QualityProfileDto dto = findNotNull(id);
-    return QProfile.from(dto);
+    return QProfile.from(findNotNull(id));
+  }
+
+  @CheckForNull
+  public QProfile parent(QProfile profile) {
+    QualityProfileDto parent = find(profile.parent(), profile.language());
+    if (parent != null) {
+      return QProfile.from(parent);
+    }
+    return null;
   }
 
   public List<QProfile> allProfiles() {
@@ -175,6 +184,20 @@ public class QProfiles implements ServerComponent {
 
   // ACTIVE RULES
 
+  /**
+   * Used to load ancestor active rule of an active rule
+   *
+   * TODO Ancestor active rules should be integrated into QProfileRule or elsewhere in order to load all ancestor active rules once a time
+   */
+  @CheckForNull
+  public QProfileRule activeRuleByProfileAndRule(QProfile profile, QProfileRule rule) {
+    ActiveRuleDto activeRule = findActiveRule(profile.id(), rule.id());
+    if (activeRule != null) {
+      return rules.getFromActiveRuleId(activeRule.getId());
+    }
+    return null;
+  }
+
   public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
     return rules.searchActiveRules(query, paging);
   }
@@ -209,6 +232,16 @@ public class QProfiles implements ServerComponent {
     ActiveRuleDto activeRule = findActiveRuleNotNull(qualityProfile, rule);
     operations.deactivateRule(activeRule, UserSession.get());
     return activeRuleChanged(qualityProfile, activeRule);
+  }
+
+  /**
+   * Used to load ancestor param of an active rule param
+   *
+   * TODO Ancestor params should be integrated into QProfileRuleParam or elsewhere in order to load all ancestor params once a time
+   */
+  @CheckForNull
+  public ActiveRuleParamDto activeRuleParam(QProfileRule rule, String key) {
+    return findActiveRuleParam(rule.activeRuleId(), key);
   }
 
   public ActiveRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
@@ -247,14 +280,14 @@ public class QProfiles implements ServerComponent {
   }
 
   public QProfileRule updateRuleNote(int activeRuleId, int ruleId, String note) {
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     RuleDto rule = findRuleNotNull(ruleId);
     String sanitizedNote = Strings.emptyToNull(note);
     if (sanitizedNote != null) {
-      operations.updateRuleNote(activeRule, rule, note, UserSession.get());
+      operations.updateRuleNote(rule, note, UserSession.get());
     } else {
-      operations.deleteRuleNote(activeRule, rule, UserSession.get());
+      operations.deleteRuleNote(rule, UserSession.get());
     }
+    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     return rules.getFromActiveRuleId(activeRule.getId());
   }
 
@@ -365,6 +398,11 @@ public class QProfiles implements ServerComponent {
   @CheckForNull
   private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, RuleDto rule) {
     return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
+  }
+
+  @CheckForNull
+  private ActiveRuleDto findActiveRule(Integer qualityProfileId, Integer ruleId) {
+    return activeRuleDao.selectByProfileAndRule(qualityProfileId, ruleId);
   }
 
   @CheckForNull

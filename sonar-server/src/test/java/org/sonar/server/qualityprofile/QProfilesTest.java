@@ -92,6 +92,19 @@ public class QProfilesTest {
   }
 
   @Test
+  public void search_parent_profile() throws Exception {
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+    when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
+
+    QProfile result = qProfiles.parent(new QProfile().setId(1).setParent("Parent").setLanguage("java"));
+    assertThat(result.name()).isEqualTo("Parent");
+    assertThat(result.language()).isEqualTo("java");
+    assertThat(result.id()).isEqualTo(2);
+
+    assertThat(qProfiles.parent(new QProfile().setId(3).setParent("Unfound").setLanguage("java"))).isNull();
+  }
+
+  @Test
   public void search_profiles() throws Exception {
     qProfiles.allProfiles();
     verify(search).allProfiles();
@@ -262,7 +275,24 @@ public class QProfilesTest {
   }
 
   @Test
-  public void testSearchActiveRules() throws Exception {
+  public void active_rule_by_profile_and_rule() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
+    QProfileRule rule = mock(QProfileRule.class);
+    when(rule.id()).thenReturn(10);
+
+    QProfileRule ruleResult = mock(QProfileRule.class);
+    when(rules.getFromActiveRuleId(5)).thenReturn(ruleResult);
+
+    QProfileRule result = qProfiles.activeRuleByProfileAndRule(new QProfile().setId(1), rule);
+
+    assertThat(result).isEqualTo(ruleResult);
+
+    assertThat(qProfiles.activeRuleByProfileAndRule(new QProfile().setId(55), rule)).isNull();
+  }
+
+  @Test
+  public void search_active_rules() throws Exception {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
@@ -272,7 +302,7 @@ public class QProfilesTest {
   }
 
   @Test
-  public void testSearchInactiveRules() throws Exception {
+  public void search_inactive_rules() throws Exception {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
@@ -357,6 +387,20 @@ public class QProfilesTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
+  }
+
+  @Test
+  public void active_rule_param() throws Exception {
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max")).thenReturn(activeRuleParam);
+
+    QProfileRule rule = mock(QProfileRule.class);
+    when(rule.id()).thenReturn(10);
+    when(rule.activeRuleId()).thenReturn(5);
+
+    ActiveRuleParamDto result = qProfiles.activeRuleParam(rule, "max");
+
+    assertThat(result).isEqualTo(activeRuleParam);
   }
 
   @Test
@@ -469,7 +513,7 @@ public class QProfilesTest {
 
     qProfiles.updateRuleNote(50, 10, "My note");
 
-    verify(service).updateRuleNote(eq(activeRule), eq(rule), eq("My note"), any(UserSession.class));
+    verify(service).updateRuleNote(eq(rule), eq("My note"), any(UserSession.class));
   }
 
   @Test
@@ -482,7 +526,7 @@ public class QProfilesTest {
 
     qProfiles.updateRuleNote(50, 10, "");
 
-    verify(service).deleteRuleNote(eq(activeRule), eq(rule), any(UserSession.class));
+    verify(service).deleteRuleNote(eq(rule), any(UserSession.class));
   }
 
 }

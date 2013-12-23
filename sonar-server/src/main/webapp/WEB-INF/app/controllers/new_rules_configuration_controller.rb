@@ -33,32 +33,33 @@ class NewRulesConfigurationController < ApplicationController
   def index
     require_parameters :id
 
-    @profile = Profile.find(params[:id])
-    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
-                    {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}
-
-    init_params()
-
-    @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
-    @select_priority = ANY_SELECTION + RULE_PRIORITIES
-    @select_activation = [[message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
-    @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
-                           [message('rules_configuration.overrides'), 'OVERRIDES']]
-    @select_status = ANY_SELECTION + [[message('rules.status.beta'), Rule::STATUS_BETA],
-                      [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
-                      [message('rules.status.ready'), Rule::STATUS_READY]]
-    @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
-
-    stop_watch = Internal.profiling.start("rules", "BASIC")
-
-    criteria = {
-    "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
-    "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
-
-    @rules = []
-    @pagination = Api::Pagination.new(params)
-
     call_backend do
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+
+      add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
+                      {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}
+
+      init_params()
+
+      @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
+      @select_priority = ANY_SELECTION + RULE_PRIORITIES
+      @select_activation = [[message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
+      @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
+                             [message('rules_configuration.overrides'), 'OVERRIDES']]
+      @select_status = ANY_SELECTION + [[message('rules.status.beta'), Rule::STATUS_BETA],
+                                        [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
+                                        [message('rules.status.ready'), Rule::STATUS_READY]]
+      @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
+
+      stop_watch = Internal.profiling.start("rules", "BASIC")
+
+      criteria = {
+          "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
+          "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
+
+      @rules = []
+      @pagination = Api::Pagination.new(params)
+
       query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
       paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
@@ -78,11 +79,11 @@ class NewRulesConfigurationController < ApplicationController
           @hidden_actives = Internal.quality_profiles.countActiveRules(query)
         end
       end
+
+      stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
+
+      @current_rules = @rules
     end
-
-    stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
-
-    @current_rules = @rules
   end
 
 
@@ -321,18 +322,12 @@ class NewRulesConfigurationController < ApplicationController
 
   def update_rule_note
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters :rule_id
-    rule = Rule.find(params[:rule_id])
-    note = rule.note
-    unless note
-      note = RuleNote.new({:rule => rule})
-      # set the note on the rule to avoid reloading the rule
-      rule.note = note
+    require_parameters :rule_id, :active_rule_id
+
+    rule = nil
+    call_backend do
+      rule = Internal.quality_profiles.updateRuleNote(params[:active_rule_id].to_i, params[:rule_id].to_i, params[:text])
     end
-    note.text = params[:text]
-    note.user_login = current_user.login
-    note.save!
     render :partial => 'rule_note', :locals => {:rule => rule}
   end
 

@@ -34,7 +34,7 @@
 <div id="<%= note_form_div_id -%>" style="display: none" class="admin">
 
   <form onsubmit="$j.ajax({
-                        url:'<%=ApplicationController.root_context-%>/new_rules_configuration/update_rule_note?rule_id=<%=rule.id-%>',
+                        url:'<%=ApplicationController.root_context-%>/new_rules_configuration/update_rule_note?rule_id=<%=rule.id-%>&active_rule_id=<%=rule.activeRuleId-%>',
                         success:function(response){;$j('#rule_note_<%=rule.id-%>').html(response);},
                         data: $j(this).serialize(),
                         type:'post'});

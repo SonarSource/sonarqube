@@ -452,12 +452,11 @@ public class QProfileOperationsTest {
   @Test
   public void update_rule_note_when_no_existing_note() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(null).setNoteData(null);
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.updateRuleNote(activeRule, rule, "My note", authorizedUserSession);
+    operations.updateRuleNote(rule, "My note", authorizedUserSession);
 
     ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(argumentCaptor.capture());
@@ -473,12 +472,11 @@ public class QProfileOperationsTest {
   public void update_rule_note_when_already_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.updateRuleNote(activeRule, rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    operations.updateRuleNote(rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(argumentCaptor.capture());
@@ -494,12 +492,11 @@ public class QProfileOperationsTest {
   public void delete_rule_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     RuleDto rule = new RuleDto().setId(10).setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.deleteRuleNote(activeRule, rule, authorizedUserSession);
+    operations.deleteRuleNote(rule, authorizedUserSession);
 
     ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(argumentCaptor.capture());

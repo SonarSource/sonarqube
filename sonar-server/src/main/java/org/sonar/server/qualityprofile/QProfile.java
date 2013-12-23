@@ -85,6 +85,10 @@ public class QProfile {
     return this;
   }
 
+  public boolean isInherited(){
+    return parent != null;
+  }
+
   public static QProfile from(QualityProfileDto dto) {
     return new QProfile()
       .setId(dto.getId())

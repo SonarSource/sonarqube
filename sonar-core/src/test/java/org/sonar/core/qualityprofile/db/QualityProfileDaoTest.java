@@ -102,6 +102,14 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_parent() {
+    setupData("parent");
+
+    QualityProfileDto dto = dao.selectParent(1);
+    assertThat(dto.getId()).isEqualTo(2);
+  }
+
+  @Test
   public void select_projects() {
     setupData("projects");
 

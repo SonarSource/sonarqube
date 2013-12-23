@@ -1,4 +1,4 @@
-<% # locals = rule, profile, parameter
+<% # locals = rule, profile, parameter, ancestor_active_rule
    # Display default value only for inactive rules
    param_id = "#{rule.id}#{parameter.key}"
    # Display default value only for inactive rules
@@ -38,7 +38,8 @@
   <% end %>
 
   <% if !rule.nil? && rule.overrides? && ancestor_active_rule
-       ancestor_param = ancestor_active_rule.active_param_by_param_id(param_id)
+       # TODO Ancestor active rule param should be integrated in the result to prevent bunch of SQL queries to load ancestor param for each active rule params!
+       ancestor_param = Internal.quality_profiles.activeRuleParam(rule, parameter.key)
        ancestor_value = ancestor_param && ancestor_param.value ? ancestor_param.value : ''
   %>
     <% if ancestor_value != param_value %>

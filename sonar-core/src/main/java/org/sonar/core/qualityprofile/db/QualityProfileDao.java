@@ -72,6 +72,15 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public QualityProfileDto selectParent(Integer childId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).selectParent(childId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {

@@ -305,7 +305,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void updateRuleNote(ActiveRuleDto activeRule, RuleDto rule, String note, UserSession userSession) {
+  public void updateRuleNote(RuleDto rule, String note, UserSession userSession) {
     checkPermission(userSession);
     Date now = new Date(system.now());
 
@@ -326,7 +326,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void deleteRuleNote(ActiveRuleDto activeRule, RuleDto rule, UserSession userSession) {
+  public void deleteRuleNote(RuleDto rule, UserSession userSession) {
     checkPermission(userSession);
 
     SqlSession session = myBatis.openSession();

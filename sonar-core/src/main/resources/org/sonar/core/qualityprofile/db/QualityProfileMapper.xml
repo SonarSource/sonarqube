@@ -34,6 +34,12 @@
     </where>
   </select>
 
+  <select id="selectParent" parameterType="Integer" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    INNER JOIN rules_profiles child ON child.parent_name=p.name and child.language=p.language and child.id=#{childId}
+  </select>
+
   <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
