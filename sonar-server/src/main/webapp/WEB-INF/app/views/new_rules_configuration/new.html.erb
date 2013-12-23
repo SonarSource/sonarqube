@@ -26,7 +26,6 @@
   </tr>
   <% if @rule.params && @rule.params.to_a.size > 0 %>
      <% @rule.params.to_a.sort{|x,y| x.key() <=> y.key()}.each do |parameter| %>
-      <% puts "### parameter : " + parameter.inspect %>
       <tr>
         <td width="1%" nowrap><%= parameter.key() %>:</td>
         <td class="sep"> </td>
