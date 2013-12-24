@@ -319,13 +319,10 @@ public class QProfileOperations implements ServerComponent {
       }
       rule.setNoteUpdatedAt(now);
       rule.setNoteData(note);
-
-      // TODO should we update rule.updatedAt ???
-
       ruleDao.update(rule);
       session.commit();
 
-      // TODO notify E/S of rule change
+      reindexRule(rule, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -340,11 +337,10 @@ public class QProfileOperations implements ServerComponent {
       rule.setNoteUserLogin(null);
       rule.setNoteCreatedAt(null);
       rule.setNoteUpdatedAt(null);
-      // TODO also update rule.updatedAt ?
       ruleDao.update(rule);
       session.commit();
 
-      // TODO notify E/S of rule change
+      reindexRule(rule, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -386,8 +382,7 @@ public class QProfileOperations implements ServerComponent {
         ruleParams.add(param);
       }
       session.commit();
-      ruleRegistry.save(rule, ruleParams);
-
+      reindexRule(rule, ruleParams);
       return rule;
     } finally {
       MyBatis.closeQuietly(session);
@@ -412,7 +407,7 @@ public class QProfileOperations implements ServerComponent {
         ruleDao.update(ruleParam, session);
       }
       session.commit();
-      ruleRegistry.save(rule, ruleParams);
+      reindexRule(rule, ruleParams);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -427,7 +422,7 @@ public class QProfileOperations implements ServerComponent {
         .setUpdatedAt(new Date(system.now()));
       ruleDao.update(rule, session);
       session.commit();
-      ruleRegistry.save(rule, ruleDao.selectParameters(rule.getId(), session));
+      reindexRule(rule, session);
 
       // Delete all active rules and active rule params linked to the rule
       List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
@@ -458,12 +453,15 @@ public class QProfileOperations implements ServerComponent {
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {
-    ruleRegistry.deleteActiveRules(newArrayList(activeRuleDto.getId()));
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleId(activeRuleDto.getId(), session)) {
-      paramsByActiveRule.put(param.getActiveRuleId(), param);
-    }
-    ruleRegistry.bulkIndexActiveRules(newArrayList(activeRuleDto), paramsByActiveRule);
+    ruleRegistry.save(activeRuleDto, activeRuleDao.selectParamsByActiveRuleId(activeRuleDto.getId(), session));
+  }
+
+  private void reindexRule(RuleDto rule, SqlSession session) {
+    ruleRegistry.save(rule, ruleDao.selectParameters(rule.getId(), session));
+  }
+
+  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams) {
+    ruleRegistry.save(rule, ruleParams);
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {

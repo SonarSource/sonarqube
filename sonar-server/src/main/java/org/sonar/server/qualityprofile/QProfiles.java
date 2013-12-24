@@ -87,12 +87,9 @@ public class QProfiles implements ServerComponent {
   // ACTIVE RULES
   // bulk activate all
   // bulk deactivate all
-  // extends extension of a rule (only E/S indexing)
   // revert modification on active rule with inheritance
   // active rule parameter validation (only Integer types are checked)
-  //
-  // TEMPLATE RULES
-  // delete template rule
+
 
   public QProfile profile(int id) {
     return QProfile.from(findNotNull(id));

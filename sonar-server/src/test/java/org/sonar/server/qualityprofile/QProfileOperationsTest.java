@@ -420,6 +420,9 @@ public class QProfileOperationsTest {
   public void update_active_rule_note_when_no_existing_note() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setNoteCreatedAt(null).setNoteData(null);
 
+    List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
+
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
@@ -433,7 +436,7 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), eq(activeRuleParams));
   }
 
   @Test
@@ -441,6 +444,9 @@ public class QProfileOperationsTest {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1)
       .setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
+
+    List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -455,7 +461,7 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), eq(activeRuleParams));
   }
 
   @Test
@@ -463,6 +469,9 @@ public class QProfileOperationsTest {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1)
       .setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
+
+    List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -477,12 +486,15 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), eq(activeRuleParams));
   }
 
   @Test
   public void update_rule_note_when_no_existing_note() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(null).setNoteData(null);
+
+    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
+    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -497,12 +509,16 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
   }
 
   @Test
   public void update_rule_note_when_already_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
+
+    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
+    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -517,12 +533,16 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
   }
 
   @Test
   public void delete_rule_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     RuleDto rule = new RuleDto().setId(10).setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
+
+    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
+    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -537,6 +557,7 @@ public class QProfileOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
   }
 
   @Test
