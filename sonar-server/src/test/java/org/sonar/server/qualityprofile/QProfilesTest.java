@@ -75,13 +75,19 @@ public class QProfilesTest {
   QProfileOperations service;
 
   @Mock
+  QProfileActiveRuleOperations activeRuleOperations;
+
+  @Mock
+  QProfileRuleOperations ruleOperations;
+
+  @Mock
   ProfileRules rules;
 
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectService, search, service, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectService, search, service, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
@@ -320,12 +326,12 @@ public class QProfilesTest {
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectById(10)).thenReturn(rule);
 
-    when(service.createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class)))
+    when(activeRuleOperations.createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class)))
       .thenReturn(new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1));
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
-    verify(service).createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class));
+    verify(activeRuleOperations).createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
@@ -357,7 +363,7 @@ public class QProfilesTest {
 
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
-    verify(service).updateSeverity(eq(activeRule), eq(Severity.BLOCKER), any(UserSession.class));
+    verify(activeRuleOperations).updateSeverity(eq(activeRule), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
@@ -371,7 +377,7 @@ public class QProfilesTest {
 
     qProfiles.deactivateRule(1, 10);
 
-    verify(service).deactivateRule(eq(activeRule), any(UserSession.class));
+    verify(activeRuleOperations).deactivateRule(eq(activeRule), any(UserSession.class));
   }
 
   @Test
@@ -416,7 +422,7 @@ public class QProfilesTest {
 
     qProfiles.updateActiveRuleParam(1, 50, "max", "20");
 
-    verify(service).updateActiveRuleParam(eq(activeRule), eq(activeRuleParam), eq("20"), any(UserSession.class));
+    verify(activeRuleOperations).updateActiveRuleParam(eq(activeRule), eq(activeRuleParam), eq("20"), any(UserSession.class));
   }
 
   @Test
@@ -445,7 +451,7 @@ public class QProfilesTest {
 
     qProfiles.updateActiveRuleParam(1, 50, "max", "20");
 
-    verify(service).createActiveRuleParam(eq(activeRule), eq("max"), eq("20"), any(UserSession.class));
+    verify(activeRuleOperations).createActiveRuleParam(eq(activeRule), eq("max"), eq("20"), any(UserSession.class));
   }
 
   @Test
@@ -459,7 +465,7 @@ public class QProfilesTest {
 
     qProfiles.updateActiveRuleParam(1, 50, "max", "");
 
-    verify(service).deleteActiveRuleParam(eq(activeRule), eq(activeRuleParam), any(UserSession.class));
+    verify(activeRuleOperations).deleteActiveRuleParam(eq(activeRule), eq(activeRuleParam), any(UserSession.class));
   }
 
   @Test
@@ -481,7 +487,7 @@ public class QProfilesTest {
 
     qProfiles.updateActiveRuleNote(50, "My note");
 
-    verify(service).updateActiveRuleNote(eq(activeRule), eq("My note"), any(UserSession.class));
+    verify(activeRuleOperations).updateActiveRuleNote(eq(activeRule), eq("My note"), any(UserSession.class));
   }
 
   @Test
@@ -491,7 +497,7 @@ public class QProfilesTest {
 
     qProfiles.updateActiveRuleNote(50, "");
 
-    verify(service, never()).updateActiveRuleNote(eq(activeRule), anyString(), any(UserSession.class));
+    verify(activeRuleOperations, never()).updateActiveRuleNote(eq(activeRule), anyString(), any(UserSession.class));
   }
 
   @Test
@@ -501,7 +507,7 @@ public class QProfilesTest {
 
     qProfiles.deleteActiveRuleNote(50);
 
-    verify(service).deleteActiveRuleNote(eq(activeRule), any(UserSession.class));
+    verify(activeRuleOperations).deleteActiveRuleNote(eq(activeRule), any(UserSession.class));
   }
 
   @Test
@@ -514,7 +520,7 @@ public class QProfilesTest {
 
     qProfiles.updateRuleNote(50, 10, "My note");
 
-    verify(service).updateRuleNote(eq(rule), eq("My note"), any(UserSession.class));
+    verify(ruleOperations).updateRuleNote(eq(rule), eq("My note"), any(UserSession.class));
   }
 
   @Test
@@ -527,7 +533,7 @@ public class QProfilesTest {
 
     qProfiles.updateRuleNote(50, 10, "");
 
-    verify(service).deleteRuleNote(eq(rule), any(UserSession.class));
+    verify(ruleOperations).deleteRuleNote(eq(rule), any(UserSession.class));
   }
 
   @Test
@@ -544,11 +550,11 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     qProfiles.createRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
 
-    verify(service).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
     verify(rules).getFromRuleId(11);
   }
 
@@ -559,7 +565,7 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
       qProfiles.createRule( 10, "", "", "", paramsByKey);
@@ -581,7 +587,7 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My description"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My description"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
       qProfiles.createRule(10, "Rule name", Severity.MAJOR, "My description", paramsByKey);
@@ -604,7 +610,7 @@ public class QProfilesTest {
 
     qProfiles.updateRule(11, "Updated name", Severity.MAJOR, "Updated description", paramsByKey);
 
-    verify(service).updateRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).updateRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
     verify(rules).getFromRuleId(11);
   }
 
@@ -618,7 +624,7 @@ public class QProfilesTest {
 
     qProfiles.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
 
-    verify(service).updateRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).updateRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
     verify(rules).getFromRuleId(11);
   }
 
@@ -647,7 +653,7 @@ public class QProfilesTest {
 
     qProfiles.deleteRule(11);
 
-    verify(service).deleteRule(eq(rule), any(UserSession.class));
+    verify(ruleOperations).deleteRule(eq(rule), any(UserSession.class));
   }
 
   @Test

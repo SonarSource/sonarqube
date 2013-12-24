@@ -56,10 +56,13 @@ public class QProfiles implements ServerComponent {
 
   private final QProfileSearch search;
   private final QProfileOperations operations;
+  private final QProfileActiveRuleOperations activeRuleOperations;
+  private final QProfileRuleOperations ruleOperations;
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectService projectService, QProfileSearch search, QProfileOperations operations, ProfileRules rules) {
+                   QProfileProjectService projectService, QProfileSearch search,
+                   QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
@@ -67,6 +70,8 @@ public class QProfiles implements ServerComponent {
     this.projectService = projectService;
     this.search = search;
     this.operations = operations;
+    this.activeRuleOperations = activeRuleOperations;
+    this.ruleOperations = ruleOperations;
     this.rules = rules;
   }
 
@@ -87,7 +92,7 @@ public class QProfiles implements ServerComponent {
   // ACTIVE RULES
   // bulk activate all
   // bulk deactivate all
-  // revert modification on active rule with inheritance
+  // revert modification on active rule with inheritance -->
   // active rule parameter validation (only Integer types are checked)
 
 
@@ -214,9 +219,9 @@ public class QProfiles implements ServerComponent {
     RuleDto rule = findRuleNotNull(ruleId);
     ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
     if (activeRule == null) {
-      activeRule = operations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
+      activeRule = activeRuleOperations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
     } else {
-      operations.updateSeverity(activeRule, severity, UserSession.get());
+      activeRuleOperations.updateSeverity(activeRule, severity, UserSession.get());
     }
     return activeRuleChanged(qualityProfile, activeRule);
   }
@@ -225,8 +230,8 @@ public class QProfiles implements ServerComponent {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
     ActiveRuleDto activeRule = findActiveRuleNotNull(qualityProfile, rule);
-    operations.deactivateRule(activeRule, UserSession.get());
-    return activeRuleChanged(qualityProfile, activeRule);
+    activeRuleOperations.deactivateRule(activeRule, UserSession.get());
+    return activeRuleChanged(qualityProfile, rule);
   }
 
   /**
@@ -251,11 +256,11 @@ public class QProfiles implements ServerComponent {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     UserSession userSession = UserSession.get();
     if (activeRuleParam == null && sanitizedValue != null) {
-      operations.createActiveRuleParam(activeRule, key, value, userSession);
+      activeRuleOperations.createActiveRuleParam(activeRule, key, value, userSession);
     } else if (activeRuleParam != null && sanitizedValue == null) {
-      operations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
+      activeRuleOperations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
     } else if (activeRuleParam != null) {
-      operations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
+      activeRuleOperations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
     } else {
       // No active rule param and no value -> do nothing
     }
@@ -266,7 +271,7 @@ public class QProfiles implements ServerComponent {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     String sanitizedNote = Strings.emptyToNull(note);
     if (sanitizedNote != null) {
-      operations.updateActiveRuleNote(activeRule, note, UserSession.get());
+      activeRuleOperations.updateActiveRuleNote(activeRule, note, UserSession.get());
     } else {
       // Empty note -> do nothing
     }
@@ -275,7 +280,7 @@ public class QProfiles implements ServerComponent {
 
   public QProfileRule deleteActiveRuleNote(int activeRuleId) {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    operations.deleteActiveRuleNote(activeRule, UserSession.get());
+    activeRuleOperations.deleteActiveRuleNote(activeRule, UserSession.get());
     return rules.getFromActiveRuleId(activeRule.getId());
   }
 
@@ -285,9 +290,9 @@ public class QProfiles implements ServerComponent {
     RuleDto rule = findRuleNotNull(ruleId);
     String sanitizedNote = Strings.emptyToNull(note);
     if (sanitizedNote != null) {
-      operations.updateRuleNote(rule, note, UserSession.get());
+      ruleOperations.updateRuleNote(rule, note, UserSession.get());
     } else {
-      operations.deleteRuleNote(rule, UserSession.get());
+      ruleOperations.deleteRuleNote(rule, UserSession.get());
     }
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     return rules.getFromActiveRuleId(activeRule.getId());
@@ -301,26 +306,22 @@ public class QProfiles implements ServerComponent {
   public QProfileRule createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRule(null, name, severity, description);
-    RuleDto newRule = operations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
+    RuleDto newRule = ruleOperations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(newRule.getId());
   }
 
   public QProfileRule updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
-    if (rule.getParentId() == null) {
-      throw new NotFoundException("Unknown rule");
-    }
+    validateRuleParent(rule);
     validateRule(ruleId, name, severity, description);
-    operations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
+    ruleOperations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(ruleId);
   }
 
   public void deleteRule(int ruleId) {
     RuleDto rule = findRuleNotNull(ruleId);
-    if (rule.getParentId() == null) {
-      throw new NotFoundException("Unknown rule");
-    }
-    operations.deleteRule(rule, UserSession.get());
+    validateRuleParent(rule);
+    ruleOperations.deleteRule(rule, UserSession.get());
   }
 
   public int countActiveRules(QProfileRule rule){
@@ -437,6 +438,12 @@ public class QProfiles implements ServerComponent {
     return rule;
   }
 
+  private void validateRuleParent(RuleDto rule){
+    if (rule.getParentId() == null) {
+      throw new NotFoundException("Unknown rule");
+    }
+  }
+
   //
   // Active Rule validation
   //
@@ -474,6 +481,10 @@ public class QProfiles implements ServerComponent {
 
   private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
     return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
+  }
+
+  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
+    return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromRuleId(rule.getId()));
   }
 
 }
