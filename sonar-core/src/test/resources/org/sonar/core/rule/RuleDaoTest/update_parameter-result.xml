@@ -1,0 +1,3 @@
+<dataset>
+  <rules_parameters id="1" rule_id="1" name="format" param_type="STRING" default_value="^[a-z]+(\.[a-z][a-z0-9]*)*$" description="Regular expression used to check the package names against."/>
+</dataset>

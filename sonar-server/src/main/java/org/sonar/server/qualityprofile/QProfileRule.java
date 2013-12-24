@@ -184,6 +184,11 @@ public class QProfileRule {
     return inheritance;
   }
 
+  @CheckForNull
+  public Integer parentId() {
+    return parentId;
+  }
+
   public boolean isInherited() {
     return ActiveRule.INHERITED.equals(inheritance);
   }

@@ -41,7 +41,7 @@
   </select>
 
   <update id="update" parameterType="Rule">
-    update rules set
+    UPDATE rules SET
     plugin_rule_key=#{ruleKey},
     plugin_name=#{repositoryKey},
     description=#{description},
@@ -57,7 +57,7 @@
     note_user_login=#{noteUserLogin},
     note_created_at=#{noteCreatedAt},
     note_updated_at=#{noteUpdatedAt}
-    where id=#{id}
+    WHERE id=#{id}
   </update>
 
   <sql id="insertColumns">
@@ -105,10 +105,19 @@
     </where>
   </select>
 
-  <insert id="insertParameter" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
     VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
   </insert>
+
+  <update id="updateParameter" parameterType="RuleParam">
+    UPDATE rules_parameters SET
+      name=#{name},
+      param_type=#{type},
+      default_value=#{defaultValue},
+      description=#{description}
+    WHERE id=#{id}
+  </update>
 
 </mapper>
 

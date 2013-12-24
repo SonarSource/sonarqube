@@ -72,10 +72,14 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public void update(RuleDto rule, SqlSession session) {
+    getMapper(session).update(rule);
+  }
+
   public void update(RuleDto rule) {
     SqlSession session = mybatis.openSession();
     try {
-      getMapper(session).update(rule);
+      update(rule, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -138,6 +142,20 @@ public class RuleDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       insert(param, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(RuleParamDto param, SqlSession session) {
+    getMapper(session).updateParameter(param);
+  }
+
+  public void update(RuleParamDto param) {
+    SqlSession session = mybatis.openSession();
+    try {
+      update(param, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

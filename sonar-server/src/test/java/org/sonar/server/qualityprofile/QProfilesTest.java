@@ -545,7 +545,7 @@ public class QProfilesTest {
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
     when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
-    qProfiles.newRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
+    qProfiles.createRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
 
     verify(service).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
     verify(rules).getFromRuleId(11);
@@ -561,7 +561,7 @@ public class QProfilesTest {
     when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
-      qProfiles.newRule( 10, "", "", "", paramsByKey);
+      qProfiles.createRule( 10, "", "", "", paramsByKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -580,14 +580,60 @@ public class QProfilesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(service.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My description"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
-      qProfiles.newRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
+      qProfiles.createRule(10, "Rule name", Severity.MAJOR, "My description", paramsByKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
       assertThat(((BadRequestException) e).errors()).hasSize(1);
+    }
+    verifyZeroInteractions(service);
+    verifyZeroInteractions(rules);
+  }
+
+  @Test
+  public void update_rule() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
+    when(ruleDao.selectById(11)).thenReturn(rule);
+    when(ruleDao.selectByName("Updated name")).thenReturn(null);
+
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
+
+    qProfiles.updateRule(11, "Updated name", Severity.MAJOR, "Updated description", paramsByKey);
+
+    verify(service).updateRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(rules).getFromRuleId(11);
+  }
+
+  @Test
+  public void update_rule_with_same_name() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
+    when(ruleDao.selectById(11)).thenReturn(rule);
+    when(ruleDao.selectByName("Rule name")).thenReturn(rule);
+
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
+
+    qProfiles.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
+
+    verify(service).updateRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(rules).getFromRuleId(11);
+  }
+
+  @Test
+  public void fail_to_update_rule_when_no_parent() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254");
+    when(ruleDao.selectById(11)).thenReturn(rule);
+    when(ruleDao.selectByName("Rule name")).thenReturn(rule);
+
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
+
+    try {
+      qProfiles.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
     }
     verifyZeroInteractions(service);
     verifyZeroInteractions(rules);

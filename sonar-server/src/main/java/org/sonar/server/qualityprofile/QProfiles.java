@@ -303,12 +303,23 @@ public class QProfiles implements ServerComponent {
     return rules.getFromRuleId(ruleId);
   }
 
-  public QProfileRule newRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+  public QProfileRule createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
-    validateNewRule(name, severity, description);
+    validateRule(null, name, severity, description);
     RuleDto newRule = operations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(newRule.getId());
   }
+
+  public QProfileRule updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+    RuleDto rule = findRuleNotNull(ruleId);
+    if (rule.getParentId() == null) {
+      throw new NotFoundException("Unknown rule");
+    }
+    validateRule(ruleId, name, severity, description);
+    operations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
+    return rules.getFromRuleId(ruleId);
+  }
+
 
   //
   // Quality profile validation
@@ -385,17 +396,17 @@ public class QProfiles implements ServerComponent {
   // Rule validation
   //
 
-  private void validateNewRule(@Nullable String name, @Nullable String severity, @Nullable String description) {
+  private void validateRule(@Nullable Integer updatingRuleId, @Nullable String name, @Nullable String severity, @Nullable String description) {
     List<BadRequestException.Message> messages = newArrayList();
-    if (Strings.isNullOrEmpty(name)){
+    if (Strings.isNullOrEmpty(name)) {
       messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
-      checkRuleNotAlreadyExists(name, messages);
+      checkRuleNotAlreadyExists(updatingRuleId, name, messages);
     }
-    if (Strings.isNullOrEmpty(description)){
+    if (Strings.isNullOrEmpty(description)) {
       messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Description"));
     }
-    if (Strings.isNullOrEmpty(severity)){
+    if (Strings.isNullOrEmpty(severity)) {
       messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Severity"));
     }
     if (!messages.isEmpty()) {
@@ -403,8 +414,10 @@ public class QProfiles implements ServerComponent {
     }
   }
 
-  private void checkRuleNotAlreadyExists(String name, List<BadRequestException.Message> messages) {
-    if (ruleDao.selectByName(name) != null) {
+  private void checkRuleNotAlreadyExists(@Nullable Integer updatingRuleId, String name, List<BadRequestException.Message> messages) {
+    RuleDto existingRule = ruleDao.selectByName(name);
+    boolean isModifyingCurrentRule = updatingRuleId != null && existingRule != null && existingRule.getId().equals(updatingRuleId);
+    if (!isModifyingCurrentRule && existingRule != null) {
       messages.add(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
     }
   }

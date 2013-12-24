@@ -540,7 +540,7 @@ public class QProfileOperationsTest {
   }
 
   @Test
-  public void create_new_rule() throws Exception {
+  public void create_rule() throws Exception {
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
 
@@ -564,6 +564,28 @@ public class QProfileOperationsTest {
     verify(ruleDao).insert(ruleParamArgument.capture(), eq(session));
     assertThat(ruleParamArgument.getValue().getName()).isEqualTo("max");
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("20");
+
+    verify(session).commit();
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));
+  }
+
+  @Test
+  public void update_rule() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
+    when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
+
+    Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
+    operations.updateRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
+
+    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    assertThat(ruleArgument.getValue().getName()).isEqualTo("Updated Rule");
+    assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Updated Description");
+    assertThat(ruleArgument.getValue().getSeverity()).isEqualTo(2);
+
+    ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
+    verify(ruleDao).update(ruleParamArgument.capture(), eq(session));
+    assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("21");
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));

@@ -272,4 +272,20 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     checkTables("insert_parameter", "rules_parameters");
   }
+
+  @Test
+  public void update_parameter() {
+    setupData("update_parameter");
+
+    RuleParamDto param = new RuleParamDto()
+      .setId(1)
+      .setName("format")
+      .setType("STRING")
+      .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
+      .setDescription("Regular expression used to check the package names against.");
+
+    dao.update(param);
+
+    checkTables("update_parameter", "rules_parameters");
+  }
 }

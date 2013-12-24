@@ -164,7 +164,7 @@ class NewRulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     new_rule = nil
     call_backend do
-      new_rule = Internal.quality_profiles.newRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      new_rule = Internal.quality_profiles.createRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
     end
 
     if new_rule
@@ -187,12 +187,14 @@ class NewRulesConfigurationController < ApplicationController
   #
   def edit
     # form to edit a rule
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
-    @profile = Profile.find(params[:id])
-    @rule = Rule.find(params[:rule_id])
-    if !@rule.editable?
+
+    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
+    if @rule.parentId().nil?
       redirect_to :action => 'index', :id => params[:id]
+    else
+      @parent_rule = Internal.quality_profiles.rule(@rule.parentId())
     end
   end
 
@@ -203,27 +205,19 @@ class NewRulesConfigurationController < ApplicationController
   #
   def update
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
-    rule=Rule.find(params[:rule_id])
-    if rule.editable?
-      rule.name=params[:rule][:name]
-      rule.description=params[:rule][:description]
-      rule.priority=Sonar::RulePriority.id(params[:rule][:priority])
-      rule.parameters.each do |parameter|
-        parameter.default_value=params[:rule_param][parameter.name]
-        parameter.save
-      end
-      if rule.save
-        Internal.rules.saveOrUpdate(rule.id)
-        redirect_to :action => 'index', :id => params[:id], :searchtext => "\"#{rule.name}\"", :rule_activation => '', "plugins[]" => rule.plugin_name
-      else
-        flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
-        redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
-      end
+
+    profile_id = params[:id].to_i
+    rule_id = params[:rule_id].to_i
+    rule = nil
+    call_backend do
+      rule = Internal.quality_profiles.updateRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+    end
+
+    if rule
+      redirect_to :action => 'index', :id => profile_id, :searchtext => "\"#{rule.name()}\"", :rule_activation => '', "plugins[]" => rule.repositoryKey()
     else
-      flash[:error]='Unknown rule'
-      redirect_to :action => 'index', :id => params[:id]
+      redirect_to :action => 'new', :id => profile_id, :rule_id => rule_id
     end
   end
 

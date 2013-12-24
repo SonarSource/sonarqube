@@ -379,7 +379,7 @@ public class QProfileOperations implements ServerComponent {
           .setName(key)
           .setDescription(templateRuleParam.getDescription())
           .setType(templateRuleParam.getType())
-          .setDefaultValue(value);
+          .setDefaultValue(Strings.emptyToNull(value));
         ruleDao.insert(param, session);
         ruleParams.add(param);
       }
@@ -387,6 +387,30 @@ public class QProfileOperations implements ServerComponent {
       ruleRegistry.save(rule, ruleParams);
 
       return rule;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void updateRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
+                            UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      rule.setName(name)
+        .setDescription(description)
+        .setSeverity(Severity.ordinal(severity))
+        .setUpdatedAt(new Date(system.now()));
+      ruleDao.update(rule, session);
+
+      List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId(), session);
+      for (RuleParamDto ruleParam : ruleParams) {
+        String value = paramsByKey.get(ruleParam.getName());
+        ruleParam.setDefaultValue(Strings.emptyToNull(value));
+        ruleDao.update(ruleParam, session);
+      }
+      session.commit();
+      ruleRegistry.save(rule, ruleParams);
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -45,4 +45,6 @@ public interface RuleMapper {
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 
   void insertParameter(RuleParamDto param);
+
+  void updateParameter(RuleParamDto param);
 }
