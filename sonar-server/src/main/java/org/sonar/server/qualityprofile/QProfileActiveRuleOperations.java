@@ -82,8 +82,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public ActiveRuleDto createActiveRule(QualityProfileDto qualityProfile, RuleDto rule, String severity, UserSession userSession) {
-    checkPermission(userSession);
-    checkSeverity(severity);
+    validatePermission(userSession);
+    validateSeverity(severity);
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = new ActiveRuleDto()
@@ -115,8 +115,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
-    checkPermission(userSession);
-    checkSeverity(newSeverity);
+    validatePermission(userSession);
+    validateSeverity(newSeverity);
     SqlSession session = myBatis.openSession();
     try {
       Integer oldSeverity = activeRule.getSeverity();
@@ -131,7 +131,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void deactivateRule(ActiveRuleDto activeRule, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
@@ -149,7 +149,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
@@ -167,7 +167,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
@@ -181,7 +181,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
@@ -203,7 +203,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     if (activeRule.doesOverride()) {
       SqlSession session = myBatis.openSession();
@@ -276,7 +276,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void updateActiveRuleNote(ActiveRuleDto activeRule, String note, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
     Date now = new Date(system.now());
     SqlSession session = myBatis.openSession();
     try {
@@ -296,7 +296,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   public void deleteActiveRuleNote(ActiveRuleDto activeRule, UserSession userSession) {
-    checkPermission(userSession);
+    validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
@@ -347,9 +347,21 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     ruleRegistry.save(activeRuleDto, params);
   }
 
-  private void checkPermission(UserSession userSession) {
+  private void validatePermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
+
+  private void validateSeverity(String severity) {
+    if (!Severity.ALL.contains(severity)) {
+      throw new BadRequestException("The severity is not valid");
+    }
+  }
+
+  private void validateParam(String type, String value) {
+    if (type.equals(PropertyType.INTEGER.name()) && !NumberUtils.isDigits(value)) {
+      throw new BadRequestException(String.format("Value '%s' must be an integer.", value));
+    }
   }
 
   private String getLoggedName(UserSession userSession) {
@@ -360,24 +372,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return name;
   }
 
-  private void checkSeverity(String severity) {
-    if (!Severity.ALL.contains(severity)) {
-      throw new BadRequestException("The severity is not valid");
-    }
-  }
-
   private RuleParamDto findRuleParamNotNull(Integer ruleId, String key, SqlSession session) {
     RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(ruleId, key, session);
     if (ruleParam == null) {
       throw new IllegalArgumentException("No rule param found");
     }
     return ruleParam;
-  }
-
-  private void validateParam(String type, String value) {
-    if (type.equals(PropertyType.INTEGER.name()) && !NumberUtils.isDigits(value)) {
-      throw new BadRequestException(String.format("Value '%s' must be an integer.", value));
-    }
   }
 
 }
