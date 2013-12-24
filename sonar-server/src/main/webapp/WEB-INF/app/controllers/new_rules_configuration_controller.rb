@@ -164,8 +164,9 @@ class NewRulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     new_rule = nil
     call_backend do
-      new_rule = Internal.quality_profiles.newRule(profile_id, rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      new_rule = Internal.quality_profiles.newRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
     end
+
     if new_rule
       redirect_to :action => 'index', :id => profile_id, :searchtext => "\"#{new_rule.name()}\"", :rule_activation => 'INACTIVE', "plugins[]" => new_rule.repositoryKey()
     else

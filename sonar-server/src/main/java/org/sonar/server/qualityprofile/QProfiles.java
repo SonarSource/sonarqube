@@ -241,7 +241,12 @@ public class QProfiles implements ServerComponent {
    */
   @CheckForNull
   public ActiveRuleParamDto activeRuleParam(QProfileRule rule, String key) {
-    return findActiveRuleParam(rule.activeRuleId(), key);
+    Integer activeRuleId = rule.activeRuleId();
+    if (activeRuleId == null) {
+      throw new IllegalArgumentException("Active rule id can't be null");
+    }
+    return findActiveRuleParam(activeRuleId, key);
+
   }
 
   public ActiveRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
@@ -298,8 +303,7 @@ public class QProfiles implements ServerComponent {
     return rules.getFromRuleId(ruleId);
   }
 
-  public QProfileRule newRule(int profileId, int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
+  public QProfileRule newRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateNewRule(name, severity, description);
     RuleDto newRule = operations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
