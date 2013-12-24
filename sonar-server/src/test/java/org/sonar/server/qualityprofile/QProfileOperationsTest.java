@@ -591,4 +591,30 @@ public class QProfileOperationsTest {
     verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));
   }
 
+  @Test
+  public void delete_rule() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
+    RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
+    when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(param));
+
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(11).setSeverity(1);
+    when(activeRuleDao.selectByRuleId(11)).thenReturn(newArrayList(activeRule));
+
+    long now = System.currentTimeMillis();
+    doReturn(now).when(system).now();
+
+    operations.deleteRule(rule, authorizedUserSession);
+
+    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    assertThat(ruleArgument.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
+    assertThat(ruleArgument.getValue().getUpdatedAt()).isEqualTo(new Date(now));
+
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(param)));
+    verify(activeRuleDao).deleteParameters(eq(5), eq(session));
+    verify(activeRuleDao).deleteFromRule(eq(11), eq(session));
+    verify(session, times(2)).commit();
+    verify(ruleRegistry).deleteActiveRules(newArrayList(5));
+  }
+
 }

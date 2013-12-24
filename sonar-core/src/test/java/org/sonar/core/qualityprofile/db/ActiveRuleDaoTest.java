@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleDaoTest extends AbstractDaoTestCase {
@@ -76,6 +78,14 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getNoteUserLogin()).isEqualTo("henry");
     assertThat(result.getNoteCreatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
     assertThat(result.getNoteUpdatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
+  }
+
+  @Test
+  public void select_by_rule() {
+    setupData("shared");
+
+    List<ActiveRuleDto> result = dao.selectByRuleId(11);
+    assertThat(result).hasSize(2);
   }
 
   @Test
@@ -189,6 +199,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     dao.delete(1);
 
     checkTables("delete", "active_rules");
+  }
+
+  @Test
+  public void delete_from_rule() {
+    setupData("shared");
+
+    dao.deleteFromRule(11);
+
+    checkTables("delete_from_rule", "active_rules");
   }
 
   @Test

@@ -92,8 +92,6 @@ public class QProfiles implements ServerComponent {
   // active rule parameter validation (only Integer types are checked)
   //
   // TEMPLATE RULES
-  // create template rule
-  // edit template rule
   // delete template rule
 
   public QProfile profile(int id) {
@@ -318,6 +316,18 @@ public class QProfiles implements ServerComponent {
     validateRule(ruleId, name, severity, description);
     operations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return rules.getFromRuleId(ruleId);
+  }
+
+  public void deleteRule(int ruleId) {
+    RuleDto rule = findRuleNotNull(ruleId);
+    if (rule.getParentId() == null) {
+      throw new NotFoundException("Unknown rule");
+    }
+    operations.deleteRule(rule, UserSession.get());
+  }
+
+  public int countActiveRules(QProfileRule rule){
+    return activeRuleDao.selectByRuleId(rule.id()).size();
   }
 
 

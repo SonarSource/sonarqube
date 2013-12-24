@@ -41,6 +41,7 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -637,6 +638,26 @@ public class QProfilesTest {
     }
     verifyZeroInteractions(service);
     verifyZeroInteractions(rules);
+  }
+
+  @Test
+  public void delete_rule() throws Exception {
+    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
+    when(ruleDao.selectById(11)).thenReturn(rule);
+
+    qProfiles.deleteRule(11);
+
+    verify(service).deleteRule(eq(rule), any(UserSession.class));
+  }
+
+  @Test
+  public void count_active_rules() throws Exception {
+    QProfileRule rule = mock(QProfileRule.class);
+    when(rule.id()).thenReturn(10);
+
+    when(activeRuleDao.selectByRuleId(10)).thenReturn(newArrayList(new ActiveRuleDto().setId(50), new ActiveRuleDto().setId(51)));
+
+    assertThat(qProfiles.countActiveRules(rule)).isEqualTo(2);
   }
 
 }

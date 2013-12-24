@@ -21,8 +21,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
@@ -200,8 +202,8 @@ public class QProfileOperations implements ServerComponent {
     try {
       RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
 
-      activeRuleDao.delete(activeRule.getId(), session);
       activeRuleDao.deleteParameters(activeRule.getId(), session);
+      activeRuleDao.delete(activeRule.getId(), session);
       actions.addToDelete(activeRule.getId());
       session.commit();
 
@@ -393,7 +395,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public void updateRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
-                            UserSession userSession) {
+                         UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
@@ -411,6 +413,35 @@ public class QProfileOperations implements ServerComponent {
       }
       session.commit();
       ruleRegistry.save(rule, ruleParams);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteRule(RuleDto rule, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      // Set status REMOVED on rule
+      rule.setStatus(Rule.STATUS_REMOVED)
+        .setUpdatedAt(new Date(system.now()));
+      ruleDao.update(rule, session);
+      session.commit();
+      ruleRegistry.save(rule, ruleDao.selectParameters(rule.getId(), session));
+
+      // Delete all active rules and active rule params linked to the rule
+      List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
+      for (ActiveRuleDto activeRule : activeRules) {
+        activeRuleDao.deleteParameters(activeRule.getId(), session);
+      }
+      activeRuleDao.deleteFromRule(rule.getId(), session);
+      session.commit();
+      ruleRegistry.deleteActiveRules(newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
+        @Override
+        public Integer apply(ActiveRuleDto input) {
+          return input.getId();
+        }
+      })));
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -83,6 +83,40 @@ public class ActiveRuleDao implements ServerComponent {
     return session.getMapper(ActiveRuleMapper.class).selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
+  public List<ActiveRuleDto> selectByRuleId(Integer ruleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByRuleId(ruleId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleDto> selectByRuleId(Integer ruleId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId);
+  }
+
+  public List<ActiveRuleDto> selectByIds(List<Integer> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByIds(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleDto> selectByIds(Collection<Integer> ids, SqlSession session) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ActiveRuleDto> dtosList = newArrayList();
+    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Integer> idsPartition : idsPartitionList) {
+      List<ActiveRuleDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectByIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
+  }
 
   public void insert(ActiveRuleDto dto, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).insert(dto);
@@ -110,6 +144,41 @@ public class ActiveRuleDao implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectParamsByActiveRuleId(activeRuleId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectParamsByActiveRuleId(activeRuleId);
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(List<Integer> activeRuleIds) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectParamsByActiveRuleIds(activeRuleIds, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(Collection<Integer> activeRuleIds, SqlSession session) {
+    if (activeRuleIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ActiveRuleParamDto> dtosList = newArrayList();
+    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(activeRuleIds), 1000);
+    for (List<Integer> idsPartition : idsPartitionList) {
+      List<ActiveRuleParamDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectParamsByActiveRuleIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
   }
 
   public void insert(ActiveRuleParamDto dto, SqlSession session) {
@@ -154,6 +223,20 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
+  public void deleteFromRule(Integer ruleId, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).deleteFromRule(ruleId);
+  }
+
+  public void deleteFromRule(Integer ruleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteFromRule(ruleId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void deleteParameter(Integer activeRuleParamId, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).deleteParameter(activeRuleParamId);
   }
@@ -182,61 +265,5 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public List<ActiveRuleDto> selectByIds(List<Integer> ids) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectByIds(ids, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<ActiveRuleDto> selectByIds(Collection<Integer> ids, SqlSession session) {
-    if (ids.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ActiveRuleDto> dtosList = newArrayList();
-    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
-    for (List<Integer> idsPartition : idsPartitionList) {
-      List<ActiveRuleDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectByIds", newArrayList(idsPartition));
-      dtosList.addAll(dtos);
-    }
-    return dtosList;
-  }
-
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectParamsByActiveRuleId(activeRuleId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectParamsByActiveRuleId(activeRuleId);
-  }
-
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(List<Integer> activeRuleIds) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectParamsByActiveRuleIds(activeRuleIds, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(Collection<Integer> activeRuleIds, SqlSession session) {
-    if (activeRuleIds.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ActiveRuleParamDto> dtosList = newArrayList();
-    List<List<Integer>> idsPartitionList = Lists.partition(newArrayList(activeRuleIds), 1000);
-    for (List<Integer> idsPartition : idsPartitionList) {
-      List<ActiveRuleParamDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectParamsByActiveRuleIds", newArrayList(idsPartition));
-      dtosList.addAll(dtos);
-    }
-    return dtosList;
-  }
 
 }

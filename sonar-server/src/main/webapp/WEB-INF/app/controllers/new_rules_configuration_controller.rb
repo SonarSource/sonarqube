@@ -189,12 +189,15 @@ class NewRulesConfigurationController < ApplicationController
     # form to edit a rule
     require_parameters :id, :rule_id
 
-    @profile = Internal.quality_profiles.profile(params[:id].to_i)
-    @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
-    if @rule.parentId().nil?
-      redirect_to :action => 'index', :id => params[:id]
-    else
-      @parent_rule = Internal.quality_profiles.rule(@rule.parentId())
+    call_backend do
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
+      if @rule.parentId().nil?
+        redirect_to :action => 'index', :id => params[:id]
+      else
+        @parent_rule = Internal.quality_profiles.rule(@rule.parentId())
+        @active_rules = Internal.quality_profiles.countActiveRules(@rule)
+      end
     end
   end
 
@@ -229,20 +232,11 @@ class NewRulesConfigurationController < ApplicationController
   #
   def delete
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :rule_id
-    rule=Rule.find(params[:rule_id])
-    if rule.editable?
-      rule.status=Rule::STATUS_REMOVED
-      rule.save
-      Internal.rules.saveOrUpdate(rule.id)
 
-      # it's mandatory to execute 'destroy_all' but not 'delete_all' because active_rule_parameters must
-      # also be destroyed in cascade.
-      ActiveRule.destroy_all("rule_id=#{rule.id}")
+    call_backend do
+      Internal.quality_profiles.deleteRule(params[:rule_id].to_i)
       flash[:notice]=message('rules_configuration.rule_deleted')
-    else
-      flash[:error]=message('rules_configuration.unknown_rule')
     end
     redirect_to :action => 'index', :id => params[:id]
   end

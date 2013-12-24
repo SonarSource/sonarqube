@@ -27,7 +27,7 @@
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
     <where>
-      AND id=#{id}
+      AND a.id=#{id}
     </where>
   </select>
 
@@ -35,7 +35,15 @@
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
     <where>
-      AND profile_id=#{profileId}
+      AND a.profile_id=#{profileId}
+      AND a.rule_id=#{ruleId}
+    </where>
+  </select>
+
+  <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
+    SELECT <include refid="activeRuleColumns"/>
+    FROM active_rules a
+    <where>
       AND rule_id=#{ruleId}
     </where>
   </select>
@@ -44,7 +52,7 @@
     SELECT <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p
     <where>
-      AND id=#{id}
+      AND p.id=#{id}
     </where>
   </select>
 
@@ -52,8 +60,8 @@
     SELECT <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p
     <where>
-      AND active_rule_id=#{activeRuleId}
-      AND rules_parameter_key=#{key}
+      AND p.active_rule_id=#{activeRuleId}
+      AND p.rules_parameter_key=#{key}
     </where>
   </select>
 
@@ -91,6 +99,10 @@
 
   <update id="delete" parameterType="Integer">
     DELETE FROM active_rules WHERE id=#{id}
+  </update>
+
+  <update id="deleteFromRule" parameterType="Integer">
+    DELETE FROM active_rules WHERE rule_id=#{ruleId}
   </update>
 
   <update id="deleteParameters" parameterType="Integer">

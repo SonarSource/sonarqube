@@ -1,13 +1,13 @@
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language() -%> / <%= h @profile.name() %></h1>
 
 <%= render :partial => 'profiles/tabs', :locals => {:new_tab => 'Edit rule'} %>
 
 <div class="tabs-panel marginbottom10 background-gray">
 
-<form method="POST" id="delete-form" action="<%= url_for :action => 'delete', :id => @profile.id, :rule_id => @rule.id -%>" style="display: none"></form>
+<form method="POST" id="delete-form" action="<%= url_for :action => 'delete', :id => @profile.id(), :rule_id => @rule.id() -%>" style="display: none"></form>
 <script>
   function deleteRule() {
-    var count = <%= ActiveRule.count(:conditions => {:rule_id => @rule.id}) -%>;
+    var count = <%= @active_rules -%>;
     var message = 'Are you sure?';
     if (count>0) {
       message += ' This rule is activated in ' + count + ' profiles.';
