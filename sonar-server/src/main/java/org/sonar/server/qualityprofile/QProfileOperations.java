@@ -20,7 +20,6 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -32,7 +31,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -40,7 +38,6 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
@@ -58,39 +55,28 @@ public class QProfileOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
-  private final RuleDao ruleDao;
   private final PropertiesDao propertiesDao;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
 
-  private final System2 system;
-
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
-    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, System2.INSTANCE);
+    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
-    this(myBatis, dao, activeRuleDao, ruleDao, propertiesDao, importers, dryRunCache, ruleRegistry, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PropertiesDao propertiesDao,
-                     List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
-    this.ruleDao = ruleDao;
     this.propertiesDao = propertiesDao;
     this.importers = importers;
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
-    this.system = system;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {

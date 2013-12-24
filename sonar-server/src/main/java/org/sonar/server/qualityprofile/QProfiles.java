@@ -268,11 +268,7 @@ public class QProfiles implements ServerComponent {
    */
   @CheckForNull
   public ActiveRuleParamDto activeRuleParam(QProfileRule rule, String key) {
-    Integer activeRuleId = rule.activeRuleId();
-    if (activeRuleId == null) {
-      throw new IllegalArgumentException("Active rule id can't be null");
-    }
-    return findActiveRuleParam(activeRuleId, key);
+    return findActiveRuleParam(activeRuleId(rule), key);
 
   }
 
@@ -283,13 +279,20 @@ public class QProfiles implements ServerComponent {
    */
   @CheckForNull
   public QProfileRule parentActiveRule(QProfileRule rule) {
-    ActiveRuleDto parent = activeRuleDao.selectParent(rule.activeRuleId());
+    ActiveRuleDto parent = activeRuleDao.selectParent(activeRuleId(rule));
     if (parent != null) {
       return rules.getFromActiveRuleId(parent.getId());
     }
     return null;
   }
 
+  private Integer activeRuleId(QProfileRule rule) {
+    Integer activeRuleId = rule.activeRuleId();
+    if (activeRuleId == null) {
+      throw new IllegalArgumentException("Active rule id can't be null");
+    }
+    return activeRuleId;
+  }
 
   // RULES
 

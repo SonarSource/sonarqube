@@ -36,7 +36,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -44,7 +43,6 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.rule.RuleRegistry;
@@ -80,9 +78,6 @@ public class QProfileOperationsTest {
   ActiveRuleDao activeRuleDao;
 
   @Mock
-  RuleDao ruleDao;
-
-  @Mock
   PropertiesDao propertiesDao;
 
   @Mock
@@ -90,9 +85,6 @@ public class QProfileOperationsTest {
 
   @Mock
   RuleRegistry ruleRegistry;
-
-  @Mock
-  System2 system;
 
   List<ProfileImporter> importers = newArrayList();
 
@@ -117,7 +109,7 @@ public class QProfileOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, ruleDao, propertiesDao, importers, dryRunCache, ruleRegistry, system);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry);
   }
 
   @Test

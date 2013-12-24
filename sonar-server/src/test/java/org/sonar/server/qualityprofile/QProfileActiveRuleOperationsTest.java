@@ -39,7 +39,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -84,9 +83,6 @@ public class QProfileActiveRuleOperationsTest {
   RuleDao ruleDao;
 
   @Mock
-  PreviewCache dryRunCache;
-
-  @Mock
   RuleRegistry ruleRegistry;
 
   @Mock
@@ -116,7 +112,7 @@ public class QProfileActiveRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, dryRunCache, ruleRegistry, profilesManager, system);
+    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, system);
   }
 
   @Test

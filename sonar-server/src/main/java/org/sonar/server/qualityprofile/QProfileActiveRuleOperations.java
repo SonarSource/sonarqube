@@ -35,7 +35,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -58,24 +57,22 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
-  private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
   private final ProfilesManager profilesManager;
 
   private final System2 system;
 
-  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
-    this(myBatis, activeRuleDao, ruleDao, dryRunCache, ruleRegistry,
+  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+    this(myBatis, activeRuleDao, ruleDao, ruleRegistry,
       profilesManager, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, PreviewCache dryRunCache, RuleRegistry ruleRegistry,
+  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry,
                                ProfilesManager profilesManager, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
-    this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
     this.system = system;
