@@ -477,11 +477,6 @@ public class QProfiles implements ServerComponent {
   }
 
   @CheckForNull
-  private ActiveRuleDto findActiveRule(Integer qualityProfileId, Integer ruleId) {
-    return activeRuleDao.selectByProfileAndRule(qualityProfileId, ruleId);
-  }
-
-  @CheckForNull
   private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key) {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
