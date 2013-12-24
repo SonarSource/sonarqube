@@ -94,12 +94,16 @@ class NewRulesConfigurationController < ApplicationController
   #
   def revert_rule
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :id, :active_rule_id
-    id = params[:id].to_i
+
+    profile_id = params[:id].to_i
     rule_id = params[:active_rule_id].to_i
-    java_facade.revertRule(id, rule_id, current_user.name)
-    redirect_to request.query_parameters.merge({:action => 'index', :id => params[:id], :commit => nil})
+
+    call_backend do
+      Internal.quality_profiles.revertActiveRule(profile_id, rule_id)
+    end
+
+    redirect_to request.query_parameters.merge({:action => 'index', :id => profile_id, :commit => nil})
   end
 
 

@@ -205,7 +205,7 @@ public class QProfileRuleOperations implements ServerComponent {
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {
-    ruleRegistry.save(rule, ruleDao.selectParameters(rule.getId(), session));
+    reindexRule(rule, ruleDao.selectParameters(rule.getId(), session));
   }
 
   private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams) {

@@ -20,11 +20,16 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
 
 public class ActiveRuleDto {
+
+  public static final String INHERITED = "INHERITED";
+  public static final String OVERRIDES = "OVERRIDES";
 
   private Integer id;
   private Integer profileId;
@@ -121,4 +126,13 @@ public class ActiveRuleDto {
     this.noteData = noteData;
     return this;
   }
+
+  public boolean isInherited() {
+    return StringUtils.equals(INHERITED, inheritance);
+  }
+
+  public boolean doesOverride() {
+    return StringUtils.equals(OVERRIDES, inheritance);
+  }
+
 }

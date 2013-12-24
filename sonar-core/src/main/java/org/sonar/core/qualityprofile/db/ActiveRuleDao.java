@@ -61,6 +61,19 @@ public class ActiveRuleDao implements ServerComponent {
     return session.getMapper(ActiveRuleMapper.class).selectByProfileAndRule(profileId, ruleId);
   }
 
+  public ActiveRuleDto selectParent(Integer activeRuleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectParent(activeRuleId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public ActiveRuleDto selectParent(Integer activeRuleId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectParent(activeRuleId);
+  }
+
   public ActiveRuleParamDto selectParamById(Integer activeRuleParamId) {
     SqlSession session = mybatis.openSession();
     try {

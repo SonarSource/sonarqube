@@ -44,8 +44,16 @@
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
     <where>
-      AND rule_id=#{ruleId}
+      AND a.rule_id=#{ruleId}
     </where>
+  </select>
+
+  <select id="selectParent" parameterType="Integer" resultType="ActiveRule">
+    SELECT <include refid="activeRuleColumns"/>
+    FROM active_rules a
+    INNER JOIN rules_profiles profile_parent ON profile_parent.id=a.profile_id
+    INNER JOIN rules_profiles profile_child ON profile_child.parent_name=profile_parent.name and profile_child.language=profile_parent.language
+    INNER JOIN active_rules active_rule_child ON active_rule_child.profile_id=profile_child.id and active_rule_child.id=#{childId} AND a.rule_id=active_rule_child.rule_id
   </select>
 
   <select id="selectParamById" parameterType="Integer" resultType="ActiveRuleParam">

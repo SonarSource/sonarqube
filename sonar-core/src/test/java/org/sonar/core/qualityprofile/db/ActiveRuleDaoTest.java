@@ -89,6 +89,14 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_parent() {
+    setupData("select_parent");
+
+    ActiveRuleDto result = dao.selectParent(1);
+    assertThat(result.getId()).isEqualTo(2);
+  }
+
+  @Test
   public void select_param_by_id() {
     setupData("shared");
 

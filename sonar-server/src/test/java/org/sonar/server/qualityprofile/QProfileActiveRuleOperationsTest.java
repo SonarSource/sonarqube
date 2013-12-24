@@ -65,6 +65,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -212,42 +213,6 @@ public class QProfileActiveRuleOperationsTest {
   }
 
   @Test
-  public void update_active_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
-
-    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
-    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
-
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
-
-    operations.updateActiveRuleParam(activeRule, activeRuleParam, "30", authorizedUserSession);
-
-    ArgumentCaptor<ActiveRuleParamDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
-    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
-    assertThat(argumentCaptor.getValue().getId()).isEqualTo(100);
-    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
-
-    verify(session).commit();
-    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
-  }
-
-  @Test
-  public void remove_active_rule_param() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
-
-    operations.deleteActiveRuleParam(activeRule, activeRuleParam, authorizedUserSession);
-
-    verify(session).commit();
-    verify(activeRuleDao).deleteParameter(100, session);
-    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
-  }
-
-  @Test
   public void create_active_rule_param() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
@@ -295,6 +260,164 @@ public class QProfileActiveRuleOperationsTest {
     }
     verify(activeRuleDao, never()).insert(any(ActiveRuleParamDto.class), eq(session));
     verifyZeroInteractions(profilesManager);
+  }
+
+  @Test
+  public void update_active_rule_param() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.updateActiveRuleParam(activeRule, activeRuleParam, "30", authorizedUserSession);
+
+    ArgumentCaptor<ActiveRuleParamDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
+    assertThat(argumentCaptor.getValue().getId()).isEqualTo(100);
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
+
+    verify(session).commit();
+    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+  }
+
+  @Test
+  public void remove_active_rule_param() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.deleteActiveRuleParam(activeRule, activeRuleParam, authorizedUserSession);
+
+    verify(session).commit();
+    verify(activeRuleDao).deleteParameter(100, session);
+    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+  }
+
+  @Test
+  public void revert_active_rule_with_severity_to_update() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES);
+    ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(2);
+    when(activeRuleDao.selectParent(5, session)).thenReturn(parent);
+
+    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.revertActiveRule(activeRule, authorizedUserSession);
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao, times(2)).update(argumentCaptor.capture(), eq(session));
+    List<ActiveRuleDto> activeRulesChanged = argumentCaptor.getAllValues();
+    assertThat(activeRulesChanged.get(0).getSeverity()).isEqualTo(2);
+    assertThat(activeRulesChanged.get(1).getInheritance()).isEqualTo(ActiveRuleDto.INHERITED);
+
+    verify(session, times(2)).commit();
+    verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
+  }
+
+  @Test
+  public void revert_active_rule_with_param_to_update() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES);
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(newArrayList(
+      new ActiveRuleParamDto().setId(102).setActiveRuleId(5).setKey("max").setValue("20")
+    ));
+
+    ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectParent(5, session)).thenReturn(parent);
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(4), eq(session))).thenReturn(newArrayList(
+      new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("15")
+    ));
+
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.revertActiveRule(activeRule, authorizedUserSession);
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
+    assertThat(argumentCaptor.getValue().getInheritance()).isEqualTo(ActiveRuleDto.INHERITED);
+
+    ArgumentCaptor<ActiveRuleParamDto> paramCaptor = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
+    verify(activeRuleDao).update(paramCaptor.capture(), eq(session));
+    assertThat(paramCaptor.getValue().getId()).isEqualTo(102);
+    assertThat(paramCaptor.getValue().getKey()).isEqualTo("max");
+    assertThat(paramCaptor.getValue().getValue()).isEqualTo("15");
+
+    verify(session, times(2)).commit();
+    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
+  }
+
+  @Test
+  public void revert_active_rule_with_param_to_delete() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES);
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(newArrayList(
+      new ActiveRuleParamDto().setId(103).setActiveRuleId(5).setKey("format").setValue("abc"))
+    );
+
+    ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectParent(5, session)).thenReturn(parent);
+
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.revertActiveRule(activeRule, authorizedUserSession);
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
+    assertThat(argumentCaptor.getValue().getInheritance()).isEqualTo(ActiveRuleDto.INHERITED);
+
+    verify(activeRuleDao).deleteParameter(103, session);
+
+    verify(session, times(2)).commit();
+    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
+  }
+
+  @Test
+  public void revert_active_rule_with_param_to_create() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES);
+
+    ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectParent(5, session)).thenReturn(parent);
+    when(activeRuleDao.selectParamsByActiveRuleId(eq(4), eq(session))).thenReturn(newArrayList(
+      new ActiveRuleParamDto().setId(101).setActiveRuleId(5).setKey("minimum").setValue("2"))
+    );
+
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+
+    operations.revertActiveRule(activeRule, authorizedUserSession);
+
+    ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
+    assertThat(argumentCaptor.getValue().getInheritance()).isEqualTo(ActiveRuleDto.INHERITED);
+
+    ArgumentCaptor<ActiveRuleParamDto> paramCaptor = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
+    verify(activeRuleDao).insert(paramCaptor.capture(), eq(session));
+    assertThat(paramCaptor.getValue().getKey()).isEqualTo("minimum");
+    assertThat(paramCaptor.getValue().getValue()).isEqualTo("2");
+
+    verify(session, times(2)).commit();
+    verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"));
+    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
+  }
+
+  @Test
+  public void no_revert_when_active_rule_do_not_override() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(null);
+
+    operations.revertActiveRule(activeRule, authorizedUserSession);
+
+    verifyZeroInteractions(activeRuleDao);
+    verifyZeroInteractions(session);
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(ruleRegistry);
   }
 
   @Test

@@ -35,6 +35,9 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleId(Integer ruleId);
 
+  @CheckForNull
+  ActiveRuleDto selectParent(Integer id);
+
   void insert(ActiveRuleDto dto);
 
   void update(ActiveRuleDto dto);

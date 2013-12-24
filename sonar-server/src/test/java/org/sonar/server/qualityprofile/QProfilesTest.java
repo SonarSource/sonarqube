@@ -283,20 +283,20 @@ public class QProfilesTest {
   }
 
   @Test
-  public void active_rule_by_profile_and_rule() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
+  public void parent_active_rule() throws Exception {
+    ActiveRuleDto parent = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectParent(6)).thenReturn(parent);
+
     QProfileRule rule = mock(QProfileRule.class);
     when(rule.id()).thenReturn(10);
+    when(rule.activeRuleId()).thenReturn(6);
 
     QProfileRule ruleResult = mock(QProfileRule.class);
     when(rules.getFromActiveRuleId(5)).thenReturn(ruleResult);
 
-    QProfileRule result = qProfiles.activeRuleByProfileAndRule(new QProfile().setId(1), rule);
+    QProfileRule result = qProfiles.parentActiveRule(rule);
 
     assertThat(result).isEqualTo(ruleResult);
-
-    assertThat(qProfiles.activeRuleByProfileAndRule(new QProfile().setId(55), rule)).isNull();
   }
 
   @Test
@@ -478,6 +478,17 @@ public class QProfilesTest {
     qProfiles.updateActiveRuleParam(1, 50, "max", "");
 
     verifyZeroInteractions(service);
+  }
+
+  @Test
+  public void revert_active_rule() throws Exception {
+    when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("My profile").setLanguage("java"));
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
+    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
+
+    qProfiles.revertActiveRule(1, 50);
+
+    verify(activeRuleOperations).revertActiveRule(eq(activeRule), any(UserSession.class));
   }
 
   @Test

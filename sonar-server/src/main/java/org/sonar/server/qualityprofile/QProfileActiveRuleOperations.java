@@ -23,10 +23,11 @@ package org.sonar.server.qualityprofile;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.common.base.Predicate;
+import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.Severity;
@@ -49,6 +50,8 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileActiveRuleOperations implements ServerComponent {
 
@@ -90,7 +93,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.insert(activeRule, session);
 
       List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId(), session);
-      List<ActiveRuleParamDto> activeRuleParams = Lists.newArrayList();
+      List<ActiveRuleParamDto> activeRuleParams = newArrayList();
       for (RuleParamDto ruleParam : ruleParams) {
         ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
           .setActiveRuleId(activeRule.getId())
@@ -121,10 +124,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.update(activeRule, session);
       session.commit();
 
-      RuleInheritanceActions actions = profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
-        RulePriority.valueOfInt(oldSeverity), RulePriority.valueOf(newSeverity),
-        userSession.name());
-      reindexInheritanceResult(actions, session);
+      notifySeverityChanged(activeRule, newSeverity, Severity.get(oldSeverity), session, userSession);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -174,9 +174,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.deleteParameter(activeRuleParam.getId(), session);
       session.commit();
 
-      RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), activeRuleParam.getValue(),
-        null, userSession.name());
-      reindexInheritanceResult(actions, session);
+      notifyParamsDeleted(activeRule, newArrayList(activeRuleParam), session, userSession);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -201,6 +199,79 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       reindexInheritanceResult(actions, session);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession) {
+    checkPermission(userSession);
+
+    if (activeRule.doesOverride()) {
+      SqlSession session = myBatis.openSession();
+      try {
+        RuleInheritanceActions actions = new RuleInheritanceActions();
+
+        ActiveRuleDto parent = activeRuleDao.selectParent(activeRule.getId(), session);
+
+        // Restore all parameters from parent
+        List<ActiveRuleParamDto> parentParams = activeRuleDao.selectParamsByActiveRuleId(parent.getId(), session);
+        List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId(), session);
+        List<ActiveRuleParamDto> newParams = newArrayList();
+        List<String> paramKeys = newArrayList();
+        for (ActiveRuleParamDto param : activeRuleParams) {
+          final String key = param.getKey();
+          ActiveRuleParamDto parentParam = Iterables.find(parentParams, new Predicate<ActiveRuleParamDto>() {
+            @Override
+            public boolean apply(ActiveRuleParamDto activeRuleParamDto) {
+              return activeRuleParamDto.getKey().equals(key);
+            }
+          }, null);
+          if (parentParam != null && !Strings.isNullOrEmpty(parentParam.getValue())) {
+            String oldValue = param.getValue();
+            String newValue = parentParam.getValue();
+            param.setValue(newValue);
+            activeRuleDao.update(param, session);
+            session.commit();
+            newParams.add(param);
+            actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, oldValue, newValue, getLoggedName(userSession)));
+          } else {
+            activeRuleDao.deleteParameter(param.getId(), session);
+            session.commit();
+            actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, param.getValue(), null, userSession.name()));
+          }
+          paramKeys.add(key);
+        }
+        for (ActiveRuleParamDto parentParam : parentParams) {
+          if (!paramKeys.contains(parentParam.getKey())) {
+            ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId())
+              .setKey(parentParam.getKey()).setValue(parentParam.getValue()).setRulesParameterId(parentParam.getRulesParameterId());
+            activeRuleDao.insert(activeRuleParam, session);
+            session.commit();
+            newParams.add(activeRuleParam);
+            actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(), userSession.name()));
+          }
+        }
+
+        // Restore severity from parent
+        Integer oldSeverity = activeRule.getSeverity();
+        Integer newSeverity = parent.getSeverity();
+        if (!oldSeverity.equals(newSeverity)) {
+          activeRule.setSeverity(newSeverity);
+          activeRuleDao.update(activeRule, session);
+          session.commit();
+          actions.add(profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
+            RulePriority.valueOf(Severity.get(oldSeverity)), RulePriority.valueOf(Severity.get(newSeverity)), userSession.name()));
+        }
+
+        reindexInheritanceResult(actions, session);
+
+        // Update inheritance
+        activeRule.setInheritance(ActiveRuleDto.INHERITED);
+        activeRuleDao.update(activeRule, session);
+        session.commit();
+        reindexActiveRule(activeRule, newParams);
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
     }
   }
 
@@ -242,6 +313,22 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
+  private void notifyParamsDeleted(ActiveRuleDto activeRule, List<ActiveRuleParamDto> params, SqlSession session, UserSession userSession) {
+    RuleInheritanceActions actions = new RuleInheritanceActions();
+    for (ActiveRuleParamDto activeRuleParam : params) {
+      actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), activeRuleParam.getValue(),
+        null, userSession.name()));
+    }
+    reindexInheritanceResult(actions, session);
+  }
+
+  private void notifySeverityChanged(ActiveRuleDto activeRule, String newSeverity, String oldSeverity, SqlSession session, UserSession userSession) {
+    RuleInheritanceActions actions = profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
+      RulePriority.valueOf(oldSeverity), RulePriority.valueOf(newSeverity),
+      userSession.name());
+    reindexInheritanceResult(actions, session);
+  }
+
   private void reindexInheritanceResult(RuleInheritanceActions actions, SqlSession session) {
     ruleRegistry.deleteActiveRules(actions.idsToDelete());
     List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(actions.idsToIndex(), session);
@@ -253,7 +340,11 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {
-    ruleRegistry.save(activeRuleDto, activeRuleDao.selectParamsByActiveRuleId(activeRuleDto.getId(), session));
+    reindexActiveRule(activeRuleDto, activeRuleDao.selectParamsByActiveRuleId(activeRuleDto.getId(), session));
+  }
+
+  private void reindexActiveRule(ActiveRuleDto activeRuleDto, List<ActiveRuleParamDto> params) {
+    ruleRegistry.save(activeRuleDto, params);
   }
 
   private void checkPermission(UserSession userSession) {

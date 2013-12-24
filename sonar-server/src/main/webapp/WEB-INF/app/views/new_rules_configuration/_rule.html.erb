@@ -50,10 +50,10 @@
     </div>
 
     <%
-       # TODO Ancestor active rule should be integrated in the result rule to prevent bunch of SQL queries to load ancestor profile and ancestor active rule for each actuive rules!
-       ancestor_profile = Internal.quality_profiles.parent(profile)
-       ancestor_active_rule = Internal.quality_profiles.activeRuleByProfileAndRule(profile, rule) if ancestor_profile && (rule.inherited? || rule.overrides?)
+       # TODO Ancestor active rule should be integrated in the result rule to prevent bunch of SQL queries to load ancestor profile and ancestor active rule for each active rules!
+       ancestor_active_rule = Internal.quality_profiles.parentActiveRule(rule) if (rule.inherited? || rule.overrides?)
        if ancestor_active_rule || !rule.params.empty?
+         ancestor_profile = Internal.quality_profiles.parent(profile)
     %>
       <table width="100%" class="table spacer-bottom bordered background-gray">
         <%
