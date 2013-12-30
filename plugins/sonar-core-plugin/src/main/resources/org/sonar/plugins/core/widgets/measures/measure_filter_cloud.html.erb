@@ -42,7 +42,8 @@
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
-        baseUrl: baseUrl + '/dashboard/index/'
+        baseUrl: baseUrl + '/dashboard/index/',
+        noData: '<%= message('no_data') -%>'
       })
       .render('#<%= containerId -%>');
 

@@ -44,7 +44,8 @@
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
         displayWorstBestValues: <%= displayWorstBestValues -%>,
-        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>'
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
+        noData: '<%= message('no_data') -%>'
       })
       .render('#<%= containerId -%>');
 

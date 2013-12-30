@@ -50,7 +50,8 @@
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
         xLog: <%= xLog -%>,
-        yLog: <%= yLog -%>
+        yLog: <%= yLog -%>,
+        noData: '<%= message('no_data') -%>'
       })
       .render('#<%= containerId -%>');
 

@@ -42,19 +42,23 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     d3.json(this.source(), function(error, response) {
       if (response && !error) {
-        that.widget = new SonarWidgets[that.type()]();
-        that.widget
-            .metrics(response.metrics)
-            .metricsPriority(that.metricsPriority())
-            .components(response.components)
-            .options(that.options());
-        if (typeof that.widget.maxResultsReached === 'function') {
-          that.widget.maxResultsReached(response.paging.pages > 1);
+        if (response.components.length > 0) {
+          that.widget = new SonarWidgets[that.type()]();
+          that.widget
+              .metrics(response.metrics)
+              .metricsPriority(that.metricsPriority())
+              .components(response.components)
+              .options(that.options());
+          if (typeof that.widget.maxResultsReached === 'function') {
+            that.widget.maxResultsReached(response.paging.pages > 1);
+          }
+          if (that.height()) {
+            that.widget.height(that.height());
+          }
+          that.widget.render(container);
+        } else {
+          d3.select(container).html(that.options().noData);
         }
-        if (that.height()) {
-          that.widget.height(that.height());
-        }
-        that.widget.render(container);
       }
     });
   };
