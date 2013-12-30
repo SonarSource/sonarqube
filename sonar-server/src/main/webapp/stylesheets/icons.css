@@ -1,0 +1,138 @@
+/*
+ * Fonts
+ */
+/*
+ * Colors
+ */
+/*
+ * Icons
+ */
+/*
+ * Transitions
+ */
+@font-face {
+  font-family: 'sonar';
+  src: url('../fonts/sonar.eot');
+  src: url('../fonts/sonar.eot?#iefix') format('embedded-opentype'), url('../fonts/sonar.ttf') format('truetype'), url('../fonts/sonar.woff') format('woff'), url('../fonts/sonar.svg#sonar') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: 'sonar';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: middle;
+  /* Better Font Rendering =========== */
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/*
+ * Severity
+ */
+.icon-severity-blocker:before {
+  content: "\f000";
+  color: #d4333f;
+  font-size: 14px;
+}
+.icon-severity-critical:before {
+  content: "\f001";
+  color: #d4333f;
+  font-size: 14px;
+}
+.icon-severity-major:before {
+  content: "\f002";
+  color: #d4333f;
+  font-size: 14px;
+}
+.icon-severity-minor:before {
+  content: "\f003";
+  color: #85bb43;
+  font-size: 14px;
+}
+.icon-severity-info:before {
+  content: "\f004";
+  color: #85bb43;
+  font-size: 14px;
+}
+/*
+ * Status
+ */
+.icon-status-open:before {
+  content: "\f010";
+  color: #85bb43;
+  font-size: 14px;
+}
+.icon-status-confirmed:before {
+  content: "\f011";
+  color: #d4333f;
+  font-size: 14px;
+}
+.icon-status-reopened:before {
+  content: "\f012";
+  color: #85bb43;
+  font-size: 14px;
+}
+.icon-status-resolved:before {
+  content: "\f013";
+  color: #4b9fd5;
+  font-size: 14px;
+}
+.icon-status-closed:before {
+  content: "\f014";
+  color: #444444;
+  font-size: 14px;
+}
+/*
+ * Resolution
+ */
+.icon-resolution-fixed:before {
+  content: "\f05d";
+  color: #444444;
+  font-size: 14px;
+}
+.icon-resolution-false-positive:before {
+  content: "\f05c";
+  color: #444444;
+  font-size: 14px;
+}
+.icon-resolution-removed:before {
+  content: "\f05e";
+  color: #444444;
+  font-size: 14px;
+}
+/*
+ * Common
+ */
+.icon-list:before {
+  content: "\f039";
+}
+.icon-settings:before {
+  content: "\f015";
+}
+.icon-arrow-down:before {
+  content: "\f0d7";
+}
+.icon-arrow-up:before {
+  content: "\f0d8";
+}
+.icon-arrow-left:before {
+  content: "\f0d9";
+}
+.icon-arrow-right:before {
+  content: "\f0da";
+}
+.icon-emoticon-smiley:before {
+  content: "\f118";
+}
+.icon-emoticon-sad:before {
+  content: "\f119";
+}
+.icon-emoticon-speechless:before {
+  content: "\f11a";
+}

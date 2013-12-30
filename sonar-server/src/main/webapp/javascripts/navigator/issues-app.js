@@ -2,7 +2,7 @@
 
 window.SS = typeof window.SS === 'object' ? window.SS : {};
 
-(function() {
+jQuery(function() {
 
   var NavigatorApp = new Backbone.Marionette.Application();
   window.SS.IssuesNavigatorApp = NavigatorApp;
@@ -10,7 +10,25 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
   NavigatorApp.addRegions({
-    filtersRegion: '.navigator-filters'
+    filtersRegion: '.navigator-filters',
+    resultsRegion: '.navigator-results',
+    actionsRegion: '.navigator-actions'
+  });
+
+
+  NavigatorApp.addInitializer(function() {
+    this.issues = new window.SS.Issues();
+    this.issuesPage = 1;
+
+    this.issuesView = new window.SS.IssuesView({
+      collection: this.issues
+    });
+    this.resultsRegion.show(this.issuesView);
+
+    this.issuesActionsView = new window.SS.IssuesActionsView({
+      collection: this.issues
+    });
+    this.actionsRegion.show(this.issuesActionsView);
   });
 
 
@@ -40,7 +58,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       new window.SS.Filter({
         name: window.SS.phrases.severity,
-        property: 'severities[]',
+        property: 'severities',
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
@@ -52,17 +70,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'INFO': window.SS.phrases.severities.info
         },
         choiceIcons: {
-          'BLOCKER': '/images/priority/BLOCKER.png',
-          'CRITICAL': '/images/priority/CRITICAL.png',
-          'MAJOR': '/images/priority/MAJOR.png',
-          'MINOR': '/images/priority/MINOR.png',
-          'INFO': '/images/priority/INFO.png'
+          'BLOCKER': 'severity-blocker',
+          'CRITICAL': 'severity-critical',
+          'MAJOR': 'severity-major',
+          'MINOR': 'severity-minor',
+          'INFO': 'severity-info'
         }
       }),
 
       new window.SS.Filter({
         name: window.SS.phrases.status,
-        property: 'statuses[]',
+        property: 'statuses',
         type: window.SS.SelectFilterView,
         enabled: true,
         optional: false,
@@ -72,6 +90,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           'REOPENED': window.SS.phrases.statuses.reopened,
           'RESOLVED': window.SS.phrases.statuses.resolved,
           'CLOSED': window.SS.phrases.statuses.closed
+        },
+        choiceIcons: {
+          'OPEN': 'status-open',
+          'CONFIRMED': 'status-confirmed',
+          'REOPENED': 'status-reopened',
+          'RESOLVED': 'status-resolved',
+          'CLOSED': 'status-closed'
         }
       }),
 
@@ -85,7 +110,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       new window.SS.Filter({
         name: window.SS.phrases.resolution,
-        property: 'resolutions[]',
+        property: 'resolutions',
         type: window.SS.SelectFilterView,
         enabled: false,
         optional: true,
@@ -115,7 +140,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     ]);
 
 
-    this.filterBarView = new window.SS.FilterBarView({
+    this.filterBarView = new window.SS.IssuesFilterBarView({
+      app: this,
       collection: this.filters,
       extra: {
         sort: '',
@@ -123,8 +149,27 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }
     });
 
-
     this.filtersRegion.show(this.filterBarView);
   });
 
-})();
+
+  NavigatorApp.addInitializer(function() {
+    this.router = new window.SS.IssuesRouter({
+      app: this
+    });
+    Backbone.history.start()
+  });
+
+
+  NavigatorApp.fetchFirstPage = function() {
+    this.issuesPage = 1;
+    this.filterBarView.fetchNextPage();
+  };
+
+
+  NavigatorApp.fetchNextPage = function() {
+    this.issuesPage++;
+    this.filterBarView.fetchNextPage();
+  };
+
+});

@@ -29,6 +29,7 @@
     <%= stylesheet_link_tag 'select2-sonar', :media => 'all' %>
     <%= stylesheet_link_tag 'layout', :media => 'all' %>
     <%= stylesheet_link_tag 'style', :media => 'all' %>
+    <%= stylesheet_link_tag 'icons', :media => 'all' %>
     <%= stylesheet_link_tag 'ui', :media => 'all' %>
     <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
     <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
@@ -40,13 +41,16 @@
     <%= javascript_include_tag 'third-party/tablekit' %>
     <%= javascript_include_tag 'third-party/jquery.min' %>
     <%= javascript_include_tag 'third-party/jquery-ui.min' %>
+    <%= javascript_include_tag 'third-party/jquery-ui.tabs' %>
     <%= javascript_include_tag 'third-party/d3.v3.min' %>
     <%= javascript_include_tag 'third-party/underscore-min' %>
     <%= javascript_include_tag 'third-party/backbone-min' %>
     <%= javascript_include_tag 'third-party/backbone.marionette.min' %>
+    <%= javascript_include_tag 'third-party/handlebars' %>
     <%= javascript_include_tag 'third-party/jquery.ba-throttle-debounce.min.js' %>
     <%= javascript_include_tag 'third-party/select2.min' %>
     <%= javascript_include_tag 'third-party/d3-cloud/d3.layout.cloud' %>
+    <%= javascript_include_tag 'third-party/moment.min' %>
 
     <%= javascript_include_tag 'widgets/widget' %>
     <%= javascript_include_tag 'widgets/bubble-chart' %>
@@ -58,6 +62,8 @@
 
     <%= javascript_include_tag 'select-list' %>
 
+    <%= javascript_include_tag 'navigator/handlebars-extensions' %>
+
     <%= javascript_include_tag 'navigator/filters/base-filters' %>
     <%= javascript_include_tag 'navigator/filters/select-filters' %>
     <%= javascript_include_tag 'navigator/filters/ajax-select-filters' %>
@@ -67,7 +73,10 @@
     <%= javascript_include_tag 'navigator/filters/metric-filters' %>
     <%= javascript_include_tag 'navigator/filters/favorite-filters' %>
     <%= javascript_include_tag 'navigator/filters/more-criteria-filters' %>
+
+    <%= javascript_include_tag 'navigator/issues' %>
     <%= javascript_include_tag 'navigator/issues-app' %>
+
     <%= javascript_include_tag 'navigator/measures-app' %>
 
     <%= javascript_include_tag 'application' %>

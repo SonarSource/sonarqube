@@ -1,0 +1,208 @@
+@import "../variables";
+@import "../mixins";
+
+@import "config";
+
+
+.navigator { }
+
+
+.navigator-element() {
+  position: fixed;
+  z-index: 2;
+  .box-sizing(border-box);
+}
+
+.navigator-header {
+  .navigator-element;
+  top: @navigatorTopOffset;
+  left: 0;
+  .size(100%, @navigatorHeaderHeight);
+}
+
+.navigator-filters {
+  .navigator-element;
+  top: @navigatorTopOffset + @navigatorHeaderHeight;
+  left: 0;
+  .size(100%, @navigatorFiltersHeight);
+}
+
+.navigator-results {
+  .navigator-element;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
+  bottom: @navigatorStatusHeight;
+  left: 0;
+  width: @navigatorResultsWidth;
+}
+
+.navigator-details {
+  .navigator-element;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
+  bottom: 0;
+  left: @navigatorResultsWidth;
+  right: 0;
+}
+
+.navigator-actions {
+  .navigator-element;
+  bottom: 0;
+  left: 0;
+  .size(@navigatorResultsWidth, @navigatorStatusHeight);
+}
+
+
+.navigator-simple {
+  .navigator-filters {
+    top: @navigatorTopOffset;
+  }
+
+  .navigator-results {
+    top: @navigatorTopOffset + @navigatorFiltersHeight;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+
+
+// Header
+.navigator-header {
+  padding: 0 @navigatorPadding;
+  border-bottom: 1px solid @navigatorBorderColor;
+  background-color: @navigatorBarBackground;
+}
+
+.navigator-header-title {
+  font-size: 20px;
+  line-height: @navigatorHeaderHeight;
+}
+
+
+
+// Results
+.navigator-results {
+  border-right: 1px solid @navigatorBorderLightColor;
+  background-color: @white;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.navigator-results-list {
+
+
+  & > li {
+    padding-top: @navigatorPadding;
+    cursor: pointer;
+
+    &:first-child {
+      padding-top: 0;
+
+      &:hover .line:first-child {
+        border-top-color: transparent;
+      }
+    }
+
+    .line {
+      padding: @navigatorPadding / 2 @navigatorPadding;
+      line-height: 1;
+      .trans;
+
+      &:first-child {
+        border-top: 1px solid transparent;
+        background-color: @navigatorBarBackground;
+      }
+
+      &:last-child {
+        border-bottom: 1px solid transparent;
+      }
+    }
+
+    .line-small {
+      font-size: 11px;
+      line-height: 14px;
+    }
+
+    .line-right {
+      float: right;
+    }
+
+    .line-nowrap {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover,
+    &.active {
+      .line {
+        background-color: @navigatorBarBackground;
+
+        &:first-child {
+          border-top-color: @navigatorBorderLightColor;
+        }
+
+        &:last-child {
+          border-bottom-color: @navigatorBorderLightColor;
+        }
+      }
+    }
+
+  }
+
+}
+
+.navigator-results-no-issues {
+  padding-top: 20%;
+  color: #999;
+  text-align: center;
+
+  i {
+    font-size: 32px;
+  }
+
+  p {
+    margin-top: 10px;
+  }
+}
+
+
+
+// Details
+.navigator-details {
+  padding: @navigatorPadding;
+  background-color: @white;
+  overflow: auto;
+
+  &.loading {
+    background: @white url("../images/loading.gif") no-repeat 4px 2px;
+  }
+}
+
+
+
+// Status
+.navigator-actions {
+  padding: 0 @navigatorPadding;
+  line-height: @navigatorStatusHeight;
+  border-right: 1px solid @navigatorBorderLightColor;
+  border-top: 1px solid @navigatorBorderLightColor;
+  background-color: @white;
+}
+
+.navigator-actions-order {
+  float: left;
+  cursor: pointer;
+}
+
+.navigator-actions-total {
+  float: right;
+}
+
+.navigator-actions-bulk {
+  position: relative;
+  top: -1px;
+  margin-left: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}

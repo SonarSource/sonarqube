@@ -169,7 +169,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     restore: function(value) {
-      this.model.set('value', value);
+      this.model.set({ value: value }, { silent: true });
+      this.renderBase();
     },
 
 
@@ -181,6 +182,15 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         enabled: false,
         value: null
       });
+    },
+
+
+    formatValue: function() {
+      var q = {};
+      if (this.model.has('property') && this.model.has('value') && this.model.get('value')) {
+        q[this.model.get('property')] = this.model.get('value');
+      }
+      return q;
     },
 
 
@@ -283,6 +293,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }
       this.moreCriteriaFilter.set('filters', disabledFilters);
     }
+
   });
 
 
