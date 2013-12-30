@@ -1,0 +1,145 @@
+@import "variables";
+
+@font-face {
+  font-family: 'sonar';
+  src: url('../fonts/sonar.eot');
+  src: url('../fonts/sonar.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/sonar.ttf') format('truetype'),
+       url('../fonts/sonar.woff') format('woff'),
+       url('../fonts/sonar.svg#sonar') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'sonar';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: middle;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/*
+ * Severity
+ */
+
+.icon-severity-blocker:before {
+  content: "\f000";
+  color: @severityBlockerColor;
+  font-size: @iconFontSize;
+}
+.icon-severity-critical:before {
+  content: "\f001";
+  color: @severityCriticalColor;
+  font-size: @iconFontSize;
+}
+.icon-severity-major:before {
+  content: "\f002";
+  color: @severityMajorColor;
+  font-size: @iconFontSize;
+}
+.icon-severity-minor:before {
+  content: "\f003";
+  color: @severityMinorColor;
+  font-size: @iconFontSize;
+}
+.icon-severity-info:before {
+  content: "\f004";
+  color: @severityInfoColor;
+  font-size: @iconFontSize;
+}
+
+
+/*
+ * Status
+ */
+
+.icon-status-open:before {
+  content: "\f010";
+  color: @statusOpenColor;
+  font-size: @iconFontSize;
+}
+.icon-status-confirmed:before {
+  content: "\f011";
+  color: @statusConfirmedColor;
+  font-size: @iconFontSize;
+}
+.icon-status-reopened:before {
+  content: "\f012";
+  color: @statusReopenedColor;
+  font-size: @iconFontSize;
+}
+.icon-status-resolved:before {
+  content: "\f013";
+  color: @statusResolvedColor;
+  font-size: @iconFontSize;
+}
+.icon-status-closed:before {
+  content: "\f014";
+  color: @statusClosedColor;
+  font-size: @iconFontSize;
+}
+
+
+/*
+ * Resolution
+ */
+
+.icon-resolution-fixed:before {
+  content: "\f05d";
+  color: @resolutionFixedColor;
+  font-size: @iconFontSize;
+}
+.icon-resolution-false-positive:before {
+  content: "\f05c";
+  color: @resolutionFalsePositiveColor;
+  font-size: @iconFontSize;
+}
+.icon-resolution-removed:before {
+  content: "\f05e";
+  color: @resolutionRemovedColor;
+  font-size: @iconFontSize;
+}
+
+
+/*
+ * Common
+ */
+
+.icon-list:before {
+  content: "\f039";
+}
+.icon-settings:before {
+  content: "\f015";
+}
+
+.icon-arrow-down:before {
+  content: "\f0d7";
+}
+.icon-arrow-up:before {
+  content: "\f0d8";
+}
+.icon-arrow-left:before {
+  content: "\f0d9";
+}
+.icon-arrow-right:before {
+  content: "\f0da";
+}
+
+.icon-emoticon-smiley:before {
+  content: "\f118";
+}
+.icon-emoticon-sad:before {
+  content: "\f119";
+}
+.icon-emoticon-speechless:before {
+  content: "\f11a";
+}

@@ -203,7 +203,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
             });
 
             if (icons && icons[key]) {
-              model.set('icon', baseUrl + icons[key]);
+              model.set('icon', icons[key]);
             }
 
             return model;
@@ -260,7 +260,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     restore: function(value) {
       if (_.isString(value)) {
-        value = [value];
+        value = value.split(',');
       }
 
       if (this.choices && this.selection && value.length > 0) {
@@ -282,8 +282,21 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         this.model.set({
           value: value,
           enabled: true
+        }, {
+          silent: true
         });
+
+        this.renderBase();
       }
+    },
+
+
+    formatValue: function() {
+      var q = {};
+      if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
+        q[this.model.get('property')] = this.model.get('value').join(',');
+      }
+      return q;
     }
 
   });
