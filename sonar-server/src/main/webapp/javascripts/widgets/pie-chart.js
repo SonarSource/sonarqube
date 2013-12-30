@@ -253,18 +253,24 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Configure events
-    var enterHandler = function(sector, d, i) {
-          var metrics = widget.metricsPriority().map(function(m) {
-            return {
-              name: widget.metrics()[m].name,
-              value: widget.fm(d.measures[m].val, m)
-            };
-          });
-          metrics.unshift({ name: d.name });
-          updateMetrics(metrics);
+    var enterHandler = function(sector, d, i, showDetails) {
+          if (showDetails) {
+            var metrics = widget.metricsPriority().map(function(m) {
+              return {
+                name: widget.metrics()[m].name,
+                value: widget.fm(d.measures[m].val, m)
+              };
+            });
+            metrics.unshift({ name: d.name });
+            updateMetrics(metrics);
 
-          widget.legendWrap
-              .style('opacity', 0);
+            widget.legendWrap
+                .style('opacity', 0);
+
+            widget.detailsColorIndicator
+                .style('opacity', 1)
+                .style('fill', widget.color(i));
+          }
           widget.donutLabel
               .style('opacity', 1)
               .text(widget.fm(widget.getMainMetric(d), widget.mainMetric));
@@ -272,23 +278,30 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .style('opacity', 1);
           widget.donutLabel2
               .style('opacity', 1);
-          widget.detailsColorIndicator
-              .style('opacity', 1)
-              .style('fill', widget.color(i));
+          widget.plotWrap
+              .classed('hover', true);
+          sector.
+              classed('hover', true);
         },
 
-        leaveHandler = function() {
+        leaveHandler = function(sector) {
           widget.legendWrap
               .style('opacity', 1);
           widget.detailsColorIndicator
               .style('opacity', 0);
-          widget.detailsMetrics
-              .style('opacity', 0);
+          if (widget.detailsMetrics) {
+            widget.detailsMetrics
+                .style('opacity', 0);
+          }
           widget.donutLabel
               .style('opacity', 0)
               .text('');
           widget.donutLabel2
               .style('opacity', 0);
+          widget.plotWrap
+              .classed('hover', false);
+          sector.
+              classed('hover', false);
         },
 
         updateMetrics = function(metrics) {
@@ -311,9 +324,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.sectors
         .on('mouseenter', function(d, i) {
-          return enterHandler(this, d.data, i);
+          return enterHandler(this, d.data, i, true);
         })
-        .on('mouseleave', leaveHandler)
+        .on('mouseleave', function(d, i) {
+          return leaveHandler(this, d.data, i, true);
+        })
         .on('click', function(d) {
           switch (d.data.qualifier) {
             case 'CLA':
@@ -324,6 +339,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             default:
               window.location = widget.options().baseUrl + encodeURIComponent(d.data.key);
           }
+        });
+
+    this.legends
+        .on('mouseenter', function(d, i) {
+          console.log(widget.sectors);
+          return enterHandler(d3.select(widget.sectors[0][i]), d, i, false);
+        })
+        .on('mouseleave', function(d, i) {
+          return leaveHandler(d3.select(widget.sectors[0][i]), d, i, false);
         });
   };
 
