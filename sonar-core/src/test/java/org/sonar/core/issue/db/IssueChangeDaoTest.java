@@ -137,8 +137,8 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_issue_changelog_by_module_should_be_sorted_by_created_date() {
-    setupData("select_issue_changelog_by_module_are_sorted_by_created_date");
+  public void select_issue_changelog_by_module_should_be_sorted_by_creation_date() {
+    setupData("select_issue_changelog_by_module_are_sorted_by_creation_date");
 
     DefaultResultHandler handler = new DefaultResultHandler();
     dao.selectChangelogOnNonClosedIssuesByModuleAndType(399, handler);

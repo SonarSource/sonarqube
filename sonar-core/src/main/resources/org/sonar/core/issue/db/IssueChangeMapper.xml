@@ -12,12 +12,13 @@
     c.change_type as changeType,
     c.change_data as changeData,
     c.created_at as createdAt,
-    c.updated_at as updatedAt
+    c.updated_at as updatedAt,
+    c.issue_change_creation_date as issueChangeCreationDate
   </sql>
 
   <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
-    VALUES (#{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at, issue_change_creation_date)
+    VALUES (#{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt}, #{issueChangeCreationDate})
   </insert>
 
   <delete id="delete" parameterType="string">
@@ -49,7 +50,7 @@
       and c.change_type=#{changeType}
       and i.status &lt;&gt; 'CLOSED'
     </where>
-    order by c.created_at asc
+    order by c.issue_change_creation_date asc
   </select>
 
   <select id="selectByKeyAndType" parameterType="map" resultType="IssueChange">

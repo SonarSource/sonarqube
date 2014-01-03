@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.utils.DateUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,6 +46,7 @@ public class IssueChangeDtoTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
+    diffs.setCreationDate(DateUtils.parseDate("2014-01-03"));
 
     IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
 
@@ -52,6 +54,7 @@ public class IssueChangeDtoTest {
     assertThat(dto.getChangeType()).isEqualTo("diff");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
+    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(DateUtils.parseDate("2014-01-03"));
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
   }

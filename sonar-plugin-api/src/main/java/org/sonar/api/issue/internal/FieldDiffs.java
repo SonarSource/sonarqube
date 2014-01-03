@@ -41,7 +41,8 @@ public class FieldDiffs implements Serializable {
 
   private String issueKey;
   private String userLogin;
-  private Date createdAt, updatedAt;
+  private Date creationDate;
+
   private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
 
   public Map<String, Diff> diffs() {
@@ -62,21 +63,12 @@ public class FieldDiffs implements Serializable {
     return this;
   }
 
-  public Date createdAt() {
-    return createdAt;
+  public Date creationDate() {
+    return creationDate;
   }
 
-  public FieldDiffs setCreatedAt(Date d) {
-    this.createdAt = d;
-    return this;
-  }
-
-  public Date updatedAt() {
-    return updatedAt;
-  }
-
-  public FieldDiffs setUpdatedAt(Date d) {
-    this.updatedAt = d;
+  public FieldDiffs setCreationDate(Date creationDate) {
+    this.creationDate = creationDate;
     return this;
   }
 
