@@ -2,8 +2,7 @@
   "changelog": [
     {
       "user": "julien",
-      "createdAt": "2013-10-31T07:50:35+0100",
-      "updatedAt": "2013-10-31T07:50:35+0100",
+      "creationDate": "2013-10-31T07:50:35+0100",
       "diffs": [
         {
           "key": "actionPlan",
@@ -13,8 +12,7 @@
     },
     {
       "user": "simon",
-      "createdAt": "2013-10-31T07:50:39+0100",
-      "updatedAt": "2013-10-31T07:50:39+0100",
+      "creationDate": "2013-10-31T07:50:39+0100",
       "diffs": [
         {
           "key": "severity",
