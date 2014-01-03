@@ -38,11 +38,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -398,6 +394,7 @@ public class DefaultIssue implements Issue {
       if (currentChange == null) {
         currentChange = new FieldDiffs();
         currentChange.setUserLogin(context.login());
+        currentChange.setCreationDate(context.date());
       }
       currentChange.setDiff(field, oldValue, newValue);
     }

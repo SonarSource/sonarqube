@@ -44,8 +44,13 @@ public final class IssueChangeDto implements Serializable {
   private String userLogin;
   private String changeType;
   private String changeData;
+
+  // technical dates
   private Date createdAt;
   private Date updatedAt;
+
+  // functional date
+  private Date issueChangeCreationDate;
 
   public Long getId() {
     return id;
@@ -120,6 +125,15 @@ public final class IssueChangeDto implements Serializable {
     return this;
   }
 
+  public Date getIssueChangeCreationDate() {
+    return issueChangeCreationDate;
+  }
+
+  public IssueChangeDto setIssueChangeCreationDate(Date issueChangeCreationDate) {
+    this.issueChangeCreationDate = issueChangeCreationDate;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -131,6 +145,7 @@ public final class IssueChangeDto implements Serializable {
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData(comment.markdownText());
     dto.setUserLogin(comment.userLogin());
+    dto.setIssueChangeCreationDate(comment.createdAt());
     return dto;
   }
 
@@ -139,6 +154,7 @@ public final class IssueChangeDto implements Serializable {
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toString());
     dto.setUserLogin(diffs.userLogin());
+    dto.setIssueChangeCreationDate(diffs.creationDate());
     return dto;
   }
 
@@ -167,8 +183,7 @@ public final class IssueChangeDto implements Serializable {
   public FieldDiffs toFieldDiffs() {
     return FieldDiffs.parse(changeData)
       .setUserLogin(userLogin)
-      .setCreatedAt(createdAt)
-      .setUpdatedAt(updatedAt)
+      .setCreationDate(issueChangeCreationDate)
       .setIssueKey(issueKey);
   }
 }

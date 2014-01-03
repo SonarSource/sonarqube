@@ -47,7 +47,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 
 /**
  * Decorator that computes the technical debt metric
@@ -114,37 +113,36 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   private double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, Issue issue, Date periodDate) {
     double currentTechnicalDebtValue = technicalDebtConverter.toDays(currentTechnicalDebt);
 
-    for (Map.Entry<Date, WorkDayDuration> history : technicalDebtHistory(issue).entrySet()) {
-      if (isAfterOrEqual(history.getKey(), periodDate)) {
-        WorkDayDuration pastTechnicalDebt = history.getValue();
-        double pastTechnicalDebtValue = technicalDebtConverter.toDays(pastTechnicalDebt);
-        return currentTechnicalDebtValue - pastTechnicalDebtValue;
+    List<FieldDiffs> changelog = technicalDebtHistory(issue);
+    for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
+      FieldDiffs diff = iterator.next();
+      Date date = diff.creationDate();
+      if (isLesserOrEqual(date, periodDate)) {
+        // return new value from the change that is just before the period date
+        return currentTechnicalDebtValue - technicalDebtConverter.toDays(newValue(diff));
+      }
+      if (!iterator.hasNext()) {
+        // return old value from the change that is just after the period date when there's no more element in changelog
+        return currentTechnicalDebtValue - technicalDebtConverter.toDays(oldValue(diff));
       }
     }
+    // Return 0 when no changelog
     return 0d;
   }
 
-  private Map<Date, WorkDayDuration> technicalDebtHistory(Issue issue) {
-    Map<Date, WorkDayDuration> technicalDebtHistory = newLinkedHashMap();
+  private List<FieldDiffs> technicalDebtHistory(Issue issue) {
     List<FieldDiffs> technicalDebtChangelog = changesOnField(((DefaultIssue) issue).changes());
-
     if (!technicalDebtChangelog.isEmpty()) {
-      // Changelog have to be sorted from oldest to newest to catch oldest value just before the period date. Null date should be the latest as this happen
-      // when technical debt has changed since previous analysis.
-      Ordering<FieldDiffs> ordering = Ordering.natural().nullsLast().onResultOf(new Function<FieldDiffs, Date>() {
+      // Changelog have to be sorted from newest to oldest.
+      // Null date should be the latest as this happen when technical debt has changed since previous analysis.
+      Ordering<FieldDiffs> ordering = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
         public Date apply(FieldDiffs diff) {
-          return diff.createdAt();
+          return diff.creationDate();
         }
       });
-      List<FieldDiffs> technicalDebtChangelogSorted = ordering.immutableSortedCopy(technicalDebtChangelog);
-
-      technicalDebtHistory.put(issue.creationDate(), oldValue(technicalDebtChangelogSorted.iterator().next()));
-      for (FieldDiffs fieldDiffs : technicalDebtChangelogSorted) {
-        technicalDebtHistory.put(fieldDiffs.createdAt(), newValue(fieldDiffs));
-      }
-
+      return ordering.immutableSortedCopy(technicalDebtChangelog);
     }
-    return technicalDebtHistory;
+    return Collections.emptyList();
   }
 
   private List<FieldDiffs> changesOnField(Collection<FieldDiffs> fieldDiffs) {
@@ -178,11 +176,11 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   }
 
   private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {
-    return pastDate == null || (currentDate!= null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
+    return pastDate == null || (currentDate != null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
   }
 
-  private boolean isAfterOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
-    return currentDate == null || pastDate == null || (DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) >= 0);
+  private boolean isLesserOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
+    return (currentDate != null) && (pastDate == null || (DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) <= 0));
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

@@ -9,6 +9,7 @@
     change_data="old comment"
     created_at="2013-01-01"
     updated_at="2013-01-01"
+    issue_change_creation_date="[null]"
     />
 
   <issue_changes
@@ -20,6 +21,7 @@
     change_data="severity=MAJOR|BLOCKER"
     created_at="2013-02-02"
     updated_at="2013-02-02"
+    issue_change_creation_date="2013-02-02"
     />
 
   <issue_changes
@@ -31,5 +33,6 @@
     change_data="recent comment"
     created_at="2013-05-05"
     updated_at="2013-05-05"
+    issue_change_creation_date="2013-05-05"
     />
 </dataset>

@@ -20,6 +20,7 @@
       issue_close_date="2013-05-18"
       />
 
-  <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik" change_data="the comment" created_at="[null]" updated_at="[null]" />
+  <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik" change_data="the comment"
+                 created_at="[null]" updated_at="[null]" issue_change_creation_date="[null]" />
 
 </dataset>

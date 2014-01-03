@@ -67,7 +67,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     saver.save(issue);
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -109,7 +109,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     saver.save(issue);
 
-    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at"}, "issues", "issue_changes");
+    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -144,7 +144,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     saver.save(issue);
 
-    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at"}, "issues");
+    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues");
   }
 
   static class FakeSaver extends IssueStorage {

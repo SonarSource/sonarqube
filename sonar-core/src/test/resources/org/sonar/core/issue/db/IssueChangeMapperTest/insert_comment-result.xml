@@ -8,5 +8,6 @@
       change_data="the comment"
       created_at="2013-05-18"
       updated_at="2013-05-18"
+      issue_change_creation_date="[null]"
       />
 </dataset>

@@ -55,6 +55,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     Date d = DateUtils.parseDate("2013-05-18");
     dto.setCreatedAt(d);
     dto.setUpdatedAt(d);
+    dto.setIssueChangeCreationDate(d);
     mapper.insert(dto);
     session.commit();
 

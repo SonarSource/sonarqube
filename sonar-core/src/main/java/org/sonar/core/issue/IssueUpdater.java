@@ -204,7 +204,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     WorkDayDuration oldValue = issue.technicalDebt();
     if (!Objects.equal(value, oldValue)) {
       issue.setTechnicalDebt(value);
-      issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toLong() : oldValue, value != null ? value.toLong() : null);
+      issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toLong() : null, value != null ? value.toLong() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;
