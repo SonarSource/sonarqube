@@ -80,6 +80,8 @@ class ProjectController < ApplicationController
     require_parameters :id
     @project_id = Api::Utils.project_id(params[:id])
     access_denied unless (is_admin?(@project_id) || has_role?(:profileadmin))
+    # Need to display breadcrumb
+    @project = Project.by_key(@project_id)
 
     call_backend do
       @project_quality_profiles = Internal.quality_profiles.profiles(@project_id.to_i).to_a
