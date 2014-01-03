@@ -29,9 +29,7 @@ public interface IssueChange {
 
   String user();
 
-  Date createdAt();
-
-  Date updatedAt();
+  Date creationDate();
 
   List<IssueChangeDiff> diffs();
 

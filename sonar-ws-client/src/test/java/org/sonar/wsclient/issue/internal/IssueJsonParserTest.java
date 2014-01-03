@@ -217,8 +217,7 @@ public class IssueJsonParserTest {
     assertThat(changes).hasSize(2);
     IssueChange change1 = changes.get(0);
     assertThat(change1.user()).isEqualTo("julien");
-    assertThat(change1.createdAt().getTime()).isEqualTo(1383202235000l);
-    assertThat(change1.updatedAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change1.creationDate().getTime()).isEqualTo(1383202235000l);
     assertThat(change1.diffs()).hasSize(1);
     IssueChangeDiff diffChange1 = change1.diffs().get(0);
     assertThat(diffChange1.key()).isEqualTo("actionPlan");
@@ -227,8 +226,7 @@ public class IssueJsonParserTest {
 
     IssueChange change2 = changes.get(1);
     assertThat(change2.user()).isEqualTo("simon");
-    assertThat(change2.createdAt().getTime()).isEqualTo(1383202239000l);
-    assertThat(change2.updatedAt().getTime()).isEqualTo(1383202239000l);
+    assertThat(change2.creationDate().getTime()).isEqualTo(1383202239000l);
     assertThat(change2.diffs()).hasSize(2);
     IssueChangeDiff diff1Change2 = change2.diffs().get(0);
     assertThat(diff1Change2.key()).isEqualTo("severity");
@@ -248,8 +246,7 @@ public class IssueJsonParserTest {
     assertThat(changes).hasSize(1);
     IssueChange change = changes.get(0);
     assertThat(change.user()).isEqualTo("julien");
-    assertThat(change.createdAt().getTime()).isEqualTo(1383202235000l);
-    assertThat(change.updatedAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change.creationDate().getTime()).isEqualTo(1383202235000l);
 
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
@@ -274,8 +271,7 @@ public class IssueJsonParserTest {
     assertThat(changes).hasSize(1);
     IssueChange change = changes.get(0);
     assertThat(change.user()).isEqualTo("julien");
-    assertThat(change.createdAt().getTime()).isEqualTo(1383202235000l);
-    assertThat(change.updatedAt().getTime()).isEqualTo(1383202235000l);
+    assertThat(change.creationDate().getTime()).isEqualTo(1383202235000l);
 
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);

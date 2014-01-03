@@ -43,12 +43,8 @@ public class DefaultIssueChange implements IssueChange {
     return JsonUtils.getString(json, "user");
   }
 
-  public Date createdAt() {
-    return JsonUtils.getDateTime(json, "createdAt");
-  }
-
-  public Date updatedAt() {
-    return JsonUtils.getDateTime(json, "updatedAt");
+  public Date creationDate() {
+    return JsonUtils.getDateTime(json, "creationDate");
   }
 
   public List<IssueChangeDiff> diffs() {

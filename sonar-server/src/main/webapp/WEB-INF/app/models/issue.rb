@@ -64,8 +64,7 @@ class Issue
 
       hash_change = {}
       hash_change[:user] = user.login() if user
-      hash_change[:createdAt] = Api::Utils.format_datetime(change.createdAt()) if change.createdAt()
-      hash_change[:updatedAt] = Api::Utils.format_datetime(change.updatedAt()) if change.updatedAt()
+      hash_change[:creationDate] = Api::Utils.format_datetime(change.creationDate()) if change.creationDate()
       hash_change[:diffs] = []
 
       change.diffs.entrySet().each do |entry|
