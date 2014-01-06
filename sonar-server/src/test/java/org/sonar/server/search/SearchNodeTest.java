@@ -19,14 +19,20 @@
  */
 package org.sonar.server.search;
 
+import org.apache.commons.io.FileUtils;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.cluster.ClusterState;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.ZipUtils;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +49,7 @@ public class SearchNodeTest {
 
   ServerFileSystem fs;
   File homedir;
+  File dataDir;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -52,11 +59,16 @@ public class SearchNodeTest {
     homedir = temp.newFolder();
     fs = mock(ServerFileSystem.class);
     when(fs.getHomeDir()).thenReturn(homedir);
+    dataDir = new File(homedir, SearchNode.DATA_DIR);
+  }
+
+  @After
+  public void cleanUp() {
+    FileUtils.deleteQuietly(homedir);
   }
 
   @Test
   public void start_and_stop_es_node() throws Exception {
-    File dataDir = new File(homedir, SearchNode.DATA_DIR);
     assertThat(dataDir).doesNotExist();
 
     SearchNode node = new SearchNode(fs, new Settings());
@@ -75,6 +87,32 @@ public class SearchNodeTest {
 
     // data dir is persistent
     assertThat(dataDir).exists().isDirectory();
+  }
+
+  @Test
+  public void should_restore_status_on_startup() throws Exception {
+    ZipUtils.unzip(TestUtils.getResource(SearchNodeTest.class, "data-es-clean.zip"), dataDir);
+
+    SearchNode node = new SearchNode(fs, new Settings());
+    node.start();
+
+    AdminClient admin = node.client().admin();
+    assertThat(admin.indices().prepareExists("myindex").execute().actionGet().isExists()).isTrue();;
+    assertThat(admin.cluster().prepareHealth("myindex").setWaitForYellowStatus().execute().actionGet().getStatus()).isEqualTo(ClusterHealthStatus.YELLOW);
+
+    node.stop();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void should_fail_on_corrupt_index() throws Exception {
+    ZipUtils.unzip(TestUtils.getResource(SearchNodeTest.class, "data-es-corrupt.zip"), dataDir);
+
+    SearchNode node = new SearchNode(fs, new Settings(), "5s");
+    try {
+      node.start();
+    } finally {
+      node.stop();
+    }
   }
 
   @Test

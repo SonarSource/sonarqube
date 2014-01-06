@@ -20,7 +20,9 @@
 
 package org.sonar.server.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
@@ -47,15 +49,24 @@ public class SearchNode implements Startable {
   private static final String INSTANCE_NAME = "sonarqube";
   static final String DATA_DIR = "data/es";
 
+  private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
+
   private final ServerFileSystem fileSystem;
   private final Settings settings;
+  private final String healthTimeout;
 
   // available only after startup
   private Node node;
 
   public SearchNode(ServerFileSystem fileSystem, Settings settings) {
+    this(fileSystem, settings, DEFAULT_HEALTH_TIMEOUT);
+  }
+
+  @VisibleForTesting
+  SearchNode(ServerFileSystem fileSystem, Settings settings, String healthTimeout) {
     this.fileSystem = fileSystem;
     this.settings = settings;
+    this.healthTimeout = healthTimeout;
   }
 
   @Override
@@ -74,6 +85,17 @@ public class SearchNode implements Startable {
       .settings(esSettings)
       .node();
     node.start();
+
+    if (
+      node.client().admin().cluster().prepareHealth()
+      .setWaitForYellowStatus()
+      .setTimeout(healthTimeout)
+      .execute().actionGet()
+      .getStatus() == ClusterHealthStatus.RED) {
+      throw new IllegalStateException(
+        String.format("Elasticsearch index is corrupt, please delete directory '${SonarQubeHomeDirectory}/%s' and relaunch the SonarQube server.", DATA_DIR));
+    }
+
     LOG.info("Elasticsearch started");
   }
 

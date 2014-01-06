@@ -22,7 +22,6 @@ package org.sonar.server.search;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.ElasticSearchParseException;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -169,7 +168,7 @@ public class SearchIndex {
     IndicesAdminClient indices = client.admin().indices();
     StopWatch watch = createWatch();
     try {
-      if (! indices.exists(new IndicesExistsRequest(index)).get().isExists()) {
+      if (! indices.exists(indices.prepareExists(index).request()).get().isExists()) {
         indices.prepareCreate(index)
           .setSettings(INDEX_DEFAULT_SETTINGS)
           .addMapping("_default_", INDEX_DEFAULT_MAPPING)
