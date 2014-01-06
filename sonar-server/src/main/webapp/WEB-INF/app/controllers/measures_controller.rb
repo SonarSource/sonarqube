@@ -270,6 +270,7 @@ class MeasuresController < ApplicationController
         row.measures.each do |measure|
           component_hash[:measures][measure.metric.key] = {}
           component_hash[:measures][measure.metric.key][:val] = measure.value if measure.value
+          component_hash[:measures][measure.metric.key][:fval] = measure.formatted_value if measure.value
           component_hash[:measures][measure.metric.key][:text] = measure.data if measure.data
           component_hash[:measures][measure.metric.key][:trend] = measure.tendency if fields.include?('measureTrend') && measure.tendency
           component_hash[:measures][measure.metric.key][:status] = measure.alert_status if fields.include?('measureStatus') && measure.alert_status
