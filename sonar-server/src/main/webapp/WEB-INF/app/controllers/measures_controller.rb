@@ -254,6 +254,7 @@ class MeasuresController < ApplicationController
       component_hash[:qualifier] = component.qualifier if component.qualifier
       component_hash[:favorite] = logged_in? && current_user.favourite?(component.id) if fields.include?('favourite')
       component_hash[:date] = Api::Utils.format_datetime(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
+      component_hash[:fdate] = human_short_date(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
 
       if display_links && row.links
         links_hash = {}
@@ -330,6 +331,14 @@ class MeasuresController < ApplicationController
     errors = []
     filter.errors.full_messages.each { |msg| errors<<CGI.escapeHTML(msg) + '<br/>' }
     render :text => errors, :status => 400
+  end
+
+  def human_short_date(date)
+    if Date.today - date.to_date == 0
+      date.strftime('%H:%M')
+    else
+      l(date.to_date)
+    end
   end
 
 end
