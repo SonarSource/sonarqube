@@ -93,7 +93,7 @@ public class SearchNode implements Startable {
       .execute().actionGet()
       .getStatus() == ClusterHealthStatus.RED) {
       throw new IllegalStateException(
-        String.format("Elasticsearch index is corrupt, please delete directory '${SonarQubeHomeDirectory}/%s' and relaunch the SonarQube server.", DATA_DIR));
+        String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
     }
 
     LOG.info("Elasticsearch started");
