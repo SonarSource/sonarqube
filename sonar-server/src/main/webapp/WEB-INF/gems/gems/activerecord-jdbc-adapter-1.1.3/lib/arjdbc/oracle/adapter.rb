@@ -159,7 +159,13 @@ module ::ArJdbc
     end
 
     def sql_literal?(value)
-      defined?(::Arel::SqlLiteral) && ::Arel::SqlLiteral === value
+      # SonarQube
+      # See http://jira.codehaus.org/browse/SONAR-4994
+      # This code always returns false (we use ActiveRecord 2.3) and is heavy-CPU consuming
+      # because of raised exceptions.
+      #defined?(::Arel::SqlLiteral) && ::Arel::SqlLiteral === value
+      false
+      # /SonarQube
     end
 
     def ora_insert(sql, name = nil, pk = nil, id_value = nil, sequence_name = nil) #:nodoc:
