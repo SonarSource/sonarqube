@@ -91,7 +91,7 @@ public final class AlertUtils {
     }
   }
 
-  private static Comparable<?> getValueForComparison(Metric metric, String value) {
+  private static Comparable getValueForComparison(Metric metric, String value) {
     if (isADouble(metric)) {
       return Double.parseDouble(value);
     }
@@ -111,7 +111,7 @@ public final class AlertUtils {
     return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
   }
 
-  private static Comparable<?> getMeasureValue(Alert alert, Measure measure) {
+  private static Comparable getMeasureValue(Alert alert, Measure measure) {
     Metric metric = alert.getMetric();
     if (isADouble(metric)) {
       return getValue(alert, measure);
@@ -125,7 +125,7 @@ public final class AlertUtils {
     throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<?> getMeasureValueForStringOrBoolean(Metric metric, Measure measure) {
+  private static Comparable getMeasureValueForStringOrBoolean(Metric metric, Measure measure) {
     if (isAString(metric)) {
       return measure.getData();
     }

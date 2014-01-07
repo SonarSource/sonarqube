@@ -33,7 +33,7 @@ import java.util.List;
 
 public final class CpdPlugin extends SonarPlugin {
 
-  public List<?> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_RPOJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")

@@ -34,7 +34,7 @@ public final class IgnoreIssuesPlugin {
     // static extension declaration only
   }
 
-  public static List<?> getExtensions() {
+  public static List getExtensions() {
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 
     extensions.addAll(IgnoreIssuesConfiguration.getPropertyDefinitions());

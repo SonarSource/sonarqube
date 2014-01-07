@@ -39,16 +39,16 @@ public final class Severity {
    */
   public static final List<String> ALL = ImmutableList.of(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
 
+  private Severity() {
+    // utility
+  }
+
   public static String get(int ordinal) {
     return ALL.get(ordinal);
   }
 
   public static Integer ordinal(String severiy) {
     return ALL.indexOf(severiy);
-  }
-
-  private Severity() {
-    // utility
   }
 
 }

@@ -44,6 +44,13 @@ public class Command {
   private boolean newShell = false;
   private final System2 system;
 
+  Command(String executable, System2 system) {
+    Preconditions.checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
+    this.executable = executable;
+    this.env = Maps.newHashMap(system.envVariables());
+    this.system = system;
+  }
+
   /**
    * Create a command line without any arguments
    *
@@ -51,13 +58,6 @@ public class Command {
    */
   public static Command create(String executable) {
     return new Command(executable, System2.INSTANCE);
-  }
-
-  Command(String executable, System2 system) {
-    Preconditions.checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
-    this.executable = executable;
-    this.env = Maps.newHashMap(system.envVariables());
-    this.system = system;
   }
 
   public String getExecutable() {

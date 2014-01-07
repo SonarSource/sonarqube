@@ -49,7 +49,7 @@ public class ExtensionInstallerTest {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(metadata,
       new SonarPlugin() {
-        public List<?> getExtensions() {
+        public List getExtensions() {
           return Arrays.asList(extensions);
         }
       }

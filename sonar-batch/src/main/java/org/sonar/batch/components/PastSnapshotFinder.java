@@ -196,7 +196,7 @@ public class PastSnapshotFinder implements BatchExtension {
     }
   }
 
-  public static List<? extends PropertyDefinition> getPropertyDefinitions() {
+  public static List<PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
       PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1)
         .name("Period 1")

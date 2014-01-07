@@ -26,7 +26,7 @@ import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate
 import java.util.List;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
-  public List<?> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
       EmailNotificationChannel.class,
 

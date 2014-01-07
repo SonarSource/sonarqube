@@ -95,7 +95,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
     resourcePatterns = builder.build();
   }
 
-  public static List<? extends PropertyDefinition> getPropertyDefinitions() {
+  public static List<PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
       PropertyDefinition.builder(PROPERTY_COVERAGE_EXCLUSIONS)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
