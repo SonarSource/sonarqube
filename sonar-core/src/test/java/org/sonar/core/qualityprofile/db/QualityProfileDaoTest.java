@@ -63,6 +63,18 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_all_is_sorted_by_profile_name() {
+    setupData("select_all_is_sorted_by_profile_name");
+
+    List<QualityProfileDto> dtos = dao.selectAll();
+
+    assertThat(dtos).hasSize(3);
+    assertThat(dtos.get(0).getName()).isEqualTo("First");
+    assertThat(dtos.get(1).getName()).isEqualTo("Second");
+    assertThat(dtos.get(2).getName()).isEqualTo("Third");
+  }
+
+  @Test
   public void select_default_profile() {
     setupData("shared");
 
