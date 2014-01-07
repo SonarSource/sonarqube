@@ -15,7 +15,7 @@
   <select id="selectAll" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    ORDER BY p.name
+    ORDER BY p.name, p.language
   </select>
 
   <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
