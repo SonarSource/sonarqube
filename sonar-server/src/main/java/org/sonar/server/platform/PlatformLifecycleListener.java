@@ -20,7 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
-
 import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 import org.sonar.core.profiling.Profiling;
@@ -35,6 +34,18 @@ import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   private static final String CONFIG_LOG_CONSOLE = "sonar.log.console";
+
+  private static final String LOG_COMMON_PREFIX = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
+  private static final String LOG_COMMON_SUFFIX = "%msg%n";
+
+  private static final String LOG_LOGFILE_SPECIFIC_PART = "[%logger{20}] %X ";
+  private static final String LOG_FULL_SPECIFIC_PART = "%thread ";
+
+  private static final String LOGFILE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
+  private static final String LOGFILE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
+
+  private static final String CONSOLE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_COMMON_SUFFIX;
+  private static final String CONSOLE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_COMMON_SUFFIX;
 
   public void contextInitialized(ServletContextEvent event) {
     try {
@@ -79,6 +90,8 @@ public final class PlatformLifecycleListener implements ServletContextListener {
         "false");
     Map<String, String> variables = ImmutableMap.of(
         "RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN",
+        "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
+        "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
         "CONSOLE_ENABLED", consoleEnabled);
     Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }

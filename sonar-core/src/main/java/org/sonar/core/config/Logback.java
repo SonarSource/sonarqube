@@ -75,7 +75,9 @@ public class Logback implements BatchComponent, ServerComponent {
       configurator.setContext(configureContext(lc, substitutionVariables));
       configurator.doConfigure(input);
       if (isConsoleEnabled(substitutionVariables)) {
-        ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).addAppender(consoleAppender(lc));
+        Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.setAdditive(false);
+        rootLogger.addAppender(consoleAppender(lc, substitutionVariables));
       }
     } catch (JoranException e) {
       // StatusPrinter will handle this
@@ -97,9 +99,9 @@ public class Logback implements BatchComponent, ServerComponent {
     return Boolean.valueOf(substitutionVariables.get("CONSOLE_ENABLED"));
   }
 
-  private static Appender<ILoggingEvent> consoleAppender(LoggerContext context) {
+  private static Appender<ILoggingEvent> consoleAppender(LoggerContext context, Map<String, String> substitutionVariables) {
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setPattern("%d{yyyy.MM.dd HH:mm:ss} %-5level %thread [%logger{20}] %X %msg%n");
+    encoder.setPattern(substitutionVariables.get("CONSOLE_LOGGING_FORMAT"));
     encoder.setContext(context);
     encoder.start();
     ConsoleAppender<ILoggingEvent> console = new ConsoleAppender<ILoggingEvent>();
