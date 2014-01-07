@@ -83,34 +83,34 @@ public class ProfileRulesTest {
     Paging paging = Paging.create(10, 1);
 
     // All rules for profile 1
-    List<QProfileRule> rules1 = profileRules.searchActiveRules(ProfileRuleQuery.create(1), paging).rules();
+    List<QProfileRule> rules1 = profileRules.searchProfileRules(ProfileRuleQuery.create(1), paging).rules();
     assertThat(rules1).hasSize(3);
     assertThat(rules1.get(0).key()).isEqualTo("DM_CONVERT_CASE");
     assertThat(rules1.get(0).severity()).isEqualTo(RulePriority.MINOR.toString());
 
     // All rules for profile 2
-    List<QProfileRule> rules2 = profileRules.searchActiveRules(ProfileRuleQuery.create(2), paging).rules();
+    List<QProfileRule> rules2 = profileRules.searchProfileRules(ProfileRuleQuery.create(2), paging).rules();
     assertThat(rules2).hasSize(1);
     assertThat(rules2.get(0).id()).isEqualTo(759);
     assertThat(rules2.get(0).activeRuleId()).isEqualTo(523);
 
     // Inexistent profile
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
 
     // Inexistent name/key
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
 
     // Match on key
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
 
     // Match on name
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
 
     // Match on repositoryKey
-    assertThat(profileRules.searchActiveRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
 
     // Match on key, rule has parameters
-    List<QProfileRule> rulesWParam = profileRules.searchActiveRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
+    List<QProfileRule> rulesWParam = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
     assertThat(rulesWParam).hasSize(1);
     assertThat(rulesWParam.get(0).params()).hasSize(2);
   }

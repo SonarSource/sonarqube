@@ -51,7 +51,7 @@
 
     <%
        # TODO Ancestor active rule should be integrated in the result rule to prevent bunch of SQL queries to load ancestor profile and ancestor active rule for each active rules!
-       ancestor_active_rule = Internal.quality_profiles.parentActiveRule(rule) if (rule.inherited? || rule.overrides?)
+       ancestor_active_rule = Internal.quality_profiles.parentProfileRule(rule) if (rule.inherited? || rule.overrides?)
        if ancestor_active_rule || !rule.params.empty?
          ancestor_profile = Internal.quality_profiles.parent(profile)
     %>

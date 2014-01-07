@@ -294,7 +294,7 @@ public class QProfilesTest {
     QProfileRule ruleResult = mock(QProfileRule.class);
     when(rules.getFromActiveRuleId(5)).thenReturn(ruleResult);
 
-    QProfileRule result = qProfiles.parentActiveRule(rule);
+    QProfileRule result = qProfiles.parentProfileRule(rule);
 
     assertThat(result).isEqualTo(ruleResult);
   }
@@ -305,8 +305,8 @@ public class QProfilesTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     QProfileRuleResult result = mock(QProfileRuleResult.class);
-    when(rules.searchActiveRules(query, paging)).thenReturn(result);
-    assertThat(qProfiles.searchActiveRules(query, paging)).isEqualTo(result);
+    when(rules.searchProfileRules(query, paging)).thenReturn(result);
+    assertThat(qProfiles.searchProfileRules(query, paging)).isEqualTo(result);
   }
 
   @Test
@@ -315,8 +315,8 @@ public class QProfilesTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     QProfileRuleResult result = mock(QProfileRuleResult.class);
-    when(rules.searchInactiveRules(query, paging)).thenReturn(result);
-    assertThat(qProfiles.searchInactiveRules(query, paging)).isEqualTo(result);
+    when(rules.searchInactiveProfileRules(query, paging)).thenReturn(result);
+    assertThat(qProfiles.searchInactiveProfileRules(query, paging)).isEqualTo(result);
   }
 
   @Test

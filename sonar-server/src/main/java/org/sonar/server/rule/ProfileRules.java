@@ -45,9 +45,7 @@ import java.util.Map;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
-import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
+import static org.sonar.server.rule.RuleRegistry.*;
 
 public class ProfileRules implements ServerExtension {
 
@@ -76,7 +74,7 @@ public class ProfileRules implements ServerExtension {
     return new QProfileRule(ruleSource);
   }
 
-  public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
     BoolFilterBuilder filter = activeRuleFilter(query);
 
     SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
@@ -109,7 +107,7 @@ public class ProfileRules implements ServerExtension {
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
-  public QProfileRuleResult searchInactiveRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
     BoolFilterBuilder filter = parentRuleFilter(query);
     addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
     filter.mustNot(
@@ -141,12 +139,12 @@ public class ProfileRules implements ServerExtension {
     return filter;
   }
 
-  public long countActiveRules(ProfileRuleQuery query) {
+  public long countProfileRules(ProfileRuleQuery query) {
     return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query))));
   }
 
-  public long countInactiveRules(ProfileRuleQuery query) {
+  public long countInactiveProfileRules(ProfileRuleQuery query) {
     return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_RULE)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         boolFilter()

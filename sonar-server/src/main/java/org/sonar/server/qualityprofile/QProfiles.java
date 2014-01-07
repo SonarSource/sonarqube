@@ -37,6 +37,7 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -140,6 +141,7 @@ public class QProfiles implements ServerComponent {
     operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
 
+
   // PROJECTS
 
   public QProfileProjects projects(int profileId) {
@@ -181,25 +183,26 @@ public class QProfiles implements ServerComponent {
     projectService.removeAllProjects(qualityProfile, UserSession.get());
   }
 
-  // ACTIVE RULES
 
-  public QProfileRuleResult searchActiveRules(ProfileRuleQuery query, Paging paging) {
-    return rules.searchActiveRules(query, paging);
+  // PROFILE RULES
+
+  public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
+    return rules.searchProfileRules(query, paging);
   }
 
-  public long countActiveRules(ProfileRuleQuery query) {
-    return rules.countActiveRules(query);
+  public long countProfileRules(ProfileRuleQuery query) {
+    return rules.countProfileRules(query);
   }
 
-  public QProfileRuleResult searchInactiveRules(ProfileRuleQuery query, Paging paging) {
-    return rules.searchInactiveRules(query, paging);
+  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
+    return rules.searchInactiveProfileRules(query, paging);
   }
 
-  public long countInactiveRules(ProfileRuleQuery query) {
-    return rules.countInactiveRules(query);
+  public long countInactiveProfileRules(ProfileRuleQuery query) {
+    return rules.countInactiveProfileRules(query);
   }
 
-  public ActiveRuleChanged activateRule(int profileId, int ruleId, String severity) {
+  public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
     ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
@@ -211,7 +214,7 @@ public class QProfiles implements ServerComponent {
     return activeRuleChanged(qualityProfile, activeRule);
   }
 
-  public ActiveRuleChanged deactivateRule(int profileId, int ruleId) {
+  public ProfileRuleChanged deactivateRule(int profileId, int ruleId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
     ActiveRuleDto activeRule = findActiveRuleNotNull(qualityProfile, rule);
@@ -219,7 +222,7 @@ public class QProfiles implements ServerComponent {
     return activeRuleChanged(qualityProfile, rule);
   }
 
-  public ActiveRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
+  public ProfileRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
     String sanitizedValue = Strings.emptyToNull(value);
     QualityProfileDto qualityProfile = findNotNull(profileId);
     ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
@@ -237,7 +240,7 @@ public class QProfiles implements ServerComponent {
     return activeRuleChanged(qualityProfile, activeRule);
   }
 
-  public ActiveRuleChanged revertActiveRule(int profileId, int activeRuleId) {
+  public ProfileRuleChanged revertActiveRule(int profileId, int activeRuleId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     activeRuleOperations.revertActiveRule(activeRule, UserSession.get());
@@ -273,12 +276,12 @@ public class QProfiles implements ServerComponent {
   }
 
   /**
-   * Used to load ancestor active rule of an active rule
+   * Used to load ancestor active rule of a profile rule
    * <p/>
    * TODO Ancestor active rules should be integrated into QProfileRule or elsewhere in order to load all ancestor active rules once a time
    */
   @CheckForNull
-  public QProfileRule parentActiveRule(QProfileRule rule) {
+  public QProfileRule parentProfileRule(QProfileRule rule) {
     ActiveRuleDto parent = activeRuleDao.selectParent(activeRuleId(rule));
     if (parent != null) {
       return rules.getFromActiveRuleId(parent.getId());
@@ -484,12 +487,12 @@ public class QProfiles implements ServerComponent {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
-  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
-    return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
+  private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
+    return new ProfileRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
   }
 
-  private ActiveRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
-    return new ActiveRuleChanged(QProfile.from(qualityProfile), rules.getFromRuleId(rule.getId()));
+  private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
+    return new ProfileRuleChanged(QProfile.from(qualityProfile), rules.getFromRuleId(rule.getId()));
   }
 
 }

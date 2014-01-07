@@ -21,12 +21,12 @@
 package org.sonar.server.qualityprofile;
 
 
-public class ActiveRuleChanged {
+public class ProfileRuleChanged {
 
   private QProfile profile;
   private QProfileRule rule;
 
-  public ActiveRuleChanged(QProfile profile, QProfileRule rule) {
+  public ProfileRuleChanged(QProfile profile, QProfileRule rule) {
     this.profile = profile;
     this.rule = rule;
   }
