@@ -22,7 +22,7 @@
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <!-- Use %d{yyyy.MM.dd HH:mm:ss.SSS} to display milliseconds -->
       <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %thread [%logger{20}] %X %msg%n
+        ${LOGFILE_LOGGING_FORMAT}
       </pattern>
     </encoder>
   </appender>
@@ -30,7 +30,7 @@
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
+        ${CONSOLE_LOGGING_FORMAT}
       </pattern>
     </encoder>
   </appender>
