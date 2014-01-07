@@ -58,7 +58,7 @@ public class ProjectExclusions implements TaskComponent {
   }
 
   public void apply() {
-    if (reactor.getProjects().size() > 0 && StringUtils.isNotBlank(reactor.getProjects().get(0).getKey())) {
+    if (!reactor.getProjects().isEmpty() && StringUtils.isNotBlank(reactor.getProjects().get(0).getKey())) {
       LOG.info("Apply project exclusions");
       for (ProjectDefinition project : reactor.getProjects()) {
         if (isExcluded(key(project), project == reactor.getRoot())) {

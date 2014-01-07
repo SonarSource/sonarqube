@@ -78,7 +78,7 @@ public class CheckAlertThresholds implements Decorator {
   public boolean shouldExecuteOnProject(Project project) {
     return profile != null
         && profile.getAlerts() != null
-        && profile.getAlerts().size() > 0
+        && !profile.getAlerts().isEmpty()
         && ResourceUtils.isRootProject(project);
   }
 

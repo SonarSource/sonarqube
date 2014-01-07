@@ -46,7 +46,7 @@ public class GenerateAlertEvents implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return profile != null && profile.getAlerts() != null && profile.getAlerts().size() > 0;
+    return profile != null && profile.getAlerts() != null && !profile.getAlerts().isEmpty();
   }
 
   @DependsUpon

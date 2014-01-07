@@ -223,7 +223,7 @@ public final class RegisterRules {
   }
 
   private void deleteDeprecatedParameters(Rule persistedRule, Rule rule) {
-    if (persistedRule.getParams() != null && persistedRule.getParams().size() > 0) {
+    if (persistedRule.getParams() != null && !persistedRule.getParams().isEmpty()) {
       for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext(); ) {
         RuleParam persistedParam = it.next();
         if (rule.getParam(persistedParam.getKey()) == null) {

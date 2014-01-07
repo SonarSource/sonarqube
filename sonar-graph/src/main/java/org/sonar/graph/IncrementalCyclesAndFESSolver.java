@@ -55,7 +55,7 @@ public class IncrementalCyclesAndFESSolver<V> {
       cycles.addAll(cycleDetector.getCycles());
       solver = new MinimumFeedbackEdgeSetSolver(cycles);
       edgesToExclude = solver.getEdges();
-    } while (cycleDetector.getCycles().size() != 0);
+    } while (!cycleDetector.getCycles().isEmpty());
   }
 
   public int getWeightOfFeedbackEdgeSet() {
