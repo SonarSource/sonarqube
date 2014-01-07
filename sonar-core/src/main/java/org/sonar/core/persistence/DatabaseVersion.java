@@ -84,6 +84,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "rules",
     "rules_parameters",
     "rules_profiles",
+    "rule_tags",
     "semaphores",
     "schema_migrations",
     "snapshots",
