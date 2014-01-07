@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
  * @deprecated since 4.2
  * @see org.sonar.api.rule.Severity
  */
+@Deprecated
 public enum RulePriority {
 
   /**
