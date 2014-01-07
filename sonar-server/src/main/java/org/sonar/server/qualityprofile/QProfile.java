@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
 public class QProfile {
@@ -97,5 +98,10 @@ public class QProfile {
       .setParent(dto.getParent())
       .setVersion(dto.getVersion())
       .setUsed(dto.isUsed());
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this).toString();
   }
 }

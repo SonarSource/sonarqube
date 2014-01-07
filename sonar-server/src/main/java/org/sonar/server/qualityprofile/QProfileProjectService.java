@@ -59,6 +59,10 @@ public class QProfileProjectService implements ServerComponent {
     return new QProfileProjects(QProfile.from(qualityProfile), projects);
   }
 
+  public int countProjects(QProfile profile) {
+    return qualityProfileDao.countProjects(profile.name(), PROPERTY_PREFIX + profile.language());
+  }
+
   public List<QProfile> profiles(long projectId) {
     List<QualityProfileDto> dtos = qualityProfileDao.selectByProject(projectId, PROPERTY_PREFIX  + "%");
     return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {

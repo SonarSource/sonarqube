@@ -12,6 +12,25 @@
     p.used_profile as used
   </sql>
 
+  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rules_profiles (name, language, parent_name, version, used_profile)
+    VALUES (#{name}, #{language}, #{parent}, #{version}, #{used})
+  </insert>
+
+  <update id="update" parameterType="QualityProfile">
+    UPDATE rules_profiles SET
+    name=#{name},
+    language=#{language},
+    parent_name=#{parent},
+    version=#{version},
+    used_profile=#{used}
+    WHERE id=#{id}
+  </update>
+
+  <update id="delete" parameterType="Integer">
+    DELETE FROM rules_profiles WHERE id=#{id}
+  </update>
+
   <select id="selectAll" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -41,6 +60,25 @@
     INNER JOIN rules_profiles child ON child.parent_name=p.name and child.language=p.language and child.id=#{childId}
   </select>
 
+  <select id="selectChildren" parameterType="map" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    <where>
+      AND UPPER(p.parent_name)=#{name}
+      AND p.language=#{language}
+    </where>
+    ORDER BY p.name
+  </select>
+
+  <select id="countChildren" parameterType="map" resultType="Integer">
+    SELECT count(p.id)
+    FROM rules_profiles p
+    <where>
+      AND UPPER(p.parent_name)=#{name}
+      AND p.language=#{language}
+    </where>
+  </select>
+
   <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -63,6 +101,17 @@
     </where>
   </select>
 
+  <select id="countProjects" parameterType="Integer" resultType="Integer">
+    SELECT count(projects.id)
+    FROM projects projects
+    LEFT JOIN properties ON properties.resource_id = projects.id
+    <where>
+      AND properties.resource_id IS NOT NULL
+      AND properties.prop_key=#{key}
+      AND properties.text_value LIKE #{value}
+    </where>
+  </select>
+
   <select id="selectByProject" parameterType="map" resultType="QualityProfile">
     SELECT DISTINCT <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -70,25 +119,6 @@
       AND prop.prop_key LIKE #{key}
       AND prop.text_value LIKE p.name
   </select>
-
-  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_profiles (name, language, parent_name, version, used_profile)
-    VALUES (#{name}, #{language}, #{parent}, #{version}, #{used})
-  </insert>
-
-  <update id="update" parameterType="QualityProfile">
-    UPDATE rules_profiles SET
-    name=#{name},
-    language=#{language},
-    parent_name=#{parent},
-    version=#{version},
-    used_profile=#{used}
-    WHERE id=#{id}
-  </update>
-
-  <update id="delete" parameterType="Integer">
-    DELETE FROM rules_profiles WHERE id=#{id}
-  </update>
 
 </mapper>
 

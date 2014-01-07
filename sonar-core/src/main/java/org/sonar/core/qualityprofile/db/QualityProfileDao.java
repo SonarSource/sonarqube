@@ -36,6 +36,40 @@ public class QualityProfileDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public void insert(QualityProfileDto dto, SqlSession session) {
+    session.getMapper(QualityProfileMapper.class).insert(dto);
+  }
+
+  public void insert(QualityProfileDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      insert(dto, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(QualityProfileDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(QualityProfileMapper.class).update(dto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void delete(Integer id) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(QualityProfileMapper.class).delete(id);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public List<QualityProfileDto> selectAll() {
     SqlSession session = mybatis.openSession();
     try {
@@ -81,6 +115,24 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public List<QualityProfileDto> selectChildren(String name, String language) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).selectChildren(StringUtils.upperCase(name), language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public int countChildren(String name, String language) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).countChildren(StringUtils.upperCase(name), language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
@@ -99,35 +151,10 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public void insert(QualityProfileDto dto, SqlSession session) {
-    session.getMapper(QualityProfileMapper.class).insert(dto);
-  }
-
-  public void insert(QualityProfileDto dto) {
+  public int countProjects(String propertyKey, String propertyValue) {
     SqlSession session = mybatis.openSession();
     try {
-      insert(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void update(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession();
-    try {
-      session.getMapper(QualityProfileMapper.class).update(dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void delete(Integer id) {
-    SqlSession session = mybatis.openSession();
-    try {
-      session.getMapper(QualityProfileMapper.class).delete(id);
-      session.commit();
+      return session.getMapper(QualityProfileMapper.class).countProjects(propertyKey, propertyValue);
     } finally {
       MyBatis.closeQuietly(session);
     }

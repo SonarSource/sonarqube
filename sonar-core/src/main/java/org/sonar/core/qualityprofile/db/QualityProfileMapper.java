@@ -29,6 +29,12 @@ import java.util.List;
 
 public interface QualityProfileMapper {
 
+  void insert(QualityProfileDto dto);
+
+  void update(QualityProfileDto dto);
+
+  void delete(Integer id);
+
   List<QualityProfileDto> selectAll();
 
   @CheckForNull
@@ -40,17 +46,23 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
 
+
+  // INHERITANCE
+
   @CheckForNull
   QualityProfileDto selectParent(@Param("childId") Integer childId);
 
+  List<QualityProfileDto> selectChildren(@Param("name") String name, @Param("language") String language);
+
+  int countChildren(@Param("name") String name, @Param("language") String language);
+
+  // PROJECTS
+
   List<ComponentDto> selectProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
+
+  int countProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
 
   List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);
 
-  void insert(QualityProfileDto dto);
-
-  void update(QualityProfileDto dto);
-
-  void delete(Integer id);
 
 }

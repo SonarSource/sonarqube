@@ -79,8 +79,7 @@ public class QProfiles implements ServerComponent {
   // TODO
   //
   // PROFILES
-  // list all profiles (including activated rules count)
-  // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects)
+  // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects and check profile is not a default one and has no child)
   // copy profile
   // export profile from profile id
   // export profile from profile id and plugin key
@@ -96,8 +95,17 @@ public class QProfiles implements ServerComponent {
   // active rule parameter validation (only Integer types are checked)
 
 
+  public List<QProfile> allProfiles() {
+    return search.allProfiles();
+  }
+
   public QProfile profile(int id) {
     return QProfile.from(findNotNull(id));
+  }
+
+  @CheckForNull
+  public QProfile defaultProfile(String language) {
+    return search.defaultProfile(language);
   }
 
   @CheckForNull
@@ -109,13 +117,12 @@ public class QProfiles implements ServerComponent {
     return null;
   }
 
-  public List<QProfile> allProfiles() {
-    return search.allProfiles();
+  public List<QProfile> children(QProfile profile) {
+    return search.children(profile);
   }
 
-  @CheckForNull
-  public QProfile defaultProfile(String language) {
-    return search.defaultProfile(language);
+  public int countChildren(QProfile profile) {
+    return search.countChildren(profile);
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
@@ -147,6 +154,10 @@ public class QProfiles implements ServerComponent {
   public QProfileProjects projects(int profileId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     return projectService.projects(qualityProfile);
+  }
+
+  public int countProjects(QProfile profile) {
+    return projectService.countProjects(profile);
   }
 
   /**
@@ -202,6 +213,10 @@ public class QProfiles implements ServerComponent {
     return rules.countInactiveProfileRules(query);
   }
 
+  public long countProfileRules(QProfile profile) {
+    return rules.countProfileRules(ProfileRuleQuery.create(profile.id()));
+  }
+
   public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     RuleDto rule = findRuleNotNull(ruleId);
@@ -234,9 +249,9 @@ public class QProfiles implements ServerComponent {
       activeRuleOperations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
     } else if (activeRuleParam != null) {
       activeRuleOperations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
-    } else {
-      // No active rule param and no value -> do nothing
     }
+    // If no active rule param and no value -> do nothing
+
     return activeRuleChanged(qualityProfile, activeRule);
   }
 

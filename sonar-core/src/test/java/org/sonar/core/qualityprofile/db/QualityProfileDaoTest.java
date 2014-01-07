@@ -37,6 +37,49 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     dao = new QualityProfileDao(getMyBatis());
   }
 
+
+  @Test
+  public void insert() {
+    setupData("shared");
+
+    QualityProfileDto dto = new QualityProfileDto()
+      .setName("Sonar Way with Findbugs")
+      .setLanguage("xoo")
+      .setParent("Sonar Way")
+      .setVersion(2)
+      .setUsed(true);
+
+    dao.insert(dto);
+
+    checkTables("insert", "rules_profiles");
+  }
+
+  @Test
+  public void update() {
+    setupData("shared");
+
+    QualityProfileDto dto = new QualityProfileDto()
+      .setId(1)
+      .setName("New Sonar Way with Findbugs")
+      .setLanguage("js")
+      .setParent("New Sonar Way")
+      .setVersion(3)
+      .setUsed(false);
+
+    dao.update(dto);
+
+    checkTables("update", "rules_profiles");
+  }
+
+  @Test
+  public void delete() {
+    setupData("shared");
+
+    dao.delete(1);
+
+    checkTables("delete", "rules_profiles");
+  }
+
   @Test
   public void select_all() {
     setupData("shared");
@@ -115,10 +158,38 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_parent() {
-    setupData("parent");
+    setupData("inheritance");
 
     QualityProfileDto dto = dao.selectParent(1);
-    assertThat(dto.getId()).isEqualTo(2);
+    assertThat(dto.getId()).isEqualTo(3);
+  }
+
+  @Test
+  public void select_children() {
+    setupData("inheritance");
+
+    List<QualityProfileDto> dtos = dao.selectChildren("Parent", "java");
+
+    assertThat(dtos).hasSize(2);
+
+    QualityProfileDto dto1 = dtos.get(0);
+    assertThat(dto1.getId()).isEqualTo(1);
+    assertThat(dto1.getName()).isEqualTo("Child1");
+    assertThat(dto1.getLanguage()).isEqualTo("java");
+    assertThat(dto1.getParent()).isEqualTo("Parent");
+
+    QualityProfileDto dto2 = dtos.get(1);
+    assertThat(dto2.getId()).isEqualTo(2);
+    assertThat(dto2.getName()).isEqualTo("Child2");
+    assertThat(dto2.getLanguage()).isEqualTo("java");
+    assertThat(dto2.getParent()).isEqualTo("Parent");
+  }
+
+  @Test
+  public void count_children() {
+    setupData("inheritance");
+
+    assertThat(dao.countChildren("Parent", "java")).isEqualTo(2);
   }
 
   @Test
@@ -129,52 +200,18 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void count_projects() {
+    setupData("projects");
+
+    assertThat(dao.countProjects("Sonar Way", "sonar.profile.java")).isEqualTo(2);
+  }
+
+  @Test
   public void select_by_project() {
     setupData("projects");
 
     assertThat(dao.selectByProject(1L, "sonar.profile.%")).hasSize(2);
   }
 
-  @Test
-  public void insert() {
-    setupData("shared");
-
-    QualityProfileDto dto = new QualityProfileDto()
-      .setName("Sonar Way with Findbugs")
-      .setLanguage("xoo")
-      .setParent("Sonar Way")
-      .setVersion(2)
-      .setUsed(true);
-
-    dao.insert(dto);
-
-    checkTables("insert", "rules_profiles");
-  }
-
-  @Test
-  public void update() {
-    setupData("shared");
-
-    QualityProfileDto dto = new QualityProfileDto()
-      .setId(1)
-      .setName("New Sonar Way with Findbugs")
-      .setLanguage("js")
-      .setParent("New Sonar Way")
-      .setVersion(3)
-      .setUsed(false);
-
-    dao.update(dto);
-
-    checkTables("update", "rules_profiles");
-  }
-
-  @Test
-  public void delete() {
-    setupData("shared");
-
-    dao.delete(1);
-
-    checkTables("delete", "rules_profiles");
-  }
 
 }

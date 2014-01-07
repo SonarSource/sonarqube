@@ -32,6 +32,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -63,6 +64,18 @@ public class QProfileSearchTest {
     assertThat(qProfile.parent()).isEqualTo("Sonar Way");
     assertThat(qProfile.version()).isEqualTo(1);
     assertThat(qProfile.used()).isFalse();
+  }
+
+  @Test
+  public void search_children_profiles() throws Exception {
+    search.children(new QProfile().setName("Sonar Way").setLanguage("java"));
+    verify(dao).selectChildren("Sonar Way", "java");
+  }
+
+  @Test
+  public void count_children_profiles() throws Exception {
+    search.countChildren(new QProfile().setName("Sonar Way").setLanguage("java"));
+    verify(dao).countChildren("Sonar Way", "java");
   }
 
   @Test

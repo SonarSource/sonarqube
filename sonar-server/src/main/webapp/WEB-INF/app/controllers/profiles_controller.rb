@@ -28,10 +28,11 @@ class ProfilesController < ApplicationController
   # GET /profiles/index
   def index
     add_breadcrumbs ProfilesController::root_breadcrumb
-    @profiles = Profile.all
-    Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
+    call_backend do
+      @profiles = Internal.quality_profiles.allProfiles().to_a
+    end
+    Api::Utils.insensitive_sort!(@profiles){|profile| profile.name()}
   end
-
 
   # GET /profiles/create_form?language=<language>
   def create_form

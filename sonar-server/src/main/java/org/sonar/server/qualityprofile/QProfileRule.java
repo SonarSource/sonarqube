@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
@@ -28,6 +29,7 @@ import org.sonar.server.rule.ActiveRuleDocument;
 import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -218,5 +220,9 @@ public class QProfileRule {
     return activeRuleNote;
   }
 
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this).toString();
+  }
 
 }

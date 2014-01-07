@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 module ProfilesHelper
+
   def languages
     controller.java_facade.getLanguages()
   end
@@ -44,4 +45,25 @@ module ProfilesHelper
     end
     html
   end
+
+  def profile_key(qProfile)
+    "#{qProfile.language().to_s}_#{qProfile.name().to_s}"
+  end
+
+  def alerts_count(qProfile)
+    Alert.count(:all, :conditions => ['profile_id=?', qProfile.id()])
+  end
+
+  def projects_count(qProfile)
+    Internal.quality_profiles.countProjects(qProfile).to_i
+  end
+
+  def profile_rules_count(qProfile)
+    Internal.quality_profiles.countProfileRules(qProfile).to_i
+  end
+
+  def children_count(qProfile)
+    Internal.quality_profiles.countChildren(qProfile).to_i
+  end
+
 end

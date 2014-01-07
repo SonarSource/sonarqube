@@ -72,6 +72,12 @@ public class QProfileProjectServiceTest {
   }
 
   @Test
+  public void count_projects() throws Exception {
+    service.countProjects(new QProfile().setId(1).setName("My profile").setLanguage("java"));
+    verify(qualityProfileDao).countProjects("My profile", "sonar.profile.java");
+  }
+
+  @Test
   public void search_profiles_from_project() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectByProject(1L, "sonar.profile.%")).thenReturn(newArrayList(qualityProfile));

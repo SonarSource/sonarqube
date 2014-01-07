@@ -41,13 +41,7 @@ public class QProfileSearch implements ServerComponent {
   }
 
   public List<QProfile> allProfiles() {
-    List<QualityProfileDto> dtos = dao.selectAll();
-    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
-      @Override
-      public QProfile apply(QualityProfileDto input) {
-        return QProfile.from(input);
-      }
-    }));
+    return toQProfiles(dao.selectAll());
   }
 
   @CheckForNull
@@ -59,4 +53,20 @@ public class QProfileSearch implements ServerComponent {
     return null;
   }
 
+  public List<QProfile> children(QProfile profile) {
+    return toQProfiles(dao.selectChildren(profile.name(), profile.language()));
+  }
+
+  public int countChildren(QProfile profile) {
+    return dao.countChildren(profile.name(), profile.language());
+  }
+
+  private List<QProfile> toQProfiles(List<QualityProfileDto> dtos){
+    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
+      @Override
+      public QProfile apply(QualityProfileDto input) {
+        return QProfile.from(input);
+      }
+    }));
+  }
 }

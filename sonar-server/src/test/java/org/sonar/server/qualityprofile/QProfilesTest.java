@@ -100,6 +100,18 @@ public class QProfilesTest {
   }
 
   @Test
+  public void search_profiles() throws Exception {
+    qProfiles.allProfiles();
+    verify(search).allProfiles();
+  }
+
+  @Test
+  public void search_default_profile_by_language() throws Exception {
+    qProfiles.defaultProfile("java");
+    verify(search).defaultProfile("java");
+  }
+
+  @Test
   public void search_parent_profile() throws Exception {
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
     when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
@@ -113,15 +125,17 @@ public class QProfilesTest {
   }
 
   @Test
-  public void search_profiles() throws Exception {
-    qProfiles.allProfiles();
-    verify(search).allProfiles();
+  public void search_children() throws Exception {
+    QProfile profile = new QProfile();
+    qProfiles.children(profile);
+    verify(search).children(profile);
   }
 
   @Test
-  public void search_default_profile_by_language() throws Exception {
-    qProfiles.defaultProfile("java");
-    verify(search).defaultProfile("java");
+  public void count_children() throws Exception {
+    QProfile profile = new QProfile();
+    qProfiles.countChildren(profile);
+    verify(search).countChildren(profile);
   }
 
   @Test
@@ -219,6 +233,13 @@ public class QProfilesTest {
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
     qProfiles.projects(1);
     verify(projectService).projects(qualityProfile);
+  }
+
+  @Test
+  public void count_projects() throws Exception {
+    QProfile profile = new QProfile();
+    qProfiles.countProjects(profile);
+    verify(projectService).countProjects(profile);
   }
 
   @Test
