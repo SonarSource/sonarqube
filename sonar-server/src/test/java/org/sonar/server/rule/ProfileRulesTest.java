@@ -116,6 +116,15 @@ public class ProfileRulesTest {
   }
 
   @Test
+  public void find_profile_rules_with_inheritance() {
+    Paging paging = Paging.create(10, 1);
+
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(null), paging).rules()).hasSize(3);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules()).hasSize(1);
+  }
+
+  @Test
   @Ignore("bug in E/S : fail to do a scroll when filter contain has_parent -> return good total_hits but hits is empty")
   public void find_profile_rule_ids() {
     // All rules for profile 1

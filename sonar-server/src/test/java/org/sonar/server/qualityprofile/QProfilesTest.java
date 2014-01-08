@@ -106,6 +106,12 @@ public class QProfilesTest {
   }
 
   @Test
+  public void search_profiles_by_language() throws Exception {
+    qProfiles.profilesByLanguage("java");
+    verify(search).profiles("java");
+  }
+
+  @Test
   public void search_default_profile_by_language() throws Exception {
     qProfiles.defaultProfile("java");
     verify(search).defaultProfile("java");
@@ -129,6 +135,13 @@ public class QProfilesTest {
     QProfile profile = new QProfile();
     qProfiles.children(profile);
     verify(search).children(profile);
+  }
+
+  @Test
+  public void search_ancestors() throws Exception {
+    QProfile profile = new QProfile();
+    qProfiles.ancestors(profile);
+    verify(search).ancestors(profile);
   }
 
   @Test

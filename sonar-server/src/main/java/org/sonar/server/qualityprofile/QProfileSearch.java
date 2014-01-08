@@ -44,6 +44,10 @@ public class QProfileSearch implements ServerComponent {
     return toQProfiles(dao.selectAll());
   }
 
+  public List<QProfile> profiles(String language) {
+    return toQProfiles(dao.selectByLanguage(language));
+  }
+
   @CheckForNull
   public QProfile defaultProfile(String language) {
     QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileProjectService.PROPERTY_PREFIX + language);
@@ -55,6 +59,24 @@ public class QProfileSearch implements ServerComponent {
 
   public List<QProfile> children(QProfile profile) {
     return toQProfiles(dao.selectChildren(profile.name(), profile.language()));
+  }
+
+  public List<QProfile> ancestors(QProfile profile) {
+    List<QProfile> ancestors = newArrayList();
+    incrementAncestors(profile, ancestors);
+    return ancestors;
+  }
+
+  private void incrementAncestors(QProfile profile, List<QProfile> ancestors){
+    if (profile.parent() != null) {
+      QualityProfileDto parentDto = dao.selectParent(profile.id());
+      if (parentDto == null) {
+        throw new IllegalStateException("Cannot find parent of profile : "+ profile.id());
+      }
+      QProfile parent = QProfile.from(parentDto);
+      ancestors.add(parent);
+      incrementAncestors(parent, ancestors);
+    }
   }
 
   public int countChildren(QProfile profile) {

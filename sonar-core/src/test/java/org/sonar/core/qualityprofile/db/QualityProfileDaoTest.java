@@ -142,6 +142,16 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_language() {
+    setupData("select_by_language");
+
+    List<QualityProfileDto> result = dao.selectByLanguage("java");
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getName()).isEqualTo("Sonar Way 1");
+    assertThat(result.get(1).getName()).isEqualTo("Sonar Way 2");
+  }
+
+  @Test
   public void select_by_id() {
     setupData("shared");
 

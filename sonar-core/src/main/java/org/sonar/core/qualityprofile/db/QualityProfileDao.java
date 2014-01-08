@@ -26,6 +26,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class QualityProfileDao implements ServerComponent {
@@ -97,6 +99,16 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public List<QualityProfileDto> selectByLanguage(String language) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(QualityProfileMapper.class).selectByLanguage(language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
   public QualityProfileDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
@@ -106,6 +118,7 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  @CheckForNull
   public QualityProfileDto selectParent(Integer childId) {
     SqlSession session = mybatis.openSession();
     try {

@@ -67,6 +67,12 @@ public class QProfileSearchTest {
   }
 
   @Test
+  public void search_profiles_by_language() throws Exception {
+    search.profiles("java");
+    verify(dao).selectByLanguage("java");
+  }
+
+  @Test
   public void search_children_profiles() throws Exception {
     search.children(new QProfile().setName("Sonar Way").setLanguage("java"));
     verify(dao).selectChildren("Sonar Way", "java");
@@ -94,5 +100,25 @@ public class QProfileSearchTest {
     assertThat(search.defaultProfile("java")).isNull();
   }
 
-}
+  @Test
+  public void search_ancestors() throws Exception {
+    when(dao.selectParent(3)).thenReturn(new QualityProfileDto().setId(2).setName("Child").setLanguage("java").setParent("Parent"));
+    when(dao.selectParent(2)).thenReturn(new QualityProfileDto().setId(1).setName("Parent").setLanguage("java"));
+    when(dao.selectParent(1)).thenReturn(null);
 
+    List<QProfile> result = search.ancestors(new QProfile().setId(3).setName("Grandchild").setLanguage("java").setParent("Child"));
+    assertThat(result).hasSize(2);
+  }
+
+  @Test
+  public void fail_to_get_ancestors_if_parent_cannot_be_found() throws Exception {
+    when(dao.selectParent(3)).thenReturn(null);
+
+    try {
+      search.ancestors(new QProfile().setId(3).setName("Grandchild").setLanguage("java").setParent("Child"));
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
+  }
+
+}

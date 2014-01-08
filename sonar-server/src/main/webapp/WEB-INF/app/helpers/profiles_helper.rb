@@ -23,10 +23,11 @@ module ProfilesHelper
     controller.java_facade.getLanguages()
   end
 
-  def label_for_rules_count(profile)
-    label="#{profile.count_active_rules} #{message('rules').downcase}"
+  def label_for_rules_count(qProfile)
+    profile_rules_count = profile_rules_count(qProfile)
+    label = "#{profile_rules_count} #{message('rules').downcase}"
 
-    count_overriding=profile.count_overriding_rules
+    count_overriding = Internal.quality_profiles.countOverridingProfileRules(qProfile).to_i
     if count_overriding>0
       label += message('quality_profiles.including_x_overriding.suffix', :params => count_overriding)
       label += image_tag('overrides.png')

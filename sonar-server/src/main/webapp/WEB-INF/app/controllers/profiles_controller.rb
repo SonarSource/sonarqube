@@ -180,10 +180,15 @@ class ProfilesController < ApplicationController
   # GET /profiles/inheritance?id=<profile id>
   def inheritance
     require_parameters 'id'
-    @profile = Profile.find(params[:id])
 
-    profiles=Profile.all(:conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
-    @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name, profile.name] }
+    call_backend do
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      @ancestors = Internal.quality_profiles.ancestors(@profile).to_a
+      @children = Internal.quality_profiles.children(@profile).to_a
+      profiles = Internal.quality_profiles.profilesByLanguage(@profile.language()).to_a.reject{|p| p.id == @profile.id() || p.parent() == @profile.name()}
+      profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name()}
+      @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.name()] }
+    end
 
     set_profile_breadcrumbs
   end

@@ -158,12 +158,20 @@ public class ProfileRules implements ServerExtension {
             hasParentFilter(TYPE_RULE, parentRuleFilter(query))
         );
     addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
+    String inheritance = query.inheritance();
+    if (inheritance != null) {
+      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
+    }
     return filter;
   }
 
   public long countProfileRules(ProfileRuleQuery query) {
-    return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query))));
+    return index.executeCount(
+      index.client()
+        .prepareCount(INDEX_RULES)
+        .setTypes(TYPE_ACTIVE_RULE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query)))
+    );
   }
 
   public long countInactiveProfileRules(ProfileRuleQuery query) {

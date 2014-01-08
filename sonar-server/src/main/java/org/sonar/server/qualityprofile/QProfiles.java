@@ -94,11 +94,15 @@ public class QProfiles implements ServerComponent {
   // ACTIVE RULES
   // bulk activate all
   // bulk deactivate all
-  // active rule parameter validation (only Integer types are checked)
+  // active rule parameter validation (only Integer and Boolean types are checked)
 
 
   public List<QProfile> allProfiles() {
     return search.allProfiles();
+  }
+
+  public List<QProfile> profilesByLanguage(String language) {
+    return search.profiles(language);
   }
 
   public QProfile profile(int id) {
@@ -121,6 +125,10 @@ public class QProfiles implements ServerComponent {
 
   public List<QProfile> children(QProfile profile) {
     return search.children(profile);
+  }
+
+  public List<QProfile> ancestors(QProfile profile) {
+    return search.ancestors(profile);
   }
 
   public int countChildren(QProfile profile) {
@@ -217,6 +225,10 @@ public class QProfiles implements ServerComponent {
 
   public long countProfileRules(QProfile profile) {
     return rules.countProfileRules(ProfileRuleQuery.create(profile.id()));
+  }
+
+  public long countOverridingProfileRules(QProfile profile) {
+    return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
   public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {

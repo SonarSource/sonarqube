@@ -46,6 +46,7 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
 
+  List<QualityProfileDto> selectByLanguage(String language);
 
   // INHERITANCE
 
@@ -63,6 +64,5 @@ public interface QualityProfileMapper {
   int countProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
 
   List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);
-
 
 }

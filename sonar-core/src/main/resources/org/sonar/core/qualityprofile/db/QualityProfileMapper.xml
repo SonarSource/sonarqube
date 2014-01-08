@@ -46,6 +46,15 @@
     </where>
   </select>
 
+  <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
+    SELECT DISTINCT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    <where>
+      AND p.language=#{language}
+    </where>
+    ORDER BY p.name
+  </select>
+
   <select id="selectById" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p

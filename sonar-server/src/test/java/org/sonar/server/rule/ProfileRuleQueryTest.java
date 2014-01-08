@@ -32,14 +32,14 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ProfileRuleQueryTest {
 
   @Test
-  public void should_create_basic_query() {
+  public void create_basic_query() {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     assertThat(query.profileId()).isEqualTo(profileId);
   }
 
   @Test
-  public void should_parse_nominal_request() {
+  public void parse_nominal_request() {
     final int profileId = 42;
     Map<String, Object> params = ImmutableMap.of("profileId", (Object) Integer.toString(profileId));
     ProfileRuleQuery query = ProfileRuleQuery.parse(params);
@@ -47,7 +47,19 @@ public class ProfileRuleQueryTest {
   }
 
   @Test
-  public void should_fail_on_missing_profileId() {
+  public void parse_with_inheritance() {
+    final int profileId = 42;
+    Map<String, Object> params = ImmutableMap.of(
+      "profileId", (Object) Integer.toString(profileId),
+      "inheritance", "OVERRIDES"
+    );
+    ProfileRuleQuery query = ProfileRuleQuery.parse(params);
+    assertThat(query.profileId()).isEqualTo(profileId);
+    assertThat(query.inheritance()).isEqualTo("OVERRIDES");
+  }
+
+  @Test
+  public void fail_on_missing_profileId() {
     Map<String, Object> params = ImmutableMap.of();
     try {
       ProfileRuleQuery.parse(params);
@@ -58,7 +70,7 @@ public class ProfileRuleQueryTest {
   }
 
   @Test
-  public void should_fail_on_incorrect_profileId() {
+  public void fail_on_incorrect_profileId() {
     Map<String, Object> params = ImmutableMap.of("profileId", (Object) "not an integer");
     try {
       ProfileRuleQuery.parse(params);

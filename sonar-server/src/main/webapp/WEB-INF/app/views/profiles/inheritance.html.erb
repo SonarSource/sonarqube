@@ -7,19 +7,19 @@
     <tr>
       <td align="center"  valign="top">
         <div>
-            <% @profile.ancestors.reverse.each do |parent| %>
-              <a href="<%= url_for :action => 'inheritance', :id => parent.id -%>"><%= parent.name -%></a>
+            <% @ancestors.reverse.each do |parent| %>
+              <a href="<%= url_for :action => 'inheritance', :id => parent.id() -%>"><%= parent.name() -%></a>
               <span class="note">(<%= label_for_rules_count(parent) -%>)</span><br/>
               <%= image_tag 'blue-up.png' -%><br/>
             <% end %>
 
             <b><%= @profile.name -%></b> <span class="note">(<%= label_for_rules_count(@profile) -%>)</span><br/>
 
-            <% if @profile.children.size>0 %>
+            <% if @children.size>0 %>
               <%= image_tag 'blue-up.png' -%><br/>
-              <% @profile.children.each_with_index do |child,index| %>
+              <% @children.each_with_index do |child,index| %>
                 <%= ', ' if index>0 -%>
-                <a href="<%= url_for :action => 'inheritance', :id => child.id -%>"><%= child.name -%></a>
+                <a href="<%= url_for :action => 'inheritance', :id => child.id() -%>"><%= child.name() -%></a>
                 <span class="note">(<%= label_for_rules_count(child) -%>)</span>
               <% end %>
               <br/><%= image_tag 'blue-up.png' -%><br/>
@@ -33,8 +33,8 @@
            <h3><%= message('quality_profiles.set_parent') -%>:</h3>
            <p><%= message('quality_profiles.inherit_rules_from_profile') -%>:</p>
            <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
-             <%= hidden_field_tag "id", @profile.id %>
-             <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name) %>
+             <%= hidden_field_tag "id", @profile.id() %>
+             <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent()) %>
              <%= submit_tag message('change_verb'), :id => 'submit_parent'%>
            <% end %>
          </div>

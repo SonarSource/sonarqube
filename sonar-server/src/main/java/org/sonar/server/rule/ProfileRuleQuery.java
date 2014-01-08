@@ -26,6 +26,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ProfileRuleQuery {
   private static final String PARAM_REPOSITORY_KEYS = "repositoryKeys";
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
+  private static final String PARAM_INHERITANCE = "inheritance";
 
   private int profileId;
   private String language;
@@ -51,6 +53,7 @@ public class ProfileRuleQuery {
   private List<String> repositoryKeys;
   private List<String> severities;
   private List<String> statuses;
+  private String inheritance;
 
   private ProfileRuleQuery() {
     repositoryKeys = Lists.newArrayList();
@@ -79,6 +82,9 @@ public class ProfileRuleQuery {
     }
     if (params.get(PARAM_STATUSES) != null) {
       result.addStatuses(optionalVarargs(params.get(PARAM_STATUSES)));
+    }
+    if (params.containsKey(PARAM_INHERITANCE)) {
+      result.setInheritance((String) params.get(PARAM_INHERITANCE));
     }
 
     if (!errors.isEmpty()) {
@@ -128,6 +134,12 @@ public class ProfileRuleQuery {
     return this;
   }
 
+  public ProfileRuleQuery setInheritance(String inheritance) {
+    this.inheritance = inheritance;
+    return this;
+  }
+
+
   public int profileId() {
     return profileId;
   }
@@ -152,6 +164,11 @@ public class ProfileRuleQuery {
 
   public Collection<String> statuses() {
     return ImmutableList.copyOf(statuses);
+  }
+
+  @CheckForNull
+  public String inheritance() {
+    return inheritance;
   }
 
   private static String[] optionalVarargs(Object jRubyArray) {

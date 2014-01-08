@@ -23,7 +23,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.check.Cardinality;
 import org.sonar.server.rule.ActiveRuleDocument;
 import org.sonar.server.rule.RuleDocument;
@@ -35,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 
 public class QProfileRule {
+
+  public static final String INHERITED = "INHERITED";
+  public static final String OVERRIDES = "OVERRIDES";
 
   private final Integer id;
   private final Integer parentId;
@@ -200,11 +202,11 @@ public class QProfileRule {
   }
 
   public boolean isInherited() {
-    return ActiveRule.INHERITED.equals(inheritance);
+    return INHERITED.equals(inheritance);
   }
 
   public boolean isOverrides() {
-    return ActiveRule.OVERRIDES.equals(inheritance);
+    return OVERRIDES.equals(inheritance);
   }
 
   public boolean isTemplate() {
