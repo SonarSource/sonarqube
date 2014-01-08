@@ -20,7 +20,9 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -147,11 +149,8 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     List<ActiveRuleDto> result = dao.selectAll();
     assertThat(result).hasSize(3);
 
-    assertThat(result.get(0).getId()).isEqualTo(1);
-    assertThat(result.get(0).getParentId()).isEqualTo(2);
-
-    assertThat(result.get(1).getId()).isEqualTo(2);
-    assertThat(result.get(1).getParentId()).isNull();
+    assertThat(find(1, result).getParentId()).isEqualTo(2);
+    assertThat(find(2, result).getParentId()).isNull();
   }
 
   @Test
@@ -249,6 +248,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.selectAllParams()).hasSize(3);
+  }
+
+  private ActiveRuleDto find(final Integer id, List<ActiveRuleDto> dtos){
+    return Iterables.find(dtos, new Predicate<ActiveRuleDto>(){
+      @Override
+      public boolean apply(ActiveRuleDto input) {
+        return input.getId().equals(id);
+      }
+    });
   }
 
 }
