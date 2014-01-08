@@ -35,10 +35,8 @@ import org.sonar.check.Cardinality;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 @Entity
 @Table(name = "rules")
@@ -125,6 +123,9 @@ public final class Rule {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
+
+  @Transient
+  private transient Set<String> tags = Collections.unmodifiableSet(new HashSet<String>());
 
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
@@ -277,6 +278,17 @@ public final class Rule {
       .setRule(this);
     params.add(parameter);
     return parameter;
+  }
+
+  public Collection<String> getTags() {
+    return tags;
+  }
+
+  public Rule setTags(String... tags) {
+    Set<String> newTags = new HashSet<String>();
+    newTags.addAll(Arrays.asList(tags));
+    this.tags = Collections.unmodifiableSet(newTags);
+    return this;
   }
 
   /**

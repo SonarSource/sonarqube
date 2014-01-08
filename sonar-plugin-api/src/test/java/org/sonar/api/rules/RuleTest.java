@@ -105,4 +105,16 @@ public class RuleTest {
     return Arrays.asList("te\nst", "te\ns\nt", "te\rst", "te\n\rst", "te\r\nst");
   }
 
+  @Test
+  public void should_manage_tags() {
+    String tag1 = "tag1";
+    String tag2 = "tag2";
+    String tag3 = "tag3";
+    Rule rule = Rule.create();
+
+    assertThat(rule.getTags()).isEmpty();
+    assertThat(rule.setTags(tag1, tag2, tag3).getTags()).containsOnly(tag1, tag2, tag3);
+    assertThat(rule.setTags(tag1, tag2).getTags()).containsOnly(tag1, tag2);
+    assertThat(rule.setTags().getTags()).isEmpty();
+  }
 }
