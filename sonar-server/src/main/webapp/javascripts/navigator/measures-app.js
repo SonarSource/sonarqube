@@ -41,16 +41,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       }),
 
       new window.SS.Filter({
-        name: window.SS.phrases.age,
-        propertyFrom: 'ageMinDays',
-        propertyTo: 'ageMaxDays',
-        type: window.SS.RangeFilterView,
-        placeholder: window.SS.phrases.days,
-        enabled: false,
-        optional: true
-      }),
-
-      new window.SS.Filter({
         name: window.SS.phrases.alert,
         property: 'alertLevels[]',
         type: window.SS.SelectFilterView,
@@ -112,6 +102,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     }
 
     this.filters.add([
+      new window.SS.Filter({
+        name: window.SS.phrases.lastAnalysis,
+        propertyFrom: 'ageMinDays',
+        propertyTo: 'ageMaxDays',
+        type: window.SS.RangeFilterView,
+        placeholder: window.SS.phrases.days,
+        enabled: false,
+        optional: true
+      }),
+
       new window.SS.Filter({
         name: window.SS.phrases.metric,
         property: 'c3',
