@@ -292,9 +292,30 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('height', this.height());
 
 
-    // Update available size
+    // Update available width
     this.availableWidth = this.width() - this.margin().left - this.margin().right;
-    this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
+
+
+    // Update metric lines
+    var metricY = -1;
+    this.infoMetrics.forEach(function(metric, i) {
+      var x = 110 + i * 170,
+          x2 = x + 170;
+
+      if (x2 > widget.availableWidth) {
+        metricY += 18;
+        x = 110;
+      }
+
+      metric
+          .transition()
+          .attr('transform', function() { return trans(x, metricY); });
+    });
+    metricY -= 1;
+
+
+    // Update available width
+    this.availableHeight = this.height() - this.margin().top - this.margin().bottom - metricY;
 
 
     // Update scales
@@ -306,8 +327,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
 
 
+    // Update plot
+    this.plotWrap
+        .transition()
+        .attr('transform', trans(0, metricY));
+
+
     // Update the axis
-    this.gtimeAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 30));
+    this.gtimeAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 30 + metricY));
 
     this.gtimeAxis.transition().call(this.timeAxis);
 
