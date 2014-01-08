@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.RulePriority;
@@ -78,8 +79,7 @@ public class ProfileRulesTest {
   }
 
   @Test
-  public void should_find_active_rules() throws Exception {
-
+  public void find_profile_rules() {
     Paging paging = Paging.create(10, 1);
 
     // All rules for profile 1
@@ -116,12 +116,20 @@ public class ProfileRulesTest {
   }
 
   @Test
-  public void should_get_from_active_rule() {
+  @Ignore("bug in E/S : fail to do a scroll when filter contain has_parent -> return good total_hits but hits is empty")
+  public void find_profile_rule_ids() {
+    // All rules for profile 1
+    List<Integer> result = profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1));
+    assertThat(result).hasSize(3);
+    assertThat(result.get(0)).isEqualTo(1);  }
+
+  @Test
+  public void get_from_active_rule() {
     assertThat(profileRules.getFromActiveRuleId(391)).isNotNull();
   }
 
   @Test
-  public void should_get_from_rule() {
+  public void get_from_rule() {
     assertThat(profileRules.getFromActiveRuleId(25)).isNotNull();
   }
 

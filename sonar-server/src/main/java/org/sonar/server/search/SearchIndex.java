@@ -151,7 +151,6 @@ public class SearchIndex {
     }
   }
 
-
   public void addMappingFromClasspath(String index, String type, String resourcePath) {
     try {
       URL resource = getClass().getResource(resourcePath);
@@ -191,15 +190,19 @@ public class SearchIndex {
   }
 
   public List<String> findDocumentIds(SearchQuery searchQuery) {
+    SearchRequestBuilder builder = searchQuery.toBuilder(client);
+    return findDocumentIds(builder, searchQuery.scrollSize());
+  }
+
+  public List<String> findDocumentIds(SearchRequestBuilder builder, int scrollSize) {
     List<String> result = Lists.newArrayList();
     final int scrollTime = 100;
 
-    SearchRequestBuilder builder = searchQuery.toBuilder(client);
     StopWatch watch = createWatch();
     SearchResponse scrollResp = builder.addField("_id")
-            .setSearchType(SearchType.SCAN)
-            .setScroll(new TimeValue(scrollTime))
-            .setSize(searchQuery.scrollSize()).execute().actionGet();
+      .setSearchType(SearchType.SCAN)
+      .setScroll(new TimeValue(scrollTime))
+      .setSize(scrollSize).execute().actionGet();
     //Scroll until no hits are returned
     while (true) {
       scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();

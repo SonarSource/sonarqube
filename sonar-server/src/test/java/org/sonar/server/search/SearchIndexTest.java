@@ -33,9 +33,7 @@ import org.sonar.core.profiling.Profiling;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SearchIndexTest {
 
@@ -127,6 +125,23 @@ public class SearchIndexTest {
     searchIndex.bulkIndex("index", "type1", ids, sources);
 
     List<String> docIds = searchIndex.findDocumentIds(SearchQuery.create());
+    assertThat(docIds).hasSize(numberOfDocuments);
+  }
+
+  @Test
+  public void should_iterate_over_small_dataset() throws Exception {
+    final int numberOfDocuments = 3;
+
+    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/search/SearchIndexTest/correct_mapping1.json");
+    String[] ids = new String[numberOfDocuments];
+    BytesStream[] sources = new BytesStream[numberOfDocuments];
+    for (int i=0; i<numberOfDocuments; i++) {
+      ids[i] = Integer.toString(i);
+      sources[i] = XContentFactory.jsonBuilder().startObject().field("value", Integer.toString(i)).endObject();
+    }
+    searchIndex.bulkIndex("index", "type1", ids, sources);
+
+    List<String> docIds = searchIndex.findDocumentIds(SearchQuery.create().scrollSize(100));
     assertThat(docIds).hasSize(numberOfDocuments);
   }
 

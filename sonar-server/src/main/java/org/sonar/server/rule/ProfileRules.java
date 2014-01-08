@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -39,10 +41,13 @@ import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.qualityprofile.QProfileRuleResult;
 import org.sonar.server.search.SearchIndex;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.sonar.server.rule.RuleRegistry.*;
@@ -105,6 +110,23 @@ public class ProfileRules implements ServerExtension {
     }
 
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+  }
+
+  // FIXME Due to a bug in E/S, As the query filter contain a filter with has_parent, nothing will be returned
+  public List<Integer> searchProfileRuleIds(ProfileRuleQuery query) {
+    BoolFilterBuilder filter = activeRuleFilter(query);
+
+    SearchRequestBuilder builder = index.client()
+      .prepareSearch(INDEX_RULES)
+      .setTypes(TYPE_ACTIVE_RULE)
+      .setFilter(filter);
+    List<String> documentIds = index.findDocumentIds(builder, 2);
+    return newArrayList(Iterables.transform(documentIds, new Function<String, Integer>() {
+      @Override
+      public Integer apply(@Nullable String input) {
+        return Integer.valueOf(input);
+      }
+    }));
   }
 
   public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
