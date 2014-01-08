@@ -148,7 +148,6 @@
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .navigator-filter-select-list label:hover,
 .navigator-filter-select-list label.current {
