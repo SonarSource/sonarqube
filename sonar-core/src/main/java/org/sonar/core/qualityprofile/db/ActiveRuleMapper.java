@@ -23,9 +23,18 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public interface ActiveRuleMapper {
+
+  void insert(ActiveRuleDto dto);
+
+  void update(ActiveRuleDto dto);
+
+  void delete(Integer activeRuleId);
+
+  void deleteFromRule(Integer ruleId);
 
   @CheckForNull
   ActiveRuleDto selectById(Integer id);
@@ -35,12 +44,15 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleId(Integer ruleId);
 
-  @CheckForNull
-  ActiveRuleDto selectParent(Integer id);
+  List<ActiveRuleDto> selectAll();
 
-  void insert(ActiveRuleDto dto);
+  void insertParameter(ActiveRuleParamDto dto);
 
-  void update(ActiveRuleDto dto);
+  void updateParameter(ActiveRuleParamDto dto);
+
+  void deleteParameters(Integer activeRuleId);
+
+  void deleteParameter(Integer activeRuleParamId);
 
   @CheckForNull
   ActiveRuleParamDto selectParamById(Integer activeRuleParamId);
@@ -50,16 +62,6 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId);
 
-  void insertParameter(ActiveRuleParamDto dto);
-
-  void updateParameter(ActiveRuleParamDto dto);
-
-  void delete(Integer activeRuleId);
-
-  void deleteFromRule(Integer ruleId);
-
-  void deleteParameters(Integer activeRuleId);
-
-  void deleteParameter(Integer activeRuleParamId);
+  List<ActiveRuleParamDto> selectAllParams();
 
 }

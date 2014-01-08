@@ -26,18 +26,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.Rule;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDao;
@@ -58,32 +59,46 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RuleRegistryTest {
 
-  private EsSetup esSetup;
-  private SearchIndex searchIndex;
-  private RuleDao ruleDao;
-  private DatabaseSession session;
+  EsSetup esSetup;
+
+  SearchIndex searchIndex;
+
+  @Mock
+  RuleDao ruleDao;
+
+  @Mock
+  ActiveRuleDao activeRuleDao;
+
+  @Mock
+  MyBatis myBatis;
+
+  @Mock
+  SqlSession session;
+
   RuleRegistry registry;
 
   @Before
   public void setUp() throws Exception {
-    ruleDao = mock(RuleDao.class);
+    when(myBatis.openSession()).thenReturn(session);
 
     esSetup = new EsSetup();
     esSetup.execute(EsSetup.deleteAll());
 
     SearchNode node = mock(SearchNode.class);
     when(node.client()).thenReturn(esSetup.client());
+
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "FULL");
     Profiling profiling = new Profiling(settings);
     searchIndex = new SearchIndex(node, profiling);
     searchIndex.start();
 
-    session = mock(DatabaseSession.class);
+    myBatis = mock(MyBatis.class);
 
-    registry = new RuleRegistry(searchIndex, ruleDao, session);
+    registry = new RuleRegistry(searchIndex, ruleDao, activeRuleDao, myBatis);
     registry.start();
 
     String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());
@@ -95,7 +110,6 @@ public class RuleRegistryTest {
       EsSetup.index("rules", "rule", "2").withSource(source2),
       EsSetup.index("rules", "rule", "3").withSource(source3)
     );
-
   }
 
   @After
@@ -232,49 +246,13 @@ public class RuleRegistryTest {
 
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
       .hasSize(2)
-      .containsOnly((int) ruleId1, (int) ruleId2);
+      .containsOnly(ruleId1, ruleId2);
     assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
   }
 
   @Test
-  public void should_index_all_active_rules() {
-    int id = 1;
-    int profileId = 42;
-    ActiveRule rule = mock(ActiveRule.class);
-    when(rule.getId()).thenReturn(id);
-    Rule refRule = Rule.create();
-    refRule.setId(1);
-    when(rule.getRule()).thenReturn(refRule );
-    RulesProfile profile = mock(RulesProfile.class);
-    when(profile.getId()).thenReturn(profileId);
-    when(rule.getRulesProfile()).thenReturn(profile );
-    ActiveRuleParam param = mock(ActiveRuleParam.class);
-    when(param.getKey()).thenReturn("string");
-    when(param.getValue()).thenReturn("polop");
-    List<ActiveRuleParam> params = ImmutableList.of(param);
-    when(rule.getActiveRuleParams()).thenReturn(params );
-    List<ActiveRule> rules = ImmutableList.of(rule);
-
-    when(session.getResults(ActiveRule.class)).thenReturn(rules);
-    registry.bulkRegisterActiveRules();
-    assertThat(esSetup.exists("rules", "active_rule", "1"));
-
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
-      hasChildFilter("active_rule", termFilter("profileId", profileId))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(parentHit).hasSize(1);
-    assertThat(parentHit[0].getId()).isEqualTo("1");
-
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
-      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(childHit).hasSize(1);
-    assertThat(childHit[0].getId()).isEqualTo("1");
-  }
-
-  @Test
   public void bulk_index_active_rules() throws IOException {
-    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2));
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2).setParentId(5));
     Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
     paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
 

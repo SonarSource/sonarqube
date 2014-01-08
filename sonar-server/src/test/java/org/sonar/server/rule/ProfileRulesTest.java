@@ -57,7 +57,7 @@ public class ProfileRulesTest {
     settings.setProperty("sonar.log.profilingLevel", "FULL");
     SearchIndex index = new SearchIndex(searchNode, new Profiling(settings));
     index.start();
-    RuleRegistry registry = new RuleRegistry(index, null, null);
+    RuleRegistry registry = new RuleRegistry(index, null, null, null);
     registry.start();
     profileRules = new ProfileRules(index);
 

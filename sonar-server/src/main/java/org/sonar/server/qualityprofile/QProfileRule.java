@@ -37,13 +37,14 @@ import java.util.Map;
 public class QProfileRule {
 
   private final Integer id;
+  private final Integer parentId;
   private final String key;
   private final String repositoryKey;
   private final String name;
   private final String description;
   private final String status;
   private final String cardinality;
-  private final Integer parentId;
+  private final Integer ruleId;
   private final Date createdAt;
   private final Date updatedAt;
   private final QProfileRuleNote ruleNote;
@@ -63,7 +64,7 @@ public class QProfileRule {
     description = (String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION);
     status = (String) ruleSource.get(RuleDocument.FIELD_STATUS);
     cardinality = (String) ruleSource.get("cardinality");
-    parentId = (Integer) ruleSource.get(RuleDocument.FIELD_PARENT_KEY);
+    ruleId = (Integer) ruleSource.get(RuleDocument.FIELD_PARENT_KEY);
     createdAt = parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource);
     updatedAt = parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource);
 
@@ -84,10 +85,12 @@ public class QProfileRule {
       severity = (String) ruleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = null;
       activeRuleNote = null;
+      parentId = null;
     } else {
       activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
       severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
+      parentId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_PARENT_ID);
 
       if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
         Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
@@ -187,6 +190,11 @@ public class QProfileRule {
   }
 
   @CheckForNull
+  public Integer ruleId() {
+    return ruleId;
+  }
+
+  @CheckForNull
   public Integer parentId() {
     return parentId;
   }
@@ -204,7 +212,7 @@ public class QProfileRule {
   }
 
   public boolean isEditable() {
-    return parentId != null;
+    return ruleId != null;
   }
 
   public List<QProfileRuleParam> params() {

@@ -19,6 +19,10 @@
         "type": "integer",
         "index": "not_analyzed"
       },
+      "parentId": {
+        "type": "integer",
+        "index": "not_analyzed"
+      },
       "inheritance": {
         "type": "string",
         "index": "not_analyzed"

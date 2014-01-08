@@ -305,19 +305,12 @@ public class QProfilesTest {
 
   @Test
   public void parent_active_rule() throws Exception {
-    ActiveRuleDto parent = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(activeRuleDao.selectParent(6)).thenReturn(parent);
-
     QProfileRule rule = mock(QProfileRule.class);
     when(rule.id()).thenReturn(10);
-    when(rule.activeRuleId()).thenReturn(6);
+    when(rule.parentId()).thenReturn(6);
 
-    QProfileRule ruleResult = mock(QProfileRule.class);
-    when(rules.getFromActiveRuleId(5)).thenReturn(ruleResult);
-
-    QProfileRule result = qProfiles.parentProfileRule(rule);
-
-    assertThat(result).isEqualTo(ruleResult);
+    qProfiles.parentProfileRule(rule);
+    verify(rules).getFromActiveRuleId(6);
   }
 
   @Test
@@ -353,6 +346,24 @@ public class QProfilesTest {
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
     verify(activeRuleOperations).createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class));
+  }
+
+  @Test
+  public void activate_rule_with_parent_profile() throws Exception {
+    QualityProfileDto parentProfile = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+    when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parentProfile);
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java").setParent("Parent");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
+    when(ruleDao.selectById(10)).thenReturn(rule);
+
+    when(activeRuleOperations.createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class)))
+      .thenReturn(new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1));
+
+    ProfileRuleChanged result = qProfiles.activateRule(1, 10, Severity.BLOCKER);
+
+    assertThat(result.parentProfile()).isNotNull();
+    assertThat(result.parentProfile().id()).isEqualTo(2);
   }
 
   @Test
@@ -415,20 +426,6 @@ public class QProfilesTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
-  }
-
-  @Test
-  public void active_rule_param() throws Exception {
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
-    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max")).thenReturn(activeRuleParam);
-
-    QProfileRule rule = mock(QProfileRule.class);
-    when(rule.id()).thenReturn(10);
-    when(rule.activeRuleId()).thenReturn(5);
-
-    ActiveRuleParamDto result = qProfiles.activeRuleParam(rule, "max");
-
-    assertThat(result).isEqualTo(activeRuleParam);
   }
 
   @Test

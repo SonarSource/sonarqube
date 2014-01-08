@@ -40,6 +40,56 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void insert() {
+    setupData("empty");
+
+    ActiveRuleDto dto = new ActiveRuleDto()
+      .setProfileId(1)
+      .setRuleId(10)
+      .setSeverity(2)
+      .setInheritance("INHERITED");
+
+    dao.insert(dto);
+
+    checkTables("insert", "active_rules");
+  }
+
+  @Test
+  public void update() {
+    setupData("shared");
+
+    ActiveRuleDto dto = new ActiveRuleDto()
+      .setId(1)
+      .setProfileId(1)
+      .setRuleId(10)
+      .setSeverity(4)
+      .setInheritance(null)
+      .setNoteData("text");
+
+    dao.update(dto);
+
+    checkTables("update", "active_rules");
+  }
+
+  @Test
+  public void delete() {
+    setupData("shared");
+
+    dao.delete(1);
+
+    checkTables("delete", "active_rules");
+  }
+
+  @Test
+  public void delete_from_rule() {
+    setupData("shared");
+
+    dao.deleteFromRule(11);
+
+    checkTables("delete_from_rule", "active_rules");
+  }
+
+  @Test
   public void select_by_id() {
     setupData("shared");
 
@@ -59,10 +109,12 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void select_by_ids() {
     setupData("shared");
 
-    assertThat(dao.selectByIds(ImmutableList.of(1))).hasSize(1);
+    List<ActiveRuleDto> result = dao.selectByIds(ImmutableList.of(1));
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getParentId()).isEqualTo(2);
+
     assertThat(dao.selectByIds(ImmutableList.of(1, 2))).hasSize(2);
   }
-
 
   @Test
   public void select_by_profile_and_rule() {
@@ -84,16 +136,71 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void select_by_rule() {
     setupData("shared");
 
-    List<ActiveRuleDto> result = dao.selectByRuleId(11);
+    List<ActiveRuleDto> result = dao.selectByRuleId(10);
     assertThat(result).hasSize(2);
   }
 
   @Test
-  public void select_parent() {
-    setupData("select_parent");
+  public void select_all() {
+    setupData("shared");
 
-    ActiveRuleDto result = dao.selectParent(1);
-    assertThat(result.getId()).isEqualTo(2);
+    List<ActiveRuleDto> result = dao.selectAll();
+    assertThat(result).hasSize(3);
+
+    assertThat(result.get(0).getId()).isEqualTo(1);
+    assertThat(result.get(0).getParentId()).isEqualTo(2);
+
+    assertThat(result.get(1).getId()).isEqualTo(2);
+    assertThat(result.get(1).getParentId()).isNull();
+  }
+
+  @Test
+  public void insert_parameter() {
+    setupData("empty");
+
+    ActiveRuleParamDto dto = new ActiveRuleParamDto()
+      .setActiveRuleId(1)
+      .setRulesParameterId(1)
+      .setKey("max")
+      .setValue("20");
+
+    dao.insert(dto);
+
+    checkTables("insert_parameter", "active_rule_parameters");
+  }
+
+  @Test
+  public void update_parameter() {
+    setupData("shared");
+
+    ActiveRuleParamDto dto = new ActiveRuleParamDto()
+      .setId(1)
+      .setActiveRuleId(2)
+      .setRulesParameterId(3)
+      .setKey("newMax")
+      .setValue("30");
+
+    dao.update(dto);
+
+    checkTables("update_parameter", "active_rule_parameters");
+  }
+
+  @Test
+  public void delete_parameters() {
+    setupData("shared");
+
+    dao.deleteParameters(1);
+
+    checkTables("delete_parameters", "active_rule_parameters");
+  }
+
+  @Test
+  public void delete_parameter() {
+    setupData("shared");
+
+    dao.deleteParameter(1);
+
+    checkTables("delete_parameter", "active_rule_parameters");
   }
 
   @Test
@@ -138,101 +245,10 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert() {
-    setupData("empty");
-
-    ActiveRuleDto dto = new ActiveRuleDto()
-      .setProfileId(1)
-      .setRuleId(10)
-      .setSeverity(2)
-      .setInheritance("INHERITED");
-
-    dao.insert(dto);
-
-    checkTables("insert", "active_rules");
-  }
-
-  @Test
-  public void update() {
+  public void select_all_params() {
     setupData("shared");
 
-    ActiveRuleDto dto = new ActiveRuleDto()
-      .setId(1)
-      .setProfileId(1)
-      .setRuleId(10)
-      .setSeverity(4)
-      .setInheritance(null)
-      .setNoteData("text");
-
-    dao.update(dto);
-
-    checkTables("update", "active_rules");
+    assertThat(dao.selectAllParams()).hasSize(3);
   }
 
-  @Test
-  public void insert_parameter() {
-    setupData("empty");
-
-    ActiveRuleParamDto dto = new ActiveRuleParamDto()
-      .setActiveRuleId(1)
-      .setRulesParameterId(1)
-      .setKey("max")
-      .setValue("20");
-
-    dao.insert(dto);
-
-    checkTables("insert_parameter", "active_rule_parameters");
-  }
-
-  @Test
-  public void update_parameter() {
-    setupData("shared");
-
-    ActiveRuleParamDto dto = new ActiveRuleParamDto()
-      .setId(1)
-      .setActiveRuleId(2)
-      .setRulesParameterId(3)
-      .setKey("newMax")
-      .setValue("30");
-
-    dao.update(dto);
-
-    checkTables("update_parameter", "active_rule_parameters");
-  }
-
-  @Test
-  public void delete() {
-    setupData("shared");
-
-    dao.delete(1);
-
-    checkTables("delete", "active_rules");
-  }
-
-  @Test
-  public void delete_from_rule() {
-    setupData("shared");
-
-    dao.deleteFromRule(11);
-
-    checkTables("delete_from_rule", "active_rules");
-  }
-
-  @Test
-  public void delete_parameters() {
-    setupData("shared");
-
-    dao.deleteParameters(1);
-
-    checkTables("delete_parameters", "active_rule_parameters");
-  }
-
-  @Test
-  public void delete_parameter() {
-    setupData("shared");
-
-    dao.deleteParameter(1);
-
-    checkTables("delete_parameter", "active_rule_parameters");
-  }
 }

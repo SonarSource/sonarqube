@@ -207,7 +207,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       try {
         RuleInheritanceActions actions = new RuleInheritanceActions();
 
-        ActiveRuleDto parent = activeRuleDao.selectParent(activeRule.getId(), session);
+        ActiveRuleDto parent = activeRuleDao.selectById(activeRule.getParentId(), session);
 
         // Restore all parameters from parent
         List<ActiveRuleParamDto> parentParams = activeRuleDao.selectParamsByActiveRuleId(parent.getId(), session);

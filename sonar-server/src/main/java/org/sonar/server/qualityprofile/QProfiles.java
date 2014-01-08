@@ -48,6 +48,8 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class QProfiles implements ServerComponent {
 
+  private static final String LANGUAGE_PARAM = "language";
+
   private final QualityProfileDao qualityProfileDao;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
@@ -182,7 +184,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public void removeProjectByLanguage(String language, long projectId) {
-    Validation.checkMandatoryParameter(language, "language");
+    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
 
     projectService.removeProject(language, project, UserSession.get());
@@ -267,9 +269,9 @@ public class QProfiles implements ServerComponent {
     String sanitizedNote = Strings.emptyToNull(note);
     if (sanitizedNote != null) {
       activeRuleOperations.updateActiveRuleNote(activeRule, note, UserSession.get());
-    } else {
-      // Empty note -> do nothing
     }
+    // Empty note -> do nothing
+
     return rules.getFromActiveRuleId(activeRule.getId());
   }
 
@@ -279,38 +281,11 @@ public class QProfiles implements ServerComponent {
     return rules.getFromActiveRuleId(activeRule.getId());
   }
 
-  /**
-   * Used to load ancestor param of an active rule param
-   * <p/>
-   * TODO Ancestor params should be integrated into QProfileRuleParam or elsewhere in order to load all ancestor params once a time
-   */
-  @CheckForNull
-  public ActiveRuleParamDto activeRuleParam(QProfileRule rule, String key) {
-    return findActiveRuleParam(activeRuleId(rule), key);
-
-  }
-
-  /**
-   * Used to load ancestor active rule of a profile rule
-   * <p/>
-   * TODO Ancestor active rules should be integrated into QProfileRule or elsewhere in order to load all ancestor active rules once a time
-   */
   @CheckForNull
   public QProfileRule parentProfileRule(QProfileRule rule) {
-    ActiveRuleDto parent = activeRuleDao.selectParent(activeRuleId(rule));
-    if (parent != null) {
-      return rules.getFromActiveRuleId(parent.getId());
-    }
-    return null;
+    return rules.getFromActiveRuleId(rule.parentId());
   }
 
-  private Integer activeRuleId(QProfileRule rule) {
-    Integer activeRuleId = rule.activeRuleId();
-    if (activeRuleId == null) {
-      throw new IllegalArgumentException("Active rule id can't be null");
-    }
-    return activeRuleId;
-  }
 
   // RULES
 
@@ -353,6 +328,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public int countActiveRules(QProfileRule rule){
+    // TODO get it from E/S
     return activeRuleDao.selectByRuleId(rule.id()).size();
   }
 
@@ -363,7 +339,7 @@ public class QProfiles implements ServerComponent {
 
   private void validateNewProfile(String name, String language) {
     validateProfileName(name);
-    Validation.checkMandatoryParameter(language, "language");
+    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     checkNotAlreadyExists(name, language);
   }
 
@@ -502,12 +478,23 @@ public class QProfiles implements ServerComponent {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
+  @CheckForNull
+  private QProfile findParent(QProfile profile){
+    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
+    if (parent != null) {
+      return QProfile.from(parent);
+    }
+    return null;
+  }
+
   private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
-    return new ProfileRuleChanged(QProfile.from(qualityProfile), rules.getFromActiveRuleId(activeRule.getId()));
+    QProfile profile = QProfile.from(qualityProfile);
+    return new ProfileRuleChanged(profile, findParent(profile), rules.getFromActiveRuleId(activeRule.getId()));
   }
 
   private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
-    return new ProfileRuleChanged(QProfile.from(qualityProfile), rules.getFromRuleId(rule.getId()));
+    QProfile profile = QProfile.from(qualityProfile);
+    return new ProfileRuleChanged(profile, findParent(profile), rules.getFromRuleId(rule.getId()));
   }
 
 }

@@ -1,4 +1,4 @@
-<% #locals = rule, profile -%>
+<% #locals = rule, profile, parent_profile -%>
 
 <td nowrap valign="top" class="left" x="<%= rule.severity -%>" width="1%">
   <form id="levels_<%= rule.id -%>" action="" class="rule-levels-form">
@@ -50,25 +50,23 @@
     </div>
 
     <%
-       # TODO Ancestor active rule should be integrated in the result rule to prevent bunch of SQL queries to load ancestor profile and ancestor active rule for each active rules!
-       ancestor_active_rule = Internal.quality_profiles.parentProfileRule(rule) if (rule.inherited? || rule.overrides?)
-       if ancestor_active_rule || !rule.params.empty?
-         ancestor_profile = Internal.quality_profiles.parent(profile)
+       parent_active_rule = Internal.quality_profiles.parentProfileRule(rule) if (rule.inherited? || rule.overrides?)
+       if parent_active_rule || !rule.params.empty?
     %>
       <table width="100%" class="table spacer-bottom bordered background-gray">
         <%
-           if ancestor_active_rule
-             ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index',
-                                                 :id => ancestor_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
+           if parent_active_rule
+             parent_active_rule_link = link_to parent_profile.name, :controller => 'rules_configuration', :action => 'index',
+                                                 :id => parent_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
         %>
           <tr>
             <td colspan="2">
               <%= message(rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
-                          :params => ancestor_active_rule_link) -%>
-              <% if ancestor_active_rule.severity != rule.severity %>
+                          :params => parent_active_rule_link) -%>
+              <% if parent_active_rule.severity != rule.severity %>
                 <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
                 <span class="form-val-note" style="font-weight: bold"> <%= message('rules_configuration.original_severity') -%>
-                  : <%= ancestor_active_rule.severity -%></span>
+                  : <%= parent_active_rule.severity -%></span>
               <% end %>
               <% if profiles_administrator? && rule.overrides? %>
                 <form action="<%= url_for :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => rule.activeRuleId} -%>" method="post" style="display: inline">
@@ -81,7 +79,7 @@
         <% rule.params.each do |parameter| %>
           <tr id="param_<%= parameter.key -%>">
             <%= render :partial => 'rule_param', :object => nil,
-                       :locals => {:parameter => parameter, :profile => profile, :rule => rule, :ancestor_active_rule => ancestor_active_rule} %>
+                       :locals => {:parameter => parameter, :profile => profile, :rule => rule, :parent_active_rule => parent_active_rule} %>
           </tr>
         <%
            end

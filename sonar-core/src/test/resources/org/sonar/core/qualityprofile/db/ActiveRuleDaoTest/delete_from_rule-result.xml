@@ -3,8 +3,8 @@
   <active_rules id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"
     note_created_at="2013-12-18" note_updated_at="2013-12-18" note_user_login="henry" note_data="some note"/>
 
-  <!--<active_rules id="2" profile_id="1" rule_id="11" failure_level="0" inheritance="[null]"-->
-    <!--note_created_at="2013-12-18" note_updated_at="2013-12-18" note_user_login="john" note_data="other note"/>-->
+  <active_rules id="2" profile_id="2" rule_id="10" failure_level="0" inheritance="[null]"
+    note_created_at="2013-12-18" note_updated_at="2013-12-18" note_user_login="john" note_data="other note"/>
 
   <!--<active_rules id="3" profile_id="2" rule_id="11" failure_level="1" inheritance="[null]"-->
     <!--note_created_at="2013-12-18" note_updated_at="2013-12-18" note_user_login="henry" note_data="other note"/>-->

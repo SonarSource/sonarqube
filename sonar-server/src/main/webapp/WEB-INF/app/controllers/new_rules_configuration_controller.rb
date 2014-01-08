@@ -130,11 +130,12 @@ class NewRulesConfigurationController < ApplicationController
       end
     end
 
-    profile = result.profile
-    rule = result.rule
+    profile = result.profile()
+    parent_profile = result.parentProfile()
+    rule = result.rule()
 
     render :update do |page|
-      page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule})
+      page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile})
       page.assign('localModifications', true)
     end
   end
@@ -196,10 +197,10 @@ class NewRulesConfigurationController < ApplicationController
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
       @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
-      if @rule.parentId().nil?
+      if @rule.ruleId().nil?
         redirect_to :action => 'index', :id => params[:id]
       else
-        @parent_rule = Internal.quality_profiles.rule(@rule.parentId())
+        @parent_rule = Internal.quality_profiles.rule(@rule.ruleId())
         @active_rules = Internal.quality_profiles.countActiveRules(@rule)
       end
     end
@@ -290,9 +291,10 @@ class NewRulesConfigurationController < ApplicationController
       result = Internal.quality_profiles.updateActiveRuleParam(params[:profile_id].to_i, params[:active_rule_id].to_i, params[:param_id], params[:value])
     end
 
-    profile = result.profile
-    rule = result.rule
-    render :partial => 'rule', :locals => {:profile => profile, :rule => rule}
+    profile = result.profile()
+    parent_profile = result.parentProfile()
+    rule = result.rule()
+    render :partial => 'rule', :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile}
   end
 
 

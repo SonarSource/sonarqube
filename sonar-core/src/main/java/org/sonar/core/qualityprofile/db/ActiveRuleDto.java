@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class ActiveRuleDto {
@@ -40,6 +41,8 @@ public class ActiveRuleDto {
   private Date noteUpdatedAt;
   private String noteUserLogin;
   private String noteData;
+
+  private Integer parentId;
 
   public Integer getId() {
     return id;
@@ -127,6 +130,17 @@ public class ActiveRuleDto {
     return this;
   }
 
+
+  @CheckForNull
+  public Integer getParentId() {
+    return parentId;
+  }
+
+  public ActiveRuleDto setParentId(@Nullable Integer parentId) {
+    this.parentId = parentId;
+    return this;
+  }
+
   public boolean isInherited() {
     return StringUtils.equals(INHERITED, inheritance);
   }
@@ -134,5 +148,6 @@ public class ActiveRuleDto {
   public boolean doesOverride() {
     return StringUtils.equals(OVERRIDES, inheritance);
   }
+
 
 }
