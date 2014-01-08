@@ -327,8 +327,9 @@ public interface RuleDefinitions extends ServerExtension {
       return name;
     }
 
-    public NewParam setName(String s) {
-      this.name = s;
+    public NewParam setName(@Nullable String s) {
+      // name must never be null.
+      this.name = StringUtils.defaultIfBlank(s, key);
       return this;
     }
 
