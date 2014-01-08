@@ -20,12 +20,18 @@
 
 package org.sonar.server.startup;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.rule.RuleDao;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.rule.RuleRegistry;
 
@@ -37,21 +43,33 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class RegisterRulesTest extends AbstractDbUnitTestCase {
+public class RegisterRulesTest extends AbstractDaoTestCase {
+
+  private static final String[] EXCLUDED_COLUMN_NAMES = {
+    "created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
 
   RegisterRules task;
   ProfilesManager profilesManager;
   RuleRegistry ruleRegistry;
   RuleI18nManager ruleI18nManager;
+  MyBatis myBatis;
+  SqlSession sqlSession;
+  RuleDao ruleDao;
+  ActiveRuleDao activeRuleDao;
 
   @Before
   public void init() {
     profilesManager = mock(ProfilesManager.class);
     ruleRegistry = mock(RuleRegistry.class);
     ruleI18nManager = mock(RuleI18nManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    myBatis = getMyBatis();
+    ruleDao = new RuleDao(myBatis);
+    activeRuleDao = new ActiveRuleDao(myBatis);
+    task = new RegisterRules(new RuleRepository[] {new FakeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
   }
 
   @Test
@@ -60,18 +78,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     verify(ruleRegistry).bulkRegisterRules();
-
-    List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
-    assertThat(result.size()).isEqualTo(2);
-
-    Rule first = result.get(0);
-    assertThat(first.getKey()).isEqualTo("rule1");
-    assertThat(first.getRepositoryKey()).isEqualTo("fake");
-    assertThat(first.isEnabled()).isEqualTo(true);
-    assertThat(first.getCreatedAt()).isNotNull();
-    assertThat(first.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(first.getLanguage()).isEqualTo("java");
-    assertThat(first.getParams().size()).isEqualTo(2);
+    checkTables("should_save_new_repositories", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags");
   }
 
   @Test
@@ -79,31 +86,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("should_update_template_rule_language");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.getRepositoryKey()).isEqualTo("fake");
-    assertThat(rule.getLanguage()).isEqualTo("java");
-    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
-
-    rule = getSession().getSingleResult(Rule.class, "id", 4);
-    assertThat(rule.getRepositoryKey()).isEqualTo("fake");
-    assertThat(rule.getLanguage()).isEqualTo("java");
-    // parent status is now DEPRECATED but template should not be changed
-    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
-  }
-
-  @Test
-  public void should_disable_deprecated_repositories() {
-    setupData("shared");
-    task.start();
-
-    List<Rule> rules = getSession()
-        .createQuery("from " + Rule.class.getSimpleName() + " where pluginName<>'fake'")
-        .getResultList();
-    assertThat(rules.size()).isGreaterThan(0);
-    for (Rule rule : rules) {
-      assertThat(rule.isEnabled()).isEqualTo(false);
-      assertThat(rule.getUpdatedAt()).isNotNull();
-    }
+    checkTables("should_update_template_rule_language", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -119,9 +102,9 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("reactivateDisabledRules");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(rule.getUpdatedAt()).isNotNull();
+    checkTables("reactivateDisabledRules", EXCLUDED_COLUMN_NAMES, "rules");
+
+    assertThat(ruleDao.selectById(1).getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -129,9 +112,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("should_reactivate_disabled_template_rules");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_REMOVED);
-    assertThat(rule.getUpdatedAt()).isNotNull();
+    checkTables("should_reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -139,9 +120,9 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("notUpdateAlreadyDisabledRule");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_REMOVED);
-    assertThat(rule.getUpdatedAt()).isNull();
+    checkTables("should_save_new_repositories", EXCLUDED_COLUMN_NAMES, "rules");
+
+    assertThat(ruleDao.selectById(1).getUpdatedAt()).isNull();
   }
 
   @Test
@@ -149,16 +130,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("disableDeprecatedActiveRules");
     task.start();
 
-    List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
-    assertThat(result.size()).isEqualTo(3);
-
-    Rule deprecated = result.get(0);
-    assertThat(deprecated.getKey()).isEqualTo("deprecated");
-    assertThat(deprecated.isEnabled()).isEqualTo(false);
-    assertThat(deprecated.getUpdatedAt()).isNotNull();
-
-    assertThat(result.get(1).isEnabled()).isEqualTo(true);
-    assertThat(result.get(2).isEnabled()).isEqualTo(true);
+    checkTables("disableDeprecatedActiveRules", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -166,9 +138,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("disableDeprecatedActiveRuleParameters");
     task.start();
 
-    ActiveRule arule = getSession().getSingleResult(ActiveRule.class, "id", 1);
-    assertThat(arule.getActiveRuleParams().size()).isEqualTo(2);
-    assertThat(getSession().getSingleResult(ActiveRuleParam.class, "id", 3)).isNull();
+    checkTables("disableDeprecatedActiveRuleParameters", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "active_rules", "active_rule_parameters");
   }
 
   @Test
@@ -176,13 +146,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("disableDeprecatedRules");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.isEnabled()).isEqualTo(false);
-    assertThat(rule.getUpdatedAt()).isNotNull();
-
-    rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled()).isEqualTo(false);
-    assertThat(rule.getUpdatedAt()).isNotNull();
+    checkTables("disableDeprecatedRules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters");
   }
 
   @Test
@@ -190,17 +154,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("updadeRuleFields");
     task.start();
 
-    // fields have been updated with new values
-    Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule1.getName()).isEqualTo("One");
-    assertThat(rule1.getDescription()).isEqualTo("Description of One");
-    assertThat(rule1.getSeverity()).isEqualTo(RulePriority.BLOCKER);
-    assertThat(rule1.getConfigKey()).isEqualTo("config1");
-    assertThat(rule1.getUpdatedAt()).isNotNull();
-
-    Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus()).isEqualTo(Rule.STATUS_DEPRECATED);
-    assertThat(rule2.getUpdatedAt()).isNotNull();
+    checkTables("updadeRuleFields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags");
   }
 
   @Test
@@ -212,17 +166,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     when(ruleI18nManager.getDescription("fake", "rule1")).thenReturn(i18nDescription);
     task.start();
 
-    // fields have been updated with new values
-    Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule1.getName()).isEqualTo(i18nName);
-    assertThat(rule1.getDescription()).isEqualTo(i18nDescription);
-    assertThat(rule1.getSeverity()).isEqualTo(RulePriority.BLOCKER);
-    assertThat(rule1.getConfigKey()).isEqualTo("config1");
-    assertThat(rule1.getUpdatedAt()).isNotNull();
-
-    Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus()).isEqualTo(Rule.STATUS_DEPRECATED);
-    assertThat(rule2.getUpdatedAt()).isNotNull();
+    checkTables("should_store_bundle_name_and_description_in_database", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -230,22 +174,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("updateRuleParameters");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getParams().size()).isEqualTo(2);
-
-    // new parameter
-    assertThat(rule.getParam("param2")).isNotNull();
-    assertThat(rule.getParam("param2").getDescription()).isEqualTo("parameter two");
-    assertThat(rule.getParam("param2").getDefaultValue()).isEqualTo("default value two");
-
-    // updated parameter
-    assertThat(rule.getParam("param1")).isNotNull();
-    assertThat(rule.getParam("param1").getDescription()).isEqualTo("parameter one");
-    assertThat(rule.getParam("param1").getDefaultValue()).isEqualTo("default value one");
-
-    // deleted parameter
-    assertThat(rule.getParam("deprecated_param")).isNull();
-    assertThat(getSession().getSingleResult(RuleParam.class, "id", 2)).isNull(); // id of deprecated_param is 2
+    checkTables("updateRuleParameters", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters");
   }
 
   @Test
@@ -253,8 +182,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled()).isEqualTo(true);
+    checkTables("doNotDisableUserRulesIfParentIsEnabled", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -262,11 +190,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("disableUserRulesIfParentIsDisabled");
     task.start();
 
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.isEnabled()).isEqualTo(false);
-    assertThat(rule.getUpdatedAt()).isNotNull();
-
-    assertThat(getSession().getSingleResult(Rule.class, "id", 4).isEnabled()).isEqualTo(false);
+    checkTables("disableUserRulesIfParentIsDisabled", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -275,24 +199,23 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shouldNotDisableManualRules");
     task.start();
 
-    assertThat(getSession().getSingleResult(Rule.class, "id", 1).isEnabled()).isEqualTo(true);
-    assertThat(getSession().getSingleResult(Rule.class, "id", 2).isEnabled()).isEqualTo(false);
+    checkTables("shouldNotDisableManualRules", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
   public void volume_testing() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    task = new RegisterRules(new RuleRepository[] {new VolumeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
     task.start();
 
-    List<Rule> result = getSession().getResults(Rule.class, "status", Rule.STATUS_READY);
-    assertThat(result.size()).isEqualTo(VolumeRepository.SIZE);
+    // There is already one rule in DB
+    assertThat(ruleDao.selectAll()).hasSize(VolumeRepository.SIZE + 1);
   }
 
   // SONAR-3305
   @Test
   public void should_fail_with_rule_without_name() throws Exception {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    task = new RegisterRules(new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -312,7 +235,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   // SONAR-3769
   @Test
   public void should_fail_with_rule_with_blank_name() throws Exception {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    task = new RegisterRules(new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -328,7 +251,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void should_fail_with_rule_without_description() throws Exception {
     when(ruleI18nManager.getName(anyString(), anyString())).thenReturn("Name");
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    task = new RegisterRules(new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -348,7 +271,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   // http://jira.codehaus.org/browse/SONAR-3722
   @Test
   public void should_fail_with_rule_without_name_in_bundle() throws Exception {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry);
+    task = new RegisterRules(new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -376,6 +299,7 @@ class FakeRepository extends RuleRepository {
     rule1.setConfigKey("config1");
     rule1.createParameter("param1").setDescription("parameter one").setDefaultValue("default value one");
     rule1.createParameter("param2").setDescription("parameter two").setDefaultValue("default value two");
+    rule1.setTags("tag1", "tag3", "tag5");
 
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setDescription("Description of Two");

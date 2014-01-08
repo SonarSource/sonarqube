@@ -48,5 +48,11 @@ public interface RuleMapper {
 
   void updateParameter(RuleParamDto param);
 
+  void deleteParameter(Integer paramId);
+
   List<RuleTagDto> selectAllTags();
+
+  void insertTag(RuleTagDto newTag);
+
+  void deleteTag(Integer tagId);
 }

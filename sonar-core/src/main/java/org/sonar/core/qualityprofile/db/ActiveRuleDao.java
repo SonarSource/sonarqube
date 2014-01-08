@@ -232,6 +232,10 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
+  public void deleteParametersWithParamId(Integer id, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).deleteParametersWithParamId(id);
+  }
+
   public ActiveRuleParamDto selectParamById(Integer activeRuleParamId) {
     SqlSession session = mybatis.openSession();
     try {
@@ -301,5 +305,4 @@ public class ActiveRuleDao implements ServerComponent {
   public List<ActiveRuleParamDto> selectAllParams(SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectAllParams();
   }
-
 }

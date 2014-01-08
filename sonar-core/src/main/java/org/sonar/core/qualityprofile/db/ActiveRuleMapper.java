@@ -54,6 +54,8 @@ public interface ActiveRuleMapper {
 
   void deleteParameter(Integer activeRuleParamId);
 
+  void deleteParametersWithParamId(Integer id);
+
   @CheckForNull
   ActiveRuleParamDto selectParamById(Integer activeRuleParamId);
 
@@ -63,5 +65,6 @@ public interface ActiveRuleMapper {
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId);
 
   List<ActiveRuleParamDto> selectAllParams();
+
 
 }

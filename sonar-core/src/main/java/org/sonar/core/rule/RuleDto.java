@@ -19,6 +19,12 @@
  */
 package org.sonar.core.rule;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.rules.Rule;
+
 import org.sonar.check.Cardinality;
 
 import java.util.Date;
@@ -193,5 +199,45 @@ public final class RuleDto {
   public RuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof RuleDto)) {
+      return false;
+    }
+    if (this == obj) {
+      return true;
+    }
+    RuleDto other = (RuleDto) obj;
+    return new EqualsBuilder()
+      .append(repositoryKey, other.getRepositoryKey())
+      .append(ruleKey, other.getRuleKey())
+      .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37)
+      .append(repositoryKey)
+      .append(ruleKey)
+      .toHashCode();
+  }
+
+  @Override
+  public String toString() {
+    // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+      .append("id", id)
+      .append("name", name)
+      .append("key", ruleKey)
+      .append("configKey", configKey)
+      .append("plugin", repositoryKey)
+      .append("severity", getSeverity())
+      .append("cardinality", cardinality)
+      .append("status", status)
+      .append("language", language)
+      .append("parentId", parentId)
+      .toString();
   }
 }

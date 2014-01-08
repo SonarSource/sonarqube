@@ -105,6 +105,10 @@
     </where>
   </select>
 
+  <delete id="deleteParameter" parameterType="Integer">
+    delete from rules_parameters where id=#{id}
+  </delete>
+
   <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
     VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
@@ -127,6 +131,15 @@
     SELECT <include refid="tagColumns"/>
     FROM rule_tags
   </select>
+
+  <insert id="insertTag" parameterType="RuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rule_tags (rule_id, tag, tag_type)
+    VALUES (#{ruleId}, #{tag}, #{type})
+  </insert>
+
+  <update id="deleteTag" parameterType="Integer">
+    DELETE FROM rule_tags WHERE id=#{tagId}
+  </update>
 
 </mapper>
 

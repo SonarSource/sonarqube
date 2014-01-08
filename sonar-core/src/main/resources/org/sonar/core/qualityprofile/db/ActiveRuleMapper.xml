@@ -123,6 +123,10 @@
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
   </update>
 
+  <update id="deleteParametersWithParamId" parameterType="Integer">
+    DELETE FROM active_rule_parameters WHERE rules_parameter_id=#{id}
+  </update>
+
   <update id="deleteParameter" parameterType="Integer">
     DELETE FROM active_rule_parameters WHERE id=#{id}
   </update>

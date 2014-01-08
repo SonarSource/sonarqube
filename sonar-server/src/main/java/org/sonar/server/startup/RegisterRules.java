@@ -25,19 +25,22 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.rule.*;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.rule.RuleRegistry;
 
@@ -49,51 +52,59 @@ import static com.google.common.collect.Maps.newHashMap;
 public final class RegisterRules {
 
   private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
-  private final DatabaseSessionFactory sessionFactory;
   private final ProfilesManager profilesManager;
   private final List<RuleRepository> repositories;
   private final RuleI18nManager ruleI18nManager;
   private final RuleRegistry ruleRegistry;
+  private final MyBatis myBatis;
+  private final RuleDao ruleDao;
+  private final ActiveRuleDao activeRuleDao;
+  private SqlSession sqlSession;
 
-  private DatabaseSession session;
-
-  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry) {
-    this.sessionFactory = sessionFactory;
+  public RegisterRules(RuleRepository[] repos, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry,
+    MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
     this.profilesManager = profilesManager;
     this.repositories = newArrayList(repos);
     this.ruleI18nManager = ruleI18nManager;
     this.ruleRegistry = ruleRegistry;
+    this.myBatis = myBatis;
+    this.ruleDao = ruleDao;
+    this.activeRuleDao = activeRuleDao;
   }
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry) {
-    this(sessionFactory, new RuleRepository[0], ruleI18nManager, profilesManager, ruleRegistry);
+  public RegisterRules(RuleI18nManager ruleI18nManager, ProfilesManager profilesManager, RuleRegistry ruleRegistry, MyBatis myBatis,
+    RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
+    this(new RuleRepository[0], ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
   }
 
   public void start() {
-    session = sessionFactory.getSession();
-    RulesByRepository existingRules = new RulesByRepository(findAllRules());
+    sqlSession = myBatis.openSession();
 
-    List<Rule> registeredRules = registerRules(existingRules);
+    RulesByRepository existingRules = new RulesByRepository(
+        findAllRules(), ruleDao.selectParameters(sqlSession), ruleDao.selectTags(sqlSession));
 
-    LOG.info("Removing deprecated rules");
-    disableDeprecatedRules(existingRules, registeredRules);
-    disableDeprecatedRepositories(existingRules);
+    try {
+      List<RuleDto> registeredRules = registerRules(existingRules);
 
-    session.commit();
+      LOG.info("Removing deprecated rules");
+      disableDeprecatedRules(existingRules, registeredRules);
+      disableDeprecatedRepositories(existingRules);
 
-    ruleRegistry.bulkRegisterRules();
+      sqlSession.commit();
+
+      ruleRegistry.bulkRegisterRules();
+    } finally {
+      sqlSession.close();
+    }
   }
 
-  private List<Rule> findAllRules() {
-    // the hardcoded repository "manual" is used for manual violations
-    return session.createQuery("from " + Rule.class.getSimpleName() + " r WHERE r.pluginName<>:repository")
-      .setParameter("repository", "manual")
-      .getResultList();
+  private List<RuleDto> findAllRules() {
+    return ruleDao.selectNonManual();
   }
 
-  private List<Rule> registerRules(RulesByRepository existingRules) {
+  private List<RuleDto> registerRules(RulesByRepository existingRules) {
     TimeProfiler profiler = new TimeProfiler();
-    List<Rule> registeredRules = newArrayList();
+    List<RuleDto> registeredRules = newArrayList();
     for (RuleRepository repository : repositories) {
       profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
       registeredRules.addAll(registerRepositoryRules(repository, existingRules));
@@ -104,22 +115,25 @@ public final class RegisterRules {
     return registeredRules;
   }
 
-  private List<Rule> registerRepositoryRules(RuleRepository repository, RulesByRepository existingRules) {
-    List<Rule> registeredRules = newArrayList();
+  private List<RuleDto> registerRepositoryRules(RuleRepository repository, RulesByRepository existingRules) {
+    List<RuleDto> registeredRules = newArrayList();
     Map<String, Rule> ruleByKey = newHashMap();
+
     for (Rule rule : repository.createRules()) {
       updateRuleFromRepositoryInfo(rule, repository);
       validateRule(rule, repository.getKey());
       ruleByKey.put(rule.getKey(), rule);
-      registeredRules.add(rule);
+      registeredRules.add(dtoFrom(rule));
     }
     LOG.debug(ruleByKey.size() + " rules");
 
-    for (Rule persistedRule : existingRules.get(repository.getKey())) {
-      Rule rule = ruleByKey.get(persistedRule.getKey());
+    for (RuleDto persistedRule : existingRules.get(repository.getKey())) {
+      Rule rule = ruleByKey.get(persistedRule.getRuleKey());
       if (rule != null) {
-        updateExistingRule(persistedRule, rule);
-        session.saveWithoutFlush(persistedRule);
+        registeredRules.remove(dtoFrom(rule));
+        updateExistingRule(persistedRule, existingRules.params(persistedRule.getId()), existingRules.tags(persistedRule.getId()), rule);
+        ruleDao.update(persistedRule, sqlSession);
+        registeredRules.add(persistedRule);
         ruleByKey.remove(rule.getKey());
       }
     }
@@ -130,10 +144,10 @@ public final class RegisterRules {
   /**
    * Template rules do not exists in rule repositories, only in database, they have to be updated from their parent.
    */
-  private List<Rule> registerTemplateRules(List<Rule> registeredRules, RulesByRepository existingRules) {
-    List<Rule> templateRules = newArrayList();
-    for (Rule persistedRule : existingRules.rules()) {
-      Rule parent = persistedRule.getParent();
+  private List<RuleDto> registerTemplateRules(List<RuleDto> registeredRules, RulesByRepository existingRules) {
+    List<RuleDto> templateRules = newArrayList();
+    for (RuleDto persistedRule : existingRules.rules()) {
+      RuleDto parent = existingRules.ruleById(persistedRule.getParentId());
       if (parent != null && registeredRules.contains(parent)) {
         persistedRule.setRepositoryKey(parent.getRepositoryKey());
         persistedRule.setLanguage(parent.getLanguage());
@@ -141,7 +155,7 @@ public final class RegisterRules {
         persistedRule.setCreatedAt(Objects.firstNonNull(persistedRule.getCreatedAt(), new Date()));
         persistedRule.setUpdatedAt(new Date());
 
-        session.saveWithoutFlush(persistedRule);
+        ruleDao.update(persistedRule, sqlSession);
         templateRules.add(persistedRule);
       }
     }
@@ -185,31 +199,42 @@ public final class RegisterRules {
     }
   }
 
-  private void updateExistingRule(Rule persistedRule, Rule rule) {
+  private void updateExistingRule(RuleDto persistedRule, Collection<RuleParamDto> ruleParams, Collection<RuleTagDto> persistedTags, Rule rule) {
     LOG.debug("Update existing rule " + rule);
 
     persistedRule.setName(rule.getName());
     persistedRule.setConfigKey(rule.getConfigKey());
     persistedRule.setDescription(rule.getDescription());
-    persistedRule.setSeverity(rule.getSeverity());
+    persistedRule.setSeverity(rule.getSeverity().ordinal());
     persistedRule.setCardinality(rule.getCardinality());
     persistedRule.setStatus(rule.getStatus());
     persistedRule.setLanguage(rule.getLanguage());
     persistedRule.setUpdatedAt(new Date());
 
     // delete deprecated params
-    deleteDeprecatedParameters(persistedRule, rule);
+    deleteDeprecatedParameters(persistedRule, ruleParams, rule);
 
     // add new params and update existing params
-    updateParameters(persistedRule, rule);
+    updateParameters(persistedRule, ruleParams, rule);
+
+    synchronizeTags(persistedRule, persistedTags, rule);
   }
 
-  private void updateParameters(Rule persistedRule, Rule rule) {
+  private void updateParameters(RuleDto persistedRule, Collection<RuleParamDto> ruleParams, Rule rule) {
+    Map<String, RuleParamDto> paramsByKey = Maps.newHashMap();
+    for (RuleParamDto param: ruleParams) {
+      paramsByKey.put(param.getName(), param);
+    }
+
     if (rule.getParams() != null) {
       for (RuleParam param : rule.getParams()) {
-        RuleParam persistedParam = persistedRule.getParam(param.getKey());
+        RuleParamDto persistedParam = paramsByKey.get(param.getKey());
         if (persistedParam == null) {
-          persistedParam = persistedRule.createParameter(param.getKey());
+          persistedParam = new RuleParamDto()
+            .setRuleId(persistedRule.getId())
+            .setName(param.getKey())
+            .setType(param.getType());
+          ruleDao.insert(persistedParam, sqlSession);
         }
         String desc = StringUtils.defaultIfEmpty(
           ruleI18nManager.getParamDescription(rule.getRepositoryKey(), rule.getKey(), param.getKey()),
@@ -218,35 +243,75 @@ public final class RegisterRules {
         persistedParam.setDescription(desc);
         persistedParam.setType(param.getType());
         persistedParam.setDefaultValue(param.getDefaultValue());
+
+        ruleDao.update(persistedParam, sqlSession);
       }
     }
   }
 
-  private void deleteDeprecatedParameters(Rule persistedRule, Rule rule) {
-    if (persistedRule.getParams() != null && !persistedRule.getParams().isEmpty()) {
-      for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext(); ) {
-        RuleParam persistedParam = it.next();
-        if (rule.getParam(persistedParam.getKey()) == null) {
+  private void deleteDeprecatedParameters(RuleDto persistedRule, Collection<RuleParamDto> ruleParams, Rule rule) {
+    if (ruleParams != null && !ruleParams.isEmpty()) {
+      for (Iterator<RuleParamDto> it = ruleParams.iterator(); it.hasNext(); ) {
+        RuleParamDto persistedParam = it.next();
+        if (rule.getParam(persistedParam.getName()) == null) {
           it.remove();
-          session
-            .createQuery("delete from " + ActiveRuleParam.class.getSimpleName() + " where ruleParam=:param")
-            .setParameter("param", persistedParam)
-            .executeUpdate();
+          activeRuleDao.deleteParametersWithParamId(persistedParam.getId(), sqlSession);
+          ruleDao.deleteParam(persistedParam, sqlSession);
         }
       }
     }
   }
 
-  private void saveNewRules(Collection<Rule> rules) {
-    for (Rule rule : rules) {
-      LOG.debug("Save new rule " + rule);
-      rule.setCreatedAt(new Date());
-      session.saveWithoutFlush(rule);
+  void synchronizeTags(RuleDto persistedRule, Collection<RuleTagDto> persistedTags, Rule rule) {
+    Set<String> existingSystemTags = Sets.newHashSet();
+
+    for (RuleTagDto existingTag: persistedTags) {
+      String existingTagValue = existingTag.getTag();
+
+      if (existingTag.getType() == RuleTagType.SYSTEM) {
+        existingSystemTags.add(existingTagValue);
+        if (! rule.getTags().contains(existingTagValue)) {
+          ruleDao.deleteTag(existingTag, sqlSession);
+        }
+      } else {
+        if (rule.getTags().contains(existingTagValue)) {
+          // Existing admin tag with same value as system tag must be converted
+          ruleDao.deleteTag(existingTag, sqlSession);
+          existingSystemTags.add(existingTagValue);
+          ruleDao.insert(dtoFrom(existingTagValue, persistedRule.getId()), sqlSession);
+        }
+      }
+    }
+
+    for (String newTag: rule.getTags()) {
+      if (! existingSystemTags.contains(newTag)) {
+        ruleDao.insert(dtoFrom(newTag, persistedRule.getId()), sqlSession);
+      }
     }
   }
 
-  private void disableDeprecatedRules(RulesByRepository existingRules, List<Rule> registeredRules) {
-    for (Rule rule : existingRules.rules()) {
+
+  private void saveNewRules(Collection<Rule> rules) {
+    for (Rule rule : rules) {
+      LOG.debug("Save new rule " + rule);
+      RuleDto newRule = dtoFrom(rule);
+      newRule.setCreatedAt(new Date());
+      ruleDao.insert(newRule, sqlSession);
+
+      for(RuleParam param : rule.getParams()) {
+        RuleParamDto newParam = dtoFrom(param, newRule.getId());
+        ruleDao.insert(newParam, sqlSession);
+      }
+
+      for(String tag : rule.getTags()) {
+        RuleTagDto newTag = dtoFrom(tag, newRule.getId());
+        ruleDao.insert(newTag, sqlSession);
+      }
+    }
+  }
+
+  private void disableDeprecatedRules(RulesByRepository existingRules, List<RuleDto> registeredRules) {
+    for (RuleDto rule : existingRules.rules()) {
       if (!registeredRules.contains(rule)) {
         disable(rule);
       }
@@ -260,36 +325,76 @@ public final class RegisterRules {
           return input.getKey().equals(repositoryKey);
         }
       })) {
-        for (Rule rule : existingRules.get(repositoryKey)) {
+        for (RuleDto rule : existingRules.get(repositoryKey)) {
           disable(rule);
         }
       }
     }
   }
 
-  private void disable(Rule rule) {
+  private void disable(RuleDto rule) {
     if (!rule.getStatus().equals(Rule.STATUS_REMOVED)) {
-      LOG.info("Removing rule " + rule.ruleKey());
+      LOG.info("Removing rule " + rule.getRuleKey());
       profilesManager.removeActivatedRules(rule.getId());
-      rule = session.reattach(Rule.class, rule.getId().intValue());
       rule.setStatus(Rule.STATUS_REMOVED);
       rule.setUpdatedAt(new Date());
-      session.save(rule);
-      session.commit();
+      ruleDao.update(rule, sqlSession);
     }
   }
 
-  static class RulesByRepository {
-    Multimap<String, Rule> ruleRepositoryList;
+  static RuleDto dtoFrom(Rule rule) {
+    return new RuleDto()
+      .setCardinality(rule.getCardinality())
+      .setConfigKey(rule.getConfigKey())
+      .setDescription(rule.getDescription())
+      .setLanguage(rule.getLanguage())
+      .setName(rule.getName())
+      .setRepositoryKey(rule.getRepositoryKey())
+      .setRuleKey(rule.getKey())
+      .setSeverity(rule.getSeverity().ordinal())
+      .setStatus(rule.getStatus());
+  }
 
-    RulesByRepository(List<Rule> rules) {
+  static RuleParamDto dtoFrom(RuleParam param, Integer ruleId) {
+    return new RuleParamDto()
+      .setRuleId(ruleId)
+      .setDefaultValue(param.getDefaultValue())
+      .setDescription(param.getDescription())
+      .setName(param.getKey())
+      .setType(param.getType());
+  }
+
+  static RuleTagDto dtoFrom(String tag, Integer ruleId) {
+    return new RuleTagDto()
+      .setRuleId(ruleId)
+      .setTag(tag)
+      .setType(RuleTagType.SYSTEM);
+  }
+
+  static class RulesByRepository {
+    Multimap<String, RuleDto> ruleRepositoryList;
+    Map<Integer, RuleDto> rulesById;
+    Multimap<Integer, RuleParamDto> params;
+    Multimap<Integer, RuleTagDto> tags;
+
+    RulesByRepository(List<RuleDto> rules, List<RuleParamDto> params, List<RuleTagDto> tags) {
       ruleRepositoryList = ArrayListMultimap.create();
-      for (Rule rule : rules) {
+      rulesById = Maps.newHashMap();
+      for (RuleDto rule : rules) {
         ruleRepositoryList.put(rule.getRepositoryKey(), rule);
+        rulesById.put(rule.getId(), rule);
+      }
+      this.params = ArrayListMultimap.create();
+      for (RuleParamDto param: params) {
+        this.params.put(param.getRuleId(), param);
+      }
+      this.tags = ArrayListMultimap.create();
+      for (RuleTagDto tag: tags) {
+        this.tags.put(tag.getRuleId(), tag);
       }
     }
 
-    Collection<Rule> get(String repositoryKey) {
+    Collection<RuleDto> get(String repositoryKey) {
       return ruleRepositoryList.get(repositoryKey);
     }
 
@@ -297,9 +402,20 @@ public final class RegisterRules {
       return ruleRepositoryList.keySet();
     }
 
-    Collection<Rule> rules() {
+    Collection<RuleDto> rules() {
       return ruleRepositoryList.values();
     }
-  }
 
+    RuleDto ruleById(Integer id) {
+      return rulesById.get(id);
+    }
+
+    Collection<RuleParamDto> params(Integer ruleId) {
+      return params.get(ruleId);
+    }
+
+    Collection<RuleTagDto> tags(Integer ruleId) {
+      return tags.get(ruleId);
+    }
+  }
 }

@@ -20,6 +20,8 @@
 
 package org.sonar.api.rules;
 
+import com.google.common.collect.Sets;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
@@ -280,12 +282,18 @@ public final class Rule {
     return parameter;
   }
 
+  /**
+   * @since 4.2
+   */
   public Collection<String> getTags() {
     return tags;
   }
 
+  /**
+   * @since 4.2
+   */
   public Rule setTags(String... tags) {
-    Set<String> newTags = new HashSet<String>();
+    Set<String> newTags = Sets.newTreeSet();
     newTags.addAll(Arrays.asList(tags));
     this.tags = Collections.unmodifiableSet(newTags);
     return this;

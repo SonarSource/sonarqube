@@ -63,6 +63,7 @@ import org.sonar.core.resource.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleTagDto;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;

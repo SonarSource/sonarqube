@@ -53,12 +53,12 @@ public class RuleTagDto {
     return this;
   }
 
-  public String getType() {
-    return type;
+  public RuleTagType getType() {
+    return RuleTagType.valueOf(type);
   }
 
-  public RuleTagDto setType(String type) {
-    this.type = type;
+  public RuleTagDto setType(RuleTagType type) {
+    this.type = type.toString();
     return this;
   }
 }
