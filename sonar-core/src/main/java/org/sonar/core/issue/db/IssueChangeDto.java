@@ -183,7 +183,8 @@ public final class IssueChangeDto implements Serializable {
   public FieldDiffs toFieldDiffs() {
     return FieldDiffs.parse(changeData)
       .setUserLogin(userLogin)
-      .setCreationDate(issueChangeCreationDate)
+      // issueChangeCreationDate can be null as it has been introduced after createdAt
+      .setCreationDate(issueChangeCreationDate != null ? issueChangeCreationDate : createdAt)
       .setIssueKey(issueKey);
   }
 }
