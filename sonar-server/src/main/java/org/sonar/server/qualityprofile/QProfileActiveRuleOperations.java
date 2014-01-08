@@ -355,9 +355,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private void validateParam(String type, String value) {
+  @VisibleForTesting
+  void validateParam(String type, String value) {
     if (type.equals(PropertyType.INTEGER.name()) && !NumberUtils.isDigits(value)) {
       throw new BadRequestException(String.format("Value '%s' must be an integer.", value));
+    } else if (type.equals(PropertyType.BOOLEAN.name()) && !Boolean.parseBoolean(value)) {
+      throw new BadRequestException(String.format("Value '%s' must be one of : true,false.", value));
     }
   }
 

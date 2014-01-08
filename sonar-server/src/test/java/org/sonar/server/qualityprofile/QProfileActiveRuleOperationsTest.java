@@ -489,4 +489,29 @@ public class QProfileActiveRuleOperationsTest {
     verify(ruleRegistry).save(eq(activeRule), eq(activeRuleParams));
   }
 
+  @Test
+  public void validate_integer_type() throws Exception {
+    operations.validateParam(PropertyType.INTEGER.name(), "10");
+
+    try {
+      operations.validateParam(PropertyType.INTEGER.name(), "invalid integer");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Value 'invalid integer' must be an integer.");
+    }
+  }
+
+  @Test
+  public void validate_boolean_type() throws Exception {
+    operations.validateParam(PropertyType.BOOLEAN.name(), "true");
+    operations.validateParam(PropertyType.BOOLEAN.name(), "True");
+
+    try {
+      operations.validateParam(PropertyType.BOOLEAN.name(), "invalid boolean");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Value 'invalid boolean' must be one of : true,false.");
+    }
+  }
+
 }
