@@ -28,7 +28,13 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProfileProvider;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -40,9 +46,19 @@ import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.phases.FileIndexer;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileHashes;
+import org.sonar.batch.scan.filesystem.FileIndex;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.LanguageRecognizer;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
+import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.RemoteFileHashes;
 import org.sonar.batch.scan.report.ComponentSelectorFactory;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
@@ -93,6 +109,7 @@ public class ModuleScanContainer extends ComponentContainer {
       FileHashes.class,
       RemoteFileHashes.class,
       FileIndex.class,
+      FileIndexer.class,
       LanguageRecognizer.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,

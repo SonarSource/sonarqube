@@ -100,13 +100,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResources_filter_by_qualifier() {
     setupData("fixture");
 
-    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
     assertThat(resources).onProperty("qualifier").containsOnly("TRK", "BRC");
 
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
     assertThat(resources).isEmpty();
 
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{}));
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {}));
     assertThat(resources).hasSize(4);
   }
 
@@ -135,13 +135,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResourceIds_filter_by_qualifier() {
     setupData("fixture");
 
-    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
     assertThat(ids).containsOnly(1L, 2L);
 
-    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
     assertThat(ids).isEmpty();
 
-    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{}));
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {}));
     assertThat(ids).hasSize(4);
   }
 
@@ -171,7 +171,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     List<Long> hugeNbOfIds = newArrayList();
-    for (long i=0; i<4500; i++) {
+    for (long i = 0; i < 4500; i++) {
       hugeNbOfIds.add(i);
     }
     Collection<Component> results = dao.findByIds(hugeNbOfIds);
@@ -215,6 +215,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     ResourceDto project = new ResourceDto()
       .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
       .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
+      .setPath("/foo/bar")
       .setId(1L);
 
     dao.insertOrUpdate(project);
@@ -229,7 +230,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     ResourceDto file1 = new ResourceDto()
       .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
-      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
+      .setLanguage("java").setName("Action").setLongName("org.struts.Action").setPath("/foo/bar");
     ResourceDto file2 = new ResourceDto()
       .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
@@ -238,7 +239,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", new String[]{"created_at"}, "projects");
+    checkTables("insert", new String[] {"created_at"}, "projects");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
@@ -267,7 +268,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_children_component_ids_for_unsecured_project(){
+  public void should_find_children_component_ids_for_unsecured_project() {
     setupData("fixture");
 
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), null, "user")).hasSize(4);
@@ -280,7 +281,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_children_component_ids_for_secured_project_for_user(){
+  public void should_find_children_component_ids_for_secured_project_for_user() {
     setupData("should_find_children_component_ids_for_secured_project_for_user");
 
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
@@ -293,7 +294,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_children_component_ids_for_secured_project_for_group(){
+  public void should_find_children_component_ids_for_secured_project_for_group() {
     setupData("should_find_children_component_ids_for_secured_project_for_group");
 
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
@@ -306,7 +307,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_component_by_key(){
+  public void should_find_component_by_key() {
     setupData("fixture");
 
     assertThat(dao.findByKey("org.struts:struts")).isNotNull();
@@ -315,7 +316,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_component_by_id(){
+  public void should_find_component_by_id() {
     setupData("fixture");
 
     assertThat(dao.findById(1L)).isNotNull();
@@ -324,20 +325,20 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_projects_by_qualifiers(){
+  public void should_select_projects_by_qualifiers() {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     List<Component> components = dao.selectProjectsByQualifiers(newArrayList("TRK"));
     assertThat(components).hasSize(1);
     assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
-    assertThat(((ComponentDto)components.get(0)).getId()).isEqualTo(1L);
+    assertThat(((ComponentDto) components.get(0)).getId()).isEqualTo(1L);
 
     assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
     assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
-  public void should_select_projects_including_not_finished_by_qualifiers(){
+  public void should_select_projects_including_not_finished_by_qualifiers() {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     List<Component> components = dao.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("TRK"));
@@ -348,7 +349,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_ghosts_projects_by_qualifiers(){
+  public void should_select_ghosts_projects_by_qualifiers() {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     List<Component> components = dao.selectGhostsProjects(newArrayList("TRK"));
@@ -360,7 +361,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_provisioned_projects_by_qualifiers(){
+  public void should_select_provisioned_projects_by_qualifiers() {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     List<ResourceDto> components = dao.selectProvisionedProjects(newArrayList("TRK"));
@@ -372,7 +373,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_provisioned_project_by_key(){
+  public void should_select_provisioned_project_by_key() {
     setupData("fixture-including-ghost-projects-and-technical-project");
 
     String key = "org.sample:sample";
@@ -380,7 +381,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectProvisionedProject("unknown")).isNull();
   }
 
-  private List<String> getKeys(final List<Component> components){
+  private List<String> getKeys(final List<Component> components) {
     return newArrayList(Iterables.transform(components, new Function<Component, String>() {
       @Override
       public String apply(@Nullable Component input) {

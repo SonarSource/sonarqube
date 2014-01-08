@@ -28,12 +28,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
-import org.sonar.api.resources.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.DefaultResourceCreationLock;
@@ -44,7 +55,14 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -69,7 +87,7 @@ public class DefaultIndex extends SonarIndex {
   private ModuleIssues moduleIssues;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-                      ScanGraph graph, DeprecatedViolations deprecatedViolations) {
+    ScanGraph graph, DeprecatedViolations deprecatedViolations) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
@@ -91,15 +109,20 @@ public class DefaultIndex extends SonarIndex {
     persistence.saveProject(rootProject, null);
     currentProject = rootProject;
 
-    for (Project project : rootProject.getModules()) {
-      addProject(project);
+    for (Project module : rootProject.getModules()) {
+      addModule(rootProject, module);
     }
   }
 
-  private void addProject(Project project) {
-    addResource(project);
-    for (Project module : project.getModules()) {
-      addProject(module);
+  private void addModule(Project parent, Project module) {
+    ProjectDefinition parentDefinition = projectTree.getProjectDefinition(parent);
+    java.io.File parentBaseDir = parentDefinition.getBaseDir();
+    ProjectDefinition moduleDefinition = projectTree.getProjectDefinition(module);
+    java.io.File moduleBaseDir = moduleDefinition.getBaseDir();
+    module.setPath(new PathResolver().relativePath(parentBaseDir, moduleBaseDir));
+    addResource(module);
+    for (Project submodule : module.getModules()) {
+      addModule(module, submodule);
     }
   }
 
@@ -370,7 +393,6 @@ public class DefaultIndex extends SonarIndex {
     violation.setResource(bucket.getResource());
     moduleIssues.initAndAddViolation(violation);
   }
-
 
   //
   //

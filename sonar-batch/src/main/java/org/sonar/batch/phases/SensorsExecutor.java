@@ -47,9 +47,10 @@ public class SensorsExecutor implements BatchComponent {
   private BatchExtensionDictionnary selector;
   private final DatabaseSession session;
   private final SensorMatcher sensorMatcher;
+  private final FileIndexer fileIndexer;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-      DatabaseSession session, SensorMatcher sensorMatcher) {
+    DatabaseSession session, SensorMatcher sensorMatcher, FileIndexer fileIndexer) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
@@ -57,11 +58,14 @@ public class SensorsExecutor implements BatchComponent {
     this.fs = fs;
     this.session = session;
     this.sensorMatcher = sensorMatcher;
+    this.fileIndexer = fileIndexer;
   }
 
   public void execute(SensorContext context) {
     Collection<Sensor> sensors = selector.select(Sensor.class, project, true, sensorMatcher);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
+
+    fileIndexer.execute(context);
 
     for (Sensor sensor : sensors) {
       // SONAR-2965 In case the sensor takes too much time we close the session to not face a timeout

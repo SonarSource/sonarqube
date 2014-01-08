@@ -22,14 +22,22 @@ package org.sonar.batch.index;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.ResourceFilter;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
@@ -42,6 +50,8 @@ import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ScanGraph;
 
+import java.io.IOException;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -50,22 +60,43 @@ import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
+  @org.junit.Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private DefaultIndex index = null;
   private DeprecatedViolations deprecatedViolations;
   private DefaultResourceCreationLock lock;
   private Rule rule;
   private RuleFinder ruleFinder;
 
+  private Project project;
+
+  private Project moduleA;
+
+  private Project moduleB;
+
+  private Project moduleB1;
+
   @Before
-  public void createIndex() {
+  public void createIndex() throws IOException {
     deprecatedViolations = mock(DeprecatedViolations.class);
     lock = new DefaultResourceCreationLock(new Settings());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ScanGraph.class), deprecatedViolations);
-    Project project = new Project("project");
+    ProjectTree projectTree = mock(ProjectTree.class);
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations);
+
+    java.io.File baseDir = temp.newFolder();
+    project = new Project("project");
+    when(projectTree.getProjectDefinition(project)).thenReturn(ProjectDefinition.create().setBaseDir(baseDir));
+    moduleA = new Project("moduleA").setParent(project);
+    when(projectTree.getProjectDefinition(moduleA)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleA")));
+    moduleB = new Project("moduleB").setParent(project);
+    when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
+    moduleB1 = new Project("moduleB1").setParent(moduleB);
+    when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
     ResourceFilter filter = new ResourceFilter() {
 
@@ -77,7 +108,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), mock(ModuleIssues.class));
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), mock(ModuleIssues.class));
     index.doStart(project);
   }
 
@@ -239,6 +270,14 @@ public class DefaultIndexTest {
     index.addViolation(violation);
 
     assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.ON))).hasSize(1);
+  }
+
+  @Test
+  public void shouldComputePathOfIndexedModules() {
+    assertThat(index.getResource(project).getPath()).isNull();
+    assertThat(index.getResource(moduleA).getPath()).isEqualTo("/moduleA");
+    assertThat(index.getResource(moduleB).getPath()).isEqualTo("/moduleB");
+    assertThat(index.getResource(moduleB1).getPath()).isEqualTo("/moduleB1");
   }
 
   @Test(expected = IllegalArgumentException.class)

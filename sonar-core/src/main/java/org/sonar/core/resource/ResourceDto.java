@@ -28,6 +28,7 @@ public class ResourceDto {
   private String name;
   private String longName;
   private Long rootId;
+  private String path;
   private String scope;
   private String qualifier;
   private boolean enabled = true;
@@ -70,6 +71,15 @@ public class ResourceDto {
 
   public ResourceDto setRootId(Long rootId) {
     this.rootId = rootId;
+    return this;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public ResourceDto setPath(String s) {
+    this.path = s;
     return this;
   }
 

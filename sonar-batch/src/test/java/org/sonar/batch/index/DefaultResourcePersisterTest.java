@@ -72,14 +72,17 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     moduleA = newProject("a", "java");
     moduleA.setName("A").setAnalysisDate(format.parse("25/12/2010"));
     moduleA.setParent(multiModuleProject);
+    moduleA.setPath("/moduleA");
 
     moduleB = newProject("b", "java");
     moduleB.setName("B").setAnalysisDate(format.parse("25/12/2010"));
     moduleB.setParent(multiModuleProject);
+    moduleB.setPath("/moduleB");
 
     moduleB1 = newProject("b1", "java");
     moduleB1.setName("B1").setAnalysisDate(format.parse("25/12/2010"));
     moduleB1.setParent(moduleB);
+    moduleB1.setPath("/moduleB1");
   }
 
   @Test
@@ -141,7 +144,19 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
-    persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
+    persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo").setPath("/src/main/java/org/foo"));
+
+    // check that the directory is attached to the project
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+  }
+
+  @Test
+  public void shouldSaveNewDirectoryAndNormalizePath() {
+    setupData("shared");
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    persister.saveProject(singleProject, null);
+    persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo").setPath("src/main/java/org/foo/"));
 
     // check that the directory is attached to the project
     checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");

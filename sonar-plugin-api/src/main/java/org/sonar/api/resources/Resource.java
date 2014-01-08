@@ -19,11 +19,15 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
+
+import javax.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
  * The interface to implement to create a resource in Sonar
- * 
+ *
  * @since 1.10
  */
 public abstract class Resource implements Serializable {
@@ -122,6 +126,8 @@ public abstract class Resource implements Serializable {
 
   private String key = null;
 
+  private String path = null;
+
   private String effectiveKey = null;
 
   private boolean isExcluded = false;
@@ -182,7 +188,7 @@ public abstract class Resource implements Serializable {
 
   /**
    * Check resource against an Ant pattern, like mypackag?/*Foo.java. It's used for example to match resource exclusions.
-   * 
+   *
    * @param antPattern Ant-like pattern (with **, * and ?). It includes file suffixes.
    * @return true if the resource matches the Ant pattern
    */
@@ -198,6 +204,29 @@ public abstract class Resource implements Serializable {
   public Resource setId(Integer id) {
     this.id = id;
     return this;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public Resource setPath(@Nullable String path) {
+    this.path = normalize(path);
+    return this;
+  }
+
+  private String normalize(@Nullable String path) {
+    if (path == null) {
+      return null;
+    }
+    String normalizedPath = path;
+    if (!normalizedPath.startsWith(Directory.SEPARATOR)) {
+      normalizedPath = Directory.SEPARATOR + normalizedPath;
+    }
+    if (normalizedPath.length() > 1 && normalizedPath.endsWith(Directory.SEPARATOR)) {
+      normalizedPath = normalizedPath.substring(0, normalizedPath.length() - 1);
+    }
+    return normalizedPath;
   }
 
   public String getEffectiveKey() {
@@ -240,7 +269,10 @@ public abstract class Resource implements Serializable {
     }
 
     Resource resource = (Resource) o;
-    return key.equals(resource.key);
+    if (StringUtils.isBlank(path)) {
+      return key.equals(resource.key);
+    }
+    return path.equals(resource.path);
 
   }
 

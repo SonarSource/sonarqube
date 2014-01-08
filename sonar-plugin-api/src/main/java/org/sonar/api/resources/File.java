@@ -101,6 +101,10 @@ public class File extends Resource {
   public Directory getParent() {
     if (parent == null) {
       parent = new Directory(directoryKey);
+      String filePath = getPath();
+      if (StringUtils.isNotBlank(filePath)) {
+        parent.setPath(StringUtils.substringBeforeLast(filePath, Directory.SEPARATOR));
+      }
     }
     return parent;
   }
@@ -187,8 +191,9 @@ public class File extends Resource {
   /**
    * Sets the language of the file
    */
-  public void setLanguage(Language language) {
+  public File setLanguage(Language language) {
     this.language = language;
+    return this;
   }
 
   /**
@@ -217,6 +222,7 @@ public class File extends Resource {
   public String toString() {
     return new ToStringBuilder(this)
       .append("key", getKey())
+      .append("path", getPath())
       .append("dir", directoryKey)
       .append("filename", filename)
       .append("language", language)

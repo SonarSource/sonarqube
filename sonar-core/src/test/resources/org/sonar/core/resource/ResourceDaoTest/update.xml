@@ -2,6 +2,6 @@
 
   <projects id="1" root_id="200" scope="PRJ" qualifier="TRK" kee="old key" name="old name"
             description="old name" long_name="old long name"
-            enabled="[false]" language="old" copy_resource_id="2" person_id="3" created_at="[null]"/>
+            enabled="[false]" language="old" copy_resource_id="2" person_id="3" created_at="[null]" path="/old/foo/bar"/>
 
 </dataset>

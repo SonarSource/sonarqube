@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -33,6 +34,7 @@ import java.util.List;
  */
 public class JavaFile extends Resource {
 
+  private static final String JAVA_SUFFIX = ".java";
   private String filename;
   private String longName;
   private String packageKey;
@@ -110,6 +112,10 @@ public class JavaFile extends Resource {
   public JavaPackage getParent() {
     if (parent == null) {
       parent = new JavaPackage(packageKey);
+      String filePath = getPath();
+      if (StringUtils.isNotBlank(filePath)) {
+        parent.setPath(StringUtils.substringBeforeLast(filePath, Directory.SEPARATOR));
+      }
     }
     return parent;
 
@@ -176,8 +182,8 @@ public class JavaFile extends Resource {
   @Override
   public boolean matchFilePattern(String antPattern) {
     String fileKey = getKey();
-    if (!fileKey.endsWith(".java")) {
-      fileKey += ".java";
+    if (!fileKey.endsWith(JAVA_SUFFIX)) {
+      fileKey += JAVA_SUFFIX;
     }
     // Add wildcard extension if not provided
     if ((antPattern.contains("/") && StringUtils.substringAfterLast(antPattern, "/").indexOf('.') < 0) || antPattern.indexOf('.') < 0) {
@@ -189,6 +195,21 @@ public class JavaFile extends Resource {
     }
     WildcardPattern matcher = WildcardPattern.create(antPattern, ".");
     return matcher.match(fileKey);
+  }
+
+  public static JavaFile fromIOFile(File file, Project module, boolean unitTest) {
+    if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), JAVA_SUFFIX)) {
+      return null;
+    }
+    PathResolver.RelativePath relativePath = new PathResolver().relativePath(
+      unitTest ? module.getFileSystem().getTestDirs() : module.getFileSystem().getSourceDirs(),
+      file);
+    if (relativePath != null) {
+      JavaFile sonarFile = fromRelativePath(relativePath.path(), unitTest);
+      sonarFile.setPath(new PathResolver().relativePath(module.getFileSystem().getBasedir(), file));
+      return sonarFile;
+    }
+    return null;
   }
 
   public static JavaFile fromRelativePath(String relativePath, boolean unitTest) {
@@ -213,7 +234,7 @@ public class JavaFile extends Resource {
    * @return the JavaFile created if exists, null otherwise
    */
   public static JavaFile fromIOFile(File file, List<File> sourceDirs, boolean unitTest) {
-    if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), ".java")) {
+    if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), JAVA_SUFFIX)) {
       return null;
     }
     PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
@@ -235,7 +256,11 @@ public class JavaFile extends Resource {
 
   @Override
   public String toString() {
-    return getKey();
+    return new ToStringBuilder(this)
+      .append("key", getKey())
+      .append("path", getPath())
+      .append("filename", filename)
+      .toString();
   }
 
 }

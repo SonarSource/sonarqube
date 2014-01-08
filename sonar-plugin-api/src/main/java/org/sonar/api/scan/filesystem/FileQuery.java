@@ -24,9 +24,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import javax.annotation.Nullable;
+
 import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +39,10 @@ import java.util.Set;
  * @since 3.5
  */
 public class FileQuery {
+
+  private final ListMultimap<String, String> attributes = ArrayListMultimap.create();
+  private final Set<String> inclusions = Sets.newHashSet();
+  private final Set<String> exclusions = Sets.newHashSet();
 
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
@@ -53,10 +59,6 @@ public class FileQuery {
   public static FileQuery onTest() {
     return on(FileType.TEST);
   }
-
-  private final ListMultimap<String, String> attributes = ArrayListMultimap.create();
-  private final Set<String> inclusions = Sets.newHashSet();
-  private final Set<String> exclusions = Sets.newHashSet();
 
   private FileQuery() {
   }
@@ -114,5 +116,24 @@ public class FileQuery {
   public FileQuery withFilters(FileFilter... filters) {
     throw new UnsupportedOperationException("TODO");
   }
-}
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    FileQuery rhs = (FileQuery) obj;
+    return new EqualsBuilder()
+      .append(attributes, rhs.attributes)
+      .append(exclusions, rhs.exclusions)
+      .append(inclusions, rhs.inclusions)
+      .isEquals();
+  }
+
+}

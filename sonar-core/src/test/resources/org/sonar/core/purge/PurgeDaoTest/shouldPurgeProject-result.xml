@@ -3,7 +3,7 @@
   <!-- the project -->
   <projects id="1" enabled="[true]" created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            root_id="[null]" description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" />
+            root_id="[null]" description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
 
 
   <!-- snapshot already purged -->

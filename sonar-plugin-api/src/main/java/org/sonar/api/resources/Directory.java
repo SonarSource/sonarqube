@@ -98,8 +98,9 @@ public class Directory extends Resource {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("key", getKey())
-        .append("language", language)
-        .toString();
+      .append("key", getKey())
+      .append("path", getPath())
+      .append("language", language)
+      .toString();
   }
 }

@@ -3,48 +3,48 @@
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="[null]" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
 
   <!-- **************** First sub project **************** -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
   <!-- directory -->
   <projects long_name="org.struts" id="3" scope="DIR" qualifier="PAC" kee="org.struts:struts-core:org.struts"
               name="org.struts" root_id="2"
               description="[null]"
-              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="CLA" kee="org.struts:struts-core:org.struts.RequestContext"
             name="RequestContext" root_id="2"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
 
   <!-- **************** Second sub project **************** -->
   <projects id="5" root_id="1" kee="org.struts:struts-ui" name="Struts UI"
             scope="PRJ" qualifier="BRC" long_name="Struts UI"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
   <!-- directory -->
   <projects long_name="org.struts" id="6" scope="DIR" qualifier="PAC" kee="org.struts:struts-ui:org.struts"
               name="org.struts" root_id="5"
               description="[null]"
-              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="7" scope="FIL" qualifier="CLA" kee="org.struts:struts-ui:org.struts.RequestContext"
             name="RequestContext" root_id="5"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
 
   <!-- **************** Another independent project **************** -->
   <projects id="8" root_id="[null]" kee="foo:struts-core" name="Foo Struts Core"
             scope="PRJ" qualifier="BRC" long_name="Foo Struts Core"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]"/>
 
 </dataset>

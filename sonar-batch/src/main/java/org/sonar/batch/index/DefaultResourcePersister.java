@@ -25,10 +25,16 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
@@ -79,7 +85,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     // temporary hack
     project.setEffectiveKey(project.getKey());
 
-    ResourceModel model = findOrCreateModel(project);
+    ResourceModel model = findOrCreateModel(null, project);
     // ugly, only for projects
     model.setLanguageKey(project.getLanguageKey());
 
@@ -162,7 +168,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot persistLibrary(Project project, Library library) {
-    ResourceModel model = findOrCreateModel(library);
+    ResourceModel model = findOrCreateModel(null, library);
     model = session.save(model);
     // TODO to be removed
     library.setId(model.getId());
@@ -204,13 +210,14 @@ public final class DefaultResourcePersister implements ResourcePersister {
    * Everything except project and library
    */
   private Snapshot persistFileOrDirectory(Project project, Resource resource, Resource parentReference) {
-    ResourceModel model = findOrCreateModel(resource);
-    Snapshot projectSnapshot = snapshotsByResource.get(project);
-    model.setRootId(projectSnapshot.getResourceId());
+    Snapshot moduleSnapshot = snapshotsByResource.get(project);
+    Integer moduleId = moduleSnapshot.getResourceId();
+    ResourceModel model = findOrCreateModel(moduleId, resource);
+    model.setRootId(moduleId);
     model = session.save(model);
     resource.setId(model.getId());
 
-    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), projectSnapshot);
+    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), moduleSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setBuildDate(new Date());
     snapshot = session.save(snapshot);
@@ -242,10 +249,17 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
   }
 
-  private ResourceModel findOrCreateModel(Resource resource) {
+  /**
+   * @param rootModuleId can be null and in this case resource will be searched using deprecated key instead of path
+   */
+  private ResourceModel findOrCreateModel(@Nullable Integer rootModuleId, Resource resource) {
     ResourceModel model;
     try {
-      model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
+      if (rootModuleId != null && StringUtils.isNotBlank(resource.getPath())) {
+        model = session.getSingleResult(ResourceModel.class, "rootId", rootModuleId, "path", resource.getPath());
+      } else {
+        model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
+      }
       if (model == null) {
         model = createModel(resource);
 
@@ -264,6 +278,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
+    model.setPath(resource.getPath());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());
     }
@@ -295,9 +310,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
         Qualifiers.MODULE.equals(resource.getQualifier())
         && Qualifiers.PROJECT.equals(model.getQualifier())) {
         throw new SonarException(
-            String.format("The project '%s' is already defined in SonarQube but not as a module of project '%s'. "
-              + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
-                resource.getKey(), resource.getParent().getKey(), resource.getKey(), resource.getParent().getKey()));
+          String.format("The project '%s' is already defined in SonarQube but not as a module of project '%s'. "
+            + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+            resource.getKey(), resource.getParent().getKey(), resource.getKey(), resource.getParent().getKey()));
       }
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());

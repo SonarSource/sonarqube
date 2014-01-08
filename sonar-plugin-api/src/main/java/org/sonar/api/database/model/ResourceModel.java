@@ -28,6 +28,7 @@ import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,6 +55,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   public static final int DESCRIPTION_COLUMN_SIZE = 2000;
   public static final int NAME_COLUMN_SIZE = 256;
   public static final int KEY_SIZE = 400;
+  public static final int PATH_SIZE = 2000;
 
   @Column(name = "name", updatable = true, nullable = true, length = NAME_COLUMN_SIZE)
   private String name;
@@ -82,6 +84,9 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "root_id", updatable = true, nullable = true)
   private Integer rootId;
 
+  @Column(name = "path", updatable = true, nullable = true, length = PATH_SIZE)
+  private String path;
+
   @Column(name = "copy_resource_id", updatable = true, nullable = true)
   private Integer copyResourceId;
 
@@ -103,6 +108,10 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     this.createdAt = new Date();
   }
 
+  public ResourceModel(String scope, String key, String qualifier, Integer rootId, String name) {
+    this(scope, key, qualifier, rootId, null, name);
+  }
+
   /**
    * <p>Creates a resource model</p>
    *
@@ -110,14 +119,16 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
    * @param key       the rule key. This is the name of the resource, including the path
    * @param qualifier the resource qualifier
    * @param rootId    the rootId for the resource
+   * @param path      the path of the resource
    * @param name      the short name of the resource
    */
-  public ResourceModel(String scope, String key, String qualifier, Integer rootId, String name) {
+  public ResourceModel(String scope, String key, String qualifier, Integer rootId, @Nullable String path, String name) {
     // call this to have the "createdAt" field initialized
     this();
     this.scope = scope;
     this.key = key;
     this.rootId = rootId;
+    this.path = path;
     this.name = name;
     this.qualifier = qualifier;
   }
@@ -257,6 +268,18 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     this.rootId = rootId;
   }
 
+  public String getPath() {
+    return path;
+  }
+
+  public ResourceModel setPath(@Nullable String path) {
+    if (path != null && path.length() > PATH_SIZE) {
+      throw new IllegalArgumentException("Resource path is too long, max is " + PATH_SIZE + " characters. Got : " + path);
+    }
+    this.path = path;
+    return this;
+  }
+
   public String getQualifier() {
     return qualifier;
   }
@@ -282,43 +305,58 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
       return true;
     }
     ResourceModel other = (ResourceModel) obj;
-    return new EqualsBuilder()
-        .append(key, other.key)
+    if (StringUtils.isNotBlank(path)) {
+      return new EqualsBuilder()
+        .append(path, other.path)
         .append(enabled, other.enabled)
         .append(rootId, other.rootId)
         .isEquals();
+    }
+    return new EqualsBuilder()
+      .append(key, other.key)
+      .append(enabled, other.enabled)
+      .append(rootId, other.rootId)
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        .append(key)
+    if (StringUtils.isNotBlank(path)) {
+      return new HashCodeBuilder(17, 37)
+        .append(path)
         .append(enabled)
         .append(rootId)
         .toHashCode();
+    }
+    return new HashCodeBuilder(17, 37)
+      .append(key)
+      .append(enabled)
+      .append(rootId)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("key", key)
-        .append("scope", scope)
-        .append("qualifier", qualifier)
-        .append("name", name)
-        .append("longName", longName)
-        .append("lang", languageKey)
-        .append("enabled", enabled)
-        .append("rootId", rootId)
-        .append("copyResourceId", copyResourceId)
-        .append("personId", personId)
-        .append("createdAt", createdAt)
-        .toString();
+      .append("id", getId())
+      .append("key", key)
+      .append("scope", scope)
+      .append("qualifier", qualifier)
+      .append("name", name)
+      .append("longName", longName)
+      .append("lang", languageKey)
+      .append("enabled", enabled)
+      .append("rootId", rootId)
+      .append("path", path)
+      .append("copyResourceId", copyResourceId)
+      .append("personId", personId)
+      .append("createdAt", createdAt)
+      .toString();
   }
 
   @Override
   public Object clone() {
-    ResourceModel clone = new ResourceModel(getScope(), getKey(), getQualifier(), getRootId(), getName());
+    ResourceModel clone = new ResourceModel(getScope(), getKey(), getQualifier(), getRootId(), getPath(), getName());
     clone.setDescription(getDescription());
     clone.setEnabled(getEnabled());
     clone.setProjectLinks(getProjectLinks());
@@ -338,6 +376,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getKey());
+    model.setPath(resource.getPath());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());
     }

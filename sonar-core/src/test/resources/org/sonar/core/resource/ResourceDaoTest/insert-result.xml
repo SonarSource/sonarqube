@@ -2,10 +2,10 @@
 
   <projects id="1" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Action" name="Action"
             description="[null]" long_name="org.struts.Action"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" />
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="/foo/bar" />
 
   <projects id="2" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Filter" name="Filter"
             description="[null]" long_name="org.struts.Filter"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" />
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]" />
 
 </dataset>
