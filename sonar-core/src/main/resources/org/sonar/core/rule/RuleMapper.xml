@@ -119,5 +119,14 @@
     WHERE id=#{id}
   </update>
 
+  <sql id="tagColumns">
+    id, rule_id as "ruleId", tag, tag_type as "type"
+  </sql>
+
+  <select id="selectAllTags" resultType="RuleTag">
+    SELECT <include refid="tagColumns"/>
+    FROM rule_tags
+  </select>
+
 </mapper>
 

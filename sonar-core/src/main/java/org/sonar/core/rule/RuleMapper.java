@@ -47,4 +47,6 @@ public interface RuleMapper {
   void insertParameter(RuleParamDto param);
 
   void updateParameter(RuleParamDto param);
+
+  List<RuleTagDto> selectAllTags();
 }
