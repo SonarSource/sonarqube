@@ -67,7 +67,7 @@ abstract class AbstractDialect implements Dialect {
     return validationQuery;
   }
 
-  public List<String> getConnectionInitStatements(String schema) {
+  public List<String> getConnectionInitStatements() {
     return Collections.emptyList();
   }
 }

@@ -19,10 +19,7 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.fest.assertions.Condition;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -37,18 +34,10 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void should_avoid_conflict_with_other_schemas() {
-    List<String> initStatements = postgreSql.getConnectionInitStatements("my_schema");
-
-    assertThat(initStatements).contains("SET SEARCH_PATH TO my_schema");
+  public void should_set_connection_properties() {
+    assertThat(postgreSql.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
   }
 
-  @Test
-  public void shouldNotChangePostgreSearchPathByDefault() {
-    for (String statement : postgreSql.getConnectionInitStatements(null)) {
-      assertThat(statement).doesNotMatch("SET SEARCH_PATH .*");
-    }
-  }
 
   @Test
   public void testBooleanSqlValues() {

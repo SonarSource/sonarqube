@@ -19,7 +19,7 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.PostgreSQLDialect;
 
@@ -32,6 +32,7 @@ import java.util.List;
 public class PostgreSql extends AbstractDialect {
 
   public static final String ID = "postgresql";
+  static final List<String> INIT_STATEMENTS = ImmutableList.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
 
   public PostgreSql() {
     super(ID, "postgre", "org.postgresql.Driver", "true", "false", "SELECT 1");
@@ -58,11 +59,7 @@ public class PostgreSql extends AbstractDialect {
   }
 
   @Override
-  public List<String> getConnectionInitStatements(String schema) {
-    List<String> statements = Lists.newArrayList("SET standard_conforming_strings=on", "SET backslash_quote=off");
-    if (StringUtils.isNotBlank(schema)) {
-      statements.add("SET SEARCH_PATH TO " + schema);
-    }
-    return statements;
+  public List<String> getConnectionInitStatements() {
+    return INIT_STATEMENTS;
   }
 }

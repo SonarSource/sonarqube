@@ -3,12 +3,6 @@ base: &base
   dialect: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode() %>
   pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 10 %>
 
-  # postgreSQL
-  schema_search_path: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getSchema() %>
-
-  # Oracle
-  schema: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getSchema() %>
-  
 development:
   <<: *base
 

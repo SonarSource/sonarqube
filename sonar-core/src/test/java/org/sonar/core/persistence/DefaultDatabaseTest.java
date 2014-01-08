@@ -108,63 +108,6 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldInitSchema() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.schema", "my_schema");
-
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    assertThat(database.getSchema()).isEqualTo("my_schema");
-  }
-
-  @Test
-  public void shouldInitPostgresqlSchemaWithDeprecatedProperty() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.dialect", PostgreSql.ID);
-    settings.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
-
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    assertThat(database.getSchema()).isEqualTo("my_schema");
-  }
-
-  @Test
-  public void shouldNotInitPostgresqlSchemaByDefault() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.dialect", PostgreSql.ID);
-
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    assertThat(database.getSchema()).isNull();
-  }
-
-  @Test
-  public void shouldInitOracleSchemaWithDeprecatedProperty() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.dialect", Oracle.ID);
-    settings.setProperty("sonar.hibernate.default_schema", "my_schema");
-
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    assertThat(database.getSchema()).isEqualTo("my_schema");
-  }
-
-  @Test
-  public void shouldNotInitOracleSchemaByDefault() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.dialect", Oracle.ID);
-
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    assertThat(database.getSchema()).isNull();
-  }
-
-  @Test
   public void shouldGuessDialectFromUrl() {
     Settings settings = new Settings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
@@ -190,13 +133,11 @@ public class DefaultDatabaseTest {
   public void shouldSetHibernateProperties() {
     Settings settings = new Settings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
-    settings.setProperty("sonar.hibernate.default_schema", "foo");
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
     Properties hibernateProps = database.getHibernateProperties();
 
     assertThat(hibernateProps.getProperty("hibernate.hbm2ddl.auto")).isEqualTo("validate");
-    assertThat(hibernateProps.getProperty("hibernate.default_schema")).isEqualTo("foo");
   }
 }

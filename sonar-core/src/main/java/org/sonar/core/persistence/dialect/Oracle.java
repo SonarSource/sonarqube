@@ -59,13 +59,4 @@ public class Oracle extends AbstractDialect {
       return OracleSequenceGenerator.class;
     }
   }
-
-  @Override
-  public List<String> getConnectionInitStatements(String schema) {
-    List<String> statements = Lists.newArrayList();
-    if (StringUtils.isNotBlank(schema)) {
-      statements.add("ALTER SESSION SET CURRENT_SCHEMA = \"" + schema + "\"");
-    }
-    return statements;
-  }
 }

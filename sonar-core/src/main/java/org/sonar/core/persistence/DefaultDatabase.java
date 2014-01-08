@@ -57,7 +57,6 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
   private static final String SONAR_JDBC_DRIVER_CLASS_NAME = "sonar.jdbc.driverClassName";
-  private static final String SONAR_JDBC_SCHEMA = "sonar.jdbc.schema";
   private static final String VALIDATE = "validate";
 
   private Settings settings;
@@ -93,7 +92,6 @@ public class DefaultDatabase implements Database {
   void initSettings() {
     initProperties();
     initDialect();
-    initSchema();
   }
 
   private void initProperties() {
@@ -121,26 +119,11 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  private void initSchema() {
-    String deprecatedSchema = null;
-    if (PostgreSql.ID.equals(dialect.getId())) {
-      // this property has been deprecated in version 2.13
-      deprecatedSchema = getSchemaPropertyValue(properties, "sonar.jdbc.postgreSearchPath");
-
-    } else if (Oracle.ID.equals(dialect.getId())) {
-      // this property has been deprecated in version 2.13
-      deprecatedSchema = getSchemaPropertyValue(properties, "sonar.hibernate.default_schema");
-    }
-    if (StringUtils.isNotBlank(deprecatedSchema)) {
-      properties.setProperty(SONAR_JDBC_SCHEMA, deprecatedSchema);
-    }
-  }
-
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
     LOG.info("Create JDBC datasource for " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
-    datasource.setConnectionInitSqls(dialect.getConnectionInitStatements(getSchema()));
+    datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
   }
 
@@ -171,10 +154,6 @@ public class DefaultDatabase implements Database {
     return dialect;
   }
 
-  public final String getSchema() {
-    return properties.getProperty(SONAR_JDBC_SCHEMA);
-  }
-
   public Properties getHibernateProperties() {
     Properties props = new Properties();
 
@@ -187,10 +166,6 @@ public class DefaultDatabase implements Database {
     props.put("hibernate.hbm2ddl.auto", VALIDATE);
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
 
-    String schema = getSchema();
-    if (StringUtils.isNotBlank(schema)) {
-      props.put("hibernate.default_schema", schema);
-    }
     return props;
   }
 
@@ -228,14 +203,6 @@ public class DefaultDatabase implements Database {
     // It directly uses the Connection implementation provided by the Oracle driver
     result.setProperty("accessToUnderlyingConnectionAllowed", "true");
     return result;
-  }
-
-  private static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
-    String value = props.getProperty(SONAR_JDBC_SCHEMA);
-    if (StringUtils.isBlank(value) && deprecatedKey != null) {
-      value = props.getProperty(deprecatedKey);
-    }
-    return StringUtils.isNotBlank(value) ? value : null;
   }
 
   private static void completeDefaultProperties(Properties props) {

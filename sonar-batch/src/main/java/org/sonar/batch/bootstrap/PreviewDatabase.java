@@ -123,7 +123,6 @@ public class PreviewDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-      .removeProperty("sonar.jdbc.schema")
       .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
       .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
       .setProperty(DatabaseProperties.PROP_USER, USER)

@@ -34,6 +34,11 @@ public interface DatabaseProperties {
   String PROP_HIBERNATE_HBM2DLL = "sonar.jdbc.hibernate.hbm2ddl";
   String PROP_HIBERNATE_GENERATE_STATISTICS = "sonar.jdbc.hibernate.generate_statistics";
   String PROP_DIALECT = "sonar.jdbc.dialect";
+
+  /**
+   * @deprecated in 4.2. Not supported anymore. See http://jira.codehaus.org/browse/SONAR-5000.
+   */
+  @Deprecated
   String PROP_HIBERNATE_DEFAULT_SCHEMA = "sonar.hibernate.default_schema";
   String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
 

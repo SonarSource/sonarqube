@@ -54,7 +54,7 @@ public interface Dialect {
    */
   String getDefaultDriverClassName();
 
-  List<String> getConnectionInitStatements(String schema);
+  List<String> getConnectionInitStatements();
 
   /**
    * @since 2.14

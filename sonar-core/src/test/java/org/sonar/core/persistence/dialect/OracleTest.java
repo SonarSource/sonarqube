@@ -21,8 +21,6 @@ package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class OracleTest {
@@ -33,21 +31,6 @@ public class OracleTest {
   public void matchesJdbcURL() {
     assertThat(oracle.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
     assertThat(oracle.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
-  }
-
-  /**
-   * Avoid conflicts with other schemas
-   */
-  @Test
-  public void shouldChangeOracleSchema() {
-    List<String> initStatements = oracle.getConnectionInitStatements("my_schema");
-
-    assertThat(initStatements).containsExactly("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\"");
-  }
-
-  @Test
-  public void shouldNotChangeOracleSchemaByDefault() {
-    assertThat(oracle.getConnectionInitStatements(null)).isEmpty();
   }
 
   @Test
