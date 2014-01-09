@@ -26,8 +26,6 @@
     <js>/javascripts/third-party/backbone.marionette.min.js</js>
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
-    <js>/javascripts/third-party/d3-cloud/d3.layout.cloud.js</js>
-
 
     <js>/javascripts/widgets/widget.js</js>
     <js>/javascripts/widgets/bubble-chart.js</js>
@@ -35,7 +33,6 @@
     <js>/javascripts/widgets/stack-area.js</js>
     <js>/javascripts/widgets/pie-chart.js</js>
     <js>/javascripts/widgets/histogram.js</js>
-    <js>/javascripts/widgets/word-cloud.js</js>
 
     <js>/javascripts/select-list.js</js>
 
