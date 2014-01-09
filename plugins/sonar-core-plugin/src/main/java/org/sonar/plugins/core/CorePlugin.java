@@ -49,7 +49,6 @@ import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.*;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsBubbleChartWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsCloudWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsHistogramWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsPieChartWidget;
 
@@ -252,7 +251,6 @@ public final class CorePlugin extends SonarPlugin {
       DuplicationsWidget.class,
       TechnicalDebtPyramidWidget.class,
       MeasureFilterAsPieChartWidget.class,
-      MeasureFilterAsCloudWidget.class,
       MeasureFilterAsHistogramWidget.class,
       MeasureFilterAsBubbleChartWidget.class,
 
