@@ -45,6 +45,7 @@ import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.profiling.Profiling;
@@ -57,7 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class SearchIndex {
+public class SearchIndex implements Startable {
 
   private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";
   private static final String BULK_INTERRUPTED = "Interrupted during bulk operation";
@@ -82,10 +83,12 @@ public class SearchIndex {
     this.profiling = profiling;
   }
 
+  @Override
   public void start() {
     this.client = searchNode.client();
   }
 
+  @Override
   public void stop() {
     if(client != null) {
       client.close();
@@ -266,8 +269,8 @@ public class SearchIndex {
 
   public void bulkDelete(String index, String type, String[] ids) {
     BulkRequestBuilder builder = new BulkRequestBuilder(client);
-    for (int i=0; i<ids.length; i++) {
-      builder.add(client.prepareDelete(index, type, ids[i]));
+    for (String id : ids) {
+      builder.add(client.prepareDelete(index, type, id));
     }
     StopWatch watch = createWatch();
     try {

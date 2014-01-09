@@ -103,7 +103,7 @@ public class SearchIndexTest {
     searchIndex.addMappingFromClasspath("unchecked", "unchecked", resourcePath);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = RuntimeException.class)
   public void should_fail_to_load_malformed_mapping() {
     String resourcePath = "/org/sonar/server/search/SearchIndexTest/malformed.json";
 
