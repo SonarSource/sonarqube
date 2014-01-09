@@ -42,9 +42,8 @@ public interface SensorContext {
    *
    * @return false if the resource is excluded
    * @since 2.6
-   * @deprecated since 4.2 Resource indexing is done by the platform
+   * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
    */
-  @Deprecated
   boolean index(Resource resource);
 
   /**
@@ -54,9 +53,8 @@ public interface SensorContext {
    * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
    * @return false if the parent is not indexed or if the resource is excluded
    * @since 2.6
-   * @deprecated since 4.2 Resource indexing is done by the platform
+   * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
    */
-  @Deprecated
   boolean index(Resource resource, Resource parentReference);
 
   /**
