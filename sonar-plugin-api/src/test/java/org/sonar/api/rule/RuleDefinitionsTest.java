@@ -47,7 +47,7 @@ public class RuleDefinitionsTest {
     assertThat(context.getRepository("unknown")).isNull();
 
     // test equals() and hashCode()
-    assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(checkstyle).isNotEqualTo("findbugs");
+    assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(checkstyle).isNotEqualTo("findbugs").isNotEqualTo(null);
     assertThat(findbugs.hashCode()).isEqualTo(findbugs.hashCode());
   }
 
@@ -63,7 +63,7 @@ public class RuleDefinitionsTest {
     findbugs.newRule("NPE")
         .setName("Detect NPE")
         .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-        .setSeverity(Severity.BLOCKER)
+        .setDefaultSeverity(Severity.BLOCKER)
         .setMetadata("/something")
         .setTags("valuable", "bug");
     findbugs.newRule("ABC");
@@ -73,7 +73,7 @@ public class RuleDefinitionsTest {
     RuleDefinitions.NewRule npeRule = findbugs.getRule("NPE");
     assertThat(npeRule.key()).isEqualTo("NPE");
     assertThat(npeRule.name()).isEqualTo("Detect NPE");
-    assertThat(npeRule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(npeRule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(npeRule.tags()).containsOnly("valuable", "bug");
     assertThat(npeRule.getParams()).isEmpty();
@@ -81,7 +81,7 @@ public class RuleDefinitionsTest {
 
     // test equals() and hashCode()
     RuleDefinitions.NewRule otherRule = findbugs.getRule("ABC");
-    assertThat(npeRule).isEqualTo(npeRule).isNotEqualTo(otherRule).isNotEqualTo("NPE");
+    assertThat(npeRule).isEqualTo(npeRule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
     assertThat(npeRule.hashCode()).isEqualTo(npeRule.hashCode());
   }
 
@@ -92,7 +92,7 @@ public class RuleDefinitionsTest {
     RuleDefinitions.NewRule rule = context.getRepository("findbugs").getRule("NPE");
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.name()).isEqualTo("NPE");
-    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.htmlDescription()).isNull();
     assertThat(rule.getParams()).isEmpty();
     assertThat(rule.metadata()).isNull();
@@ -122,7 +122,7 @@ public class RuleDefinitionsTest {
     assertThat(effort.defaultValue()).isNull();
 
     // test equals() and hashCode()
-    assertThat(level).isEqualTo(level).isNotEqualTo(effort).isNotEqualTo("level");
+    assertThat(level).isEqualTo(level).isNotEqualTo(effort).isNotEqualTo("level").isNotEqualTo(null);
     assertThat(level.hashCode()).isEqualTo(level.hashCode());
   }
 
@@ -211,10 +211,10 @@ public class RuleDefinitionsTest {
   @Test
   public void fail_if_bad_rule_severity() {
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setSeverity("VERY HIGH");
+      context.newRepository("findbugs", "java").newRule("NPE").setDefaultSeverity("VERY HIGH");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Severity of rule [repository=findbugs, key=NPE] is not correct: VERY HIGH");
+      assertThat(e).hasMessage("Default severity of rule [repository=findbugs, key=NPE] is not correct: VERY HIGH");
     }
   }
 }

@@ -172,7 +172,7 @@ public interface RuleDefinitions extends ServerExtension {
 
   public static class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, metadata, severity = Severity.MAJOR;
+    private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
     private final Set<String> tags = Sets.newHashSet();
     private final Map<String, NewParam> params = Maps.newHashMap();
     // TODO cardinality ? or template boolean ?
@@ -198,15 +198,15 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    public String severity() {
-      return severity;
+    public String defaultSeverity() {
+      return defaultSeverity;
     }
 
-    public NewRule setSeverity(String s) {
+    public NewRule setDefaultSeverity(String s) {
       if (!Severity.ALL.contains(s)) {
-        throw new IllegalArgumentException("Severity of rule " + this + " is not correct: " + s);
+        throw new IllegalArgumentException("Default severity of rule " + this + " is not correct: " + s);
       }
-      this.severity = s;
+      this.defaultSeverity = s;
       return this;
     }
 
@@ -387,6 +387,6 @@ public interface RuleDefinitions extends ServerExtension {
   /**
    * This method is executed when server is started.
    */
-  void define(Context context);
+  void defineRules(Context context);
 
 }
