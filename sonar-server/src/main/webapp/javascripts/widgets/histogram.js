@@ -185,15 +185,21 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update scales
-    var xDomain,
+    var xDomain = d3.extent(this.components(), function(d) {
+          return widget.getMainMetric(d);
+        }),
         metric = this.metrics()[this.mainMetric];
-    if (this.options().displayWorstBestValues && metric.worstValue != null && metric.bestValue != null) {
-      xDomain = d3.extent([metric.worstValue, metric.bestValue]);
-    } else {
-      xDomain = d3.extent(this.components(), function(d) {
-        return widget.getMainMetric(d);
-      });
+
+    if (this.options().displayWorstBestValues) {
+      if (metric.worstValue != null && metric.bestValue != null) {
+        xDomain = d3.extent([metric.worstValue, metric.bestValue]);
+      } else if (metric.bestValue != null) {
+        xDomain[0] = metric.bestValue;
+      } else if (metric.worstValue != null) {
+        xDomain[0] = metric.worstValue;
+      }
     }
+
     this.x
         .domain(xDomain)
         .range([0, this.availableWidth]);
