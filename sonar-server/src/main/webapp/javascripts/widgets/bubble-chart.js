@@ -187,8 +187,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Set event listeners
     this.items
         .on('click', function (d) {
-          var url = baseUrl + '/resource/index/' + d.key + '?display_title=true&metric=ncloc';
-          window.open(url, '', 'height=800,width=900,scrollbars=1,resizable=1');
+          switch (d.qualifier) {
+            case 'CLA':
+            case 'FIL':
+              window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
+                  '?metric=' + encodeURIComponent(widget.mainMetric);
+              break;
+            default:
+              window.location = widget.options().baseUrl + encodeURIComponent(d.key);
+          }
         })
         .on('mouseenter', function (d) {
           d3.select(this).select('circle')
