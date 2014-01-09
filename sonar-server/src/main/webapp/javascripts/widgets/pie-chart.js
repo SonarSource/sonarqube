@@ -165,6 +165,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
     this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
     this._legendSize = Math.floor(this.availableHeight / this._lineHeight);
+    this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right - this.legendMargin() - 2 * this.radius) / 6);
 
 
     // Update plot
@@ -218,8 +219,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.legendsEnter.append('text')
         .attr('class', 'legend-text')
-        .attr('transform', trans(10, 3))
-        .text(function(d) { return d.name; });
+        .attr('transform', trans(10, 3));
+
+    this.legends.selectAll('text')
+        .text(function(d) { return d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name; });
 
 
     // Update details
