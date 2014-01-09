@@ -108,19 +108,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       return d.measures[widget.sizeMetric].val;
     };
 
-    this.fm = function(value, name) {
-      var type = this.metrics()[name].type;
-
-      switch (type) {
-        case 'FLOAT':
-          return d3.format('.1f')(value);
-        case 'INT':
-          return d3.format('d')(value);
-        default :
-          return value;
-      }
-    };
-
 
     // Configure scales
     this
@@ -204,9 +191,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.infoDate.text(d.longName);
 
           var metricLines = [
-            { metric: widget.metrics()[widget.xMetric].name, value: widget.fm(widget.getXMetric(d), widget.xMetric) },
-            { metric: widget.metrics()[widget.yMetric].name, value: widget.fm(widget.getYMetric(d), widget.yMetric) },
-            { metric: widget.metrics()[widget.sizeMetric].name, value: widget.fm(widget.getSizeMetric(d), widget.sizeMetric) }
+            { metric: widget.metrics()[widget.xMetric].name, value: d.measures[widget.xMetric].fval },
+            { metric: widget.metrics()[widget.yMetric].name, value: d.measures[widget.yMetric].fval },
+            { metric: widget.metrics()[widget.sizeMetric].name, value: d.measures[widget.sizeMetric].fval }
           ];
 
           var lastX = 0;

@@ -91,18 +91,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         return 0;
       }
     };
-    this.fm = function(value, name) {
-      var type = this.metrics()[name].type;
-
-      switch (type) {
-        case 'FLOAT':
-          return d3.format('.1f')(value);
-        case 'INT':
-          return d3.format('d')(value);
-        default :
-          return value;
-      }
-    };
 
 
     // Configure scales
@@ -257,7 +245,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             var metrics = widget.metricsPriority().map(function(m) {
               return {
                 name: widget.metrics()[m].name,
-                value: widget.fm(d.measures[m].val, m)
+                value: d.measures[m].fval
               };
             });
             metrics.unshift({ name: d.name });
@@ -272,7 +260,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           }
           widget.donutLabel
               .style('opacity', 1)
-              .text(widget.fm(widget.getMainMetric(d), widget.mainMetric));
+              .text(d.measures[widget.mainMetric].fval);
           widget.donutLabel
               .style('opacity', 1);
           widget.donutLabel2
