@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Before;
@@ -160,8 +161,8 @@ public class DefaultModuleFileSystemTest {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
 
     File mainFile = temp.newFile();
-    InputFile mainInput = DefaultInputFile.create(mainFile, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
-    InputFile testInput = DefaultInputFile.create(temp.newFile(), "Test.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
+    InputFile mainInput = DefaultInputFile.create(mainFile, Charsets.UTF_8, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
+    InputFile testInput = DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "Test.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
 
     when(fileIndex.inputFiles("foo")).thenReturn(Lists.newArrayList(mainInput, testInput));
 

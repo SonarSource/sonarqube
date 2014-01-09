@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
@@ -28,15 +29,17 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeprecatedFileFiltersTest {
 
@@ -49,22 +52,22 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() throws Exception {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = DefaultInputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap());
+    InputFile inputFile = DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap());
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
   @Test
   public void at_least_one_filter() throws Exception {
-    DeprecatedFileFilters filters = new DeprecatedFileFilters(new FileSystemFilter[]{filter});
+    DeprecatedFileFilters filters = new DeprecatedFileFilters(new FileSystemFilter[] {filter});
 
     File basedir = temp.newFolder();
     File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, "src/main/java/Foo.java", ImmutableMap.of(
+    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/Foo.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCEDIR_PATH, new File(basedir, "src/main/java").getAbsolutePath(),
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java",
       InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST
 
-    ));
+      ));
     when(filter.accept(eq(file), any(DeprecatedFileFilters.DeprecatedContext.class))).thenReturn(false);
 
     assertThat(filters.accept(inputFile)).isFalse();

@@ -19,51 +19,36 @@
  */
 package org.sonar.api.batch;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.io.Files;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * A pre-implementation for a sensor that imports sources.
- * It became too much ugly because of extensability. Methods can't be
- * refactored because they are heavily overridden in plugins.
- *
  * @since 1.10
+ * @deprecated since 4.2 Resource indexing/source import is done by the core and this extension will not be used.
  */
+@Deprecated
 @Phase(name = Phase.Name.PRE)
 public abstract class AbstractSourceImporter implements Sensor {
 
   private Language language;
-  private boolean enabled = false;
 
   public AbstractSourceImporter(Language language) {
     this.language = language;
   }
 
-  /**
-   * Generally this method should not be overridden in subclasses, but if it is, then it should be executed anyway (see SONAR-3419).
-   */
   public boolean shouldExecuteOnProject(Project project) {
-    enabled = isEnabled(project);
-    return language.equals(project.getLanguage());
+    return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public void analyse(Project project, SensorContext context) {
-    analyse(project.getFileSystem(), context);
-    onFinished();
+    // Do not remove for backward compatibility
   }
 
   protected void onFinished() {
@@ -71,28 +56,11 @@ public abstract class AbstractSourceImporter implements Sensor {
   }
 
   protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    parseDirs(context, fileSystem.getSourceFiles(language), fileSystem.getSourceDirs(), false, fileSystem.getSourceCharset());
-    parseDirs(context, fileSystem.getTestFiles(language), fileSystem.getTestDirs(), true, fileSystem.getSourceCharset());
+    // Do not remove for backward compatibility
   }
 
   protected void parseDirs(SensorContext context, List<File> files, List<File> sourceDirs, boolean unitTest, Charset sourcesEncoding) {
-    for (File file : files) {
-      Resource resource = createResource(file, sourceDirs, unitTest);
-      if (resource != null) {
-        try {
-          context.index(resource);
-          if (enabled) {
-            String source = Files.toString(file, Charset.forName(sourcesEncoding.name()));
-            // SONAR-3860 Remove BOM character from source
-            source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-            context.saveSource(resource, source);
-          }
-        } catch (Exception e) {
-          throw new SonarException("Unable to read and import the source file : '" + file.getAbsolutePath() + "' with the charset : '"
-              + sourcesEncoding.name() + "'.", e);
-        }
-      }
-    }
+    // Do not remove for backward compatibility
   }
 
   protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
@@ -107,13 +75,9 @@ public abstract class AbstractSourceImporter implements Sensor {
   }
 
   protected boolean isEnabled(Project project) {
-    return project.getConfiguration().getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
-        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE);
+    return false;
   }
 
-  /**
-   * @return the language
-   */
   public Language getLanguage() {
     return language;
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.PathUtils;
@@ -26,6 +27,7 @@ import org.sonar.api.utils.PathUtils;
 import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -43,8 +45,10 @@ public class DefaultInputFile implements InputFile {
   private final String absolutePath;
   private final String path;
   private final Map<String, String> attributes;
+  private final String encoding;
 
-  private DefaultInputFile(File file, String path, Map<String, String> attributes) {
+  private DefaultInputFile(File file, Charset encoding, String path, Map<String, String> attributes) {
+    this.encoding = encoding.name();
     this.absolutePath = PathUtils.canonicalPath(file);
     this.path = FilenameUtils.separatorsToUnix(path);
     this.attributes = attributes;
@@ -56,8 +60,8 @@ public class DefaultInputFile implements InputFile {
    * <p/>
    * Usage: <code>InputFile.create(file, "src/main/java/com/Foo.java", attributes)</code>
    */
-  public static DefaultInputFile create(File file, String path, Map<String, String> attributes) {
-    return new DefaultInputFile(file, path, attributes);
+  public static DefaultInputFile create(File file, Charset encoding, String path, Map<String, String> attributes) {
+    return new DefaultInputFile(file, encoding, path, attributes);
   }
 
   @Override
@@ -73,6 +77,11 @@ public class DefaultInputFile implements InputFile {
   @Override
   public File file() {
     return new File(absolutePath);
+  }
+
+  @Override
+  public Charset encoding() {
+    return Charsets.toCharset(encoding);
   }
 
   @Override

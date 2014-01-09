@@ -65,7 +65,7 @@ public class SensorsExecutor implements BatchComponent {
     Collection<Sensor> sensors = selector.select(Sensor.class, project, true, sensorMatcher);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
-    fileIndexer.execute(context);
+    fileIndexer.execute();
 
     for (Sensor sensor : sensors) {
       // SONAR-2965 In case the sensor takes too much time we close the session to not face a timeout

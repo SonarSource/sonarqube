@@ -19,13 +19,11 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.internal.InputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
-import org.sonar.api.scan.filesystem.internal.InputFiles;
 
 import java.io.File;
 
@@ -40,8 +38,8 @@ public class InputFilesTest {
   public void test_toFiles() throws Exception {
     File file1 = temp.newFile();
     File file2 = temp.newFile();
-    InputFile input1 = new InputFileBuilder(file1, "src/main/java/Foo.java").build();
-    InputFile input2 = new InputFileBuilder(file2, "src/main/java/Bar.java").build();
+    InputFile input1 = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").build();
+    InputFile input2 = new InputFileBuilder(file2, Charsets.UTF_8, "src/main/java/Bar.java").build();
 
     assertThat(InputFiles.toFiles(Lists.newArrayList(input1, input2))).containsOnly(file1, file2);
   }

@@ -40,6 +40,7 @@ import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -77,7 +78,7 @@ public class FileIndex implements BatchComponent {
   private final Project project;
 
   public FileIndex(List<InputFileFilter> filters, LanguageRecognizer languageRecognizer,
-                   InputFileCache cache, FileHashes fileHashes, PathResolver pathResolver, Project project) {
+    InputFileCache cache, FileHashes fileHashes, PathResolver pathResolver, Project project) {
     this.filters = filters;
     this.languageRecognizer = languageRecognizer;
     this.cache = cache;
@@ -127,7 +128,7 @@ public class FileIndex implements BatchComponent {
       if (sourceDirPath == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
           "File '%s' is not declared in source directories %s", sourceFile.getAbsoluteFile(), StringUtils.join(sourceDirs, ", ")
-        ));
+          ));
       } else {
         indexFile(fileSystem, progress, sourceDirPath.dir(), sourceFile, type);
       }
@@ -183,7 +184,7 @@ public class FileIndex implements BatchComponent {
     // hash + status
     initStatus(file, fileSystem.sourceCharset(), path, attributes);
 
-    return DefaultInputFile.create(file, path, attributes);
+    return DefaultInputFile.create(file, fileSystem.sourceCharset(), path, attributes);
   }
 
   private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {

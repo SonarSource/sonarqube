@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
@@ -57,8 +58,8 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes() throws Exception {
     when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
-      DefaultInputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
-      DefaultInputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
+      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
+      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
       ));
 
     SensorContext sensorContext = mock(SensorContext.class);
@@ -72,8 +73,8 @@ public class FileHashSensorTest {
   public void store_file_hashes_for_branches() throws Exception {
     project = new Project("struts", "branch-2.x", "Struts 2.x");
     when(fileCache.byModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
-      DefaultInputFile.create(temp.newFile(), "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
-      DefaultInputFile.create(temp.newFile(), "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
+      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Foo.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "ABC")),
+      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Bar.java", ImmutableMap.of(InputFile.ATTRIBUTE_HASH, "DEF"))
       ));
 
     SensorContext sensorContext = mock(SensorContext.class);

@@ -19,9 +19,13 @@
  */
 package org.sonar.batch.phases;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.io.Files;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
@@ -31,6 +35,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 /**
@@ -40,24 +45,30 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
 public class FileIndexer implements BatchComponent {
 
-  private Project module;
-  private DefaultModuleFileSystem fs;
+  private final Project module;
+  private final DefaultModuleFileSystem fs;
+  private final Languages languages;
+  private final Settings settings;
+  private final SonarIndex sonarIndex;
 
-  private Languages languages;
+  private boolean importSource;
 
-  public FileIndexer(Project module, DefaultModuleFileSystem fs, Languages languages) {
+  public FileIndexer(Project module, DefaultModuleFileSystem fs, Languages languages, SonarIndex sonarIndex, Settings settings) {
     this.module = module;
     this.fs = fs;
     this.languages = languages;
+    this.sonarIndex = sonarIndex;
+    this.settings = settings;
   }
 
-  public void execute(SensorContext context) {
+  public void execute() {
+    this.importSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
     String languageKey = module.getLanguageKey();
-    indexFiles(fs.inputFiles(FileQuery.onSource().onLanguage(languageKey)), false, context, languageKey);
-    indexFiles(fs.inputFiles(FileQuery.onTest().onLanguage(languageKey)), true, context, languageKey);
+    indexFiles(fs.inputFiles(FileQuery.onSource().onLanguage(languageKey)), false, languageKey);
+    indexFiles(fs.inputFiles(FileQuery.onTest().onLanguage(languageKey)), true, languageKey);
   }
 
-  private void indexFiles(Iterable<InputFile> files, boolean unitTest, SensorContext context, String languageKey) {
+  private void indexFiles(Iterable<InputFile> files, boolean unitTest, String languageKey) {
     for (InputFile inputFile : files) {
       Resource sonarFile;
       if (Java.KEY.equals(languageKey)) {
@@ -71,7 +82,18 @@ public class FileIndexer implements BatchComponent {
       }
       if (sonarFile != null) {
         sonarFile.setPath(inputFile.path());
-        context.index(sonarFile);
+        sonarIndex.index(sonarFile);
+        try {
+          if (importSource) {
+            String source = Files.toString(inputFile.file(), inputFile.encoding());
+            // SONAR-3860 Remove BOM character from source
+            source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
+            sonarIndex.setSource(sonarFile, source);
+          }
+        } catch (Exception e) {
+          throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
+            + inputFile.encoding() + "'.", e);
+        }
       }
     }
   }

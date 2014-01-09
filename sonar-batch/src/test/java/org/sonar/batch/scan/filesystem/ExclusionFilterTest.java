@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.io.File;
 
@@ -41,17 +42,17 @@ public class ExclusionFilterTest {
     ExclusionFilter absoluteFilter = new ExclusionFilter("file:**/src/main/**Foo.java");
 
     File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.java");
-    InputFile inputFile = DefaultInputFile.create(file, "src/main/java/org/MyFoo.java", ImmutableMap.of(
+    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/org/MyFoo.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/MyFoo.java"
-    ));
+      ));
 
     assertThat(sourceRelativeFilter.accept(inputFile)).isFalse();
     assertThat(absoluteFilter.accept(inputFile)).isFalse();
 
     file = new File(temp.newFolder(), "src/main/java/org/Other.java");
-    inputFile = DefaultInputFile.create(file, "src/main/java/org/Other.java", ImmutableMap.of(
+    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/org/Other.java", ImmutableMap.of(
       InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "org/Other.java"
-    ));
+      ));
     assertThat(sourceRelativeFilter.accept(inputFile)).isTrue();
     assertThat(absoluteFilter.accept(inputFile)).isTrue();
   }

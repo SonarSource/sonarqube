@@ -19,8 +19,6 @@
  */
 package org.sonar.batch;
 
-import org.sonar.core.measure.MeasurementFilters;
-
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -32,6 +30,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.measure.MeasurementFilters;
 
 import java.util.Collection;
 import java.util.Date;
@@ -55,11 +54,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public boolean index(Resource resource) {
-    return index.index(resource);
+    return true;
   }
 
   public boolean index(Resource resource, Resource parentReference) {
-    return index.index(resource, parentReference);
+    return true;
   }
 
   public boolean isExcluded(Resource reference) {
@@ -123,7 +122,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Measure saveMeasure(Resource resource, Measure measure) {
-    if(filters.accept(resource, measure)) {
+    if (filters.accept(resource, measure)) {
       return index.addMeasure(resourceOrProject(resource), measure);
     } else {
       return measure;
@@ -166,7 +165,6 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public void saveSource(Resource reference, String source) {
-    index.setSource(reference, source);
   }
 
   public void saveLink(ProjectLink link) {
@@ -190,6 +188,6 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private Resource resourceOrProject(Resource resource) {
-    return resource!=null ? resource : project;
+    return resource != null ? resource : project;
   }
 }

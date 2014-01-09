@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class DefaultInputFileTest {
   @Test
   public void test_attributes() throws IOException {
     File file = temp.newFile();
-    InputFile input = new InputFileBuilder(file, "src/main/java/Foo.java")
+    InputFile input = new InputFileBuilder(file, Charsets.UTF_8, "src/main/java/Foo.java")
       .attribute("foo", "bar")
       .type(InputFile.TYPE_TEST)
       .hash("ABC")
@@ -63,7 +64,7 @@ public class DefaultInputFileTest {
   public void test_file() throws Exception {
     File sourceDir = temp.newFolder();
     File file = temp.newFile("Foo.java");
-    InputFile input = new InputFileBuilder(file, "src/main/java/Foo.java")
+    InputFile input = new InputFileBuilder(file, Charsets.UTF_8, "src/main/java/Foo.java")
       .sourceDir(sourceDir)
       .build();
 
@@ -77,9 +78,9 @@ public class DefaultInputFileTest {
   @Test
   public void test_equals_and_hashCode() throws Exception {
     File file1 = temp.newFile();
-    InputFile input1 = new InputFileBuilder(file1, "src/main/java/Foo.java").build();
-    InputFile input1a = new InputFileBuilder(file1, "src/main/java/Foo.java").build();
-    InputFile input2 = new InputFileBuilder(temp.newFile(), "src/main/java/Bar.java").build();
+    InputFile input1 = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").build();
+    InputFile input1a = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").build();
+    InputFile input2 = new InputFileBuilder(temp.newFile(), Charsets.UTF_8, "src/main/java/Bar.java").build();
 
     assertThat(input1.equals(input1)).isTrue();
     assertThat(input1.equals(input1a)).isTrue();
@@ -91,7 +92,7 @@ public class DefaultInputFileTest {
   @Test
   public void test_toString() throws Exception {
     File file1 = temp.newFile();
-    InputFile input = new InputFileBuilder(file1, "src/main/java/Foo.java").type(InputFile.TYPE_TEST).build();
+    InputFile input = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").type(InputFile.TYPE_TEST).build();
     assertThat(input.toString()).isEqualTo("[src/main/java/Foo.java,TEST]");
   }
 }

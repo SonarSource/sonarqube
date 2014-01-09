@@ -19,14 +19,15 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
 
@@ -53,8 +54,8 @@ public class InputFileCacheTest {
   @Test
   public void should_add_input_file() throws Exception {
     InputFileCache cache = new InputFileCache(caches);
-    cache.put("struts", DefaultInputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
-    cache.put("struts-core", DefaultInputFile.create(temp.newFile(), "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
+    cache.put("struts", DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
+    cache.put("struts-core", DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
 
     assertThat(cache.byModule("struts")).hasSize(1);
     assertThat(cache.byModule("struts-core")).hasSize(1);

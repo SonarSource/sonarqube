@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
@@ -39,9 +40,9 @@ public class AttributeFilterTest {
 
     assertThat(filter.key()).isEqualTo("foo");
     assertThat(filter.values()).containsOnly("one", "two");
-    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "Why.java", ImmutableMap.of("foo", "two")))).isTrue();
-    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "Where.java", ImmutableMap.of("foo", "three")))).isFalse();
-    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), "What.java", ImmutableMap.of("bar", "one")))).isFalse();
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "Why.java", ImmutableMap.of("foo", "two")))).isTrue();
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "Where.java", ImmutableMap.of("foo", "three")))).isFalse();
+    assertThat(filter.accept(DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "What.java", ImmutableMap.of("bar", "one")))).isFalse();
 
   }
 }

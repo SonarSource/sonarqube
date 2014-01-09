@@ -20,8 +20,10 @@
 package org.sonar.api.scan.filesystem.internal;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public interface InputFile extends Serializable {
@@ -57,7 +59,6 @@ public interface InputFile extends Serializable {
 
   String ATTRIBUTE_HASH = "HASH";
 
-
   /**
    * Path is relative from module base directory. Path is unique and identifies file
    * within given <code>{@link org.sonar.api.scan.filesystem.ModuleFileSystem}</code>.
@@ -77,6 +78,8 @@ public interface InputFile extends Serializable {
   String absolutePath();
 
   File file();
+
+  Charset encoding();
 
   /**
    * Not-null filename, including extension

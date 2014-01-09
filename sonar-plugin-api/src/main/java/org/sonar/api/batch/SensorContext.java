@@ -42,9 +42,10 @@ public interface SensorContext {
    *
    * @return false if the resource is excluded
    * @since 2.6
+   * @deprecated since 4.2 Resource indexing is done by the platform
    */
+  @Deprecated
   boolean index(Resource resource);
-
 
   /**
    * Indexes a resource. This method does nothing if the resource is already indexed.
@@ -53,7 +54,9 @@ public interface SensorContext {
    * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
    * @return false if the parent is not indexed or if the resource is excluded
    * @since 2.6
+   * @deprecated since 4.2 Resource indexing is done by the platform
    */
+  @Deprecated
   boolean index(Resource resource, Resource parentReference);
 
   /**
@@ -126,7 +129,6 @@ public interface SensorContext {
   @Deprecated
   String saveResource(Resource resource);
 
-
   /**
    * Find all measures for this project. Never return null.
    */
@@ -191,7 +193,9 @@ public interface SensorContext {
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
    * @since 1.10. Returns a boolean since 2.6.
+   * @deprecated since 4.2 Source import is done by the platform
    */
+  @Deprecated
   void saveSource(Resource reference, String source);
 
   // ----------- LINKS --------------

@@ -22,7 +22,9 @@ package org.sonar.api.scan.filesystem.internal;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,13 +38,15 @@ public class InputFileBuilder {
   private final Map<String, String> attributes = new HashMap<String, String>();
   private final File file;
   private final String relativePath;
+  private Charset encoding;
 
   public static void _FOR_UNIT_TESTING_ONLY_() {
     // For those who don't read javadoc
   }
 
-  public InputFileBuilder(File file, String relativePath) {
+  public InputFileBuilder(File file, Charset encoding, String relativePath) {
     this.file = file;
+    this.encoding = encoding;
     this.relativePath = relativePath;
   }
 
@@ -78,6 +82,6 @@ public class InputFileBuilder {
   }
 
   public DefaultInputFile build() {
-    return DefaultInputFile.create(file, relativePath, attributes);
+    return DefaultInputFile.create(file, encoding, relativePath, attributes);
   }
 }
