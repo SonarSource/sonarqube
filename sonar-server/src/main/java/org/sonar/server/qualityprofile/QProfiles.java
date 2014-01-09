@@ -294,7 +294,11 @@ public class QProfiles implements ServerComponent {
 
   @CheckForNull
   public QProfileRule parentProfileRule(QProfileRule rule) {
-    return rules.getFromActiveRuleId(rule.parentId());
+    Integer parentId = rule.parentId();
+    if (parentId != null) {
+      return rules.getFromActiveRuleId(parentId);
+    }
+    return null;
   }
 
 

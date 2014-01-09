@@ -317,6 +317,19 @@ public class QProfileActiveRuleOperationsTest {
   }
 
   @Test
+  public void fail_to_revert_active_rule_if_no_parent() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES).setParentId(4);
+    when(activeRuleDao.selectById(4, session)).thenReturn(null);
+
+    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    try {
+      operations.revertActiveRule(activeRule, authorizedUserSession);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
+  }
+
+  @Test
   public void revert_active_rule_with_param_to_update() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES).setParentId(4);
     when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(newArrayList(

@@ -48,6 +48,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -324,6 +325,16 @@ public class QProfilesTest {
 
     qProfiles.parentProfileRule(rule);
     verify(rules).getFromActiveRuleId(6);
+  }
+
+  @Test
+  public void parent_active_rule_return_null_when_no_parent() throws Exception {
+    QProfileRule rule = mock(QProfileRule.class);
+    when(rule.id()).thenReturn(10);
+    when(rule.parentId()).thenReturn(null);
+
+    assertThat(qProfiles.parentProfileRule(rule)).isNull();
+    verify(rules, never()).getFromActiveRuleId(anyInt());
   }
 
   @Test

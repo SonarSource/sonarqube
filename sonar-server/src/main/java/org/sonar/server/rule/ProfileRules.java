@@ -41,8 +41,6 @@ import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.qualityprofile.QProfileRuleResult;
 import org.sonar.server.search.SearchIndex;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +121,7 @@ public class ProfileRules implements ServerExtension {
     List<String> documentIds = index.findDocumentIds(builder, 2);
     return newArrayList(Iterables.transform(documentIds, new Function<String, Integer>() {
       @Override
-      public Integer apply(@Nullable String input) {
+      public Integer apply(String input) {
         return Integer.valueOf(input);
       }
     }));
