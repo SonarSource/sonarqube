@@ -188,7 +188,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     var xDomain,
         metric = this.metrics()[this.mainMetric];
     if (this.options().displayWorstBestValues && metric.worstValue != null && metric.bestValue != null) {
-      xDomain = [metric.worstValue, metric.bestValue];
+      xDomain = d3.extent([metric.worstValue, metric.bestValue]);
     } else {
       xDomain = d3.extent(this.components(), function(d) {
         return widget.getMainMetric(d);
