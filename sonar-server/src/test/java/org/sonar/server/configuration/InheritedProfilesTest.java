@@ -60,22 +60,22 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldSetParent() {
     setupData("shouldSetParent");
-    profilesManager.changeParentProfile(2, "parent", "admin");
-    checkTables("shouldSetParent", "active_rules", "rules_profiles");
+    profilesManager.profileParentChanged(2, "parent", "admin");
+    checkTables("shouldSetParent", "active_rules");
   }
 
   @Test
   public void shouldChangeParent() {
     setupData("shouldChangeParent");
-    profilesManager.changeParentProfile(3, "new_parent", "admin");
-    checkTables("shouldChangeParent", "active_rules", "rules_profiles");
+    profilesManager.profileParentChanged(3, "new_parent", "admin");
+    checkTables("shouldChangeParent", "active_rules");
   }
 
   @Test
   public void shouldRemoveParent() {
     setupData("shouldRemoveParent");
-    profilesManager.changeParentProfile(2, null, "admin");
-    checkTables("shouldRemoveParent", "active_rules", "rules_profiles");
+    profilesManager.profileParentChanged(2, null, "admin");
+    checkTables("shouldRemoveParent", "active_rules");
   }
 
   @Test

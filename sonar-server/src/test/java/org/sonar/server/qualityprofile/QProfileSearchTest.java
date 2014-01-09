@@ -112,9 +112,9 @@ public class QProfileSearchTest {
 
   @Test
   public void search_ancestors() throws Exception {
-    when(dao.selectParent(eq(3), eq(session))).thenReturn(new QualityProfileDto().setId(2).setName("Child").setLanguage("java").setParent("Parent"));
-    when(dao.selectParent(eq(2), eq(session))).thenReturn(new QualityProfileDto().setId(1).setName("Parent").setLanguage("java"));
     when(dao.selectParent(eq(1), eq(session))).thenReturn(null);
+    when(dao.selectParent(eq(2), eq(session))).thenReturn(new QualityProfileDto().setId(1).setName("Parent").setLanguage("java"));
+    when(dao.selectParent(eq(3), eq(session))).thenReturn(new QualityProfileDto().setId(2).setName("Child").setLanguage("java").setParent("Parent"));
 
     List<QProfile> result = search.ancestors(new QProfile().setId(3).setName("Grandchild").setLanguage("java").setParent("Child"));
     assertThat(result).hasSize(2);

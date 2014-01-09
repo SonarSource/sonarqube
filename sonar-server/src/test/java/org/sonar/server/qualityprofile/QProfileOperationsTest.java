@@ -43,6 +43,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
+import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.rule.RuleRegistry;
@@ -60,6 +61,8 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,6 +89,9 @@ public class QProfileOperationsTest {
   @Mock
   RuleRegistry ruleRegistry;
 
+  @Mock
+  ProfilesManager profilesManager;
+
   List<ProfileImporter> importers = newArrayList();
 
   Integer currentId = 1;
@@ -109,7 +115,7 @@ public class QProfileOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager);
   }
 
   @Test
@@ -225,6 +231,99 @@ public class QProfileOperationsTest {
     verify(propertiesDao).setProperty(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
+  }
+
+  @Test
+  public void update_parent_profile() {
+    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent");
+    QualityProfileDto oldParent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
+    QualityProfileDto newParent = new QualityProfileDto().setId(3).setName("Parent").setLanguage("java");
+
+    when(qualityProfileDao.selectParent(2, session)).thenReturn(oldParent);
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+
+    operations.updateParentProfile(child, newParent, authorizedUserSession);
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
+    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+
+    verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void set_parent_profile() {
+    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent(null);
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+
+    operations.updateParentProfile(child, parent, authorizedUserSession);
+
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
+    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+
+    verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void remove_parent_profile() {
+    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent");
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
+
+    when(qualityProfileDao.selectParent(2, session)).thenReturn(parent);
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+
+    operations.updateParentProfile(child, null, authorizedUserSession);
+
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    assertThat(profileArgument.getValue().getParent()).isNull();
+    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+
+    verify(profilesManager).profileParentChanged(1, null, "Nicolas");
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void fail_to_update_parent_on_cycle() {
+    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("parent");
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+
+    when(qualityProfileDao.selectParent(1, session)).thenReturn(parent);
+    when(qualityProfileDao.selectParent(2, session)).thenReturn(null);
+
+    try {
+      operations.updateParentProfile(parent, child, authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Please do not select a child profile as parent.");
+    }
+  }
+
+  @Test
+  public void detect_cycle() {
+    QualityProfileDto level1 = new QualityProfileDto().setId(1).setName("level1").setLanguage("java");
+    QualityProfileDto level2 = new QualityProfileDto().setId(2).setName("level2").setLanguage("java").setParent("level1");
+    QualityProfileDto level3 = new QualityProfileDto().setId(3).setName("level3").setLanguage("java").setParent("level2");
+
+    when(qualityProfileDao.selectParent(1, session)).thenReturn(null);
+    when(qualityProfileDao.selectParent(2, session)).thenReturn(level1);
+    when(qualityProfileDao.selectParent(3, session)).thenReturn(level2);
+
+    assertThat(operations.isCycle(level3, level1, session)).isFalse();
+    assertThat(operations.isCycle(level1, level1, session)).isTrue();
+    assertThat(operations.isCycle(level1, level1, session)).isTrue();
+    assertThat(operations.isCycle(level1, level3, session)).isTrue();
+    assertThat(operations.isCycle(level1, level2, session)).isTrue();
+    assertThat(operations.isCycle(level2, level3, session)).isTrue();
   }
 
 }

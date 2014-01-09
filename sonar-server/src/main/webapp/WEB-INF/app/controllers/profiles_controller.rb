@@ -237,7 +237,6 @@ class ProfilesController < ApplicationController
     set_profile_breadcrumbs
   end
 
-
   # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
   def change_parent
     verify_post_request
@@ -245,16 +244,11 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
 
     id = params[:id].to_i
-    parent_name = params[:parent_name]
-    if parent_name.blank?
-      messages = java_facade.changeParentProfile(id, nil, current_user.name)
-    else
-      messages = java_facade.changeParentProfile(id, parent_name, current_user.name)
+    call_backend do
+      Internal.quality_profiles.updateParentProfile(id, params[:parent_name])
     end
-    flash_messages(messages)
     redirect_to :action => 'inheritance', :id => id
   end
-
 
   #
   #

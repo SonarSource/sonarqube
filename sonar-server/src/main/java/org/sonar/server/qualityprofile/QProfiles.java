@@ -113,23 +113,6 @@ public class QProfiles implements ServerComponent {
     return search.defaultProfile(language);
   }
 
-  @CheckForNull
-  public QProfile parent(QProfile profile) {
-    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
-    if (parent != null) {
-      return QProfile.from(parent);
-    }
-    return null;
-  }
-
-  public List<QProfile> children(QProfile profile) {
-    return search.children(profile);
-  }
-
-  public List<QProfile> ancestors(QProfile profile) {
-    return search.ancestors(profile);
-  }
-
   public int countChildren(QProfile profile) {
     return search.countChildren(profile);
   }
@@ -147,6 +130,32 @@ public class QProfiles implements ServerComponent {
   public void setDefaultProfile(int profileId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     operations.setDefaultProfile(qualityProfile, UserSession.get());
+  }
+
+  @CheckForNull
+  public QProfile parent(QProfile profile) {
+    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
+    if (parent != null) {
+      return QProfile.from(parent);
+    }
+    return null;
+  }
+
+  public List<QProfile> children(QProfile profile) {
+    return search.children(profile);
+  }
+
+  public List<QProfile> ancestors(QProfile profile) {
+    return search.ancestors(profile);
+  }
+
+  public void updateParentProfile(int profileId, @Nullable String parentName) {
+    QualityProfileDto profile = findNotNull(profileId);
+    QualityProfileDto parent = null;
+    if (!Strings.isNullOrEmpty(parentName)) {
+      parent = findNotNull(parentName, profile.getLanguage());
+    }
+    operations.updateParentProfile(profile, parent, UserSession.get());
   }
 
   /**

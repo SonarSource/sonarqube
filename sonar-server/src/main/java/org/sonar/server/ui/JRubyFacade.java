@@ -288,10 +288,6 @@ public final class JRubyFacade {
     getProfilesManager().copyProfile((int) profileId, newProfileName);
   }
 
-  public ValidationMessages changeParentProfile(int profileId, String parentName, String userName) {
-    return getProfilesManager().changeParentProfile(profileId, parentName, userName);
-  }
-
   public void ruleActivated(int parentProfileId, int activeRuleId, String userName) {
     getProfilesManager().activated(parentProfileId, activeRuleId, userName);
   }

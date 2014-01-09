@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -38,9 +39,13 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
+import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.StringReader;
 import java.util.List;
@@ -59,17 +64,18 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
+  private final ProfilesManager profilesManager;
 
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry);
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry) {
+                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -77,6 +83,7 @@ public class QProfileOperations implements ServerComponent {
     this.importers = importers;
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
+    this.profilesManager = profilesManager;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -110,6 +117,48 @@ public class QProfileOperations implements ServerComponent {
   public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
     checkPermission(userSession);
     propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
+  }
+
+  public void updateParentProfile(QualityProfileDto profile, @Nullable QualityProfileDto parentProfile, UserSession userSession) {
+    checkPermission(userSession);
+
+    SqlSession session = myBatis.openSession();
+    try {
+      if (isCycle(profile, parentProfile, session)) {
+        throw new BadRequestException("Please do not select a child profile as parent.");
+      }
+      String parentName = parentProfile != null ? parentProfile.getName() : null;
+
+      RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
+      ruleRegistry.deleteActiveRules(actions.idsToDelete());
+      ruleRegistry.bulkIndexActiveRules(actions.idsToIndex(), session);
+
+      profile.setParent(parentName);
+      dao.update(profile, session);
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @VisibleForTesting
+  boolean isCycle(QualityProfileDto childProfile, QualityProfileDto parentProfile, SqlSession session) {
+    while (parentProfile != null) {
+      if (childProfile.getName().equals(parentProfile.getName())) {
+        return true;
+      }
+      parentProfile = getParent(parentProfile, session);
+    }
+    return false;
+  }
+
+  @CheckForNull
+  private QualityProfileDto getParent(QualityProfileDto profile, SqlSession session) {
+    if (profile.getParent() != null) {
+      return dao.selectParent(profile.getId(), session);
+    }
+    return null;
   }
 
   private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {

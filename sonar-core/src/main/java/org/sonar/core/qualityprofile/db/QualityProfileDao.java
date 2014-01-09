@@ -52,10 +52,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public void update(QualityProfileDto dto, SqlSession session) {
+    session.getMapper(QualityProfileMapper.class).update(dto);
+  }
+
   public void update(QualityProfileDto dto) {
     SqlSession session = mybatis.openSession();
     try {
-      session.getMapper(QualityProfileMapper.class).update(dto);
+      update(dto, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

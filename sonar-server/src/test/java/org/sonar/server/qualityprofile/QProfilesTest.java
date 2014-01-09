@@ -242,6 +242,54 @@ public class QProfilesTest {
   }
 
   @Test
+  public void update_parent_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+    when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
+
+    qProfiles.updateParentProfile(1, "Parent");
+    verify(service).updateParentProfile(eq(qualityProfile), eq(parent), any(UserSession.class));
+  }
+
+  @Test
+  public void remove_parent_profile() throws Exception {
+    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+
+    qProfiles.updateParentProfile(1, null);
+    verify(service).updateParentProfile(eq(qualityProfile), eq((QualityProfileDto) null), any(UserSession.class));
+  }
+
+  @Test
+  public void fail_to_update_parent_profile_on_unknown_profile() throws Exception {
+    try {
+      when(qualityProfileDao.selectById(1)).thenReturn(null);
+      QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+      when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
+
+      qProfiles.updateParentProfile(1, "Parent");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+  }
+
+  @Test
+  public void fail_to_update_parent_profile_on_unknown_parent_profile() throws Exception {
+    try {
+      QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
+      when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+      when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(null);
+
+      qProfiles.updateParentProfile(1, "Parent");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+  }
+
+  @Test
   public void projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);

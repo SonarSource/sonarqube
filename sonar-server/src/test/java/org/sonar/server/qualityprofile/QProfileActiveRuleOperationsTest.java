@@ -20,8 +20,6 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,9 +59,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.*;
 
@@ -141,8 +137,6 @@ public class QProfileActiveRuleOperationsTest {
       .addToIndex(idActiveRuleToUpdate)
       .addToDelete(idActiveRuleToDelete);
     when(profilesManager.activated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(inheritanceActions);
-    when(activeRuleDao.selectByIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleDto>of(mock(ActiveRuleDto.class)));
-    when(activeRuleDao.selectParamsByActiveRuleIds(anyList(), isA(SqlSession.class))).thenReturn(ImmutableList.<ActiveRuleParamDto>of(mock(ActiveRuleParamDto.class)));
 
     ActiveRuleDto result = operations.createActiveRule(qualityProfile, rule, Severity.CRITICAL, authorizedUserSession);
     assertThat(result).isNotNull();
@@ -159,7 +153,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).activated(eq(1), anyInt(), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(eq(newArrayList(idActiveRuleToDelete)));
+    verify(ruleRegistry).bulkIndexActiveRules(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
   }
 
   @Test
@@ -174,7 +169,8 @@ public class QProfileActiveRuleOperationsTest {
     verify(activeRuleDao).update(eq(activeRule), eq(session));
     verify(session).commit();
     verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -205,7 +201,8 @@ public class QProfileActiveRuleOperationsTest {
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));
     verify(session).commit();
     verify(profilesManager).deactivated(eq(1), anyInt(), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -225,7 +222,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -277,7 +275,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -291,7 +290,8 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(activeRuleDao).deleteParameter(100, session);
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -312,7 +312,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session, times(2)).commit();
     verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -358,7 +359,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -384,7 +386,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -413,7 +416,8 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"));
-    verify(ruleRegistry).bulkIndexActiveRules(anyList(), isA(Multimap.class));
+    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
+    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 

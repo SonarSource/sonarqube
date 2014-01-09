@@ -119,7 +119,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   @Test
   public void should_track_change_parent_profile() {
     setupData("changeParentProfile");
-    profilesManager.changeParentProfile(2, "parent", "admin");
+    profilesManager.profileParentChanged(2, "parent", "admin");
     checkTables("changeParentProfile", new String[] {"change_date"}, "active_rule_changes");
   }
 

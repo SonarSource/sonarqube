@@ -22,8 +22,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
@@ -234,7 +232,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     throw new IllegalStateException("Can't find parent of active rule : " + activeRule.getId());
   }
 
-  private List<ActiveRuleParamDto> restoreActiveParametersFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, RuleInheritanceActions actions, UserSession userSession, SqlSession session) {
+  private List<ActiveRuleParamDto> restoreActiveParametersFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, RuleInheritanceActions actions,
+                                                                               UserSession userSession, SqlSession session) {
     // Restore all parameters from parent
     List<ActiveRuleParamDto> parentParams = activeRuleDao.selectParamsByActiveRuleId(parent.getId(), session);
     List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId(), session);
@@ -345,12 +344,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void reindexInheritanceResult(RuleInheritanceActions actions, SqlSession session) {
     ruleRegistry.deleteActiveRules(actions.idsToDelete());
-    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(actions.idsToIndex(), session);
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleIds(actions.idsToIndex(), session)) {
-      paramsByActiveRule.put(param.getActiveRuleId(), param);
-    }
-    ruleRegistry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
+    ruleRegistry.bulkIndexActiveRules(actions.idsToIndex(), session);
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {

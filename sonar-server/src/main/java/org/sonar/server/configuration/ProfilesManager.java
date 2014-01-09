@@ -25,11 +25,12 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 import org.sonar.server.qualityprofile.RuleInheritanceActions;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -67,36 +68,30 @@ public class ProfilesManager extends BaseDao {
     dryRunCache.reportGlobalModification();
   }
 
+
   // Managing inheritance of profiles
 
-  public ValidationMessages changeParentProfile(Integer profileId, String parentName, String userName) {
-    ValidationMessages messages = ValidationMessages.create();
+  public RuleInheritanceActions profileParentChanged(Integer profileId, @Nullable String parentName, String userName) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    if (profile != null) {
-      RulesProfile oldParent = getParentProfile(profile);
-      RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
-      if (isCycle(profile, newParent)) {
-        messages.addWarningText("Please do not select a child profile as parent.");
-        return messages;
+    RulesProfile oldParent = getParentProfile(profile);
+    RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
+
+    RuleInheritanceActions actions = new RuleInheritanceActions();
+    // Deactivate all inherited rules from old parent
+    if (oldParent != null) {
+      for (ActiveRule activeRule : oldParent.getActiveRules()) {
+        actions.add(deactivate(profile, activeRule.getRule(), userName));
       }
-      // Deactivate all inherited rules
-      if (oldParent != null) {
-        for (ActiveRule activeRule : oldParent.getActiveRules()) {
-          deactivate(profile, activeRule.getRule(), userName);
-        }
-      }
-      // Activate all inherited rules
-      if (newParent != null) {
-        for (ActiveRule activeRule : newParent.getActiveRules()) {
-          activateOrChange(profile, activeRule, userName);
-        }
-      }
-      profile.setParentName(newParent == null ? null : newParent.getName());
-      getSession().saveWithoutFlush(profile);
-      getSession().commit();
-      dryRunCache.reportGlobalModification();
     }
-    return messages;
+    // Activate all inherited rules of new parent
+    if (newParent != null) {
+      for (ActiveRule activeRule : newParent.getActiveRules()) {
+        actions.add(activateOrChange(profile, activeRule, userName));
+      }
+    }
+    getSession().commit();
+    dryRunCache.reportGlobalModification();
+    return actions;
   }
 
   /**
