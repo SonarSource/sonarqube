@@ -122,6 +122,11 @@ public class ProfileRulesTest {
     assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(null), paging).rules()).hasSize(3);
     assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules()).hasSize(1);
     assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(ProfileRuleQuery.INHERITANCE_NOT), paging).rules()).hasSize(1);
+
+    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(ProfileRuleQuery.INHERITANCE_NOT), paging).rules();
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).activeRuleId()).isEqualTo(2702);
   }
 
   @Test

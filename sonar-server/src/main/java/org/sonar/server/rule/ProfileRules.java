@@ -160,6 +160,8 @@ public class ProfileRules implements ServerExtension {
     if (inheritance != null && !inheritance.equals(ProfileRuleQuery.INHERITANCE_ANY)) {
       if (!inheritance.equals(ProfileRuleQuery.INHERITANCE_NOT)) {
         addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
+      } else {
+        filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
       }
     }
     return filter;
