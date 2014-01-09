@@ -146,7 +146,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.donutLabel2 = this.plotWrap.append('text')
         .style('text-anchor', 'middle')
-        .style('opacity', 0)
         .text(this.metrics()[this.mainMetric].name);
 
 
@@ -248,8 +247,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.donutLabel2
         .transition()
-        .style('font-size', (this.radius / 10) + 'px')
-        .attr('transform', trans(0, this.radius / 6));
+        .attr('transform', trans(0, widget.radius / 20))
+        .style('font-size', (this.radius / 10) + 'px');
 
 
     // Configure events
@@ -277,7 +276,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.donutLabel
               .style('opacity', 1);
           widget.donutLabel2
-              .style('opacity', 1);
+              .transition()
+              .attr('dy', '0')
+              .attr('transform', trans(0, widget.radius / 6));
           widget.plotWrap
               .classed('hover', true);
           sector.
@@ -297,7 +298,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .style('opacity', 0)
               .text('');
           widget.donutLabel2
-              .style('opacity', 0);
+              .transition()
+              .attr('transform', trans(0, widget.radius / 20));
           widget.plotWrap
               .classed('hover', false);
           sector.

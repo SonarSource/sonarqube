@@ -228,7 +228,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .orient('bottom');
 
     this.gxAxisLabel = this.gxAxis.append('text')
-        .text(this.metrics().x)
+        .text(this.metrics()[this.xMetric].name)
         .style('font-weight', 'bold')
         .style('text-anchor', 'middle');
 
@@ -241,7 +241,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gyAxis.attr('transform', trans(60 - this.margin().left, 0));
 
     this.gyAxisLabel = this.gyAxis.append('text')
-        .text(this.metrics().y)
+        .text(this.metrics()[this.yMetric].name)
         .style('font-weight', 'bold')
         .style('text-anchor', 'middle');
 
