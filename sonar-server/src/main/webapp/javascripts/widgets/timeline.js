@@ -360,7 +360,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update events
     this.gevents
         .transition()
-        .attr('transform', function(d) { return trans(widget.time(d.d), widget.availableHeight + 10); });
+        .attr('transform', function(d) { return trans(widget.time(d.d), widget.availableHeight + 10 + metricY); });
 
 
     // Select latest values if this it the first update
