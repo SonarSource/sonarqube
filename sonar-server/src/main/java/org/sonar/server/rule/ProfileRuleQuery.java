@@ -38,8 +38,8 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ProfileRuleQuery {
 
-  public static final String INHERITANCE_ANY = "any";
-  public static final String INHERITANCE_NOT = "NOT";
+  private static final String INHERITANCE_ANY = "any";
+  private static final String INHERITANCE_NOT = "NOT";
   private static final Set<String> AUTHORIZED_INHERITANCE_PARAMS = ImmutableSet.of(QProfileRule.INHERITED, QProfileRule.OVERRIDES, INHERITANCE_ANY, INHERITANCE_NOT);
 
   private static final String PARAM_PROFILE_ID = "profileId";
@@ -57,6 +57,8 @@ public class ProfileRuleQuery {
   private List<String> severities;
   private List<String> statuses;
   private String inheritance;
+  private boolean anyInheritance;
+  private boolean noInheritance;
 
   private ProfileRuleQuery() {
     repositoryKeys = Lists.newArrayList();
@@ -90,7 +92,15 @@ public class ProfileRuleQuery {
     if (params.containsKey(PARAM_INHERITANCE)) {
       String inheritance = (String) params.get(PARAM_INHERITANCE);
       validateInheritance(inheritance, errors);
-      result.setInheritance(inheritance);
+      if (inheritance.equals(INHERITANCE_ANY)) {
+        result.setAnyInheritance(true);
+      } else if (inheritance.equals(INHERITANCE_NOT)) {
+        result.setNoInheritance(true);
+      } else {
+        result.setInheritance(inheritance);
+      }
+    } else {
+      result.setAnyInheritance(true);
     }
 
     if (!errors.isEmpty()) {
@@ -151,6 +161,15 @@ public class ProfileRuleQuery {
     return this;
   }
 
+  public ProfileRuleQuery setAnyInheritance(boolean anyInheritance) {
+    this.anyInheritance = anyInheritance;
+    return this;
+  }
+
+  public ProfileRuleQuery setNoInheritance(boolean noInheritance) {
+    this.noInheritance = noInheritance;
+    return this;
+  }
 
   public int profileId() {
     return profileId;
@@ -181,6 +200,14 @@ public class ProfileRuleQuery {
   @CheckForNull
   public String inheritance() {
     return inheritance;
+  }
+
+  public boolean anyInheritance() {
+    return anyInheritance;
+  }
+
+  public boolean noInheritance() {
+    return noInheritance;
   }
 
   private static String[] optionalVarargs(Object jRubyArray) {

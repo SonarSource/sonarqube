@@ -63,14 +63,14 @@ public class ProfileRulesTest {
     profileRules = new ProfileRules(index);
 
     esSetup.client().prepareBulk()
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
-    .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
-    .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
-    .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
-    .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
-    .setRefresh(true).execute().actionGet();
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
+      .setRefresh(true).execute().actionGet();
   }
 
   @After
@@ -119,12 +119,21 @@ public class ProfileRulesTest {
   public void find_profile_rules_with_inheritance() {
     Paging paging = Paging.create(10, 1);
 
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(null), paging).rules()).hasSize(3);
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules()).hasSize(1);
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules()).hasSize(1);
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(ProfileRuleQuery.INHERITANCE_NOT), paging).rules()).hasSize(1);
+    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), paging).rules();
+    assertThat(rules).hasSize(3);
 
-    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(ProfileRuleQuery.INHERITANCE_NOT), paging).rules();
+    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setAnyInheritance(true), paging).rules();
+    assertThat(rules).hasSize(3);
+
+    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules();
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).activeRuleId()).isEqualTo(391);
+
+    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules();
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).activeRuleId()).isEqualTo(25);
+
+    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNoInheritance(true), paging).rules();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).activeRuleId()).isEqualTo(2702);
   }
@@ -135,7 +144,8 @@ public class ProfileRulesTest {
     // All rules for profile 1
     List<Integer> result = profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1));
     assertThat(result).hasSize(3);
-    assertThat(result.get(0)).isEqualTo(1);  }
+    assertThat(result.get(0)).isEqualTo(1);
+  }
 
   @Test
   public void get_from_active_rule() {

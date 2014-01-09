@@ -157,12 +157,10 @@ public class ProfileRules implements ServerExtension {
         );
     addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
     String inheritance = query.inheritance();
-    if (inheritance != null && !inheritance.equals(ProfileRuleQuery.INHERITANCE_ANY)) {
-      if (!inheritance.equals(ProfileRuleQuery.INHERITANCE_NOT)) {
-        addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
-      } else {
-        filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
-      }
+    if (inheritance != null) {
+      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
+    } else if (query.noInheritance()) {
+      filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
     }
     return filter;
   }

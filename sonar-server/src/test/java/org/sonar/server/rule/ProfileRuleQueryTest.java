@@ -44,6 +44,7 @@ public class ProfileRuleQueryTest {
     Map<String, Object> params = ImmutableMap.of("profileId", (Object) Integer.toString(profileId));
     ProfileRuleQuery query = ProfileRuleQuery.parse(params);
     assertThat(query.profileId()).isEqualTo(profileId);
+    assertThat(query.anyInheritance()).isTrue();
   }
 
   @Test
