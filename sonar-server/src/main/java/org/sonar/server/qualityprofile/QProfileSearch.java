@@ -78,7 +78,6 @@ public class QProfileSearch implements ServerComponent {
 
   private void incrementAncestors(QProfile profile, List<QProfile> ancestors, SqlSession session){
     if (profile.parent() != null) {
-      // TODO reuse same session
       QualityProfileDto parentDto = dao.selectParent(profile.id(), session);
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : "+ profile.id());

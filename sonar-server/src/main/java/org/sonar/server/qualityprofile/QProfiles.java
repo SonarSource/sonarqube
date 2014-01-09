@@ -88,7 +88,6 @@ public class QProfiles implements ServerComponent {
   // restore profile
   //
   // INHERITANCE
-  // get inheritance of profile id
   // change inheritance of a profile id
   //
   // ACTIVE RULES
