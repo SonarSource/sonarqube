@@ -79,7 +79,7 @@
     <logback.version>1.0.13</logback.version>
     <slf4j.version>1.7.5</slf4j.version>
     <tomcat.version>7.0.42</tomcat.version>
-    <elasticsearch.version>0.90.6</elasticsearch.version>
+    <elasticsearch.version>0.90.9</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
     <maven.api.version>2.2.0</maven.api.version>
@@ -676,7 +676,7 @@
       <dependency>
         <groupId>com.github.tlrx</groupId>
         <artifactId>elasticsearch-test</artifactId>
-        <version>${elasticsearch.version}</version>
+        <version>0.90.6</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
