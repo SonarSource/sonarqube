@@ -143,11 +143,10 @@
 <tr><td colspan="3" class="even"><%= message('no_results') -%>.</td></tr>
 <% end %>
 <%
-  parent_profile = Internal.quality_profiles.parent(@profile)
   @current_rules.each do |rule|
 %>
   <tr id="rule_<%= rule.id -%>">
-    <%= render :partial => 'rule', :object => rule, :locals => {:rule => rule, :profile => @profile, :parent_profile => parent_profile} %>
+    <%= render :partial => 'rule', :object => rule, :locals => {:rule => rule, :profile => @profile, :parent_profile => @parent_profile} %>
   </tr>
 <% end %>
 </tbody>

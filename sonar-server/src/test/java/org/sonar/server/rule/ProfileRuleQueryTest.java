@@ -21,13 +21,13 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.fest.assertions.Fail;
 import org.junit.Test;
 import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ProfileRuleQueryTest {
 
@@ -63,7 +63,7 @@ public class ProfileRuleQueryTest {
     Map<String, Object> params = ImmutableMap.of();
     try {
       ProfileRuleQuery.parse(params);
-      Fail.fail("Expected BadRequestException");
+      fail("Expected BadRequestException");
     } catch(BadRequestException bre) {
       assertThat(bre.errors().get(0).text()).isEqualTo("Missing parameter profileId");
     }
@@ -74,9 +74,24 @@ public class ProfileRuleQueryTest {
     Map<String, Object> params = ImmutableMap.of("profileId", (Object) "not an integer");
     try {
       ProfileRuleQuery.parse(params);
-      Fail.fail("Expected BadRequestException");
+      fail("Expected BadRequestException");
     } catch(Exception e) {
       assertThat(e).isInstanceOf(NumberFormatException.class);
+    }
+  }
+
+  @Test
+  public void fail_on_incorrect_inheritance() {
+    final int profileId = 42;
+    Map<String, Object> params = ImmutableMap.of(
+      "profileId", (Object) Integer.toString(profileId),
+      "inheritance", "bad value"
+    );
+    try {
+      ProfileRuleQuery.parse(params);
+      fail();
+    } catch(Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
     }
   }
 }

@@ -265,6 +265,24 @@ public class RuleRegistry {
     }
   }
 
+  public void bulkIndexActiveRules(List<Integer> ids, SqlSession session) {
+    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(ids, session);
+    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
+    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleIds(ids, session)) {
+      paramsByActiveRule.put(param.getActiveRuleId(), param);
+    }
+    bulkIndexActiveRules(activeRules, paramsByActiveRule);
+  }
+
+  public void bulkIndexActiveRules(List<Integer> ids) {
+    SqlSession session = myBatis.openSession();
+    try {
+      bulkIndexActiveRules(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   private void removeDeletedActiveRules(String[] ids) {
     TimeProfiler profiler = new TimeProfiler();
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));

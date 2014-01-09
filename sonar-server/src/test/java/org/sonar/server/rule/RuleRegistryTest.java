@@ -96,8 +96,6 @@ public class RuleRegistryTest {
     searchIndex = new SearchIndex(node, profiling);
     searchIndex.start();
 
-    myBatis = mock(MyBatis.class);
-
     registry = new RuleRegistry(searchIndex, ruleDao, activeRuleDao, myBatis);
     registry.start();
 
@@ -257,6 +255,32 @@ public class RuleRegistryTest {
     paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
 
     registry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
+    assertThat(esSetup.exists("rules", "active_rule", "1"));
+
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasChildFilter("active_rule", termFilter("profileId", 10))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(parentHit).hasSize(1);
+    assertThat(parentHit[0].getId()).isEqualTo("1");
+
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(childHit).hasSize(1);
+    assertThat(childHit[0].getId()).isEqualTo("1");
+  }
+
+  @Test
+  public void bulk_index_active_rules_from_ids() throws IOException {
+    when(myBatis.openSession()).thenReturn(session);
+
+    List<Integer> ids = newArrayList(1);
+    when(activeRuleDao.selectByIds(ids, session)).thenReturn(
+      newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2).setParentId(5)));
+    when(activeRuleDao.selectParamsByActiveRuleIds(ids, session)).thenReturn(
+      newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
+
+    registry.bulkIndexActiveRules(ids);
     assertThat(esSetup.exists("rules", "active_rule", "1"));
 
     SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(

@@ -21,16 +21,15 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -38,6 +37,10 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 4.2
  */
 public class ProfileRuleQuery {
+
+  public static final String INHERITANCE_ANY = "any";
+  public static final String INHERITANCE_NOT = "NOT";
+  private static final Set<String> AUTHORIZED_INHERITANCE_PARAMS = ImmutableSet.of(QProfileRule.INHERITED, QProfileRule.OVERRIDES, INHERITANCE_ANY, INHERITANCE_NOT);
 
   private static final String PARAM_PROFILE_ID = "profileId";
   private static final String PARAM_LANGUAGE = "language";
@@ -83,8 +86,11 @@ public class ProfileRuleQuery {
     if (params.get(PARAM_STATUSES) != null) {
       result.addStatuses(optionalVarargs(params.get(PARAM_STATUSES)));
     }
+
     if (params.containsKey(PARAM_INHERITANCE)) {
-      result.setInheritance((String) params.get(PARAM_INHERITANCE));
+      String inheritance = (String) params.get(PARAM_INHERITANCE);
+      validateInheritance(inheritance, errors);
+      result.setInheritance(inheritance);
     }
 
     if (!errors.isEmpty()) {
@@ -100,6 +106,12 @@ public class ProfileRuleQuery {
       if (params.get(param) == null) {
         errors.add(BadRequestException.Message.of("Missing parameter " + param));
       }
+    }
+  }
+
+  private static void validateInheritance(String value, List<BadRequestException.Message> errors) {
+    if (!AUTHORIZED_INHERITANCE_PARAMS.contains(value)) {
+      errors.add(BadRequestException.Message.of("Wrong inheritance param, should be one of " + AUTHORIZED_INHERITANCE_PARAMS));
     }
   }
 
