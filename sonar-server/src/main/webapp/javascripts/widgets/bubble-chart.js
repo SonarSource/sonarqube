@@ -203,7 +203,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           ];
 
           var lastX = 0;
-          widget.infoMetrics = widget.infoWrap.selectAll('.metric')
+          widget.infoMetrics
               .data(metricLines)
               .text(function(d) { return d.metric + ': ' + d.value; })
               .attr('transform', function(d, i) {
