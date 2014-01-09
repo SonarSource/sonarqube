@@ -22,7 +22,9 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -34,9 +36,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileSearch implements ServerComponent {
 
+  private final MyBatis myBatis;
   private final QualityProfileDao dao;
 
-  public QProfileSearch(QualityProfileDao dao) {
+  public QProfileSearch(MyBatis myBatis, QualityProfileDao dao) {
+    this.myBatis = myBatis;
     this.dao = dao;
   }
 
@@ -63,19 +67,25 @@ public class QProfileSearch implements ServerComponent {
 
   public List<QProfile> ancestors(QProfile profile) {
     List<QProfile> ancestors = newArrayList();
-    incrementAncestors(profile, ancestors);
+    SqlSession session = myBatis.openSession();
+    try {
+      incrementAncestors(profile, ancestors, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
     return ancestors;
   }
 
-  private void incrementAncestors(QProfile profile, List<QProfile> ancestors){
+  private void incrementAncestors(QProfile profile, List<QProfile> ancestors, SqlSession session){
     if (profile.parent() != null) {
-      QualityProfileDto parentDto = dao.selectParent(profile.id());
+      // TODO reuse same session
+      QualityProfileDto parentDto = dao.selectParent(profile.id(), session);
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : "+ profile.id());
       }
       QProfile parent = QProfile.from(parentDto);
       ancestors.add(parent);
-      incrementAncestors(parent, ancestors);
+      incrementAncestors(parent, ancestors, session);
     }
   }
 

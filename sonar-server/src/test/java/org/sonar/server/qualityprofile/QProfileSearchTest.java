@@ -20,11 +20,13 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -32,11 +34,18 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileSearchTest {
+
+  @Mock
+  MyBatis myBatis;
+
+  @Mock
+  SqlSession session;
 
   @Mock
   QualityProfileDao dao;
@@ -45,7 +54,8 @@ public class QProfileSearchTest {
 
   @Before
   public void setUp() throws Exception {
-    search = new QProfileSearch(dao);
+    when(myBatis.openSession()).thenReturn(session);
+    search = new QProfileSearch(myBatis, dao);
   }
 
   @Test
@@ -102,9 +112,9 @@ public class QProfileSearchTest {
 
   @Test
   public void search_ancestors() throws Exception {
-    when(dao.selectParent(3)).thenReturn(new QualityProfileDto().setId(2).setName("Child").setLanguage("java").setParent("Parent"));
-    when(dao.selectParent(2)).thenReturn(new QualityProfileDto().setId(1).setName("Parent").setLanguage("java"));
-    when(dao.selectParent(1)).thenReturn(null);
+    when(dao.selectParent(eq(3), eq(session))).thenReturn(new QualityProfileDto().setId(2).setName("Child").setLanguage("java").setParent("Parent"));
+    when(dao.selectParent(eq(2), eq(session))).thenReturn(new QualityProfileDto().setId(1).setName("Parent").setLanguage("java"));
+    when(dao.selectParent(eq(1), eq(session))).thenReturn(null);
 
     List<QProfile> result = search.ancestors(new QProfile().setId(3).setName("Grandchild").setLanguage("java").setParent("Child"));
     assertThat(result).hasSize(2);

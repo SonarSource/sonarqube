@@ -47,7 +47,7 @@
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
-    SELECT DISTINCT <include refid="profilesColumns"/>
+    SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
     <where>
       AND p.language=#{language}
