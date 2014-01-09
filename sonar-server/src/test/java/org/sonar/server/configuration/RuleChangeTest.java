@@ -19,15 +19,15 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.api.rules.ActiveRuleParamChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -127,7 +127,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   public void should_track_remove_activated_rules() {
     setupData("initialData");
     Rule rule = getSession().reattach(Rule.class, 1);
-    profilesManager.removeActivatedRules(rule);
+    profilesManager.removeActivatedRules(rule.getId());
     checkTables("removeActivatedRules", new String[] {"change_date"}, "active_rule_changes", "active_rules");
   }
 

@@ -270,7 +270,7 @@ public final class RegisterRules {
   private void disable(Rule rule) {
     if (!rule.getStatus().equals(Rule.STATUS_REMOVED)) {
       LOG.info("Removing rule " + rule.ruleKey());
-      profilesManager.removeActivatedRules(rule);
+      profilesManager.removeActivatedRules(rule.getId());
       rule = session.reattach(Rule.class, rule.getId());
       rule.setStatus(Rule.STATUS_REMOVED);
       rule.setUpdatedAt(new Date());

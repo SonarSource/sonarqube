@@ -67,7 +67,7 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
     getSession().save(profile1, rule1, activeRule1, profile2, activeRule2);
 
-    manager.removeActivatedRules(rule1);
+    manager.removeActivatedRules(rule1.getId());
 
     assertThat(getHQLCount(ActiveRule.class)).isEqualTo(0);
   }
