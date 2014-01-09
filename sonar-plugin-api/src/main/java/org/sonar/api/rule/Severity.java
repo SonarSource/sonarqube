@@ -47,7 +47,7 @@ public final class Severity {
     return ALL.get(ordinal);
   }
 
-  public static Integer ordinal(String severiy) {
+  public static int ordinal(String severiy) {
     return ALL.indexOf(severiy);
   }
 
