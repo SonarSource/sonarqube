@@ -64,6 +64,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     container = d3.select(container);
 
+    var validData = this.components().reduce(function(p, c) {
+      return p && !!c.measures[widget.metricsPriority()[0]]
+    }, true);
+
+    if (!validData) {
+      container.text(this.options().noMainMetric);
+      return;
+    }
+
+
     this.width(container.property('offsetWidth'));
 
     this.svg = container.append('svg')
@@ -80,11 +90,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure metrics
     this.mainMetric = this.metricsPriority()[0];
     this.getMainMetric = function(d) {
-      if (d.measures[widget.mainMetric]) {
-        return d.measures[widget.mainMetric].val;
-      } else {
-        return 0;
-      }
+      return d.measures[widget.mainMetric].val;
     };
 
 

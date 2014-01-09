@@ -70,6 +70,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     container = d3.select(container);
 
+    var validData = this.components().reduce(function(p, c) {
+      return p && !!c.measures[widget.metricsPriority()[0]] && !!c.measures[widget.metricsPriority()[1]];
+    }, true);
+
+    if (!validData) {
+      container.text(this.options().noMainMetric);
+      return;
+    }
+
+
     this.width(container.property('offsetWidth'));
 
     this.svg = container.append('svg')
@@ -105,7 +115,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.sizeMetric = this.metricsPriority()[2];
     this.getSizeMetric = function(d) {
-      return d.measures[widget.sizeMetric].val;
+      return !!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].val : 0;
     };
 
 
@@ -193,7 +203,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           var metricLines = [
             { metric: widget.metrics()[widget.xMetric].name, value: d.measures[widget.xMetric].fval },
             { metric: widget.metrics()[widget.yMetric].name, value: d.measures[widget.yMetric].fval },
-            { metric: widget.metrics()[widget.sizeMetric].name, value: d.measures[widget.sizeMetric].fval }
+            { metric: widget.metrics()[widget.sizeMetric].name, value: (!!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].fval : '–') }
           ];
 
           var lastX = 0;
