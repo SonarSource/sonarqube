@@ -57,9 +57,9 @@
               longName: '<%= escape_javascript row.resource.long_name -%>',
               qualifier: '<%= escape_javascript row.resource.qualifier -%>',
               measures: {
-                <%= xMetric.name -%>: { val: <%= x ? x.value : 0 -%> },
-                <%= yMetric.name -%>: { val: <%= y ? y.value : 0 -%> },
-                <%= sizeMetric.name -%>: { val: <%= size ? size.value : 0 -%> }
+                <%= xMetric.name -%>: { val: <%= x ? x.value : 0 -%>, fval: '<%= x ? x.formatted_value : "-" -%>' },
+                <%= yMetric.name -%>: { val: <%= y ? y.value : 0 -%>, fval: '<%= y ? y.formatted_value : "-" -%>' },
+                <%= sizeMetric.name -%>: { val: <%= size ? size.value : 0 -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
               }
             },
             <% end %>
