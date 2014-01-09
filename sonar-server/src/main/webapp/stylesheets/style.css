@@ -2480,7 +2480,10 @@ textarea.width100 {
   transition: all 0.2s ease;
 }
 
-.sonar-d3 .bar {
+.sonar-d3 .bar,
+.sonar-d3 .bar .legend-text,
+.sonar-d3 .pie-legend,
+.sonar-d3 .pie-legend .legend-text {
   cursor: pointer;
 }
 

@@ -220,7 +220,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.legendsEnter = this.legends.enter()
         .append('g')
-        .attr('class', 'legend')
+        .classed('legend pie-legend', true)
         .attr('transform', function(d, i) { return trans(0, 10 + i * widget._lineHeight); });
 
     this.legendsEnter.append('circle')
@@ -306,6 +306,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               classed('hover', false);
         },
 
+        clickHandler = function(d) {
+          switch (d.qualifier) {
+            case 'CLA':
+            case 'FIL':
+              window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
+                  '?metric=' + encodeURIComponent(widget.mainMetric);
+              break;
+            default:
+              window.location = widget.options().baseUrl + encodeURIComponent(d.key);
+          }
+        },
+
         updateMetrics = function(metrics) {
 
           widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
@@ -326,30 +338,24 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.sectors
         .on('mouseenter', function(d, i) {
-          return enterHandler(this, d.data, i, true);
+          return enterHandler(d3.select(this), d.data, i, true);
         })
         .on('mouseleave', function(d, i) {
-          return leaveHandler(this, d.data, i, true);
+          return leaveHandler(d3.select(this), d.data, i, true);
         })
         .on('click', function(d) {
-          switch (d.data.qualifier) {
-            case 'CLA':
-            case 'FIL':
-              window.location = widget.options().baseUrl + encodeURIComponent(d.data.key) +
-                  '?metric=' + encodeURIComponent(widget.mainMetric);
-              break;
-            default:
-              window.location = widget.options().baseUrl + encodeURIComponent(d.data.key);
-          }
+          return clickHandler(d.data);
         });
 
     this.legends
         .on('mouseenter', function(d, i) {
-          console.log(widget.sectors);
           return enterHandler(d3.select(widget.sectors[0][i]), d, i, false);
         })
         .on('mouseleave', function(d, i) {
           return leaveHandler(d3.select(widget.sectors[0][i]), d, i, false);
+        })
+        .on('click', function(d) {
+          return clickHandler(d);
         });
   };
 
