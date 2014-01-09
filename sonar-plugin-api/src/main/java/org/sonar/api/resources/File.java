@@ -191,9 +191,8 @@ public class File extends Resource {
   /**
    * Sets the language of the file
    */
-  public File setLanguage(Language language) {
+  public void setLanguage(Language language) {
     this.language = language;
-    return this;
   }
 
   /**

@@ -22,10 +22,12 @@ package org.sonar.batch.phases;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
@@ -61,8 +63,11 @@ public class FileIndexer implements BatchComponent {
       if (Java.KEY.equals(languageKey)) {
         sonarFile = JavaFile.fromRelativePath(inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
       } else {
-        sonarFile = new org.sonar.api.resources.File(languages.get(languageKey),
-          inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH));
+        File newFile = new File(languages.get(languageKey), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH));
+        if (newFile != null && unitTest) {
+          newFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
+        }
+        sonarFile = newFile;
       }
       if (sonarFile != null) {
         sonarFile.setPath(inputFile.path());
