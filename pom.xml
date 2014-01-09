@@ -671,6 +671,18 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-spatial</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
