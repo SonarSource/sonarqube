@@ -18,7 +18,7 @@
       <input type="checkbox" value="{{ item.id }}"
       {[ if (checked) { ]}checked{[ } ]}>
       {[ if (item.icon) { ]}
-      <i class="icon-{{ item.icon }}"></i>
+      <img src="{{ item.icon }}" alt="{{ item.text }}">
       {[ } ]}
       <span>
         {{ item.text }}

@@ -203,10 +203,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     restore: function(value, param) {
-      if (_.isString(value)) {
-        value = value.split(',');
-      }
-
       if (this.choices && this.selection && value.length > 0) {
         this.selection.reset([]);
 
@@ -248,10 +244,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       this.model.set({
         value: value,
         enabled: true
-      }, {
-        silent: true
       });
-      this.renderBase();
     },
 
 
@@ -398,19 +391,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
               text: r.users[0].name + ' (' + r.users[0].login + ')'
             }));
           });
-    },
-
-
-    formatValue: function() {
-      var q = {};
-      if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
-        var assignees = _.without(this.model.get('value'), '<unassigned>');
-        if (assignees.length > 0) {
-          q[this.model.get('property')] = assignees.join(',');
-        }
-        q.assigned = this.model.get('value').length <= assignees.length;
-      }
-      return q;
     }
 
   });

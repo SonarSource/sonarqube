@@ -807,19 +807,11 @@ th.operations, td.operations {
   border: 1px solid #DDD;
 }
 
-.code-issue-msg {
-  line-height: 1.5;
-  padding: 5px 10px;
-  border-left: 1px solid #DDD;
-  border-right: 1px solid #DDD;
-  background-color: #EFEFEF;
-}
-
 .code-issue-name img {
   vertical-align: text-bottom;
 }
 
-.code-issue-comment, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;
@@ -846,61 +838,6 @@ th.operations, td.operations {
   border: 1px dashed #DDD;
   color: #444;
   font-size: 12px;
-}
-
-.code-issue-details {
-  padding: 5px 0;
-  border-left: 1px solid #DDD;
-  border-right: 1px solid #DDD;
-  border-bottom: 1px solid #DDD;
-  background-color: #EFEFEF;
-}
-
-.code-issue-details .ui-tabs-panel {
-  padding: 5px 10px 0;
-  line-height: 1.3;
-}
-
-.code-issue-details .tabs {
-  height: auto;
-  padding: 0 5px;
-  border-top: 1px solid #DDD;
-  border-bottom: none;
-  background: #E4ECF3;
-}
-
-.code-issue-details .tabs li a:link,
-.code-issue-details .tabs li a:visited {
-  padding: 5px;
-}
-
-.code-issue-details-list {
-
-}
-
-.code-issue-details-list > li {
-  font-size: 0;
-}
-
-.code-issue-details-term,
-.code-issue-details-value {
-  display: inline-block;
-  vertical-align: top;
-  font-size: 12px;
-  line-height: 20px;
-}
-
-.code-issue-details-term {
-  width: 90px;
-}
-
-.code-issue-details-term:after {
-  content: ":";
-}
-
-.code-issue-collapsed .code-issue-msg,
-.code-issue-collapsed .code-issue-details {
-  display: none;
 }
 
 .tab_header {
@@ -1665,10 +1602,6 @@ ul.bullet li {
   padding: 0;
 }
 
-.tabs li a {
-  outline: none;
-}
-
 .tabs2 li a:link, .tabs2 li a:visited, .tabs li a:link, .tabs li a:visited {
   float: left;
   color: #777;
@@ -1678,9 +1611,9 @@ ul.bullet li {
   padding: 1px 5px;
 }
 
-.tabs2 li a.selected:link, .tabs2 li a.selected:visited, .tabs li a.selected:link, .tabs li a.selected:visited, .tabs .ui-tabs-active a {
+.tabs2 li a.selected:link, .tabs2 li a.selected:visited, .tabs li a.selected:link, .tabs li a.selected:visited {
   text-decoration: none;
-  color: #555 !important;
+  color: #555;
   font-weight: bold;
   margin: 0 1px 0 0;
 }

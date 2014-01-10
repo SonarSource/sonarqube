@@ -1,123 +1,59 @@
-<div class="code-issue"
-     data-issue-key="<%= issue.key -%>"
-     data-issue-component="<%= issue.componentKey() -%>"
-     data-issue-rule="<%= u issue.ruleKey().toString() -%>">
-
+<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
   <div class="code-issue-name">
-    <i class="icon-severity-<%= issue.severity.downcase -%>" title="<%= h message("severity.#{issue.severity}") -%>"></i>
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h @issue_results.rule(issue).getName() -%></a>
-
     <div style="float: right">
-      <% unless issue.status == "OPEN" %>
-        <i class="icon-status-<%= issue.status.downcase -%>"></i><%= h message("issue.status.#{issue.status}") -%>&nbsp;
-      <% end %>
-      <% if issue.resolution %>
-        <i class="icon-status-<%= issue.resolution.downcase -%>"></i><%= h message("issue.resolution.#{issue.resolution}") -%>&nbsp;
-      <% end %>
-
-      <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
-         id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%></a>
-
       <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
+
+    <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
+    &nbsp;
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h @issue_results.rule(issue).getName() -%></a>
+    &nbsp;
+    <% if issue.resolution %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
+      &nbsp;
+    <% else %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <span><%= message("issue.status.#{issue.status}") -%></span>
+      &nbsp;
+    <% end %>
+    <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+    &nbsp;
+    <%= message('issue.updated') -%>&nbsp;<a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
+       id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%></a>
+    &nbsp;
+    <% if issue.reporter %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <span><%= message('issue.reported_by') -%> <%= @issue_results.user(issue.reporter).name -%></span>
+      &nbsp;
+    <% end %>
+    <% if issue.authorLogin %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+     <span><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></span>
+      &nbsp;
+    <% end %>
+    <% if issue.technicalDebt %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <%= message('issue.technical_debt') -%>&nbsp;<a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
+           id="toggle-issue-technicaldebt"><%= Internal.technical_debt.format(issue.technicalDebt) -%></a>
+        &nbsp;
+    <% end %>
   </div>
 
   <div class="issue-rule rule-desc" style="display: none"></div>
   <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
+  <div class="issue-technicaldebt" id="issue-technicaldebt" style="display: none"></div>
 
   <% unless issue.message.blank? %>
     <div class="code-issue-msg">
       <%= Api::Utils.split_newlines(h(issue.message)).join('<br/>') -%>
     </div>
   <% end %>
-
-  <div class="code-issue-details">
-    <ul class="tabs">
-      <li>
-        <a href="#tab-issue-details"><%= message('issue.details') -%></a>
-      </li>
-      <li>
-        <a href="/dev/issue/rule/<%= u issue.ruleKey().toString() -%>"><%= message('rule') -%></a>
-      </li>
-      <li>
-        <a href="/dev/issue/changelog/<%= issue.key -%>"><%= message('changelog') -%></a>
-      </li>
-    </ul>
-    <div id="tab-issue-details">
-      <ul class="code-issue-details-list">
-        <li>
-          <div class="code-issue-details-term"><%= message('severity') -%></div>
-          <div class="code-issue-details-value">
-            <i class="icon-severity-<%= issue.severity.downcase -%>"></i><%= h message("severity.#{issue.severity}") -%>
-          </div>
-        </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('status') -%></div>
-          <div class="code-issue-details-value">
-            <i class="icon-status-<%= issue.status.downcase -%>"></i><%= h message("issue.status.#{issue.status}") -%>
-          </div>
-        </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('resolution') -%></div>
-            <div class="code-issue-details-value">
-              <% if issue.resolution %>
-                <i class="icon-status-<%= issue.resolution.downcase -%>"></i><%= h message("issue.resolution.#{issue.resolution}") -%>;
-              <% else %>
-                <%= message('unresolved') -%>
-              <% end %>
-            </div>
-          </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
-          <div class="code-issue-details-value">
-            <% if issue.actionPlanKey %>
-              <%= h @issue_results.actionPlan(issue).name() -%>
-            <% else %>
-              <%= message('none') -%>
-            <% end %>
-          </div>
-        </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
-          <div class="code-issue-details-value">
-            <%= h Internal.technical_debt.format(issue.technicalDebt) -%>
-          </div>
-        </li>
-        <% if issue.reporter %>
-          <li>
-            <div class="code-issue-details-term"><%= message('reporter') -%></div>
-            <div class="code-issue-details-value"><%= h @issue_results.user(issue.reporter).name -%></div>
-          </li>
-        <% end %>
-        <li>
-          <div class="code-issue-details-term"><%= message('author') -%></div>
-          <div class="code-issue-details-value"><%= h issue.authorLogin -%></div>
-        </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('assignee') -%></div>
-          <div class="code-issue-details-value">
-            <% if issue.assignee %>
-              <%= h @issue_results.user(issue.assignee).name -%>
-            <% else %>
-              <%= message('unassigned') -%>
-            <% end %>
-          </div>
-        </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('created') -%></div>
-          <div class="code-issue-details-value">
-            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.updateDate)) -%>
-          </div>
-        </li>
-        <li>
-          <div class="code-issue-details-term"><%= message('updated') -%></div>
-          <div class="code-issue-details-value">
-            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate)) -%>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
 
   <%
      issue.comments.each do |comment|
@@ -228,9 +164,3 @@
     </div>
   <% end %>
 </div>
-
-<script>
-  $j(function() {
-    $j('.code-issue-details').tabs();
-  });
-</script>

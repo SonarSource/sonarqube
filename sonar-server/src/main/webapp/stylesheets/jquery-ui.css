@@ -16,6 +16,8 @@
 }
 
 .ui-widget-header {
+  border: 1px solid #e78f08;
+  background: #f6a828 50% 50% repeat-x;
   color: #ffffff;
   font-weight: bold;
 }
