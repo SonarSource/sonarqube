@@ -243,9 +243,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .transition()
         .style('font-size', (this.radius / 6) + 'px');
 
+    var fz = Math.min(
+        this.radius / 10,
+        1.5 * this.radius / this.metrics()[this.mainMetric].name.length
+    );
     this.donutLabel2
         .attr('transform', trans(0, widget.radius / 6))
-        .style('font-size', (this.radius / 10) + 'px');
+        .style('font-size', fz + 'px');
 
 
     // Configure events
