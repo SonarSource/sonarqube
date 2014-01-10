@@ -56,6 +56,10 @@ class IssuesController < ApplicationController
     end
   end
 
+  def search2
+
+  end
+
   # Load existing filter
   # GET /issues/filter/<filter id>
   def filter

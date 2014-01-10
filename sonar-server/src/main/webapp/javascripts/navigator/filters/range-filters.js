@@ -149,6 +149,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           enabled: true
         });
       }
+    },
+
+
+    formatValue: function() {
+      return this.model.get('value');
     }
 
   });

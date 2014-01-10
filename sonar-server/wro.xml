@@ -9,6 +9,7 @@
     <css>/stylesheets/select2-sonar.css</css>
     <css>/stylesheets/layout.css</css>
     <css>/stylesheets/style.css</css>
+    <css>/stylesheets/icons.css</css>
     <css>/stylesheets/ui.css</css>
     <css>/stylesheets/sonar-colorizer.css</css>
     <css>/stylesheets/dashboard.css</css>
@@ -24,8 +25,10 @@
     <js>/javascripts/third-party/underscore-min.js</js>
     <js>/javascripts/third-party/backbone-min.js</js>
     <js>/javascripts/third-party/backbone.marionette.min.js</js>
+    <js>/javascripts/third-party/handlebars.js</js>
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
+    <js>/javascripts/third-party/moment.min.js</js>
 
     <js>/javascripts/widgets/widget.js</js>
     <js>/javascripts/widgets/bubble-chart.js</js>
@@ -33,8 +36,10 @@
     <js>/javascripts/widgets/stack-area.js</js>
     <js>/javascripts/widgets/pie-chart.js</js>
     <js>/javascripts/widgets/histogram.js</js>
-
+    
     <js>/javascripts/select-list.js</js>
+
+    <js>/javascripts/navigator/handlebars-extensions.js</js>
 
     <js>/javascripts/navigator/filters/base-filters.js</js>
     <js>/javascripts/navigator/filters/select-filters.js</js>
@@ -45,7 +50,10 @@
     <js>/javascripts/navigator/filters/metric-filters.js</js>
     <js>/javascripts/navigator/filters/favorite-filters.js</js>
     <js>/javascripts/navigator/filters/more-criteria-filters.js</js>
+
+    <js>/javascripts/navigator/issues.js</js>
     <js>/javascripts/navigator/issues-app.js</js>
+    <js>/javascripts/navigator/issues-app-old.js</js>
     <js>/javascripts/navigator/measures-app.js</js>
 
     <js>/javascripts/application.js</js>
