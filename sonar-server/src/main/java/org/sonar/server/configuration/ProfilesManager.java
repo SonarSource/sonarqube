@@ -196,19 +196,6 @@ public class ProfilesManager extends BaseDao {
     return actions;
   }
 
-  /**
-   * @return true, if setting <code>childProfile</code> as a child of <code>parentProfile</code> adds cycle
-   */
-  boolean isCycle(RulesProfile childProfile, RulesProfile parentProfile) {
-    while (parentProfile != null) {
-      if (childProfile.equals(parentProfile)) {
-        return true;
-      }
-      parentProfile = getParentProfile(parentProfile);
-    }
-    return false;
-  }
-
   public void revert(int profileId, int activeRuleId, String userName) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ActiveRule oldActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);

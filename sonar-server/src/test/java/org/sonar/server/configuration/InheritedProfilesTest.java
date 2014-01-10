@@ -21,15 +21,11 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.server.qualityprofile.RuleInheritanceActions;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class InheritedProfilesTest extends AbstractDbUnitTestCase {
@@ -38,23 +34,6 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Before
   public void setUp() {
     profilesManager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
-  }
-
-  @Test
-  public void shouldCheckCycles() {
-    setupData("shouldCheckCycles");
-    RulesProfile level1 = profilesManager.getProfile("java", "level1");
-    RulesProfile level2 = profilesManager.getProfile("java", "level2");
-    RulesProfile level3 = profilesManager.getProfile("java", "level3");
-
-    assertThat(profilesManager.getParentProfile(level1), nullValue());
-    assertThat(profilesManager.getParentProfile(level2), is(level1));
-    assertThat(profilesManager.getParentProfile(level3), is(level2));
-
-    assertThat(profilesManager.isCycle(level1, level1), is(true));
-    assertThat(profilesManager.isCycle(level1, level3), is(true));
-    assertThat(profilesManager.isCycle(level1, level2), is(true));
-    assertThat(profilesManager.isCycle(level2, level3), is(true));
   }
 
   @Test
