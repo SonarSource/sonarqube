@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-import org.sonar.api.utils.System2;
 
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,38 +37,28 @@ public class LoggingWatchTest {
   @Mock
   Logger logger;
 
-  @Mock
-  System2 system;
-
   LoggingWatch loggingWatch;
 
   @Before
   public void setUp() throws Exception {
-    doReturn(1000l).when(system).now();
-    loggingWatch = new LoggingWatch(logger, system);
+    loggingWatch = new LoggingWatch(logger);
   }
 
   @Test
   public void stop_with_params() throws Exception {
-    doReturn(1500l).when(system).now();
-
     loggingWatch.stop("Create '%s' elements of type '%s'", 10, "test");
-    verify(logger).info("{}ms {}", 500l, "Create '10' elements of type 'test'");
+    verify(logger).info(eq("{}ms {}"), anyLong(), eq("Create '10' elements of type 'test'"));
   }
 
   @Test
   public void stop_without_params() throws Exception {
-    doReturn(1500l).when(system).now();
-
     loggingWatch.stop("End of process");
-    verify(logger).info("{}ms {}", 500l, "End of process");
+    verify(logger).info(eq("{}ms {}"), anyLong(), eq("End of process"));
   }
 
   @Test
   public void stop_with_variable_but_without_params() throws Exception {
-    doReturn(1500l).when(system).now();
-
     loggingWatch.stop("End of process at %s");
-    verify(logger).info("{}ms {}", 500l, "End of process at %s");
+    verify(logger).info(eq("{}ms {}"), anyLong(), eq("End of process at %s"));
   }
 }
