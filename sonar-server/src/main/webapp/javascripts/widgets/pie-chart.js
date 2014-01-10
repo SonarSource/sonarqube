@@ -257,7 +257,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
                 value: (!!d.measures[m] ? d.measures[m].fval : '–')
               };
             });
-            metrics.unshift({ name: d.name });
+            metrics.unshift({ name: (d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name) });
             updateMetrics(metrics);
 
             widget.legendWrap
