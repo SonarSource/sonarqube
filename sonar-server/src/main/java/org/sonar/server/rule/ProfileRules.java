@@ -81,7 +81,7 @@ public class ProfileRules implements ServerExtension {
     BoolFilterBuilder filter = activeRuleFilter(query);
 
     SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
-      .setFilter(filter)
+      .setPostFilter(filter)
       .addFields(FIELD_SOURCE, FIELD_PARENT)
       .setSize(paging.pageSize())
       .setFrom(paging.offset());
@@ -117,7 +117,7 @@ public class ProfileRules implements ServerExtension {
     SearchRequestBuilder builder = index.client()
       .prepareSearch(INDEX_RULES)
       .setTypes(TYPE_ACTIVE_RULE)
-      .setFilter(filter);
+      .setPostFilter(filter);
     List<String> documentIds = index.findDocumentIds(builder, 2);
     return newArrayList(Iterables.transform(documentIds, new Function<String, Integer>() {
       @Override
@@ -135,7 +135,7 @@ public class ProfileRules implements ServerExtension {
         termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
 
     SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      .setFilter(filter)
+      .setPostFilter(filter)
       .addFields(FIELD_SOURCE, FIELD_PARENT)
       .setSize(paging.pageSize())
       .setFrom(paging.offset());

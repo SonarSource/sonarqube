@@ -257,13 +257,13 @@ public class RuleRegistryTest {
     registry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
     assertThat(esSetup.exists("rules", "active_rule", "1"));
 
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasChildFilter("active_rule", termFilter("profileId", 10))
     ).execute().actionGet().getHits().getHits();
     assertThat(parentHit).hasSize(1);
     assertThat(parentHit[0].getId()).isEqualTo("1");
 
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
     ).execute().actionGet().getHits().getHits();
     assertThat(childHit).hasSize(1);
@@ -283,13 +283,13 @@ public class RuleRegistryTest {
     registry.bulkIndexActiveRules(ids);
     assertThat(esSetup.exists("rules", "active_rule", "1"));
 
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasChildFilter("active_rule", termFilter("profileId", 10))
     ).execute().actionGet().getHits().getHits();
     assertThat(parentHit).hasSize(1);
     assertThat(parentHit[0].getId()).isEqualTo("1");
 
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
     ).execute().actionGet().getHits().getHits();
     assertThat(childHit).hasSize(1);
@@ -304,13 +304,13 @@ public class RuleRegistryTest {
     registry.save(activeRule, params);
     assertThat(esSetup.exists("rules", "active_rule", "1"));
 
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasChildFilter("active_rule", termFilter("profileId", 10))
     ).execute().actionGet().getHits().getHits();
     assertThat(parentHit).hasSize(1);
     assertThat(parentHit[0].getId()).isEqualTo("1");
 
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setFilter(
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
       hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
     ).execute().actionGet().getHits().getHits();
     assertThat(childHit).hasSize(1);

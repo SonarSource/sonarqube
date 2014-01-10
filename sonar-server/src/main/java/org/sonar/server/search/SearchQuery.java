@@ -33,10 +33,7 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder.Operator;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 
 /**
  * This class can be used to build "AND" form queries, to be passed e.g to {@link SearchIndex#findDocumentIds(SearchQuery)}
@@ -110,7 +107,7 @@ public class SearchQuery {
     SearchRequestBuilder builder = client.prepareSearch(indices.toArray(new String[0])).setTypes(types.toArray(new String[0]));
 
     if (fieldCriteria.isEmpty() && notFieldCriteria.isEmpty() && StringUtils.isBlank(searchString)) {
-      builder.setFilter(new MatchAllFilterBuilder());
+      builder.setPostFilter(new MatchAllFilterBuilder());
     } else {
       BoolFilterBuilder boolFilter = boolFilter();
 
@@ -138,7 +135,7 @@ public class SearchQuery {
           .allowLeadingWildcard(false)));
       }
 
-      builder.setFilter(boolFilter);
+      builder.setPostFilter(boolFilter);
     }
     return builder;
   }
