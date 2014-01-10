@@ -117,7 +117,7 @@ public class QProfileRuleOperations implements ServerComponent {
         .setParentId(templateRule.getId())
         .setName(name)
         .setDescription(description)
-        .setSeverity(Severity.ordinal(severity))
+        .setSeverity(getSeverityOrdinal(severity))
         .setRepositoryKey(templateRule.getRepositoryKey())
         .setConfigKey(templateRule.getConfigKey())
         .setRuleKey(templateRule.getRuleKey() + "_" + system.now())
@@ -158,7 +158,7 @@ public class QProfileRuleOperations implements ServerComponent {
     try {
       rule.setName(name)
         .setDescription(description)
-        .setSeverity(Severity.ordinal(severity))
+        .setSeverity(getSeverityOrdinal(severity))
         .setUpdatedAt(new Date(system.now()));
       ruleDao.update(rule, session);
 
@@ -223,6 +223,10 @@ public class QProfileRuleOperations implements ServerComponent {
       throw new BadRequestException("User login can't be null");
     }
     return login;
+  }
+
+  private static int getSeverityOrdinal(String severity) {
+    return Severity.ALL.indexOf(severity);
   }
 
 }

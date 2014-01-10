@@ -31,14 +31,4 @@ public class SeverityTest {
 
   }
 
-  @Test
-  public void test_get() throws Exception {
-    assertThat(Severity.get(0)).isEqualTo("INFO");
-  }
-
-  @Test
-  public void test_ordinal() throws Exception {
-    assertThat(Severity.ordinal("INFO")).isEqualTo(0);
-  }
-
 }

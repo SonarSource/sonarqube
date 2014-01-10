@@ -84,7 +84,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       ActiveRuleDto activeRule = new ActiveRuleDto()
         .setProfileId(qualityProfile.getId())
         .setRuleId(rule.getId())
-        .setSeverity(Severity.ordinal(severity));
+        .setSeverity(getSeverityOrdinal(severity));
       activeRuleDao.insert(activeRule, session);
 
       List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId(), session);
@@ -115,11 +115,11 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     SqlSession session = myBatis.openSession();
     try {
       Integer oldSeverity = activeRule.getSeverity();
-      activeRule.setSeverity(Severity.ordinal(newSeverity));
+      activeRule.setSeverity(getSeverityOrdinal(newSeverity));
       activeRuleDao.update(activeRule, session);
       session.commit();
 
-      notifySeverityChanged(activeRule, newSeverity, Severity.get(oldSeverity), session, userSession);
+      notifySeverityChanged(activeRule, newSeverity, getSeverityFromOrdinal(oldSeverity), session, userSession);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -284,7 +284,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.update(activeRule, session);
       session.commit();
       actions.add(profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
-        RulePriority.valueOf(Severity.get(oldSeverity)), RulePriority.valueOf(Severity.get(newSeverity)), userSession.name()));
+        RulePriority.valueOf(getSeverityFromOrdinal(oldSeverity)), RulePriority.valueOf(getSeverityFromOrdinal(newSeverity)), userSession.name()));
     }
   }
 
@@ -389,6 +389,14 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       throw new IllegalArgumentException("No rule param found");
     }
     return ruleParam;
+  }
+
+  private static String getSeverityFromOrdinal(int ordinal) {
+    return Severity.ALL.get(ordinal);
+  }
+
+  private static int getSeverityOrdinal(String severity) {
+    return Severity.ALL.indexOf(severity);
   }
 
 }
