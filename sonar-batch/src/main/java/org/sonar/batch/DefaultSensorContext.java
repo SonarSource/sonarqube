@@ -19,6 +19,7 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
@@ -31,7 +32,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.measure.MeasurementFilters;
@@ -61,16 +62,21 @@ public class DefaultSensorContext implements SensorContext {
 
   public boolean index(Resource resource) {
     // SONAR-5006
-    if (ResourceUtils.isPersistable(resource)) {
+    if (indexedByCore(resource)) {
       logWarning();
       return true;
     }
     return index.index(resource);
   }
 
+  private boolean indexedByCore(Resource resource) {
+    return StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) ||
+      StringUtils.equals(Scopes.FILE, resource.getScope());
+  }
+
   public boolean index(Resource resource, Resource parentReference) {
     // SONAR-5006
-    if (ResourceUtils.isPersistable(resource)) {
+    if (indexedByCore(resource)) {
       logWarning();
       return true;
     }
@@ -78,7 +84,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private void logWarning() {
-    LOG.debug("Plugins are no more allowed to index physical resources like directories and files. This is now handled by the platform.", new SonarException(
+    LOG.debug("Plugins are no more responsible for indexing physical resources like directories and files. This is now handled by the platform.", new SonarException(
       "Plugin should not index physical resources"));
   }
 
