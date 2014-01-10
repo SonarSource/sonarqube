@@ -48,18 +48,6 @@ public class ProfileRuleQueryTest {
   }
 
   @Test
-  public void parse_with_inheritance() {
-    final int profileId = 42;
-    Map<String, Object> params = ImmutableMap.of(
-      "profileId", (Object) Integer.toString(profileId),
-      "inheritance", "OVERRIDES"
-    );
-    ProfileRuleQuery query = ProfileRuleQuery.parse(params);
-    assertThat(query.profileId()).isEqualTo(profileId);
-    assertThat(query.inheritance()).isEqualTo("OVERRIDES");
-  }
-
-  @Test
   public void fail_on_missing_profileId() {
     Map<String, Object> params = ImmutableMap.of();
     try {
@@ -82,12 +70,20 @@ public class ProfileRuleQueryTest {
   }
 
   @Test
-  public void fail_on_incorrect_inheritance() {
+  public void parse_with_inheritance() {
     final int profileId = 42;
     Map<String, Object> params = ImmutableMap.of(
       "profileId", (Object) Integer.toString(profileId),
-      "inheritance", "bad value"
+      "inheritance", "OVERRIDES"
     );
+    ProfileRuleQuery query = ProfileRuleQuery.parse(params);
+    assertThat(query.profileId()).isEqualTo(profileId);
+    assertThat(query.inheritance()).isEqualTo("OVERRIDES");
+  }
+
+  @Test
+  public void fail_on_incorrect_inheritance() {
+    Map<String, Object> params = ImmutableMap.of("profileId", (Object) Integer.toString(42), "inheritance", "bad value");
     try {
       ProfileRuleQuery.parse(params);
       fail();
@@ -95,4 +91,33 @@ public class ProfileRuleQueryTest {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
   }
+
+  @Test
+  public void parse_with_sort() {
+    ProfileRuleQuery query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42),
+      "sort_by", ProfileRuleQuery.SORT_BY_CREATION_DATE));
+    assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_CREATION_DATE);
+    assertThat(query.asc()).isTrue();
+
+    query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42),
+      "sort_by", ProfileRuleQuery.SORT_BY_RULE_NAME, "asc", "false"));
+    assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_RULE_NAME);
+    assertThat(query.asc()).isFalse();
+
+    query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42)));
+    assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_RULE_NAME);
+    assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void fail_on_incorrect_sort() {
+    Map<String, Object> params = ImmutableMap.of("profileId", (Object) Integer.toString(42), "sort_by", "bad sort");
+    try {
+      ProfileRuleQuery.parse(params);
+      fail();
+    } catch(Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+  }
+
 }

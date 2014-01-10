@@ -21,10 +21,9 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -33,6 +32,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
 import org.sonar.server.qualityprofile.Paging;
@@ -78,36 +78,42 @@ public class ProfileRules implements ServerExtension {
   }
 
   public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
-    BoolFilterBuilder filter = activeRuleFilter(query);
-
-    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
-      .setPostFilter(filter)
-      .addFields(FIELD_SOURCE, FIELD_PARENT)
+    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+      .setPostFilter(ruleFilter(query)
+        .must(hasChildFilter(TYPE_ACTIVE_RULE, childFilter(query))))
       .setSize(paging.pageSize())
       .setFrom(paging.offset());
-    SearchHits hits = index.executeRequest(builder);
+    addOrder(query, builder);
+    SearchHits ruleHits = index.executeRequest(builder);
 
-    List<Map<String, Object>> activeRuleSources = Lists.newArrayList();
-    String[] parentIds = new String[hits.getHits().length];
-    int hitCounter = 0;
+    List<Integer> ruleIds = Lists.newArrayList();
+    for (SearchHit ruleHit: ruleHits) {
+      ruleIds.add(Integer.valueOf(ruleHit.id()));
+    }
 
     List<QProfileRule> result = Lists.newArrayList();
-    for (SearchHit hit: hits.getHits()) {
-      activeRuleSources.add(hit.sourceAsMap());
-      parentIds[hitCounter] = hit.field(FIELD_PARENT).value();
-      hitCounter ++;
-    }
 
-    if (hitCounter > 0) {
-      MultiGetRequestBuilder getParentRules = index.client().prepareMultiGet().add(INDEX_RULES, TYPE_RULE, parentIds);
-      MultiGetItemResponse[] responses = index.executeMultiGet(getParentRules);
+    if (!ruleIds.isEmpty()) {
+      SearchRequestBuilder activeRuleBuilder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
+        .setPostFilter(boolFilter()
+          .must(
+            termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
+            hasParentFilter(TYPE_RULE, termsFilter(RuleDocument.FIELD_ID, ruleIds))
+          ))
+        .addFields(FIELD_SOURCE, FIELD_PARENT)
+        .setSize(ruleHits.getHits().length);
+      SearchHits activeRuleHits = index.executeRequest(activeRuleBuilder);
 
-      for (int i = 0; i < hitCounter; i ++) {
-        result.add(new QProfileRule(responses[i].getResponse().getSourceAsMap(), activeRuleSources.get(i)));
+      Map<String, SearchHit> activeRuleByParent = Maps.newHashMap();
+      for (SearchHit activeRuleHit: activeRuleHits) {
+        activeRuleByParent.put((String) activeRuleHit.field(FIELD_PARENT).getValue(), activeRuleHit);
+      }
+
+      for (SearchHit ruleHit: ruleHits) {
+        result.add(new QProfileRule(ruleHit.sourceAsMap(), activeRuleByParent.get(ruleHit.id()).sourceAsMap()));
       }
     }
-
-    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), ruleHits.getTotalHits()));
   }
 
   // FIXME Due to a bug in E/S, As the query filter contain a filter with has_parent, nothing will be returned
@@ -128,7 +134,7 @@ public class ProfileRules implements ServerExtension {
   }
 
   public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
-    BoolFilterBuilder filter = parentRuleFilter(query);
+    BoolFilterBuilder filter = ruleFilter(query);
     addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
     filter.mustNot(
       hasChildFilter(TYPE_ACTIVE_RULE,
@@ -139,22 +145,35 @@ public class ProfileRules implements ServerExtension {
       .addFields(FIELD_SOURCE, FIELD_PARENT)
       .setSize(paging.pageSize())
       .setFrom(paging.offset());
+    addOrder(query, builder);
 
     SearchHits hits = index.executeRequest(builder);
     List<QProfileRule> result = Lists.newArrayList();
-    for (SearchHit hit: hits.getHits()) {
+    for (SearchHit hit : hits.getHits()) {
       result.add(new QProfileRule(hit.sourceAsMap()));
     }
-
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
+  protected BoolFilterBuilder childFilter(ProfileRuleQuery query) {
+    BoolFilterBuilder filter = boolFilter().must(
+      termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())
+    );
+    addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
+    String inheritance = query.inheritance();
+    if (inheritance != null) {
+      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
+    } else if (query.noInheritance()) {
+      filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
+    }
+    return filter;
+  }
 
   protected BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
     BoolFilterBuilder filter = boolFilter().must(
-            termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
-            hasParentFilter(TYPE_RULE, parentRuleFilter(query))
-        );
+      termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
+      hasParentFilter(TYPE_RULE, ruleFilter(query))
+    );
     addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
     String inheritance = query.inheritance();
     if (inheritance != null) {
@@ -170,7 +189,7 @@ public class ProfileRules implements ServerExtension {
       index.client()
         .prepareCount(INDEX_RULES)
         .setTypes(TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query)))
+        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query)))
     );
   }
 
@@ -178,11 +197,11 @@ public class ProfileRules implements ServerExtension {
     return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_RULE)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         boolFilter()
-          .must(parentRuleFilter(query))
+          .must(ruleFilter(query))
           .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()))))));
   }
 
-  private BoolFilterBuilder parentRuleFilter(ProfileRuleQuery query) {
+  private BoolFilterBuilder ruleFilter(ProfileRuleQuery query) {
     BoolFilterBuilder result = boolFilter();
 
     if (StringUtils.isNotBlank(query.language())) {
@@ -222,6 +241,15 @@ public class ProfileRules implements ServerExtension {
       } else {
         return termsFilter(field, terms.toArray());
       }
+    }
+  }
+
+  private void addOrder(ProfileRuleQuery query, SearchRequestBuilder builder) {
+    SortOrder sortOrder = query.asc() ? SortOrder.ASC : SortOrder.DESC;
+    if (query.sort().equals(ProfileRuleQuery.SORT_BY_RULE_NAME)) {
+      builder.addSort(RuleDocument.FIELD_NAME + ".raw", sortOrder);
+    } else if (query.sort().equals(ProfileRuleQuery.SORT_BY_CREATION_DATE)) {
+      builder.addSort(RuleDocument.FIELD_CREATED_AT, sortOrder);
     }
   }
 }

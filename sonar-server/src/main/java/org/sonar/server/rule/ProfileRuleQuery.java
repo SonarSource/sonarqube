@@ -38,6 +38,10 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ProfileRuleQuery {
 
+  public static final String SORT_BY_CREATION_DATE = "SORT_BY_CREATION_DATE";
+  public static final String SORT_BY_RULE_NAME = "SORT_BY_RULE_NAME";
+  public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_RULE_NAME);
+
   private static final String INHERITANCE_ANY = "any";
   private static final String INHERITANCE_NOT = "NOT";
   private static final Set<String> AUTHORIZED_INHERITANCE_PARAMS = ImmutableSet.of(QProfileRule.INHERITED, QProfileRule.OVERRIDES, INHERITANCE_ANY, INHERITANCE_NOT);
@@ -49,6 +53,8 @@ public class ProfileRuleQuery {
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
   private static final String PARAM_INHERITANCE = "inheritance";
+  private static final String PARAM_SORT = "sort_by";
+  private static final String PARAM_ASC = "asc";
 
   private int profileId;
   private String language;
@@ -60,10 +66,15 @@ public class ProfileRuleQuery {
   private boolean anyInheritance;
   private boolean noInheritance;
 
+  private String sort;
+  private boolean asc;
+
   private ProfileRuleQuery() {
     repositoryKeys = Lists.newArrayList();
     severities = Lists.newArrayList();
     statuses = Lists.newArrayList();
+    sort = SORT_BY_RULE_NAME;
+    asc = true;
   }
 
   public static ProfileRuleQuery parse(Map<String, Object> params) {
@@ -103,6 +114,16 @@ public class ProfileRuleQuery {
       result.setAnyInheritance(true);
     }
 
+    if (params.get(PARAM_SORT) != null) {
+      String sort = (String) params.get(PARAM_SORT);
+      Boolean asc = RubyUtils.toBoolean(params.get(PARAM_ASC));
+      validateSort(sort, errors);
+      result.setSort(sort);
+      if (asc != null) {
+        result.setAsc(asc);
+      }
+    }
+
     if (!errors.isEmpty()) {
       throw BadRequestException.of("Incorrect rule search parameters", errors);
     } else {
@@ -122,6 +143,12 @@ public class ProfileRuleQuery {
   private static void validateInheritance(String value, List<BadRequestException.Message> errors) {
     if (!AUTHORIZED_INHERITANCE_PARAMS.contains(value)) {
       errors.add(BadRequestException.Message.of("Wrong inheritance param, should be one of " + AUTHORIZED_INHERITANCE_PARAMS));
+    }
+  }
+
+  private static void validateSort(String sort, List<BadRequestException.Message> errors) {
+    if (!SORTS.contains(sort)) {
+      errors.add(BadRequestException.Message.of("Bad sort field, should be one of " + SORTS));
     }
   }
 
@@ -171,6 +198,16 @@ public class ProfileRuleQuery {
     return this;
   }
 
+  public ProfileRuleQuery setSort(String sort) {
+    this.sort = sort;
+    return this;
+  }
+
+  public ProfileRuleQuery setAsc(boolean asc) {
+    this.asc = asc;
+    return this;
+  }
+
   public int profileId() {
     return profileId;
   }
@@ -208,6 +245,14 @@ public class ProfileRuleQuery {
 
   public boolean noInheritance() {
     return noInheritance;
+  }
+
+  public String sort() {
+    return sort;
+  }
+
+  public boolean asc() {
+    return asc;
   }
 
   private static String[] optionalVarargs(Object jRubyArray) {
