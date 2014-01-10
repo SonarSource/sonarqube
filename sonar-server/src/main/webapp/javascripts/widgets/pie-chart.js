@@ -244,8 +244,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('font-size', (this.radius / 6) + 'px');
 
     this.donutLabel2
-        .transition()
-        .attr('transform', trans(0, widget.radius / 20))
+        .attr('transform', trans(0, widget.radius / 6))
         .style('font-size', (this.radius / 10) + 'px');
 
 
@@ -273,10 +272,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .text(d.measures[widget.mainMetric].fval);
           widget.donutLabel
               .style('opacity', 1);
-          widget.donutLabel2
-              .transition()
-              .attr('dy', '0')
-              .attr('transform', trans(0, widget.radius / 6));
           widget.plotWrap
               .classed('hover', true);
           sector.
@@ -295,9 +290,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.donutLabel
               .style('opacity', 0)
               .text('');
-          widget.donutLabel2
-              .transition()
-              .attr('transform', trans(0, widget.radius / 20));
           widget.plotWrap
               .classed('hover', false);
           sector.
