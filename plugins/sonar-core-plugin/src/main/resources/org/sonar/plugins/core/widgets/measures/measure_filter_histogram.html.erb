@@ -4,7 +4,7 @@
   filterId = widget_properties["filter"].to_i
   maxItems = widget_properties["maxItems"].to_i
   reverseOrder = widget_properties["reverseOrder"]
-  displayWorstBestValues = widget_properties["displayWorstBestValues"]
+  relativeScale = widget_properties["relativeScale"]
 
   filter = MeasureFilter.find_by_id(filterId.to_i)
   @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
@@ -43,7 +43,7 @@
       .metricsPriority(metrics)
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
-        displayWorstBestValues: <%= displayWorstBestValues -%>,
+        relativeScale: <%= relativeScale -%>,
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         noData: '<%= message('no_data') -%>',
         noMainMetric: '<%= message('widget.measure_filter.no_main_metric') -%>'

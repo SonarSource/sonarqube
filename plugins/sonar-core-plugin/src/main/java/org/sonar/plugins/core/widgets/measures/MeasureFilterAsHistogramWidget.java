@@ -34,7 +34,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.TECHNICAL_DEBT_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "40"),
   @WidgetProperty(key = "reverseOrder", type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
-  @WidgetProperty(key = "displayWorstBestValues", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
+  @WidgetProperty(key = "relativeScale", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
 public class MeasureFilterAsHistogramWidget extends CoreWidget {
 
