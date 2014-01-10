@@ -20,6 +20,12 @@
       <artifactId>sonar-runner-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-sec-dispatcher</artifactId>
+       <version>1.4</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <scope>provided</scope>
