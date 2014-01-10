@@ -138,7 +138,7 @@ public class ActiveRuleParam implements Cloneable {
 
   @Override
   public Object clone() {
-    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getParamKey() != null ? getParamKey() : getRuleParam().getKey(), getValue());
+    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getParamKey(), getValue());
   }
 
 }

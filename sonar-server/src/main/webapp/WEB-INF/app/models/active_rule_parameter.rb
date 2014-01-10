@@ -21,6 +21,8 @@
    belongs_to :active_rule
    belongs_to :rules_parameter
 
+   validates_presence_of :rules_parameter_key
+
    def name
     rules_parameter.name
    end
@@ -34,7 +36,7 @@
    end
 
    def copy
-     ActiveRuleParameter.new(:rules_parameter => rules_parameter, :value => value)
+     ActiveRuleParameter.new(:rules_parameter => rules_parameter, :value => value, :rules_parameter_key => rules_parameter.name)
    end
 
  end

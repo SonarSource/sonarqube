@@ -125,7 +125,7 @@ class RulesConfigurationController < ApplicationController
         if active_rule.nil?
           active_rule = ActiveRule.new(:profile_id => profile.id, :rule => rule)
           rule.parameters.select { |p| p.default_value.present? }.each do |p|
-            active_rule.active_rule_parameters.build(:rules_parameter => p, :value => p.default_value)
+            active_rule.active_rule_parameters.build(:rules_parameter => p, :value => p.default_value, :rules_parameter_key => p.name)
           end
           activated = true
         end
@@ -331,7 +331,7 @@ class RulesConfigurationController < ApplicationController
 
     value = params[:value]
     if value != ""
-      active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule) if active_param.nil?
+      active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule, :rules_parameter_key => rule_param.name) if active_param.nil?
       old_value = active_param.value
       active_param.value = value
       if active_param.save! && active_param.valid?
