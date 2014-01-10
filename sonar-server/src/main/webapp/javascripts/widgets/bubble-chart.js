@@ -188,7 +188,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             case 'CLA':
             case 'FIL':
               window.location = widget.options().baseUrl + encodeURIComponent(d.key) +
-                  '?metric=' + encodeURIComponent(widget.mainMetric);
+                  '?metric=' + encodeURIComponent(widget.xMetric);
               break;
             default:
               window.location = widget.options().baseUrl + encodeURIComponent(d.key);
