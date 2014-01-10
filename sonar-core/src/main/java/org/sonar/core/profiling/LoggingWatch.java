@@ -19,22 +19,32 @@
  */
 package org.sonar.core.profiling;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
+import org.sonar.api.utils.System2;
 
 class LoggingWatch extends StopWatch {
 
   private Logger logger;
+  private System2 system;
   private long startTimeInMillis;
 
   LoggingWatch(Logger logger) {
+    this(logger, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  LoggingWatch(Logger logger, System2 system) {
+    this.system = system;
     this.logger = logger;
-    this.startTimeInMillis = System.currentTimeMillis();
+    this.startTimeInMillis = system.now();
   }
 
   @Override
   public void stop(String message, Object... args) {
-    long endTimeInMillis = System.currentTimeMillis();
-    logger.info("{}ms {}", Long.valueOf(endTimeInMillis - startTimeInMillis), String.format(message, args));
+    long endTimeInMillis = system.now();
+    String messageToDisplay = (args.length == 0) ? message : String.format(message, args);
+    logger.info("{}ms {}", Long.valueOf(endTimeInMillis - startTimeInMillis), messageToDisplay);
   }
 
 }
