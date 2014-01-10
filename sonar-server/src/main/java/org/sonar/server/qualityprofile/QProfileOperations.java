@@ -143,12 +143,13 @@ public class QProfileOperations implements ServerComponent {
   }
 
   @VisibleForTesting
-  boolean isCycle(QualityProfileDto childProfile, QualityProfileDto parentProfile, SqlSession session) {
-    while (parentProfile != null) {
-      if (childProfile.getName().equals(parentProfile.getName())) {
+  boolean isCycle(QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile, SqlSession session) {
+    QualityProfileDto currentParent = parentProfile;
+    while (currentParent != null) {
+      if (childProfile.getName().equals(currentParent.getName())) {
         return true;
       }
-      parentProfile = getParent(parentProfile, session);
+      currentParent = getParent(currentParent, session);
     }
     return false;
   }
