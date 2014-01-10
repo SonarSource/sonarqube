@@ -173,7 +173,7 @@ public class RuleDefinitionsTest {
       rule.newParam("level");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The parameter 'NPE' is declared several times on the rule [repository=findbugs, key=NPE]");
+      assertThat(e).hasMessage("The parameter 'level' is declared several times on the rule [repository=findbugs, key=NPE]");
     }
   }
 
