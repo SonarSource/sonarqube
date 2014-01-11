@@ -23,7 +23,7 @@ package org.sonar.core.permission;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.date.DateProvider;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
@@ -39,14 +39,13 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   Date now;
   PermissionTemplateDao permissionTemplateDao;
-  DateProvider dateProvider;
+  System2 system = mock(System2.class);
 
   @Before
   public void setUpDao() throws ParseException {
     now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
-    dateProvider = mock(DateProvider.class);
-    stub(dateProvider.now()).toReturn(now);
-    permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), dateProvider);
+    when(system.now()).thenReturn(now.getTime());
+    permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), system);
   }
 
   @Test
@@ -78,7 +77,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession()).thenReturn(session);
 
-    permissionTemplateDao = new PermissionTemplateDao(myBatis, dateProvider);
+    permissionTemplateDao = new PermissionTemplateDao(myBatis, system);
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);
 
     verify(mapper).insert(permissionTemplate);

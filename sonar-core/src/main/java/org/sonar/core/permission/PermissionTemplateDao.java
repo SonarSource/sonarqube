@@ -27,8 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
-import org.sonar.core.date.DateProvider;
-import org.sonar.core.date.DefaultDateProvider;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -45,15 +44,15 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   public static final String QUERY_PARAMETER = "query";
   public static final String TEMPLATE_ID_PARAMETER = "templateId";
   private final MyBatis myBatis;
-  private final DateProvider dateProvider;
+  private final System2 system;
 
-  public PermissionTemplateDao(MyBatis myBatis, DateProvider dateProvider) {
+  PermissionTemplateDao(MyBatis myBatis, System2 system) {
     this.myBatis = myBatis;
-    this.dateProvider = dateProvider;
+    this.system = system;
   }
 
   public PermissionTemplateDao(MyBatis myBatis) {
-    this(myBatis, new DefaultDateProvider());
+    this(myBatis, System2.INSTANCE);
   }
 
   /**
@@ -258,6 +257,6 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   private Date now() {
-    return dateProvider.now();
+    return new Date(system.now());
   }
 }
