@@ -132,7 +132,7 @@ public interface WebService extends ServerExtension {
     }
 
     public String path() {
-      return String.format("%s/%s", WebServiceEngine.BASE_PATH, key);
+      return String.format("ws/%s", key);
     }
 
     @CheckForNull
