@@ -41,6 +41,7 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -113,7 +114,8 @@ public class QProfileOperations implements ServerComponent {
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
-    QProfile profile = profileLookup.profile(profileId);
+    QProfile profile = findNotNull(profileId);
+
     if (!profile.name().equals(newName)) {
       checkNotAlreadyExists(newName, profile.language());
     }
@@ -129,10 +131,11 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
     checkPermission(userSession);
-    QualityProfileDto profile = profileLookup.profile(profileId).toDto();
+    QualityProfileDto profile = findNotNull(profileId).toDto();
+
     QualityProfileDto parentProfile = null;
     if (parentId != null) {
-      parentProfile = profileLookup.profile(parentId).toDto();
+      parentProfile = findNotNull(parentId).toDto();
     }
 
     SqlSession session = myBatis.openSession();
@@ -250,8 +253,16 @@ public class QProfileOperations implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
+  private QProfile findNotNull(int profileId) {
+    QProfile profile = profileLookup.profile(profileId);
+    if (profile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return profile;
+  }
+
   private void checkNotAlreadyExists(String name, String language) {
-    if (dao.selectByNameAndLanguage(name, language) != null) {
+    if (profileLookup.profile(name, language) != null) {
       throw BadRequestException.ofL10n("quality_profiles.already_exists");
     }
   }

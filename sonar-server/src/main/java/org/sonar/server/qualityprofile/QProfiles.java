@@ -88,10 +88,12 @@ public class QProfiles implements ServerComponent {
     return profileLookup.profiles(language);
   }
 
+  @CheckForNull
   public QProfile profile(int id) {
     return profileLookup.profile(id);
   }
 
+  @CheckForNull
   public QProfile profile(String name, String language) {
     validateProfileName(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
@@ -122,7 +124,8 @@ public class QProfiles implements ServerComponent {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
-  
+
+  @CheckForNull
   public QProfile parent(QProfile profile) {
     return profileLookup.parent(profile);
   }
@@ -189,7 +192,7 @@ public class QProfiles implements ServerComponent {
   // PROFILE RULES
 
   public ProfileRules.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
-    return rules.searchProfileRules(query, paging);
+    return rules.search(query, paging);
   }
 
   public long countProfileRules(ProfileRuleQuery query) {
@@ -197,7 +200,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public ProfileRules.QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
-    return rules.searchInactiveProfileRules(query, paging);
+    return rules.searchInactives(query, paging);
   }
 
   public long countInactiveProfileRules(ProfileRuleQuery query) {
@@ -265,20 +268,20 @@ public class QProfiles implements ServerComponent {
     }
     // Empty note -> do nothing
 
-    return rules.getFromActiveRuleId(activeRule.getId());
+    return rules.findByActiveRuleId(activeRule.getId());
   }
 
   public QProfileRule deleteActiveRuleNote(int activeRuleId) {
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     activeRuleOperations.deleteActiveRuleNote(activeRule, UserSession.get());
-    return rules.getFromActiveRuleId(activeRule.getId());
+    return rules.findByActiveRuleId(activeRule.getId());
   }
 
   @CheckForNull
   public QProfileRule parentProfileRule(QProfileRule rule) {
     Integer parentId = rule.parentId();
     if (parentId != null) {
-      return rules.getFromActiveRuleId(parentId);
+      return rules.findByActiveRuleId(parentId);
     }
     return null;
   }
@@ -295,19 +298,19 @@ public class QProfiles implements ServerComponent {
       ruleOperations.deleteRuleNote(rule, UserSession.get());
     }
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    return rules.getFromActiveRuleId(activeRule.getId());
+    return rules.findByActiveRuleId(activeRule.getId());
   }
 
   @CheckForNull
   public QProfileRule rule(int ruleId) {
-    return rules.getFromRuleId(ruleId);
+    return rules.findByRuleId(ruleId);
   }
 
   public QProfileRule createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRule(null, name, severity, description);
     RuleDto newRule = ruleOperations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
-    return rules.getFromRuleId(newRule.getId());
+    return rules.findByRuleId(newRule.getId());
   }
 
   public QProfileRule updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
@@ -315,7 +318,7 @@ public class QProfiles implements ServerComponent {
     validateRuleParent(rule);
     validateRule(ruleId, name, severity, description);
     ruleOperations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
-    return rules.getFromRuleId(ruleId);
+    return rules.findByRuleId(ruleId);
   }
 
   public void deleteRule(int ruleId) {
@@ -465,12 +468,12 @@ public class QProfiles implements ServerComponent {
 
   private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
     QProfile profile = QProfile.from(qualityProfile);
-    return new ProfileRuleChanged(profile, findParent(profile), rules.getFromActiveRuleId(activeRule.getId()));
+    return new ProfileRuleChanged(profile, findParent(profile), rules.findByActiveRuleId(activeRule.getId()));
   }
 
   private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
     QProfile profile = QProfile.from(qualityProfile);
-    return new ProfileRuleChanged(profile, findParent(profile), rules.getFromRuleId(rule.getId()));
+    return new ProfileRuleChanged(profile, findParent(profile), rules.findByRuleId(rule.getId()));
   }
 
   public static class ProfileRuleChanged {

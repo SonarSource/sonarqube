@@ -95,6 +95,7 @@ class Api::ProfilesController < Api::ApiController
   def set_as_default
     verify_post_request
     profile = Internal.quality_profiles.profile(params[:name], params[:language])
+    not_found('Profile not found') unless profile
     Internal.quality_profiles.setDefaultProfile(profile.id)
     render_success
   end

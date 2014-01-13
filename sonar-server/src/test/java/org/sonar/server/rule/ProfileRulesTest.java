@@ -86,65 +86,77 @@ public class ProfileRulesTest {
   }
 
   @Test
+  public void find_by_rule_id() {
+    assertThat(profileRules.findByRuleId(25)).isNotNull();
+    assertThat(profileRules.findByRuleId(9999)).isNull();
+  }
+
+  @Test
+  public void find_by_active_rule_id() {
+    assertThat(profileRules.findByActiveRuleId(391)).isNotNull();
+    assertThat(profileRules.findByActiveRuleId(9999)).isNull();
+  }
+
+  @Test
   public void find_profile_rules() {
     Paging paging = Paging.create(10, 1);
 
     // All rules for profile 1
-    List<QProfileRule> rules1 = profileRules.searchProfileRules(ProfileRuleQuery.create(1), paging).rules();
+    List<QProfileRule> rules1 = profileRules.search(ProfileRuleQuery.create(1), paging).rules();
     assertThat(rules1).hasSize(3);
     assertThat(rules1.get(0).key()).isEqualTo("ArchitecturalConstraint");
     assertThat(rules1.get(0).severity()).isEqualTo(Severity.CRITICAL);
 
     // All rules for profile 2
-    List<QProfileRule> rules2 = profileRules.searchProfileRules(ProfileRuleQuery.create(2), paging).rules();
+    List<QProfileRule> rules2 = profileRules.search(ProfileRuleQuery.create(2), paging).rules();
     assertThat(rules2).hasSize(1);
     assertThat(rules2.get(0).id()).isEqualTo(759);
     assertThat(rules2.get(0).activeRuleId()).isEqualTo(523);
 
     // Match on key
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
 
     // Match on name
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
 
     // Match on repositoryKey
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
 
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addSeverities(Severity.CRITICAL), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).addSeverities(Severity.CRITICAL), paging).rules()).hasSize(1);
     // Active rule 25 is in MINOR (rule 25 is in INFO)
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addSeverities(Severity.INFO), paging).rules()).isEmpty();
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).addSeverities(Severity.INFO), paging).rules()).isEmpty();
 
     // Match on key, rule has parameters
-    List<QProfileRule> rulesWParam = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
+    List<QProfileRule> rulesWParam = profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
     assertThat(rulesWParam).hasSize(1);
     assertThat(rulesWParam.get(0).params()).hasSize(2);
 
     // Inexistent profile
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
+    assertThat(profileRules.search(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
 
     // Inexistent name/key
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
   }
 
   @Test
   public void find_profile_rules_with_inheritance() {
     Paging paging = Paging.create(10, 1);
 
-    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), paging).rules();
+    List<QProfileRule> rules = profileRules.search(ProfileRuleQuery.create(1), paging).rules();
     assertThat(rules).hasSize(3);
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setAnyInheritance(true), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setAnyInheritance(true), paging).rules();
     assertThat(rules).hasSize(3);
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setInheritance(QProfileRule.INHERITED), paging).rules();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).activeRuleId()).isEqualTo(391);
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setInheritance(QProfileRule.OVERRIDES), paging).rules();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).activeRuleId()).isEqualTo(25);
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNoInheritance(true), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setNoInheritance(true), paging).rules();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).activeRuleId()).isEqualTo(2702);
   }
@@ -153,13 +165,13 @@ public class ProfileRulesTest {
   public void find_profile_rules_sorted_by_name() {
     Paging paging = Paging.create(10, 1);
 
-    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(true), paging).rules();
+    List<QProfileRule> rules = profileRules.search(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(true), paging).rules();
     assertThat(rules).hasSize(3);
     assertThat(rules.get(0).name()).isEqualTo("Architectural constraint");
     assertThat(rules.get(1).name()).isEqualTo("Internationalization - Consider using Locale parameterized version of invoked method");
     assertThat(rules.get(2).name()).isEqualTo("Unused Null Check In Equals");
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(false), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(false), paging).rules();
     assertThat(rules).hasSize(3);
     assertThat(rules.get(0).name()).isEqualTo("Unused Null Check In Equals");
     assertThat(rules.get(1).name()).isEqualTo("Internationalization - Consider using Locale parameterized version of invoked method");
@@ -170,13 +182,13 @@ public class ProfileRulesTest {
   public void find_profile_rules_sorted_by_creation_date() {
     Paging paging = Paging.create(10, 1);
 
-    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(true), paging).rules();
+    List<QProfileRule> rules = profileRules.search(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(true), paging).rules();
     assertThat(rules).hasSize(3);
     assertThat(rules.get(0).key()).isEqualTo("DM_CONVERT_CASE");
     assertThat(rules.get(1).key()).isEqualTo("UnusedNullCheckInEquals");
     assertThat(rules.get(2).key()).isEqualTo("ArchitecturalConstraint");
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(false), paging).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(false), paging).rules();
     assertThat(rules).hasSize(3);
     assertThat(rules.get(0).key()).isEqualTo("ArchitecturalConstraint");
     assertThat(rules.get(1).key()).isEqualTo("UnusedNullCheckInEquals");
@@ -185,12 +197,12 @@ public class ProfileRulesTest {
 
   @Test
   public void find_profile_rules_with_paging() {
-    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), Paging.create(2, 1)).rules();
+    List<QProfileRule> rules = profileRules.search(ProfileRuleQuery.create(1), Paging.create(2, 1)).rules();
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).key()).isEqualTo("ArchitecturalConstraint");
     assertThat(rules.get(1).key()).isEqualTo("DM_CONVERT_CASE");
 
-    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), Paging.create(2, 2)).rules();
+    rules = profileRules.search(ProfileRuleQuery.create(1), Paging.create(2, 2)).rules();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).key()).isEqualTo("UnusedNullCheckInEquals");
   }
@@ -229,28 +241,28 @@ public class ProfileRulesTest {
     Paging paging = Paging.create(10, 1);
 
     // Search of inactive rule on profile 2
-    assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(2), paging).rules()).hasSize(4);
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2), paging).rules()).hasSize(4);
 
     // Search of inactive rule on profile 1
-    assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(1), paging).rules()).hasSize(2);
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(1), paging).rules()).hasSize(2);
 
     // Match on key
-    assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"), paging).rules()).hasSize(1);
 
     // Mach on severity
-    assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(2).addSeverities(Severity.INFO), paging).rules()).hasSize(1);
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).addSeverities(Severity.INFO), paging).rules()).hasSize(1);
   }
 
   @Test
   public void find_inactive_profile_rules_sorted_by_name() {
     Paging paging = Paging.create(10, 1);
 
-    List<QProfileRule> rules = profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(true), paging).rules();
+    List<QProfileRule> rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(true), paging).rules();
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).name()).isEqualTo("Boolean expressions should not be compared to true or false");
     assertThat(rules.get(1).name()).isEqualTo("Double Checked Locking");
 
-    rules = profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(false), paging).rules();
+    rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(false), paging).rules();
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).name()).isEqualTo("Double Checked Locking");
     assertThat(rules.get(1).name()).isEqualTo("Boolean expressions should not be compared to true or false");
@@ -260,12 +272,12 @@ public class ProfileRulesTest {
   public void find_inactive_profile_rules_sorted_by_creation_date() {
     Paging paging = Paging.create(10, 1);
 
-    List<QProfileRule> rules = profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(true), paging).rules();
+    List<QProfileRule> rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(true), paging).rules();
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).key()).isEqualTo("com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck");
     assertThat(rules.get(1).key()).isEqualTo("S1125");
 
-    rules = profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(false), paging).rules();
+    rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setSort(ProfileRuleQuery.SORT_BY_CREATION_DATE).setAsc(false), paging).rules();
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).key()).isEqualTo("S1125");
     assertThat(rules.get(1).key()).isEqualTo("com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck");
@@ -303,12 +315,12 @@ public class ProfileRulesTest {
 
   @Test
   public void get_from_active_rule() {
-    assertThat(profileRules.getFromActiveRuleId(391)).isNotNull();
+    assertThat(profileRules.findByActiveRuleId(391)).isNotNull();
   }
 
   @Test
   public void get_from_rule() {
-    assertThat(profileRules.getFromActiveRuleId(25)).isNotNull();
+    assertThat(profileRules.findByActiveRuleId(25)).isNotNull();
   }
 
   private String testFileAsString(String testFile) throws Exception {

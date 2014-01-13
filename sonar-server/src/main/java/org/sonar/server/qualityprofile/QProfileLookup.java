@@ -53,14 +53,22 @@ public class QProfileLookup implements ServerComponent {
     return toQProfiles(dao.selectByLanguage(language));
   }
 
+  @CheckForNull
   public QProfile profile(int id) {
-    return QProfile.from(findNotNull(id));
+    QualityProfileDto dto = findQualityProfile(id);
+    if (dto != null) {
+      return QProfile.from(dto);
+    }
+    return null;
   }
 
+  @CheckForNull
   public QProfile profile(String name, String language) {
-    QualityProfileDto profile = findQualityProfile(name, language);
-    checkNotNull(profile);
-    return QProfile.from(profile);
+    QualityProfileDto dto = findQualityProfile(name, language);
+    if (dto != null) {
+      return QProfile.from(dto);
+    }
+    return null;
   }
 
   @CheckForNull
@@ -72,10 +80,15 @@ public class QProfileLookup implements ServerComponent {
     return null;
   }
 
+  @CheckForNull
   public QProfile parent(QProfile profile) {
-    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
-    checkNotNull(parent);
-    return QProfile.from(parent);
+    if (profile.parent() != null) {
+      QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
+      if (parent != null) {
+        return QProfile.from(parent);
+      }
+    }
+    return null;
   }
 
   public List<QProfile> children(QProfile profile) {
@@ -116,11 +129,6 @@ public class QProfileLookup implements ServerComponent {
         return QProfile.from(input);
       }
     }));
-  }
-
-  private QualityProfileDto findNotNull(int id) {
-    QualityProfileDto qualityProfile = findQualityProfile(id);
-    return checkNotNull(qualityProfile);
   }
 
   @CheckForNull

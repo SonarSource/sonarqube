@@ -46,6 +46,7 @@ import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -151,7 +152,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_create_profile_if_already_exists() throws Exception {
-    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
+    when(profileLookup.profile(anyString(), anyString())).thenReturn(new QProfile());
     try {
       operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
       fail();
@@ -237,9 +238,20 @@ public class QProfileOperationsTest {
   }
 
   @Test
+  public void fail_to_rename_profile_if_not_exists() throws Exception {
+    when(profileLookup.profile(1)).thenReturn(null);
+    try {
+      operations.renameProfile(1, "New Default", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+  }
+
+  @Test
   public void fail_to_rename_profile_if_already_exists() throws Exception {
     when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Default").setLanguage("java"));
-    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
+    when(profileLookup.profile(anyString(), anyString())).thenReturn(new QProfile());
     try {
       operations.renameProfile(1, "New Default", authorizedUserSession);
       fail();
@@ -317,6 +329,19 @@ public class QProfileOperationsTest {
     verify(profilesManager).profileParentChanged(1, null, "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void fail_to_update_parent_if_not_exists() throws Exception {
+    when(profileLookup.profile(1)).thenReturn(null);
+    when(profileLookup.profile(3)).thenReturn(new QProfile().setId(3).setName("Parent").setLanguage("java"));
+
+    try {
+      operations.updateParentProfile(1, 3, authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   @Test

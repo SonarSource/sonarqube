@@ -29,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class QProfileLookupTest {
   }
 
   @Test
-  public void search_profile_from_id() throws Exception {
+  public void find_by_id() throws Exception {
     when(dao.selectById(1)).thenReturn(
       new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
     );
@@ -76,22 +75,20 @@ public class QProfileLookupTest {
   }
 
   @Test
-  public void search_profile_from_name_and_language() throws Exception {
+  public void find_by_id_return_null_if_not_exists() throws Exception {
+    assertThat(search.profile(1)).isNull();
+  }
+
+  @Test
+  public void find_by_name_and_language() throws Exception {
     when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
 
     assertThat(search.profile("Sonar Way", "java")).isNotNull();
   }
 
   @Test
-  public void fail_to_search_profile_from_id_if_not_found() throws Exception {
-    when(dao.selectById(1)).thenReturn(null);
-
-    try {
-      search.profile(1);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+  public void find_by_name_and_language_return_null_if_not_exists() throws Exception {
+    assertThat(search.profile("Sonar Way", "java")).isNull();
   }
 
   @Test
@@ -120,21 +117,21 @@ public class QProfileLookupTest {
 
 
   @Test
-  public void search_parent() throws Exception {
+  public void find_parent() throws Exception {
     when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
     search.parent(new QProfile().setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way"));
     verify(dao).selectByNameAndLanguage("Sonar Way", "java");
   }
 
   @Test
-  public void fail_to_search_parent_if_parent_cannot_be_found() throws Exception {
+  public void find_parent_return_null_if_no_parent() throws Exception {
+    assertThat(search.parent(new QProfile().setName("Sonar Way with Findbugs").setLanguage("java").setParent(null))).isNull();
+  }
+
+  @Test
+  public void find_parent_return_null_if_parent_not_exists() throws Exception {
     when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(null);
-    try {
-      search.parent(new QProfile().setName("Sonar Way").setLanguage("java").setParent("Parent"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+    assertThat(search.parent(new QProfile().setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way"))).isNull();
   }
 
   @Test

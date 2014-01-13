@@ -46,6 +46,8 @@ import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -80,6 +82,18 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     this.rulesLookup = rulesLookup;
     this.system = system;
   }
+
+//  public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
+//    QProfile profile = profileLookup.profile(profileId);
+//    RuleDto rule = findRuleNotNull(ruleId);
+//    ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
+//    if (activeRule == null) {
+//      activeRule = activeRuleOperations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
+//    } else {
+//      activeRuleOperations.updateSeverity(activeRule, severity, UserSession.get());
+//    }
+//    return activeRuleChanged(qualityProfile, activeRule);
+//  }
 
   public ActiveRuleDto createActiveRule(QualityProfileDto qualityProfile, RuleDto rule, String severity, UserSession userSession) {
     validatePermission(userSession);
@@ -401,6 +415,31 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private static int getSeverityOrdinal(String severity) {
     return Severity.ALL.indexOf(severity);
+  }
+
+  public static class ProfileRuleChanged {
+
+    private QProfile profile;
+    private QProfile parentProfile;
+    private QProfileRule rule;
+
+    public ProfileRuleChanged(QProfile profile, @Nullable QProfile parentProfile, QProfileRule rule) {
+      this.profile = profile;
+      this.parentProfile = parentProfile;
+      this.rule = rule;
+    }
+
+    public QProfile profile() {
+      return profile;
+    }
+
+    public QProfile parentProfile() {
+      return parentProfile;
+    }
+
+    public QProfileRule rule() {
+      return rule;
+    }
   }
 
 }

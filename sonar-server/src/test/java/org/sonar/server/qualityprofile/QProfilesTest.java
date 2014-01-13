@@ -284,7 +284,7 @@ public class QProfilesTest {
     when(rule.parentId()).thenReturn(6);
 
     qProfiles.parentProfileRule(rule);
-    verify(rules).getFromActiveRuleId(6);
+    verify(rules).findByActiveRuleId(6);
   }
 
   @Test
@@ -294,7 +294,7 @@ public class QProfilesTest {
     when(rule.parentId()).thenReturn(null);
 
     assertThat(qProfiles.parentProfileRule(rule)).isNull();
-    verify(rules, never()).getFromActiveRuleId(anyInt());
+    verify(rules, never()).findByActiveRuleId(anyInt());
   }
 
   @Test
@@ -303,7 +303,7 @@ public class QProfilesTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
-    when(rules.searchProfileRules(query, paging)).thenReturn(result);
+    when(rules.search(query, paging)).thenReturn(result);
     assertThat(qProfiles.searchProfileRules(query, paging)).isEqualTo(result);
   }
 
@@ -313,7 +313,7 @@ public class QProfilesTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
     ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
-    when(rules.searchInactiveProfileRules(query, paging)).thenReturn(result);
+    when(rules.searchInactives(query, paging)).thenReturn(result);
     assertThat(qProfiles.searchInactiveProfileRules(query, paging)).isEqualTo(result);
   }
 
@@ -553,7 +553,7 @@ public class QProfilesTest {
   public void get_rule_from_id() throws Exception {
     qProfiles.rule(10);
 
-    verify(rules).getFromRuleId(10);
+    verify(rules).findByRuleId(10);
   }
 
   @Test
@@ -568,7 +568,7 @@ public class QProfilesTest {
     qProfiles.createRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey);
 
     verify(ruleOperations).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
-    verify(rules).getFromRuleId(11);
+    verify(rules).findByRuleId(11);
   }
 
   @Test
@@ -624,7 +624,7 @@ public class QProfilesTest {
     qProfiles.updateRule(11, "Updated name", Severity.MAJOR, "Updated description", paramsByKey);
 
     verify(ruleOperations).updateRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
-    verify(rules).getFromRuleId(11);
+    verify(rules).findByRuleId(11);
   }
 
   @Test
@@ -638,7 +638,7 @@ public class QProfilesTest {
     qProfiles.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
 
     verify(ruleOperations).updateRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
-    verify(rules).getFromRuleId(11);
+    verify(rules).findByRuleId(11);
   }
 
   @Test

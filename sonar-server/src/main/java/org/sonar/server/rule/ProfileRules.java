@@ -39,6 +39,8 @@ import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.search.SearchIndex;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -61,23 +63,33 @@ public class ProfileRules implements ServerExtension {
     this.index = index;
   }
 
-  public QProfileRule getFromActiveRuleId(int activeRuleId) {
+  @CheckForNull
+  public QProfileRule findByActiveRuleId(int activeRuleId) {
     GetResponse activeRuleResponse = index.client().prepareGet(INDEX_RULES, TYPE_ACTIVE_RULE, Integer.toString(activeRuleId))
       .setFields(FIELD_SOURCE, FIELD_PARENT)
       .execute().actionGet();
     Map<String, Object> activeRuleSource = activeRuleResponse.getSourceAsMap();
-    Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, (String) activeRuleResponse.getField(FIELD_PARENT).getValue())
-      .execute().actionGet().getSourceAsMap();
-    return new QProfileRule(ruleSource, activeRuleSource);
+    if (activeRuleSource != null) {
+      Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, (String) activeRuleResponse.getField(FIELD_PARENT).getValue())
+        .execute().actionGet().getSourceAsMap();
+      if (ruleSource != null) {
+        return new QProfileRule(ruleSource, activeRuleSource);
+      }
+    }
+    return null;
   }
 
-  public QProfileRule getFromRuleId(Integer ruleId) {
+  @CheckForNull
+  public QProfileRule findByRuleId(Integer ruleId) {
     Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, Integer.toString(ruleId))
       .execute().actionGet().getSourceAsMap();
-    return new QProfileRule(ruleSource);
+    if (ruleSource != null) {
+      return new QProfileRule(ruleSource);
+    }
+    return null;
   }
 
-  public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleResult search(ProfileRuleQuery query, Paging paging) {
     SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(TYPE_ACTIVE_RULE, activeRuleFilter(query))));
     List<Integer> ruleIds = Lists.newArrayList();
     for (SearchHit ruleHit : ruleHits) {
@@ -139,7 +151,7 @@ public class ProfileRules implements ServerExtension {
     );
   }
 
-  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleResult searchInactives(ProfileRuleQuery query, Paging paging) {
     SearchHits hits = searchRules(query, paging, ruleFilterForInactiveRuleSearch(query), FIELD_SOURCE, FIELD_PARENT);
     List<QProfileRule> result = Lists.newArrayList();
     for (SearchHit hit : hits.getHits()) {
