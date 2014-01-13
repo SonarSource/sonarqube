@@ -20,7 +20,7 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,10 +29,14 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
@@ -40,15 +44,11 @@ import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -65,7 +65,7 @@ public class SourceScannerTest {
   @Mock
   private PatternMatcher patternMatcher;
   @Mock
-  private ModuleFileSystem fileSystem;
+  private DefaultModuleFileSystem fs;
 
   private Project project;
 
@@ -75,16 +75,19 @@ public class SourceScannerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private File baseDir;
+
   @Before
-  public void init() {
+  public void init() throws IOException {
+    baseDir = temp.newFolder();
     MockitoAnnotations.initMocks(this);
 
     Project realProject = new Project("polop");
     project = Mockito.spy(realProject);
     Mockito.doReturn("java").when(project).getLanguageKey();
-    when(fileSystem.sourceCharset()).thenReturn(UTF_8);
+    when(fs.sourceCharset()).thenReturn(UTF_8);
 
-    scanner = new SourceScanner(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fileSystem);
+    scanner = new SourceScanner(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }
 
   @Test
@@ -114,121 +117,105 @@ public class SourceScannerTest {
 
   @Test
   public void shouldAnalyseJavaProject() throws IOException {
-    File sourceFile = new File("src/main/java/Foo.java");
-    File testFile = new File("src/test/java/FooTest.java");
+    File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
+    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY))).thenReturn((Iterable) Arrays.asList(
+      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/Foo.java")
+        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java")
+        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/main/java/Foo.java")
+        .build()));
+    File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
+    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
+      (Iterable) Arrays.asList(
+        new InputFileBuilder(javaTestFile1, Charsets.UTF_8, "src/test/java/FooTest.java")
+          .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "FooTest.java")
+          .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/test/java/FooTest.java")
+          .build()));
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
 
-    when(project.getLanguageKey()).thenReturn("java");
-    when(fileSystem.files(Mockito.isA(FileQuery.class)))
-      .thenReturn(Arrays.asList(sourceFile))
-      .thenReturn(Arrays.asList(testFile));
-    when(fileSystem.sourceDirs()).thenReturn(Arrays.asList(new File("src/main/java")));
-    when(fileSystem.testDirs()).thenReturn(Arrays.asList(new File("src/test/java")));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
     scanner.analyse(project, null);
 
-    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:[default].FooTest");
-    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:[default].FooTest");
-    verify(regexpScanner).scan("polop:[default].Foo", sourceFile, UTF_8);
-    verify(regexpScanner).scan("polop:[default].FooTest", testFile, UTF_8);
+    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:/src/main/java/Foo.java");
+    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:/src/test/java/FooTest.java");
+    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:/src/main/java/Foo.java");
+    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:/src/test/java/FooTest.java");
+    verify(regexpScanner).scan("polop:/src/main/java/Foo.java", javaFile1, UTF_8);
+    verify(regexpScanner).scan("polop:/src/test/java/FooTest.java", javaTestFile1, UTF_8);
   }
 
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
-    File sourceFile = new File("src/main/java/Foo.java");
-    File testFile = new File("src/test/java/FooTest.java");
+    File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
+    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY))).thenReturn((Iterable) Arrays.asList(
+      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/Foo.java")
+        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java")
+        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/main/java/Foo.java")
+        .build()));
+    File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
+    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
+      (Iterable) Arrays.asList(
+        new InputFileBuilder(javaTestFile1, Charsets.UTF_8, "src/test/java/FooTest.java")
+          .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "FooTest.java")
+          .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/test/java/FooTest.java")
+          .build()));
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
 
-    when(project.getLanguageKey()).thenReturn("java");
-    when(fileSystem.files(Mockito.isA(FileQuery.class)))
-      .thenReturn(Arrays.asList(sourceFile))
-      .thenReturn(Arrays.asList(testFile));
-    when(fileSystem.sourceDirs()).thenReturn(Arrays.asList(new File("src/main/java")));
-    when(fileSystem.testDirs()).thenReturn(Arrays.asList(new File("src/test/java")));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
     scanner.analyse(project, null);
 
-    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:[default].FooTest");
-    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:[default].FooTest");
+    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:/src/main/java/Foo.java");
+    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:/src/test/java/FooTest.java");
+    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:/src/main/java/Foo.java");
+    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.java", "polop:/src/test/java/FooTest.java");
     verifyZeroInteractions(regexpScanner);
   }
 
   @Test
   public void shouldAnalyseOtherProject() throws Exception {
-    File rootDir = temp.newFolder();
-    File sourceFile = new File(rootDir, "Foo.php");
-    File testFile = new File(rootDir, "FooTest.php");
+    File phpFile1 = new File(baseDir, "src/Foo.php");
+    when(fs.inputFiles(FileQuery.onSource().onLanguage("php"))).thenReturn((Iterable) Arrays.asList(
+      new InputFileBuilder(phpFile1, Charsets.UTF_8, "src/Foo.php")
+        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.php")
+        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/Foo.php")
+        .build()));
+    File phpTestFile1 = new File(baseDir, "src/test/FooTest.php");
+    when(fs.inputFiles(FileQuery.onTest().onLanguage("php"))).thenReturn(
+      (Iterable) Arrays.asList(
+        new InputFileBuilder(phpTestFile1, Charsets.UTF_8, "src/test/FooTest.php")
+          .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "FooTest.php")
+          .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/test/FooTest.php")
+          .build()));
 
     when(project.getLanguageKey()).thenReturn("php");
-    when(fileSystem.files(Mockito.isA(FileQuery.class)))
-      .thenReturn(Arrays.asList(sourceFile))
-      .thenReturn(Arrays.asList(testFile));
-    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(rootDir));
-    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(rootDir));
+
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
     scanner.analyse(project, null);
 
-    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.php", "polop:Foo.php");
-    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.php", "polop:FooTest.php");
-    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.php", "polop:Foo.php");
-    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.php", "polop:FooTest.php");
-    verify(regexpScanner).scan("polop:Foo.php", sourceFile, UTF_8);
-    verify(regexpScanner).scan("polop:FooTest.php", testFile, UTF_8);
-  }
-
-  @Test
-  public void shouldAnalyseJavaProjectWithNonJavaFile() throws IOException {
-    File rootDir = temp.newFolder();
-    File sourceFile = new File(rootDir, "src/main/java/Foo.java");
-    File otherFile = new File(rootDir, "other.js");
-
-    when(project.getLanguageKey()).thenReturn("java");
-    List<File> empty = Collections.emptyList();
-    when(fileSystem.files(Mockito.isA(FileQuery.class)))
-      .thenReturn(Arrays.asList(sourceFile, otherFile))
-      .thenReturn(empty);
-    when(fileSystem.sourceDirs()).thenReturn(ImmutableList.of(new File(rootDir, "src/main/java"), rootDir));
-    when(fileSystem.testDirs()).thenReturn(ImmutableList.of(new File(rootDir, "src/test/java")));
-    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
-
-    scanner.analyse(project, null);
-
-    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.java", "polop:[default].Foo");
-    verify(regexpScanner).scan("polop:[default].Foo", sourceFile, UTF_8);
-    verify(regexpScanner, never()).scan("other.js", otherFile, UTF_8);
-  }
-
-  @Test
-  public void shouldIgnoreInvalidFile() throws IOException {
-    File sourceFile = new File("invalid.java");
-
-    when(project.getLanguageKey()).thenReturn("java");
-    List<File> empty = Collections.emptyList();
-    when(fileSystem.files(Mockito.isA(FileQuery.class)))
-      .thenReturn(Arrays.asList(sourceFile))
-      .thenReturn(empty);
-    when(fileSystem.sourceDirs()).thenReturn(Arrays.asList(new File("src/main/java")));
-    when(fileSystem.testDirs()).thenReturn(Arrays.asList(new File("src/test/java")));
-    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
-
-    scanner.analyse(project, null);
-
-    verifyNoMoreInteractions(regexpScanner);
+    verify(inclusionPatternInitializer).initializePatternsForPath("Foo.php", "polop:/src/Foo.php");
+    verify(inclusionPatternInitializer).initializePatternsForPath("FooTest.php", "polop:/src/test/FooTest.php");
+    verify(exclusionPatternInitializer).initializePatternsForPath("Foo.php", "polop:/src/Foo.php");
+    verify(exclusionPatternInitializer).initializePatternsForPath("FooTest.php", "polop:/src/test/FooTest.php");
+    verify(regexpScanner).scan("polop:/src/Foo.php", phpFile1, UTF_8);
+    verify(regexpScanner).scan("polop:/src/test/FooTest.php", phpTestFile1, UTF_8);
   }
 
   @Test
   public void shouldReportFailure() throws IOException {
-    File sourceFile = new File("Foo.php");
+    File phpFile1 = new File(baseDir, "src/Foo.php");
+    when(fs.inputFiles(FileQuery.onSource().onLanguage("php"))).thenReturn((Iterable) Arrays.asList(
+      new InputFileBuilder(phpFile1, Charsets.UTF_8, "src/Foo.php")
+        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.php")
+        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:/src/Foo.php")
+        .build()));
+    when(fs.inputFiles(FileQuery.onTest().onLanguage("php"))).thenReturn(
+      (Iterable) Arrays.asList());
 
     when(project.getLanguageKey()).thenReturn("php");
-    when(fileSystem.files(Mockito.isA(FileQuery.class))).thenReturn(Arrays.asList(sourceFile));
-    doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:Foo.php", sourceFile, UTF_8);
+    when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
+    doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:/src/Foo.php", phpFile1, UTF_8);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Unable to read the source file");

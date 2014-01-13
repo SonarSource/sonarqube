@@ -23,21 +23,16 @@ package org.sonar.plugins.core.issue.ignore.scanner;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.component.ComponentKeys;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 
-import java.io.File;
 import java.nio.charset.Charset;
-import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
 public final class SourceScanner implements Sensor {
@@ -45,16 +40,14 @@ public final class SourceScanner implements Sensor {
   private final RegexpScanner regexpScanner;
   private final ExclusionPatternInitializer exclusionPatternInitializer;
   private final InclusionPatternInitializer inclusionPatternInitializer;
-  private final ModuleFileSystem fileSystem;
-  private final PathResolver pathResolver;
+  private final DefaultModuleFileSystem fileSystem;
 
   public SourceScanner(RegexpScanner regexpScanner, ExclusionPatternInitializer exclusionPatternInitializer, InclusionPatternInitializer inclusionPatternInitializer,
-      ModuleFileSystem fileSystem) {
+    DefaultModuleFileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.exclusionPatternInitializer = exclusionPatternInitializer;
     this.inclusionPatternInitializer = inclusionPatternInitializer;
     this.fileSystem = fileSystem;
-    this.pathResolver = new PathResolver();
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -73,54 +66,28 @@ public final class SourceScanner implements Sensor {
   protected void parseDirs(Project project, boolean isTest) {
     Charset sourcesEncoding = fileSystem.sourceCharset();
 
-    // TODO use InputFile
-    List<File> files;
-    List<File> dirs;
+    Iterable<InputFile> files;
     if (isTest) {
-      files = fileSystem.files(FileQuery.onTest().onLanguage(project.getLanguageKey()));
-      dirs = fileSystem.testDirs();
+      files = fileSystem.inputFiles(FileQuery.onTest().onLanguage(project.getLanguageKey()));
     } else {
-      files = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()));
-      dirs = fileSystem.sourceDirs();
+      files = fileSystem.inputFiles(FileQuery.onSource().onLanguage(project.getLanguageKey()));
     }
 
-    for (File inputFile : files) {
+    for (InputFile inputFile : files) {
       try {
-        // TODO reuse InputFile.attribute(DefaultInputFile.COMPONENT_KEY ?
-        String componentKey = resolveComponent(inputFile, dirs, project, isTest);
-        if (componentKey != null) {
-
-          String relativePath = pathResolver.relativePath(dirs, inputFile).path();
-          inclusionPatternInitializer.initializePatternsForPath(relativePath, componentKey);
-          exclusionPatternInitializer.initializePatternsForPath(relativePath, componentKey);
+        String componentEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+        if (componentEffectiveKey != null) {
+          String relativePathFromSource = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+          inclusionPatternInitializer.initializePatternsForPath(relativePathFromSource, componentEffectiveKey);
+          exclusionPatternInitializer.initializePatternsForPath(relativePathFromSource, componentEffectiveKey);
           if (exclusionPatternInitializer.hasFileContentPattern()) {
-            regexpScanner.scan(componentKey, inputFile, sourcesEncoding);
+            regexpScanner.scan(componentEffectiveKey, inputFile.file(), sourcesEncoding);
           }
         }
       } catch (Exception e) {
-        throw new SonarException("Unable to read the source file : '" + inputFile.getAbsolutePath() + "' with the charset : '"
+        throw new SonarException("Unable to read the source file : '" + inputFile.absolutePath() + "' with the charset : '"
           + sourcesEncoding.name() + "'.", e);
       }
-    }
-  }
-
-  /*
-   * This method is necessary because Java resources are not treated as every other resource...
-   */
-  private String resolveComponent(File inputFile, List<File> sourceDirs, Project project, boolean isTest) {
-    Resource resource;
-
-    if (Java.KEY.equals(project.getLanguageKey()) && Java.isJavaFile(inputFile)) {
-
-      resource = JavaFile.fromIOFile(inputFile, sourceDirs, isTest);
-    } else {
-      resource = new org.sonar.api.resources.File(pathResolver.relativePath(sourceDirs, inputFile).path());
-    }
-
-    if (resource == null) {
-      return null;
-    } else {
-      return ComponentKeys.createKey(project, resource);
     }
   }
 

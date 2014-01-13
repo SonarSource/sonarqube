@@ -41,7 +41,11 @@ import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -66,13 +70,13 @@ public class JsonReport implements BatchComponent {
   private UserFinder userFinder;
 
   public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-                    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
+    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
     this(settings, fileSystem, server, ruleFinder, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
   }
 
   @VisibleForTesting
   JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-             EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
+    EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -141,7 +145,7 @@ public class JsonReport implements BatchComponent {
         json
           .beginObject()
           .name("key").value(issue.key())
-          .name("component").value(issue.componentKey())
+          .name("component").value(componentSelector.getDeprecatedKey(issue.componentKey()))
           .name("line").value(issue.line())
           .name("message").value(issue.message())
           .name("severity").value(issue.severity())
@@ -179,7 +183,7 @@ public class JsonReport implements BatchComponent {
     for (String componentKey : componentSelector.componentKeys()) {
       json
         .beginObject()
-        .name("key").value(componentKey)
+        .name("key").value(componentSelector.getDeprecatedKey(componentKey))
         .endObject();
     }
     json.endArray();

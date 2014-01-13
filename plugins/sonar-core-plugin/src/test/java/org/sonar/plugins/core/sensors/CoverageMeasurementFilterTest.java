@@ -53,24 +53,23 @@ public class CoverageMeasurementFilterTest {
 
   @Test
   public void shouldFilterFileBasedOnPattern() {
-    Resource resource = new File("org/polop/File.php");
+    Resource resource = File.create("src/org/polop/File.php", "org/polop/File.php", null, false);
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.LINES_TO_COVER);
 
-    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "org/polop/*");
+    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "src/org/polop/*");
     filter.initPatterns();
     assertThat(filter.accept(resource, coverageMeasure)).isFalse();
   }
 
   @Test
   public void shouldNotFilterFileBasedOnPattern() {
-    Resource resource = new File("org/polop/File.php");
+    Resource resource = File.create("src/org/polop/File.php", "org/polop/File.php", null, false);
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.COVERAGE);
 
-    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "org/other/*");
+    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "src/org/other/*");
     filter.initPatterns();
     assertThat(filter.accept(resource, coverageMeasure)).isTrue();
   }
 }
-

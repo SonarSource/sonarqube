@@ -32,7 +32,11 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -54,12 +58,20 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SonarEngine extends CpdEngine {
 
@@ -91,10 +103,10 @@ public class SonarEngine extends CpdEngine {
 
   static String getFullKey(Project project, Resource resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
+      .append(project.getKey())
+      .append(':')
+      .append(resource.getKey())
+      .toString();
   }
 
   @Override
@@ -128,7 +140,7 @@ public class SonarEngine extends CpdEngine {
         reader = new InputStreamReader(new FileInputStream(file), fileSystem.sourceCharset());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
-        throw new SonarException("Cannot find file "+ file, e);
+        throw new SonarException("Cannot find file " + file, e);
       } finally {
         IOUtils.closeQuietly(reader);
       }
@@ -157,9 +169,9 @@ public class SonarEngine extends CpdEngine {
           clones = null;
           LOG.warn("Timeout during detection of duplications for " + file, e);
         } catch (InterruptedException e) {
-          throw new SonarException("Fail during detection of duplication for "+ file, e);
+          throw new SonarException("Fail during detection of duplication for " + file, e);
         } catch (ExecutionException e) {
-          throw new SonarException("Fail during detection of duplication for "+ file, e);
+          throw new SonarException("Fail during detection of duplication for " + file, e);
         }
 
         save(context, resource, clones);
@@ -184,8 +196,8 @@ public class SonarEngine extends CpdEngine {
   }
 
   protected Resource getResource(File file) {
-    String relativePath = pathResolver.relativePath(fileSystem.sourceDirs(), file).path();
-    return JavaFile.fromRelativePath(relativePath, false);
+    String relativePathFromBaseDir = pathResolver.relativePath(fileSystem.baseDir(), file);
+    return JavaFile.create(relativePathFromBaseDir, "unused", false);
   }
 
   static void save(SensorContext context, Resource resource, @Nullable Iterable<CloneGroup> duplications) {
@@ -212,7 +224,7 @@ public class SonarEngine extends CpdEngine {
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
 
     Measure data = new Measure(CoreMetrics.DUPLICATIONS_DATA, toXml(duplications))
-        .setPersistenceMode(PersistenceMode.DATABASE);
+      .setPersistenceMode(PersistenceMode.DATABASE);
     context.saveMeasure(resource, data);
   }
 
@@ -223,9 +235,9 @@ public class SonarEngine extends CpdEngine {
       xml.append("<g>");
       for (ClonePart part : duplication.getCloneParts()) {
         xml.append("<b s=\"").append(part.getStartLine())
-            .append("\" l=\"").append(part.getLines())
-            .append("\" r=\"").append(StringEscapeUtils.escapeXml(part.getResourceId()))
-            .append("\"/>");
+          .append("\" l=\"").append(part.getLines())
+          .append("\" r=\"").append(StringEscapeUtils.escapeXml(part.getResourceId()))
+          .append("\"/>");
       }
       xml.append("</g>");
     }

@@ -103,13 +103,14 @@ public class FileIndexerTest {
     FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
     indexer.execute();
 
-    verify(sonarIndex).index(new JavaFile("foo.bar.Foo", false).setPath("/src/main/java/foo/bar/Foo.java"));
-    verify(sonarIndex).index(new JavaFile("foo.bar.Foo", false).setPath("/src/main/java2/foo/bar/Foo.java"));
+    verify(sonarIndex).index(JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false));
+    verify(sonarIndex).index(JavaFile.create("src/main/java2/foo/bar/Foo.java", "foo/bar/Foo.java", false));
     verify(sonarIndex).index(argThat(new ArgumentMatcher<JavaFile>() {
       @Override
       public boolean matches(Object arg0) {
         JavaFile javaFile = (JavaFile) arg0;
-        return javaFile.getKey().equals("foo.bar.FooTest") && javaFile.getPath().equals("/src/test/java/foo/bar/FooTest.java")
+        return javaFile.getKey().equals("/src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
+          && javaFile.getPath().equals("/src/test/java/foo/bar/FooTest.java")
           && javaFile.getQualifier().equals(Qualifiers.UNIT_TEST_FILE);
       }
     }));
@@ -130,9 +131,9 @@ public class FileIndexerTest {
     FileIndexer indexer = new FileIndexer(project, fs, new Languages(cobolLanguage), sonarIndex, settings);
     indexer.execute();
 
-    verify(sonarIndex).index(new org.sonar.api.resources.File("foo/bar/Foo.cbl").setPath("/src/foo/bar/Foo.cbl"));
-    verify(sonarIndex).index(new org.sonar.api.resources.File("foo/bar/Foo.cbl").setPath("/src2/foo/bar/Foo.cbl"));
-    verify(sonarIndex).index(new org.sonar.api.resources.File("foo/bar/FooTest.cbl").setPath("/src/test/foo/bar/FooTest.cbl"));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("/src2/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/test/foo/bar/FooTest.cbl", "foo/bar/FooTest.cbl", cobolLanguage, true));
   }
 
   @Test
@@ -149,13 +150,13 @@ public class FileIndexerTest {
     FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
     indexer.execute();
 
-    Resource sonarFile = new JavaFile("foo.bar.Foo", false).setPath("/src/main/java/foo/bar/Foo.java");
+    Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
     verify(sonarIndex).index(sonarFile);
     verify(sonarIndex).setSource(sonarFile, "sample code");
   }
 
   @Test
-  public void should_use_mac_roman_charset_forR_reading_source_files() throws Exception {
+  public void should_use_mac_roman_charset_for_reading_source_files() throws Exception {
     String encoding = "MacRoman";
     String testFile = "MacRomanEncoding.java";
     fileEncodingTest(encoding, testFile);
@@ -189,7 +190,7 @@ public class FileIndexerTest {
     FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
     indexer.execute();
 
-    Resource sonarFile = new JavaFile("foo.bar.Foo", false).setPath("/src/main/java/foo/bar/Foo.java");
+    Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
 
     verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override
@@ -216,7 +217,7 @@ public class FileIndexerTest {
     FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
     indexer.execute();
 
-    Resource sonarFile = new JavaFile("foo.bar.Foo", false).setPath("/src/main/java/foo/bar/Foo.java");
+    Resource sonarFile = JavaFile.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
 
     verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override

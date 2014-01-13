@@ -43,7 +43,7 @@ public class IsResource extends ArgumentMatcher<Resource> {
   @Override
   public boolean matches(Object o) {
     Resource r = (Resource) o;
-    boolean keyMatch = (key != null) ? StringUtils.equals(r.getKey(), key) : true;
+    boolean keyMatch = (key != null) ? StringUtils.equals(r.getKey() != null ? r.getKey() : r.getDeprecatedKey(), key) : true;
     return ObjectUtils.equals(r.getScope(), scope) && ObjectUtils.equals(r.getQualifier(), qualifier) && keyMatch;
   }
 }

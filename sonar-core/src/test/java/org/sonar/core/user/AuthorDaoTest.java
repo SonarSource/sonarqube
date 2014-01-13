@@ -75,7 +75,8 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     dao.insertAuthorAndDeveloper(login, resourceDto);
 
     checkTables("shouldInsertAuthorAndDeveloper",
-      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "path", "language", "long_name", "person_id", "root_id", "scope"},
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+        "scope"},
       "authors", "projects");
   }
 
@@ -106,7 +107,8 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     }
 
     checkTables("shouldPreventAuthorsAndDevelopersDuplication",
-      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "path", "language", "long_name", "person_id", "root_id", "scope"},
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+        "scope"},
       "authors", "projects");
   }
 }

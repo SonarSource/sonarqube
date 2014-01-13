@@ -6,6 +6,7 @@
   <sql id="resourceColumns">
     p.id,
     p.kee as key,
+    p.deprecated_kee as deprecatedKey,
     p.name as name,
     p.long_name as longName,
     p.root_id as rootId,
@@ -253,17 +254,17 @@
 
   <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, path, language, root_id, copy_resource_id, person_id, enabled, created_at)
+    (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
-    #{key}, #{path}, #{language}, #{rootId}, #{copyResourceId},
+    #{key}, #{deprecatedKey}, #{path}, #{language}, #{rootId}, #{copyResourceId},
     #{personId}, #{enabled}, #{createdAt}
     )
   </insert>
 
   <update id="update" parameterType="Resource">
     update projects set name=#{name}, long_name=#{longName}, description=#{description},
-    scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, path=#{path},
+    scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, deprecated_kee=#{deprecatedKey}, path=#{path},
     language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
     person_id=#{personId}, enabled=#{enabled} where id=#{id}
   </update>

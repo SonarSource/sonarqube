@@ -40,7 +40,11 @@ class Project < ActiveRecord::Base
       ki=Integer(k)
       Project.find(ki)
     rescue
-      Project.first(:conditions => {:kee => k})
+      resource = Project.first(:conditions => {:kee => k})
+      if (resource.nil?)
+        resource = Project.first(:conditions => {:deprecated_kee => k})
+      end
+      resource
     end
   end
 
@@ -57,9 +61,9 @@ class Project < ActiveRecord::Base
       java_facade.deleteResourceTree(project.id)
     end
   end
-  
+
   def self.root_qualifiers()
-    @root_types ||= 
+    @root_types ||=
       begin
         Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}
       end

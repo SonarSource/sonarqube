@@ -3,17 +3,17 @@
   <!-- the project -->
   <projects id="1" enabled="[true]" root_id="[null]" created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
   <!-- the directory -->
   <projects id="2" enabled="[true]" root_id="1" created_at="[null]"
             long_name="[null]" scope="DIR" qualifier="DIR" kee="project:my/dir" name="my/dir"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
   <!-- the file -->
   <projects id="3" enabled="[true]" root_id="1" created_at="[null]"
             long_name="[null]" scope="FIL" qualifier="FIL" kee="project:my/dir/File.java" name="my/dir/File.java"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
   <snapshots id="1"
              project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"

@@ -3,7 +3,7 @@
   <!-- other project -->
   <projects id="1000" scope="PRJ" qualifier="TRK" kee="my:key" root_id="[null]"
             name="Other project" long_name="Other" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="my:key" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3000" project_id="1000" parent_snapshot_id="[null]" root_project_id="1000" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
@@ -13,11 +13,11 @@
   <!-- new project -->
   <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]"
             name="Foo" long_name="Foo" description="some description"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" />
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="foo" />
 
   <projects id="1002" scope="PRJ" qualifier="LIB" kee="junit:junit" root_id="[null]"
             name="junit:junit" long_name="junit:junit" description="[null]"
-            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" deprecated_kee="junit:junit" />
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2010-12-25 00:00:00.00" build_date="2010-12-25 00:00:00.00" version="[null]" path=""

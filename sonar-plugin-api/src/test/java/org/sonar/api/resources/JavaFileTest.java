@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,42 +42,65 @@ public class JavaFileTest {
 
   @Test
   public void testNewClass() {
-    JavaFile javaClass = new JavaFile("org.foo.bar.Hello", false);
-    assertThat(javaClass.getKey(), is("org.foo.bar.Hello"));
+    JavaFile javaClass = JavaFile.create("src/main/java/org/foo/bar/Hello.java", "org/foo/bar/Hello.java", false);
+    assertThat(javaClass.getKey()).isEqualTo("/src/main/java/org/foo/bar/Hello.java");
+    assertThat(javaClass.getDeprecatedKey(), is("org.foo.bar.Hello"));
     assertThat(javaClass.getName(), is("Hello"));
     assertThat(javaClass.getLongName(), is("org.foo.bar.Hello"));
-    assertThat(javaClass.getParent().getKey(), is("org.foo.bar"));
+    assertThat(javaClass.getParent().getKey(), is("/src/main/java/org/foo/bar"));
+    assertThat(javaClass.getParent().getDeprecatedKey(), is("org.foo.bar"));
+  }
+
+  @Test
+  public void testNewClassByDeprecatedKey() {
+    JavaFile javaClass = new JavaFile("org.foo.bar.Hello", false);
+    assertThat(javaClass.getDeprecatedKey(), is("org.foo.bar.Hello"));
+    assertThat(javaClass.getName(), is("Hello"));
+    assertThat(javaClass.getLongName(), is("org.foo.bar.Hello"));
+    assertThat(javaClass.getParent().getDeprecatedKey(), is("org.foo.bar"));
   }
 
   @Test
   public void testNewClassWithExplicitPackage() {
     JavaFile javaClass = new JavaFile("org.foo.bar", "Hello", false);
-    assertThat(javaClass.getKey(), is("org.foo.bar.Hello"));
+    assertThat(javaClass.getDeprecatedKey(), is("org.foo.bar.Hello"));
     assertThat(javaClass.getName(), is("Hello"));
     assertThat(javaClass.getLongName(), is("org.foo.bar.Hello"));
-    assertThat(javaClass.getParent().getKey(), is("org.foo.bar"));
+    assertThat(javaClass.getParent().getDeprecatedKey(), is("org.foo.bar"));
   }
 
   @Test
   public void shouldAcceptFilenamesWithDollars() {
     // $ is not used only for inner classes !!!
     JavaFile javaFile = new JavaFile("org.foo.bar", "Hello$Bar");
-    assertThat(javaFile.getKey(), is("org.foo.bar.Hello$Bar"));
+    assertThat(javaFile.getDeprecatedKey(), is("org.foo.bar.Hello$Bar"));
   }
 
   @Test
   public void testNewClassWithEmptyPackage() {
-    JavaFile javaClass = new JavaFile("", "Hello", false);
-    assertThat(javaClass.getKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
+    JavaFile javaClass = JavaFile.create("src/main/java/Hello.java", "Hello.java", false);
+    assertThat(javaClass.getKey()).isEqualTo("/src/main/java/Hello.java");
+    assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
     assertThat(javaClass.getName(), is("Hello"));
     assertThat(javaClass.getLongName(), is("Hello"));
-    assertThat((javaClass.getParent()).isDefault(), is(true));
+    assertThat(javaClass.getParent().getKey()).isEqualTo("/src/main/java");
+    assertThat(javaClass.getParent().getDeprecatedKey()).isEqualTo(JavaPackage.DEFAULT_PACKAGE_NAME);
+    assertThat(javaClass.getParent().isDefault()).isTrue();
   }
 
   @Test
-  public void testNewClassWithNullPackage() {
+  public void testNewClassWithEmptyPackageDeprecatedConstructor() {
+    JavaFile javaClass = new JavaFile("", "Hello", false);
+    assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
+    assertThat(javaClass.getName(), is("Hello"));
+    assertThat(javaClass.getLongName(), is("Hello"));
+    assertThat(javaClass.getParent().isDefault(), is(true));
+  }
+
+  @Test
+  public void testNewClassWithNullPackageDeprecatedConstructor() {
     JavaFile javaClass = new JavaFile(null, "Hello", false);
-    assertThat(javaClass.getKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
+    assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
     assertThat(javaClass.getName(), is("Hello"));
     assertThat(javaClass.getLongName(), is("Hello"));
     assertThat((javaClass.getParent()).isDefault(), is(true));
@@ -85,7 +109,7 @@ public class JavaFileTest {
   @Test
   public void shouldBeDefaultPackageIfNoPackage() {
     JavaFile javaClass = new JavaFile("Hello", false);
-    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello", javaClass.getKey());
+    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello", javaClass.getDeprecatedKey());
     assertThat(javaClass.getName(), is("Hello"));
     assertThat(javaClass.getLongName(), is("Hello"));
     assertThat(javaClass.getParent().isDefault(), is(true));
@@ -94,21 +118,21 @@ public class JavaFileTest {
   @Test
   public void aClassShouldBeNamedJava() {
     JavaFile javaClass = new JavaFile("org.foo.bar.Java", false);
-    assertThat(javaClass.getKey(), is("org.foo.bar.Java"));
+    assertThat(javaClass.getDeprecatedKey(), is("org.foo.bar.Java"));
     assertThat(javaClass.getLongName(), is("org.foo.bar.Java"));
     assertThat(javaClass.getName(), is("Java"));
     JavaPackage parent = javaClass.getParent();
-    assertEquals("org.foo.bar", parent.getKey());
+    assertEquals("org.foo.bar", parent.getDeprecatedKey());
   }
 
   @Test
   public void shouldTrimClasses() {
     JavaFile clazz = new JavaFile("   org.foo.bar.Hello   ", false);
-    assertThat(clazz.getKey(), is("org.foo.bar.Hello"));
+    assertThat(clazz.getDeprecatedKey(), is("org.foo.bar.Hello"));
     assertThat(clazz.getLongName(), is("org.foo.bar.Hello"));
     assertThat(clazz.getName(), is("Hello"));
     JavaPackage parent = clazz.getParent();
-    assertThat(parent.getKey(), is("org.foo.bar"));
+    assertThat(parent.getDeprecatedKey(), is("org.foo.bar"));
   }
 
   @Test
@@ -126,21 +150,21 @@ public class JavaFileTest {
   @Test
   public void oneLevelPackage() {
     JavaFile clazz = new JavaFile("onelevel.MyFile");
-    assertEquals("onelevel.MyFile", clazz.getKey());
-    assertEquals("onelevel", clazz.getParent().getKey());
+    assertEquals("onelevel.MyFile", clazz.getDeprecatedKey());
+    assertEquals("onelevel", clazz.getParent().getDeprecatedKey());
 
     clazz = new JavaFile("onelevel", "MyFile");
-    assertEquals("onelevel.MyFile", clazz.getKey());
-    assertEquals("onelevel", clazz.getParent().getKey());
+    assertEquals("onelevel.MyFile", clazz.getDeprecatedKey());
+    assertEquals("onelevel", clazz.getParent().getDeprecatedKey());
 
     File sourceDir = newDir("sources");
     List<File> sources = Arrays.asList(sourceDir);
     JavaFile javaFile = JavaFile.fromAbsolutePath(absPath(sourceDir, "onelevel/MyFile.java"), sources, false);
-    assertEquals("onelevel.MyFile", javaFile.getKey());
+    assertEquals("onelevel.MyFile", javaFile.getDeprecatedKey());
     assertEquals("MyFile", javaFile.getName());
-    assertEquals("onelevel", javaFile.getParent().getKey());
+    assertEquals("onelevel", javaFile.getParent().getDeprecatedKey());
     assertEquals("onelevel", javaFile.getParent().getName());
-    assertThat((javaFile.getParent()).isDefault(), is(false));
+    assertThat(javaFile.getParent().isDefault(), is(false));
   }
 
   @Test
@@ -149,10 +173,10 @@ public class JavaFileTest {
     File sources2 = newDir("source2");
     List<File> sources = Arrays.asList(sources1, sources2);
     JavaFile javaFile = JavaFile.fromAbsolutePath(absPath(sources2, "foo/bar/MyFile.java"), sources, false);
-    assertThat("foo.bar.MyFile", is(javaFile.getKey()));
+    assertThat("foo.bar.MyFile", is(javaFile.getDeprecatedKey()));
     assertThat(javaFile.getLongName(), is("foo.bar.MyFile"));
     assertThat(javaFile.getName(), is("MyFile"));
-    assertThat(javaFile.getParent().getKey(), is("foo.bar"));
+    assertThat(javaFile.getParent().getDeprecatedKey(), is("foo.bar"));
   }
 
   @Test
@@ -162,7 +186,7 @@ public class JavaFileTest {
     List<File> sources = Arrays.asList(source1, source2);
 
     JavaFile javaClass = JavaFile.fromAbsolutePath(absPath(source1, "MyClass.java"), sources, false);
-    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass", javaClass.getKey());
+    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass", javaClass.getDeprecatedKey());
     assertEquals("MyClass", javaClass.getName());
 
     assertThat((javaClass.getParent()).isDefault(), is(true));
@@ -184,24 +208,24 @@ public class JavaFileTest {
 
   @Test
   public void shouldMatchFilePatterns() {
-    JavaFile clazz = new JavaFile("org.sonar.commons.Foo");
+    JavaFile clazz = JavaFile.create("src/main/java/org/sonar/commons/Foo.java", "org/sonar/commons/Foo.java", false);
     assertTrue(clazz.matchFilePattern("**/commons/**/*.java"));
     assertTrue(clazz.matchFilePattern("/**/commons/**/*.java"));
     assertTrue(clazz.matchFilePattern("/**/commons/**/*.*"));
     assertFalse(clazz.matchFilePattern("/**/sonar/*.java"));
-    assertTrue(clazz.matchFilePattern("/org/*/commons/**/*.java"));
-    assertTrue(clazz.matchFilePattern("org/sonar/commons/*"));
-    assertTrue(clazz.matchFilePattern("org/sonar/**/*.java"));
-    assertFalse(clazz.matchFilePattern("org/sonar/*"));
-    assertFalse(clazz.matchFilePattern("org/sonar*/*"));
-    assertTrue(clazz.matchFilePattern("org/**"));
-    assertTrue(clazz.matchFilePattern("*org/sona?/co??ons/**.*"));
-    assertFalse(clazz.matchFilePattern("org/sonar/core/**"));
-    assertTrue(clazz.matchFilePattern("org/sonar/commons/Foo"));
-    assertTrue(clazz.matchFilePattern("**/*Foo"));
+    assertTrue(clazz.matchFilePattern("/src/main/java/org/*/commons/**/*.java"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/sonar/commons/*"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/sonar/**/*.java"));
+    assertFalse(clazz.matchFilePattern("src/main/java/org/sonar/*"));
+    assertFalse(clazz.matchFilePattern("src/main/java/org/sonar*/*"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/**"));
+    assertTrue(clazz.matchFilePattern("*src/main/java/org/sona?/co??ons/**.*"));
+    assertFalse(clazz.matchFilePattern("src/main/java/org/sonar/core/**"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/sonar/commons/Foo.java"));
+    assertTrue(clazz.matchFilePattern("**/*Foo.java"));
     assertTrue(clazz.matchFilePattern("**/*Foo.*"));
-    assertTrue(clazz.matchFilePattern("org/*/*/Foo"));
-    assertTrue(clazz.matchFilePattern("org/**/**/Foo"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/*/*/Foo.java"));
+    assertTrue(clazz.matchFilePattern("src/main/java/org/**/**/Foo.java"));
     assertTrue(clazz.matchFilePattern("**/commons/**/*"));
     assertTrue(clazz.matchFilePattern("**/*"));
   }
@@ -209,11 +233,11 @@ public class JavaFileTest {
   // SONAR-4397
   @Test
   public void shouldMatchFilePatternsWhenNoPackage() {
-    JavaFile clazz = new JavaFile("[default].Foo.java");
-    assertTrue(clazz.matchFilePattern("**/*Foo"));
+    JavaFile clazz = JavaFile.create("src/main/java/Foo.java", "Foo.java", false);
+    assertTrue(clazz.matchFilePattern("**/*Foo.java"));
     assertTrue(clazz.matchFilePattern("**/*Foo.*"));
     assertTrue(clazz.matchFilePattern("**/*"));
-    assertTrue(clazz.matchFilePattern("Foo*.*"));
+    assertTrue(clazz.matchFilePattern("src/main/java/Foo*.*"));
   }
 
   /**
@@ -221,14 +245,14 @@ public class JavaFileTest {
    */
   @Test
   public void doNotMatchAPattern() {
-    JavaFile file = new JavaFile("org.sonar.commons.Foo");
+    JavaFile file = JavaFile.create("src/main/java/org/sonar/commons/Foo.java", "org/sonar/commons/Foo.java", false);
     assertFalse(file.matchFilePattern("**/*.aj"));
     assertTrue(file.matchFilePattern("**/*.java"));
   }
 
   @Test
   public void should_exclude_test_files() {
-    JavaFile unitTest = new JavaFile("org.sonar.commons.FooTest", true);
+    JavaFile unitTest = JavaFile.create("src/main/java/org/sonar/commons/Foo.java", "org/sonar/commons/Foo.java", true);
     assertTrue(unitTest.matchFilePattern("**/*"));
   }
 

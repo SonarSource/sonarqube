@@ -22,9 +22,11 @@ package org.sonar.api.resources;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.annotation.Nullable;
+
 /**
  * A class that represents a Java package in Sonar
- * 
+ *
  * @since 1.10
  */
 public class JavaPackage extends Resource {
@@ -36,23 +38,27 @@ public class JavaPackage extends Resource {
 
   /**
    * Default constructor
+   * @deprecated since 4.2 use {@link #create(String, String)}
    */
+  @Deprecated
   public JavaPackage() {
     this(null);
   }
 
   /**
-   * Creates a JavaPackage from its key. Will use DEFAULT_PACKAGE_NAME if key is null
+   * Creates a JavaPackage from its key.
+   * @deprecated since 4.2 use {@link #create(String, String)}
    */
-  public JavaPackage(String key) {
-    setKey(StringUtils.defaultIfEmpty(StringUtils.trim(key), DEFAULT_PACKAGE_NAME));
+  @Deprecated
+  public JavaPackage(String deprecatedKey) {
+    setDeprecatedKey(StringUtils.defaultIfEmpty(StringUtils.trim(deprecatedKey), DEFAULT_PACKAGE_NAME));
   }
 
   /**
    * @return whether the JavaPackage key is the default key
    */
   public boolean isDefault() {
-    return StringUtils.equals(getKey(), DEFAULT_PACKAGE_NAME);
+    return StringUtils.equals(getDeprecatedKey(), DEFAULT_PACKAGE_NAME);
   }
 
   /**
@@ -92,7 +98,7 @@ public class JavaPackage extends Resource {
    */
   @Override
   public String getName() {
-    return getKey();
+    return getDeprecatedKey();
   }
 
   /**
@@ -119,11 +125,29 @@ public class JavaPackage extends Resource {
     return Java.INSTANCE;
   }
 
+  /**
+   * For internal use only.
+   */
+  public static JavaPackage create(String path) {
+    JavaPackage pac = new JavaPackage();
+    String normalizedPath = normalize(path);
+    pac.setKey(normalizedPath);
+    pac.setPath(normalizedPath);
+    return pac;
+  }
+
+  public static JavaPackage create(String relativePathFromBasedir, @Nullable String packageQualifiedName) {
+    JavaPackage pac = JavaPackage.create(relativePathFromBasedir);
+    pac.setDeprecatedKey(StringUtils.defaultIfEmpty(StringUtils.trim(packageQualifiedName), DEFAULT_PACKAGE_NAME));
+    return pac;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("key", getKey())
-        .toString();
+      .append("id", getId())
+      .append("key", getKey())
+      .append("deprecatedKey", getDeprecatedKey())
+      .toString();
   }
 }

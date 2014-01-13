@@ -33,6 +33,8 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
   }
 
   public FileLinesContext createFor(Resource resource) {
+    // Reload resource in case it use deprecated key
+    resource = index.getResource(resource);
     return new DefaultFileLinesContext(index, resource);
   }
 

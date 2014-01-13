@@ -19,8 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -126,9 +124,13 @@ public abstract class Resource implements Serializable {
 
   private String key = null;
 
+  private String deprecatedKey = null;
+
   private String path = null;
 
   private String effectiveKey = null;
+
+  private String deprecatedEffectiveKey = null;
 
   private boolean isExcluded = false;
 
@@ -139,8 +141,26 @@ public abstract class Resource implements Serializable {
     return key;
   }
 
-  protected void setKey(String s) {
+  /**
+   * Internal use only
+   */
+  public void setKey(String s) {
     this.key = s;
+  }
+
+  /**
+   * @return the resource deprecated key. Should not be used except to deal with backward compatibility.
+   * @since 4.2
+   */
+  public final String getDeprecatedKey() {
+    return deprecatedKey;
+  }
+
+  /**
+   * For internal use only
+   */
+  public void setDeprecatedKey(String s) {
+    this.deprecatedKey = s;
   }
 
   /**
@@ -215,7 +235,7 @@ public abstract class Resource implements Serializable {
     return this;
   }
 
-  private String normalize(@Nullable String path) {
+  protected static String normalize(@Nullable String path) {
     if (path == null) {
       return null;
     }
@@ -238,6 +258,21 @@ public abstract class Resource implements Serializable {
    */
   public final Resource setEffectiveKey(String effectiveKey) {
     this.effectiveKey = effectiveKey;
+    return this;
+  }
+
+  /**
+   * Internal use only
+   */
+  public String getDeprecatedEffectiveKey() {
+    return deprecatedEffectiveKey;
+  }
+
+  /**
+   * Internal use only
+   */
+  public final Resource setDeprecatedEffectiveKey(String deprecatedEffectiveKey) {
+    this.deprecatedEffectiveKey = deprecatedEffectiveKey;
     return this;
   }
 
@@ -269,15 +304,15 @@ public abstract class Resource implements Serializable {
     }
 
     Resource resource = (Resource) o;
-    if (StringUtils.isBlank(path)) {
+    if (key != null) {
       return key.equals(resource.key);
+    } else {
+      return resource.key == null && deprecatedKey.equals(resource.deprecatedKey);
     }
-    return path.equals(resource.path);
-
   }
 
   @Override
   public int hashCode() {
-    return key.hashCode();
+    return key != null ? key.hashCode() : deprecatedKey.hashCode();
   }
 }

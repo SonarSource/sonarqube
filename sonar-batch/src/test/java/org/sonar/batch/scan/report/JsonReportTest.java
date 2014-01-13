@@ -34,11 +34,14 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.test.TestUtils;
 
@@ -82,14 +85,19 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
+    InputFileCache inputFileCache = mock(InputFileCache.class);
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY)).thenReturn("struts:/src/main/java/org/apache/struts/Action.java");
+    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY)).thenReturn("struts:org.apache.struts.Action");
+    when(inputFileCache.all()).thenReturn(Arrays.asList(inputFile));
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(inputFileCache), mode, userFinder);
   }
 
   @Test
   public void should_write_json() throws Exception {
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
-      .setComponentKey("struts:org.apache.struts.Action")
+      .setComponentKey("struts:/src/main/java/org/apache/struts/Action.java")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setMessage("There are 2 cycles")
       .setSeverity("MINOR")
@@ -120,7 +128,7 @@ public class JsonReportTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
-      .setComponentKey("struts:org.apache.struts.Action")
+      .setComponentKey("struts:/src/main/java/org/apache/struts/Action.java")
       .setRuleKey(ruleKey)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)

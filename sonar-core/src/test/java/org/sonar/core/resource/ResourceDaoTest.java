@@ -213,7 +213,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("update");
 
     ResourceDto project = new ResourceDto()
-      .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
+      .setKey("org.struts:struts")
+      .setDeprecatedKey("deprecated key").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
       .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
       .setPath("/foo/bar")
       .setId(1L);
@@ -229,10 +230,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto()
-      .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action").setPath("/foo/bar");
     ResourceDto file2 = new ResourceDto()
-      .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
 
     dao.insertOrUpdate(file1, file2);
@@ -251,10 +254,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto()
-      .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action");
     ResourceDto file2 = new ResourceDto()
-      .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
 
     SqlSession session = getMyBatis().openSession();

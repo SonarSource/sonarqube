@@ -35,7 +35,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ResourceComponent;
-import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -133,18 +132,18 @@ public class IssueNotificationsTest {
       .setAssignee("freddy")
       .setFieldChange(context, "resolution", null, "FIXED")
       .setSendNotifications(true)
-      .setComponentKey("struts:Action")
+      .setComponentKey("struts:Action.java")
       .setProjectKey("struts");
     DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
     queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
-    queryResult.addComponents(Arrays.<Component>asList(new ResourceComponent(new File("struts:Action").setEffectiveKey("struts:Action"))));
+    queryResult.addComponents(Arrays.<Component>asList(new ResourceComponent(File.create("Action.java", "Action.java", null, false).setEffectiveKey("struts:Action.java"))));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
-    assertThat(notification.getFieldValue("componentKey")).isEqualTo("struts:Action");
-    assertThat(notification.getFieldValue("componentName")).isEqualTo("struts:Action");
+    assertThat(notification.getFieldValue("componentKey")).isEqualTo("struts:Action.java");
+    assertThat(notification.getFieldValue("componentName")).isEqualTo("/Action.java");
     assertThat(notification.getFieldValue("old.resolution")).isNull();
     assertThat(notification.getFieldValue("new.resolution")).isEqualTo("FIXED");
     Mockito.verify(manager).scheduleForSending(eq(Arrays.asList(notification)));

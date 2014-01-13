@@ -33,18 +33,30 @@ public class Directory extends Resource {
 
   private Language language;
 
-  public Directory(String key) {
-    this(key, null);
+  private Directory() {
+    // USed by factory
   }
 
-  public Directory(String key, Language language) {
-    setKey(parseKey(key));
+  /**
+   * @deprecated since 4.2 use {@link #create(String, String, Language, boolean)}
+   */
+  @Deprecated
+  public Directory(String deprecatedKey) {
+    this(deprecatedKey, null);
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link #create(String, String, Language, boolean)}
+   */
+  @Deprecated
+  public Directory(String deprecatedKey, Language language) {
+    setDeprecatedKey(parseKey(deprecatedKey));
     this.language = language;
   }
 
   @Override
   public String getName() {
-    return getKey();
+    return getDeprecatedKey();
   }
 
   @Override
@@ -95,6 +107,15 @@ public class Directory extends Resource {
     return key;
   }
 
+  public static Directory create(String path, String directoryDeprecatedKey) {
+    Directory d = new Directory();
+    String normalizedPath = normalize(path);
+    d.setKey(normalizedPath);
+    d.setDeprecatedKey(parseKey(directoryDeprecatedKey));
+    d.setPath(normalizedPath);
+    return d;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
@@ -103,4 +124,5 @@ public class Directory extends Resource {
       .append("language", language)
       .toString();
   }
+
 }

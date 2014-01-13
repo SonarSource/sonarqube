@@ -31,7 +31,6 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
@@ -72,16 +71,11 @@ public class FileIndexer implements BatchComponent {
     for (InputFile inputFile : files) {
       Resource sonarFile;
       if (Java.KEY.equals(languageKey)) {
-        sonarFile = JavaFile.fromRelativePath(inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
+        sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
       } else {
-        File newFile = new File(languages.get(languageKey), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH));
-        if (newFile != null && unitTest) {
-          newFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
-        }
-        sonarFile = newFile;
+        sonarFile = File.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
       }
       if (sonarFile != null) {
-        sonarFile.setPath(inputFile.path());
         sonarIndex.index(sonarFile);
         try {
           if (importSource) {

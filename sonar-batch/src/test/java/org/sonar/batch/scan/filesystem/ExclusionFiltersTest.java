@@ -144,8 +144,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.c");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isFalse();
-    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isTrue();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/FooDao.c", "org/sonar/FooDao.c", null, false))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/Foo.c", "org/sonar/Foo.c", null, false))).isTrue();
   }
 
   @Test
@@ -154,8 +154,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.c");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isTrue();
-    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/FooDao.c", "org/sonar/FooDao.c", null, false))).isTrue();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/Foo.c", "org/sonar/Foo.c", null, false))).isFalse();
   }
 
   @Test
@@ -164,8 +164,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:**/*Dao.c");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isFalse();
-    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/FooDao.c", "org/sonar/FooDao.c", null, false))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/Foo.c", "org/sonar/Foo.c", null, false))).isFalse();
   }
 
   @Test
@@ -174,8 +174,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "file:**/*Dao.c");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isFalse();
-    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/FooDao.c", "org/sonar/FooDao.c", null, false))).isFalse();
+    assertThat(filter.isIgnored(File.create("src/org/sonar/Foo.c", "org/sonar/Foo.c", null, false))).isFalse();
   }
 
   /**
@@ -187,8 +187,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new JavaFile("org.sonar", "FooDao"))).isFalse();
-    assertThat(filter.isIgnored(new JavaFile("org.sonar", "Foo"))).isTrue();
+    assertThat(filter.isIgnored(JavaFile.create("src/org/sonar/FooDao.java", "org/sonar/FooDao.java", false))).isFalse();
+    assertThat(filter.isIgnored(JavaFile.create("src/org/sonar/Foo.java", "org/sonar/Foo.java", false))).isTrue();
   }
 
   /**
@@ -200,8 +200,8 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.isIgnored(new JavaFile("org.sonar", "FooDao"))).isTrue();
-    assertThat(filter.isIgnored(new JavaFile("org.sonar", "Foo"))).isFalse();
+    assertThat(filter.isIgnored(JavaFile.create("src/org/sonar/FooDao.java", "org/sonar/FooDao.java", false))).isTrue();
+    assertThat(filter.isIgnored(JavaFile.create("src/org/sonar/Foo.java", "org/sonar/Foo.java", false))).isFalse();
   }
 
   @Test

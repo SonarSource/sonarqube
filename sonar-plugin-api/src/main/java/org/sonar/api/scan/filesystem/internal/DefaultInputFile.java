@@ -42,6 +42,8 @@ public class DefaultInputFile implements InputFile {
    */
   public static final String ATTRIBUTE_COMPONENT_KEY = "CMP_KEY";
 
+  public static final String ATTRIBUTE_COMPONENT_DEPRECATED_KEY = "CMP_DEPRECATED_KEY";
+
   private final String absolutePath;
   private final String path;
   private final Map<String, String> attributes;

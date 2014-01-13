@@ -75,8 +75,11 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "qualifier", updatable = true, nullable = false, length = 10)
   private String qualifier;
 
-  @Column(name = "kee", updatable = false, nullable = false, length = KEY_SIZE)
+  @Column(name = "kee", updatable = true, nullable = false, length = KEY_SIZE)
   private String key;
+
+  @Column(name = "deprecated_kee", updatable = true, nullable = true, length = KEY_SIZE)
+  private String deprecatedKey;
 
   @Column(name = "language", updatable = true, nullable = true, length = 20)
   private String languageKey;
@@ -219,6 +222,10 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     return key;
   }
 
+  public String getDeprecatedKey() {
+    return deprecatedKey;
+  }
+
   public String getLanguageKey() {
     return languageKey;
   }
@@ -258,6 +265,16 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
       throw new IllegalArgumentException("Resource key is too long, max is " + KEY_SIZE + " characters. Got : " + key);
     }
     this.key = key;
+  }
+
+  /**
+   * @throws IllegalArgumentException if the key is longer than KEY_SIZE
+   */
+  public void setDeprecatedKey(String deprecatedKey) {
+    if (deprecatedKey.length() > KEY_SIZE) {
+      throw new IllegalArgumentException("Resource deprecated key is too long, max is " + KEY_SIZE + " characters. Got : " + deprecatedKey);
+    }
+    this.deprecatedKey = deprecatedKey;
   }
 
   public Integer getRootId() {
@@ -305,13 +322,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
       return true;
     }
     ResourceModel other = (ResourceModel) obj;
-    if (StringUtils.isNotBlank(path)) {
-      return new EqualsBuilder()
-        .append(path, other.path)
-        .append(enabled, other.enabled)
-        .append(rootId, other.rootId)
-        .isEquals();
-    }
     return new EqualsBuilder()
       .append(key, other.key)
       .append(enabled, other.enabled)
@@ -321,13 +331,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
 
   @Override
   public int hashCode() {
-    if (StringUtils.isNotBlank(path)) {
-      return new HashCodeBuilder(17, 37)
-        .append(path)
-        .append(enabled)
-        .append(rootId)
-        .toHashCode();
-    }
     return new HashCodeBuilder(17, 37)
       .append(key)
       .append(enabled)
@@ -340,6 +343,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     return new ToStringBuilder(this)
       .append("id", getId())
       .append("key", key)
+      .append("deprecatedKey", deprecatedKey)
       .append("scope", scope)
       .append("qualifier", qualifier)
       .append("name", name)
@@ -358,6 +362,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   public Object clone() {
     ResourceModel clone = new ResourceModel(getScope(), getKey(), getQualifier(), getRootId(), getPath(), getName());
     clone.setDescription(getDescription());
+    clone.setDeprecatedKey(getDeprecatedKey());
     clone.setEnabled(getEnabled());
     clone.setProjectLinks(getProjectLinks());
     clone.setLanguageKey(getLanguageKey());
@@ -376,6 +381,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getKey());
+    model.setDeprecatedKey(resource.getDeprecatedKey());
     model.setPath(resource.getPath());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());

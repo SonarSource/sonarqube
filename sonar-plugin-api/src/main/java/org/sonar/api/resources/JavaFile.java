@@ -35,15 +35,21 @@ import java.util.List;
 public class JavaFile extends Resource {
 
   private static final String JAVA_SUFFIX = ".java";
-  private String filename;
-  private String longName;
-  private String packageKey;
+  private String className;
+  private String fullyQualifiedName;
+  private String packageFullyQualifiedName;
   private boolean unitTest;
   private JavaPackage parent;
 
+  private JavaFile() {
+    // Default constructor
+  }
+
   /**
    * Creates a JavaFile that is not a class of test based on package and file names
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public JavaFile(String packageName, String className) {
     this(packageName, className, false);
   }
@@ -52,29 +58,33 @@ public class JavaFile extends Resource {
    * Creates a JavaFile that can be of any type based on package and file names
    *
    * @param unitTest whether it is a unit test file or a source file
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public JavaFile(String packageKey, String className, boolean unitTest) {
     if (className == null) {
       throw new IllegalArgumentException("Java filename can not be null");
     }
-    this.filename = StringUtils.trim(className);
-    String key;
+    this.className = StringUtils.trim(className);
+    String deprecatedKey;
     if (StringUtils.isBlank(packageKey)) {
-      this.packageKey = JavaPackage.DEFAULT_PACKAGE_NAME;
-      this.longName = this.filename;
-      key = new StringBuilder().append(this.packageKey).append(".").append(this.filename).toString();
+      this.packageFullyQualifiedName = JavaPackage.DEFAULT_PACKAGE_NAME;
+      this.fullyQualifiedName = this.className;
+      deprecatedKey = new StringBuilder().append(this.packageFullyQualifiedName).append(".").append(this.className).toString();
     } else {
-      this.packageKey = packageKey.trim();
-      key = new StringBuilder().append(this.packageKey).append(".").append(this.filename).toString();
-      this.longName = key;
+      this.packageFullyQualifiedName = packageKey.trim();
+      deprecatedKey = new StringBuilder().append(this.packageFullyQualifiedName).append(".").append(this.className).toString();
+      this.fullyQualifiedName = deprecatedKey;
     }
-    setKey(key);
+    setDeprecatedKey(deprecatedKey);
     this.unitTest = unitTest;
   }
 
   /**
    * Creates a source file from its key
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public JavaFile(String key) {
     this(key, false);
   }
@@ -83,7 +93,9 @@ public class JavaFile extends Resource {
    * Creates any JavaFile from its key
    *
    * @param unitTest whether it is a unit test file or a source file
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public JavaFile(String key, boolean unitTest) {
     if (key == null) {
       throw new IllegalArgumentException("Java filename can not be null");
@@ -92,17 +104,17 @@ public class JavaFile extends Resource {
     this.unitTest = unitTest;
 
     if (realKey.contains(".")) {
-      this.filename = StringUtils.substringAfterLast(realKey, ".");
-      this.packageKey = StringUtils.substringBeforeLast(realKey, ".");
-      this.longName = realKey;
+      this.className = StringUtils.substringAfterLast(realKey, ".");
+      this.packageFullyQualifiedName = StringUtils.substringBeforeLast(realKey, ".");
+      this.fullyQualifiedName = realKey;
 
     } else {
-      this.filename = realKey;
-      this.longName = realKey;
-      this.packageKey = JavaPackage.DEFAULT_PACKAGE_NAME;
+      this.className = realKey;
+      this.fullyQualifiedName = realKey;
+      this.packageFullyQualifiedName = JavaPackage.DEFAULT_PACKAGE_NAME;
       realKey = new StringBuilder().append(JavaPackage.DEFAULT_PACKAGE_NAME).append(".").append(realKey).toString();
     }
-    setKey(realKey);
+    setDeprecatedKey(realKey);
   }
 
   /**
@@ -111,14 +123,9 @@ public class JavaFile extends Resource {
   @Override
   public JavaPackage getParent() {
     if (parent == null) {
-      parent = new JavaPackage(packageKey);
-      String filePath = getPath();
-      if (StringUtils.isNotBlank(filePath)) {
-        parent.setPath(StringUtils.substringBeforeLast(filePath, Directory.SEPARATOR));
-      }
+      parent = new JavaPackage(packageFullyQualifiedName);
     }
     return parent;
-
   }
 
   /**
@@ -142,7 +149,7 @@ public class JavaFile extends Resource {
    */
   @Override
   public String getName() {
-    return filename;
+    return className;
   }
 
   /**
@@ -150,7 +157,7 @@ public class JavaFile extends Resource {
    */
   @Override
   public String getLongName() {
-    return longName;
+    return fullyQualifiedName;
   }
 
   /**
@@ -181,22 +188,14 @@ public class JavaFile extends Resource {
    */
   @Override
   public boolean matchFilePattern(String antPattern) {
-    String fileKey = getKey();
-    if (!fileKey.endsWith(JAVA_SUFFIX)) {
-      fileKey += JAVA_SUFFIX;
-    }
-    // Add wildcard extension if not provided
-    if ((antPattern.contains("/") && StringUtils.substringAfterLast(antPattern, "/").indexOf('.') < 0) || antPattern.indexOf('.') < 0) {
-      antPattern += ".*";
-    }
-    String noPackagePrefix = JavaPackage.DEFAULT_PACKAGE_NAME + ".";
-    if (fileKey.startsWith(noPackagePrefix)) {
-      fileKey = fileKey.substring(noPackagePrefix.length());
-    }
-    WildcardPattern matcher = WildcardPattern.create(antPattern, ".");
-    return matcher.match(fileKey);
+    WildcardPattern matcher = WildcardPattern.create(antPattern, Directory.SEPARATOR);
+    return matcher.match(getKey());
   }
 
+  /**
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
+   */
+  @Deprecated
   public static JavaFile fromIOFile(File file, Project module, boolean unitTest) {
     if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), JAVA_SUFFIX)) {
       return null;
@@ -212,6 +211,43 @@ public class JavaFile extends Resource {
     return null;
   }
 
+  /**
+   * For internal use only.
+   */
+  public static JavaFile create(String relativePathFromBasedir) {
+    JavaFile javaFile = new JavaFile();
+    String normalizedPath = normalize(relativePathFromBasedir);
+    javaFile.setKey(normalizedPath);
+    javaFile.setPath(normalizedPath);
+    String directoryKey = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
+    javaFile.parent = JavaPackage.create(directoryKey);
+    return javaFile;
+  }
+
+  public static JavaFile create(String relativePathFromBasedir, String relativePathFromSourceDir, boolean unitTest) {
+    JavaFile javaFile = JavaFile.create(relativePathFromBasedir);
+    if (relativePathFromSourceDir.contains(Directory.SEPARATOR)) {
+      javaFile.packageFullyQualifiedName = StringUtils.substringBeforeLast(relativePathFromSourceDir, Directory.SEPARATOR);
+      javaFile.packageFullyQualifiedName = StringUtils.replace(javaFile.packageFullyQualifiedName, Directory.SEPARATOR, ".");
+      javaFile.className = StringUtils.substringAfterLast(relativePathFromSourceDir, Directory.SEPARATOR);
+      javaFile.className = StringUtils.removeEndIgnoreCase(javaFile.className, JAVA_SUFFIX);
+      javaFile.fullyQualifiedName = javaFile.packageFullyQualifiedName + "." + javaFile.className;
+      javaFile.setDeprecatedKey(javaFile.fullyQualifiedName);
+    } else {
+      javaFile.packageFullyQualifiedName = JavaPackage.DEFAULT_PACKAGE_NAME;
+      javaFile.className = StringUtils.removeEndIgnoreCase(relativePathFromSourceDir, JAVA_SUFFIX);
+      javaFile.fullyQualifiedName = javaFile.className;
+      javaFile.setDeprecatedKey(JavaPackage.DEFAULT_PACKAGE_NAME + "." + javaFile.className);
+    }
+    javaFile.unitTest = unitTest;
+    javaFile.parent.setDeprecatedKey(javaFile.packageFullyQualifiedName);
+    return javaFile;
+  }
+
+  /**
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
+   */
+  @Deprecated
   public static JavaFile fromRelativePath(String relativePath, boolean unitTest) {
     if (relativePath != null) {
       String pacname = null;
@@ -232,7 +268,9 @@ public class JavaFile extends Resource {
    * Creates a JavaFile from a file in the source directories
    *
    * @return the JavaFile created if exists, null otherwise
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public static JavaFile fromIOFile(File file, List<File> sourceDirs, boolean unitTest) {
     if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), JAVA_SUFFIX)) {
       return null;
@@ -246,7 +284,9 @@ public class JavaFile extends Resource {
 
   /**
    * Shortcut to fromIOFile with an abolute path
+   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
+  @Deprecated
   public static JavaFile fromAbsolutePath(String path, List<File> sourceDirs, boolean unitTest) {
     if (path == null) {
       return null;
@@ -258,8 +298,9 @@ public class JavaFile extends Resource {
   public String toString() {
     return new ToStringBuilder(this)
       .append("key", getKey())
+      .append("deprecatedKey", getDeprecatedKey())
       .append("path", getPath())
-      .append("filename", filename)
+      .append("filename", className)
       .toString();
   }
 

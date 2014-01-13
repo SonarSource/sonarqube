@@ -255,12 +255,15 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private ResourceModel findOrCreateModel(@Nullable Integer rootModuleId, Resource resource) {
     ResourceModel model;
     try {
-      if (rootModuleId != null && StringUtils.isNotBlank(resource.getPath())) {
-        model = session.getSingleResult(ResourceModel.class, "rootId", rootModuleId, "path", resource.getPath());
-      } else {
-        model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
+      model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
+      if (model == null) {
+        // Fallback on deprecated key when resource has not already been migrated
+        model = session.getSingleResult(ResourceModel.class, "key", resource.getDeprecatedEffectiveKey(), "deprecatedKey", null);
       }
       if (model == null) {
+        if (StringUtils.isBlank(resource.getEffectiveKey())) {
+          throw new SonarException("Unable to persist resource " + resource.toString() + ". Resource effective key is blank. This may be caused by an outdated plugin.");
+        }
         model = createModel(resource);
 
       } else {
@@ -278,6 +281,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
+    String deprecatedEffectiveKey = resource.getDeprecatedEffectiveKey();
+    model.setDeprecatedKey(StringUtils.isNotBlank(deprecatedEffectiveKey) ? deprecatedEffectiveKey : resource.getEffectiveKey());
     model.setPath(resource.getPath());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());
@@ -295,6 +300,13 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
   static void mergeModel(ResourceModel model, Resource resource) {
     model.setEnabled(true);
+    model.setKey(resource.getEffectiveKey());
+    if (StringUtils.isNotBlank(resource.getDeprecatedEffectiveKey())) {
+      model.setDeprecatedKey(resource.getDeprecatedEffectiveKey());
+    } else if (StringUtils.isBlank(model.getDeprecatedKey())) {
+      // By default deprecated key is the same as previous key
+      model.setDeprecatedKey(model.getKey());
+    }
     if (StringUtils.isNotBlank(resource.getName())) {
       model.setName(resource.getName());
     }

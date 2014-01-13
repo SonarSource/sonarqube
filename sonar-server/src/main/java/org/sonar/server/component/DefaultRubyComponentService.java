@@ -67,6 +67,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     resourceDao.insertOrUpdate(
       new ResourceDto()
         .setKey(kee)
+        .setDeprecatedKey(kee)
         .setName(name)
         .setLongName(name)
         .setScope(Scopes.PROJECT)

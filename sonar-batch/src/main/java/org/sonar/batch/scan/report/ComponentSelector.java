@@ -31,4 +31,6 @@ abstract class ComponentSelector {
 
   abstract Set<String> componentKeys();
 
+  abstract String getDeprecatedKey(String componentKey);
+
 }

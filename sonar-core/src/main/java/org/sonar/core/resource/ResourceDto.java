@@ -25,6 +25,7 @@ public class ResourceDto {
 
   private Long id;
   private String key;
+  private String deprecatedKey;
   private String name;
   private String longName;
   private Long rootId;
@@ -62,6 +63,15 @@ public class ResourceDto {
 
   public ResourceDto setKey(String s) {
     this.key = s;
+    return this;
+  }
+
+  public String getDeprecatedKey() {
+    return deprecatedKey;
+  }
+
+  public ResourceDto setDeprecatedKey(String s) {
+    this.deprecatedKey = s;
     return this;
   }
 

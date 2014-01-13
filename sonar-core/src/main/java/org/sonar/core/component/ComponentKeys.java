@@ -55,6 +55,19 @@ public final class ComponentKeys {
     return key;
   }
 
+  public static String createDeprecatedKey(Project project, Resource resource) {
+    String key = resource.getKey();
+    if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
+      // not a project nor a library
+      key = new StringBuilder(ResourceModel.KEY_SIZE)
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getDeprecatedKey())
+        .toString();
+    }
+    return key;
+  }
+
   /**
    * <p>Test if given parameter is valid for a project/module. Valid format is:</p>
    * <ul>

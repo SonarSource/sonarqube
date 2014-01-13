@@ -6,6 +6,7 @@
   <resultMap id="resourceResultMap" type="Resource">
     <id property="id" column="id"/>
     <result property="key" column="kee"/>
+    <result property="deprecatedKey" column="deprecated_kee"/>
     <result property="rootId" column="root_id"/>
     <result property="scope" column="scope"/>
   </resultMap>
@@ -27,12 +28,12 @@
   <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
     select * from projects where scope='PRJ' and root_id=#{id}
   </select>
-  
+
   <update id="update" parameterType="Resource">
-    update projects 
-    set kee = #{key}
+    update projects
+    set kee = #{key}, deprecated_kee = #{deprecatedKey}
     where id = #{id}
   </update>
-  
+
 </mapper>
 

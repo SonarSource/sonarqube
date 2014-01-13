@@ -22,6 +22,7 @@ package org.sonar.core.resource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -31,8 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class used to rename the key of a project and its resources. 
- * 
+ * Class used to rename the key of a project and its resources.
+ *
  * @since 3.2
  */
 public class ResourceKeyUpdaterDao {
@@ -120,6 +121,10 @@ public class ResourceKeyUpdaterDao {
     for (ResourceDto resource : resources) {
       String resourceKey = resource.getKey();
       resource.setKey(newKey + resourceKey.substring(oldKey.length(), resourceKey.length()));
+      String resourceDeprecatedKey = resource.getDeprecatedKey();
+      if (StringUtils.isNotBlank(resourceDeprecatedKey)) {
+        resource.setDeprecatedKey(newKey + resourceDeprecatedKey.substring(oldKey.length(), resourceDeprecatedKey.length()));
+      }
       mapper.update(resource);
     }
   }

@@ -1,11 +1,11 @@
 <dataset>
 
-  <projects id="1" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Action" name="Action"
+  <projects id="1" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:/src/main/java/org/struts/Action.java" name="Action"
             description="[null]" long_name="org.struts.Action"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="/foo/bar" />
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="/foo/bar" deprecated_kee="org.struts:struts:org.struts.Action" />
 
-  <projects id="2" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Filter" name="Filter"
+  <projects id="2" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:/src/main/java/org/struts/Filter.java" name="Filter"
             description="[null]" long_name="org.struts.Filter"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]" />
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]" deprecated_kee="org.struts:struts:org.struts.Filter" />
 
 </dataset>

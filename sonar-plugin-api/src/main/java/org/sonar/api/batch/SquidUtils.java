@@ -34,7 +34,7 @@ public final class SquidUtils {
     String extension = StringUtils.lowerCase(FilenameUtils.getExtension(key));
     boolean isJavaFile = "jav".equals(extension) || "java".equals(extension);
     if (isJavaFile) {
-      key = key.substring(0, key.length() - extension.length() -1);
+      key = key.substring(0, key.length() - extension.length() - 1);
     }
 
     String convertedKey = key.replace('/', '.');

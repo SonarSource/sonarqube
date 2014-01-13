@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
@@ -36,6 +37,10 @@ import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Qualifiers;
@@ -202,7 +207,7 @@ public class DefaultIndex extends SonarIndex {
       bucket.addMeasure(measure);
 
       if (measure.getPersistenceMode().useDatabase()) {
-        persistence.saveMeasure(resource, measure);
+        persistence.saveMeasure(bucket.getResource(), measure);
       }
     }
     return measure;
@@ -465,7 +470,7 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public <R extends Resource> R getResource(R reference) {
-    Bucket bucket = buckets.get(reference);
+    Bucket bucket = getBucket(reference);
     if (bucket != null) {
       return (R) bucket.getResource();
     }
@@ -525,7 +530,7 @@ public class DefaultIndex extends SonarIndex {
   }
 
   private Bucket doIndex(Resource resource, Resource parentReference) {
-    Bucket bucket = buckets.get(resource);
+    Bucket bucket = getBucket(resource);
     if (bucket != null) {
       return bucket;
     }
@@ -545,6 +550,7 @@ public class DefaultIndex extends SonarIndex {
     }
 
     resource.setEffectiveKey(ComponentKeys.createKey(currentProject, resource));
+    resource.setDeprecatedEffectiveKey(ComponentKeys.createDeprecatedKey(currentProject, resource));
     bucket = new Bucket(resource).setParent(parentBucket);
     buckets.put(resource, bucket);
 
@@ -598,11 +604,45 @@ public class DefaultIndex extends SonarIndex {
   private Bucket getBucket(Resource resource, boolean acceptExcluded) {
     Bucket bucket = null;
     if (resource != null) {
-      bucket = buckets.get(resource);
+      bucket = getBucket(resource);
       if (!acceptExcluded && bucket != null && bucket.isExcluded()) {
         bucket = null;
       }
     }
     return bucket;
   }
+
+  /**
+   * Should support 3 situations
+   * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
+   * 2) key = old key and deprecatedKey = null : this is to support backard compatibility for plugins using
+   *  {@link SquidUtils#convertJavaFileKeyFromSquidFormat(String)} or {@link SquidUtils#convertJavaPackageKeyFromSquidFormat(String)}
+   * 3) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of {@link JavaFile}, {@link JavaPackage}, {@link File}, {@link Directory}
+   * @param res
+   * @return
+   */
+  private Bucket getBucket(Resource res) {
+    if (StringUtils.isNotBlank(res.getKey()) && StringUtils.isNotBlank(res.getDeprecatedKey())) {
+      return buckets.get(res);
+    }
+    // Squid compatibility fix (case 2)
+    if (StringUtils.isBlank(res.getDeprecatedKey())) {
+      res.setDeprecatedKey(res.getKey());
+    }
+    if (StringUtils.isNotBlank(res.getDeprecatedKey())) {
+      // Fallback to use deprecated key
+      for (Map.Entry<Resource, Bucket> entry : buckets.entrySet()) {
+        Resource indexedResource = entry.getKey();
+        if (res.getClass() == indexedResource.getClass() && res.getDeprecatedKey().equals(indexedResource.getDeprecatedKey())) {
+          LOG.warn("Resource was found using deprecated key. Please update your plugin.");
+          // Fix resource key
+          Bucket bucket = entry.getValue();
+          res.setKey(bucket.getResource().getKey());
+          return bucket;
+        }
+      }
+    }
+    return null;
+  }
+
 }

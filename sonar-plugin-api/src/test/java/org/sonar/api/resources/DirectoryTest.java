@@ -19,31 +19,40 @@
  */
 package org.sonar.api.resources;
 
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 public class DirectoryTest {
 
   @Test
-  public void shouldNotStartOrEndBySlash() {
-    Resource dir = new Directory("      /foo/bar/  ");
-    assertThat(dir.getKey(), is("foo/bar"));
+  public void shouldStartBySlashAndNotEndBySlash() {
+    Resource dir = Directory.create("src/foo/bar/", "      /foo/bar/  ");
+    assertThat(dir.getKey(), is("/src/foo/bar"));
+    assertThat(dir.getDeprecatedKey(), is("foo/bar"));
     assertThat(dir.getName(), is("foo/bar"));
   }
 
   @Test
-  public void rootDirectory() {
-    assertThat(new Directory(null).getKey(), is(Directory.ROOT));
-    assertThat(new Directory("").getKey(), is(Directory.ROOT));
-    assertThat(new Directory("   ").getKey(), is(Directory.ROOT));
+  public void shouldNotStartOrEndBySlashDeprecatedConstructor() {
+    Resource dir = new Directory("      /foo/bar/  ");
+    assertThat(dir.getDeprecatedKey(), is("foo/bar"));
+    assertThat(dir.getName(), is("foo/bar"));
+  }
+
+  @Test
+  public void rootDirectoryDeprecatedConstructor() {
+    assertThat(new Directory(null).getDeprecatedKey(), is(Directory.ROOT));
+    assertThat(new Directory("").getDeprecatedKey(), is(Directory.ROOT));
+    assertThat(new Directory("   ").getDeprecatedKey(), is(Directory.ROOT));
   }
 
   @Test
   public void backSlashesShouldBeReplacedBySlashes() {
     Resource dir = new Directory("  foo\\bar\\     ");
-    assertThat(dir.getKey(), is("foo/bar"));
+    assertThat(dir.getDeprecatedKey(), is("foo/bar"));
     assertThat(dir.getName(), is("foo/bar"));
   }
 
@@ -66,17 +75,18 @@ public class DirectoryTest {
 
   @Test
   public void matchExclusionPatterns() {
-    assertThat(new Directory("one/two/third").matchFilePattern("one/two/*.java"), is(false));
-    assertThat(new Directory("one/two/third").matchFilePattern("false"), is(false));
-    assertThat(new Directory("one/two/third").matchFilePattern("two/one/**"), is(false));
-    assertThat(new Directory("one/two/third").matchFilePattern("other*/**"), is(false));
+    Directory directory = Directory.create("src/one/two/third", "one/two/third");
+    assertThat(directory.matchFilePattern("one/two/*.java"), is(false));
+    assertThat(directory.matchFilePattern("false"), is(false));
+    assertThat(directory.matchFilePattern("two/one/**"), is(false));
+    assertThat(directory.matchFilePattern("other*/**"), is(false));
 
-    assertThat(new Directory("one/two/third").matchFilePattern("one*/**"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("one/t?o/**"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("**/*"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("**"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("one/two/*"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("/one/two/*"), is(true));
-    assertThat(new Directory("one/two/third").matchFilePattern("one/**"), is(true));
+    assertThat(directory.matchFilePattern("src/one*/**"), is(true));
+    assertThat(directory.matchFilePattern("src/one/t?o/**"), is(true));
+    assertThat(directory.matchFilePattern("**/*"), is(true));
+    assertThat(directory.matchFilePattern("**"), is(true));
+    assertThat(directory.matchFilePattern("src/one/two/*"), is(true));
+    assertThat(directory.matchFilePattern("/src/one/two/*"), is(true));
+    assertThat(directory.matchFilePattern("src/one/**"), is(true));
   }
 }

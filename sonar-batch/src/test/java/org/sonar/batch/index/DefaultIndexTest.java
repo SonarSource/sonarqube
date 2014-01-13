@@ -114,10 +114,10 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldIndexParentOfDeprecatedFiles() {
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     assertThat(index.index(file)).isTrue();
 
-    Directory reference = new Directory("org/foo");
+    Directory reference = Directory.create("src/org/foo", "org/foo");
     assertThat(index.getResource(reference).getName()).isEqualTo("org/foo");
     assertThat(index.isIndexed(reference, true)).isTrue();
     assertThat(index.isExcluded(reference)).isFalse();
@@ -127,15 +127,15 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldIndexTreeOfResources() {
-    Directory directory = new Directory("org/foo");
-    File file = new File("org/foo/Bar.java");
-    file.setLanguage(Java.INSTANCE);
+    Directory directory = Directory.create("src/org/foo", "org/foo");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", Java.INSTANCE, false);
 
     assertThat(index.index(directory)).isTrue();
     assertThat(index.index(file, directory)).isTrue();
 
-    File fileRef = new File("org/foo/Bar.java");
-    assertThat(index.getResource(fileRef).getKey()).isEqualTo("org/foo/Bar.java");
+    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    assertThat(index.getResource(fileRef).getKey()).isEqualTo("/src/org/foo/Bar.java");
+    assertThat(index.getResource(fileRef).getDeprecatedKey()).isEqualTo("org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getLanguage().getKey()).isEqualTo("java");
     assertThat(index.isIndexed(fileRef, true)).isTrue();
     assertThat(index.isExcluded(fileRef)).isFalse();
@@ -156,12 +156,12 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldNotIndexResourceIfParentNotIndexed() {
-    Directory directory = new Directory("org/other");
-    File file = new File("org/foo/Bar.java");
+    Directory directory = Directory.create("src/org/other", "org/other");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
 
     assertThat(index.index(file, directory)).isFalse();
 
-    File fileRef = new File("org/foo/Bar.java");
+    File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     assertThat(index.isIndexed(directory, true)).isFalse();
     assertThat(index.isIndexed(fileRef, true)).isFalse();
     assertThat(index.isExcluded(fileRef)).isFalse();
@@ -176,7 +176,7 @@ public class DefaultIndexTest {
   public void shouldIndexEvenIfLocked() {
     lock.lock();
 
-    Directory dir = new Directory("org/foo");
+    Directory dir = Directory.create("src/org/foo", "org/foo");
     assertThat(index.index(dir)).isTrue();
     assertThat(index.isIndexed(dir, true)).isTrue();
   }
@@ -186,13 +186,13 @@ public class DefaultIndexTest {
     lock.setFailWhenLocked(true);
     lock.lock();
 
-    Directory dir = new Directory("org/foo");
+    Directory dir = Directory.create("src/org/foo", "org/foo");
     index.index(dir);
   }
 
   @Test
   public void shouldBeExcluded() {
-    File file = new File("org/foo/ExcludedBar.java");
+    File file = File.create("src/org/foo/ExcludedBar.java", "org/foo/ExcludedBar.java", null, false);
     assertThat(index.index(file)).isFalse();
     assertThat(index.isIndexed(file, true)).isTrue();
     assertThat(index.isIndexed(file, false)).isFalse();
@@ -201,7 +201,7 @@ public class DefaultIndexTest {
 
   @Test
   public void shouldIndexResourceWhenAddingMeasure() {
-    Resource dir = new Directory("org/foo");
+    Resource dir = Directory.create("src/org/foo", "org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
     assertThat(index.isIndexed(dir, true)).isTrue();
@@ -213,7 +213,7 @@ public class DefaultIndexTest {
    */
   @Test
   public void shouldNotFailWhenSavingViolationOnNullRule() {
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     Violation violation = Violation.create((Rule) null, file);
     index.addViolation(violation);
 
@@ -227,7 +227,7 @@ public class DefaultIndexTest {
   public void should_ignore_violation_on_unknown_rules() {
     Rule ruleWithoutID = Rule.create("repoKey", "ruleKey", "Rule");
 
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     Violation violation = Violation.create(ruleWithoutID, file);
     index.addViolation(violation);
 
@@ -237,7 +237,7 @@ public class DefaultIndexTest {
   @Test
   public void should_get_violation() {
     Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     Violation violation = Violation.create(rule, file);
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
 
@@ -249,7 +249,7 @@ public class DefaultIndexTest {
   @Test
   public void should_get_filtered_violation_with_off_switch_mode() {
     Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     Violation violation = Violation.create(rule, file).setSwitchedOff(true);
 
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
@@ -262,7 +262,7 @@ public class DefaultIndexTest {
   @Test
   public void should_get_filtered_violation_with_on_switch_mode() {
     Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
-    File file = new File("org/foo/Bar.java");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
     Violation violation = Violation.create(rule, file).setSwitchedOff(false);
 
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
