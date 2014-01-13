@@ -184,19 +184,24 @@ public class RuleDao implements BatchComponent, ServerComponent {
     getMapper(session).insertTag(newTag);
   }
 
-  public void deleteTags(List<RuleTagDto> tagsToDelete, SqlSession session) {
-    // TODO
-  }
-
-  public void insertTags(List<RuleTagDto> tagsToInsert, SqlSession session) {
-    // TODO
-  }
-
   public void deleteParam(RuleParamDto persistedParam, SqlSession sqlSession) {
     getMapper(sqlSession).deleteParameter(persistedParam.getId());
   }
 
   public void deleteTag(RuleTagDto tagToDelete, SqlSession session) {
     getMapper(session).deleteTag(tagToDelete.getId().intValue());
+  }
+
+  public List<RuleTagDto> selectTags(Integer id) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectTags(id, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleTagDto> selectTags(Integer id, SqlSession session) {
+    return getMapper(session).selectTagsForRule(id);
   }
 }

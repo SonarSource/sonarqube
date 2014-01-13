@@ -94,6 +94,14 @@
             "index": "no"
           }
         }
+      },
+      "systemTags": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "adminTags": {
+        "type": "string",
+        "index": "not_analyzed"
       }
     }
   }

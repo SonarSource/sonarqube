@@ -55,4 +55,6 @@ public interface RuleMapper {
   void insertTag(RuleTagDto newTag);
 
   void deleteTag(Integer tagId);
+
+  List<RuleTagDto> selectTagsForRule(Integer ruleId);
 }

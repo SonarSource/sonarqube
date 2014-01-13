@@ -39,14 +39,13 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.*;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +108,8 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -123,7 +124,7 @@ public class QProfileRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
@@ -147,6 +148,8 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -161,7 +164,7 @@ public class QProfileRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
@@ -171,6 +174,8 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -185,13 +190,14 @@ public class QProfileRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams));
+    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
   public void create_rule() throws Exception {
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
     RuleDto result = operations.createRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
@@ -214,14 +220,21 @@ public class QProfileRuleOperationsTest {
     assertThat(ruleParamArgument.getValue().getName()).isEqualTo("max");
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("20");
 
+    ArgumentCaptor<RuleTagDto> ruleTagArgument = ArgumentCaptor.forClass(RuleTagDto.class);
+    verify(ruleDao).insert(ruleTagArgument.capture(), eq(session));
+    assertThat(ruleTagArgument.getValue().getTag()).isEqualTo("style");
+    assertThat(ruleTagArgument.getValue().getType()).isEqualTo(RuleTagType.SYSTEM);
+
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())), eq(newArrayList(ruleTagArgument.getValue())));
   }
 
   @Test
   public void update_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
+    ArrayList<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    when(ruleDao.selectTags(eq(11), eq(session))).thenReturn(ruleTags);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
     operations.updateRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
@@ -237,17 +250,21 @@ public class QProfileRuleOperationsTest {
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("21");
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())));
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())), eq(ruleTags));
   }
 
   @Test
   public void delete_rule() throws Exception {
-    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
+    final int ruleId = 11;
+    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
     RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
-    when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(param));
+    when(ruleDao.selectParameters(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
+    ArrayList<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    when(ruleDao.selectTags(eq(ruleId), eq(session))).thenReturn(ruleTags);
 
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(11).setSeverity(1);
-    when(activeRuleDao.selectByRuleId(11)).thenReturn(newArrayList(activeRule));
+    final int activeRuleId = 5;
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(1);
+    when(activeRuleDao.selectByRuleId(ruleId)).thenReturn(newArrayList(activeRule));
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -259,11 +276,11 @@ public class QProfileRuleOperationsTest {
     assertThat(ruleArgument.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
     assertThat(ruleArgument.getValue().getUpdatedAt()).isEqualTo(new Date(now));
 
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(param)));
-    verify(activeRuleDao).deleteParameters(eq(5), eq(session));
-    verify(activeRuleDao).deleteFromRule(eq(11), eq(session));
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(param)), eq(ruleTags));
+    verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
+    verify(activeRuleDao).deleteFromRule(eq(ruleId), eq(session));
     verify(session, times(2)).commit();
-    verify(ruleRegistry).deleteActiveRules(newArrayList(5));
+    verify(ruleRegistry).deleteActiveRules(newArrayList(activeRuleId));
   }
 
 }

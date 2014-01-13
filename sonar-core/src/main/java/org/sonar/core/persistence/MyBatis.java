@@ -19,8 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.rule.RuleTagDto;
-
 import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;

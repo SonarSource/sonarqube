@@ -22,6 +22,8 @@ package org.sonar.server.rule;
 
 public final class RuleDocument {
 
+  public static final String FIELD_SYSTEM_TAGS = "systemTags";
+  public static final String FIELD_ADMIN_TAGS = "adminTags";
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_CREATED_AT = "createdAt";

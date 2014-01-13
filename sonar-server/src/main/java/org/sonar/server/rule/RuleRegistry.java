@@ -24,6 +24,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -35,9 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.*;
 import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchQuery;
 
@@ -80,20 +79,10 @@ public class RuleRegistry {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/com/sonar/search/active_rule_mapping.json");
   }
 
-  public void bulkRegisterRules() {
+  public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {
     TimeProfiler profiler = new TimeProfiler();
 
-    profiler.start("Rebuilding rules index - query");
-    List<RuleDto> rules = ruleDao.selectNonManual();
-    List<RuleParamDto> flatParams = ruleDao.selectParameters();
-    profiler.stop();
-
-    Multimap<Integer, RuleParamDto> paramsByRule = ArrayListMultimap.create();
-    for (RuleParamDto param : flatParams) {
-      paramsByRule.put(param.getRuleId(), param);
-    }
-
-    String[] ids = bulkIndexRules(rules, paramsByRule);
+    String[] ids = bulkIndexRules(rules, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
   }
 
@@ -167,12 +156,13 @@ public class RuleRegistry {
   public void saveOrUpdate(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
     Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
-    save(rule, params);
+    Collection<RuleTagDto> tags = ruleDao.selectTags(rule.getId());
+    save(rule, params, tags);
   }
 
-  public void save(RuleDto rule, Collection<RuleParamDto> params) {
+  public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleTagDto> tags) {
     try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params));
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params, tags));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
     }
@@ -186,7 +176,7 @@ public class RuleRegistry {
     }
   }
 
-  private String[] bulkIndexRules(List<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule) {
+  private String[] bulkIndexRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {
     try {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
@@ -195,7 +185,7 @@ public class RuleRegistry {
       profiler.start("Build rules documents");
       for (RuleDto rule : rules) {
         ids[index] = rule.getId().toString();
-        docs[index] = ruleDocument(rule, paramsByRule.get(rule.getId()));
+        docs[index] = ruleDocument(rule, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
         index++;
       }
       profiler.stop();
@@ -292,7 +282,7 @@ public class RuleRegistry {
     profiler.stop();
   }
 
-  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params) throws IOException {
+  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleTagDto> tags) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(RuleDocument.FIELD_ID, rule.getId())
@@ -327,6 +317,23 @@ public class RuleRegistry {
       }
       document.endArray();
     }
+
+    List<String> systemTags = Lists.newArrayList();
+    List<String> adminTags = Lists.newArrayList();
+    for (RuleTagDto tag: tags) {
+      if (tag.getType() == RuleTagType.SYSTEM) {
+        systemTags.add(tag.getTag());
+      } else {
+        adminTags.add(tag.getTag());
+      }
+    }
+    if (!systemTags.isEmpty()) {
+      document.array(RuleDocument.FIELD_SYSTEM_TAGS, systemTags.toArray());
+    }
+    if (!adminTags.isEmpty()) {
+      document.array(RuleDocument.FIELD_ADMIN_TAGS, adminTags.toArray());
+    }
+
     document.endObject();
     return document;
   }

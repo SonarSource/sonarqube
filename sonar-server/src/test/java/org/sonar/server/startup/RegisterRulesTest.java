@@ -73,7 +73,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     setupData("shared");
     task.start();
 
-    verify(ruleRegistry).bulkRegisterRules();
     checkTables("should_save_new_repositories", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags");
   }
 

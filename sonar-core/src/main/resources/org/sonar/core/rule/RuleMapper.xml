@@ -132,6 +132,12 @@
     FROM rule_tags
   </select>
 
+  <select id="selectTagsForRule" resultType="RuleTag">
+    select <include refid="tagColumns"/>
+    from rule_tags
+    where rule_id=#{id}
+  </select>
+
   <insert id="insertTag" parameterType="RuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rule_tags (rule_id, tag, tag_type)
     VALUES (#{ruleId}, #{tag}, #{type})

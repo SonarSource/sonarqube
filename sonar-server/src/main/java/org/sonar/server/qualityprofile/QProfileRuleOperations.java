@@ -37,6 +37,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleTagDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
@@ -143,8 +144,20 @@ public class QProfileRuleOperations implements ServerComponent {
         ruleDao.insert(param, session);
         ruleParams.add(param);
       }
+
+      List<RuleTagDto> templateRuleTags = ruleDao.selectTags(templateRule.getId(), session);
+      List<RuleTagDto> ruleTags = newArrayList();
+      for (RuleTagDto tag: templateRuleTags) {
+        RuleTagDto newTag = new RuleTagDto()
+          .setRuleId(rule.getId())
+          .setTag(tag.getTag())
+          .setType(tag.getType());
+        ruleDao.insert(newTag, session);
+        ruleTags.add(newTag);
+      }
+
       session.commit();
-      reindexRule(rule, ruleParams);
+      reindexRule(rule, ruleParams, ruleTags);
       return rule;
     } finally {
       MyBatis.closeQuietly(session);
@@ -168,8 +181,9 @@ public class QProfileRuleOperations implements ServerComponent {
         ruleParam.setDefaultValue(Strings.emptyToNull(value));
         ruleDao.update(ruleParam, session);
       }
+      List<RuleTagDto> ruleTags = ruleDao.selectTags(rule.getId(), session);
       session.commit();
-      reindexRule(rule, ruleParams);
+      reindexRule(rule, ruleParams, ruleTags);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -205,11 +219,11 @@ public class QProfileRuleOperations implements ServerComponent {
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {
-    reindexRule(rule, ruleDao.selectParameters(rule.getId(), session));
+    reindexRule(rule, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
   }
 
-  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams) {
-    ruleRegistry.save(rule, ruleParams);
+  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams, List<RuleTagDto> ruleTags) {
+    ruleRegistry.save(rule, ruleParams, ruleTags);
   }
 
   private void checkPermission(UserSession userSession) {

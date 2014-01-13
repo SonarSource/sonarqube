@@ -41,9 +41,7 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.*;
 import org.sonar.server.search.SearchIndex;
 import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
@@ -52,9 +50,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -170,8 +171,7 @@ public class RuleRegistryTest {
   @Test
   public void should_remove_all_rules_when_ro_rule_registered() {
     List<RuleDto> rules = Lists.newArrayList();
-    when(ruleDao.selectNonManual()).thenReturn(rules);
-    registry.bulkRegisterRules();
+    registry.bulkRegisterRules(rules, null, null);
     assertThat(registry.findIds(new HashMap<String, String>())).hasSize(0);
   }
 
@@ -197,12 +197,33 @@ public class RuleRegistryTest {
     RuleParamDto paramRule2 = new RuleParamDto();
     paramRule2.setName("name");
     paramRule2.setRuleId(ruleId2);
-    List<RuleParamDto> params = ImmutableList.of(paramRule2);
+    Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
+    params.put(ruleId2, paramRule2);
 
-    when(ruleDao.selectNonManual()).thenReturn(rules);
-    when(ruleDao.selectParameters()).thenReturn(params);
-    registry.bulkRegisterRules();
+    RuleTagDto systemTag1Rule2 = new RuleTagDto();
+    systemTag1Rule2.setRuleId(ruleId2);
+    systemTag1Rule2.setTag("tag1");
+    systemTag1Rule2.setType(RuleTagType.SYSTEM);
+    RuleTagDto systemTag2Rule2 = new RuleTagDto();
+    systemTag2Rule2.setRuleId(ruleId2);
+    systemTag2Rule2.setTag("tag2");
+    systemTag2Rule2.setType(RuleTagType.SYSTEM);
+    RuleTagDto adminTagRule2 = new RuleTagDto();
+    adminTagRule2.setRuleId(ruleId2);
+    adminTagRule2.setTag("tag");
+    adminTagRule2.setType(RuleTagType.ADMIN);
+    Multimap<Integer, RuleTagDto> tags = ArrayListMultimap.create();
+    tags.put(ruleId2, systemTag1Rule2);
+    tags.put(ruleId2, systemTag2Rule2);
+    tags.put(ruleId2, adminTagRule2);
+
+    registry.bulkRegisterRules(rules, params, tags);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(2);
+
+    Map<String, Object> rule2Document = esSetup.client().prepareGet("rules", "rule", Integer.toString(ruleId2))
+      .execute().actionGet().getSourceAsMap();
+    assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_SYSTEM_TAGS)).hasSize(2);
+    assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_ADMIN_TAGS)).hasSize(1);
   }
 
   @Test
@@ -240,7 +261,9 @@ public class RuleRegistryTest {
 
     assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
     when(ruleDao.selectNonManual()).thenReturn(rules);
-    registry.bulkRegisterRules();
+    final Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
+    final Multimap<Integer, RuleTagDto> tags = ArrayListMultimap.create();
+    registry.bulkRegisterRules(rules, params, tags);
 
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
       .hasSize(2)
