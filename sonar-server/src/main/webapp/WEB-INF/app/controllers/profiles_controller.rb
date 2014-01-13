@@ -183,14 +183,29 @@ class ProfilesController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      @parent = Internal.quality_profiles.parent(@profile) if @profile.parent
       @ancestors = Internal.quality_profiles.ancestors(@profile).to_a
       @children = Internal.quality_profiles.children(@profile).to_a
       profiles = Internal.quality_profiles.profilesByLanguage(@profile.language()).to_a.reject{|p| p.id == @profile.id() || p.parent() == @profile.name()}
       profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name()}
-      @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.name()] }
+      @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.id()] }
     end
 
     set_profile_breadcrumbs
+  end
+
+  # POST /profiles/change_parent?id=<profile id>&parent_id=<parent id>
+  def change_parent
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters 'id'
+
+    id = params[:id].to_i
+    parent_id = params[:parent_id].to_i unless params[:parent_id].empty?
+    call_backend do
+      Internal.quality_profiles.updateParentProfile(id, parent_id)
+    end
+    redirect_to :action => 'inheritance', :id => id
   end
 
   # GET /profiles/changelog?id=<profile id>
@@ -235,19 +250,6 @@ class ProfilesController < ApplicationController
     end
 
     set_profile_breadcrumbs
-  end
-
-  # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
-  def change_parent
-    verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters 'id'
-
-    id = params[:id].to_i
-    call_backend do
-      Internal.quality_profiles.updateParentProfile(id, params[:parent_name])
-    end
-    redirect_to :action => 'inheritance', :id => id
   end
 
   #

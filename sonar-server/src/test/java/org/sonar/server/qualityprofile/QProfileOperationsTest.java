@@ -262,14 +262,14 @@ public class QProfileOperationsTest {
 
   @Test
   public void update_parent_profile() {
-    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent");
     QualityProfileDto oldParent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
-    QualityProfileDto newParent = new QualityProfileDto().setId(3).setName("Parent").setLanguage("java");
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
+    when(profileLookup.profile(3)).thenReturn(new QProfile().setId(3).setName("Parent").setLanguage("java"));
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(oldParent);
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.updateParentProfile(child, newParent, authorizedUserSession);
+    operations.updateParentProfile(1, 3, authorizedUserSession);
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
     assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
@@ -282,12 +282,12 @@ public class QProfileOperationsTest {
 
   @Test
   public void set_parent_profile() {
-    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent(null);
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent(null));
+    when(profileLookup.profile(2)).thenReturn(new QProfile().setId(2).setName("Parent").setLanguage("java"));
 
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.updateParentProfile(child, parent, authorizedUserSession);
+    operations.updateParentProfile(1, 2, authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
@@ -301,13 +301,13 @@ public class QProfileOperationsTest {
 
   @Test
   public void remove_parent_profile() {
-    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent");
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(parent);
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.updateParentProfile(child, null, authorizedUserSession);
+    operations.updateParentProfile(1, null, authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
@@ -321,14 +321,14 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_update_parent_on_cycle() {
-    QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("parent");
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("parent"));
+    when(profileLookup.profile(2)).thenReturn(new QProfile().setId(2).setName("Parent").setLanguage("java"));
 
+    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
     when(qualityProfileDao.selectParent(1, session)).thenReturn(parent);
     when(qualityProfileDao.selectParent(2, session)).thenReturn(null);
-
     try {
-      operations.updateParentProfile(parent, child, authorizedUserSession);
+      operations.updateParentProfile(2, 1, authorizedUserSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Please do not select a child profile as parent.");

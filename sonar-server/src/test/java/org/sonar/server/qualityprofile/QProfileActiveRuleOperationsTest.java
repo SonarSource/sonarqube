@@ -80,6 +80,9 @@ public class QProfileActiveRuleOperationsTest {
   RuleDao ruleDao;
 
   @Mock
+  QProfileLookup profileLookup;
+
+  @Mock
   RuleRegistry ruleRegistry;
 
   @Mock
@@ -112,7 +115,7 @@ public class QProfileActiveRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, rulesLookup, system);
+    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, profileLookup, ruleRegistry, profilesManager, rulesLookup, system);
   }
 
   @Test

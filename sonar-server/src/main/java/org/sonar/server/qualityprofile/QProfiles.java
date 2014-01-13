@@ -58,14 +58,14 @@ public class QProfiles implements ServerComponent {
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
 
-  private final QProfileLookup search;
+  private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
   private final QProfileRuleOperations ruleOperations;
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileLookup search,
+                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileLookup profileLookup,
                    QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
@@ -73,7 +73,7 @@ public class QProfiles implements ServerComponent {
     this.resourceDao = resourceDao;
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
-    this.search = search;
+    this.profileLookup = profileLookup;
     this.operations = operations;
     this.activeRuleOperations = activeRuleOperations;
     this.ruleOperations = ruleOperations;
@@ -81,24 +81,30 @@ public class QProfiles implements ServerComponent {
   }
 
   public List<QProfile> allProfiles() {
-    return search.allProfiles();
+    return profileLookup.allProfiles();
   }
 
   public List<QProfile> profilesByLanguage(String language) {
-    return search.profiles(language);
+    return profileLookup.profiles(language);
   }
 
   public QProfile profile(int id) {
-    return search.profile(id);
+    return profileLookup.profile(id);
+  }
+
+  public QProfile profile(String name, String language) {
+    validateProfileName(name);
+    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
+    return profileLookup.profile(name, language);
   }
 
   @CheckForNull
   public QProfile defaultProfile(String language) {
-    return search.defaultProfile(language);
+    return profileLookup.defaultProfile(language);
   }
 
   public int countChildren(QProfile profile) {
-    return search.countChildren(profile);
+    return profileLookup.countChildren(profile);
   }
 
   public QProfileOperations.NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
@@ -116,39 +122,21 @@ public class QProfiles implements ServerComponent {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     operations.setDefaultProfile(qualityProfile, UserSession.get());
   }
-
-  @CheckForNull
+  
   public QProfile parent(QProfile profile) {
-    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
-    if (parent != null) {
-      return QProfile.from(parent);
-    }
-    return null;
+    return profileLookup.parent(profile);
   }
 
   public List<QProfile> children(QProfile profile) {
-    return search.children(profile);
+    return profileLookup.children(profile);
   }
 
   public List<QProfile> ancestors(QProfile profile) {
-    return search.ancestors(profile);
+    return profileLookup.ancestors(profile);
   }
 
-  public void updateParentProfile(int profileId, @Nullable String parentName) {
-    QualityProfileDto profile = findNotNull(profileId);
-    QualityProfileDto parent = null;
-    if (!Strings.isNullOrEmpty(parentName)) {
-      parent = findNotNull(parentName, profile.getLanguage());
-    }
-    operations.updateParentProfile(profile, parent, UserSession.get());
-  }
-
-  /**
-   * Used by WS
-   */
-  public void setDefaultProfile(String name, String language) {
-    QualityProfileDto qualityProfile = findNotNull(name, language);
-    operations.setDefaultProfile(qualityProfile, UserSession.get());
+  public void updateParentProfile(int profileId, @Nullable Integer parentId) {
+    operations.updateParentProfile(profileId, parentId, UserSession.get());
   }
 
 

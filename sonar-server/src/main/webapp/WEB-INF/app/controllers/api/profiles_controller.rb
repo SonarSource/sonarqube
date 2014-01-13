@@ -94,7 +94,8 @@ class Api::ProfilesController < Api::ApiController
   # Since v.3.3
   def set_as_default
     verify_post_request
-    Internal.quality_profiles.setDefaultProfile(params[:name], params[:language])
+    profile = Internal.quality_profiles.profile(params[:name], params[:language])
+    Internal.quality_profiles.setDefaultProfile(profile.id)
     render_success
   end
 

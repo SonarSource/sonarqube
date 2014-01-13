@@ -127,8 +127,13 @@ public class QProfileOperations implements ServerComponent {
     propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
   }
 
-  public void updateParentProfile(QualityProfileDto profile, @Nullable QualityProfileDto parentProfile, UserSession userSession) {
+  public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
     checkPermission(userSession);
+    QualityProfileDto profile = profileLookup.profile(profileId).toDto();
+    QualityProfileDto parentProfile = null;
+    if (parentId != null) {
+      parentProfile = profileLookup.profile(parentId).toDto();
+    }
 
     SqlSession session = myBatis.openSession();
     try {

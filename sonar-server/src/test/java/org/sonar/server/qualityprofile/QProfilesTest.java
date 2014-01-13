@@ -73,7 +73,7 @@ public class QProfilesTest {
   QProfileProjectLookup projectLookup;
 
   @Mock
-  QProfileLookup search;
+  QProfileLookup profileLookup;
 
   @Mock
   QProfileOperations service;
@@ -91,65 +91,65 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, search, service, activeRuleOperations, ruleOperations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, profileLookup, service, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
-  public void search_profile() throws Exception {
+  public void search_profile_by_id() throws Exception {
     qProfiles.profile(1);
-    verify(search).profile(1);
+    verify(profileLookup).profile(1);
+  }
+
+  @Test
+  public void search_profile_by_name_and_language() throws Exception {
+    qProfiles.profile("Default", "java");
+    verify(profileLookup).profile("Default", "java");
   }
 
   @Test
   public void search_profiles() throws Exception {
     qProfiles.allProfiles();
-    verify(search).allProfiles();
+    verify(profileLookup).allProfiles();
   }
 
   @Test
   public void search_profiles_by_language() throws Exception {
     qProfiles.profilesByLanguage("java");
-    verify(search).profiles("java");
+    verify(profileLookup).profiles("java");
   }
 
   @Test
   public void search_default_profile_by_language() throws Exception {
     qProfiles.defaultProfile("java");
-    verify(search).defaultProfile("java");
+    verify(profileLookup).defaultProfile("java");
   }
 
   @Test
   public void search_parent_profile() throws Exception {
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
-    when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
-
-    QProfile result = qProfiles.parent(new QProfile().setId(1).setParent("Parent").setLanguage("java"));
-    assertThat(result.name()).isEqualTo("Parent");
-    assertThat(result.language()).isEqualTo("java");
-    assertThat(result.id()).isEqualTo(2);
-
-    assertThat(qProfiles.parent(new QProfile().setId(3).setParent("Unfound").setLanguage("java"))).isNull();
+    QProfile profile = new QProfile().setId(1).setParent("Parent").setLanguage("java");
+    qProfiles.parent(profile);
+    verify(profileLookup).parent(profile);
   }
 
   @Test
   public void search_children() throws Exception {
     QProfile profile = new QProfile();
     qProfiles.children(profile);
-    verify(search).children(profile);
+    verify(profileLookup).children(profile);
   }
 
   @Test
   public void search_ancestors() throws Exception {
     QProfile profile = new QProfile();
     qProfiles.ancestors(profile);
-    verify(search).ancestors(profile);
+    verify(profileLookup).ancestors(profile);
   }
 
   @Test
   public void count_children() throws Exception {
     QProfile profile = new QProfile();
     qProfiles.countChildren(profile);
-    verify(search).countChildren(profile);
+    verify(profileLookup).countChildren(profile);
   }
 
   @Test
@@ -196,60 +196,9 @@ public class QProfilesTest {
   }
 
   @Test
-  public void update_default_profile_from_name_and_language() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectByNameAndLanguage("Default", "java")).thenReturn(qualityProfile);
-
-    qProfiles.setDefaultProfile("Default", "java");
-    verify(service).setDefaultProfile(eq(qualityProfile), any(UserSession.class));
-  }
-
-  @Test
   public void update_parent_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
-    when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
-
-    qProfiles.updateParentProfile(1, "Parent");
-    verify(service).updateParentProfile(eq(qualityProfile), eq(parent), any(UserSession.class));
-  }
-
-  @Test
-  public void remove_parent_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-
-    qProfiles.updateParentProfile(1, null);
-    verify(service).updateParentProfile(eq(qualityProfile), eq((QualityProfileDto) null), any(UserSession.class));
-  }
-
-  @Test
-  public void fail_to_update_parent_profile_on_unknown_profile() throws Exception {
-    try {
-      when(qualityProfileDao.selectById(1)).thenReturn(null);
-      QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
-      when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(parent);
-
-      qProfiles.updateParentProfile(1, "Parent");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-  }
-
-  @Test
-  public void fail_to_update_parent_profile_on_unknown_parent_profile() throws Exception {
-    try {
-      QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-      when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-      when(qualityProfileDao.selectByNameAndLanguage("Parent", "java")).thenReturn(null);
-
-      qProfiles.updateParentProfile(1, "Parent");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+    qProfiles.updateParentProfile(1, 2);
+    verify(service).updateParentProfile(eq(1), eq(2), any(UserSession.class));
   }
 
   @Test

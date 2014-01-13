@@ -56,23 +56,25 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
+  private final QProfileLookup profileLookup;
   private final RuleRegistry ruleRegistry;
   private final ProfilesManager profilesManager;
   private final ProfileRules rulesLookup;
 
   private final System2 system;
 
-  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry, ProfilesManager profilesManager,
-                                      ProfileRules rulesLookup) {
-    this(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, rulesLookup, System2.INSTANCE);
+  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QProfileLookup profileLookup, RuleRegistry ruleRegistry,
+                                      ProfilesManager profilesManager, ProfileRules rulesLookup) {
+    this(myBatis, activeRuleDao, ruleDao, profileLookup, ruleRegistry, profilesManager, rulesLookup, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry,
+  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QProfileLookup profileLookup, RuleRegistry ruleRegistry,
                                ProfilesManager profilesManager, ProfileRules rulesLookup, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
+    this.profileLookup = profileLookup;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
     this.rulesLookup = rulesLookup;

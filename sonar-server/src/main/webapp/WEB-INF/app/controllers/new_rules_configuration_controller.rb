@@ -35,7 +35,7 @@ class NewRulesConfigurationController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
-      @parent_profile = Internal.quality_profiles.parent(@profile)
+      @parent_profile = Internal.quality_profiles.parent(@profile) if @profile.parent()
 
       add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
                       {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}

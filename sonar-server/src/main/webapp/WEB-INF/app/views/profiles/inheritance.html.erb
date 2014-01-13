@@ -34,7 +34,7 @@
            <p><%= message('quality_profiles.inherit_rules_from_profile') -%>:</p>
            <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
              <%= hidden_field_tag "id", @profile.id() %>
-             <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent()) %>
+             <%= select_tag "parent_id", options_for_select(@select_parent, (@parent.id() if @parent)) %>
              <%= submit_tag message('change_verb'), :id => 'submit_parent'%>
            <% end %>
          </div>

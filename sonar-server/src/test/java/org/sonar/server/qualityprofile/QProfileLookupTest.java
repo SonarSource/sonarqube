@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,11 +76,19 @@ public class QProfileLookupTest {
   }
 
   @Test
+  public void search_profile_from_name_and_language() throws Exception {
+    when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
+
+    assertThat(search.profile("Sonar Way", "java")).isNotNull();
+  }
+
+  @Test
   public void fail_to_search_profile_from_id_if_not_found() throws Exception {
     when(dao.selectById(1)).thenReturn(null);
 
     try {
       search.profile(1);
+      fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
@@ -107,6 +116,25 @@ public class QProfileLookupTest {
   public void search_profiles_by_language() throws Exception {
     search.profiles("java");
     verify(dao).selectByLanguage("java");
+  }
+
+
+  @Test
+  public void search_parent() throws Exception {
+    when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
+    search.parent(new QProfile().setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way"));
+    verify(dao).selectByNameAndLanguage("Sonar Way", "java");
+  }
+
+  @Test
+  public void fail_to_search_parent_if_parent_cannot_be_found() throws Exception {
+    when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(null);
+    try {
+      search.parent(new QProfile().setName("Sonar Way").setLanguage("java").setParent("Parent"));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   @Test
@@ -153,6 +181,7 @@ public class QProfileLookupTest {
 
     try {
       search.ancestors(new QProfile().setId(3).setName("Grandchild").setLanguage("java").setParent("Child"));
+      fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
     }
