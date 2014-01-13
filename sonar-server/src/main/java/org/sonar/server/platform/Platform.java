@@ -19,6 +19,9 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchNode;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -97,8 +100,6 @@ import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.server.search.SearchIndex;
-import org.sonar.server.search.SearchNode;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;

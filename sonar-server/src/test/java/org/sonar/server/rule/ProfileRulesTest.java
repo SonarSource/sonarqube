@@ -19,6 +19,9 @@
  */
 package org.sonar.server.rule;
 
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchNode;
+
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
@@ -30,8 +33,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.QProfileRule;
-import org.sonar.server.search.SearchIndex;
-import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
 
 import java.util.List;

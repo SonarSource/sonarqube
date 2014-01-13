@@ -20,6 +20,9 @@
 
 package org.sonar.server.rule;
 
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchNode;
+
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -42,8 +45,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
-import org.sonar.server.search.SearchIndex;
-import org.sonar.server.search.SearchNode;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;

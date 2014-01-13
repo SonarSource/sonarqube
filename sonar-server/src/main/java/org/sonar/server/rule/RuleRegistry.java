@@ -20,6 +20,9 @@
 
 package org.sonar.server.rule;
 
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchQuery;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
@@ -37,8 +40,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
-import org.sonar.server.search.SearchIndex;
-import org.sonar.server.search.SearchQuery;
 
 import java.io.IOException;
 import java.util.Arrays;

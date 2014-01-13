@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.net.ServerSocket;
+
+class NetworkUtils {
+
+  static int freePort() {
+    for (int index = 0; index < 5; index++) {
+      try {
+        ServerSocket socket = new ServerSocket(0);
+        int unusedPort = socket.getLocalPort();
+        socket.close();
+        if (isValidPort(unusedPort)) {
+          return unusedPort;
+        }
+
+      } catch (IOException e) {
+        throw new IllegalStateException("Can not find an open network port", e);
+      }
+    }
+    throw new IllegalStateException("Can not find an open network port");
+  }
+
+
+  private static boolean isValidPort(int port) {
+    return port > 1023;
+  }
+}

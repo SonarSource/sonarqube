@@ -34,10 +34,10 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
+import org.sonar.server.es.SearchIndex;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
-import org.sonar.server.search.SearchIndex;
 
 import javax.annotation.CheckForNull;
 
@@ -48,7 +48,9 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.sonar.server.rule.RuleRegistry.*;
+import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
+import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
 public class ProfileRules implements ServerExtension {
 
