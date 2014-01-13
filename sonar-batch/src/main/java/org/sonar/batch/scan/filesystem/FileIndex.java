@@ -181,7 +181,8 @@ public class FileIndex implements BatchComponent {
     }
     set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
     if (Java.KEY.equals(lang)) {
-      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":" + JavaFile.fromRelativePath(sourceRelativePath, false).getKey());
+      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":"
+        + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
     } else {
       set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":" + sourceRelativePath);
     }
