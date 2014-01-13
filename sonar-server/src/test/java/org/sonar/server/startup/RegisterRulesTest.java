@@ -20,7 +20,6 @@
 
 package org.sonar.server.startup;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
@@ -43,9 +42,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterRulesTest extends AbstractDaoTestCase {
 
@@ -57,7 +54,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   RuleRegistry ruleRegistry;
   RuleI18nManager ruleI18nManager;
   MyBatis myBatis;
-  SqlSession sqlSession;
   RuleDao ruleDao;
   ActiveRuleDao activeRuleDao;
 
@@ -69,7 +65,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     myBatis = getMyBatis();
     ruleDao = new RuleDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
-    task = new RegisterRules(new RuleRepository[] {new FakeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new FakeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
   }
 
   @Test
@@ -204,7 +200,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
   @Test
   public void volume_testing() {
-    task = new RegisterRules(new RuleRepository[] {new VolumeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new VolumeRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
     task.start();
 
@@ -215,7 +211,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   // SONAR-3305
   @Test
   public void should_fail_with_rule_without_name() throws Exception {
-    task = new RegisterRules(new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -235,7 +231,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   // SONAR-3769
   @Test
   public void should_fail_with_rule_with_blank_name() throws Exception {
-    task = new RegisterRules(new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -251,7 +247,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void should_fail_with_rule_without_description() throws Exception {
     when(ruleI18nManager.getName(anyString(), anyString())).thenReturn("Name");
-    task = new RegisterRules(new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -271,7 +267,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   // http://jira.codehaus.org/browse/SONAR-3722
   @Test
   public void should_fail_with_rule_without_name_in_bundle() throws Exception {
-    task = new RegisterRules(new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+    task = new RegisterRules(new RuleRepository[]{new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
     setupData("shared");
 
     // the rule has no name, it should fail

@@ -48,6 +48,7 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 public final class RegisterRules {
 
@@ -87,10 +88,11 @@ public final class RegisterRules {
       List<RuleDto> registeredRules = registerRules(existingRules);
 
       LOG.info("Removing deprecated rules");
-      disableDeprecatedRules(existingRules, registeredRules);
-      disableDeprecatedRepositories(existingRules);
-
+      Set<RuleDto> disabledRules = newHashSet();
+      disabledRules.addAll(disableDeprecatedRules(existingRules, registeredRules));
+      disabledRules.addAll(disableDeprecatedRepositories(existingRules));
       sqlSession.commit();
+      removeActiveRulesOnDisabledRules(disabledRules);
 
       ruleRegistry.bulkRegisterRules();
     } finally {
@@ -310,15 +312,19 @@ public final class RegisterRules {
     }
   }
 
-  private void disableDeprecatedRules(RulesByRepository existingRules, List<RuleDto> registeredRules) {
+  private Collection<RuleDto> disableDeprecatedRules(RulesByRepository existingRules, List<RuleDto> registeredRules) {
+    List<RuleDto> disabledRules = newArrayList();
     for (RuleDto rule : existingRules.rules()) {
       if (!registeredRules.contains(rule)) {
-        disable(rule);
+        disableRule(rule);
+        disabledRules.add(rule);
       }
     }
+    return disabledRules;
   }
 
-  private void disableDeprecatedRepositories(RulesByRepository existingRules) {
+  private Collection<RuleDto> disableDeprecatedRepositories(RulesByRepository existingRules) {
+    List<RuleDto> disabledRules = newArrayList();
     for (final String repositoryKey : existingRules.repositories()) {
       if (!Iterables.any(repositories, new Predicate<RuleRepository>() {
         public boolean apply(RuleRepository input) {
@@ -326,19 +332,26 @@ public final class RegisterRules {
         }
       })) {
         for (RuleDto rule : existingRules.get(repositoryKey)) {
-          disable(rule);
+          disableRule(rule);
+          disabledRules.add(rule);
         }
       }
     }
+    return disabledRules;
   }
 
-  private void disable(RuleDto rule) {
+  private void disableRule(RuleDto rule) {
     if (!rule.getStatus().equals(Rule.STATUS_REMOVED)) {
       LOG.info("Removing rule " + rule.getRuleKey());
-      profilesManager.removeActivatedRules(rule.getId());
       rule.setStatus(Rule.STATUS_REMOVED);
       rule.setUpdatedAt(new Date());
       ruleDao.update(rule, sqlSession);
+    }
+  }
+
+  private void removeActiveRulesOnDisabledRules(Set<RuleDto> disabledRules) {
+    for (RuleDto rule : disabledRules) {
+      profilesManager.removeActivatedRules(rule.getId());
     }
   }
 
