@@ -29,14 +29,14 @@ class LoggingWatch extends StopWatch {
   private System2 system;
   private long startTimeInMillis;
 
-  LoggingWatch(Logger logger) {
-    this(logger, System2.INSTANCE);
+  LoggingWatch(Logger LOGGER) {
+    this(LOGGER, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  LoggingWatch(Logger logger, System2 system) {
+  LoggingWatch(Logger LOGGER, System2 system) {
     this.system = system;
-    this.logger = logger;
+    this.logger = LOGGER;
     this.startTimeInMillis = system.now();
   }
 

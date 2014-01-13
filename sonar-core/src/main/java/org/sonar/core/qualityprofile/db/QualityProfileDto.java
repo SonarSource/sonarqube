@@ -20,6 +20,9 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class QualityProfileDto {
 
   private Integer id;
@@ -56,11 +59,12 @@ public class QualityProfileDto {
     return this;
   }
 
+  @CheckForNull
   public String getParent() {
     return parent;
   }
 
-  public QualityProfileDto setParent(String parent) {
+  public QualityProfileDto setParent(@Nullable String parent) {
     this.parent = parent;
     return this;
   }
