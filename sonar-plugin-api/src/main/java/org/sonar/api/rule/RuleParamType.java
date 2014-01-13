@@ -19,21 +19,66 @@
  */
 package org.sonar.api.rule;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.PropertyType;
+
 /**
  * @since 4.2
  */
 public final class RuleParamType {
 
+  private static final String FIELD_SEPARATOR = "|";
+  private static final String OPTION_SEPARATOR = ",";
+
   public static final RuleParamType STRING = new RuleParamType("STRING");
   public static final RuleParamType TEXT = new RuleParamType("TEXT");
   public static final RuleParamType BOOLEAN = new RuleParamType("BOOLEAN");
   public static final RuleParamType INTEGER = new RuleParamType("INTEGER");
-  public static final RuleParamType REGULAR_EXPRESSION = new RuleParamType("REGULAR_EXPRESSION");
 
+  private final String type;
+  private final String[] options;
+
+  // format is "type|comma-separated list of options", for example "INTEGER" or "SINGLE_SELECT_LIST|foo=one,bar,baz=two"
   private final String key;
 
-  private RuleParamType(String key) {
-    this.key = key;
+  private RuleParamType(String type, String... options) {
+    this.type = type;
+    this.options = options;
+    StringBuilder sb = new StringBuilder();
+    sb.append(type);
+    if (options.length > 0) {
+      sb.append(FIELD_SEPARATOR);
+      for (String option : options) {
+        sb.append(StringEscapeUtils.escapeCsv(option));
+        sb.append(OPTION_SEPARATOR);
+      }
+    }
+    this.key = sb.toString();
+  }
+
+  public String type() {
+    return type;
+  }
+
+  public String[] options() {
+    return options;
+  }
+
+  public static RuleParamType ofValues(String... acceptedValues) {
+    // reuse the same type as plugin properties in order to
+    // benefit from shared helpers (validation, HTML component)
+    String type = PropertyType.SINGLE_SELECT_LIST.name();
+    return new RuleParamType(type, acceptedValues);
+  }
+
+  public static RuleParamType parse(String key) {
+    String format = StringUtils.substringBefore(key, FIELD_SEPARATOR);
+    String options = StringUtils.substringAfter(key, FIELD_SEPARATOR);
+    if (StringUtils.isBlank(options)) {
+      return new RuleParamType(format);
+    }
+    return new RuleParamType(format, options.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
   }
 
   @Override
