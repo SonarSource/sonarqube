@@ -49,9 +49,9 @@ jQuery(function() {
 
 
     showDetails: function() {
-      var projectKey = this.model.get('component').key,
+      var componentKey = this.model.get('component').key,
           issueKey = this.model.get('key'),
-          url = baseUrl + '/resource/index/' + projectKey + '?metric=violations&display_title=true',
+          url = baseUrl + '/resource/index/' + componentKey + '?&display_title=true&tab=issues',
           details = jQuery('.navigator-details');
 
       function collapseIssues() {
@@ -62,14 +62,18 @@ jQuery(function() {
 
       this.$el.parent().children().removeClass('active');
       this.$el.addClass('active');
-      details.empty().addClass('loading');
-      jQuery.ajax({
-        type: 'GET',
-        url: url
-      }).done(function(r) {
-            details.html(r).removeClass('loading');
-            collapseIssues();
-          });
+
+      if (this.options.issuesView.componentKey !== componentKey) {
+        this.options.issuesView.componentKey = componentKey;
+        details.empty().addClass('loading');
+        jQuery.ajax({
+          type: 'GET',
+          url: url
+        }).done(function(r) {
+              details.html(r).removeClass('loading');
+              collapseIssues();
+            });
+      }
     }
   });
 
@@ -86,6 +90,11 @@ jQuery(function() {
     className: 'navigator-results-list',
     itemView: IssueView,
     emptyView: NoIssuesView,
+
+
+    itemViewOptions: function() {
+      return { issuesView: this };
+    },
 
 
     onRender: function() {
