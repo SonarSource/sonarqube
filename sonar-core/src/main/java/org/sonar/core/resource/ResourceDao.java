@@ -111,7 +111,6 @@ public class ResourceDao {
     return resources;
   }
 
-
   private void appendChildProjects(long projectId, ResourceMapper mapper, List<ResourceDto> resources) {
     List<ResourceDto> subProjects = mapper.selectDescendantProjects(projectId);
     for (ResourceDto subProject : subProjects) {
@@ -147,7 +146,7 @@ public class ResourceDao {
     try {
 
       List<ResourceDto> resources = newArrayList();
-      List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
+      List<List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
       for (List<Long> partition : idsPartition) {
         List<ResourceDto> dtos = session.getMapper(ResourceMapper.class).selectResourcesById(partition);
         resources.addAll(dtos);
@@ -175,7 +174,7 @@ public class ResourceDao {
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
-  public List<Integer> findAuthorizedChildrenComponentIds(Collection<String> componentRootKeys, @Nullable Integer userId, String role){
+  public List<Integer> findAuthorizedChildrenComponentIds(Collection<String> componentRootKeys, @Nullable Integer userId, String role) {
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -279,7 +278,7 @@ public class ResourceDao {
     }
   }
 
-  public static ComponentDto toComponent(ResourceDto resourceDto){
+  public static ComponentDto toComponent(ResourceDto resourceDto) {
     return new ComponentDto()
       .setId(resourceDto.getId())
       .setKey(resourceDto.getKey())
@@ -288,7 +287,7 @@ public class ResourceDao {
       .setQualifier(resourceDto.getQualifier());
   }
 
-  public static List<Component> toComponents(List<ResourceDto> resourceDto){
+  public static List<Component> toComponents(List<ResourceDto> resourceDto) {
     return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, Component>() {
       @Override
       public Component apply(@Nullable ResourceDto resourceDto) {

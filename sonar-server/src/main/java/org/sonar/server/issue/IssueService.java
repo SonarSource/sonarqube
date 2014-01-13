@@ -211,7 +211,9 @@ public class IssueService implements ServerComponent {
     if (resourceDto == null) {
       throw new IllegalArgumentException("Unknown component: " + issue.componentKey());
     }
-    if (!authorizationDao.isAuthorizedComponentKey(issue.componentKey(), userSession.userId(), UserRole.USER)) {
+    // Force use of correct key in case deprecated key is used
+    issue.setComponentKey(resourceDto.getKey());
+    if (!authorizationDao.isAuthorizedComponentKey(resourceDto.getKey(), userSession.userId(), UserRole.USER)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");
     }
@@ -228,7 +230,7 @@ public class IssueService implements ServerComponent {
     issue.setCreationDate(now);
     issue.setUpdateDate(now);
     issueStorage.save(issue);
-    dryRunCache.reportResourceModification(issue.componentKey());
+    dryRunCache.reportResourceModification(resourceDto.getKey());
     return issue;
   }
 
