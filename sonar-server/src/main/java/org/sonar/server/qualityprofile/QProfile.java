@@ -36,7 +36,7 @@ public class QProfile {
     return id;
   }
 
-  public QProfile setId(Integer id) {
+  QProfile setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -98,6 +98,16 @@ public class QProfile {
       .setParent(dto.getParent())
       .setVersion(dto.getVersion())
       .setUsed(dto.isUsed());
+  }
+
+  public QualityProfileDto toDto() {
+    return new QualityProfileDto()
+      .setId(id())
+      .setName(name())
+      .setLanguage(language())
+      .setParent(parent())
+      .setVersion(version())
+      .setUsed(used());
   }
 
   @Override

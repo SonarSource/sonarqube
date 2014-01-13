@@ -61,6 +61,7 @@ public class QProfileOperations implements ServerComponent {
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
   private final PropertiesDao propertiesDao;
+  private final QProfileLookup profileLookup;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
@@ -69,12 +70,12 @@ public class QProfileOperations implements ServerComponent {
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao, QProfileLookup profileLookup,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
+    this(myBatis, dao, activeRuleDao, propertiesDao, profileLookup, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao, QProfileLookup profileLookup,
                             List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
@@ -84,10 +85,12 @@ public class QProfileOperations implements ServerComponent {
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
+    this.profileLookup = profileLookup;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
     checkPermission(userSession);
+    checkNotAlreadyExists(name, language);
 
     NewProfileResult result = new NewProfileResult();
     List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
@@ -108,10 +111,15 @@ public class QProfileOperations implements ServerComponent {
     return result;
   }
 
-  public void renameProfile(QualityProfileDto qualityProfile, String newName, UserSession userSession) {
+  public void renameProfile(int profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
-    qualityProfile.setName(newName);
-    dao.update(qualityProfile);
+    QProfile profile = profileLookup.profile(profileId);
+    if (!profile.name().equals(newName)) {
+      checkNotAlreadyExists(newName, profile.language());
+    }
+    QualityProfileDto dto = profile.toDto();
+    dto.setName(newName);
+    dao.update(dto);
   }
 
   public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
@@ -237,6 +245,11 @@ public class QProfileOperations implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
+  private void checkNotAlreadyExists(String name, String language) {
+    if (dao.selectByNameAndLanguage(name, language) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+    }
+  }
 
   public static class NewProfileResult {
 

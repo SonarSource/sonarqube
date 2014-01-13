@@ -29,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
@@ -56,6 +57,32 @@ public class QProfileLookupTest {
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
     search = new QProfileLookup(myBatis, dao);
+  }
+
+  @Test
+  public void search_profile_from_id() throws Exception {
+    when(dao.selectById(1)).thenReturn(
+      new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
+    );
+
+    QProfile qProfile = search.profile(1);
+    assertThat(qProfile.id()).isEqualTo(1);
+    assertThat(qProfile.name()).isEqualTo("Sonar Way with Findbugs");
+    assertThat(qProfile.language()).isEqualTo("java");
+    assertThat(qProfile.parent()).isEqualTo("Sonar Way");
+    assertThat(qProfile.version()).isEqualTo(1);
+    assertThat(qProfile.used()).isFalse();
+  }
+
+  @Test
+  public void fail_to_search_profile_from_id_if_not_found() throws Exception {
+    when(dao.selectById(1)).thenReturn(null);
+
+    try {
+      search.profile(1);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   @Test

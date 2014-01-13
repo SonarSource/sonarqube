@@ -84,6 +84,9 @@ public class QProfileOperationsTest {
   PropertiesDao propertiesDao;
 
   @Mock
+  QProfileLookup profileLookup;
+
+  @Mock
   PreviewCache dryRunCache;
 
   @Mock
@@ -115,7 +118,7 @@ public class QProfileOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, profileLookup, importers, dryRunCache, ruleRegistry, profilesManager);
   }
 
   @Test
@@ -144,6 +147,17 @@ public class QProfileOperationsTest {
     }
     verifyNoMoreInteractions(qualityProfileDao);
     verify(session, never()).commit();
+  }
+
+  @Test
+  public void fail_to_create_profile_if_already_exists() throws Exception {
+    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
+    try {
+      operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   @Test
@@ -211,14 +225,27 @@ public class QProfileOperationsTest {
 
   @Test
   public void rename_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    operations.renameProfile(qualityProfile, "Default profile", authorizedUserSession);
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Default").setLanguage("java"));
+
+    operations.renameProfile(1, "Default profile", authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(qualityProfileDao).update(profileArgument.capture());
 
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+  }
+
+  @Test
+  public void fail_to_rename_profile_if_already_exists() throws Exception {
+    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Default").setLanguage("java"));
+    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
+    try {
+      operations.renameProfile(1, "New Default", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   @Test

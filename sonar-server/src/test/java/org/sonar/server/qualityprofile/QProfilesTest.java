@@ -96,11 +96,8 @@ public class QProfilesTest {
 
   @Test
   public void search_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-
     qProfiles.profile(1);
-    verify(qualityProfileDao).selectById(1);
+    verify(search).profile(1);
   }
 
   @Test
@@ -173,34 +170,9 @@ public class QProfilesTest {
   }
 
   @Test
-  public void fail_to_create_profile_if_already_exists() throws Exception {
-    try {
-      when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString())).thenReturn(new QualityProfileDto());
-      qProfiles.newProfile("Default", "java", Maps.<String, String>newHashMap());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-  }
-
-  @Test
   public void rename_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-
     qProfiles.renameProfile(1, "Default profile");
-    verify(service).renameProfile(eq(qualityProfile), eq("Default profile"), any(UserSession.class));
-  }
-
-  @Test
-  public void fail_to_rename_profile_on_unknown_profile() throws Exception {
-    try {
-      when(qualityProfileDao.selectById(1)).thenReturn(null);
-      qProfiles.renameProfile(1, "Default profile");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+    verify(service).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
   }
 
   @Test
@@ -212,18 +184,6 @@ public class QProfilesTest {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
     verify(qualityProfileDao, never()).update(any(QualityProfileDto.class));
-  }
-
-  @Test
-  public void fail_to_rename_profile_if_already_exists() throws Exception {
-    try {
-      when(qualityProfileDao.selectById(1)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
-      when(qualityProfileDao.selectByNameAndLanguage(eq("New Default"), anyString())).thenReturn(new QualityProfileDto().setName("New Default").setLanguage("java"));
-      qProfiles.renameProfile(1, "New Default");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
   }
 
   @Test

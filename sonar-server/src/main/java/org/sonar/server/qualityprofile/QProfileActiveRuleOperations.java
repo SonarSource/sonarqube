@@ -42,6 +42,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -57,22 +58,24 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final RuleDao ruleDao;
   private final RuleRegistry ruleRegistry;
   private final ProfilesManager profilesManager;
+  private final ProfileRules rulesLookup;
 
   private final System2 system;
 
-  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
-    this(myBatis, activeRuleDao, ruleDao, ruleRegistry,
-      profilesManager, System2.INSTANCE);
+  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry, ProfilesManager profilesManager,
+                                      ProfileRules rulesLookup) {
+    this(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, rulesLookup, System2.INSTANCE);
   }
 
   @VisibleForTesting
   QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry,
-                               ProfilesManager profilesManager, System2 system) {
+                               ProfilesManager profilesManager, ProfileRules rulesLookup, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
+    this.rulesLookup = rulesLookup;
     this.system = system;
   }
 
@@ -274,7 +277,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
     return newParams;
   }
-
 
   private void restoreSeverityFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions, UserSession userSession, SqlSession session) {
     Integer oldSeverity = activeRule.getSeverity();

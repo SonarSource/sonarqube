@@ -47,6 +47,7 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -85,6 +86,9 @@ public class QProfileActiveRuleOperationsTest {
   ProfilesManager profilesManager;
 
   @Mock
+  ProfileRules rulesLookup;
+
+  @Mock
   System2 system;
 
   Integer currentId = 1;
@@ -108,7 +112,7 @@ public class QProfileActiveRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, system);
+    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, ruleRegistry, profilesManager, rulesLookup, system);
   }
 
   @Test

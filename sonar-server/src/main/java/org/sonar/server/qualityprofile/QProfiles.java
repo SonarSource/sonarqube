@@ -80,24 +80,6 @@ public class QProfiles implements ServerComponent {
     this.rules = rules;
   }
 
-  // TODO
-  //
-  // PROFILES
-  // delete profile from profile id (Delete alerts, activeRules, activeRuleParams, activeRuleNotes, Projects and check profile is not a default one and has no child)
-  // copy profile
-  // export profile from profile id
-  // export profile from profile id and plugin key
-  // restore profile
-  //
-  // INHERITANCE
-  // change inheritance of a profile id
-  //
-  // ACTIVE RULES
-  // bulk activate all
-  // bulk deactivate all
-  // active rule parameter validation (only Integer and Boolean types are checked)
-
-
   public List<QProfile> allProfiles() {
     return search.allProfiles();
   }
@@ -107,7 +89,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public QProfile profile(int id) {
-    return QProfile.from(findNotNull(id));
+    return search.profile(id);
   }
 
   @CheckForNull
@@ -120,13 +102,14 @@ public class QProfiles implements ServerComponent {
   }
 
   public QProfileOperations.NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
-    validateNewProfile(name, language);
+    validateProfileName(name);
+    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
 
   public void renameProfile(int profileId, String newName) {
-    QualityProfileDto qualityProfile = validateRenameProfile(profileId, newName);
-    operations.renameProfile(qualityProfile, newName, UserSession.get());
+    validateProfileName(newName);
+    operations.renameProfile(profileId, newName, UserSession.get());
   }
 
   public void setDefaultProfile(int profileId) {
@@ -362,27 +345,6 @@ public class QProfiles implements ServerComponent {
   //
   // Quality profile validation
   //
-
-  private void validateNewProfile(String name, String language) {
-    validateProfileName(name);
-    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
-    checkNotAlreadyExists(name, language);
-  }
-
-  private QualityProfileDto validateRenameProfile(Integer profileId, String newName) {
-    validateProfileName(newName);
-    QualityProfileDto profileDto = findNotNull(profileId);
-    if (!profileDto.getName().equals(newName)) {
-      checkNotAlreadyExists(newName, profileDto.getLanguage());
-    }
-    return profileDto;
-  }
-
-  private void checkNotAlreadyExists(String name, String language) {
-    if (findQualityProfile(name, language) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
-    }
-  }
 
   private QualityProfileDto findNotNull(int id) {
     QualityProfileDto qualityProfile = findQualityProfile(id);

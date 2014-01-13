@@ -27,6 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
@@ -50,6 +51,10 @@ public class QProfileLookup implements ServerComponent {
 
   public List<QProfile> profiles(String language) {
     return toQProfiles(dao.selectByLanguage(language));
+  }
+
+  public QProfile profile(int id) {
+    return QProfile.from(findNotNull(id));
   }
 
   @CheckForNull
@@ -100,4 +105,22 @@ public class QProfileLookup implements ServerComponent {
       }
     }));
   }
+
+  private QualityProfileDto findNotNull(int id) {
+    QualityProfileDto qualityProfile = findQualityProfile(id);
+    return checkNotNull(qualityProfile);
+  }
+
+  @CheckForNull
+  private QualityProfileDto findQualityProfile(int id) {
+    return dao.selectById(id);
+  }
+
+  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
+    if (qualityProfile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return qualityProfile;
+  }
+
 }
