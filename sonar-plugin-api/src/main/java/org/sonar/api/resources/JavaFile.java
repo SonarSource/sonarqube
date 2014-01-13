@@ -35,7 +35,9 @@ import java.util.List;
 public class JavaFile extends Resource {
 
   private static final String JAVA_SUFFIX = ".java";
+  private static final String JAV_SUFFIX = ".jav";
   private String className;
+  private String filename;
   private String fullyQualifiedName;
   private String packageFullyQualifiedName;
   private boolean unitTest;
@@ -229,8 +231,12 @@ public class JavaFile extends Resource {
     if (relativePathFromSourceDir.contains(Directory.SEPARATOR)) {
       javaFile.packageFullyQualifiedName = StringUtils.substringBeforeLast(relativePathFromSourceDir, Directory.SEPARATOR);
       javaFile.packageFullyQualifiedName = StringUtils.replace(javaFile.packageFullyQualifiedName, Directory.SEPARATOR, ".");
-      javaFile.className = StringUtils.substringAfterLast(relativePathFromSourceDir, Directory.SEPARATOR);
-      javaFile.className = StringUtils.removeEndIgnoreCase(javaFile.className, JAVA_SUFFIX);
+      javaFile.filename = StringUtils.substringAfterLast(relativePathFromSourceDir, Directory.SEPARATOR);
+      if (javaFile.filename.endsWith(JAVA_SUFFIX)) {
+        javaFile.className = StringUtils.removeEndIgnoreCase(javaFile.filename, JAVA_SUFFIX);
+      } else if (javaFile.filename.endsWith(JAV_SUFFIX)) {
+        javaFile.className = StringUtils.removeEndIgnoreCase(javaFile.filename, JAV_SUFFIX);
+      }
       javaFile.fullyQualifiedName = javaFile.packageFullyQualifiedName + "." + javaFile.className;
       javaFile.setDeprecatedKey(javaFile.fullyQualifiedName);
     } else {
