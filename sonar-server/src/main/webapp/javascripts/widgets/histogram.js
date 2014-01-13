@@ -184,7 +184,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         }),
         metric = this.metrics()[this.mainMetric];
 
-    if (this.options().displayWorstBestValues) {
+    if (!this.options().relativeScale) {
       if (metric.worstValue != null && metric.bestValue != null) {
         xDomain = d3.extent([metric.worstValue, metric.bestValue]);
       } else if (metric.bestValue != null) {
