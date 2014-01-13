@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.server.qualityprofile.RuleInheritanceActions;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,7 +59,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldDeactivateInChildren() {
     setupData("shouldDeactivateInChildren");
-    RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
     checkTables("shouldDeactivateInChildren", "active_rules", "rules_profiles");
     assertThat(actions.idsToIndex()).containsOnly(1);
     assertThat(actions.idsToDelete()).containsOnly(2);
@@ -69,7 +68,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldNotDeactivateOverridingChildren() {
     setupData("shouldNotDeactivateOverridingChildren");
-    RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(1, 1, "admin");
     checkTables("shouldNotDeactivateOverridingChildren", "active_rules", "rules_profiles");
     assertThat(actions.idsToIndex()).containsOnly(1, 2);
     assertThat(actions.idsToDelete()).isEmpty();
@@ -78,7 +77,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldActivateInChildren() {
     setupData("shouldActivateInChildren");
-    RuleInheritanceActions actions = profilesManager.activated(1, 1, "admin");
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(1, 1, "admin");
     checkTables("shouldActivateInChildren", "active_rules", "rules_profiles", "active_rule_parameters");
     assertThat(actions.idsToIndex()).containsOnly(1, 2);
     assertThat(actions.idsToDelete()).isEmpty();

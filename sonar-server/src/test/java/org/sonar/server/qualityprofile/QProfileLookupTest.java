@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileSearchTest {
+public class QProfileLookupTest {
 
   @Mock
   MyBatis myBatis;
@@ -50,12 +50,12 @@ public class QProfileSearchTest {
   @Mock
   QualityProfileDao dao;
 
-  QProfileSearch search;
+  QProfileLookup search;
 
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
-    search = new QProfileSearch(myBatis, dao);
+    search = new QProfileLookup(myBatis, dao);
   }
 
   @Test

@@ -55,7 +55,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileOperations implements ServerComponent {
 
-  private static final String PROPERTY_PREFIX = "sonar.profile.";
+  public static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
@@ -116,7 +116,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
+    propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
   }
 
   public void updateParentProfile(QualityProfileDto profile, @Nullable QualityProfileDto parentProfile, UserSession userSession) {
@@ -129,7 +129,7 @@ public class QProfileOperations implements ServerComponent {
       }
       String parentName = parentProfile != null ? parentProfile.getName() : null;
 
-      RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
+      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
       ruleRegistry.deleteActiveRules(actions.idsToDelete());
       ruleRegistry.bulkIndexActiveRules(actions.idsToIndex(), session);
 
@@ -235,6 +235,47 @@ public class QProfileOperations implements ServerComponent {
   private void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
+
+
+  public static class NewProfileResult {
+
+    private List<String> warnings;
+    private List<String> infos;
+
+    private QProfile profile;
+
+    public NewProfileResult() {
+      warnings = newArrayList();
+      infos = newArrayList();
+    }
+
+    public List<String> warnings() {
+      return warnings;
+    }
+
+    public NewProfileResult setWarnings(List<String> warnings) {
+      this.warnings = warnings;
+      return this;
+    }
+
+    public List<String> infos() {
+      return infos;
+    }
+
+    public NewProfileResult setInfos(List<String> infos) {
+      this.infos = infos;
+      return this;
+    }
+
+    public QProfile profile() {
+      return profile;
+    }
+
+    public NewProfileResult setProfile(QProfile profile) {
+      this.profile = profile;
+      return this;
+    }
   }
 
 }

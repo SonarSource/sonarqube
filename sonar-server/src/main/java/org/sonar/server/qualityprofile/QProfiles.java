@@ -55,22 +55,24 @@ public class QProfiles implements ServerComponent {
   private final RuleDao ruleDao;
   private final ResourceDao resourceDao;
 
-  private final QProfileProjectService projectService;
+  private final QProfileProjectOperations projectOperations;
+  private final QProfileProjectLookup projectLookup;
 
-  private final QProfileSearch search;
+  private final QProfileLookup search;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
   private final QProfileRuleOperations ruleOperations;
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectService projectService, QProfileSearch search,
+                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileLookup search,
                    QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.resourceDao = resourceDao;
-    this.projectService = projectService;
+    this.projectOperations = projectOperations;
+    this.projectLookup = projectLookup;
     this.search = search;
     this.operations = operations;
     this.activeRuleOperations = activeRuleOperations;
@@ -117,7 +119,7 @@ public class QProfiles implements ServerComponent {
     return search.countChildren(profile);
   }
 
-  public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
+  public QProfileOperations.NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
     validateNewProfile(name, language);
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
@@ -169,53 +171,53 @@ public class QProfiles implements ServerComponent {
 
   // PROJECTS
 
-  public QProfileProjects projects(int profileId) {
+  public QProfileProjectLookup.QProfileProjects projects(int profileId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
-    return projectService.projects(qualityProfile);
+    return projectLookup.projects(qualityProfile);
   }
 
   public int countProjects(QProfile profile) {
-    return projectService.countProjects(profile);
+    return projectLookup.countProjects(profile);
   }
 
   /**
    * Used in /project/profile
    */
   public List<QProfile> profiles(int projectId) {
-    return projectService.profiles(projectId);
+    return projectLookup.profiles(projectId);
   }
 
   public void addProject(int profileId, long projectId) {
     ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
     QualityProfileDto qualityProfile = findNotNull(profileId);
 
-    projectService.addProject(qualityProfile, project, UserSession.get());
+    projectOperations.addProject(qualityProfile, project, UserSession.get());
   }
 
   public void removeProject(int profileId, long projectId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
     ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
 
-    projectService.removeProject(qualityProfile, project, UserSession.get());
+    projectOperations.removeProject(qualityProfile, project, UserSession.get());
   }
 
   public void removeProjectByLanguage(String language, long projectId) {
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
 
-    projectService.removeProject(language, project, UserSession.get());
+    projectOperations.removeProject(language, project, UserSession.get());
   }
 
   public void removeAllProjects(int profileId) {
     QualityProfileDto qualityProfile = findNotNull(profileId);
 
-    projectService.removeAllProjects(qualityProfile, UserSession.get());
+    projectOperations.removeAllProjects(qualityProfile, UserSession.get());
   }
 
 
   // PROFILE RULES
 
-  public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
+  public ProfileRules.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
     return rules.searchProfileRules(query, paging);
   }
 
@@ -223,7 +225,7 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(query);
   }
 
-  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
+  public ProfileRules.QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
     return rules.searchInactiveProfileRules(query, paging);
   }
 
@@ -351,7 +353,7 @@ public class QProfiles implements ServerComponent {
     ruleOperations.deleteRule(rule, UserSession.get());
   }
 
-  public int countActiveRules(QProfileRule rule){
+  public int countActiveRules(QProfileRule rule) {
     // TODO get it from E/S
     return activeRuleDao.selectByRuleId(rule.id()).size();
   }
@@ -466,7 +468,7 @@ public class QProfiles implements ServerComponent {
     return rule;
   }
 
-  private void validateRuleParent(RuleDto rule){
+  private void validateRuleParent(RuleDto rule) {
     if (rule.getParentId() == null) {
       throw new NotFoundException("Unknown rule");
     }
@@ -503,7 +505,7 @@ public class QProfiles implements ServerComponent {
   }
 
   @CheckForNull
-  private QProfile findParent(QProfile profile){
+  private QProfile findParent(QProfile profile) {
     QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
     if (parent != null) {
       return QProfile.from(parent);
@@ -519,6 +521,31 @@ public class QProfiles implements ServerComponent {
   private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
     QProfile profile = QProfile.from(qualityProfile);
     return new ProfileRuleChanged(profile, findParent(profile), rules.getFromRuleId(rule.getId()));
+  }
+
+  public static class ProfileRuleChanged {
+
+    private QProfile profile;
+    private QProfile parentProfile;
+    private QProfileRule rule;
+
+    public ProfileRuleChanged(QProfile profile, @Nullable QProfile parentProfile, QProfileRule rule) {
+      this.profile = profile;
+      this.parentProfile = parentProfile;
+      this.rule = rule;
+    }
+
+    public QProfile profile() {
+      return profile;
+    }
+
+    public QProfile parentProfile() {
+      return parentProfile;
+    }
+
+    public QProfileRule rule() {
+      return rule;
+    }
   }
 
 }

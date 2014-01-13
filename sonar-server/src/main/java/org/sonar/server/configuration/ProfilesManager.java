@@ -28,7 +28,6 @@ import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
-import org.sonar.server.qualityprofile.RuleInheritanceActions;
 
 import javax.annotation.Nullable;
 
@@ -402,6 +401,44 @@ public class ProfilesManager extends BaseDao {
       return null;
     }
     return getProfile(profile.getLanguage(), profile.getParentName());
+  }
+
+  /**
+   * Track changes made to active rules through profile inheritance that impact ES index
+   */
+  public static class RuleInheritanceActions {
+
+    private List<Integer> idsToIndex;
+    private List<Integer> idsToDelete;
+
+    public RuleInheritanceActions() {
+      idsToIndex = Lists.newArrayList();
+      idsToDelete = Lists.newArrayList();
+    }
+
+    public RuleInheritanceActions add(RuleInheritanceActions actions) {
+      idsToIndex.addAll(actions.idsToIndex);
+      idsToDelete.addAll(actions.idsToDelete);
+      return this;
+    }
+
+    public RuleInheritanceActions addToIndex(Integer activeRuleId) {
+      idsToIndex.add(activeRuleId);
+      return this;
+    }
+
+    public RuleInheritanceActions addToDelete(Integer activeRuleId) {
+      idsToDelete.add(activeRuleId);
+      return this;
+    }
+
+    public List<Integer> idsToIndex() {
+      return idsToIndex;
+    }
+
+    public List<Integer> idsToDelete() {
+      return idsToDelete;
+    }
   }
 
 }

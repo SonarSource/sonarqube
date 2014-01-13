@@ -34,12 +34,12 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class QProfileSearch implements ServerComponent {
+public class QProfileLookup implements ServerComponent {
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
 
-  public QProfileSearch(MyBatis myBatis, QualityProfileDao dao) {
+  public QProfileLookup(MyBatis myBatis, QualityProfileDao dao) {
     this.myBatis = myBatis;
     this.dao = dao;
   }
@@ -54,7 +54,7 @@ public class QProfileSearch implements ServerComponent {
 
   @CheckForNull
   public QProfile defaultProfile(String language) {
-    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileProjectService.PROPERTY_PREFIX + language);
+    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
     if (dto != null) {
       return QProfile.from(dto);
     }

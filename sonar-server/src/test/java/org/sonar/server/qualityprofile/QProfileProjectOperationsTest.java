@@ -30,60 +30,29 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileProjectServiceTest {
-
-  @Mock
-  QualityProfileDao qualityProfileDao;
+public class QProfileProjectOperationsTest {
 
   @Mock
   PropertiesDao propertiesDao;
 
-  QProfileProjectService service;
+  QProfileProjectOperations service;
 
   UserSession authorizedSession = MockUserSession.create().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   @Before
   public void setUp() throws Exception {
-    service = new QProfileProjectService(qualityProfileDao, propertiesDao);
-  }
-
-  @Test
-  public void search_projects() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java")).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
-
-    QProfileProjects result = service.projects(qualityProfile);
-    assertThat(result.profile()).isNotNull();
-    assertThat(result.projects()).hasSize(1);
-  }
-
-  @Test
-  public void count_projects() throws Exception {
-    service.countProjects(new QProfile().setId(1).setName("My profile").setLanguage("java"));
-    verify(qualityProfileDao).countProjects("My profile", "sonar.profile.java");
-  }
-
-  @Test
-  public void search_profiles_from_project() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectByProject(1L, "sonar.profile.%")).thenReturn(newArrayList(qualityProfile));
-
-    List<QProfile> result = service.profiles(1L);
-    assertThat(result).hasSize(1);
+    service = new QProfileProjectOperations(propertiesDao);
   }
 
   @Test
@@ -111,7 +80,6 @@ public class QProfileProjectServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
-    verifyNoMoreInteractions(qualityProfileDao);
     verifyNoMoreInteractions(propertiesDao);
   }
 

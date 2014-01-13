@@ -20,62 +20,26 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+public class QProfileProjectOperations implements ServerComponent {
 
-import static com.google.common.collect.Lists.newArrayList;
-
-public class QProfileProjectService implements ServerComponent {
-
-  public static final String PROPERTY_PREFIX = "sonar.profile.";
-
-  private final QualityProfileDao qualityProfileDao;
   private final PropertiesDao propertiesDao;
 
-  public QProfileProjectService(QualityProfileDao qualityProfileDao, PropertiesDao propertiesDao) {
-    this.qualityProfileDao = qualityProfileDao;
+  public QProfileProjectOperations(PropertiesDao propertiesDao) {
     this.propertiesDao = propertiesDao;
-  }
-
-  public QProfileProjects projects(QualityProfileDto qualityProfile) {
-    List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(qualityProfile.getName(), PROPERTY_PREFIX + qualityProfile.getLanguage());
-    List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
-      @Override
-      public Component apply(ComponentDto dto) {
-        return (Component) dto;
-      }
-    }));
-    return new QProfileProjects(QProfile.from(qualityProfile), projects);
-  }
-
-  public int countProjects(QProfile profile) {
-    return qualityProfileDao.countProjects(profile.name(), PROPERTY_PREFIX + profile.language());
-  }
-
-  public List<QProfile> profiles(long projectId) {
-    List<QualityProfileDto> dtos = qualityProfileDao.selectByProject(projectId, PROPERTY_PREFIX  + "%");
-    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
-      @Override
-      public QProfile apply(QualityProfileDto dto) {
-        return QProfile.from(dto);
-      }
-    }));
   }
 
   public void addProject(QualityProfileDto qualityProfile, ComponentDto component, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.setProperty(new PropertyDto().setKey(PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
+    propertiesDao.setProperty(new PropertyDto().setKey(
+      QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
   }
 
   public void removeProject(QualityProfileDto qualityProfile, ComponentDto project, UserSession userSession) {
@@ -84,12 +48,12 @@ public class QProfileProjectService implements ServerComponent {
 
   public void removeProject(String language, ComponentDto project, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.deleteProjectProperty(PROPERTY_PREFIX + language, project.getId());
+    propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId());
   }
 
   public void removeAllProjects(QualityProfileDto qualityProfile, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.deleteProjectProperties(PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
+    propertiesDao.deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
   }
 
   private void checkPermission(UserSession userSession) {

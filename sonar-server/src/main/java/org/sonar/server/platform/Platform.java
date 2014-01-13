@@ -275,11 +275,12 @@ public final class Platform {
     // quality profiles
     servicesContainer.addSingleton(ProfileRules.class);
     servicesContainer.addSingleton(QProfiles.class);
-    servicesContainer.addSingleton(QProfileSearch.class);
+    servicesContainer.addSingleton(QProfileLookup.class);
     servicesContainer.addSingleton(QProfileOperations.class);
     servicesContainer.addSingleton(QProfileActiveRuleOperations.class);
     servicesContainer.addSingleton(QProfileRuleOperations.class);
-    servicesContainer.addSingleton(QProfileProjectService.class);
+    servicesContainer.addSingleton(QProfileProjectOperations.class);
+    servicesContainer.addSingleton(QProfileProjectLookup.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

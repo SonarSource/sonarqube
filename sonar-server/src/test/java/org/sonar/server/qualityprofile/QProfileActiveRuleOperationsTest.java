@@ -133,7 +133,7 @@ public class QProfileActiveRuleOperationsTest {
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     final int idActiveRuleToUpdate = 42;
     final int idActiveRuleToDelete = 24;
-    RuleInheritanceActions inheritanceActions = new RuleInheritanceActions()
+    ProfilesManager.RuleInheritanceActions inheritanceActions = new ProfilesManager.RuleInheritanceActions()
       .addToIndex(idActiveRuleToUpdate)
       .addToDelete(idActiveRuleToDelete);
     when(profilesManager.activated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(inheritanceActions);
@@ -162,7 +162,7 @@ public class QProfileActiveRuleOperationsTest {
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     rule.setId(10);
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.updateSeverity(activeRule, Severity.MAJOR, authorizedUserSession);
 
@@ -193,7 +193,7 @@ public class QProfileActiveRuleOperationsTest {
   public void deactivate_rule() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectByProfileAndRule(1, 10)).thenReturn(activeRule);
-    when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.deactivateRule(activeRule, authorizedUserSession);
 
@@ -210,7 +210,7 @@ public class QProfileActiveRuleOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
     when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.createActiveRuleParam(activeRule, "max", "30", authorizedUserSession);
 
@@ -264,7 +264,7 @@ public class QProfileActiveRuleOperationsTest {
     RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
     when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
 
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.updateActiveRuleParam(activeRule, activeRuleParam, "30", authorizedUserSession);
 
@@ -283,7 +283,7 @@ public class QProfileActiveRuleOperationsTest {
   public void remove_active_rule_param() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.deleteActiveRuleParam(activeRule, activeRuleParam, authorizedUserSession);
 
@@ -300,7 +300,7 @@ public class QProfileActiveRuleOperationsTest {
     ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(2);
     when(activeRuleDao.selectById(4, session)).thenReturn(parent);
 
-    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.revertActiveRule(activeRule, authorizedUserSession);
 
@@ -322,7 +322,7 @@ public class QProfileActiveRuleOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.OVERRIDES).setParentId(4);
     when(activeRuleDao.selectById(4, session)).thenReturn(null);
 
-    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
     try {
       operations.revertActiveRule(activeRule, authorizedUserSession);
     } catch (Exception e) {
@@ -343,7 +343,7 @@ public class QProfileActiveRuleOperationsTest {
       new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("15")
     ));
 
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.revertActiveRule(activeRule, authorizedUserSession);
 
@@ -374,7 +374,7 @@ public class QProfileActiveRuleOperationsTest {
     ActiveRuleDto parent = new ActiveRuleDto().setId(4).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectById(4, session)).thenReturn(parent);
 
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.revertActiveRule(activeRule, authorizedUserSession);
 
@@ -401,7 +401,7 @@ public class QProfileActiveRuleOperationsTest {
       new ActiveRuleParamDto().setId(101).setActiveRuleId(5).setKey("minimum").setValue("2"))
     );
 
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"))).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.revertActiveRule(activeRule, authorizedUserSession);
 

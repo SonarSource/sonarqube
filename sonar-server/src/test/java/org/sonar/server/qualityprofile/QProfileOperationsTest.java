@@ -120,7 +120,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void create_profile() throws Exception {
-    NewProfileResult result = operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
+    QProfileOperations.NewProfileResult result = operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
     assertThat(result.profile().name()).isEqualTo("Default");
     assertThat(result.profile().language()).isEqualTo("java");
 
@@ -240,7 +240,7 @@ public class QProfileOperationsTest {
     QualityProfileDto newParent = new QualityProfileDto().setId(3).setName("Parent").setLanguage("java");
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(oldParent);
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.updateParentProfile(child, newParent, authorizedUserSession);
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
@@ -258,7 +258,7 @@ public class QProfileOperationsTest {
     QualityProfileDto child = new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent(null);
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
 
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.updateParentProfile(child, parent, authorizedUserSession);
 
@@ -278,7 +278,7 @@ public class QProfileOperationsTest {
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(parent);
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new RuleInheritanceActions());
+    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
     operations.updateParentProfile(child, null, authorizedUserSession);
 

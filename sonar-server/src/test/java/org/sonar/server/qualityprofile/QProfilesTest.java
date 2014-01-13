@@ -67,10 +67,13 @@ public class QProfilesTest {
   ResourceDao resourceDao;
 
   @Mock
-  QProfileProjectService projectService;
+  QProfileProjectOperations projectOperations;
 
   @Mock
-  QProfileSearch search;
+  QProfileProjectLookup projectLookup;
+
+  @Mock
+  QProfileLookup search;
 
   @Mock
   QProfileOperations service;
@@ -88,7 +91,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectService, search, service, activeRuleOperations, ruleOperations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, search, service, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
@@ -294,20 +297,20 @@ public class QProfilesTest {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
     qProfiles.projects(1);
-    verify(projectService).projects(qualityProfile);
+    verify(projectLookup).projects(qualityProfile);
   }
 
   @Test
   public void count_projects() throws Exception {
     QProfile profile = new QProfile();
     qProfiles.countProjects(profile);
-    verify(projectService).countProjects(profile);
+    verify(projectLookup).countProjects(profile);
   }
 
   @Test
   public void get_profiles_from_project_id() throws Exception {
     qProfiles.profiles(1);
-    verify(projectService).profiles(1);
+    verify(projectLookup).profiles(1);
   }
 
   @Test
@@ -318,7 +321,7 @@ public class QProfilesTest {
     when(resourceDao.findById(10L)).thenReturn(project);
 
     qProfiles.addProject(1, 10L);
-    verify(projectService).addProject(eq(qualityProfile), eq(project), any(UserSession.class));
+    verify(projectOperations).addProject(eq(qualityProfile), eq(project), any(UserSession.class));
   }
 
   @Test
@@ -333,7 +336,7 @@ public class QProfilesTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
-    verifyZeroInteractions(projectService);
+    verifyZeroInteractions(projectOperations);
   }
 
   @Test
@@ -344,7 +347,7 @@ public class QProfilesTest {
     when(resourceDao.findById(10L)).thenReturn(project);
 
     qProfiles.removeProject(1, 10L);
-    verify(projectService).removeProject(eq(qualityProfile), eq(project), any(UserSession.class));
+    verify(projectOperations).removeProject(eq(qualityProfile), eq(project), any(UserSession.class));
   }
 
   @Test
@@ -353,7 +356,7 @@ public class QProfilesTest {
     when(resourceDao.findById(10L)).thenReturn(project);
 
     qProfiles.removeProjectByLanguage("java", 10L);
-    verify(projectService).removeProject(eq("java"), eq(project), any(UserSession.class));
+    verify(projectOperations).removeProject(eq("java"), eq(project), any(UserSession.class));
   }
 
   @Test
@@ -362,7 +365,7 @@ public class QProfilesTest {
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
 
     qProfiles.removeAllProjects(1);
-    verify(projectService).removeAllProjects(eq(qualityProfile), any(UserSession.class));
+    verify(projectOperations).removeAllProjects(eq(qualityProfile), any(UserSession.class));
   }
 
   @Test
@@ -390,7 +393,7 @@ public class QProfilesTest {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
-    QProfileRuleResult result = mock(QProfileRuleResult.class);
+    ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
     when(rules.searchProfileRules(query, paging)).thenReturn(result);
     assertThat(qProfiles.searchProfileRules(query, paging)).isEqualTo(result);
   }
@@ -400,7 +403,7 @@ public class QProfilesTest {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
-    QProfileRuleResult result = mock(QProfileRuleResult.class);
+    ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
     when(rules.searchInactiveProfileRules(query, paging)).thenReturn(result);
     assertThat(qProfiles.searchInactiveProfileRules(query, paging)).isEqualTo(result);
   }
@@ -432,7 +435,7 @@ public class QProfilesTest {
     when(activeRuleOperations.createActiveRule(eq(qualityProfile), eq(rule), eq(Severity.BLOCKER), any(UserSession.class)))
       .thenReturn(new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1));
 
-    ProfileRuleChanged result = qProfiles.activateRule(1, 10, Severity.BLOCKER);
+    QProfiles.ProfileRuleChanged result = qProfiles.activateRule(1, 10, Severity.BLOCKER);
 
     assertThat(result.parentProfile()).isNotNull();
     assertThat(result.parentProfile().id()).isEqualTo(2);

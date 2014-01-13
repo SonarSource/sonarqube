@@ -37,7 +37,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
-import org.sonar.server.qualityprofile.QProfileRuleResult;
 import org.sonar.server.search.SearchIndex;
 
 import java.util.Collection;
@@ -108,7 +107,7 @@ public class ProfileRules implements ServerExtension {
   @VisibleForTesting
   List<Integer> searchProfileRuleIds(final ProfileRuleQuery query, int pageSize) {
     final List<Integer> activeRuleIds = newArrayList();
-    new Search(pageSize){
+    new Search(pageSize) {
       @Override
       public int search(int currentPage) {
         Paging paging = Paging.create(pageSize, currentPage);
@@ -152,7 +151,7 @@ public class ProfileRules implements ServerExtension {
   public List<Integer> searchInactiveProfileRuleIds(final ProfileRuleQuery query) {
     final List<Integer> ruleIds = newArrayList();
 
-    new Search(PAGE_SIZE){
+    new Search(PAGE_SIZE) {
       @Override
       public int search(int currentPage) {
         Paging paging = Paging.create(pageSize, currentPage);
@@ -292,6 +291,25 @@ public class ProfileRules implements ServerExtension {
           currentPage++;
         }
       }
+    }
+  }
+
+  public class QProfileRuleResult {
+
+    private final List<QProfileRule> rules;
+    private final PagingResult paging;
+
+    public QProfileRuleResult(List<QProfileRule> rules, PagingResult paging) {
+      this.rules = rules;
+      this.paging = paging;
+    }
+
+    public List<QProfileRule> rules() {
+      return rules;
+    }
+
+    public PagingResult paging() {
+      return paging;
     }
   }
 }
