@@ -30,21 +30,27 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_repositories() throws Exception {
-    assertThat(context.getRepositories()).isEmpty();
+    assertThat(context.repositories()).isEmpty();
 
-    RuleDefinitions.NewRepository findbugs = context.newRepository("findbugs", "java")
-        .setName("Findbugs");
-    RuleDefinitions.NewRepository checkstyle = context.newRepository("checkstyle", "java");
+    context.newRepository("findbugs", "java").setName("Findbugs").done();
+    context.newRepository("checkstyle", "java").done();
 
+    assertThat(context.repositories()).hasSize(2);
+    RuleDefinitions.Repository findbugs = context.repository("findbugs");
     assertThat(findbugs).isNotNull();
     assertThat(findbugs.key()).isEqualTo("findbugs");
     assertThat(findbugs.language()).isEqualTo("java");
     assertThat(findbugs.name()).isEqualTo("Findbugs");
-    assertThat(findbugs.getRules()).isEmpty();
+    assertThat(findbugs.rules()).isEmpty();
+    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
+    assertThat(checkstyle).isNotNull();
+    assertThat(checkstyle.key()).isEqualTo("checkstyle");
+    assertThat(checkstyle.language()).isEqualTo("java");
 
-    assertThat(context.getRepositories()).hasSize(2);
-    assertThat(context.getRepository("findbugs")).isSameAs(findbugs);
-    assertThat(context.getRepository("unknown")).isNull();
+    // default name is key
+    assertThat(checkstyle.name()).isEqualTo("checkstyle");
+    assertThat(checkstyle.rules()).isEmpty();
+    assertThat(context.repository("unknown")).isNull();
 
     // test equals() and hashCode()
     assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(checkstyle).isNotEqualTo("findbugs").isNotEqualTo(null);
@@ -52,71 +58,71 @@ public class RuleDefinitionsTest {
   }
 
   @Test
-  public void default_repository_name_is_key() {
-    RuleDefinitions.NewRepository findbugs = context.newRepository("findbugs", "java");
-    assertThat(findbugs.name()).isEqualTo(findbugs.key()).isEqualTo("findbugs");
-  }
-
-  @Test
   public void define_rules() {
-    RuleDefinitions.NewRepository findbugs = context.newRepository("findbugs", "java");
-    findbugs.newRule("NPE")
-        .setName("Detect NPE")
-        .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-        .setDefaultSeverity(Severity.BLOCKER)
-        .setMetadata("/something")
-        .setTags("valuable", "bug");
-    findbugs.newRule("ABC");
+    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
+    newFindbugs.newRule("NPE")
+      .setName("Detect NPE")
+      .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDefaultSeverity(Severity.BLOCKER)
+      .setMetadata("/something")
+      .setTags("one", "two")
+      .addTags("two", "three", "four");
+    newFindbugs.newRule("ABC");
+    newFindbugs.done();
 
-    assertThat(findbugs.getRules()).hasSize(2);
+    RuleDefinitions.Repository findbugs = context.repository("findbugs");
+    assertThat(findbugs.rules()).hasSize(2);
 
-    RuleDefinitions.NewRule npeRule = findbugs.getRule("NPE");
+    RuleDefinitions.Rule npeRule = findbugs.rule("NPE");
     assertThat(npeRule.key()).isEqualTo("NPE");
     assertThat(npeRule.name()).isEqualTo("Detect NPE");
     assertThat(npeRule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
-    assertThat(npeRule.tags()).containsOnly("valuable", "bug");
-    assertThat(npeRule.getParams()).isEmpty();
+    assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
+    assertThat(npeRule.params()).isEmpty();
     assertThat(npeRule.metadata()).isEqualTo("/something");
+    assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
 
     // test equals() and hashCode()
-    RuleDefinitions.NewRule otherRule = findbugs.getRule("ABC");
+    RuleDefinitions.Rule otherRule = findbugs.rule("ABC");
     assertThat(npeRule).isEqualTo(npeRule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
     assertThat(npeRule.hashCode()).isEqualTo(npeRule.hashCode());
   }
 
   @Test
   public void define_rule_with_default_fields() {
-    context.newRepository("findbugs", "java").newRule("NPE");
+    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
+    newFindbugs.newRule("NPE");
+    newFindbugs.done();
 
-    RuleDefinitions.NewRule rule = context.getRepository("findbugs").getRule("NPE");
+    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.name()).isEqualTo("NPE");
     assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.htmlDescription()).isNull();
-    assertThat(rule.getParams()).isEmpty();
+    assertThat(rule.params()).isEmpty();
     assertThat(rule.metadata()).isNull();
     assertThat(rule.tags()).isEmpty();
   }
 
   @Test
   public void define_rule_parameters() {
-    context.newRepository("findbugs", "java")
-        .newRule("NPE")
-        .newParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level")
-        .rule()
-        .newParam("effort");
+    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
+    RuleDefinitions.NewRule newNpe = newFindbugs.newRule("NPE");
+    newNpe.newParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level");
+    newNpe.newParam("effort");
+    newFindbugs.done();
 
-    RuleDefinitions.NewRule rule = context.getRepository("findbugs").getRule("NPE");
-    assertThat(rule.getParams()).hasSize(2);
+    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.params()).hasSize(2);
 
-    RuleDefinitions.NewParam level = rule.getParam("level");
+    RuleDefinitions.Param level = rule.param("level");
     assertThat(level.key()).isEqualTo("level");
     assertThat(level.name()).isEqualTo("Level");
     assertThat(level.description()).isEqualTo("The level");
     assertThat(level.defaultValue()).isEqualTo("LOW");
 
-    RuleDefinitions.NewParam effort = rule.getParam("effort");
+    RuleDefinitions.Param effort = rule.param("effort");
     assertThat(effort.key()).isEqualTo("effort").isEqualTo(effort.name());
     assertThat(effort.description()).isNull();
     assertThat(effort.defaultValue()).isNull();
@@ -128,27 +134,29 @@ public class RuleDefinitionsTest {
 
   @Test
   public void extend_repository() {
-    assertThat(context.getExtendedRepositories()).isEmpty();
+    assertThat(context.extendedRepositories()).isEmpty();
 
     // for example fb-contrib
-    context.extendRepository("findbugs").newRule("NPE");
+    RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs");
+    newFindbugs.newRule("NPE");
+    newFindbugs.done();
 
-    assertThat(context.getRepositories()).isEmpty();
-    assertThat(context.getExtendedRepositories()).hasSize(1);
-    assertThat(context.getExtendedRepositories("other")).isEmpty();
-    assertThat(context.getExtendedRepositories("findbugs")).hasSize(1);
+    assertThat(context.repositories()).isEmpty();
+    assertThat(context.extendedRepositories()).hasSize(1);
+    assertThat(context.extendedRepositories("other")).isEmpty();
+    assertThat(context.extendedRepositories("findbugs")).hasSize(1);
 
-    RuleDefinitions.ExtendedRepository findbugs = context.getExtendedRepositories("findbugs").get(0);
-    assertThat(findbugs.getRule("NPE")).isNotNull();
+    RuleDefinitions.ExtendedRepository findbugs = context.extendedRepositories("findbugs").get(0);
+    assertThat(findbugs.rule("NPE")).isNotNull();
   }
 
   @Test
   public void fail_if_duplicated_repo_keys() {
-    context.newRepository("findbugs", "java");
+    context.newRepository("findbugs", "java").done();
     try {
-      context.newRepository("findbugs", "whatever_the_language");
+      context.newRepository("findbugs", "whatever_the_language").done();
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalStateException e) {
       assertThat(e).hasMessage("The rule repository 'findbugs' is defined several times");
     }
   }

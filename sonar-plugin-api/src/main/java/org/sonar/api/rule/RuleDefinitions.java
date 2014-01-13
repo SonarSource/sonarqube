@@ -40,95 +40,84 @@ import java.util.Set;
 public interface RuleDefinitions extends ServerExtension {
 
   /**
-   * Instantiated by core but not by plugins.
+   * Instantiated by core but not by plugins
    */
   static class Context {
-    private final Map<String, NewRepository> newRepositories = Maps.newHashMap();
-    private final ListMultimap<String, ExtendedRepository> extendedRepositories = ArrayListMultimap.create();
+    private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
+    private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 
     public NewRepository newRepository(String key, String language) {
-      if (newRepositories.containsKey(key)) {
-        throw new IllegalArgumentException("The rule repository '" + key + "' is defined several times");
+      return new NewRepositoryImpl(this, key, language);
+    }
+
+    public NewExtendedRepository extendRepository(String key) {
+      return new NewRepositoryImpl(this, key);
+    }
+
+    @CheckForNull
+    public Repository repository(String key) {
+      return repositoriesByKey.get(key);
+    }
+
+    public List<Repository> repositories() {
+      return ImmutableList.copyOf(repositoriesByKey.values());
+    }
+
+    public List<ExtendedRepository> extendedRepositories(String repositoryKey) {
+      return ImmutableList.copyOf(extendedRepositoriesByKey.get(repositoryKey));
+    }
+
+    public List<ExtendedRepository> extendedRepositories() {
+      return ImmutableList.copyOf(extendedRepositoriesByKey.values());
+    }
+
+    private void registerRepository(NewRepositoryImpl newRepository) {
+      if (repositoriesByKey.containsKey(newRepository.key)) {
+        throw new IllegalStateException(String.format("The rule repository '%s' is defined several times", newRepository.key));
       }
-      NewRepository repo = new NewRepository(key, language);
-      newRepositories.put(key, repo);
-      return repo;
+      repositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository));
     }
 
-    /**
-     * Add rules to a repository defined by another plugin. For example the Java FB-Contrib plugin
-     * provides new rules for the Findbugs engine.
-     *
-     * @param key the key of the repository to extend, "findbugs" in the example.
-     */
-    public ExtendedRepository extendRepository(String key) {
-      ExtendedRepository repo = new NewRepository(key);
-      extendedRepositories.put(key, repo);
-      return repo;
-    }
-
-    @CheckForNull
-    public NewRepository getRepository(String key) {
-      return newRepositories.get(key);
-    }
-
-    public List<NewRepository> getRepositories() {
-      return ImmutableList.copyOf(newRepositories.values());
-    }
-
-    @CheckForNull
-    public List<ExtendedRepository> getExtendedRepositories(String key) {
-      return extendedRepositories.get(key);
-    }
-
-    public List<ExtendedRepository> getExtendedRepositories() {
-      return ImmutableList.copyOf(extendedRepositories.values());
+    private void registerExtendedRepository(NewRepositoryImpl newRepository) {
+      extendedRepositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository));
     }
   }
 
-  static interface ExtendedRepository {
-    String key();
-
+  static interface NewExtendedRepository {
     NewRule newRule(String ruleKey);
 
-    @CheckForNull
-    NewRule getRule(String ruleKey);
-
-    List<NewRule> getRules();
+    void done();
   }
 
-  static class NewRepository implements ExtendedRepository {
+  static interface NewRepository extends NewExtendedRepository {
+    NewRepository setName(String s);
+  }
+
+  static class NewRepositoryImpl implements NewRepository {
+    private final Context context;
+    private final boolean extended;
     private final String key;
     private String language;
     private String name;
     private final Map<String, NewRule> newRules = Maps.newHashMap();
 
-    private NewRepository(String key, String language) {
+    private NewRepositoryImpl(Context context, String key, String language) {
+      this.extended = false;
+      this.context = context;
       this.key = this.name = key;
       this.language = language;
     }
 
-    // Used to expose ExtendedRepository
-    private NewRepository(String key) {
-      this.key = key;
-    }
-
-    public NewRepository setName(String s) {
-      this.name = s;
-      return this;
+    private NewRepositoryImpl(Context context, String key) {
+      this.extended = true;
+      this.context = context;
+      this.key = this.name = key;
     }
 
     @Override
-    public String key() {
-      return key;
-    }
-
-    public String language() {
-      return language;
-    }
-
-    public String name() {
-      return name;
+    public NewRepositoryImpl setName(String s) {
+      this.name = s;
+      return this;
     }
 
     @Override
@@ -142,14 +131,72 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
+    public void done() {
+      // note that some validations can be done here, for example for
+      // verifying that at least one rule is declared
+
+      if (extended) {
+        context.registerExtendedRepository(this);
+      } else {
+        context.registerRepository(this);
+      }
+    }
+  }
+
+  static interface ExtendedRepository {
+    String key();
+
     @CheckForNull
-    public NewRule getRule(String ruleKey) {
-      return newRules.get(ruleKey);
+    Rule rule(String ruleKey);
+
+    List<Rule> rules();
+  }
+
+  static interface Repository extends ExtendedRepository {
+    String language();
+
+    String name();
+  }
+
+  static class RepositoryImpl implements Repository {
+    private final String key, language, name;
+    private final Map<String, Rule> rulesByKey;
+
+    private RepositoryImpl(NewRepositoryImpl newRepository) {
+      this.key = newRepository.key;
+      this.language = newRepository.language;
+      this.name = newRepository.name;
+      ImmutableMap.Builder<String, Rule> ruleBuilder = ImmutableMap.builder();
+      for (NewRule newRule : newRepository.newRules.values()) {
+        ruleBuilder.put(newRule.key, new Rule(newRule));
+      }
+      this.rulesByKey = ruleBuilder.build();
     }
 
     @Override
-    public List<NewRule> getRules() {
-      return ImmutableList.copyOf(newRules.values());
+    public String key() {
+      return key;
+    }
+
+    @Override
+    public String language() {
+      return language;
+    }
+
+    @Override
+    public String name() {
+      return name;
+    }
+
+    @Override
+    @CheckForNull
+    public Rule rule(String ruleKey) {
+      return rulesByKey.get(ruleKey);
+    }
+
+    @Override
+    public List<Rule> rules() {
+      return ImmutableList.copyOf(rulesByKey.values());
     }
 
     @Override
@@ -160,7 +207,7 @@ public interface RuleDefinitions extends ServerExtension {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      NewRepository that = (NewRepository) o;
+      RepositoryImpl that = (RepositoryImpl) o;
       return key.equals(that.key);
     }
 
@@ -170,23 +217,16 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
+
   static class NewRule {
     private final String repoKey, key;
     private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
     private final Set<String> tags = Sets.newHashSet();
-    private final Map<String, NewParam> params = Maps.newHashMap();
+    private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
-    public NewRule(String repoKey, String key) {
+    private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
       this.key = this.name = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    public String name() {
-      return name;
     }
 
     public NewRule setName(String s) {
@@ -197,21 +237,12 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    public String defaultSeverity() {
-      return defaultSeverity;
-    }
-
     public NewRule setDefaultSeverity(String s) {
       if (!Severity.ALL.contains(s)) {
         throw new IllegalArgumentException(String.format("Default severity of rule %s is not correct: %s", this, s));
       }
       this.defaultSeverity = s;
       return this;
-    }
-
-    @CheckForNull
-    public String htmlDescription() {
-      return htmlDescription;
     }
 
     public NewRule setHtmlDescription(String s) {
@@ -223,33 +254,22 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewParam newParam(String paramKey) {
-      if (params.containsKey(paramKey)) {
+      if (paramsByKey.containsKey(paramKey)) {
         throw new IllegalArgumentException(String.format("The parameter '%s' is declared several times on the rule %s", paramKey, this));
       }
-      NewParam param = new NewParam(this, paramKey);
-      params.put(paramKey, param);
+      NewParam param = new NewParam(paramKey);
+      paramsByKey.put(paramKey, param);
       return param;
-    }
-
-    @CheckForNull
-    public NewParam getParam(String key) {
-      return params.get(key);
-    }
-
-    public List<NewParam> getParams() {
-      return ImmutableList.copyOf(params.values());
-    }
-
-    public Set<String> tags() {
-      return ImmutableSet.copyOf(tags);
     }
 
     /**
      * @see org.sonar.api.rule.RuleTagFormat
      */
-    public NewRule addTag(String s) {
-      RuleTagFormat.validate(s);
-      tags.add(s);
+    public NewRule addTags(String... list) {
+      for (String tag : list) {
+        RuleTagFormat.validate(tag);
+        tags.add(tag);
+      }
       return this;
     }
 
@@ -258,18 +278,8 @@ public interface RuleDefinitions extends ServerExtension {
      */
     public NewRule setTags(String... list) {
       tags.clear();
-      for (String tag : list) {
-        addTag(tag);
-      }
+      addTags(list);
       return this;
-    }
-
-    /**
-     * @see org.sonar.api.rule.RuleDefinitions.NewRule#setMetadata(String)
-     */
-    @CheckForNull
-    public String metadata() {
-      return metadata;
     }
 
     /**
@@ -283,6 +293,70 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
+    public String toString() {
+      return String.format("[repository=%s, key=%s]", repoKey, key);
+    }
+  }
+
+  static class Rule {
+    private final String repoKey, key, name, htmlDescription, metadata, defaultSeverity;
+    private final Set<String> tags;
+    private final Map<String, Param> params;
+
+    private Rule(NewRule newRule) {
+      this.repoKey = newRule.repoKey;
+      this.key = newRule.key;
+      this.name = newRule.name;
+      this.htmlDescription = newRule.htmlDescription;
+      this.metadata = newRule.metadata;
+      this.defaultSeverity = newRule.defaultSeverity;
+      this.tags = ImmutableSet.copyOf(newRule.tags);
+      ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
+      for (NewParam newParam : newRule.paramsByKey.values()) {
+        paramsBuilder.put(newParam.key, new Param(newParam));
+      }
+      this.params = paramsBuilder.build();
+    }
+
+    public String key() {
+      return key;
+    }
+
+    public String name() {
+      return name;
+    }
+
+    public String defaultSeverity() {
+      return defaultSeverity;
+    }
+
+    @CheckForNull
+    public String htmlDescription() {
+      return htmlDescription;
+    }
+
+    @CheckForNull
+    public Param param(String key) {
+      return params.get(key);
+    }
+
+    public List<Param> params() {
+      return ImmutableList.copyOf(params.values());
+    }
+
+    public Set<String> tags() {
+      return tags;
+    }
+
+    /**
+     * @see org.sonar.api.rule.RuleDefinitions.NewRule#setMetadata(String)
+     */
+    @CheckForNull
+    public String metadata() {
+      return metadata;
+    }
+
+    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -290,8 +364,8 @@ public interface RuleDefinitions extends ServerExtension {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      NewRule newRule = (NewRule) o;
-      return key.equals(newRule.key) && repoKey.equals(newRule.repoKey);
+      Rule other = (Rule) o;
+      return key.equals(other.key) && repoKey.equals(other.repoKey);
     }
 
     @Override
@@ -307,37 +381,20 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
+
   static class NewParam {
-    private final NewRule rule;
     private final String key;
     private String name, description, defaultValue;
     // TODO type
 
-    private NewParam(NewRule rule, String key) {
-      this.rule = rule;
+    private NewParam(String key) {
       this.key = this.name = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    public String name() {
-      return name;
     }
 
     public NewParam setName(@Nullable String s) {
       // name must never be null.
       this.name = StringUtils.defaultIfBlank(s, key);
       return this;
-    }
-
-    /**
-     * @see org.sonar.api.rule.RuleDefinitions.NewParam#setDescription(String)
-     */
-    @Nullable
-    public String description() {
-      return description;
     }
 
     /**
@@ -348,21 +405,38 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    @Nullable
-    public String defaultValue() {
-      return defaultValue;
-    }
-
     public NewParam setDefaultValue(@Nullable String s) {
       this.defaultValue = s;
       return this;
     }
+  }
 
-    /**
-     * Helpful for method chaining.
-     */
-    public NewRule rule() {
-      return rule;
+  static class Param {
+    private final String key, name, description, defaultValue;
+
+    private Param(NewParam newParam) {
+      this.key = newParam.key;
+      this.name = newParam.name;
+      this.description = newParam.description;
+      this.defaultValue = newParam.defaultValue;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    public String name() {
+      return name;
+    }
+
+    @Nullable
+    public String description() {
+      return description;
+    }
+
+    @Nullable
+    public String defaultValue() {
+      return defaultValue;
     }
 
     @Override
@@ -373,7 +447,7 @@ public interface RuleDefinitions extends ServerExtension {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      NewParam that = (NewParam) o;
+      Param that = (Param) o;
       return key.equals(that.key);
     }
 
@@ -386,6 +460,6 @@ public interface RuleDefinitions extends ServerExtension {
   /**
    * This method is executed when server is started.
    */
-  void defineRules(Context context);
+  void define(Context context);
 
 }
