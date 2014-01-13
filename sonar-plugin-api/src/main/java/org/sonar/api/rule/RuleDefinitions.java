@@ -168,6 +168,7 @@ public interface RuleDefinitions extends ServerExtension {
       this.name = newRepository.name;
       ImmutableMap.Builder<String, Rule> ruleBuilder = ImmutableMap.builder();
       for (NewRule newRule : newRepository.newRules.values()) {
+        newRule.validate();
         ruleBuilder.put(newRule.key, new Rule(newRule));
       }
       this.rulesByKey = ruleBuilder.build();
@@ -221,19 +222,22 @@ public interface RuleDefinitions extends ServerExtension {
   static class NewRule {
     private final String repoKey, key;
     private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
+    private boolean template;
     private final Set<String> tags = Sets.newHashSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
     private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
-      this.key = this.name = key;
+      this.key = key;
     }
 
     public NewRule setName(String s) {
-      if (StringUtils.isBlank(s)) {
-        throw new IllegalArgumentException(String.format("Name of rule %s is blank", this));
-      }
       this.name = s;
+      return this;
+    }
+
+    public NewRule setTemplate(boolean template) {
+      this.template = template;
       return this;
     }
 
@@ -246,9 +250,6 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewRule setHtmlDescription(String s) {
-      if (StringUtils.isBlank(s)) {
-        throw new IllegalArgumentException(String.format("HTML description of rule %s is blank", this));
-      }
       this.htmlDescription = s;
       return this;
     }
@@ -292,6 +293,15 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
+    private void validate() {
+      if (StringUtils.isBlank(name)) {
+        throw new IllegalStateException(String.format("Name of rule %s is empty", this));
+      }
+      if (StringUtils.isBlank(htmlDescription)) {
+        throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
+      }
+    }
+
     @Override
     public String toString() {
       return String.format("[repository=%s, key=%s]", repoKey, key);
@@ -300,6 +310,7 @@ public interface RuleDefinitions extends ServerExtension {
 
   static class Rule {
     private final String repoKey, key, name, htmlDescription, metadata, defaultSeverity;
+    private final boolean template;
     private final Set<String> tags;
     private final Map<String, Param> params;
 
@@ -310,6 +321,7 @@ public interface RuleDefinitions extends ServerExtension {
       this.htmlDescription = newRule.htmlDescription;
       this.metadata = newRule.metadata;
       this.defaultSeverity = newRule.defaultSeverity;
+      this.template = newRule.template;
       this.tags = ImmutableSet.copyOf(newRule.tags);
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {
@@ -333,6 +345,10 @@ public interface RuleDefinitions extends ServerExtension {
     @CheckForNull
     public String htmlDescription() {
       return htmlDescription;
+    }
+
+    public boolean template() {
+      return template;
     }
 
     @CheckForNull
@@ -385,7 +401,7 @@ public interface RuleDefinitions extends ServerExtension {
   static class NewParam {
     private final String key;
     private String name, description, defaultValue;
-    // TODO type
+    private RuleParamType type = RuleParamType.STRING;
 
     private NewParam(String key) {
       this.key = this.name = key;
@@ -394,6 +410,11 @@ public interface RuleDefinitions extends ServerExtension {
     public NewParam setName(@Nullable String s) {
       // name must never be null.
       this.name = StringUtils.defaultIfBlank(s, key);
+      return this;
+    }
+
+    public NewParam setType(RuleParamType t) {
+      this.type = t;
       return this;
     }
 
@@ -413,12 +434,14 @@ public interface RuleDefinitions extends ServerExtension {
 
   static class Param {
     private final String key, name, description, defaultValue;
+    private final RuleParamType type;
 
     private Param(NewParam newParam) {
       this.key = newParam.key;
       this.name = newParam.name;
       this.description = newParam.description;
       this.defaultValue = newParam.defaultValue;
+      this.type = newParam.type;
     }
 
     public String key() {
@@ -437,6 +460,10 @@ public interface RuleDefinitions extends ServerExtension {
     @Nullable
     public String defaultValue() {
       return defaultValue;
+    }
+
+    public RuleParamType type() {
+      return type;
     }
 
     @Override

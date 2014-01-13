@@ -91,6 +91,7 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
+import org.sonar.server.rule.DeprecatedRuleDefinitions;
 import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleRegistry;
@@ -368,6 +369,7 @@ public final class Platform {
     ComponentContainer startupContainer = servicesContainer.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
+    startupContainer.addSingleton(DeprecatedRuleDefinitions.class);
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);

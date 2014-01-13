@@ -62,12 +62,13 @@ public class RuleDefinitionsTest {
     RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
     newFindbugs.newRule("NPE")
       .setName("Detect NPE")
+      .setHtmlDescription("Detect <code>NPE</code>")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setDefaultSeverity(Severity.BLOCKER)
       .setMetadata("/something")
       .setTags("one", "two")
       .addTags("two", "three", "four");
-    newFindbugs.newRule("ABC");
+    newFindbugs.newRule("ABC").setName("ABC").setHtmlDescription("ABC");
     newFindbugs.done();
 
     RuleDefinitions.Repository findbugs = context.repository("findbugs");
@@ -81,6 +82,7 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
     assertThat(npeRule.params()).isEmpty();
     assertThat(npeRule.metadata()).isEqualTo("/something");
+    assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
 
     // test equals() and hashCode()
@@ -92,14 +94,12 @@ public class RuleDefinitionsTest {
   @Test
   public void define_rule_with_default_fields() {
     RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    newFindbugs.newRule("NPE");
+    newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.key()).isEqualTo("NPE");
-    assertThat(rule.name()).isEqualTo("NPE");
     assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
-    assertThat(rule.htmlDescription()).isNull();
     assertThat(rule.params()).isEmpty();
     assertThat(rule.metadata()).isNull();
     assertThat(rule.tags()).isEmpty();
@@ -108,8 +108,8 @@ public class RuleDefinitionsTest {
   @Test
   public void define_rule_parameters() {
     RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    RuleDefinitions.NewRule newNpe = newFindbugs.newRule("NPE");
-    newNpe.newParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level");
+    RuleDefinitions.NewRule newNpe = newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    newNpe.newParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level").setType(RuleParamType.INTEGER);
     newNpe.newParam("effort");
     newFindbugs.done();
 
@@ -121,11 +121,13 @@ public class RuleDefinitionsTest {
     assertThat(level.name()).isEqualTo("Level");
     assertThat(level.description()).isEqualTo("The level");
     assertThat(level.defaultValue()).isEqualTo("LOW");
+    assertThat(level.type()).isEqualTo(RuleParamType.INTEGER);
 
     RuleDefinitions.Param effort = rule.param("effort");
     assertThat(effort.key()).isEqualTo("effort").isEqualTo(effort.name());
     assertThat(effort.description()).isNull();
     assertThat(effort.defaultValue()).isNull();
+    assertThat(effort.type()).isEqualTo(RuleParamType.STRING);
 
     // test equals() and hashCode()
     assertThat(level).isEqualTo(level).isNotEqualTo(effort).isNotEqualTo("level").isNotEqualTo(null);
@@ -138,7 +140,7 @@ public class RuleDefinitionsTest {
 
     // for example fb-contrib
     RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs");
-    newFindbugs.newRule("NPE");
+    newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
     assertThat(context.repositories()).isEmpty();
@@ -187,11 +189,13 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_name() {
+    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
+    newRepository.newRule("NPE").setName(null).setHtmlDescription("NPE");
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setName(null);
+      newRepository.done();
       fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Name of rule [repository=findbugs, key=NPE] is blank");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Name of rule [repository=findbugs, key=NPE] is empty");
     }
   }
 
@@ -208,11 +212,13 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_html_description() {
+    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
+    newRepository.newRule("NPE").setName("NPE").setHtmlDescription(null);
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setHtmlDescription(null);
+      newRepository.done();
       fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("HTML description of rule [repository=findbugs, key=NPE] is blank");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("HTML description of rule [repository=findbugs, key=NPE] is empty");
     }
   }
 
