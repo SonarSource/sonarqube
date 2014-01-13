@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
@@ -63,7 +62,7 @@ public class ProfileRulesTest {
     profileRules = new ProfileRules(index);
 
     esSetup.client().prepareBulk()
-        // On profile 1
+      // On profile 1
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
         // On profile 1 and 2
@@ -76,7 +75,7 @@ public class ProfileRulesTest {
         // Rules on no profile
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule944.json")))
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule719.json")))
-      // Removed rule
+        // Removed rule
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule860.json")))
       .setRefresh(true).execute().actionGet();
   }
@@ -102,12 +101,6 @@ public class ProfileRulesTest {
     assertThat(rules2.get(0).id()).isEqualTo(759);
     assertThat(rules2.get(0).activeRuleId()).isEqualTo(523);
 
-    // Inexistent profile
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
-
-    // Inexistent name/key
-    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
-
     // Match on key
     assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
 
@@ -117,10 +110,20 @@ public class ProfileRulesTest {
     // Match on repositoryKey
     assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
 
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addSeverities(Severity.CRITICAL), paging).rules()).hasSize(1);
+    // Active rule 25 is in MINOR (rule 25 is in INFO)
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).addSeverities(Severity.INFO), paging).rules()).isEmpty();
+
     // Match on key, rule has parameters
     List<QProfileRule> rulesWParam = profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("ArchitecturalConstraint"), paging).rules();
     assertThat(rulesWParam).hasSize(1);
     assertThat(rulesWParam.get(0).params()).hasSize(2);
+
+    // Inexistent profile
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(3), paging).rules()).hasSize(0);
+
+    // Inexistent name/key
+    assertThat(profileRules.searchProfileRules(ProfileRuleQuery.create(1).setNameOrKey("polop"), paging).rules()).hasSize(0);
   }
 
   @Test
@@ -181,12 +184,44 @@ public class ProfileRulesTest {
   }
 
   @Test
-  @Ignore("bug in E/S : fail to do a scroll when filter contain has_parent -> return good total_hits but hits is empty")
+  public void find_profile_rules_with_paging() {
+    List<QProfileRule> rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), Paging.create(2, 1)).rules();
+    assertThat(rules).hasSize(2);
+    assertThat(rules.get(0).key()).isEqualTo("ArchitecturalConstraint");
+    assertThat(rules.get(1).key()).isEqualTo("DM_CONVERT_CASE");
+
+    rules = profileRules.searchProfileRules(ProfileRuleQuery.create(1), Paging.create(2, 2)).rules();
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).key()).isEqualTo("UnusedNullCheckInEquals");
+  }
+
+  @Test
   public void find_profile_rule_ids() {
-    // All rules for profile 1
+    // All active rules for profile 1
     List<Integer> result = profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1));
     assertThat(result).hasSize(3);
-    assertThat(result.get(0)).isEqualTo(1);
+    assertThat(result).containsOnly(25, 391, 2702);
+
+    assertThat(profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1).addSeverities(Severity.CRITICAL))).hasSize(1);
+    assertThat(profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1).addSeverities(Severity.INFO))).isEmpty();
+  }
+
+  @Test
+  public void find_profile_rule_ids_overriding_page_size() {
+    List<Integer> result = profileRules.searchProfileRuleIds(ProfileRuleQuery.create(1), 1);
+    assertThat(result).hasSize(3);
+  }
+
+  @Test
+  public void count_profile_rules() {
+    // All rules for profile 1
+    assertThat(profileRules.countProfileRules(ProfileRuleQuery.create(1))).isEqualTo(3);
+
+    // All rules for profile 2
+    assertThat(profileRules.countProfileRules(ProfileRuleQuery.create(2))).isEqualTo(1);
+
+    // Match on key
+    assertThat(profileRules.countProfileRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"))).isEqualTo(1);
   }
 
   @Test
@@ -201,6 +236,9 @@ public class ProfileRulesTest {
 
     // Match on key
     assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"), paging).rules()).hasSize(1);
+
+    // Mach on severity
+    assertThat(profileRules.searchInactiveProfileRules(ProfileRuleQuery.create(2).addSeverities(Severity.INFO), paging).rules()).hasSize(1);
   }
 
   @Test
@@ -231,6 +269,36 @@ public class ProfileRulesTest {
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).key()).isEqualTo("S1125");
     assertThat(rules.get(1).key()).isEqualTo("com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck");
+  }
+
+  @Test
+  public void find_inactive_profile_rule_ids() {
+    // Search of inactive rule on profile 2
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(2))).hasSize(4);
+
+    // Search of inactive rule on profile 1
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(1))).hasSize(2);
+
+    // Match on key
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"))).hasSize(1);
+
+    // Mach on severity
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(2).addSeverities(Severity.INFO))).hasSize(1);
+  }
+
+  @Test
+  public void count_inactive_profile_rules() {
+    // All rules for profile 1
+    assertThat(profileRules.countInactiveProfileRules(ProfileRuleQuery.create(2))).isEqualTo(4);
+
+    // All rules for profile 2
+    assertThat(profileRules.countInactiveProfileRules(ProfileRuleQuery.create(1))).isEqualTo(2);
+
+    // Match on key
+    assertThat(profileRules.countInactiveProfileRules(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"))).isEqualTo(1);
+
+    // Mach on severity
+    assertThat(profileRules.countInactiveProfileRules(ProfileRuleQuery.create(2).addSeverities(Severity.INFO))).isEqualTo(1);
   }
 
   @Test

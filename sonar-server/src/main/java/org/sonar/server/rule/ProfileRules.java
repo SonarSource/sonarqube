@@ -19,8 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
@@ -52,6 +51,8 @@ import static org.sonar.server.rule.RuleRegistry.*;
 
 public class ProfileRules implements ServerExtension {
 
+  private static final int PAGE_SIZE = 100;
+
   private static final String FIELD_PARENT = "_parent";
   private static final String FIELD_SOURCE = "_source";
 
@@ -78,110 +79,55 @@ public class ProfileRules implements ServerExtension {
   }
 
   public QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
-    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      .setPostFilter(ruleFilter(query)
-        .must(hasChildFilter(TYPE_ACTIVE_RULE, childFilter(query))))
-      .setSize(paging.pageSize())
-      .setFrom(paging.offset());
-    addOrder(query, builder);
-    SearchHits ruleHits = index.executeRequest(builder);
-
+    SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(TYPE_ACTIVE_RULE, activeRuleFilter(query))));
     List<Integer> ruleIds = Lists.newArrayList();
-    for (SearchHit ruleHit: ruleHits) {
+    for (SearchHit ruleHit : ruleHits) {
       ruleIds.add(Integer.valueOf(ruleHit.id()));
     }
 
     List<QProfileRule> result = Lists.newArrayList();
-
     if (!ruleIds.isEmpty()) {
-      SearchRequestBuilder activeRuleBuilder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
-        .setPostFilter(boolFilter()
-          .must(
-            termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
-            hasParentFilter(TYPE_RULE, termsFilter(RuleDocument.FIELD_ID, ruleIds))
-          ))
-        .addFields(FIELD_SOURCE, FIELD_PARENT)
-        .setSize(ruleHits.getHits().length);
-      SearchHits activeRuleHits = index.executeRequest(activeRuleBuilder);
+      SearchHits activeRuleHits = searchActiveRules(query, ruleIds, FIELD_SOURCE, FIELD_PARENT);
 
       Map<String, SearchHit> activeRuleByParent = Maps.newHashMap();
-      for (SearchHit activeRuleHit: activeRuleHits) {
+      for (SearchHit activeRuleHit : activeRuleHits) {
         activeRuleByParent.put((String) activeRuleHit.field(FIELD_PARENT).getValue(), activeRuleHit);
       }
 
-      for (SearchHit ruleHit: ruleHits) {
+      for (SearchHit ruleHit : ruleHits) {
         result.add(new QProfileRule(ruleHit.sourceAsMap(), activeRuleByParent.get(ruleHit.id()).sourceAsMap()));
       }
     }
     return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), ruleHits.getTotalHits()));
   }
 
-  // FIXME Due to a bug in E/S, As the query filter contain a filter with has_parent, nothing will be returned
-  public List<Integer> searchProfileRuleIds(ProfileRuleQuery query) {
-    BoolFilterBuilder filter = activeRuleFilter(query);
+  public List<Integer> searchProfileRuleIds(final ProfileRuleQuery query) {
+    return searchProfileRuleIds(query, PAGE_SIZE);
+  }
 
-    SearchRequestBuilder builder = index.client()
-      .prepareSearch(INDEX_RULES)
-      .setTypes(TYPE_ACTIVE_RULE)
-      .setPostFilter(filter);
-    List<String> documentIds = index.findDocumentIds(builder, 2);
-    return newArrayList(Iterables.transform(documentIds, new Function<String, Integer>() {
+  @VisibleForTesting
+  List<Integer> searchProfileRuleIds(final ProfileRuleQuery query, int pageSize) {
+    final List<Integer> activeRuleIds = newArrayList();
+    new Search(pageSize){
       @Override
-      public Integer apply(String input) {
-        return Integer.valueOf(input);
+      public int search(int currentPage) {
+        Paging paging = Paging.create(pageSize, currentPage);
+        SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(TYPE_ACTIVE_RULE, activeRuleFilter(query))));
+        List<Integer> ruleIds = Lists.newArrayList();
+        for (SearchHit ruleHit : ruleHits) {
+          ruleIds.add(Integer.valueOf(ruleHit.id()));
+        }
+
+        if (!ruleIds.isEmpty()) {
+          SearchHits activeRuleHits = searchActiveRules(query, ruleIds, ActiveRuleDocument.FIELD_ID);
+          for (SearchHit activeRuleHit : activeRuleHits) {
+            activeRuleIds.add((Integer) activeRuleHit.field(ActiveRuleDocument.FIELD_ID).getValue());
+          }
+        }
+        return ruleHits.getHits().length;
       }
-    }));
-  }
-
-  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
-    BoolFilterBuilder filter = ruleFilter(query);
-    addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
-    filter.mustNot(
-      hasChildFilter(TYPE_ACTIVE_RULE,
-        termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
-
-    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      .setPostFilter(filter)
-      .addFields(FIELD_SOURCE, FIELD_PARENT)
-      .setSize(paging.pageSize())
-      .setFrom(paging.offset());
-    addOrder(query, builder);
-
-    SearchHits hits = index.executeRequest(builder);
-    List<QProfileRule> result = Lists.newArrayList();
-    for (SearchHit hit : hits.getHits()) {
-      result.add(new QProfileRule(hit.sourceAsMap()));
-    }
-    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
-  }
-
-  protected BoolFilterBuilder childFilter(ProfileRuleQuery query) {
-    BoolFilterBuilder filter = boolFilter().must(
-      termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())
-    );
-    addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
-    String inheritance = query.inheritance();
-    if (inheritance != null) {
-      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
-    } else if (query.noInheritance()) {
-      filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
-    }
-    return filter;
-  }
-
-  protected BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
-    BoolFilterBuilder filter = boolFilter().must(
-      termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
-      hasParentFilter(TYPE_RULE, ruleFilter(query))
-    );
-    addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
-    String inheritance = query.inheritance();
-    if (inheritance != null) {
-      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
-    } else if (query.noInheritance()) {
-      filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
-    }
-    return filter;
+    }.execute();
+    return activeRuleIds;
   }
 
   public long countProfileRules(ProfileRuleQuery query) {
@@ -189,19 +135,84 @@ public class ProfileRules implements ServerExtension {
       index.client()
         .prepareCount(INDEX_RULES)
         .setTypes(TYPE_ACTIVE_RULE)
-        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), activeRuleFilter(query)))
+        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+          activeRuleFilter(query).must(hasParentFilter(TYPE_RULE, ruleFilterForActiveRuleSearch(query)))))
     );
+  }
+
+  public QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
+    SearchHits hits = searchRules(query, paging, ruleFilterForInactiveRuleSearch(query), FIELD_SOURCE, FIELD_PARENT);
+    List<QProfileRule> result = Lists.newArrayList();
+    for (SearchHit hit : hits.getHits()) {
+      result.add(new QProfileRule(hit.sourceAsMap()));
+    }
+    return new QProfileRuleResult(result, PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+  }
+
+  public List<Integer> searchInactiveProfileRuleIds(final ProfileRuleQuery query) {
+    final List<Integer> ruleIds = newArrayList();
+
+    new Search(PAGE_SIZE){
+      @Override
+      public int search(int currentPage) {
+        Paging paging = Paging.create(pageSize, currentPage);
+        SearchHits hits = searchRules(query, paging, ruleFilterForInactiveRuleSearch(query), RuleDocument.FIELD_ID);
+        for (SearchHit hit : hits.getHits()) {
+          ruleIds.add((Integer) hit.field(RuleDocument.FIELD_ID).getValue());
+        }
+        return hits.getHits().length;
+      }
+    }.execute();
+
+    return ruleIds;
   }
 
   public long countInactiveProfileRules(ProfileRuleQuery query) {
     return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_RULE)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         boolFilter()
-          .must(ruleFilter(query))
-          .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()))))));
+          .must(ruleFilterForInactiveRuleSearch(query)))));
   }
 
-  private BoolFilterBuilder ruleFilter(ProfileRuleQuery query) {
+  private SearchHits searchRules(ProfileRuleQuery query, Paging paging, FilterBuilder filterBuilder, String... fields) {
+    SearchRequestBuilder builder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+      .setPostFilter(filterBuilder)
+      .setSize(paging.pageSize())
+      .setFrom(paging.offset());
+    if (fields.length > 0) {
+      builder.addFields(fields);
+    }
+    addOrder(query, builder);
+    return index.executeRequest(builder);
+  }
+
+  private SearchHits searchActiveRules(ProfileRuleQuery query, List<Integer> ruleIds, String... fields) {
+    SearchRequestBuilder activeRuleBuilder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
+      .setPostFilter(boolFilter()
+        .must(
+          termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
+          hasParentFilter(TYPE_RULE, termsFilter(RuleDocument.FIELD_ID, ruleIds))
+        ))
+      .setSize(ruleIds.size());
+    if (fields.length > 0) {
+      activeRuleBuilder.addFields(fields);
+    }
+    return index.executeRequest(activeRuleBuilder);
+  }
+
+  private BoolFilterBuilder activeRuleFilter(ProfileRuleQuery query) {
+    BoolFilterBuilder filter = boolFilter().must(termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()));
+    addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_SEVERITY, query.severities());
+    String inheritance = query.inheritance();
+    if (inheritance != null) {
+      addMustTermOrTerms(filter, ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(inheritance));
+    } else if (query.noInheritance()) {
+      filter.mustNot(getTermOrTerms(ActiveRuleDocument.FIELD_INHERITANCE, newArrayList(QProfileRule.INHERITED, QProfileRule.OVERRIDES)));
+    }
+    return filter;
+  }
+
+  private BoolFilterBuilder ruleFilterForActiveRuleSearch(ProfileRuleQuery query) {
     BoolFilterBuilder result = boolFilter();
 
     if (StringUtils.isNotBlank(query.language())) {
@@ -223,6 +234,13 @@ public class ProfileRules implements ServerExtension {
     }
 
     return result;
+  }
+
+  private BoolFilterBuilder ruleFilterForInactiveRuleSearch(ProfileRuleQuery query) {
+    BoolFilterBuilder filter = ruleFilterForActiveRuleSearch(query)
+      .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
+    addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
+    return filter;
   }
 
   private void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {
@@ -250,6 +268,30 @@ public class ProfileRules implements ServerExtension {
       builder.addSort(RuleDocument.FIELD_NAME + ".raw", sortOrder);
     } else if (query.sort().equals(ProfileRuleQuery.SORT_BY_CREATION_DATE)) {
       builder.addSort(RuleDocument.FIELD_CREATED_AT, sortOrder);
+    }
+  }
+
+  private abstract static class Search {
+
+    int pageSize = 100;
+
+    protected Search(int pageSize) {
+      this.pageSize = pageSize;
+    }
+
+    abstract int search(int currentPage);
+
+    void execute() {
+      int currentPage = 1;
+      boolean hasNextPage = true;
+      while (hasNextPage) {
+        int resultSize = search(currentPage);
+        if (resultSize < pageSize) {
+          hasNextPage = false;
+        } else {
+          currentPage++;
+        }
+      }
     }
   }
 }
