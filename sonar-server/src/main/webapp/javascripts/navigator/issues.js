@@ -124,7 +124,7 @@ jQuery(function() {
 
 
     serializeData: function() {
-      var data = Backbone.Marionette.ItemView.apply(this, arguments);
+      var data = Backbone.Marionette.ItemView.prototype.serializeData.apply(this, arguments);
       return _.extend(data || {}, {
         paging: this.collection.paging
       });
