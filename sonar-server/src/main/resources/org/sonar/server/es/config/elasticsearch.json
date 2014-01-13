@@ -1,0 +1,33 @@
+{
+  "cluster": {
+    "name": "sonarqube",
+    "local": true,
+    "data": true
+  },
+  "node": {
+    "name": "sonarqube"
+  },
+  "discovery": {
+    "zen": {
+      "multicast": {
+        "enabled": false
+      }
+    }
+  },
+  "index": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "mapper": {
+      "dynamic": false
+    },
+    "analysis": {
+      "analyzer": {
+        "sortable": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": "lowercase"
+        }
+      }
+    }
+  }
+}

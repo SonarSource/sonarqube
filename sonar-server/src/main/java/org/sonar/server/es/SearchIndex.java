@@ -38,8 +38,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.io.BytesStream;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -65,14 +63,6 @@ public class SearchIndex implements Startable {
 
   private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
-
-  private static final Settings INDEX_DEFAULT_SETTINGS = ImmutableSettings.builder()
-    .put("number_of_shards", 1)
-    .put("number_of_replicas", 0)
-    .put("mapper.dynamic", false)
-    .build();
-
-  private static final String INDEX_DEFAULT_MAPPING = "{ \"_default_\": { \"dynamic\": \"strict\" } }";
 
   private SearchNode searchNode;
   private Client client;
@@ -172,8 +162,6 @@ public class SearchIndex implements Startable {
     try {
       if (! indices.exists(indices.prepareExists(index).request()).get().isExists()) {
         indices.prepareCreate(index)
-          .setSettings(INDEX_DEFAULT_SETTINGS)
-          .addMapping("_default_", INDEX_DEFAULT_MAPPING)
           .execute().actionGet();
       }
     } catch (Exception e) {

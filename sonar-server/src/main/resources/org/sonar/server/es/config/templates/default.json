@@ -1,0 +1,8 @@
+{
+  "template": "*",
+  "mappings": {
+    "_default_": {
+      "dynamic": "strict"
+    }
+  }
+}

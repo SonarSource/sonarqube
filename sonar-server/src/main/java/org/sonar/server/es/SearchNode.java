@@ -22,6 +22,7 @@ package org.sonar.server.es;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLoggerFactory;
@@ -36,6 +37,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Manages the ElasticSearch Node instance used to connect to the index.
@@ -74,17 +76,17 @@ public class SearchNode implements Startable {
     LOG.info("Starting Elasticsearch...");
 
     initLogging();
-    ImmutableSettings.Builder esSettings = ImmutableSettings.builder().put("node.name", INSTANCE_NAME);
+    ImmutableSettings.Builder esSettings = ImmutableSettings.builder()
+      .loadFromUrl(getClass().getResource("config/elasticsearch.json"));
     initDirs(esSettings);
     initRestConsole(esSettings);
 
     node = NodeBuilder.nodeBuilder()
-      .clusterName(INSTANCE_NAME)
-      .local(true)
-      .data(true)
       .settings(esSettings)
       .node();
     node.start();
+
+    addIndexTemplates();
 
     if (
       node.client().admin().cluster().prepareHealth()
@@ -97,6 +99,16 @@ public class SearchNode implements Startable {
     }
 
     LOG.info("Elasticsearch started");
+  }
+
+  private void addIndexTemplates() {
+    try {
+      node.client().admin().indices().preparePutTemplate("default")
+        .setSource(IOUtils.toString(getClass().getResource("config/templates/default.json")))
+        .execute().actionGet();
+    } catch(IOException ioe) {
+      throw new IllegalStateException("Unable to load index templates", ioe);
+    }
   }
 
   private void initLogging() {

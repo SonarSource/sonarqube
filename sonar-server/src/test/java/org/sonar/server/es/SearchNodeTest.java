@@ -19,13 +19,13 @@
  */
 package org.sonar.server.es;
 
-import org.sonar.server.es.SearchNode;
-
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.mapper.StrictDynamicMappingException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -91,6 +91,30 @@ public class SearchNodeTest {
     assertThat(dataDir).exists().isDirectory();
   }
 
+  @Test(expected = StrictDynamicMappingException.class)
+  public void should_use_default_settings_for_index() throws Exception {
+    SearchNode node = new SearchNode(fs, new Settings().setProperty("sonar.es.http.port", 9200));
+    node.start();
+
+    node.client().admin().indices().prepareCreate("polop")
+      .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
+      .execute().actionGet();
+    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().execute().actionGet();
+
+    // default "sortable" analyzer is defined for all indices
+    assertThat(node.client().admin().indices().prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").execute().actionGet()
+      .getTokens().get(0).getTerm()).isEqualTo("this is a wonderful text");
+
+    // strict mapping is enforced
+    try {
+      node.client().prepareIndex("polop", "type1", "666").setSource(
+        XContentFactory.jsonBuilder().startObject().field("unknown", "plouf").endObject()
+      ).execute().actionGet();
+    } finally {
+      node.stop();
+    }
+  }
+
   @Test
   public void should_restore_status_on_startup() throws Exception {
     ZipUtils.unzip(TestUtils.getResource(SearchNodeTest.class, "data-es-clean.zip"), dataDir);
@@ -99,8 +123,8 @@ public class SearchNodeTest {
     node.start();
 
     AdminClient admin = node.client().admin();
-    assertThat(admin.indices().prepareExists("myindex").execute().actionGet().isExists()).isTrue();;
-    assertThat(admin.cluster().prepareHealth("myindex").setWaitForYellowStatus().execute().actionGet().getStatus()).isEqualTo(ClusterHealthStatus.YELLOW);
+    assertThat(admin.indices().prepareExists("myindex").execute().actionGet().isExists()).isTrue();
+    assertThat(admin.cluster().prepareHealth("myindex").setWaitForYellowStatus().execute().actionGet().getStatus()).isIn(ClusterHealthStatus.GREEN, ClusterHealthStatus.YELLOW);
 
     node.stop();
   }
