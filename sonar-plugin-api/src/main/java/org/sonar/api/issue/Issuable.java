@@ -79,6 +79,7 @@ public interface Issuable extends Perspective {
 
     /**
      * Overrides the severity declared in Quality profile. Do not execute in standard use-cases.
+     * @see org.sonar.api.rule.Severity
      */
     IssueBuilder severity(@Nullable String severity);
 
