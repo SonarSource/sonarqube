@@ -122,8 +122,16 @@ jQuery(function() {
 
   var IssuesActionsView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issues-actions-template').html() || ''),
+
+
     collectionEvents: {
       'sync': 'render'
+    },
+
+
+    events: {
+      'click .navigator-actions-order': 'toggleOrderChoices',
+      'click .navigator-actions-order-choices': 'sort'
     },
 
 
@@ -132,10 +140,30 @@ jQuery(function() {
     },
 
 
+    toggleOrderChoices: function() {
+      this.$('.navigator-actions-order-choices').toggleClass('open');
+    },
+
+
+    sort: function(e) {
+      this.$('.navigator-actions-order-choices').removeClass('open');
+      var el = jQuery(e.target),
+          sort = el.data('sort'),
+          asc = el.data('asc');
+      this.collection.sorting = {
+        sort: sort,
+        sortText: el.text(),
+        asc: asc
+      };
+      this.options.app.fetchFirstPage();
+    },
+
+
     serializeData: function() {
       var data = Backbone.Marionette.ItemView.prototype.serializeData.apply(this, arguments);
       return _.extend(data || {}, {
-        paging: this.collection.paging
+        paging: this.collection.paging,
+        sorting: this.collection.sorting
       });
     }
   });
@@ -160,37 +188,12 @@ jQuery(function() {
 
 
     changeValue: function() {
-      var query = this.getQuery(),
-          fetchQuery =_.extend({
-            pageIndex: this.options.app.issuesPage
-          }, query);
-
-      this.storeQuery(query);
-      this.options.app.issues.fetch({
-        data: fetchQuery
-      });
+      this.options.app.fetchFirstPage();
     },
 
 
     fetchNextPage: function() {
-      var query = this.getQuery(),
-          fetchQuery =_.extend({
-            pageIndex: this.options.app.issuesPage
-          }, query);
-
-      this.storeQuery(query);
-      this.options.app.issues.fetch({
-        data: fetchQuery,
-        remove: false
-      });
-    },
-
-
-    storeQuery: function(query) {
-      var queryString = _.map(query, function(v, k) {
-        return [k, encodeURIComponent(v)].join('=');
-      }).join('&');
-      this.options.app.router.navigate(queryString);
+      this.options.app.fetchNextPage();
     }
 
   });
@@ -218,6 +221,7 @@ jQuery(function() {
         }
       });
       this.app.filterBarView.restoreFromQuery(params);
+      this.app.restoreSorting(params);
       this.app.fetchFirstPage();
     }
   });

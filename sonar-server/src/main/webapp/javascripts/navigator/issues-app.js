@@ -26,6 +26,7 @@ jQuery(function() {
     this.resultsRegion.show(this.issuesView);
 
     this.issuesActionsView = new window.SS.IssuesActionsView({
+      app: this,
       collection: this.issues
     });
     this.actionsRegion.show(this.issuesActionsView);
@@ -161,15 +162,73 @@ jQuery(function() {
   });
 
 
+  NavigatorApp.storeQuery = function(query, sorting) {
+    var fullQuery = query;
+    if (sorting) {
+      _.extend(fullQuery, {
+        sort: sorting.sort,
+        asc: '' + sorting.asc
+      });
+    }
+
+    var queryString = _.map(fullQuery, function(v, k) {
+      return [k, encodeURIComponent(v)].join('=');
+    }).join('&');
+    this.router.navigate(queryString);
+  };
+
+
+  NavigatorApp.restoreSorting = function(query) {
+    var sort = _.findWhere(query, { key: 'sort' }),
+        asc = _.findWhere(query, { key: 'asc' });
+
+    if (sort && asc) {
+      this.issues.sorting = {
+        sort: sort.value,
+        sortText: jQuery('[data-sort=' + sort.value + ']:first').text(),
+        asc: asc.value === 'true'
+      }
+    }
+  };
+
+
+  NavigatorApp.fetchIssues = function(firstPage) {
+    var query = this.filterBarView.getQuery(),
+        fetchQuery =_.extend({
+          pageIndex: this.issuesPage
+        }, query);
+
+    if (this.issues.sorting) {
+      _.extend(fetchQuery, {
+        sort: this.issues.sorting.sort,
+        asc: this.issues.sorting.asc
+      });
+    }
+
+    this.storeQuery(query, this.issues.sorting);
+
+    if (firstPage) {
+      this.issues.fetch({
+        data: fetchQuery
+      });
+    } else {
+      this.issues.fetch({
+        data: fetchQuery,
+        remove: false
+      });
+    }
+  };
+
+
   NavigatorApp.fetchFirstPage = function() {
     this.issuesPage = 1;
-    this.filterBarView.fetchNextPage();
+    this.fetchIssues(true);
   };
 
 
   NavigatorApp.fetchNextPage = function() {
     this.issuesPage++;
-    this.filterBarView.fetchNextPage();
+    this.fetchIssues(false);
   };
 
 });

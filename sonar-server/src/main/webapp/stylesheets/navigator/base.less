@@ -183,7 +183,7 @@
 
 // Status
 .navigator-actions {
-  padding: 0 @navigatorPadding;
+  padding: 0 @navigatorPadding 0 0;
   line-height: @navigatorStatusHeight;
   border-right: 1px solid @navigatorBorderLightColor;
   border-top: 1px solid @navigatorBorderLightColor;
@@ -192,7 +192,42 @@
 
 .navigator-actions-order {
   float: left;
+  padding: 0 @navigatorPadding;
   cursor: pointer;
+  .trans;
+
+  &:hover {
+    background-color: @navigatorBarBackground;
+  }
+}
+
+.navigator-actions-order-choices {
+  .navigator-element;
+  bottom: @navigatorStatusHeight;
+  left: 0;
+  min-width: @navigatorResultsWidth / 2;
+  max-height: @navigatorStatusHeight * 6;
+  background-color: #fff;
+  border-top: 1px solid @navigatorBorderLightColor;
+  border-right: 1px solid @navigatorBorderLightColor;
+  overflow: scroll;
+  display: none;
+
+  & > li {
+    height: @navigatorStatusHeight;
+    line-height: @navigatorStatusHeight;
+    padding: 0 10px;
+    cursor: pointer;
+    .trans;
+
+    &:hover {
+      background-color: @navigatorBarBackground;
+    }
+  }
+
+  &.open {
+    display: block;
+  }
 }
 
 .navigator-actions-total {

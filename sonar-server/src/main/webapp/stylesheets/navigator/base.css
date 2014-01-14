@@ -150,7 +150,7 @@
   background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
 }
 .navigator-actions {
-  padding: 0 10px;
+  padding: 0 10px 0 0;
   line-height: 30px;
   border-right: 1px solid #e1e1e1;
   border-top: 1px solid #e1e1e1;
@@ -158,7 +158,40 @@
 }
 .navigator-actions-order {
   float: left;
+  padding: 0 10px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+.navigator-actions-order:hover {
+  background-color: #efefef;
+}
+.navigator-actions-order-choices {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 30px;
+  left: 0;
+  min-width: 160px;
+  max-height: 180px;
+  background-color: #fff;
+  border-top: 1px solid #e1e1e1;
+  border-right: 1px solid #e1e1e1;
+  overflow: scroll;
+  display: none;
+}
+.navigator-actions-order-choices > li {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.navigator-actions-order-choices > li:hover {
+  background-color: #efefef;
+}
+.navigator-actions-order-choices.open {
+  display: block;
 }
 .navigator-actions-total {
   float: right;
