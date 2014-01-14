@@ -23,6 +23,9 @@ package org.sonar.server.qualityprofile;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class QProfile {
 
   private Integer id;
@@ -59,11 +62,12 @@ public class QProfile {
     return this;
   }
 
+  @CheckForNull
   public String parent() {
     return parent;
   }
 
-  public QProfile setParent(String parent) {
+  public QProfile setParent(@Nullable String parent) {
     this.parent = parent;
     return this;
   }
