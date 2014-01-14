@@ -145,37 +145,45 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public void deactivateRule(int profileId, int ruleId, UserSession userSession) {
+  public boolean deactivateRule(int profileId, int ruleId, UserSession userSession) {
     validatePermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
       ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
-      deactivateRule(activeRule, userSession, session);
+      return deactivateRule(activeRule, userSession, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void deactivateRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
-    ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+  private boolean deactivateRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
+    if (activeRule.getInheritance() == null) {
+      ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
 
-    activeRuleDao.deleteParameters(activeRule.getId(), session);
-    activeRuleDao.delete(activeRule.getId(), session);
-    actions.addToDelete(activeRule.getId());
-    session.commit();
+      activeRuleDao.deleteParameters(activeRule.getId(), session);
+      activeRuleDao.delete(activeRule.getId(), session);
+      actions.addToDelete(activeRule.getId());
+      session.commit();
 
-    reindexInheritanceResult(actions, session);
+      reindexInheritanceResult(actions, session);
+      return true;
+    }
+    return false;
   }
 
-  public void deactivateRules(int profileId, List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
+  public int deactivateRules(int profileId, List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
+    int numberOfDeactivatedRules = 0;
     try {
       for (int activeRuleId : activeRuleIdsToDeactivate) {
         ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
-        deactivateRule(activeRule, userSession, session);
+        if (deactivateRule(activeRule, userSession, session)) {
+          numberOfDeactivatedRules++;
+        }
       }
+      return numberOfDeactivatedRules;
     } finally {
       MyBatis.closeQuietly(session);
     }

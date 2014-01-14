@@ -228,14 +228,33 @@ public class QProfileActiveRuleOperationsTest {
     when(activeRuleDao.selectByProfileAndRule(1, 10, session)).thenReturn(activeRule);
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.deactivateRule(1, 10, authorizedUserSession);
+    boolean result = operations.deactivateRule(1, 10, authorizedUserSession);
 
+    assertThat(result).isTrue();
     verify(activeRuleDao).delete(eq(5), eq(session));
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));
     verify(session).commit();
     verify(profilesManager).deactivated(eq(1), anyInt(), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void not_deactivate_rule_if_inheritance() throws Exception {
+    when(profileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(ruleDao.selectById(10, session)).thenReturn(new RuleDto().setId(10));
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1).setInheritance(ActiveRuleDto.INHERITED);
+    when(activeRuleDao.selectByProfileAndRule(1, 10, session)).thenReturn(activeRule);
+    when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
+
+    boolean result = operations.deactivateRule(1, 10, authorizedUserSession);
+
+    assertThat(result).isFalse();
+    verify(activeRuleDao, never()).delete(anyInt(), eq(session));
+    verify(activeRuleDao, never()).deleteParameters(anyInt(), eq(session));
+    verify(session, never()).commit();
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(ruleRegistry);
   }
 
   @Test
@@ -246,8 +265,9 @@ public class QProfileActiveRuleOperationsTest {
     when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.deactivateRules(1, newArrayList(5), authorizedUserSession);
+    int result = operations.deactivateRules(1, newArrayList(5), authorizedUserSession);
 
+    assertThat(result).isEqualTo(1);
     verify(activeRuleDao).delete(eq(5), eq(session));
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));
     verify(session).commit();
