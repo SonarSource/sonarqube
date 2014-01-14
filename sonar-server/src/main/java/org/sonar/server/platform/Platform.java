@@ -19,8 +19,8 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchNode;
+import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.ESNode;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
@@ -225,7 +225,7 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
-    coreContainer.addSingleton(SearchNode.class);
+    coreContainer.addSingleton(ESNode.class);
     coreContainer.startComponents();
   }
 
@@ -235,7 +235,7 @@ public final class Platform {
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
 
-    servicesContainer.addSingleton(SearchIndex.class);
+    servicesContainer.addSingleton(ESIndex.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);

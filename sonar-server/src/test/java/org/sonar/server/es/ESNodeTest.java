@@ -47,7 +47,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SearchNodeTest {
+public class ESNodeTest {
 
   ServerFileSystem fs;
   File homedir;
@@ -61,7 +61,7 @@ public class SearchNodeTest {
     homedir = temp.newFolder();
     fs = mock(ServerFileSystem.class);
     when(fs.getHomeDir()).thenReturn(homedir);
-    dataDir = new File(homedir, SearchNode.DATA_DIR);
+    dataDir = new File(homedir, ESNode.DATA_DIR);
   }
 
   @After
@@ -73,7 +73,7 @@ public class SearchNodeTest {
   public void start_and_stop_es_node() throws Exception {
     assertThat(dataDir).doesNotExist();
 
-    SearchNode node = new SearchNode(fs, new Settings());
+    ESNode node = new ESNode(fs, new Settings());
     node.start();
 
     ClusterAdminClient cluster = node.client().admin().cluster();
@@ -93,7 +93,7 @@ public class SearchNodeTest {
 
   @Test(expected = StrictDynamicMappingException.class)
   public void should_use_default_settings_for_index() throws Exception {
-    SearchNode node = new SearchNode(fs, new Settings().setProperty("sonar.es.http.port", 9200));
+    ESNode node = new ESNode(fs, new Settings().setProperty("sonar.es.http.port", 9200));
     node.start();
 
     node.client().admin().indices().prepareCreate("polop")
@@ -117,9 +117,9 @@ public class SearchNodeTest {
 
   @Test
   public void should_restore_status_on_startup() throws Exception {
-    ZipUtils.unzip(TestUtils.getResource(SearchNodeTest.class, "data-es-clean.zip"), dataDir);
+    ZipUtils.unzip(TestUtils.getResource(ESNodeTest.class, "data-es-clean.zip"), dataDir);
 
-    SearchNode node = new SearchNode(fs, new Settings());
+    ESNode node = new ESNode(fs, new Settings());
     node.start();
 
     AdminClient admin = node.client().admin();
@@ -131,9 +131,9 @@ public class SearchNodeTest {
 
   @Test(expected = IllegalStateException.class)
   public void should_fail_on_corrupt_index() throws Exception {
-    ZipUtils.unzip(TestUtils.getResource(SearchNodeTest.class, "data-es-corrupt.zip"), dataDir);
+    ZipUtils.unzip(TestUtils.getResource(ESNodeTest.class, "data-es-corrupt.zip"), dataDir);
 
-    SearchNode node = new SearchNode(fs, new Settings(), "5s");
+    ESNode node = new ESNode(fs, new Settings(), "5s");
     try {
       node.start();
     } finally {
@@ -143,7 +143,7 @@ public class SearchNodeTest {
 
   @Test
   public void should_fail_to_get_client_if_not_started() {
-    SearchNode node = new SearchNode(fs, new Settings());
+    ESNode node = new ESNode(fs, new Settings());
     try {
       node.client();
       fail();
@@ -157,7 +157,7 @@ public class SearchNodeTest {
     Settings settings = new Settings();
     int httpPort = NetworkUtils.freePort();
     settings.setProperty("sonar.es.http.port", httpPort);
-    SearchNode node = new SearchNode(fs, settings);
+    ESNode node = new ESNode(fs, settings);
     node.start();
 
     URL url = URI.create("http://localhost:" + httpPort).toURL();

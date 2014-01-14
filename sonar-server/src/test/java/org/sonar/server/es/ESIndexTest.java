@@ -36,24 +36,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SearchIndexTest {
+public class ESIndexTest {
 
   private EsSetup esSetup;
-  private SearchNode searchNode;
+  private ESNode searchNode;
 
-  private SearchIndex searchIndex;
+  private ESIndex searchIndex;
 
   @Before
   public void setUp() throws Exception {
     esSetup = new EsSetup();
     esSetup.execute(EsSetup.deleteAll());
 
-    searchNode = mock(SearchNode.class);
+    searchNode = mock(ESNode.class);
     when(searchNode.client()).thenReturn(esSetup.client());
 
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "BASIC");
-    searchIndex = new SearchIndex(searchNode, new Profiling(settings));
+    searchIndex = new ESIndex(searchNode, new Profiling(settings));
     searchIndex.start();
   }
 
@@ -72,7 +72,7 @@ public class SearchIndexTest {
   public void should_create_index_when_loading_mapping_from_classpath() {
     String index = "index";
     String type = "type";
-    String resourcePath = "/org/sonar/server/es/SearchIndexTest/correct_mapping1.json";
+    String resourcePath = "/org/sonar/server/es/ESIndexTest/correct_mapping1.json";
 
     searchIndex.start();
     searchIndex.addMappingFromClasspath(index, type, resourcePath);
@@ -85,8 +85,8 @@ public class SearchIndexTest {
     String index = "index";
     String type1 = "type1";
     String type2 = "type2";
-    String resourcePath1 = "/org/sonar/server/es/SearchIndexTest/correct_mapping1.json";
-    String resourcePath2 = "/org/sonar/server/es/SearchIndexTest/correct_mapping2.json";
+    String resourcePath1 = "/org/sonar/server/es/ESIndexTest/correct_mapping1.json";
+    String resourcePath2 = "/org/sonar/server/es/ESIndexTest/correct_mapping2.json";
 
     searchIndex.start();
     searchIndex.addMappingFromClasspath(index, type1, resourcePath1);
@@ -98,7 +98,7 @@ public class SearchIndexTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void should_fail_to_load_inexistent_mapping() {
-    String resourcePath = "/org/sonar/server/es/SearchIndexTest/inexistent.json";
+    String resourcePath = "/org/sonar/server/es/ESIndexTest/inexistent.json";
 
     searchIndex.start();
     searchIndex.addMappingFromClasspath("unchecked", "unchecked", resourcePath);
@@ -106,7 +106,7 @@ public class SearchIndexTest {
 
   @Test(expected = RuntimeException.class)
   public void should_fail_to_load_malformed_mapping() {
-    String resourcePath = "/org/sonar/server/es/SearchIndexTest/malformed.json";
+    String resourcePath = "/org/sonar/server/es/ESIndexTest/malformed.json";
 
     searchIndex.start();
     searchIndex.addMappingFromClasspath("unchecked", "unchecked", resourcePath);
@@ -116,7 +116,7 @@ public class SearchIndexTest {
   public void should_iterate_over_big_dataset() throws Exception {
     final int numberOfDocuments = 10000;
 
-    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/es/SearchIndexTest/correct_mapping1.json");
+    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/es/ESIndexTest/correct_mapping1.json");
     String[] ids = new String[numberOfDocuments];
     BytesStream[] sources = new BytesStream[numberOfDocuments];
     for (int i=0; i<numberOfDocuments; i++) {
@@ -133,7 +133,7 @@ public class SearchIndexTest {
   public void should_iterate_over_small_dataset() throws Exception {
     final int numberOfDocuments = 3;
 
-    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/es/SearchIndexTest/correct_mapping1.json");
+    searchIndex.addMappingFromClasspath("index", "type1", "/org/sonar/server/es/ESIndexTest/correct_mapping1.json");
     String[] ids = new String[numberOfDocuments];
     BytesStream[] sources = new BytesStream[numberOfDocuments];
     for (int i=0; i<numberOfDocuments; i++) {

@@ -36,7 +36,7 @@ import java.util.List;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 
 /**
- * This class can be used to build "AND" form queries, to be passed e.g to {@link SearchIndex#findDocumentIds(SearchQuery)}
+ * This class can be used to build "AND" form queries, to be passed e.g to {@link ESIndex#findDocumentIds(SearchQuery)}
  * For instance the following code:
  * <blockquote>
    SearchQuery.create("polop")

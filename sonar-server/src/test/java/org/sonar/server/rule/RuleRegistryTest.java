@@ -43,8 +43,8 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchNode;
+import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.ESNode;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class RuleRegistryTest {
 
   EsSetup esSetup;
 
-  SearchIndex searchIndex;
+  ESIndex searchIndex;
 
   @Mock
   RuleDao ruleDao;
@@ -86,16 +86,16 @@ public class RuleRegistryTest {
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(SearchNode.class.getResource("config/elasticsearch.json")).build());
+    esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json")).build());
     esSetup.execute(EsSetup.deleteAll());
 
-    SearchNode node = mock(SearchNode.class);
+    ESNode node = mock(ESNode.class);
     when(node.client()).thenReturn(esSetup.client());
 
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "FULL");
     Profiling profiling = new Profiling(settings);
-    searchIndex = new SearchIndex(node, profiling);
+    searchIndex = new ESIndex(node, profiling);
     searchIndex.start();
 
     registry = new RuleRegistry(searchIndex, ruleDao, activeRuleDao, myBatis);

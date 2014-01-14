@@ -34,7 +34,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
-import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.ESIndex;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.PagingResult;
 import org.sonar.server.qualityprofile.QProfileRule;
@@ -59,9 +59,9 @@ public class ProfileRules implements ServerExtension {
   private static final String FIELD_PARENT = "_parent";
   private static final String FIELD_SOURCE = "_source";
 
-  private final SearchIndex index;
+  private final ESIndex index;
 
-  public ProfileRules(SearchIndex index) {
+  public ProfileRules(ESIndex index) {
     this.index = index;
   }
 

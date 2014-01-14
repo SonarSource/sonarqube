@@ -56,19 +56,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class SearchIndex implements Startable {
+public class ESIndex implements Startable {
 
   private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";
   private static final String BULK_INTERRUPTED = "Interrupted during bulk operation";
 
   private static final String PROFILE_DOMAIN = "es";
-  private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ESIndex.class);
 
-  private SearchNode searchNode;
+  private ESNode searchNode;
   private Client client;
   private Profiling profiling;
 
-  public SearchIndex(SearchNode searchNode, Profiling profiling) {
+  public ESIndex(ESNode searchNode, Profiling profiling) {
     this.searchNode = searchNode;
     this.profiling = profiling;
   }

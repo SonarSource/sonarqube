@@ -43,9 +43,9 @@ import java.io.IOException;
  * Manages the ElasticSearch Node instance used to connect to the index.
  * @since 4.1
  */
-public class SearchNode implements Startable {
+public class ESNode implements Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ESIndex.class);
 
   private static final String HTTP_ENABLED = "http.enabled";
   static final String DATA_DIR = "data/es";
@@ -59,12 +59,12 @@ public class SearchNode implements Startable {
   // available only after startup
   private Node node;
 
-  public SearchNode(ServerFileSystem fileSystem, Settings settings) {
+  public ESNode(ServerFileSystem fileSystem, Settings settings) {
     this(fileSystem, settings, DEFAULT_HEALTH_TIMEOUT);
   }
 
   @VisibleForTesting
-  SearchNode(ServerFileSystem fileSystem, Settings settings, String healthTimeout) {
+  ESNode(ServerFileSystem fileSystem, Settings settings, String healthTimeout) {
     this.fileSystem = fileSystem;
     this.settings = settings;
     this.healthTimeout = healthTimeout;

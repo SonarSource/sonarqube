@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchNode;
+import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.ESNode;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.test.TestUtils;
@@ -49,17 +49,17 @@ public class ProfileRulesTest {
   @Before
   public void setUp() throws Exception {
     esSetup = new EsSetup(ImmutableSettings.builder()
-      .loadFromUrl(SearchNode.class.getResource("config/elasticsearch.json"))
+      .loadFromUrl(ESNode.class.getResource("config/elasticsearch.json"))
       .build()
       );
     esSetup.execute(EsSetup.deleteAll());
 
-    SearchNode searchNode = mock(SearchNode.class);
+    ESNode searchNode = mock(ESNode.class);
     when(searchNode.client()).thenReturn(esSetup.client());
 
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "FULL");
-    SearchIndex index = new SearchIndex(searchNode, new Profiling(settings));
+    ESIndex index = new ESIndex(searchNode, new Profiling(settings));
     index.start();
     RuleRegistry registry = new RuleRegistry(index, null, null, null);
     registry.start();

@@ -37,7 +37,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
-import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
 
 import java.io.IOException;
@@ -62,12 +62,12 @@ public class RuleRegistry {
   private static final String PARAM_NAMEORKEY = "nameOrKey";
   private static final String PARAM_STATUS = "status";
 
-  private final SearchIndex searchIndex;
+  private final ESIndex searchIndex;
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
   private final MyBatis myBatis;
 
-  public RuleRegistry(SearchIndex searchIndex, RuleDao ruleDao, ActiveRuleDao activeRuleDao, MyBatis myBatis) {
+  public RuleRegistry(ESIndex searchIndex, RuleDao ruleDao, ActiveRuleDao activeRuleDao, MyBatis myBatis) {
     this.searchIndex = searchIndex;
     this.ruleDao = ruleDao;
     this.activeRuleDao = activeRuleDao;
