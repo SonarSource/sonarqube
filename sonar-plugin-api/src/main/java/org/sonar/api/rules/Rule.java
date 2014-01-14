@@ -20,8 +20,6 @@
 
 package org.sonar.api.rules;
 
-import com.google.common.collect.Sets;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
@@ -37,8 +35,10 @@ import org.sonar.check.Cardinality;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "rules")
@@ -125,9 +125,6 @@ public final class Rule {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
-
-  @Transient
-  private transient Set<String> tags = Collections.unmodifiableSet(new HashSet<String>());
 
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
@@ -269,34 +266,17 @@ public final class Rule {
 
   public RuleParam createParameter() {
     RuleParam parameter = new RuleParam()
-      .setRule(this);
+        .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-      .setKey(key)
-      .setRule(this);
+        .setKey(key)
+        .setRule(this);
     params.add(parameter);
     return parameter;
-  }
-
-  /**
-   * @since 4.2
-   */
-  public Collection<String> getTags() {
-    return tags;
-  }
-
-  /**
-   * @since 4.2
-   */
-  public Rule setTags(String... tags) {
-    Set<String> newTags = Sets.newTreeSet();
-    newTags.addAll(Arrays.asList(tags));
-    this.tags = Collections.unmodifiableSet(newTags);
-    return this;
   }
 
   /**
@@ -451,34 +431,34 @@ public final class Rule {
     }
     Rule other = (Rule) obj;
     return new EqualsBuilder()
-      .append(pluginName, other.getRepositoryKey())
-      .append(key, other.getKey())
-      .isEquals();
+        .append(pluginName, other.getRepositoryKey())
+        .append(key, other.getKey())
+        .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(pluginName)
-      .append(key)
-      .toHashCode();
+        .append(pluginName)
+        .append(key)
+        .toHashCode();
   }
 
   @Override
   public String toString() {
     // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-      .append("id", id)
-      .append("name", name)
-      .append("key", key)
-      .append("configKey", configKey)
-      .append("plugin", pluginName)
-      .append("severity", priority)
-      .append("cardinality", cardinality)
-      .append("status", status)
-      .append("language", language)
-      .append("parent", parent)
-      .toString();
+        .append("id", id)
+        .append("name", name)
+        .append("key", key)
+        .append("configKey", configKey)
+        .append("plugin", pluginName)
+        .append("severity", priority)
+        .append("cardinality", cardinality)
+        .append("status", status)
+        .append("language", language)
+        .append("parent", parent)
+        .toString();
   }
 
   @CheckForNull
