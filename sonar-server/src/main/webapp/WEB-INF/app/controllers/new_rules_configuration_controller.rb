@@ -40,7 +40,32 @@ class NewRulesConfigurationController < ApplicationController
       add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
                       {:name => @profile.name, :url => {:controller => 'new_rules_configuration', :action => 'index', :id => @profile.id}}
 
-      init_params()
+      init_params
+      @criteria_params = criteria_params
+      stop_watch = Internal.profiling.start("rules", "BASIC")
+
+      @pagination = Api::Pagination.new(params)
+      paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
+
+      criteria = init_criteria
+      query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+      if @activation==STATUS_ACTIVE
+        result = Internal.quality_profiles.searchProfileRules(query, paging)
+      else
+        result = Internal.quality_profiles.searchInactiveProfileRules(query, paging)
+      end
+
+      @pagination.count = result.paging.total
+      unless @searchtext.blank?
+        if @activation==STATUS_ACTIVE
+          @hidden_inactives = Internal.quality_profiles.countProfileRules(query)
+        else
+          @hidden_actives = Internal.quality_profiles.countInactiveProfileRules(query)
+        end
+      end
+      stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
+
+      @current_rules = result.rules
 
       @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
       @select_priority = ANY_SELECTION + RULE_PRIORITIES
@@ -51,39 +76,6 @@ class NewRulesConfigurationController < ApplicationController
                                         [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
                                         [message('rules.status.ready'), Rule::STATUS_READY]]
       @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
-
-      stop_watch = Internal.profiling.start("rules", "BASIC")
-
-      criteria = {
-          "profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
-          "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
-
-      @rules = []
-      @pagination = Api::Pagination.new(params)
-
-      query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
-      paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
-
-      if @activation==STATUS_ACTIVE
-        result = Internal.quality_profiles.searchProfileRules(query, paging)
-      else
-        result = Internal.quality_profiles.searchInactiveProfileRules(query, paging)
-      end
-
-      @rules = result.rules
-      @pagination.count = result.paging.total
-
-      unless @searchtext.blank?
-        if @activation==STATUS_ACTIVE
-          @hidden_inactives = Internal.quality_profiles.countProfileRules(query)
-        else
-          @hidden_actives = Internal.quality_profiles.countInactiveProfileRules(query)
-        end
-      end
-
-      stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
-
-      @current_rules = @rules
     end
   end
 
@@ -250,7 +242,7 @@ class NewRulesConfigurationController < ApplicationController
 
   #
   #
-  # POST /rules_configuration/bulk_edit?id=<profile id>&bulk_rule_ids=<list of rule ids>&bulk_action=<action>
+  # POST /rules_configuration/bulk_edit?id=<profile id>&&bulk_action=<action>
   #
   # Values of the parameter 'bulk_action' :
   #   - 'activate' : activate all the selected rules with their default priority
@@ -260,24 +252,31 @@ class NewRulesConfigurationController < ApplicationController
   def bulk_edit
     verify_post_request
     access_denied unless has_role?(:profileadmin)
-    require_parameters :id, :bulk_rule_ids, :bulk_action
-    profile = Profile.find(params[:id].to_i)
-    rule_ids = params[:bulk_rule_ids].split(',').map { |id| id.to_i }
-    activation=params[:rule_activation] || STATUS_ACTIVE
+    require_parameters :id, :bulk_action
 
+    stop_watch = Internal.profiling.start("rules", "BASIC")
+    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    init_params
+    criteria = init_criteria
+    query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+    activation = params[:rule_activation] || STATUS_ACTIVE
     case params[:bulk_action]
       when 'activate'
-        count=activate_rules(profile, rule_ids)
+        count = Internal.quality_profiles.bulkActivateRule(query)
+        stop_watch.stop("Activate #{count} rules with criteria #{criteria.to_json}")
+
         flash[:notice]=message('rules_configuration.x_rules_have_been_activated', :params => count)
         activation=STATUS_ACTIVE if activation==STATUS_INACTIVE
 
       when 'deactivate'
-        count=deactivate_rules(profile, rule_ids)
+        count = Internal.quality_profiles.bulkDeactivateRule(query)
+        stop_watch.stop("Deactivate #{count} rules with criteria #{criteria.to_json}")
+
         flash[:notice]=message('rules_configuration.x_rules_have_been_deactivated', :params => count)
         activation=STATUS_INACTIVE if activation==STATUS_ACTIVE
     end
 
-    url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :bulk_rule_ids => nil, :id => profile.id, :rule_activation => activation})
+    url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :id => @profile.id, :rule_activation => activation})
     redirect_to url_parameters
   end
 
@@ -383,6 +382,18 @@ class NewRulesConfigurationController < ApplicationController
       array=[''] #keep only 'any'
     end
     array
+  end
+
+  def init_criteria()
+    {"profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
+     "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
+  end
+
+  def criteria_params
+    new_params = params.clone
+    new_params.delete('controller')
+    new_params.delete('action')
+    new_params
   end
 
 end

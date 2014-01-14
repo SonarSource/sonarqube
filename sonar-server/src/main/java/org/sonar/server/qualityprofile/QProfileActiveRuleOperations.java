@@ -167,13 +167,13 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     reindexInheritanceResult(actions, session);
   }
 
-  public void deactivateRules(int profileId, List<Integer> ruleIdsToDeactivate, UserSession userSession) {
+  public void deactivateRules(int profileId, List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
-      for (Integer ruleId : ruleIdsToDeactivate) {
-        ActiveRuleDto activeRule = findActiveRuleNotNull(profileId, ruleId, session);
+      for (int activeRuleId : activeRuleIdsToDeactivate) {
+        ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
         deactivateRule(activeRule, userSession, session);
       }
     } finally {
@@ -448,14 +448,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   @CheckForNull
   private ActiveRuleDto findActiveRule(int profileId, int ruleId, SqlSession session) {
     return activeRuleDao.selectByProfileAndRule(profileId, ruleId, session);
-  }
-
-  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId, SqlSession session) {
-    ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
-    if (activeRule == null) {
-      throw new NotFoundException("This active rule does not exists.");
-    }
-    return activeRule;
   }
 
   private ActiveRuleDto findActiveRuleNotNull(int activeRuleId, SqlSession session) {
