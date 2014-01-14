@@ -19,7 +19,9 @@
  */
 package org.sonar.api.checks;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
@@ -28,15 +30,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NoSonarFilterTest {
 
-  NoSonarFilter filter = new NoSonarFilter();
+  private SensorContext sensorContext = mock(SensorContext.class);
+  NoSonarFilter filter = new NoSonarFilter(sensorContext);
+  private JavaFile javaFile;
+
+  @Before
+  public void prepare() {
+    javaFile = new JavaFile("org.foo.Bar");
+    when(sensorContext.getResource(javaFile)).thenReturn(javaFile);
+  }
 
   @Test
   public void ignoreLinesCommentedWithNoSonar() {
-    JavaFile javaFile = new JavaFile("org.foo.Bar");
-
     Set<Integer> noSonarLines = new HashSet<Integer>();
     noSonarLines.add(31);
     noSonarLines.add(55);
@@ -50,17 +60,14 @@ public class NoSonarFilterTest {
     assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(31))).isTrue();
   }
 
-
   @Test
   public void doNotIgnoreWhenNotFoundInSquid() {
-    JavaFile javaFile = new JavaFile("org.foo.Bar");
     assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30))).isFalse();
   }
 
   @Test
   public void should_accept_violations_from_no_sonar_rules() throws Exception {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
-    JavaFile javaFile = new JavaFile("org.foo.Bar");
 
     Set<Integer> noSonarLines = new HashSet<Integer>();
     noSonarLines.add(31);
