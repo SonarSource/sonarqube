@@ -55,10 +55,15 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public RuleDto selectById(Integer id, SqlSession session) {
+    return getMapper(session).selectById(id);
+  }
+
+
   public RuleDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectById(id);
+      return selectById(id, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

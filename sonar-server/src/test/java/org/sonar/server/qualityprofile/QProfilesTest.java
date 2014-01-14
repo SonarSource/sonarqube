@@ -320,12 +320,31 @@ public class QProfilesTest {
 
   @Test
   public void search_active_rules() throws Exception {
-    final int profileId = 42;
-    ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
+    ProfileRuleQuery query = ProfileRuleQuery.create(42);
     Paging paging = Paging.create(20, 1);
-    ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
-    when(rules.search(query, paging)).thenReturn(result);
-    assertThat(qProfiles.searchProfileRules(query, paging)).isEqualTo(result);
+    qProfiles.searchProfileRules(query, paging);
+    verify(rules).search(query, paging);
+  }
+
+  @Test
+  public void count_profile_rules() throws Exception {
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    qProfiles.countProfileRules(query);
+    verify(rules).countProfileRules(query);
+  }
+
+  @Test
+  public void count_profile_rules_from_profile() throws Exception {
+    QProfile profile = new QProfile().setId(1);
+    qProfiles.countProfileRules(profile);
+    verify(rules).countProfileRules(any(ProfileRuleQuery.class));
+  }
+
+  @Test
+  public void count_overriding_profile_rules() throws Exception {
+    QProfile profile = new QProfile().setId(1);
+    qProfiles.countOverridingProfileRules(profile);
+    verify(rules).countProfileRules(any(ProfileRuleQuery.class));
   }
 
   @Test
@@ -339,15 +358,38 @@ public class QProfilesTest {
   }
 
   @Test
+  public void count_inactive_rules() throws Exception {
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    qProfiles.countInactiveProfileRules(query);
+    verify(rules).countInactiveProfileRules(query);
+  }
+
+  @Test
   public void activate_rule() throws Exception {
     qProfiles.activateRule(1, 10, Severity.BLOCKER);
     verify(activeRuleOperations).activateRule(eq(1), eq(10), eq(Severity.BLOCKER), any(UserSession.class));
   }
 
   @Test
+  public void bulk_activate_rule() throws Exception {
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    when(rules.searchInactiveProfileRuleIds(query)).thenReturn(newArrayList(10));
+    qProfiles.bulkActivateRule(query);
+    verify(activeRuleOperations).activateRules(eq(1), eq(newArrayList(10)), any(UserSession.class));
+  }
+
+  @Test
   public void deactivate_rule() throws Exception {
     qProfiles.deactivateRule(1, 10);
     verify(activeRuleOperations).deactivateRule(eq(1), eq(10), any(UserSession.class));
+  }
+
+  @Test
+  public void bulk_deactivate_rule() throws Exception {
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    when(rules.searchProfileRuleIds(query)).thenReturn(newArrayList(10));
+    qProfiles.bulkDeactivateRule(query);
+    verify(activeRuleOperations).deactivateRules(eq(1), eq(newArrayList(10)), any(UserSession.class));
   }
 
   @Test

@@ -33,9 +33,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -58,24 +56,24 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
-  private final QProfileLookup profileLookup;
+  private final QualityProfileDao profileDao;
   private final RuleRegistry ruleRegistry;
   private final ProfilesManager profilesManager;
 
   private final System2 system;
 
-  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QProfileLookup profileLookup, RuleRegistry ruleRegistry,
+  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
                                       ProfilesManager profilesManager) {
-    this(myBatis, activeRuleDao, ruleDao, profileLookup, ruleRegistry, profilesManager, System2.INSTANCE);
+    this(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QProfileLookup profileLookup, RuleRegistry ruleRegistry,
+  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
                                ProfilesManager profilesManager, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
-    this.profileLookup = profileLookup;
+    this.profileDao = profileDao;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
     this.system = system;
@@ -85,56 +83,63 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     validatePermission(userSession);
     validateSeverity(severity);
 
-    QProfile profile = findProfileNotNull(profileId);
-    RuleDto rule = findRuleNotNull(ruleId);
-    ActiveRuleDto activeRule = findActiveRule(profileId, ruleId);
-    if (activeRule == null) {
-      createActiveRule(profile.id(), rule.getId(), severity, userSession);
-    } else {
-      updateSeverity(activeRule, severity, userSession);
-    }
-  }
-
-  private ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, UserSession userSession) {
     SqlSession session = myBatis.openSession();
     try {
-      ActiveRuleDto activeRule = new ActiveRuleDto()
-        .setProfileId(profileId)
-        .setRuleId(ruleId)
-        .setSeverity(getSeverityOrdinal(severity));
-      activeRuleDao.insert(activeRule, session);
-
-      List<RuleParamDto> ruleParams = ruleDao.selectParameters(ruleId, session);
-      List<ActiveRuleParamDto> activeRuleParams = newArrayList();
-      for (RuleParamDto ruleParam : ruleParams) {
-        ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
-          .setActiveRuleId(activeRule.getId())
-          .setRulesParameterId(ruleParam.getId())
-          .setKey(ruleParam.getName())
-          .setValue(ruleParam.getDefaultValue());
-        activeRuleParams.add(activeRuleParam);
-        activeRuleDao.insert(activeRuleParam, session);
+      QualityProfileDto profile = findProfileNotNull(profileId, session);
+      RuleDto rule = findRuleNotNull(ruleId, session);
+      ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
+      if (activeRule == null) {
+        createActiveRule(profile.getId(), rule.getId(), severity, userSession, session);
+      } else {
+        updateSeverity(activeRule, severity, userSession, session);
       }
-      session.commit();
-
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(profileId, activeRule.getId(), userSession.name());
-      reindexInheritanceResult(actions, session);
-
-      return activeRule;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession) {
+  private ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, UserSession userSession, SqlSession session) {
+    ActiveRuleDto activeRule = new ActiveRuleDto()
+      .setProfileId(profileId)
+      .setRuleId(ruleId)
+      .setSeverity(getSeverityOrdinal(severity));
+    activeRuleDao.insert(activeRule, session);
+
+    List<RuleParamDto> ruleParams = ruleDao.selectParameters(ruleId, session);
+    List<ActiveRuleParamDto> activeRuleParams = newArrayList();
+    for (RuleParamDto ruleParam : ruleParams) {
+      ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
+        .setActiveRuleId(activeRule.getId())
+        .setRulesParameterId(ruleParam.getId())
+        .setKey(ruleParam.getName())
+        .setValue(ruleParam.getDefaultValue());
+      activeRuleParams.add(activeRuleParam);
+      activeRuleDao.insert(activeRuleParam, session);
+    }
+    session.commit();
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(profileId, activeRule.getId(), userSession.name());
+    reindexInheritanceResult(actions, session);
+    return activeRule;
+  }
+
+  private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, SqlSession session) {
+    Integer oldSeverity = activeRule.getSeverity();
+    activeRule.setSeverity(getSeverityOrdinal(newSeverity));
+    activeRuleDao.update(activeRule, session);
+    session.commit();
+
+    notifySeverityChanged(activeRule, newSeverity, getSeverityFromOrdinal(oldSeverity), session, userSession);
+  }
+
+  public void activateRules(int profileId, List<Integer> ruleIdsToActivate, UserSession userSession) {
+    validatePermission(userSession);
+
     SqlSession session = myBatis.openSession();
     try {
-      Integer oldSeverity = activeRule.getSeverity();
-      activeRule.setSeverity(getSeverityOrdinal(newSeverity));
-      activeRuleDao.update(activeRule, session);
-      session.commit();
-
-      notifySeverityChanged(activeRule, newSeverity, getSeverityFromOrdinal(oldSeverity), session, userSession);
+      for (Integer ruleId : ruleIdsToActivate) {
+        RuleDto rule = findRuleNotNull(ruleId, session);
+        createActiveRule(profileId, ruleId, getSeverityFromOrdinal(rule.getSeverity()), userSession, session);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -142,22 +147,35 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   public void deactivateRule(int profileId, int ruleId, UserSession userSession) {
     validatePermission(userSession);
-
-    ActiveRuleDto activeRule = findActiveRule(profileId, ruleId);
-    deactivateRule(activeRule, userSession);
-  }
-
-  private void deactivateRule(ActiveRuleDto activeRule, UserSession userSession) {
     SqlSession session = myBatis.openSession();
     try {
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+      ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
+      deactivateRule(activeRule, userSession, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 
-      activeRuleDao.deleteParameters(activeRule.getId(), session);
-      activeRuleDao.delete(activeRule.getId(), session);
-      actions.addToDelete(activeRule.getId());
-      session.commit();
+  private void deactivateRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
 
-      reindexInheritanceResult(actions, session);
+    activeRuleDao.deleteParameters(activeRule.getId(), session);
+    activeRuleDao.delete(activeRule.getId(), session);
+    actions.addToDelete(activeRule.getId());
+    session.commit();
+
+    reindexInheritanceResult(actions, session);
+  }
+
+  public void deactivateRules(int profileId, List<Integer> ruleIdsToDeactivate, UserSession userSession) {
+    validatePermission(userSession);
+
+    SqlSession session = myBatis.openSession();
+    try {
+      for (Integer ruleId : ruleIdsToDeactivate) {
+        ActiveRuleDto activeRule = findActiveRuleNotNull(profileId, ruleId, session);
+        deactivateRule(activeRule, userSession, session);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -165,94 +183,85 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value, UserSession userSession) {
     validatePermission(userSession);
-    String sanitizedValue = Strings.emptyToNull(value);
-    ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    if (activeRuleParam == null && sanitizedValue != null) {
-      createActiveRuleParam(activeRule, key, value, userSession);
-    } else if (activeRuleParam != null && sanitizedValue == null) {
-      deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
-    } else if (activeRuleParam != null) {
-      updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
-    }
-    // If no active rule param and no value -> do nothing
-  }
 
-  private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession) {
     SqlSession session = myBatis.openSession();
     try {
-      RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
-      validateParam(ruleParam.getType(), value);
-      ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
-      activeRuleDao.insert(activeRuleParam, session);
-      session.commit();
-
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
-      reindexInheritanceResult(actions, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession) {
-    SqlSession session = myBatis.openSession();
-    try {
-      activeRuleDao.deleteParameter(activeRuleParam.getId(), session);
-      session.commit();
-
-      notifyParamsDeleted(activeRule, newArrayList(activeRuleParam), session, userSession);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession) {
-    SqlSession session = myBatis.openSession();
-    try {
-      RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
-      validateParam(ruleParam.getType(), value);
-
       String sanitizedValue = Strings.emptyToNull(value);
-      String oldValue = activeRuleParam.getValue();
-      activeRuleParam.setValue(sanitizedValue);
-      activeRuleDao.update(activeRuleParam, session);
-      session.commit();
+      ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key, session);
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+      if (activeRuleParam == null && sanitizedValue != null) {
+        createActiveRuleParam(activeRule, key, value, userSession, session);
+      } else if (activeRuleParam != null && sanitizedValue == null) {
+        deleteActiveRuleParam(activeRule, activeRuleParam, userSession, session);
+      } else if (activeRuleParam != null) {
+        updateActiveRuleParam(activeRule, activeRuleParam, value, userSession, session);
+      }
+      // If no active rule param and no value -> do nothing
 
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), oldValue,
-        sanitizedValue, getLoggedName(userSession));
-      reindexInheritanceResult(actions, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession, SqlSession session) {
+    RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
+    validateParam(ruleParam.getType(), value);
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
+    activeRuleDao.insert(activeRuleParam, session);
+    session.commit();
+
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
+    reindexInheritanceResult(actions, session);
+  }
+
+  private void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession, SqlSession session) {
+    activeRuleDao.deleteParameter(activeRuleParam.getId(), session);
+    session.commit();
+    notifyParamsDeleted(activeRule, newArrayList(activeRuleParam), session, userSession);
+  }
+
+  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession, SqlSession session) {
+    RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
+    validateParam(ruleParam.getType(), value);
+
+    String sanitizedValue = Strings.emptyToNull(value);
+    String oldValue = activeRuleParam.getValue();
+    activeRuleParam.setValue(sanitizedValue);
+    activeRuleDao.update(activeRuleParam, session);
+    session.commit();
+
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), oldValue,
+      sanitizedValue, getLoggedName(userSession));
+    reindexInheritanceResult(actions, session);
   }
 
   public void revertActiveRule(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    revertActiveRule(activeRule, userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+      if (activeRule.doesOverride()) {
+        revertActiveRule(activeRule, userSession, session);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  private void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession) {
-    if (activeRule.doesOverride()) {
-      SqlSession session = myBatis.openSession();
-      try {
-        ProfilesManager.RuleInheritanceActions actions = new ProfilesManager.RuleInheritanceActions();
-        ActiveRuleDto parent = getParent(activeRule, session);
+  private void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
+    ProfilesManager.RuleInheritanceActions actions = new ProfilesManager.RuleInheritanceActions();
+    ActiveRuleDto parent = getParent(activeRule, session);
 
-        List<ActiveRuleParamDto> newParams = restoreActiveParametersFromActiveRuleParent(activeRule, parent, actions, userSession, session);
-        restoreSeverityFromActiveRuleParent(activeRule, parent, actions, userSession, session);
-        reindexInheritanceResult(actions, session);
+    List<ActiveRuleParamDto> newParams = restoreActiveParametersFromActiveRuleParent(activeRule, parent, actions, userSession, session);
+    restoreSeverityFromActiveRuleParent(activeRule, parent, actions, userSession, session);
+    reindexInheritanceResult(actions, session);
 
-        // Update inheritance
-        activeRule.setInheritance(ActiveRuleDto.INHERITED);
-        activeRuleDao.update(activeRule, session);
-        session.commit();
-        reindexActiveRule(activeRule, newParams);
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
-    }
+    // Update inheritance
+    activeRule.setInheritance(ActiveRuleDto.INHERITED);
+    activeRuleDao.update(activeRule, session);
+    session.commit();
+    reindexActiveRule(activeRule, newParams);
   }
 
   private ActiveRuleDto getParent(ActiveRuleDto activeRule, SqlSession session) {
@@ -424,25 +433,33 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return ruleParam;
   }
 
-  private QProfile findProfileNotNull(int profileId) {
-    QProfile profile = profileLookup.profile(profileId);
+  private QualityProfileDto findProfileNotNull(int profileId, SqlSession session) {
+    QualityProfileDto profile = profileDao.selectById(profileId, session);
     QProfileValidations.checkProfileIsNotNull(profile);
     return profile;
   }
 
-  private RuleDto findRuleNotNull(int ruleId) {
-    RuleDto rule = ruleDao.selectById(ruleId);
+  private RuleDto findRuleNotNull(int ruleId, SqlSession session) {
+    RuleDto rule = ruleDao.selectById(ruleId, session);
     QProfileValidations.checkRuleIsNotNull(rule);
     return rule;
   }
 
   @CheckForNull
-  private ActiveRuleDto findActiveRule(int profileId, int ruleId) {
-    return activeRuleDao.selectByProfileAndRule(profileId, ruleId);
+  private ActiveRuleDto findActiveRule(int profileId, int ruleId, SqlSession session) {
+    return activeRuleDao.selectByProfileAndRule(profileId, ruleId, session);
   }
 
-  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId) {
-    ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId);
+  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId, SqlSession session) {
+    ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
+    if (activeRule == null) {
+      throw new NotFoundException("This active rule does not exists.");
+    }
+    return activeRule;
+  }
+
+  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId, SqlSession session) {
+    ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId, session);
     if (activeRule == null) {
       throw new NotFoundException("This active rule does not exists.");
     }
@@ -450,8 +467,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   @CheckForNull
-  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key) {
-    return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
+  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key, SqlSession session) {
+    return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key, session);
   }
 
   private static String getSeverityFromOrdinal(int ordinal) {

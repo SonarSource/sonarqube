@@ -113,10 +113,15 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   @CheckForNull
+  public QualityProfileDto selectById(Integer id, SqlSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectById(id);
+  }
+
+  @CheckForNull
   public QualityProfileDto selectById(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).selectById(id);
+      return selectById(id, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

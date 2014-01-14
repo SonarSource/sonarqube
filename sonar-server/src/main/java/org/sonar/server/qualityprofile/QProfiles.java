@@ -234,8 +234,20 @@ public class QProfiles implements ServerComponent {
     activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
   }
 
+  public int bulkActivateRule(ProfileRuleQuery query) {
+    List<Integer> ruleIdsToActivate = rules.searchInactiveProfileRuleIds(query);
+    activeRuleOperations.activateRules(query.profileId(), ruleIdsToActivate, UserSession.get());
+    return ruleIdsToActivate.size();
+  }
+
   public void deactivateRule(int profileId, int ruleId) {
     activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
+  }
+
+  public int bulkDeactivateRule(ProfileRuleQuery query) {
+    List<Integer> ruleIdsToActivate = rules.searchProfileRuleIds(query);
+    activeRuleOperations.deactivateRules(query.profileId(), ruleIdsToActivate, UserSession.get());
+    return ruleIdsToActivate.size();
   }
 
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
