@@ -19,18 +19,18 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchNode;
-
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchNode;
 import org.sonar.server.qualityprofile.Paging;
 import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.test.TestUtils;
@@ -48,7 +48,10 @@ public class ProfileRulesTest {
 
   @Before
   public void setUp() throws Exception {
-    esSetup = new EsSetup();
+    esSetup = new EsSetup(ImmutableSettings.builder()
+      .loadFromUrl(SearchNode.class.getResource("config/elasticsearch.json"))
+      .build()
+      );
     esSetup.execute(EsSetup.deleteAll());
 
     SearchNode searchNode = mock(SearchNode.class);

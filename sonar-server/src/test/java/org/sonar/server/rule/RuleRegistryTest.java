@@ -20,9 +20,6 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchNode;
-
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -31,6 +28,7 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +43,8 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchNode;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class RuleRegistryTest {
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    esSetup = new EsSetup();
+    esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(SearchNode.class.getResource("config/elasticsearch.json")).build());
     esSetup.execute(EsSetup.deleteAll());
 
     SearchNode node = mock(SearchNode.class);

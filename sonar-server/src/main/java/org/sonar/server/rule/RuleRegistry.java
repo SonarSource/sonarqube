@@ -20,9 +20,6 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.es.SearchIndex;
-import org.sonar.server.es.SearchQuery;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
@@ -40,6 +37,8 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.*;
+import org.sonar.server.es.SearchIndex;
+import org.sonar.server.es.SearchQuery;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -76,8 +75,8 @@ public class RuleRegistry {
   }
 
   public void start() {
-    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/com/sonar/search/rule_mapping.json");
-    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/com/sonar/search/active_rule_mapping.json");
+    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
+    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/org/sonar/server/es/config/mappings/active_rule_mapping.json");
   }
 
   public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {

@@ -48,7 +48,6 @@ public class SearchNode implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
 
   private static final String HTTP_ENABLED = "http.enabled";
-  private static final String INSTANCE_NAME = "sonarqube";
   static final String DATA_DIR = "data/es";
 
   private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
