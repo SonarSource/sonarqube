@@ -243,10 +243,10 @@ public class QProfileActiveRuleOperationsTest {
     when(profileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
     when(ruleDao.selectById(10, session)).thenReturn(new RuleDto().setId(10));
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(activeRuleDao.selectByProfileAndRule(1, 10, session)).thenReturn(activeRule);
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.deactivateRules(1, newArrayList(10), authorizedUserSession);
+    operations.deactivateRules(1, newArrayList(5), authorizedUserSession);
 
     verify(activeRuleDao).delete(eq(5), eq(session));
     verify(activeRuleDao).deleteParameters(eq(5), eq(session));
