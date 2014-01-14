@@ -273,6 +273,32 @@ public class ProfileRulesTest {
   }
 
   @Test
+  public void find_inactive_rules_with_tags() throws Exception {
+    esSetup.client().prepareBulk()
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_empty.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_a.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_ab.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_bc.json")))
+      .setRefresh(true)
+      .execute().actionGet();
+
+    Paging paging = Paging.create(10, 1);
+
+    // all rules
+    List<QProfileRule> rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setLanguage("xoo"), paging).rules();
+    assertThat(rules).hasSize(4);
+
+    assertThat(rules.get(0).systemTags()).containsOnly("taga");
+    assertThat(rules.get(0).adminTags()).isEmpty();
+    assertThat(rules.get(1).systemTags()).containsOnly("tagb");
+    assertThat(rules.get(1).adminTags()).containsOnly("taga");
+    assertThat(rules.get(2).systemTags()).containsOnly("tagb", "tagc");
+    assertThat(rules.get(2).adminTags()).isEmpty();
+    assertThat(rules.get(3).systemTags()).isEmpty();
+    assertThat(rules.get(3).adminTags()).isEmpty();
+  }
+
+  @Test
   public void find_inactive_profile_rules_sorted_by_name() {
     Paging paging = Paging.create(10, 1);
 
@@ -290,12 +316,11 @@ public class ProfileRulesTest {
   @Test
   public void find_inactive_rules_sorted_ignoring_case() throws Exception {
     esSetup.client().prepareBulk()
-    // On profile 1
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_A.json")))
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_b.json")))
-    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_C.json")))
-    .setRefresh(true)
-    .execute().actionGet();
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_A.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_b.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_C.json")))
+      .setRefresh(true)
+      .execute().actionGet();
 
     Paging paging = Paging.create(10, 1);
 

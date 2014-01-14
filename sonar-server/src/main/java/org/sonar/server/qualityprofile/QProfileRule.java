@@ -56,6 +56,8 @@ public class QProfileRule {
   private final String inheritance;
   private final QProfileRuleNote activeRuleNote;
   private final List<QProfileRuleParam> params;
+  private final List<String> systemTags;
+  private final List<String> adminTags;
 
   public QProfileRule(Map<String, Object> ruleSource, Map<String, Object> activeRuleSource) {
 
@@ -127,6 +129,19 @@ public class QProfileRule {
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DEFAULT_VALUE),
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE)
         ));
+      }
+    }
+
+    systemTags = Lists.newArrayList();
+    if (ruleSource.containsKey(RuleDocument.FIELD_SYSTEM_TAGS)) {
+      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_SYSTEM_TAGS)) {
+        systemTags.add(tag);
+      }
+    }
+    adminTags = Lists.newArrayList();
+    if (ruleSource.containsKey(RuleDocument.FIELD_ADMIN_TAGS)) {
+      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_ADMIN_TAGS)) {
+        adminTags.add(tag);
       }
     }
   }
@@ -233,6 +248,14 @@ public class QProfileRule {
   @Override
   public String toString() {
     return new ReflectionToStringBuilder(this).toString();
+  }
+
+  public List<String> systemTags() {
+    return systemTags;
+  }
+
+  public List<String> adminTags() {
+    return adminTags;
   }
 
 }
