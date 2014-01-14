@@ -38,6 +38,7 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.rule.RuleRegistration;
 import org.sonar.server.rule.RuleRegistry;
 
 import java.util.*;
@@ -61,7 +62,7 @@ public class RegisterNewProfiles {
                              RuleRegistry ruleRegistry,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
-                             RegisterRules registerRulesBefore) {
+                             RuleRegistration registerRulesBefore) {
     this.settings = settings;
     this.ruleFinder = ruleFinder;
     this.ruleRegistry = ruleRegistry;
@@ -75,7 +76,7 @@ public class RegisterNewProfiles {
                              RuleRegistry ruleRegistry,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
-                             RegisterRules registerRulesBefore) {
+                             RuleRegistration registerRulesBefore) {
     this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, ruleRegistry, loadedTemplateDao, sessionFactory, registerRulesBefore);
   }
 

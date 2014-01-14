@@ -58,6 +58,7 @@ import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
 import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
 import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -261,7 +262,7 @@ public class RuleRegistryTest {
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
     assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
-    when(ruleDao.selectNonManual()).thenReturn(rules);
+    when(ruleDao.selectNonManual(any(SqlSession.class))).thenReturn(rules);
     final Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
     final Multimap<Integer, RuleTagDto> tags = ArrayListMultimap.create();
     registry.bulkRegisterRules(rules, params, tags);

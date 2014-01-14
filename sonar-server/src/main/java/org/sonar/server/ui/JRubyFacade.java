@@ -34,7 +34,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
@@ -58,18 +57,20 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.*;
+import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rules.ProfilesConsole;
-import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
-
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -245,16 +246,16 @@ public final class JRubyFacade {
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
-  public List<RuleRepository> getRuleRepositories() {
-    return get(RulesConsole.class).getRepositories();
+  public Collection<RuleRepositories.Repository> getRuleRepositories() {
+    return get(RuleRepositories.class).repositories();
   }
 
-  public RuleRepository getRuleRepository(String repositoryKey) {
-    return get(RulesConsole.class).getRepository(repositoryKey);
+  public RuleRepositories.Repository getRuleRepository(String repositoryKey) {
+    return get(RuleRepositories.class).repository(repositoryKey);
   }
 
-  public Set<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
-    return get(RulesConsole.class).getRepositoriesByLanguage(languageKey);
+  public Collection<RuleRepositories.Repository> getRuleRepositoriesByLanguage(String languageKey) {
+    return get(RuleRepositories.class).repositoriesForLang(languageKey);
   }
 
   // TODO move this to QProfiles
@@ -303,7 +304,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -457,10 +458,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
+          .setLogin(fields.get("login"))
+          .setName(fields.get("name"))
+          .setEmail(fields.get("email"))
+          .build());
     }
   }
 

@@ -38,7 +38,7 @@ class RulesConfigurationController < ApplicationController
 
     init_params()
 
-    @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
+    @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.name(), repo.key()] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
     @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],

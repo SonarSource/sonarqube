@@ -83,7 +83,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void testSelectNonManual() throws Exception {
     setupData("selectNonManual");
-    List<RuleDto> ruleDtos = dao.selectNonManual();
+    List<RuleDto> ruleDtos = dao.selectNonManual(getMyBatis().openSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);

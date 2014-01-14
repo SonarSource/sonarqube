@@ -47,11 +47,11 @@ public interface RuleDefinitions extends ServerExtension {
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 
     public NewRepository newRepository(String key, String language) {
-      return new NewRepositoryImpl(this, key, language);
+      return new NewRepositoryImpl(this, key, language, false);
     }
 
-    public NewExtendedRepository extendRepository(String key) {
-      return new NewRepositoryImpl(this, key);
+    public NewExtendedRepository extendRepository(String key, String language) {
+      return new NewRepositoryImpl(this, key, language, true);
     }
 
     @CheckForNull
@@ -101,17 +101,11 @@ public interface RuleDefinitions extends ServerExtension {
     private String name;
     private final Map<String, NewRule> newRules = Maps.newHashMap();
 
-    private NewRepositoryImpl(Context context, String key, String language) {
-      this.extended = false;
+    private NewRepositoryImpl(Context context, String key, String language, boolean extended) {
+      this.extended = extended;
       this.context = context;
       this.key = this.name = key;
       this.language = language;
-    }
-
-    private NewRepositoryImpl(Context context, String key) {
-      this.extended = true;
-      this.context = context;
-      this.key = this.name = key;
     }
 
     @Override
@@ -146,6 +140,8 @@ public interface RuleDefinitions extends ServerExtension {
   static interface ExtendedRepository {
     String key();
 
+    String language();
+
     @CheckForNull
     Rule rule(String ruleKey);
 
@@ -153,8 +149,6 @@ public interface RuleDefinitions extends ServerExtension {
   }
 
   static interface Repository extends ExtendedRepository {
-    String language();
-
     String name();
   }
 
@@ -169,7 +163,7 @@ public interface RuleDefinitions extends ServerExtension {
       ImmutableMap.Builder<String, Rule> ruleBuilder = ImmutableMap.builder();
       for (NewRule newRule : newRepository.newRules.values()) {
         newRule.validate();
-        ruleBuilder.put(newRule.key, new Rule(newRule));
+        ruleBuilder.put(newRule.key, new Rule(this, newRule));
       }
       this.rulesByKey = ruleBuilder.build();
     }
@@ -223,7 +217,8 @@ public interface RuleDefinitions extends ServerExtension {
     private final String repoKey, key;
     private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
     private boolean template;
-    private final Set<String> tags = Sets.newHashSet();
+    private Status status = Status.READY;
+    private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
     private NewRule(String repoKey, String key) {
@@ -251,6 +246,11 @@ public interface RuleDefinitions extends ServerExtension {
 
     public NewRule setHtmlDescription(String s) {
       this.htmlDescription = s;
+      return this;
+    }
+
+    public NewRule setStatus(Status status) {
+      this.status = status;
       return this;
     }
 
@@ -308,13 +308,20 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
+  static enum Status {
+    BETA, DEPRECATED, READY
+  }
+
   static class Rule {
+    private final Repository repository;
     private final String repoKey, key, name, htmlDescription, metadata, defaultSeverity;
     private final boolean template;
     private final Set<String> tags;
     private final Map<String, Param> params;
+    private final Status status;
 
-    private Rule(NewRule newRule) {
+    private Rule(Repository repository, NewRule newRule) {
+      this.repository = repository;
       this.repoKey = newRule.repoKey;
       this.key = newRule.key;
       this.name = newRule.name;
@@ -322,12 +329,17 @@ public interface RuleDefinitions extends ServerExtension {
       this.metadata = newRule.metadata;
       this.defaultSeverity = newRule.defaultSeverity;
       this.template = newRule.template;
-      this.tags = ImmutableSet.copyOf(newRule.tags);
+      this.status = newRule.status;
+      this.tags = ImmutableSortedSet.copyOf(newRule.tags);
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {
         paramsBuilder.put(newParam.key, new Param(newParam));
       }
       this.params = paramsBuilder.build();
+    }
+
+    public Repository repository() {
+      return repository;
     }
 
     public String key() {
@@ -349,6 +361,10 @@ public interface RuleDefinitions extends ServerExtension {
 
     public boolean template() {
       return template;
+    }
+
+    public Status status() {
+      return status;
     }
 
     @CheckForNull

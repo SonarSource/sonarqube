@@ -46,13 +46,8 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleDto> selectNonManual() {
-    SqlSession session = mybatis.openSession();
-    try {
-      return getMapper(session).selectNonManual();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<RuleDto> selectNonManual(SqlSession session) {
+    return getMapper(session).selectNonManual();
   }
 
   public RuleDto selectById(Integer id, SqlSession session) {

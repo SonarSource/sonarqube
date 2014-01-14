@@ -26,6 +26,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
 import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
+import org.sonar.server.rule.RuleRegistration;
 
 public final class RegisterTechnicalDebtModel {
 
@@ -37,7 +38,7 @@ public final class RegisterTechnicalDebtModel {
   /**
    * @param registerRulesBeforeModels used only to be started after the creation of check templates
    */
-  public RegisterTechnicalDebtModel(TechnicalDebtModelSynchronizer manager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
+  public RegisterTechnicalDebtModel(TechnicalDebtModelSynchronizer manager, RuleFinder ruleFinder, RuleRegistration registerRulesBeforeModels) {
     this.manager = manager;
     this.ruleFinder = ruleFinder;
   }

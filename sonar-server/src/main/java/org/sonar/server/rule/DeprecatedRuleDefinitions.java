@@ -54,7 +54,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRepository = context.newRepository(repository.getKey(), repository.getLanguage());
         newRepository.setName(repository.getName());
       } else {
-        newRepository = (NewRepository) context.extendRepository(repository.getKey());
+        newRepository = (NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
         // TODO remove org.sonar.api.rules.Rule#tags

@@ -66,6 +66,7 @@ public class RuleDefinitionsTest {
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setDefaultSeverity(Severity.BLOCKER)
       .setMetadata("/something")
+      .setStatus(RuleDefinitions.Status.BETA)
       .setTags("one", "two")
       .addTags("two", "three", "four");
     newFindbugs.newRule("ABC").setName("ABC").setHtmlDescription("ABC");
@@ -83,7 +84,9 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.params()).isEmpty();
     assertThat(npeRule.metadata()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
+    assertThat(npeRule.status()).isEqualTo(RuleDefinitions.Status.BETA);
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
+    assertThat(npeRule.repository()).isSameAs(findbugs);
 
     // test equals() and hashCode()
     RuleDefinitions.Rule otherRule = findbugs.rule("ABC");
@@ -102,6 +105,7 @@ public class RuleDefinitionsTest {
     assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.params()).isEmpty();
     assertThat(rule.metadata()).isNull();
+    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.READY);
     assertThat(rule.tags()).isEmpty();
   }
 
@@ -139,7 +143,7 @@ public class RuleDefinitionsTest {
     assertThat(context.extendedRepositories()).isEmpty();
 
     // for example fb-contrib
-    RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs");
+    RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs", "java");
     newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
@@ -149,6 +153,7 @@ public class RuleDefinitionsTest {
     assertThat(context.extendedRepositories("findbugs")).hasSize(1);
 
     RuleDefinitions.ExtendedRepository findbugs = context.extendedRepositories("findbugs").get(0);
+    assertThat(findbugs.language()).isEqualTo("java");
     assertThat(findbugs.rule("NPE")).isNotNull();
   }
 
