@@ -56,7 +56,7 @@ module MeasuresHelper
     elsif column.key=='date'
       human_short_date(row.snapshot.created_at)
     elsif column.key=='project_creation_date'
-      human_short_date(row.snapshot.resource.created_at)
+      human_short_date(row.snapshot.resource.created_at) if row.snapshot.resource.created_at
     elsif column.key=='key'
       "<span class='small'>#{row.snapshot.resource.kee}</span>"
     elsif column.key=='description'
