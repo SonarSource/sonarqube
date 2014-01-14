@@ -67,20 +67,20 @@ public class ProfileRulesTest {
 
     esSetup.client().prepareBulk()
       // On profile 1
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule25.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("should_find_active_rules/active_rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("shared/active_rule25.json")))
         // On profile 1 and 2
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule759.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule391.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("should_find_active_rules/active_rule523.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule759.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("shared/active_rule391.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("shared/active_rule523.json")))
         // On profile 1
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule1482.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("should_find_active_rules/active_rule2702.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule1482.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1482").source(testFileAsString("shared/active_rule2702.json")))
         // Rules on no profile
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule944.json")))
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule719.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule944.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule719.json")))
         // Removed rule
-      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("should_find_active_rules/rule860.json")))
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("shared/rule860.json")))
       .setRefresh(true).execute().actionGet();
   }
 
@@ -285,6 +285,25 @@ public class ProfileRulesTest {
     assertThat(rules).hasSize(2);
     assertThat(rules.get(0).name()).isEqualTo("Double Checked Locking");
     assertThat(rules.get(1).name()).isEqualTo("Boolean expressions should not be compared to true or false");
+  }
+
+  @Test
+  public void find_inactive_rules_sorted_ignoring_case() throws Exception {
+    esSetup.client().prepareBulk()
+    // On profile 1
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_A.json")))
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_b.json")))
+    .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_sorted_ignoring_case/rule_C.json")))
+    .setRefresh(true)
+    .execute().actionGet();
+
+    Paging paging = Paging.create(10, 1);
+
+    List<QProfileRule> rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setLanguage("xoo").setSort(ProfileRuleQuery.SORT_BY_RULE_NAME).setAsc(true), paging).rules();
+    assertThat(rules).hasSize(3);
+    assertThat(rules.get(0).name()).isEqualTo("A first rule");
+    assertThat(rules.get(1).name()).isEqualTo("b second rule");
+    assertThat(rules.get(2).name()).isEqualTo("C third rule");
   }
 
   @Test
