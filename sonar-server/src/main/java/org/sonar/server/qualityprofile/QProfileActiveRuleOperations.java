@@ -83,7 +83,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     this.system = system;
   }
 
-  public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity, UserSession userSession) {
+  public QProfileRule activateRule(int profileId, int ruleId, String severity, UserSession userSession) {
     validatePermission(userSession);
     validateSeverity(severity);
 
@@ -95,7 +95,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     } else {
       updateSeverity(activeRule, severity, userSession);
     }
-    return activeRuleChanged(profile, activeRule.getId());
+    return rulesLookup.findByActiveRuleId(activeRule.getId());
   }
 
   private ActiveRuleDto createActiveRule(QProfile profile, QProfileRule rule, String severity, UserSession userSession) {
@@ -143,13 +143,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public ProfileRuleChanged deactivateRule(int profileId, int ruleId, UserSession userSession) {
+  public QProfileRule deactivateRule(int profileId, int ruleId, UserSession userSession) {
     validatePermission(userSession);
 
-    QProfile profile = findProfileNotNull(profileId);
     ActiveRuleDto activeRule = findActiveRule(profileId, ruleId);
     deactivateRule(activeRule, userSession);
-    return ruleChanged(profile, ruleId);
+    return rulesLookup.findByRuleId(ruleId);
   }
 
   private void deactivateRule(ActiveRuleDto activeRule, UserSession userSession) {
@@ -168,10 +167,9 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public ProfileRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value, UserSession userSession) {
+  public QProfileRule updateActiveRuleParam(int activeRuleId, String key, @Nullable String value, UserSession userSession) {
     validatePermission(userSession);
     String sanitizedValue = Strings.emptyToNull(value);
-    QProfile profile = findProfileNotNull(profileId);
     ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     if (activeRuleParam == null && sanitizedValue != null) {
@@ -183,7 +181,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
     // If no active rule param and no value -> do nothing
 
-    return activeRuleChanged(profile, activeRuleId);
+    return rulesLookup.findByActiveRuleId(activeRuleId);
   }
 
   private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession) {
@@ -234,13 +232,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public ProfileRuleChanged revertActiveRule(int profileId, int activeRuleId, UserSession userSession) {
+  public QProfileRule revertActiveRule(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
-    QProfile profile = findProfileNotNull(profileId);
     ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
     revertActiveRule(activeRule, userSession);
-    return activeRuleChanged(profile, activeRuleId);
+    return rulesLookup.findByActiveRuleId(activeRule.getId());
   }
 
   private void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession) {
@@ -451,14 +448,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return activeRuleDao.selectByProfileAndRule(profileId, ruleId);
   }
 
-  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId) {
-    ActiveRuleDto activeRuleDto = findActiveRule(profileId, ruleId);
-    if (activeRuleDto == null) {
-      throw new BadRequestException("No rule has been activated on this profile.");
-    }
-    return activeRuleDto;
-  }
-
   private ActiveRuleDto findActiveRuleNotNull(int activeRuleId) {
     ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId);
     if (activeRule == null) {
@@ -478,39 +467,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private static int getSeverityOrdinal(String severity) {
     return Severity.ALL.indexOf(severity);
-  }
-
-  private ProfileRuleChanged activeRuleChanged(QProfile profile, int activeRuleId) {
-    return new ProfileRuleChanged(profile, profileLookup.parent(profile), rulesLookup.findByActiveRuleId(activeRuleId));
-  }
-
-  private ProfileRuleChanged ruleChanged(QProfile profile, int ruleId) {
-    return new ProfileRuleChanged(profile, profileLookup.parent(profile), rulesLookup.findByRuleId(ruleId));
-  }
-
-  public static class ProfileRuleChanged {
-
-    private QProfile profile;
-    private QProfile parentProfile;
-    private QProfileRule rule;
-
-    public ProfileRuleChanged(QProfile profile, @Nullable QProfile parentProfile, QProfileRule rule) {
-      this.profile = profile;
-      this.parentProfile = parentProfile;
-      this.rule = rule;
-    }
-
-    public QProfile profile() {
-      return profile;
-    }
-
-    public QProfile parentProfile() {
-      return parentProfile;
-    }
-
-    public QProfileRule rule() {
-      return rule;
-    }
   }
 
 }

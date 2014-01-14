@@ -218,20 +218,20 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
-  public QProfileActiveRuleOperations.ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
+  public QProfileRule activateRule(int profileId, int ruleId, String severity) {
     return activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
   }
 
-  public QProfileActiveRuleOperations.ProfileRuleChanged deactivateRule(int profileId, int ruleId) {
+  public QProfileRule deactivateRule(int profileId, int ruleId) {
     return activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
   }
 
-  public QProfileActiveRuleOperations.ProfileRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
-    return activeRuleOperations.updateActiveRuleParam(profileId, activeRuleId, key, value, UserSession.get());
+  public QProfileRule updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
+    return activeRuleOperations.updateActiveRuleParam(activeRuleId, key, value, UserSession.get());
   }
 
-  public QProfileActiveRuleOperations.ProfileRuleChanged revertActiveRule(int profileId, int activeRuleId) {
-    return activeRuleOperations.revertActiveRule(profileId, activeRuleId, UserSession.get());
+  public QProfileRule revertActiveRule(int activeRuleId) {
+    return activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
   }
 
   public QProfileRule updateActiveRuleNote(int activeRuleId, String note) {

@@ -97,14 +97,12 @@ class NewRulesConfigurationController < ApplicationController
     verify_post_request
     require_parameters :id, :active_rule_id
 
-    profile_id = params[:id].to_i
-    rule_id = params[:active_rule_id].to_i
-
+    active_rule_id = params[:active_rule_id].to_i
     call_backend do
-      Internal.quality_profiles.revertActiveRule(profile_id, rule_id)
+      Internal.quality_profiles.revertActiveRule(active_rule_id)
     end
 
-    redirect_to request.query_parameters.merge({:action => 'index', :id => profile_id, :commit => nil})
+    redirect_to request.query_parameters.merge({:action => 'index', :id => params[:id].to_i, :commit => nil})
   end
 
 
@@ -119,21 +117,21 @@ class NewRulesConfigurationController < ApplicationController
     verify_post_request
     require_parameters :id, :rule_id
 
-    result = nil
+    rule = nil
+    profile_id = params[:id].to_i
     call_backend do
       severity = params[:level]
       if severity.blank?
         # deactivate the rule
-        result = Internal.quality_profiles.deactivateRule(params[:id].to_i, params[:rule_id].to_i)
+        rule = Internal.quality_profiles.deactivateRule(profile_id, params[:rule_id].to_i)
       else
         # activate the rule
-        result = Internal.quality_profiles.activateRule(params[:id].to_i, params[:rule_id].to_i, severity)
+        rule = Internal.quality_profiles.activateRule(profile_id, params[:rule_id].to_i, severity)
       end
     end
 
-    profile = result.profile()
-    parent_profile = result.parentProfile()
-    rule = result.rule()
+    profile = Internal.quality_profiles.profile(profile_id)
+    parent_profile = Internal.quality_profiles.parent(profile)
 
     render :update do |page|
       page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile})
@@ -287,14 +285,13 @@ class NewRulesConfigurationController < ApplicationController
     access_denied unless has_role?(:profileadmin)
     require_parameters :param_id, :active_rule_id, :profile_id
 
-    result = nil
+    rule = nil
     call_backend do
-      result = Internal.quality_profiles.updateActiveRuleParam(params[:profile_id].to_i, params[:active_rule_id].to_i, params[:param_id], params[:value])
+      rule = Internal.quality_profiles.updateActiveRuleParam(params[:active_rule_id].to_i, params[:param_id], params[:value])
     end
 
-    profile = result.profile()
-    parent_profile = result.parentProfile()
-    rule = result.rule()
+    profile = Internal.quality_profiles.profile(params[:profile_id].to_i)
+    parent_profile = Internal.quality_profiles.parent(profile)
     render :partial => 'rule', :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile}
   end
 

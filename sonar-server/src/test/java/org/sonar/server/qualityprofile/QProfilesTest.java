@@ -334,14 +334,14 @@ public class QProfilesTest {
 
   @Test
   public void update_active_rule_param() throws Exception {
-    qProfiles.updateActiveRuleParam(1, 50, "max", "20");
-    verify(activeRuleOperations).updateActiveRuleParam(eq(1), eq(50), eq("max"), eq("20"), any(UserSession.class));
+    qProfiles.updateActiveRuleParam(50, "max", "20");
+    verify(activeRuleOperations).updateActiveRuleParam(eq(50), eq("max"), eq("20"), any(UserSession.class));
   }
 
   @Test
   public void revert_active_rule() throws Exception {
-    qProfiles.revertActiveRule(1, 50);
-    verify(activeRuleOperations).revertActiveRule(eq(1), eq(50), any(UserSession.class));
+    qProfiles.revertActiveRule(50);
+    verify(activeRuleOperations).revertActiveRule(eq(50), any(UserSession.class));
   }
 
   @Test
