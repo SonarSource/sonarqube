@@ -162,6 +162,15 @@ jQuery(function() {
   });
 
 
+  NavigatorApp.addInitializer(function() {
+    var app = this;
+    window.onBulkIssues = function() {
+      app.fetchFirstPage();
+      jQuery('.ui-dialog, .ui-widget-overlay').remove();
+    }
+  });
+
+
   NavigatorApp.storeQuery = function(query, sorting) {
     var fullQuery = query;
     if (sorting) {

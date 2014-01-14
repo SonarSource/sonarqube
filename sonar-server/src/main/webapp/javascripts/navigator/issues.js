@@ -137,6 +137,7 @@ jQuery(function() {
 
     onRender: function() {
       this.$el.toggle(this.collection.length > 0);
+      this.$('.open-modal').modal();
     },
 
 
@@ -163,7 +164,8 @@ jQuery(function() {
       var data = Backbone.Marionette.ItemView.prototype.serializeData.apply(this, arguments);
       return _.extend(data || {}, {
         paging: this.collection.paging,
-        sorting: this.collection.sorting
+        sorting: this.collection.sorting,
+        query: Backbone.history.fragment || ''
       });
     }
   });
