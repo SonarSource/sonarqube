@@ -41,7 +41,6 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -255,9 +254,7 @@ public class QProfileOperations implements ServerComponent {
 
   private QProfile findNotNull(int profileId) {
     QProfile profile = profileLookup.profile(profileId);
-    if (profile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
+    QProfileValidations.checkProfileIsNotNull(profile);
     return profile;
   }
 

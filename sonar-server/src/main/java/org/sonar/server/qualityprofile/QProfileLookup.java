@@ -27,7 +27,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
@@ -139,13 +138,6 @@ public class QProfileLookup implements ServerComponent {
   @CheckForNull
   private QualityProfileDto findQualityProfile(String name, String language) {
     return dao.selectByNameAndLanguage(name, language);
-  }
-
-  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
-    if (qualityProfile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
-    return qualityProfile;
   }
 
 }

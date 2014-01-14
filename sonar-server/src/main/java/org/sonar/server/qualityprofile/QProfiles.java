@@ -24,7 +24,10 @@ import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
@@ -215,49 +218,20 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
-  public ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    RuleDto rule = findRuleNotNull(ruleId);
-    ActiveRuleDto activeRule = findActiveRule(qualityProfile, rule);
-    if (activeRule == null) {
-      activeRule = activeRuleOperations.createActiveRule(qualityProfile, rule, severity, UserSession.get());
-    } else {
-      activeRuleOperations.updateSeverity(activeRule, severity, UserSession.get());
-    }
-    return activeRuleChanged(qualityProfile, activeRule);
+  public QProfileActiveRuleOperations.ProfileRuleChanged activateRule(int profileId, int ruleId, String severity) {
+    return activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
   }
 
-  public ProfileRuleChanged deactivateRule(int profileId, int ruleId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    RuleDto rule = findRuleNotNull(ruleId);
-    ActiveRuleDto activeRule = findActiveRuleNotNull(qualityProfile, rule);
-    activeRuleOperations.deactivateRule(activeRule, UserSession.get());
-    return activeRuleChanged(qualityProfile, rule);
+  public QProfileActiveRuleOperations.ProfileRuleChanged deactivateRule(int profileId, int ruleId) {
+    return activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
   }
 
-  public ProfileRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
-    String sanitizedValue = Strings.emptyToNull(value);
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key);
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    UserSession userSession = UserSession.get();
-    if (activeRuleParam == null && sanitizedValue != null) {
-      activeRuleOperations.createActiveRuleParam(activeRule, key, value, userSession);
-    } else if (activeRuleParam != null && sanitizedValue == null) {
-      activeRuleOperations.deleteActiveRuleParam(activeRule, activeRuleParam, userSession);
-    } else if (activeRuleParam != null) {
-      activeRuleOperations.updateActiveRuleParam(activeRule, activeRuleParam, value, userSession);
-    }
-    // If no active rule param and no value -> do nothing
-
-    return activeRuleChanged(qualityProfile, activeRule);
+  public QProfileActiveRuleOperations.ProfileRuleChanged updateActiveRuleParam(int profileId, int activeRuleId, String key, @Nullable String value) {
+    return activeRuleOperations.updateActiveRuleParam(profileId, activeRuleId, key, value, UserSession.get());
   }
 
-  public ProfileRuleChanged revertActiveRule(int profileId, int activeRuleId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    activeRuleOperations.revertActiveRule(activeRule, UserSession.get());
-    return activeRuleChanged(qualityProfile, activeRule);
+  public QProfileActiveRuleOperations.ProfileRuleChanged revertActiveRule(int profileId, int activeRuleId) {
+    return activeRuleOperations.revertActiveRule(profileId, activeRuleId, UserSession.get());
   }
 
   public QProfileRule updateActiveRuleNote(int activeRuleId, String note) {
@@ -339,18 +313,7 @@ public class QProfiles implements ServerComponent {
 
   private QualityProfileDto findNotNull(int id) {
     QualityProfileDto qualityProfile = findQualityProfile(id);
-    return checkNotNull(qualityProfile);
-  }
-
-  private QualityProfileDto findNotNull(String name, String language) {
-    QualityProfileDto qualityProfile = findQualityProfile(name, language);
-    return checkNotNull(qualityProfile);
-  }
-
-  private QualityProfileDto checkNotNull(QualityProfileDto qualityProfile) {
-    if (qualityProfile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
+    QProfileValidations.checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }
 
@@ -415,9 +378,7 @@ public class QProfiles implements ServerComponent {
 
   private RuleDto findRuleNotNull(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
-    if (rule == null) {
-      throw new NotFoundException("This rule does not exists.");
-    }
+    QProfileValidations.checkRuleIsNotNull(rule);
     return rule;
   }
 
@@ -437,68 +398,6 @@ public class QProfiles implements ServerComponent {
       throw new NotFoundException("This active rule does not exists.");
     }
     return activeRule;
-  }
-
-  private ActiveRuleDto findActiveRuleNotNull(QualityProfileDto qualityProfile, RuleDto rule) {
-    ActiveRuleDto activeRuleDto = findActiveRule(qualityProfile, rule);
-    if (activeRuleDto == null) {
-      throw new BadRequestException("No rule has been activated on this profile.");
-    }
-    return activeRuleDto;
-  }
-
-  @CheckForNull
-  private ActiveRuleDto findActiveRule(QualityProfileDto qualityProfile, RuleDto rule) {
-    return activeRuleDao.selectByProfileAndRule(qualityProfile.getId(), rule.getId());
-  }
-
-  @CheckForNull
-  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key) {
-    return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key);
-  }
-
-  @CheckForNull
-  private QProfile findParent(QProfile profile) {
-    QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
-    if (parent != null) {
-      return QProfile.from(parent);
-    }
-    return null;
-  }
-
-  private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, ActiveRuleDto activeRule) {
-    QProfile profile = QProfile.from(qualityProfile);
-    return new ProfileRuleChanged(profile, findParent(profile), rules.findByActiveRuleId(activeRule.getId()));
-  }
-
-  private ProfileRuleChanged activeRuleChanged(QualityProfileDto qualityProfile, RuleDto rule) {
-    QProfile profile = QProfile.from(qualityProfile);
-    return new ProfileRuleChanged(profile, findParent(profile), rules.findByRuleId(rule.getId()));
-  }
-
-  public static class ProfileRuleChanged {
-
-    private QProfile profile;
-    private QProfile parentProfile;
-    private QProfileRule rule;
-
-    public ProfileRuleChanged(QProfile profile, @Nullable QProfile parentProfile, QProfileRule rule) {
-      this.profile = profile;
-      this.parentProfile = parentProfile;
-      this.rule = rule;
-    }
-
-    public QProfile profile() {
-      return profile;
-    }
-
-    public QProfile parentProfile() {
-      return parentProfile;
-    }
-
-    public QProfileRule rule() {
-      return rule;
-    }
   }
 
 }

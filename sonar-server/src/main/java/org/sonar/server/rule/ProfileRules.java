@@ -80,7 +80,7 @@ public class ProfileRules implements ServerExtension {
   }
 
   @CheckForNull
-  public QProfileRule findByRuleId(Integer ruleId) {
+  public QProfileRule findByRuleId(int ruleId) {
     Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, Integer.toString(ruleId))
       .execute().actionGet().getSourceAsMap();
     if (ruleSource != null) {
