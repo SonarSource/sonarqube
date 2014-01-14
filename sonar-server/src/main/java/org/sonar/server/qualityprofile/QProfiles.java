@@ -194,6 +194,18 @@ public class QProfiles implements ServerComponent {
 
   // PROFILE RULES
 
+  public QProfileRule findByRule(int ruleId) {
+    return rules.findByRuleId(ruleId);
+  }
+
+  public QProfileRule findByActiveRuleId(int activeRuleId) {
+    return rules.findByActiveRuleId(activeRuleId);
+  }
+
+  public QProfileRule findByProfileAndRule(int profileId, int ruleId) {
+    return rules.findByProfileIdAndRuleId(profileId, ruleId);
+  }
+
   public ProfileRules.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
     return rules.search(query, paging);
   }
@@ -218,20 +230,20 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
-  public QProfileRule activateRule(int profileId, int ruleId, String severity) {
-    return activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
+  public void activateRule(int profileId, int ruleId, String severity) {
+    activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
   }
 
-  public QProfileRule deactivateRule(int profileId, int ruleId) {
-    return activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
+  public void deactivateRule(int profileId, int ruleId) {
+    activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
   }
 
-  public QProfileRule updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
-    return activeRuleOperations.updateActiveRuleParam(activeRuleId, key, value, UserSession.get());
+  public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
+    activeRuleOperations.updateActiveRuleParam(activeRuleId, key, value, UserSession.get());
   }
 
-  public QProfileRule revertActiveRule(int activeRuleId) {
-    return activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
+  public void revertActiveRule(int activeRuleId) {
+    activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
   }
 
   public QProfileRule updateActiveRuleNote(int activeRuleId, String note) {

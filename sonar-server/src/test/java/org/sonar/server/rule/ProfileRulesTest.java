@@ -98,6 +98,21 @@ public class ProfileRulesTest {
   }
 
   @Test
+  public void find_by_profile_id_and_rule_id() {
+    // Rules on profiles
+    QProfileRule rule = profileRules.findByProfileIdAndRuleId(1, 759);
+    assertThat(rule).isNotNull();
+    assertThat(rule.key()).isEqualTo("UnusedNullCheckInEquals");
+    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
+
+    // Rules on no profiles
+    assertThat(profileRules.findByProfileIdAndRuleId(1, 944)).isNull();
+
+    // Not existing rule
+    assertThat(profileRules.findByProfileIdAndRuleId(1, 99999)).isNull();
+  }
+
+  @Test
   public void find_profile_rules() {
     Paging paging = Paging.create(10, 1);
 

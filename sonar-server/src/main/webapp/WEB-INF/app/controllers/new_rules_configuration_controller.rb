@@ -119,14 +119,17 @@ class NewRulesConfigurationController < ApplicationController
 
     rule = nil
     profile_id = params[:id].to_i
+    rule_id = params[:rule_id].to_i
     call_backend do
       severity = params[:level]
       if severity.blank?
         # deactivate the rule
-        rule = Internal.quality_profiles.deactivateRule(profile_id, params[:rule_id].to_i)
+        Internal.quality_profiles.deactivateRule(profile_id, rule_id)
+        rule = Internal.quality_profiles.findByRule(rule_id)
       else
         # activate the rule
-        rule = Internal.quality_profiles.activateRule(profile_id, params[:rule_id].to_i, severity)
+        Internal.quality_profiles.activateRule(profile_id, rule_id, severity)
+        rule = Internal.quality_profiles.findByProfileAndRule(profile_id, rule_id)
       end
     end
 
@@ -286,11 +289,14 @@ class NewRulesConfigurationController < ApplicationController
     require_parameters :param_id, :active_rule_id, :profile_id
 
     rule = nil
+    profile_id = params[:profile_id].to_i
+    active_rule_id = params[:active_rule_id].to_i
     call_backend do
-      rule = Internal.quality_profiles.updateActiveRuleParam(params[:active_rule_id].to_i, params[:param_id], params[:value])
+      Internal.quality_profiles.updateActiveRuleParam(active_rule_id, params[:param_id], params[:value])
+      rule = Internal.quality_profiles.findByActiveRuleId(active_rule_id)
     end
 
-    profile = Internal.quality_profiles.profile(params[:profile_id].to_i)
+    profile = Internal.quality_profiles.profile(profile_id)
     parent_profile = Internal.quality_profiles.parent(profile)
     render :partial => 'rule', :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile}
   end

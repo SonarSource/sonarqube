@@ -301,6 +301,24 @@ public class QProfilesTest {
   }
 
   @Test
+  public void find_by_rule() throws Exception {
+    qProfiles.findByRule(1);
+    verify(rules).findByRuleId(1);
+  }
+
+  @Test
+  public void find_by_active_rule() throws Exception {
+    qProfiles.findByActiveRuleId(1);
+    verify(rules).findByActiveRuleId(1);
+  }
+
+  @Test
+  public void find_by_profile_an_rule() throws Exception {
+    qProfiles.findByProfileAndRule(1, 2);
+    verify(rules).findByProfileIdAndRuleId(1, 2);
+  }
+
+  @Test
   public void search_active_rules() throws Exception {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);

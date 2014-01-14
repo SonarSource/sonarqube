@@ -80,6 +80,24 @@ public class ProfileRules implements ServerExtension {
   }
 
   @CheckForNull
+  public QProfileRule findByProfileIdAndRuleId(int profileId, int ruleId) {
+    Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, Integer.toString(ruleId))
+      .execute().actionGet().getSourceAsMap();
+    if (ruleSource != null) {
+      SearchHits activeRuleHits = searchActiveRules(ProfileRuleQuery.create(profileId), newArrayList(ruleId), FIELD_SOURCE, FIELD_PARENT);
+      long resultSize = activeRuleHits.totalHits();
+      if (resultSize > 0) {
+        if (resultSize == 1) {
+          return new QProfileRule(ruleSource, activeRuleHits.getAt(0).sourceAsMap());
+        } else {
+          throw new IllegalStateException("There is more than one result.");
+        }
+      }
+    }
+    return null;
+  }
+
+  @CheckForNull
   public QProfileRule findByRuleId(int ruleId) {
     Map<String, Object> ruleSource = index.client().prepareGet(INDEX_RULES, TYPE_RULE, Integer.toString(ruleId))
       .execute().actionGet().getSourceAsMap();
