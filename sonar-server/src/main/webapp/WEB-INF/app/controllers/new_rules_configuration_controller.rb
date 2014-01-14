@@ -339,33 +339,6 @@ class NewRulesConfigurationController < ApplicationController
 
   private
 
-  # return the number of newly activated rules
-  def activate_rules(profile, rule_ids)
-    count=0
-    rule_ids_to_activate=(rule_ids - profile.active_rules.map { |ar| ar.rule_id })
-    unless rule_ids_to_activate.empty?
-      rules_to_activate=Rule.all(:conditions => ["status <> ? AND id IN (?)", Rule::STATUS_REMOVED, rule_ids_to_activate])
-      count = rules_to_activate.size
-      rules_to_activate.each do |rule|
-        active_rule = profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
-        java_facade.ruleActivated(profile.id, active_rule.id, current_user.name)
-      end
-    end
-    count
-  end
-
-  def deactivate_rules(profile, rule_ids)
-    count=0
-    profile.active_rules.each do |ar|
-      if rule_ids.include?(ar.rule_id) && !ar.inheritance.present?
-        java_facade.ruleDeactivated(profile.id, ar.id, current_user.name)
-        ar.destroy
-        count+=1
-      end
-    end
-    count
-  end
-
   def init_params
     @id = params[:id]
     @priorities = filter_any(params[:priorities]) || ['']

@@ -342,11 +342,6 @@ public class QProfiles implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto findQualityProfile(String name, String language) {
-    return qualityProfileDao.selectByNameAndLanguage(name, language);
-  }
-
-  @CheckForNull
   private QualityProfileDto findQualityProfile(int id) {
     return qualityProfileDao.selectById(id);
   }
