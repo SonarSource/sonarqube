@@ -1,11 +1,11 @@
 {
   "cluster": {
+    "name": "sonarqube"
+  },
+  "node": {
     "name": "sonarqube",
     "local": true,
     "data": true
-  },
-  "node": {
-    "name": "sonarqube"
   },
   "discovery": {
     "zen": {
