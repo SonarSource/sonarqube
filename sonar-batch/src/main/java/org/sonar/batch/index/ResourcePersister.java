@@ -22,9 +22,10 @@ package org.sonar.batch.index;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 
 public interface ResourcePersister {
-  
+
   Snapshot saveProject(Project project, Project parent);
 
   /**
@@ -39,11 +40,9 @@ public interface ResourcePersister {
 
   Snapshot getSnapshot(Resource resource);
 
-  /**
-   * @throws ResourceNotPersistedException if the resource is not persisted.
-   */
   Snapshot getSnapshotOrFail(Resource resource);
- 
+
+  Snapshot getSnapshotOrFail(InputFile resource);
 
   /**
    * The current snapshot which is flagged as "last", different then the current analysis.

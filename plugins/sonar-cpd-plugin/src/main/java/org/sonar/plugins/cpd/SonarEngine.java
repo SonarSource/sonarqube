@@ -28,19 +28,17 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -57,7 +55,6 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import javax.annotation.Nullable;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -85,14 +82,12 @@ public class SonarEngine extends CpdEngine {
   private static final int TIMEOUT = 5 * 60;
 
   private final IndexFactory indexFactory;
-  private final ModuleFileSystem fileSystem;
-  private final PathResolver pathResolver;
+  private final DefaultModuleFileSystem fileSystem;
   private final Settings settings;
 
-  public SonarEngine(IndexFactory indexFactory, ModuleFileSystem moduleFileSystem, PathResolver pathResolver, Settings settings) {
+  public SonarEngine(IndexFactory indexFactory, DefaultModuleFileSystem moduleFileSystem, Settings settings) {
     this.indexFactory = indexFactory;
     this.fileSystem = moduleFileSystem;
-    this.pathResolver = pathResolver;
     this.settings = settings;
   }
 
@@ -101,80 +96,70 @@ public class SonarEngine extends CpdEngine {
     return Java.KEY.equals(language.getKey());
   }
 
-  static String getFullKey(Project project, Resource resource) {
-    return new StringBuilder(ResourceModel.KEY_SIZE)
-      .append(project.getKey())
-      .append(':')
-      .append(resource.getKey())
-      .toString();
-  }
-
   @Override
   public void analyse(Project project, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    List<File> sourceFiles = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
-    if (sourceFiles.isEmpty()) {
+    Iterable<InputFile> sourceFiles = fileSystem.inputFiles(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
+    if (!sourceFiles.iterator().hasNext()) {
       return;
     }
     SonarDuplicationsIndex index = createIndex(project, sourceFiles);
     detect(index, context, project, sourceFiles);
   }
 
-  private SonarDuplicationsIndex createIndex(Project project, List<File> sourceFiles) {
+  private SonarDuplicationsIndex createIndex(Project project, Iterable<InputFile> sourceFiles) {
     final SonarDuplicationsIndex index = indexFactory.create(project);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
 
-    for (File file : sourceFiles) {
-      LOG.debug("Populating index from {}", file);
-      Resource resource = getResource(file);
-      String resourceKey = getFullKey(project, resource);
+    for (InputFile inputFile : sourceFiles) {
+      LOG.debug("Populating index from {}", inputFile);
+      String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
 
       List<Statement> statements;
 
       Reader reader = null;
       try {
-        reader = new InputStreamReader(new FileInputStream(file), fileSystem.sourceCharset());
+        reader = new InputStreamReader(new FileInputStream(inputFile.file()), fileSystem.sourceCharset());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
-        throw new SonarException("Cannot find file " + file, e);
+        throw new SonarException("Cannot find file " + inputFile.file(), e);
       } finally {
         IOUtils.closeQuietly(reader);
       }
 
-      List<Block> blocks = blockChunker.chunk(resourceKey, statements);
-      index.insert(resource, blocks);
+      List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
+      index.insert(inputFile, blocks);
     }
 
     return index;
   }
 
-  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, List<File> sourceFiles) {
+  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, Iterable<InputFile> sourceFiles) {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
-      for (File file : sourceFiles) {
-        LOG.debug("Detection of duplications for {}", file);
-        Resource resource = getResource(file);
-        String resourceKey = getFullKey(project, resource);
+      for (InputFile inputFile : sourceFiles) {
+        LOG.debug("Detection of duplications for {}", inputFile);
+        String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
 
-        Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
+        Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 
         List<CloneGroup> clones;
         try {
           clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
           clones = null;
-          LOG.warn("Timeout during detection of duplications for " + file, e);
+          LOG.warn("Timeout during detection of duplications for " + inputFile, e);
         } catch (InterruptedException e) {
-          throw new SonarException("Fail during detection of duplication for " + file, e);
+          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         } catch (ExecutionException e) {
-          throw new SonarException("Fail during detection of duplication for " + file, e);
+          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        save(context, resource, clones);
+        save(context, inputFile, clones);
       }
     } finally {
       executorService.shutdown();
@@ -195,12 +180,7 @@ public class SonarEngine extends CpdEngine {
     }
   }
 
-  protected Resource getResource(File file) {
-    String relativePathFromBaseDir = pathResolver.relativePath(fileSystem.baseDir(), file);
-    return JavaFile.create(relativePathFromBaseDir, "unused", false);
-  }
-
-  static void save(SensorContext context, Resource resource, @Nullable Iterable<CloneGroup> duplications) {
+  static void save(SensorContext context, InputFile inputFile, @Nullable Iterable<CloneGroup> duplications) {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
@@ -219,13 +199,13 @@ public class SonarEngine extends CpdEngine {
       }
     }
     // Save
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1.0);
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
+    context.saveMeasure(inputFile, CoreMetrics.DUPLICATED_FILES, 1.0);
+    context.saveMeasure(inputFile, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
+    context.saveMeasure(inputFile, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
 
     Measure data = new Measure(CoreMetrics.DUPLICATIONS_DATA, toXml(duplications))
       .setPersistenceMode(PersistenceMode.DATABASE);
-    context.saveMeasure(resource, data);
+    context.saveMeasure(inputFile, data);
   }
 
   private static String toXml(Iterable<CloneGroup> duplications) {

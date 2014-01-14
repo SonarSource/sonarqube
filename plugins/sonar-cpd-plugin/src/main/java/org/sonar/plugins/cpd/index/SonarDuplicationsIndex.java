@@ -20,7 +20,7 @@
 package org.sonar.plugins.cpd.index;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
@@ -43,18 +43,18 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
     this.db = db;
   }
 
-  public void insert(Resource resource, Collection<Block> blocks) {
+  public void insert(InputFile inputFile, Collection<Block> blocks) {
     for (Block block : blocks) {
       mem.insert(block);
     }
     if (db != null) {
-      db.insert(resource, blocks);
+      db.insert(inputFile, blocks);
     }
   }
 
-  public Collection<Block> getByResource(Resource resource, String resourceKey) {
+  public Collection<Block> getByInputFile(InputFile inputFile, String resourceKey) {
     if (db != null) {
-      db.prepareCache(resource);
+      db.prepareCache(inputFile);
     }
     return mem.getByResourceId(resourceKey);
   }

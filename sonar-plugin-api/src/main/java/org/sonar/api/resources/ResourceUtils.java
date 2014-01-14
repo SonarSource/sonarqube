@@ -136,6 +136,7 @@ public final class ResourceUtils {
    */
   public static boolean isPersistable(Resource resource) {
     return StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) ||
-        StringUtils.equals(Scopes.FILE, resource.getScope());
+      StringUtils.equals(Scopes.FILE, resource.getScope());
   }
+
 }

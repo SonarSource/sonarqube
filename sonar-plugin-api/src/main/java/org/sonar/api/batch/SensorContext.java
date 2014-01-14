@@ -26,6 +26,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.util.Collection;
 import java.util.Date;
@@ -143,12 +144,24 @@ public interface SensorContext {
 
   /**
    * Add or update a measure.
+   * @since 4.2
+   */
+  Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
+
+  /**
+   * Add or update a measure.
    * <p>
    * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
    * excluded.
    * </p>
    */
   Measure saveMeasure(Resource resource, Measure measure);
+
+  /**
+   * Add or update a measure.
+   * @since 4.2
+   */
+  Measure saveMeasure(InputFile inputFile, Measure measure);
 
   // ----------- RULE VIOLATIONS --------------
 

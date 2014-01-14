@@ -535,6 +535,11 @@ public class DefaultIndex extends SonarIndex {
       return bucket;
     }
 
+    if (StringUtils.isBlank(resource.getKey())) {
+      LOG.warn("Unable to index a resource without key " + resource);
+      return null;
+    }
+
     checkLock(resource);
 
     Resource parent = null;

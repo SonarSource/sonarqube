@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.duplication.DuplicationUnitDto;
@@ -56,12 +56,12 @@ public class DbDuplicationsIndex {
     this.languageKey = currentProject.getLanguageKey();
   }
 
-  int getSnapshotIdFor(Resource resource) {
-    return resourcePersister.getSnapshotOrFail(resource).getId();
+  int getSnapshotIdFor(InputFile inputFile) {
+    return resourcePersister.getSnapshotOrFail(inputFile).getId();
   }
 
-  public void prepareCache(Resource resource) {
-    int resourceSnapshotId = getSnapshotIdFor(resource);
+  public void prepareCache(InputFile inputFile) {
+    int resourceSnapshotId = getSnapshotIdFor(inputFile);
     List<DuplicationUnitDto> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId, languageKey);
     cache.clear();
     // TODO Godin: maybe remove conversion of units to blocks?
@@ -74,11 +74,11 @@ public class DbDuplicationsIndex {
 
       // TODO Godin: in fact we could work directly with id instead of key - this will allow to decrease memory consumption
       Block block = Block.builder()
-          .setResourceId(resourceKey)
-          .setBlockHash(new ByteArray(hash))
-          .setIndexInFile(indexInFile)
-          .setLines(startLine, endLine)
-          .build();
+        .setResourceId(resourceKey)
+        .setBlockHash(new ByteArray(hash))
+        .setIndexInFile(indexInFile)
+        .setLines(startLine, endLine)
+        .build();
 
       // Group blocks by hash
       Collection<Block> sameHash = cache.get(block.getBlockHash());
@@ -99,19 +99,19 @@ public class DbDuplicationsIndex {
     }
   }
 
-  public void insert(Resource resource, Collection<Block> blocks) {
-    int resourceSnapshotId = getSnapshotIdFor(resource);
+  public void insert(InputFile inputFile, Collection<Block> blocks) {
+    int resourceSnapshotId = getSnapshotIdFor(inputFile);
 
     // TODO Godin: maybe remove conversion of blocks to units?
     List<DuplicationUnitDto> units = Lists.newArrayList();
     for (Block block : blocks) {
       DuplicationUnitDto unit = new DuplicationUnitDto(
-          currentProjectSnapshotId,
-          resourceSnapshotId,
-          block.getBlockHash().toString(),
-          block.getIndexInFile(),
-          block.getStartLine(),
-          block.getEndLine());
+        currentProjectSnapshotId,
+        resourceSnapshotId,
+        block.getBlockHash().toString(),
+        block.getIndexInFile(),
+        block.getStartLine(),
+        block.getEndLine());
       units.add(unit);
     }
 
