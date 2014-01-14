@@ -256,6 +256,7 @@ public class File extends Resource {
   public String toString() {
     return new ToStringBuilder(this)
       .append("key", getKey())
+      .append("deprecatedKey", getDeprecatedKey())
       .append("path", getPath())
       .append("dir", directoryDeprecatedKey)
       .append("filename", filename)

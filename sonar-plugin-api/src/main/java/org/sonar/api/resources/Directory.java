@@ -120,6 +120,7 @@ public class Directory extends Resource {
   public String toString() {
     return new ToStringBuilder(this)
       .append("key", getKey())
+      .append("deprecatedKey", getDeprecatedKey())
       .append("path", getPath())
       .append("language", language)
       .toString();
