@@ -81,10 +81,11 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile parent(QProfile profile) {
-    if (profile.parent() != null) {
-      QualityProfileDto parent = findQualityProfile(profile.parent(), profile.language());
-      if (parent != null) {
-        return QProfile.from(parent);
+    String parent = profile.parent();
+    if (parent != null) {
+      QualityProfileDto parentDto = findQualityProfile(parent, profile.language());
+      if (parentDto != null) {
+        return QProfile.from(parentDto);
       }
     }
     return null;

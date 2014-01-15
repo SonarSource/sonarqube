@@ -39,7 +39,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -149,7 +148,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     validatePermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
+      ActiveRuleDto activeRule = findActiveRuleNotNull(profileId, ruleId, session);
       return deactivateRule(activeRule, userSession, session);
     } finally {
       MyBatis.closeQuietly(session);
@@ -458,11 +457,15 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return activeRuleDao.selectByProfileAndRule(profileId, ruleId, session);
   }
 
+  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId, SqlSession session) {
+    ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
+    QProfileValidations.checkActiveRuleIsNotNull(activeRule);
+    return activeRule;
+  }
+
   private ActiveRuleDto findActiveRuleNotNull(int activeRuleId, SqlSession session) {
     ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId, session);
-    if (activeRule == null) {
-      throw new NotFoundException("This active rule does not exists.");
-    }
+    QProfileValidations.checkActiveRuleIsNotNull(activeRule);
     return activeRule;
   }
 

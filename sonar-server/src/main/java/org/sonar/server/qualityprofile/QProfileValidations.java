@@ -20,33 +20,38 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.NotFoundException;
 
+import javax.annotation.Nullable;
+
 public class QProfileValidations {
 
-  public static void checkProfileIsNotNull(QProfile profile) {
+  private static final String QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE = "This quality profile does not exists.";
+
+  public static void checkProfileIsNotNull(@Nullable QProfile profile) {
     if (profile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
+      throw new NotFoundException(QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE);
     }
   }
 
-  public static void checkProfileIsNotNull(QualityProfileDto profile) {
+  public static void checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
     if (profile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
+      throw new NotFoundException(QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE);
     }
   }
 
-  public static void checkRuleIsNotNull(QProfileRule rule) {
+  public static void checkRuleIsNotNull(@Nullable RuleDto rule) {
     if (rule == null) {
       throw new NotFoundException("This rule does not exists.");
     }
   }
 
-  public static void checkRuleIsNotNull(RuleDto rule) {
-    if (rule == null) {
-      throw new NotFoundException("This rule does not exists.");
+  public static void checkActiveRuleIsNotNull(@Nullable ActiveRuleDto activeRule) {
+    if (activeRule == null) {
+      throw new NotFoundException("This active rule does not exists.");
     }
   }
 }

@@ -66,7 +66,7 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public void delete(Integer id) {
+  public void delete(int id) {
     SqlSession session = mybatis.openSession();
     try {
       session.getMapper(QualityProfileMapper.class).delete(id);
@@ -94,7 +94,7 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public List<QualityProfileDto> selectByProject(Long projectId, String propKeyPrefix) {
+  public List<QualityProfileDto> selectByProject(long projectId, String propKeyPrefix) {
     SqlSession session = mybatis.openSession();
     try {
       return session.getMapper(QualityProfileMapper.class).selectByProject(projectId, propKeyPrefix);
@@ -113,12 +113,12 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto selectById(Integer id, SqlSession session) {
+  public QualityProfileDto selectById(int id, SqlSession session) {
     return session.getMapper(QualityProfileMapper.class).selectById(id);
   }
 
   @CheckForNull
-  public QualityProfileDto selectById(Integer id) {
+  public QualityProfileDto selectById(int id) {
     SqlSession session = mybatis.openSession();
     try {
       return selectById(id, session);
@@ -128,12 +128,12 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(Integer childId, SqlSession session) {
+  public QualityProfileDto selectParent(int childId, SqlSession session) {
     return session.getMapper(QualityProfileMapper.class).selectParent(childId);
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(Integer childId) {
+  public QualityProfileDto selectParent(int childId) {
     SqlSession session = mybatis.openSession();
     try {
       return selectParent(childId, session);
