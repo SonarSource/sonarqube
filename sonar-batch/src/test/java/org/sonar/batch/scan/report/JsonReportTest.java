@@ -34,14 +34,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.test.TestUtils;
 
@@ -85,12 +82,7 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    InputFileCache inputFileCache = mock(InputFileCache.class);
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY)).thenReturn("struts:/src/main/java/org/apache/struts/Action.java");
-    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY)).thenReturn("struts:org.apache.struts.Action");
-    when(inputFileCache.all()).thenReturn(Arrays.asList(inputFile));
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(inputFileCache), mode, userFinder);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
   }
 
   @Test

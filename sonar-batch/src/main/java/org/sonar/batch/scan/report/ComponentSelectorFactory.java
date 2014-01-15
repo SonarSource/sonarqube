@@ -37,6 +37,6 @@ public class ComponentSelectorFactory implements BatchComponent {
     if (mode.isIncremental()) {
       return new IncrementalComponentSelector(fileCache);
     }
-    return new DefaultComponentSelector(fileCache);
+    return new DefaultComponentSelector();
   }
 }

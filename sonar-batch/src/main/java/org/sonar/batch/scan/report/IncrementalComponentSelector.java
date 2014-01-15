@@ -19,19 +19,18 @@
  */
 package org.sonar.batch.scan.report;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 
-import java.util.Map;
 import java.util.Set;
 
 class IncrementalComponentSelector extends ComponentSelector {
 
   private final InputFileCache cache;
-  private final Map<String, String> componentKeys = Maps.newHashMap();
+  private final Set<String> componentKeys = Sets.newHashSet();
 
   IncrementalComponentSelector(InputFileCache cache) {
     this.cache = cache;
@@ -43,9 +42,8 @@ class IncrementalComponentSelector extends ComponentSelector {
       String status = inputFile.attribute(InputFile.ATTRIBUTE_STATUS);
       if (status != null && !InputFile.STATUS_SAME.equals(status)) {
         String componentKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
-        String componentDeprecatedKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY);
         if (componentKey != null) {
-          componentKeys.put(componentKey, componentDeprecatedKey);
+          componentKeys.add(componentKey);
         }
       }
     }
@@ -53,16 +51,11 @@ class IncrementalComponentSelector extends ComponentSelector {
 
   @Override
   boolean register(Issue issue) {
-    return componentKeys.keySet().contains(issue.componentKey());
+    return componentKeys.contains(issue.componentKey());
   }
 
   @Override
   Set<String> componentKeys() {
-    return componentKeys.keySet();
-  }
-
-  @Override
-  String getDeprecatedKey(String componentKey) {
-    return componentKeys.get(componentKey);
+    return componentKeys;
   }
 }

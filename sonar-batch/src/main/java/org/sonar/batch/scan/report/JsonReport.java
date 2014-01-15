@@ -145,7 +145,7 @@ public class JsonReport implements BatchComponent {
         json
           .beginObject()
           .name("key").value(issue.key())
-          .name("component").value(componentSelector.getDeprecatedKey(issue.componentKey()))
+          .name("component").value(issue.componentKey())
           .name("line").value(issue.line())
           .name("message").value(issue.message())
           .name("severity").value(issue.severity())
@@ -183,7 +183,7 @@ public class JsonReport implements BatchComponent {
     for (String componentKey : componentSelector.componentKeys()) {
       json
         .beginObject()
-        .name("key").value(componentSelector.getDeprecatedKey(componentKey))
+        .name("key").value(componentKey)
         .endObject();
     }
     json.endArray();

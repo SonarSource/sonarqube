@@ -1,7 +1,7 @@
 {"version": "3.6", "issues": [
   {
     "key": "200",
-    "component": "struts:org.apache.struts.Action",
+    "component": "struts:/src/main/java/org/apache/struts/Action.java",
     "line": 1,
     "message": "There are 2 cycles",
     "severity": "MINOR",
@@ -16,7 +16,7 @@
   }
 ], "components": [
   {
-    "key": "struts:org.apache.struts.Action"
+    "key": "struts:/src/main/java/org/apache/struts/Action.java"
   }
 ], "rules": [
   {

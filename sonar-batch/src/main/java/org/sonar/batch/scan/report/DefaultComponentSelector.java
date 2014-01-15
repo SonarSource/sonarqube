@@ -19,35 +19,17 @@
  */
 package org.sonar.batch.scan.report;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
-import org.sonar.batch.scan.filesystem.InputFileCache;
 
-import java.util.Map;
 import java.util.Set;
 
 class DefaultComponentSelector extends ComponentSelector {
 
-  private final InputFileCache cache;
-  private final Map<String, String> componentKeys = Maps.newHashMap();
   private final Set<String> componentKeysWithIssue = Sets.newHashSet();
-
-  DefaultComponentSelector(InputFileCache cache) {
-    this.cache = cache;
-  }
 
   @Override
   void init() {
-    for (InputFile inputFile : cache.all()) {
-      String componentKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
-      String componentDeprecatedKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY);
-      if (componentKey != null) {
-        componentKeys.put(componentKey, componentDeprecatedKey);
-      }
-    }
   }
 
   @Override
@@ -59,10 +41,5 @@ class DefaultComponentSelector extends ComponentSelector {
   @Override
   Set<String> componentKeys() {
     return componentKeysWithIssue;
-  }
-
-  @Override
-  String getDeprecatedKey(String componentKey) {
-    return componentKeys.get(componentKey);
   }
 }
