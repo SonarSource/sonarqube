@@ -48,6 +48,7 @@ public class DeprecatedRuleDefinitionsTest {
       rule.setDescription("Checks that constant names conform to the specified format");
       rule.setConfigKey("Checker/TreeWalker/ConstantName");
       rule.setSeverity(RulePriority.BLOCKER);
+      rule.setStatus(Rule.STATUS_BETA);
       rule.createParameter("format").setDescription("Regular expression").setDefaultValue("A-Z").setType("REGULAR_EXPRESSION");
       return Arrays.asList(rule);
     }
@@ -74,6 +75,7 @@ public class DeprecatedRuleDefinitionsTest {
     assertThat(rule.htmlDescription()).isEqualTo("Checks that constant names conform to the specified format");
     assertThat(rule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.metadata()).isEqualTo("Checker/TreeWalker/ConstantName");
+    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.params()).hasSize(1);
     RuleDefinitions.Param param = rule.param("format");

@@ -65,6 +65,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRule.setMetadata(rule.getConfigKey());
         newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
         newRule.setDefaultSeverity(rule.getSeverity().toString());
+        newRule.setStatus(rule.getStatus()==null ? Status.READY : Status.valueOf(rule.getStatus()));
         for (RuleParam param : rule.getParams()) {
           NewParam newParam = newRule.newParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());
