@@ -135,19 +135,33 @@ jQuery(function() {
     },
 
 
+    ui: {
+      orderChoices: '.navigator-actions-order-choices'
+    },
+
+
     onRender: function() {
       this.$el.toggle(this.collection.length > 0);
       this.$('.open-modal').modal();
     },
 
 
-    toggleOrderChoices: function() {
-      this.$('.navigator-actions-order-choices').toggleClass('open');
+    toggleOrderChoices: function(e) {
+      e.stopPropagation();
+      this.ui.orderChoices.toggleClass('open');
+      if (this.ui.orderChoices.is('.open')) {
+        var that = this;
+        jQuery('body').on('click.issues_actions', function() {
+          that.ui.orderChoices.removeClass('open');
+        });
+      }
     },
 
 
     sort: function(e) {
-      this.$('.navigator-actions-order-choices').removeClass('open');
+      e.stopPropagation();
+      this.ui.orderChoices.removeClass('open');
+      jQuery('body').off('click.issues_actions');
       var el = jQuery(e.target),
           sort = el.data('sort'),
           asc = el.data('asc');
