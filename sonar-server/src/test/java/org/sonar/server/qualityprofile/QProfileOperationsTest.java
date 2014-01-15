@@ -133,6 +133,8 @@ public class QProfileOperationsTest {
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
     assertThat(profileArgument.getValue().getVersion()).isEqualTo(1);
     assertThat(profileArgument.getValue().isUsed()).isFalse();
+
+    verify(session).commit();
   }
 
   @Test
@@ -232,6 +234,8 @@ public class QProfileOperationsTest {
 
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
+
+    verify(session).commit();
   }
 
   @Test
@@ -284,6 +288,7 @@ public class QProfileOperationsTest {
     assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
+    verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
@@ -303,6 +308,7 @@ public class QProfileOperationsTest {
     assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
+    verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
@@ -323,6 +329,7 @@ public class QProfileOperationsTest {
     assertThat(profileArgument.getValue().getParent()).isNull();
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
+    verify(session).commit();
     verify(profilesManager).profileParentChanged(1, null, "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));

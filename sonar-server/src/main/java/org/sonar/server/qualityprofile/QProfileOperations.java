@@ -120,6 +120,7 @@ public class QProfileOperations implements ServerComponent {
       }
       profile.setName(newName);
       dao.update(profile, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
