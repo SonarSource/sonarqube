@@ -184,13 +184,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         }),
         metric = this.metrics()[this.mainMetric];
 
-    if (!this.options().relativeScale) {
-      if (metric.worstValue != null && metric.bestValue != null) {
-        xDomain = d3.extent([metric.worstValue, metric.bestValue]);
-      } else if (metric.bestValue != null) {
-        xDomain[0] = metric.bestValue;
-      } else if (metric.worstValue != null) {
-        xDomain[0] = metric.worstValue;
+    if (this.options().relativeScale) {
+      if (this.metrics()[this.mainMetric].type === 'PERCENT') {
+        xDomain = [0, 100];
+      } else {
+        xDomain[0] = 0;
       }
     }
 
