@@ -48,7 +48,9 @@ import java.util.Map;
 
 /**
  * @since 2.3
+ * @deprecated in 4.2. Replaced by org.sonar.api.rule.RuleDefinitions#loadXml()
  */
+@Deprecated
 public final class XMLRuleParser implements ServerComponent {
   private static final Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
 

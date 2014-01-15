@@ -2,10 +2,9 @@
   <rule key="org.sonar.it.checkstyle.MethodsCountCheck" priority="CRITICAL">
     <name>Methods Count Check</name>
     <configKey>Checker/TreeWalker/org.sonar.it.checkstyle.MethodsCountCheck</configKey>
-    <category name="Usability"/>
-    <description>Count methods.</description>
+    <description>Count methods</description>
     <param key="minMethodsCount" type="i">
-      <description>Le nombre minimum de méthodes. 10 par défaut.</description>
+      <description>description of param</description>
     </param>
   </rule>
 </rules>

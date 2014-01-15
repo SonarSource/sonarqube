@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 4.2
  */
@@ -73,9 +75,26 @@ public final class RuleParamType {
     return new RuleParamType(type, acceptedValues);
   }
 
-  public static RuleParamType parse(String key) {
-    String format = StringUtils.substringBefore(key, FIELD_SEPARATOR);
-    String options = StringUtils.substringAfter(key, FIELD_SEPARATOR);
+  // TODO validate format
+  public static RuleParamType parse(String s) {
+    // deprecated formats
+    if ("i".equals(s) || "i{}".equals(s)) {
+      return INTEGER;
+    }
+    if ("s".equals(s) || "s{}".equals(s) || "r".equals(s)) {
+      return STRING;
+    }
+    if ("b".equals(s)) {
+      return BOOLEAN;
+    }
+    if (s.startsWith("s[")) {
+      String values = StringUtils.substringBetween(s, "[", "]");
+      return ofValues(StringUtils.split(values, ','));
+    }
+
+    // standard format
+    String format = StringUtils.substringBefore(s, FIELD_SEPARATOR);
+    String options = StringUtils.substringAfter(s, FIELD_SEPARATOR);
     if (StringUtils.isBlank(options)) {
       return new RuleParamType(format);
     }

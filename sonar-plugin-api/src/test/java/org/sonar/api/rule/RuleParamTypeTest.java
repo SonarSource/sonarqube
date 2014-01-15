@@ -20,6 +20,7 @@
 package org.sonar.api.rule;
 
 import org.junit.Test;
+import org.sonar.api.PropertyType;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -72,5 +73,20 @@ public class RuleParamTypeTest {
     assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
     assertThat(selectList.options()).containsOnly("foo", "one,two|three,four");
     assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST|foo,\"one,two|three,four\",");
+  }
+
+  @Test
+  public void support_deprecated_formats() throws Exception {
+    assertThat(RuleParamType.parse("b")).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(RuleParamType.parse("i")).isEqualTo(RuleParamType.INTEGER);
+    assertThat(RuleParamType.parse("i{}")).isEqualTo(RuleParamType.INTEGER);
+    assertThat(RuleParamType.parse("s")).isEqualTo(RuleParamType.STRING);
+    assertThat(RuleParamType.parse("s{}")).isEqualTo(RuleParamType.STRING);
+    assertThat(RuleParamType.parse("r")).isEqualTo(RuleParamType.STRING);
+    assertThat(RuleParamType.parse("TEXT")).isEqualTo(RuleParamType.TEXT);
+    assertThat(RuleParamType.parse("STRING")).isEqualTo(RuleParamType.STRING);
+    RuleParamType list = RuleParamType.parse("s[FOO,BAR]");
+    assertThat(list.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(list.options()).containsOnly("FOO", "BAR");
   }
 }

@@ -26,6 +26,7 @@ import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,6 +93,14 @@ public interface RuleDefinitions extends ServerExtension {
      */
     void loadAnnotatedClasses(Class... classes);
 
+    /**
+     * Reads definitions of rules from a XML file. Format is :
+     * <pre>
+     *
+     * </pre>
+     */
+    void loadXml(InputStream xmlInput, String encoding);
+
     void done();
   }
 
@@ -133,12 +142,14 @@ public interface RuleDefinitions extends ServerExtension {
       return newRule;
     }
 
-    /**
-     * Load definitions from classes annotated with #{@link org.sonar.check.Rule} of library sonar-check-api
-     */
     @Override
     public void loadAnnotatedClasses(Class... classes) {
-      new AnnotationRuleDefinitions().loadRules(this, classes);
+      new RuleDefinitionsFromAnnotations().loadRules(this, classes);
+    }
+
+    @Override
+    public void loadXml(InputStream xmlInput, String encoding) {
+      new RuleDefinitionsFromXml().loadRules(this, xmlInput, encoding);
     }
 
     @Override

@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
 import java.lang.reflect.Field;
@@ -39,11 +38,12 @@ import java.util.List;
  * </p>
  * It is internally used by {@link org.sonar.api.rule.RuleDefinitions} and can't be directly
  * used by plugins.
+ *
  * @since 4.2
  */
-class AnnotationRuleDefinitions {
+class RuleDefinitionsFromAnnotations {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnnotationRuleDefinitions.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RuleDefinitionsFromAnnotations.class);
 
   void loadRules(RuleDefinitions.NewRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {

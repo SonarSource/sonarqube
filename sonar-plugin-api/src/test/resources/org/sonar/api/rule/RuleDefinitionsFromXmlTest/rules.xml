@@ -1,15 +1,15 @@
 <rules>
   <rule>
     <!-- with exhaustive fields -->
-    <key>com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck</key>
-    <name>Local Variable Name</name>
+    <key>complete</key>
+    <name>Complete</name>
     <description>
-      <![CDATA[Checks that local, non-final variable names conform to a format specified by the format property.]]>
+      <![CDATA[Description of Complete]]>
     </description>
-    <category name="Efficiency" />
     <configKey>Checker/TreeWalker/LocalVariableName</configKey>
-    <priority>BLOCKER</priority>
+    <severity>BLOCKER</severity>
     <cardinality>MULTIPLE</cardinality>
+    <status>BETA</status>
     <param>
       <key>tokens</key>
       <description>
@@ -30,11 +30,10 @@
 
   <rule>
     <!-- with only required fields -->
-    <key>com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck</key>
-    <name>Magic Number</name>
+    <key>minimal</key>
+    <name>Minimal</name>
     <description>
-      <![CDATA[Checks for magic numbers.]]>
+      <![CDATA[Description of Minimal]]>
     </description>
-    <category name="Maintainability" />
   </rule>
 </rules>

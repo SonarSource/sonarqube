@@ -28,10 +28,10 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * Inject deprecated RuleRepository into RuleDefinitions for backward-compatibility.
+ *
  * @since 4.2
  */
 public class DeprecatedRuleDefinitions implements RuleDefinitions {
@@ -65,12 +65,12 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRule.setMetadata(rule.getConfigKey());
         newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
         newRule.setDefaultSeverity(rule.getSeverity().toString());
-        newRule.setStatus(rule.getStatus()==null ? Status.READY : Status.valueOf(rule.getStatus()));
+        newRule.setStatus(rule.getStatus() == null ? Status.READY : Status.valueOf(rule.getStatus()));
         for (RuleParam param : rule.getParams()) {
           NewParam newParam = newRule.newParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());
           newParam.setDescription(paramDescription(repository.getKey(), rule.getKey(), param));
-          newParam.setType(paramType(param.getType()));
+          newParam.setType(RuleParamType.parse(param.getType()));
         }
       }
       newRepository.done();
@@ -102,25 +102,5 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
       param.getDescription()
     );
     return StringUtils.defaultIfBlank(desc, null);
-  }
-
-  private RuleParamType paramType(@Nullable String s) {
-    if (StringUtils.isBlank(s)) {
-      return RuleParamType.STRING;
-    }
-    if ("i".equals(s) || "i{}".equals(s)) {
-      return RuleParamType.INTEGER;
-    }
-    if ("s".equals(s) || "s{}".equals(s) || "r".equals(s)) {
-      return RuleParamType.STRING;
-    }
-    if ("b".equals(s)) {
-      return RuleParamType.BOOLEAN;
-    }
-    if (s.startsWith("s[")) {
-      String values = StringUtils.substringBetween(s, "[", "]");
-      return RuleParamType.ofValues(StringUtils.split(values, ','));
-    }
-    return RuleParamType.parse(s);
   }
 }
