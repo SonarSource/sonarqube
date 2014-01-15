@@ -20,6 +20,7 @@
 package org.sonar.core.rule;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
@@ -83,7 +84,10 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void testSelectNonManual() throws Exception {
     setupData("selectNonManual");
-    List<RuleDto> ruleDtos = dao.selectNonManual(getMyBatis().openSession());
+    SqlSession session = getMyBatis().openSession();
+    List<RuleDto> ruleDtos = dao.selectNonManual(session);
+    session.commit();
+    session.close();
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
