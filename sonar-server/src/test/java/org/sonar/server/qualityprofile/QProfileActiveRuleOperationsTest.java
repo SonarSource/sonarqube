@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.TypeValidations;
 
 import java.util.Date;
 import java.util.List;
@@ -84,6 +85,9 @@ public class QProfileActiveRuleOperationsTest {
   ProfilesManager profilesManager;
 
   @Mock
+  TypeValidations typeValidations;
+
+  @Mock
   System2 system;
 
   Integer currentId = 1;
@@ -107,7 +111,7 @@ public class QProfileActiveRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, system);
+    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, typeValidations, system);
   }
 
   @Test
@@ -292,6 +296,7 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
     assertThat(argumentCaptor.getValue().getActiveRuleId()).isEqualTo(5);
 
+    verify(typeValidations).validate("30", "INTEGER", null);
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
@@ -315,23 +320,6 @@ public class QProfileActiveRuleOperationsTest {
   }
 
   @Test
-  public void fail_to_create_active_rule_if_type_is_invalid() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
-    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
-    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
-    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
-
-    try {
-      operations.updateActiveRuleParam(5, "max", "invalid integer", authorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-    verify(activeRuleDao, never()).insert(any(ActiveRuleParamDto.class), eq(session));
-    verifyZeroInteractions(profilesManager);
-  }
-
-  @Test
   public void update_active_rule_param() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
@@ -349,6 +337,7 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getId()).isEqualTo(100);
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
 
+    verify(typeValidations).validate("30", "INTEGER", null);
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
@@ -591,31 +580,6 @@ public class QProfileActiveRuleOperationsTest {
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(activeRule), eq(activeRuleParams));
-  }
-
-  @Test
-  public void validate_integer_type() throws Exception {
-    operations.validateParam(PropertyType.INTEGER.name(), "10");
-
-    try {
-      operations.validateParam(PropertyType.INTEGER.name(), "invalid integer");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Value 'invalid integer' must be an integer.");
-    }
-  }
-
-  @Test
-  public void validate_boolean_type() throws Exception {
-    operations.validateParam(PropertyType.BOOLEAN.name(), "true");
-    operations.validateParam(PropertyType.BOOLEAN.name(), "True");
-
-    try {
-      operations.validateParam(PropertyType.BOOLEAN.name(), "invalid boolean");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Value 'invalid boolean' must be one of : true,false.");
-    }
   }
 
 }

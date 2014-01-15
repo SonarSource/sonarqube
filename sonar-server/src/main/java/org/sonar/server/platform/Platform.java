@@ -19,9 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.es.ESIndex;
-import org.sonar.server.es.ESNode;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -84,6 +81,8 @@ import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
+import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.ESNode;
 import org.sonar.server.group.GroupMembershipFinder;
 import org.sonar.server.group.InternalGroupMembershipService;
 import org.sonar.server.issue.*;
@@ -108,6 +107,7 @@ import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.util.*;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
@@ -359,6 +359,13 @@ public final class Platform {
     servicesContainer.addSingleton(TestPlanPerspectiveLoader.class);
     servicesContainer.addSingleton(SnapshotPerspectives.class);
     servicesContainer.addSingleton(HtmlSourceDecorator.class);
+
+    // Type validation
+    servicesContainer.addSingleton(TypeValidations.class);
+    servicesContainer.addSingleton(IntegerTypeValidation.class);
+    servicesContainer.addSingleton(FloatTypeValidation.class);
+    servicesContainer.addSingleton(BooleanTypeValidation.class);
+    servicesContainer.addSingleton(StringListTypeValidation.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);

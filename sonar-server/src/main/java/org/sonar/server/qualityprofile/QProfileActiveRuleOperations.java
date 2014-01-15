@@ -22,11 +22,9 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
 import org.elasticsearch.common.collect.Iterables;
-import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
@@ -41,6 +39,7 @@ import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -60,21 +59,23 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final ProfilesManager profilesManager;
 
   private final System2 system;
+  private final TypeValidations typeValidations;
 
   public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
-                                      ProfilesManager profilesManager) {
-    this(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, System2.INSTANCE);
+                                      ProfilesManager profilesManager, TypeValidations typeValidations) {
+    this(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, typeValidations, System2.INSTANCE);
   }
 
   @VisibleForTesting
   QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
-                               ProfilesManager profilesManager, System2 system) {
+                               ProfilesManager profilesManager, TypeValidations typeValidations, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
+    this.typeValidations = typeValidations;
     this.system = system;
   }
 
@@ -415,13 +416,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  @VisibleForTesting
-  void validateParam(String type, String value) {
-    if (type.equals(PropertyType.INTEGER.name()) && !NumberUtils.isDigits(value)) {
-      throw new BadRequestException(String.format("Value '%s' must be an integer.", value));
-    } else if (type.equals(PropertyType.BOOLEAN.name()) && !Boolean.parseBoolean(value)) {
-      throw new BadRequestException(String.format("Value '%s' must be one of : true,false.", value));
-    }
+  private void validateParam(String type, String value) {
+    typeValidations.validate(value, type, null);
   }
 
   private String getLoggedName(UserSession userSession) {
