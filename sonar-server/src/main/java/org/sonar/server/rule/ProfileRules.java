@@ -48,9 +48,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
-import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
+import static org.sonar.server.rule.RuleRegistry.*;
 
 public class ProfileRules implements ServerExtension {
 
@@ -326,7 +324,7 @@ public class ProfileRules implements ServerExtension {
     }
   }
 
-  public class QProfileRuleResult {
+  public static class QProfileRuleResult {
 
     private final List<QProfileRule> rules;
     private final PagingResult paging;
