@@ -314,54 +314,6 @@ class Api::IssuesController < Api::ApiController
     end
   end
 
-  # Detail of an issue filter
-  # GET /api/filter/<id>
-  def filter
-    require_parameters :id
-    filter = Internal.issues.findIssueFilter(params[:id].to_i)
-
-    hash = {
-      :filter => {
-        :id => filter.id().to_i,
-        :name => filter.name(),
-        :user => filter.user(),
-        :shared => filter.shared(),
-        :description => filter.description(),
-        :query => filter.data()
-      }
-    }
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash), :status => 200 }
-    end
-  end
-
-  # GET /api/favorite_filters
-  def favorite_filters
-    if logged_in?
-      favorite_filters = Internal.issues.findFavouriteIssueFiltersForCurrentUser()
-    else
-      favorite_filters = []
-    end
-
-    hash = {
-      :favoriteFilters => favorite_filters.map do |filter|
-        {
-          :id => filter.id().to_i,
-          :name => filter.name(),
-          :user => filter.user(),
-          :shared => filter.shared(),
-          :description => filter.description()
-          # no need to export query field
-        }
-      end
-    }
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash), :status => 200 }
-    end
-  end
-
   protected
 
   def render_result_issue(result)
