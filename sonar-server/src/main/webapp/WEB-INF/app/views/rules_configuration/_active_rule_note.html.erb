@@ -1,19 +1,19 @@
-<% #locals = active_rule, profile
-  note = active_rule.note
-  active_note_detail_div_id = "and_" + active_rule.id.to_s
-  add_active_note_button_id = "aanb_" + active_rule.id.to_s
-  edit_active_note_link_id = "eanl_" + active_rule.id.to_s
-  delete_active_note_link_id = "danl_" + active_rule.id.to_s
-  active_note_form_div_id = "anf_" + active_rule.id.to_s
-  active_note_textarea_id = "ant_" + active_rule.id.to_s
-  submit_active_note_update_button_id = "sanub_" + active_rule.id.to_s
+<% #locals = rule, profile
+  note = rule.activeRuleNote
+  active_note_detail_div_id = "and_" + rule.activeRuleId.to_s
+  add_active_note_button_id = "aanb_" + rule.activeRuleId.to_s
+  edit_active_note_link_id = "eanl_" + rule.activeRuleId.to_s
+  delete_active_note_link_id = "danl_" + rule.activeRuleId.to_s
+  active_note_form_div_id = "anf_" + rule.activeRuleId.to_s
+  active_note_textarea_id = "ant_" + rule.activeRuleId.to_s
+  submit_active_note_update_button_id = "sanub_" + rule.activeRuleId.to_s
 %>
 
 <div id="<%= active_note_detail_div_id -%>">
-  <% if note %>
+  <% if !note.nil? %>
     <blockquote class="spacer-bottom">
       <cite>
-        <b><%= note.user.name -%></b> (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
+        <b><%= User.find_active_by_login(note.userLogin).name -%></b> (<%= distance_of_time_in_words_to_now(Time.at(note.updatedAt.time/1000)) -%>)&nbsp;
         <% if profiles_administrator? %>
           | &nbsp;
           <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
@@ -22,14 +22,14 @@
           <a class="link-action"
              onclick="if(confirm('<%= escape_javascript(message('rules_configuration.confirm_delete_note')) -%>')){
                              $j.ajax({
-                                       url: '<%=ApplicationController.root_context-%>/rules_configuration/delete_active_rule_note?active_rule_id=<%=active_rule.id-%>',
+                                       url: '<%=ApplicationController.root_context-%>/rules_configuration/delete_active_rule_note?active_rule_id=<%=rule.activeRuleId-%>',
                                        type: 'post',
-                                       success:function(response){$j('#active_rule_note_<%= active_rule.id -%>').html(response);}
+                                       success:function(response){$j('#active_rule_note_<%= rule.activeRuleId -%>').html(response);}
                                      });};return false;"
              href="#!"><%=message('delete')-%></a>
         <% end %>
       </cite>
-      <p><%= note.html_text -%></p>
+      <p><%= note.data -%></p>
     </blockquote>
   <% elsif profiles_administrator? %>
     <a href="#" onclick="$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_textarea_id -%>').focus(); return false;"
@@ -39,20 +39,20 @@
 
 <% if profiles_administrator? %>
   <form onsubmit="$j.ajax({
-                            url:'<%= ApplicationController.root_context -%>/rules_configuration/update_active_rule_note?active_rule_id=<%=active_rule.id-%>',
+                            url:'<%= ApplicationController.root_context -%>/rules_configuration/update_active_rule_note?active_rule_id=<%=rule.activeRuleId-%>',
                             data: $j(this).serialize(),
                             type:'post',
-                            success:function(response){$j('#active_rule_note_<%= active_rule.id -%>').html(response);}
+                            success:function(response){$j('#active_rule_note_<%= rule.activeRuleId -%>').html(response);}
                           });
                   return false;"
           method="post"
-          action="<%= ApplicationController.root_context -%>/rules_configuration//update_active_rule_note?active_rule_id=<%=active_rule.id-%>">
+          action="<%= ApplicationController.root_context -%>/rules_configuration//update_active_rule_note?active_rule_id=<%=rule.activeRuleId-%>">
   <table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
     <tbody>
       <tr>
         <td class="width100" colspan="2">
           <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
-                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.plain_text) if note -%></textarea>
+                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.data) unless note.nil? -%></textarea>
         </td>
       </tr>
     <tr>

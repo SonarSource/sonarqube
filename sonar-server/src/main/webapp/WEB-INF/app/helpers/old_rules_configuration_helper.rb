@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-module NewRulesConfigurationHelper
+module OldRulesConfigurationHelper
   include PropertiesHelper
 
   PARAM_TYPE_STRING_LIST = "s{}"
@@ -47,10 +47,10 @@ module NewRulesConfigurationHelper
     ""
   end
 
-  def param_value_input(rule, parameter, value, options = {})
-    type = type_with_compatibility(parameter.type().to_s)
+  def param_value_input(parameter, value, options = {})
+    type=type_with_compatibility(parameter.param_type)
     name = options[:name] || 'value'
-    property_input_field name, type, value, 'WIDGET', {:id => "#{rule.id().to_s}#{parameter.key().to_s}", :size => options[:size] }.update(options)
+    property_input_field name, type, value, 'WIDGET', {:id => parameter.id, :size => options[:size] }.update(options)
   end
 
   def is_set(type)

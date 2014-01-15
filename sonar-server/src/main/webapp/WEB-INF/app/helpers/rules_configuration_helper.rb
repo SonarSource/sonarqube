@@ -47,10 +47,10 @@ module RulesConfigurationHelper
     ""
   end
 
-  def param_value_input(parameter, value, options = {})
-    type=type_with_compatibility(parameter.param_type)
+  def param_value_input(rule, parameter, value, options = {})
+    type = type_with_compatibility(parameter.type().to_s)
     name = options[:name] || 'value'
-    property_input_field name, type, value, 'WIDGET', {:id => parameter.id, :size => options[:size] }.update(options)
+    property_input_field name, type, value, 'WIDGET', {:id => "#{rule.id().to_s}#{parameter.key().to_s}", :size => options[:size] }.update(options)
   end
 
   def is_set(type)
@@ -82,5 +82,10 @@ module RulesConfigurationHelper
       errors.add("#{value}", "'#{attribute}' must be one of : true,false") unless Api::Utils.is_boolean?(attribute)
     end
   end
+
+  def rule_key(qProfileRule)
+    "#{qProfileRule.repositoryKey().to_s}:#{qProfileRule.key().to_s}"
+  end
+
 end
 

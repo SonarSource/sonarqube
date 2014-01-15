@@ -1,5 +1,5 @@
 <% #locals = rule
-  note = rule.note
+  note = rule.ruleNote
   note_detail_div_id = "nd_" + rule.id.to_s
   note_extend_link_id = "nel_" + rule.id.to_s
   note_form_div_id = "nf_" + rule.id.to_s
@@ -9,15 +9,17 @@
 
 <div id="<%= note_detail_div_id -%>">
   <div class="marginbottom10">
-  <% if rule.description.strip.start_with?('<p>') %>
-    <%= Internal.text.interpretMacros(rule.description) %>
-  <% else %>
-    <p><%= Internal.text.interpretMacros(rule.description) %></p>
+  <% unless rule.description.nil? %>
+    <% if rule.description.strip.start_with?('<p>') %>
+      <%= Internal.text.interpretMacros(rule.description) %>
+    <% else %>
+      <p><%= Internal.text.interpretMacros(rule.description) %></p>
+    <% end %>
   <% end %>
   </div>
 
-  <% if note && !note.text.strip.blank? %>
-    <p><%= note.html_text -%></p>
+  <% unless rule.ruleNote.nil? %>
+    <p><%= rule.ruleNote.data -%></p>
   <% end %>
 
   <% if profiles_administrator? %>
@@ -32,7 +34,7 @@
 <div id="<%= note_form_div_id -%>" style="display: none" class="admin">
 
   <form onsubmit="$j.ajax({
-                        url:'<%=ApplicationController.root_context-%>/rules_configuration/update_rule_note?rule_id=<%=rule.id-%>',
+                        url:'<%=ApplicationController.root_context-%>/rules_configuration/update_rule_note?rule_id=<%=rule.id-%>&active_rule_id=<%=rule.activeRuleId-%>',
                         success:function(response){;$j('#rule_note_<%=rule.id-%>').html(response);},
                         data: $j(this).serialize(),
                         type:'post'});
@@ -46,7 +48,7 @@
       </tr>
       <tr>
         <td class="width100" colspan="2">
-          <textarea name="text" id="<%= note_textarea_id -%>" rows="10" style="width:100%"><%= h(note.plain_text) if note -%></textarea>
+          <textarea name="text" id="<%= note_textarea_id -%>" rows="10" style="width:100%"><%= h(note.data) if note -%></textarea>
         </td>
       </tr>
     <tr>

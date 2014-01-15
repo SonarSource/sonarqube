@@ -22,7 +22,7 @@
     <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'new_rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules reloaded' -%> id="tab-rules"><%= message('Coding rules reloaded') -%></a>
+    <a href="<%= url_for :controller => 'old_rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Old Coding rules' -%> id="tab-rules"><%= 'Old Coding rules' -%></a>
   </li>
   <% if new_tab %>
   <li>

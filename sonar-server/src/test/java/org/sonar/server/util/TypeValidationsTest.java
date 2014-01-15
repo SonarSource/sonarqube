@@ -21,8 +21,7 @@
 package org.sonar.server.util;
 
 import org.junit.Test;
-
-import java.util.NoSuchElementException;
+import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -52,7 +51,9 @@ public class TypeValidationsTest {
       typeValidations.validate("10", "Unknown", null);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NoSuchElementException.class);
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      BadRequestException badRequestException = (BadRequestException) e;
+      assertThat(badRequestException.getMessage()).isEqualTo("Type 'Unknown' is not valid.");
     }
   }
 

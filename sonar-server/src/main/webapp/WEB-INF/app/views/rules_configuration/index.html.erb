@@ -77,7 +77,7 @@
             :placeholder => message('any')
         }, {:id => 'search_status', :multiple => true} -%>
       </div>
-      <% if @profile.inherited? %>
+      <% if @profile.isInherited() %>
         <div class="rule-search top">
           <span class="note"><%= message('inheritance') -%></span><br/>
           <%= dropdown_tag "inheritance", options_for_select(@select_inheritance, @inheritance), {
@@ -94,28 +94,27 @@
 <% end %>
 </div>
 <div class="line-block marginbottom10">
-    <% if enable_modification && @rules.size>0 %>
-      <ul style="float: right" class="horizontal">
+  <% if enable_modification && @current_rules.size>0 %>
+    <ul style="float: right" class="horizontal">
       <li class="marginleft10">
         <div class="bulk-edit"><%= message('bulk_change') -%>:
-        <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" id="bulk-form"
+        <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit?<%= @criteria_params.to_query -%>" method="POST" id="bulk-form"
               style="display: inline; vertical-align: middle; padding-right:5px">
           <input type="hidden" name="id" value="<%= @profile.id -%>"/>
-          <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {
               :width => '110px'
           }, {:onChange => 'submitBulkForm()', :id => 'select-bulk-change'} -%>
         </form>
         </div>
       </li>
-      </ul>
-    <% end %>
+    </ul>
+  <% end %>
   <h2>
      <% if @hidden_actives && @hidden_actives>0 %>
-      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => 'ACTIVE'}) -%>"
         id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
      <% if @hidden_inactives && @hidden_inactives>0 %>
-      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => 'INACTIVE'}) -%>"
         id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
   </h2>
 </div>
@@ -144,10 +143,9 @@
 <% end %>
 <%
   @current_rules.each do |rule|
-    active_rule = @profile.active_by_rule_id(rule.id)
 %>
   <tr id="rule_<%= rule.id -%>">
-    <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :rule => rule, :active_rule => active_rule} %>
+    <%= render :partial => 'rule', :object => rule, :locals => {:rule => rule, :profile => @profile, :parent_profile => @parent_profile} %>
   </tr>
 <% end %>
 </tbody>

@@ -1,39 +1,36 @@
-<%
+<% # locals = rule, profile, parameter, parent_active_rule
+   param_id = "#{rule.id}#{parameter.key}"
    # Display default value only for inactive rules
-   param_value = parameter.default_value if !active_rule
-   param_value = active_parameter.value if !param_value && active_parameter
-   active_param_id = active_parameter.id if active_parameter
-   active_rule_id = active_rule.id if active_rule
-   read_only = !active_rule || !profiles_administrator?
+   param_value = parameter.default_value if !rule.activeRuleId
+   param_value = parameter.value if !param_value
+   active_rule_id = rule.activeRuleId
+   read_only = rule.activeRuleId.nil? || !profiles_administrator?
 %>
 
-<td class="form-key-cell"><%= parameter.name -%></td>
+<td class="form-key-cell"><%= parameter.key -%></td>
 
 <td class="form-val-cell">
-    <form onsubmit="$j.ajax({  url: '<%= ApplicationController.root_context -%>/rules_configuration/update_param/<%=active_param_id-%>?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.id-%>&profile_id=<%=profile.id-%>',
-                               type:'post',beforeSend: function(request){$j('#param_loading_<%=parameter.id-%>').show();$j('#error_<%=parameter.id-%>').hide();},
+    <form onsubmit="$j.ajax({  url: '<%= ApplicationController.root_context -%>/rules_configuration/update_param/?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.key-%>&profile_id=<%=profile.id-%>',
+                               type:'post',beforeSend: function(request){$j('#param_loading_<%=param_id-%>').show();$j('#error_<%=param_id-%>').hide();},
                                data: $j(this).serialize(),
                                success: function(response){$j('#rule_<%=rule.id-%>').html(response);},
-                               complete: function(request){$j('#desc_<%=rule.id-%>').show();$j('#param_loading_<%=parameter.id-%>').hide();},
-                               error: function(request){$j('#error_<%=parameter.id-%>').text(request.responseText);$j('#error_<%=parameter.id-%>').show();}
+                               complete: function(request){$j('#desc_<%=rule.id-%>').show();$j('#param_loading_<%=param_id-%>').hide();},
+                               error: function(request){$j('#error_<%=param_id-%>').text(request.responseText);$j('#error_<%=param_id-%>').show();}
                             }); return false;"
-           name="form-<%=u parameter.name-%>" method="post"
-           action="<%= ApplicationController.root_context -%>/rules_configuration/update_param/<%=active_param_id-%>?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.id-%>&profile_id=<%=profile.id-%>">
+           name="form-<%=u parameter.key-%>" method="post"
+           action="<%= ApplicationController.root_context -%>/rules_configuration/update_param/?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.key-%>&profile_id=<%=profile.id-%>">
 
-  <div id="error_<%= parameter.id -%>" class="error" style="display: none"></div>
+  <div id="error_<%= param_id -%>" class="error" style="display: none"></div>
 
-  <span id="text_<%= parameter.id -%>"><%= param_value_input(parameter, param_value, :disabled => read_only) -%></span>
+  <span id="text_<%= param_id -%>"><%= param_value_input(rule, parameter, param_value, :disabled => read_only) -%></span>
 
   <% unless read_only %>
-    <%= submit_tag(message('update_verb'), :id => 'submit_' + parameter.id.to_s) %>
-    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>" class="rule-param-loading">
-    <% if active_parameter and active_parameter.errors.size>0 %>
-      <span class="error"><%= active_parameter.errors.on 'value' %></span>
-    <% end %>
+    <%= submit_tag(message('update_verb'), :id => 'submit_' + param_id.to_s) %>
+    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= param_id -%>" class="rule-param-loading">
   <% end %>
 
-  <% if active_rule && active_rule.overrides? && ancestor_active_rule
-       ancestor_param = ancestor_active_rule.active_param_by_param_id(parameter.id)
+  <% if !rule.nil? && rule.overrides? && parent_active_rule
+       ancestor_param = parent_active_rule.params.to_a.find {|param| param.key() == parameter.key}
        ancestor_value = ancestor_param && ancestor_param.value ? ancestor_param.value : ''
   %>
     <% if ancestor_value != param_value %>
@@ -45,7 +42,7 @@
     <% end %>
   <% end %>
 
-  <div class="form-val-note"><%= h(parameter.description || "") -%> <%= ('(' + readable_type(parameter.param_type) + ')') if !readable_type(parameter.param_type).empty? -%></div>
+  <div class="form-val-note"><%= h(parameter.description || "") -%> <%= ('(' + readable_type(parameter.type) + ')') if !readable_type(parameter.type).empty? -%></div>
 
   </form>
 </td>

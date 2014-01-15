@@ -362,6 +362,8 @@ public final class Platform {
     servicesContainer.addSingleton(IntegerTypeValidation.class);
     servicesContainer.addSingleton(FloatTypeValidation.class);
     servicesContainer.addSingleton(BooleanTypeValidation.class);
+    servicesContainer.addSingleton(TextTypeValidation.class);
+    servicesContainer.addSingleton(StringTypeValidation.class);
     servicesContainer.addSingleton(StringListTypeValidation.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);

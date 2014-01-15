@@ -1,4 +1,6 @@
-<td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
+<% #locals = rule, profile, parent_profile -%>
+
+<td nowrap valign="top" class="left" x="<%= rule.severity -%>" width="1%">
   <form id="levels_<%= rule.id -%>" action="" class="rule-levels-form">
     <% enable_modification = profiles_administrator?
        select_box_id = "levels_select_#{rule.id}"
@@ -12,26 +14,24 @@
                                   data:'level='+$j('#levels_select_#{rule.id} :selected').val()})}"
     %>
 
-    <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || (active_rule && (active_rule.inherited? || active_rule.overrides?))) %>
-    <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
-                   {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
+    <%= check_box_tag(check_box_id, 'yes', !rule.activeRuleId.nil?, :onclick => activate_rule, :disabled => !enable_modification || rule.inherited? || rule.overrides?) %>
+    <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, rule.severity),
+                   {:onchange => changel_level, :disabled => (!(enable_modification))}) %>
 
-    <% if active_rule %>
-      <% if active_rule.inherited? %>
-        <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="<%= message('rules_configuration.inherited_from_parent') -%>"/>
-      <% elsif active_rule.overrides? %>
-        <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>"/>
-      <% end %>
+    <% if rule.inherited? %>
+      <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="<%= message('rules_configuration.inherited_from_parent') -%>"/>
+    <% elsif rule.overrides? %>
+      <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>"/>
     <% end %>
   </form>
 </td>
 
 <td class="left" colspan="2">
-  <% unless rule.ready? %>
+  <% unless rule.status == "READY" %>
     <div class="rule-status">
-      <% if rule.beta? %>
+      <% if rule.status == "BETA" %>
         <span><%= message('rules.status.beta') %></span>
-      <% elsif rule.deprecated? %>
+      <% elsif rule.status == "DEPRECATED" %>
         <span><%= message('rules.status.deprecated') %></span>
       <% end %>
     </div>
@@ -50,40 +50,36 @@
     </div>
 
     <%
-       ancestor_profile = profile.parent
-       ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
-       if ancestor_active_rule || !rule.parameters.empty?
+       parent_active_rule = Internal.quality_profiles.parentProfileRule(rule) if (rule.inherited? || rule.overrides?)
+       if parent_active_rule || !rule.params.empty?
     %>
       <table width="100%" class="table spacer-bottom bordered background-gray">
         <%
-           if ancestor_active_rule
-             ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index',
-                                                 :id => ancestor_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
+           if parent_active_rule
+             parent_active_rule_link = link_to parent_profile.name, :controller => 'rules_configuration', :action => 'index',
+                                                 :id => parent_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
         %>
           <tr>
             <td colspan="2">
-              <%= message(active_rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
-                          :params => ancestor_active_rule_link) -%>
-              <% if ancestor_active_rule.priority != active_rule.priority %>
+              <%= message(rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
+                          :params => parent_active_rule_link) -%>
+              <% if parent_active_rule.severity != rule.severity %>
                 <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
                 <span class="form-val-note" style="font-weight: bold"> <%= message('rules_configuration.original_severity') -%>
-                  : <%= ancestor_active_rule.priority_text -%></span>
+                  : <%= parent_active_rule.severity -%></span>
               <% end %>
-              <% if profiles_administrator? && active_rule.overrides? %>
-                <form action="<%= url_for :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} -%>" method="post" style="display: inline">
+              <% if profiles_administrator? && rule.overrides? %>
+                <form action="<%= url_for :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => rule.activeRuleId} -%>" method="post" style="display: inline">
                   <input type="submit" value="<%= message('rules_configuration.revert_to_parent_definition') -%>">
                 </form>
               <% end %>
             </td>
           </tr>
         <% end %>
-        <% rule.parameters.sort.each do |parameter|
-          active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
-        %>
-          <tr id="param_<%= parameter.id -%>">
+        <% rule.params.each do |parameter| %>
+          <tr id="param_<%= parameter.key -%>">
             <%= render :partial => 'rule_param', :object => nil,
-                       :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :rule => rule,
-                                   :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule} %>
+                       :locals => {:parameter => parameter, :profile => profile, :rule => rule, :parent_active_rule => parent_active_rule} %>
           </tr>
         <%
            end
@@ -91,15 +87,13 @@
       </table>
     <% end %>
 
-    <% if active_rule %>
-      <div id="active_rule_note_<%= active_rule.id -%>">
-        <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => profile} %>
-      </div>
-    <% end %>
+    <div id="active_rule_note_<%= rule.activeRuleId -%>">
+      <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
+    </div>
 
     <% if profiles_administrator? %>
       <% if rule.template? %>
-        <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}", :class => 'link-action spacer-right' %>
+        <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule_key(rule)}", :class => 'link-action spacer-right' %>
       <% end %>
       <% if rule.editable? %>
         <%= link_to message('rules_configuration.edit_rule'), {:action => 'edit', :id => profile.id, :rule_id => rule.id}, :class => 'link-action spacer-right' %>
@@ -107,14 +101,23 @@
     <% end %>
 
     <div class="note">
-      <span id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository') %>: <%= rule.repository_key %></span>
+      <span id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository') %>: <%= rule.repositoryKey %></span>
       &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-      <span id="rule_key_<%= rule.id -%>"><%= message('key') %>: <%= rule.plugin_rule_key %></span>
+      <span id="rule_key_<%= rule.id -%>"><%= message('key') %>: <%= rule.key %></span>
+      <% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
       &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-      <% if rule.removed? %>
-        <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since') %>: <%= human_short_date(rule.updated_at) %></span>
+        <% rule.systemTags.each do |tag| %>
+        <span id="rule_tag_<%= rule.id -%>_<%= tag -%>" style="background-color: #efe;padding: 1px 2px"><%= tag -%></span>
+        <% end %>
+        <% rule.adminTags.each do |tag| %>
+        <span id="rule_tag_<%= rule.id -%>_<%= tag -%>" style="background-color: #eef;padding: 1px 2px"><%= tag -%></span>
+        <% end %>
+      <% end %>
+      &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
+      <% if rule.status == "REMOVED" %>
+        <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since') %>: <%= human_short_date(Api::Utils.java_to_ruby_datetime(rule.updatedAt)) %></span>
       <% else %>
-        <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.available_since') %> <%= human_short_date(rule.created_at) %></span>
+        <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.available_since') %> <%= human_short_date(Api::Utils.java_to_ruby_datetime(rule.createdAt)) %></span>
       <% end %>
     </div>
   </div>

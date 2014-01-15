@@ -1,13 +1,13 @@
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language() -%> / <%= h @profile.name() %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 
 <%= render :partial => 'profiles/tabs', :locals => {:new_tab => 'Edit rule'} %>
 
 <div class="tabs-panel marginbottom10 background-gray">
 
-<form method="POST" id="delete-form" action="<%= url_for :action => 'delete', :id => @profile.id(), :rule_id => @rule.id() -%>" style="display: none"></form>
+<form method="POST" id="delete-form" action="<%= url_for :action => 'delete', :id => @profile.id, :rule_id => @rule.id -%>" style="display: none"></form>
 <script>
   function deleteRule() {
-    var count = <%= @active_rules -%>;
+    var count = <%= ActiveRule.count(:conditions => {:rule_id => @rule.id}) -%>;
     var message = 'Are you sure?';
     if (count>0) {
       message += ' This rule is activated in ' + count + ' profiles.';
@@ -18,34 +18,34 @@
     return false;
   }
 </script>
-<form method="POST" action="<%= url_for :action => 'update', :id => @profile.id(), :rule_id => @rule.id() -%>">
+<form method="POST" action="<%= url_for :action => 'update', :id => @profile.id, :rule_id => @rule.id -%>">
 <table width="100%" class="spaced">
   <tr>
     <td width="1%" nowrap><%= message('template') -%>:</td>
     <td class="sep"> </td>
-    <td><%= h @parent_rule.name() -%></td>
+    <td><%= h @rule.parent.name -%></td>
   </tr>
   <tr>
     <td width="1%" nowrap><%= message('name') -%>:</td>
     <td class="sep"> </td>
-    <td><input type="text" name="rule[name]" size="80" value="<%= h @rule.name() -%>" /></td>
+    <td><input type="text" name="rule[name]" size="80" value="<%= h @rule.name -%>" /></td>
   </tr>
   <tr>
     <td width="1%" nowrap><%= message('default_severity') -%>:</td>
     <td class="sep"> </td>
     <td>
       <select name="rule[priority]">
-        <%= options_for_select(Sonar::RulePriority.as_options, Sonar::RulePriority.to_s(@rule.severity())) %>
+        <%= options_for_select(Sonar::RulePriority.as_options, Sonar::RulePriority.to_s(@rule.priority)) %>
       </select>
     </td>
   </tr>
-  <% @rule.params.to_a.sort{|x,y| x.key() <=> y.key()}.each do |parameter| %>
+  <% @rule.parameters.sort{|x,y| x.name <=> y.name}.each do |parameter| %>
     <tr>
-      <td width="1%" nowrap><%= parameter.key() %>:</td>
+      <td width="1%" nowrap><%= parameter.name %>:</td>
       <td class="sep"> </td>
       <td>
-        <%= param_value_input(@rule, parameter, "#{h parameter.defaultValue()}", {:name => "rule_param[#{h parameter.key() }]", :size => '80x10'}) -%>
-        <span class="small"><%= h parameter.description() %></span>
+        <%= param_value_input(parameter, "#{h parameter.default_value}", {:name => "rule_param[#{h parameter.name }]", :size => '80x10'}) -%>
+        <span class="small"><%= h parameter.description %></span>
       </td>
     </tr>
   <% end %>
@@ -53,7 +53,7 @@
     <td width="1%" nowrap style="vertical-align: top">Description:</td>
     <td class="sep"> </td>
     <td valign="top">
-      <textarea name="rule[description]" cols="80" rows="10" style="vertical-align: baseline"><%= @rule.description() -%></textarea>
+      <textarea name="rule[description]" cols="80" rows="10" style="vertical-align: baseline"><%= @rule.description -%></textarea>
       <span class="small"><%= message('rules_configuration.html_allowed') -%></span>
     </td>
   </tr>
@@ -61,7 +61,7 @@
     <td colspan="3">
       <input type="submit" value="<%= message('update_verb') -%>" />
       <input type="submit" value="<%= message('delete') -%>" onclick="return deleteRule()" class="red-button" />
-      <a href="<%= url_for :action => 'index', :id => @profile.id() -%>"><%= message('cancel') -%></a>
+      <a href="<%= url_for :action => 'index', :id => @profile.id -%>"><%= message('cancel') -%></a>
     </td>
   </tr>
 </table>

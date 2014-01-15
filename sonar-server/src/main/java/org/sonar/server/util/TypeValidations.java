@@ -23,6 +23,7 @@ package org.sonar.server.util;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.List;
 
@@ -40,11 +41,15 @@ public class TypeValidations implements ServerComponent {
   }
 
   private TypeValidation findByKey(final String key) {
-    return Iterables.find(typeValidationList, new Predicate<TypeValidation>() {
+    TypeValidation typeValidation = Iterables.find(typeValidationList, new Predicate<TypeValidation>() {
       @Override
       public boolean apply(TypeValidation input) {
         return input.key().equals(key);
       }
-    });
+    }, null);
+    if (typeValidation == null) {
+      throw new BadRequestException(String.format("Type '%s' is not valid.", key));
+    }
+    return typeValidation;
   }
 }
