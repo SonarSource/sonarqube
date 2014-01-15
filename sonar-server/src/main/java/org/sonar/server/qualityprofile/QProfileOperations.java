@@ -61,7 +61,6 @@ public class QProfileOperations implements ServerComponent {
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
   private final PropertiesDao propertiesDao;
-  private final QProfileLookup profileLookup;
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
@@ -70,12 +69,12 @@ public class QProfileOperations implements ServerComponent {
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao, QProfileLookup profileLookup,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, profileLookup, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
+    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
   }
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao, QProfileLookup profileLookup,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
                             List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
@@ -85,18 +84,17 @@ public class QProfileOperations implements ServerComponent {
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profilesManager = profilesManager;
-    this.profileLookup = profileLookup;
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
     checkPermission(userSession);
-    checkNotAlreadyExists(name, language);
-
-    NewProfileResult result = new NewProfileResult();
-    List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
-
     SqlSession session = myBatis.openSession();
     try {
+      checkNotAlreadyExists(name, language, session);
+
+      NewProfileResult result = new NewProfileResult();
+      List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
+
       QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
       dao.insert(dto, session);
       for (RulesProfile rulesProfile : importProfiles) {
@@ -105,22 +103,26 @@ public class QProfileOperations implements ServerComponent {
       result.setProfile(QProfile.from(dto));
       session.commit();
       dryRunCache.reportGlobalModification();
+      return result;
     } finally {
       MyBatis.closeQuietly(session);
     }
-    return result;
   }
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
-    QProfile profile = findNotNull(profileId);
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto profile = findNotNull(profileId, session);
 
-    if (!profile.name().equals(newName)) {
-      checkNotAlreadyExists(newName, profile.language());
+      if (!profile.getName().equals(newName)) {
+        checkNotAlreadyExists(newName, profile.getLanguage(), session);
+      }
+      profile.setName(newName);
+      dao.update(profile, session);
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    QualityProfileDto dto = profile.toDto();
-    dto.setName(newName);
-    dao.update(dto);
   }
 
   public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
@@ -130,15 +132,13 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
     checkPermission(userSession);
-    QualityProfileDto profile = findNotNull(profileId).toDto();
-
-    QualityProfileDto parentProfile = null;
-    if (parentId != null) {
-      parentProfile = findNotNull(parentId).toDto();
-    }
-
     SqlSession session = myBatis.openSession();
     try {
+      QualityProfileDto profile = findNotNull(profileId, session);
+      QualityProfileDto parentProfile = null;
+      if (parentId != null) {
+        parentProfile = findNotNull(parentId, session);
+      }
       if (isCycle(profile, parentProfile, session)) {
         throw new BadRequestException("Please do not select a child profile as parent.");
       }
@@ -252,14 +252,14 @@ public class QProfileOperations implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  private QProfile findNotNull(int profileId) {
-    QProfile profile = profileLookup.profile(profileId);
+  private QualityProfileDto findNotNull(int profileId, SqlSession session) {
+    QualityProfileDto profile = dao.selectById(profileId, session);
     QProfileValidations.checkProfileIsNotNull(profile);
     return profile;
   }
 
-  private void checkNotAlreadyExists(String name, String language) {
-    if (profileLookup.profile(name, language) != null) {
+  private void checkNotAlreadyExists(String name, String language, SqlSession session) {
+    if (dao.selectByNameAndLanguage(name, language, session) != null) {
       throw BadRequestException.ofL10n("quality_profiles.already_exists");
     }
   }

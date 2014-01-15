@@ -29,17 +29,9 @@ import javax.annotation.Nullable;
 
 public class QProfileValidations {
 
-  private static final String QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE = "This quality profile does not exists.";
-
-  public static void checkProfileIsNotNull(@Nullable QProfile profile) {
-    if (profile == null) {
-      throw new NotFoundException(QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE);
-    }
-  }
-
   public static void checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
     if (profile == null) {
-      throw new NotFoundException(QUALITY_PROFILE_DOES_NOT_EXISTS_MESSAGE);
+      throw new NotFoundException("This quality profile does not exists.");
     }
   }
 

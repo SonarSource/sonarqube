@@ -85,9 +85,6 @@ public class QProfileOperationsTest {
   PropertiesDao propertiesDao;
 
   @Mock
-  QProfileLookup profileLookup;
-
-  @Mock
   PreviewCache dryRunCache;
 
   @Mock
@@ -119,7 +116,7 @@ public class QProfileOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, profileLookup, importers, dryRunCache, ruleRegistry, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager);
   }
 
   @Test
@@ -152,7 +149,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_create_profile_if_already_exists() throws Exception {
-    when(profileLookup.profile(anyString(), anyString())).thenReturn(new QProfile());
+    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString(), eq(session))).thenReturn(new QualityProfileDto());
     try {
       operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
       fail();
@@ -226,12 +223,12 @@ public class QProfileOperationsTest {
 
   @Test
   public void rename_profile() throws Exception {
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Default").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
 
     operations.renameProfile(1, "Default profile", authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(profileArgument.capture());
+    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
 
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
@@ -239,7 +236,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_rename_profile_if_not_exists() throws Exception {
-    when(profileLookup.profile(1)).thenReturn(null);
+    when(qualityProfileDao.selectById(1, session)).thenReturn(null);
     try {
       operations.renameProfile(1, "New Default", authorizedUserSession);
       fail();
@@ -250,8 +247,8 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_rename_profile_if_already_exists() throws Exception {
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Default").setLanguage("java"));
-    when(profileLookup.profile(anyString(), anyString())).thenReturn(new QProfile());
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString(), eq(session))).thenReturn(new QualityProfileDto());
     try {
       operations.renameProfile(1, "New Default", authorizedUserSession);
       fail();
@@ -275,8 +272,8 @@ public class QProfileOperationsTest {
   @Test
   public void update_parent_profile() {
     QualityProfileDto oldParent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
-    when(profileLookup.profile(3)).thenReturn(new QProfile().setId(3).setName("Parent").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
+    when(qualityProfileDao.selectById(3, session)).thenReturn(new QualityProfileDto().setId(3).setName("Parent").setLanguage("java"));
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(oldParent);
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
@@ -294,8 +291,8 @@ public class QProfileOperationsTest {
 
   @Test
   public void set_parent_profile() {
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent(null));
-    when(profileLookup.profile(2)).thenReturn(new QProfile().setId(2).setName("Parent").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent(null));
+    when(qualityProfileDao.selectById(2, session)).thenReturn(new QualityProfileDto().setId(2).setName("Parent").setLanguage("java"));
 
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
@@ -314,7 +311,7 @@ public class QProfileOperationsTest {
   @Test
   public void remove_parent_profile() {
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
 
     when(qualityProfileDao.selectParent(2, session)).thenReturn(parent);
     when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
@@ -333,8 +330,8 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_update_parent_if_not_exists() throws Exception {
-    when(profileLookup.profile(1)).thenReturn(null);
-    when(profileLookup.profile(3)).thenReturn(new QProfile().setId(3).setName("Parent").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(null);
+    when(qualityProfileDao.selectById(3, session)).thenReturn(new QualityProfileDto().setId(3).setName("Parent").setLanguage("java"));
 
     try {
       operations.updateParentProfile(1, 3, authorizedUserSession);
@@ -346,8 +343,8 @@ public class QProfileOperationsTest {
 
   @Test
   public void fail_to_update_parent_on_cycle() {
-    when(profileLookup.profile(1)).thenReturn(new QProfile().setId(1).setName("Child").setLanguage("java").setParent("parent"));
-    when(profileLookup.profile(2)).thenReturn(new QProfile().setId(2).setName("Parent").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("parent"));
+    when(qualityProfileDao.selectById(2, session)).thenReturn(new QualityProfileDto().setId(2).setName("Parent").setLanguage("java"));
 
     QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
     when(qualityProfileDao.selectParent(1, session)).thenReturn(parent);
