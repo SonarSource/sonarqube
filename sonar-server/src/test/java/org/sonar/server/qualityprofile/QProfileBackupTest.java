@@ -103,7 +103,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
-    QProfileBackup.Result result = backup.restore("<xml/>", false, userSession);
+    QProfileResult result = backup.restore("<xml/>", false, userSession);
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).saveWithoutFlush(profile);
@@ -157,7 +157,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(existingProfile);
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
-    QProfileBackup.Result result = backup.restore("<xml/>", true, userSession);
+    QProfileResult result = backup.restore("<xml/>", true, userSession);
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).removeWithoutFlush(eq(existingProfile));
@@ -184,7 +184,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
-    QProfileBackup.Result result = backup.restore("<xml/>", true, userSession);
+    QProfileResult result = backup.restore("<xml/>", true, userSession);
 
     assertThat(result.profile()).isNotNull();
     assertThat(result.warnings()).isNotEmpty();
@@ -230,7 +230,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
-    QProfileBackup.Result result = backup.restore("<xml/>", false, userSession);
+    QProfileResult result = backup.restore("<xml/>", false, userSession);
 
     assertThat(result.profile()).isNull();
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));

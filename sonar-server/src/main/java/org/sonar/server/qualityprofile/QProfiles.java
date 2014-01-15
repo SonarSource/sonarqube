@@ -114,7 +114,7 @@ public class QProfiles implements ServerComponent {
     return profileLookup.countChildren(profile);
   }
 
-  public QProfileOperations.NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
+  public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
     validateProfileName(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
@@ -147,7 +147,7 @@ public class QProfiles implements ServerComponent {
     operations.updateParentProfile(profileId, parentId, UserSession.get());
   }
 
-  public QProfileBackup.Result restore(String xmlBackup, boolean deleteExisting) {
+  public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     return backup.restore(xmlBackup, deleteExisting, UserSession.get());
   }
 

@@ -86,12 +86,12 @@ public class QProfileOperations implements ServerComponent {
     this.profilesManager = profilesManager;
   }
 
-  public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
+  public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
     SqlSession session = myBatis.openSession();
     try {
       QProfile profile = newProfile(name, language, userSession, session);
 
-      NewProfileResult result = new NewProfileResult();
+      QProfileResult result = new QProfileResult();
       List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
       for (RulesProfile rulesProfile : importProfiles) {
         importProfile(profile.id(), rulesProfile, session);
@@ -188,7 +188,7 @@ public class QProfileOperations implements ServerComponent {
     return null;
   }
 
-  private List<RulesProfile> readProfilesFromXml(NewProfileResult result, Map<String, String> xmlProfilesByPlugin) {
+  private List<RulesProfile> readProfilesFromXml(QProfileResult result, Map<String, String> xmlProfilesByPlugin) {
     List<RulesProfile> profiles = newArrayList();
     ValidationMessages messages = ValidationMessages.create();
     for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
@@ -227,7 +227,7 @@ public class QProfileOperations implements ServerComponent {
     return null;
   }
 
-  private void processValidationMessages(ValidationMessages messages, NewProfileResult result) {
+  private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
     if (!messages.getErrors().isEmpty()) {
       List<BadRequestException.Message> errors = newArrayList();
       for (String error : messages.getErrors()) {
@@ -272,46 +272,6 @@ public class QProfileOperations implements ServerComponent {
   private void checkNotAlreadyExists(String name, String language, SqlSession session) {
     if (dao.selectByNameAndLanguage(name, language, session) != null) {
       throw BadRequestException.ofL10n("quality_profiles.already_exists");
-    }
-  }
-
-  public static class NewProfileResult {
-
-    private List<String> warnings;
-    private List<String> infos;
-
-    private QProfile profile;
-
-    public NewProfileResult() {
-      warnings = newArrayList();
-      infos = newArrayList();
-    }
-
-    public List<String> warnings() {
-      return warnings;
-    }
-
-    public NewProfileResult setWarnings(List<String> warnings) {
-      this.warnings = warnings;
-      return this;
-    }
-
-    public List<String> infos() {
-      return infos;
-    }
-
-    public NewProfileResult setInfos(List<String> infos) {
-      this.infos = infos;
-      return this;
-    }
-
-    public QProfile profile() {
-      return profile;
-    }
-
-    public NewProfileResult setProfile(QProfile profile) {
-      this.profile = profile;
-      return this;
     }
   }
 

@@ -129,7 +129,7 @@ public class QProfileOperationsTest {
 
   @Test
   public void create_profile() throws Exception {
-    QProfileOperations.NewProfileResult result = operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
+    QProfileResult result = operations.newProfile("Default", "java", Maps.<String, String>newHashMap(), authorizedUserSession);
     assertThat(result.profile().name()).isEqualTo("Default");
     assertThat(result.profile().language()).isEqualTo("java");
 
@@ -203,6 +203,35 @@ public class QProfileOperationsTest {
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
 
     verify(ruleRegistry).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
+  }
+
+  @Test
+  public void create_profile_from_xml_plugin_add_infos_and_warnings() throws Exception {
+    final RulesProfile profile = RulesProfile.create("Default", "java");
+    Rule rule = Rule.create("pmd", "rule1");
+    rule.createParameter("max");
+    rule.setId(10);
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+
+    Map<String, String> xmlProfilesByPlugin = newHashMap();
+    xmlProfilesByPlugin.put("pmd", "<xml/>");
+    ProfileImporter importer = mock(ProfileImporter.class);
+    when(importer.getKey()).thenReturn("pmd");
+    doAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        ValidationMessages validationMessages = (ValidationMessages) args[1];
+        validationMessages.addInfoText("an info message");
+        validationMessages.addWarningText("a warning message");
+        return profile;
+      }
+    }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
+    importers.add(importer);
+
+    QProfileResult result = operations.newProfile("Default", "java", xmlProfilesByPlugin, authorizedUserSession);
+    assertThat(result.infos()).hasSize(1);
+    assertThat(result.warnings()).hasSize(1);
   }
 
   @Test

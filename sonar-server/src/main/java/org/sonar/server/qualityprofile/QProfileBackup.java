@@ -62,10 +62,10 @@ public class QProfileBackup implements ServerComponent {
     this.dryRunCache = dryRunCache;
   }
 
-  public Result restore(String xmlBackup, boolean deleteExisting, UserSession userSession) {
+  public QProfileResult restore(String xmlBackup, boolean deleteExisting, UserSession userSession) {
     checkPermission(userSession);
 
-    Result result = new Result();
+    QProfileResult result = new QProfileResult();
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile importedProfile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
     processValidationMessages(messages, result);
@@ -100,7 +100,7 @@ public class QProfileBackup implements ServerComponent {
     }
   }
 
-  private void processValidationMessages(ValidationMessages messages, Result result) {
+  private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
     if (!messages.getErrors().isEmpty()) {
       List<BadRequestException.Message> errors = newArrayList();
       for (String error : messages.getErrors()) {
@@ -117,43 +117,4 @@ public class QProfileBackup implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public static class Result {
-
-    private List<String> warnings;
-    private List<String> infos;
-
-    private QProfile profile;
-
-    public Result() {
-      warnings = newArrayList();
-      infos = newArrayList();
-    }
-
-    public List<String> warnings() {
-      return warnings;
-    }
-
-    public Result setWarnings(List<String> warnings) {
-      this.warnings = warnings;
-      return this;
-    }
-
-    public List<String> infos() {
-      return infos;
-    }
-
-    public Result setInfos(List<String> infos) {
-      this.infos = infos;
-      return this;
-    }
-
-    public QProfile profile() {
-      return profile;
-    }
-
-    public Result setProfile(QProfile profile) {
-      this.profile = profile;
-      return this;
-    }
-  }
 }
