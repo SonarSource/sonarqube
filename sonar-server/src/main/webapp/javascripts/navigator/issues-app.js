@@ -216,14 +216,22 @@ jQuery(function() {
 
     this.storeQuery(query, this.issues.sorting);
 
+    var that = this;
+    this.issuesView.$el.addClass('fetching');
     if (firstPage) {
       this.issues.fetch({
-        data: fetchQuery
+        data: fetchQuery,
+        success: function() {
+          that.issuesView.$el.removeClass('fetching');
+        }
       });
     } else {
       this.issues.fetch({
         data: fetchQuery,
-        remove: false
+        remove: false,
+        success: function() {
+          that.issuesView.$el.removeClass('fetching');
+        }
       });
     }
   };
