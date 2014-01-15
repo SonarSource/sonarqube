@@ -170,7 +170,7 @@ jQuery(function() {
         sortText: el.text(),
         asc: asc
       };
-      this.options.app.fetchFirstPage();
+      this.render();
     },
 
 
@@ -189,8 +189,12 @@ jQuery(function() {
   var IssuesFilterBarView = window.SS.FilterBarView.extend({
 
     collectionEvents: {
-      'change:value': 'changeValue',
       'change:enabled': 'changeEnabled'
+    },
+
+
+    events: {
+      'click .navigator-filter-submit': 'search'
     },
 
 
@@ -203,7 +207,7 @@ jQuery(function() {
     },
 
 
-    changeValue: function() {
+    search: function() {
       this.options.app.fetchFirstPage();
     },
 
