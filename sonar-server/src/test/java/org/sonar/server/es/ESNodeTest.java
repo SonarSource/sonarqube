@@ -93,7 +93,7 @@ public class ESNodeTest {
 
   @Test(expected = StrictDynamicMappingException.class)
   public void should_use_default_settings_for_index() throws Exception {
-    ESNode node = new ESNode(fs, new Settings().setProperty("sonar.es.http.port", 9200));
+    ESNode node = new ESNode(fs, new Settings());
     node.start();
 
     node.client().admin().indices().prepareCreate("polop")
