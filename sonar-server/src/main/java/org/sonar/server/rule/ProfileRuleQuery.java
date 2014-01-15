@@ -62,6 +62,7 @@ public class ProfileRuleQuery {
   private List<String> repositoryKeys;
   private List<String> severities;
   private List<String> statuses;
+  private List<String> tags;
   private String inheritance;
   private boolean anyInheritance;
   private boolean noInheritance;
@@ -73,6 +74,7 @@ public class ProfileRuleQuery {
     repositoryKeys = Lists.newArrayList();
     severities = Lists.newArrayList();
     statuses = Lists.newArrayList();
+    tags = Lists.newArrayList();
     sort = SORT_BY_RULE_NAME;
     asc = true;
   }
@@ -183,6 +185,11 @@ public class ProfileRuleQuery {
     return this;
   }
 
+  public ProfileRuleQuery addTags(String... tags) {
+    this.tags.addAll(Arrays.asList(tags));
+    return this;
+  }
+
   public ProfileRuleQuery setInheritance(String inheritance) {
     this.inheritance = inheritance;
     return this;
@@ -232,6 +239,10 @@ public class ProfileRuleQuery {
 
   public Collection<String> statuses() {
     return ImmutableList.copyOf(statuses);
+  }
+
+  public Collection<String> tags() {
+    return ImmutableList.copyOf(tags);
   }
 
   @CheckForNull

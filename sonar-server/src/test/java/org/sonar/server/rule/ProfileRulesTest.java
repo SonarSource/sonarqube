@@ -273,12 +273,22 @@ public class ProfileRulesTest {
   }
 
   @Test
-  public void find_inactive_rules_with_tags() throws Exception {
+  public void find_rules_with_tags() throws Exception {
     esSetup.client().prepareBulk()
+      // id = 2303, tags = empty
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_empty.json")))
+      // active rule with parent having no tag
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("2303").source(testFileAsString("find_inactive_rules_with_tags/active_rule_empty.json")))
+      // id = 2304, tags = taga
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_a.json")))
+      // id = 2305, tags = taga, tagb
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_ab.json")))
+      // id = 2306, tags = tagb, tagc
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_bc.json")))
+      // id = 2307, tags = taga, tagc, tage
+      .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_ace.json")))
+      // active rule with parent having tags
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("2307").source(testFileAsString("find_inactive_rules_with_tags/active_rule_ace.json")))
       .setRefresh(true)
       .execute().actionGet();
 
@@ -286,16 +296,31 @@ public class ProfileRulesTest {
 
     // all rules
     List<QProfileRule> rules = profileRules.searchInactives(ProfileRuleQuery.create(1).setLanguage("xoo"), paging).rules();
-    assertThat(rules).hasSize(4);
+    assertThat(rules).hasSize(5);
 
+    // check mapping is correctly loaded
     assertThat(rules.get(0).systemTags()).containsOnly("taga");
     assertThat(rules.get(0).adminTags()).isEmpty();
     assertThat(rules.get(1).systemTags()).containsOnly("tagb");
     assertThat(rules.get(1).adminTags()).containsOnly("taga");
-    assertThat(rules.get(2).systemTags()).containsOnly("tagb", "tagc");
-    assertThat(rules.get(2).adminTags()).isEmpty();
-    assertThat(rules.get(3).systemTags()).isEmpty();
+    assertThat(rules.get(2).systemTags()).containsOnly("taga", "tagc");
+    assertThat(rules.get(2).adminTags()).containsOnly("tage");
+    assertThat(rules.get(3).systemTags()).containsOnly("tagb", "tagc");
     assertThat(rules.get(3).adminTags()).isEmpty();
+    assertThat(rules.get(4).systemTags()).isEmpty();
+    assertThat(rules.get(4).adminTags()).isEmpty();
+
+    // check search for inactive rules
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(2).setLanguage("xoo").addTags("taga")))
+      .hasSize(2).containsOnly(2304, 2305);
+    assertThat(profileRules.searchInactiveProfileRuleIds(ProfileRuleQuery.create(2).setLanguage("xoo").addTags("taga", "tagb")))
+      .hasSize(1).containsOnly(2305);
+
+    // check search for active rules
+    assertThat(profileRules.searchProfileRuleIds(ProfileRuleQuery.create(2).setLanguage("xoo").addTags("taga")))
+      .hasSize(1).containsOnly(2307);
+    assertThat(profileRules.searchProfileRuleIds(ProfileRuleQuery.create(2).setLanguage("xoo").addTags("tagb")))
+      .isEmpty();
   }
 
   @Test

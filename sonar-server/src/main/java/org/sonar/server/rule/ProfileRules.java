@@ -48,7 +48,9 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.sonar.server.rule.RuleRegistry.*;
+import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
+import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
 public class ProfileRules implements ServerExtension {
 
@@ -199,8 +201,7 @@ public class ProfileRules implements ServerExtension {
   public long countInactiveProfileRules(ProfileRuleQuery query) {
     return index.executeCount(index.client().prepareCount(INDEX_RULES).setTypes(TYPE_RULE)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        boolFilter()
-          .must(ruleFilterForInactiveRuleSearch(query)))));
+        ruleFilterForInactiveRuleSearch(query))));
   }
 
   private SearchHits searchRules(ProfileRuleQuery query, Paging paging, FilterBuilder filterBuilder, String... fields) {
@@ -253,6 +254,12 @@ public class ProfileRules implements ServerExtension {
       result.mustNot(termFilter(RuleDocument.FIELD_STATUS, Rule.STATUS_REMOVED));
     } else {
       addMustTermOrTerms(result, RuleDocument.FIELD_STATUS, query.statuses());
+    }
+
+    for (String tag: query.tags()) {
+      result.must(
+        queryFilter(
+          multiMatchQuery(tag, RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS)));
     }
 
     if (StringUtils.isNotBlank(query.nameOrKey())) {
