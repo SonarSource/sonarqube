@@ -39,8 +39,11 @@ public class RuleRepositoriesTest {
     assertThat(findbugs.key()).isEqualTo("findbugs");
     assertThat(findbugs.name()).isEqualTo("Findbugs");
     assertThat(findbugs.language()).isEqualTo("java");
+
+    // for backward-compatibility
     assertThat(findbugs.getKey()).isEqualTo("findbugs");
-    assertThat(findbugs.getName()).isEqualTo("Findbugs");
+    assertThat(findbugs.getName(false)).isEqualTo("Findbugs");
+    assertThat(findbugs.getName(true)).isEqualTo("Findbugs");
     assertThat(findbugs.getLanguage()).isEqualTo("java");
 
     RuleRepositories.Repository squid = repositories.repository("squid");

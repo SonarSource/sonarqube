@@ -93,12 +93,8 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
-import org.sonar.server.rule.DeprecatedRuleDefinitions;
-import org.sonar.server.rule.ProfileRules;
-import org.sonar.server.rule.RubyRuleService;
-import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule.*;
 import org.sonar.server.rules.ProfilesConsole;
-import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
@@ -263,7 +259,6 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultRuleFinder.class);
     servicesContainer.addSingleton(DefaultMetricFinder.class);
     servicesContainer.addSingleton(ProfilesConsole.class);
-    servicesContainer.addSingleton(RulesConsole.class);
     servicesContainer.addSingleton(ResourceTypes.class);
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
     servicesContainer.addSingleton(PageDecorations.class);
@@ -335,6 +330,7 @@ public final class Platform {
     // rules
     servicesContainer.addSingleton(RuleRegistry.class);
     servicesContainer.addSingleton(RubyRuleService.class);
+    servicesContainer.addSingleton(RuleRepositories.class);
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);
@@ -379,7 +375,8 @@ public final class Platform {
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(DeprecatedRuleDefinitions.class);
-    startupContainer.addSingleton(RegisterRules.class);
+    startupContainer.addSingleton(RuleDefinitionsLoader.class);
+    startupContainer.addSingleton(RuleRegistration.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
