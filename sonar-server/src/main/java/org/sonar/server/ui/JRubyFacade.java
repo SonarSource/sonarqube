@@ -257,10 +257,12 @@ public final class JRubyFacade {
     return get(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }
 
+  // TODO move this to QProfiles
   public String backupProfile(int profileId) {
     return get(ProfilesConsole.class).backupProfile(profileId);
   }
 
+  // TODO move this to QProfiles
   public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
     return get(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
   }
@@ -269,6 +271,7 @@ public final class JRubyFacade {
     return get(ProfilesConsole.class).getProfileExportersForLanguage(language);
   }
 
+  // TODO move this to QProfiles
   public List<ProfileImporter> getProfileImportersForLanguage(String language) {
     return get(ProfilesConsole.class).getProfileImportersForLanguage(language);
   }
@@ -276,6 +279,7 @@ public final class JRubyFacade {
   /**
    * @throws IllegalArgumentException if no such exporter
    */
+  // TODO move this to QProfiles
   public String exportProfile(int profileId, String exporterKey) {
     return get(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
@@ -284,6 +288,7 @@ public final class JRubyFacade {
     return get(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
+  // TODO move this to QProfiles
   public void copyProfile(long profileId, String newProfileName) {
     getProfilesManager().copyProfile((int) profileId, newProfileName);
   }

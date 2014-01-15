@@ -48,7 +48,7 @@ import java.util.Map;
  *
  * @since 2.3
  */
-public final class XMLProfileParser implements ServerComponent {
+public class XMLProfileParser implements ServerComponent {
 
   private final RuleFinder ruleFinder;
   private MetricFinder metricFinder;

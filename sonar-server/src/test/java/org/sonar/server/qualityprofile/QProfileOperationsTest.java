@@ -115,6 +115,14 @@ public class QProfileOperationsTest {
         return null;
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
+    doAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        QualityProfileDto dto = (QualityProfileDto) args[0];
+        dto.setId(currentId++);
+        return null;
+      }
+    }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
 
     operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager);
   }
@@ -291,7 +299,7 @@ public class QProfileOperationsTest {
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -311,7 +319,7 @@ public class QProfileOperationsTest {
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -332,7 +340,7 @@ public class QProfileOperationsTest {
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, null, "Nicolas");
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test

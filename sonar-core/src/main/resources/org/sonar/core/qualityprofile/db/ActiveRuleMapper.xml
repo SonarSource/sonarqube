@@ -88,6 +88,15 @@
     </where>
   </select>
 
+  <select id="selectByProfileId" parameterType="Integer" resultType="ActiveRule">
+    SELECT <include refid="activeRuleColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleJoin"/>
+    <where>
+      AND a.profile_id=#{profileId}
+    </where>
+  </select>
+
   <select id="selectAll" parameterType="map" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>,active_rule_parent.id as parentId

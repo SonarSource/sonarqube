@@ -54,19 +54,13 @@ class ProfilesController < ApplicationController
       end
       result = Internal.quality_profiles.newProfile(params[:name], params[:language], files_by_key)
       flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
-
-      # only 4 messages are kept each time to avoid cookie overflow.
-      unless result.infos.empty?
-        flash[:notice] += result.infos.to_a[0...4].join('<br/>')
-      end
-      unless result.warnings.empty?
-        flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
-      end
+      flash_result(result)
     end
     redirect_to :action => 'index'
   end
 
   # POST /profiles/delete/<id>
+  # TODO use QProfiles facade instead
   def delete
     verify_post_request
     access_denied unless has_role?(:profileadmin)
@@ -93,6 +87,7 @@ class ProfilesController < ApplicationController
 
 
   # GET /profiles/copy_form/<profile id>
+  # TODO use QProfiles facade instead
   def copy_form
     access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
@@ -101,6 +96,7 @@ class ProfilesController < ApplicationController
   end
 
   # POST /profiles/copy/<id>?name=<name of new profile>
+  # TODO use QProfiles facade instead
   def copy
     verify_post_request
     verify_ajax_request
@@ -124,6 +120,7 @@ class ProfilesController < ApplicationController
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   # POST /profiles/backup?id=<profile id>
+  # TODO use QProfiles facade instead
   def backup
     verify_post_request
     require_parameters 'id'
@@ -144,19 +141,20 @@ class ProfilesController < ApplicationController
 
   # POST /profiles/restore?backup=<file>
   def restore
-    verify_post_request
-    access_denied unless has_role?(:profileadmin)
     if params[:backup].blank?
-      flash[:warning]=message('quality_profiles.please_upload_backup_file')
+      flash[:warning] = message('quality_profiles.please_upload_backup_file')
     else
-      messages=java_facade.restoreProfile(Api::Utils.read_post_request_param(params[:backup]), false)
-      flash_messages(messages)
+      call_backend do
+        result = Internal.quality_profiles.restore(Api::Utils.read_post_request_param(params[:backup]), false)
+        flash_result(result)
+      end
     end
     redirect_to :action => 'index'
   end
 
 
   # GET /profiles/export?name=<profile name>&language=<language>&format<exporter key>
+  # TODO use QProfiles facade instead
   def export
     language = params[:language]
     if (params[:name].blank?)
@@ -257,6 +255,7 @@ class ProfilesController < ApplicationController
   # GET /profiles/permalinks?id=<profile id>
   #
   #
+  # TODO use QProfiles facade instead
   def permalinks
     require_parameters 'id'
     @profile = Profile.find(params[:id])
@@ -514,6 +513,17 @@ class ProfilesController < ApplicationController
     if messages.hasInfos()
       flash[:notice]=messages.getInfos().to_a[0...4].join('<br/>')
     end
+  end
+
+  def flash_result(result)
+    # only 4 messages are kept each time to avoid cookie overflow.
+    unless result.infos.empty?
+      flash[:notice] += result.infos.to_a[0...4].join('<br/>')
+    end
+    unless result.warnings.empty?
+      flash[:warning] = result.warnings.to_a[0...4].join('<br/>')
+    end
+
   end
 
   def set_profile_breadcrumbs

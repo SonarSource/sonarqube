@@ -155,7 +155,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).activated(eq(1), anyInt(), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(eq(newArrayList(idActiveRuleToDelete)));
-    verify(ruleRegistry).bulkIndexActiveRules(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
   }
 
   @Test
@@ -173,7 +173,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -221,7 +221,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).activated(eq(1), anyInt(), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(eq(newArrayList(idActiveRuleToDelete)));
-    verify(ruleRegistry).bulkIndexActiveRules(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
   }
 
   @Test
@@ -240,7 +240,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).deactivated(eq(1), anyInt(), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -277,7 +277,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).deactivated(eq(1), anyInt(), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -300,7 +300,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -341,7 +341,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -361,7 +361,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(activeRuleDao).deleteParameter(100, session);
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq((String) null), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -384,7 +384,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session, times(2)).commit();
     verify(profilesManager).ruleSeverityChanged(eq(1), eq(5), eq(RulePriority.MINOR), eq(RulePriority.MAJOR), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -433,7 +433,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("15"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -461,7 +461,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("format"), eq("abc"), eq((String) null), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 
@@ -492,7 +492,7 @@ public class QProfileActiveRuleOperationsTest {
     verify(session, times(2)).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("minimum"), eq((String) null), eq("2"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(Integer.class), eq(session));
+    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
     verify(ruleRegistry).save(eq(activeRule), anyListOf(ActiveRuleParamDto.class));
   }
 

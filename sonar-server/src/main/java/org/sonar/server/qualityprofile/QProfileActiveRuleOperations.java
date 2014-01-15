@@ -394,7 +394,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void reindexInheritanceResult(ProfilesManager.RuleInheritanceActions actions, SqlSession session) {
     ruleRegistry.deleteActiveRules(actions.idsToDelete());
-    ruleRegistry.bulkIndexActiveRules(actions.idsToIndex(), session);
+    ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {

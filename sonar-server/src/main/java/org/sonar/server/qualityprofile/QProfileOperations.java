@@ -87,26 +87,36 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public NewProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      checkNotAlreadyExists(name, language, session);
+      QProfile profile = newProfile(name, language, userSession, session);
 
       NewProfileResult result = new NewProfileResult();
       List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
-
-      QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
-      dao.insert(dto, session);
       for (RulesProfile rulesProfile : importProfiles) {
-        importProfile(dto, rulesProfile, session);
+        importProfile(profile.id(), rulesProfile, session);
       }
-      result.setProfile(QProfile.from(dto));
+      result.setProfile(profile);
       session.commit();
       dryRunCache.reportGlobalModification();
       return result;
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public QProfile newProfile(String name, String language, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
+    checkPermission(userSession);
+    if (failIfAlreadyExists) {
+      checkNotAlreadyExists(name, language, session);
+    }
+    QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
+    dao.insert(dto, session);
+    return QProfile.from(dto);
+  }
+
+  private QProfile newProfile(String name, String language, UserSession userSession, SqlSession session) {
+    return newProfile(name, language, true, userSession, session);
   }
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
@@ -147,7 +157,7 @@ public class QProfileOperations implements ServerComponent {
 
       ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
       ruleRegistry.deleteActiveRules(actions.idsToDelete());
-      ruleRegistry.bulkIndexActiveRules(actions.idsToIndex(), session);
+      ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
 
       profile.setParent(parentName);
       dao.update(profile, session);
@@ -192,11 +202,11 @@ public class QProfileOperations implements ServerComponent {
     return profiles;
   }
 
-  private void importProfile(QualityProfileDto qualityProfileDto, RulesProfile rulesProfile, SqlSession sqlSession) {
+  public void importProfile(int profileId, RulesProfile rulesProfile, SqlSession sqlSession) {
     List<ActiveRuleDto> activeRuleDtos = newArrayList();
     Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
     for (ActiveRule activeRule : rulesProfile.getActiveRules()) {
-      ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, qualityProfileDto);
+      ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, profileId);
       activeRuleDao.insert(activeRuleDto, sqlSession);
       activeRuleDtos.add(activeRuleDto);
       for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
@@ -229,9 +239,9 @@ public class QProfileOperations implements ServerComponent {
     result.setInfos(messages.getInfos());
   }
 
-  private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, QualityProfileDto dto) {
+  private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, int profileId) {
     return new ActiveRuleDto()
-      .setProfileId(dto.getId())
+      .setProfileId(profileId)
       .setRuleId(activeRule.getRule().getId())
       .setSeverity(toSeverityLevel(activeRule.getSeverity()));
   }

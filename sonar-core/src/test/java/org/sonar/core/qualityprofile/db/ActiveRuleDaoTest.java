@@ -143,6 +143,14 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_profile() {
+    setupData("shared");
+
+    List<ActiveRuleDto> result = dao.selectByProfileId(2);
+    assertThat(result).hasSize(2);
+  }
+
+  @Test
   public void select_all() {
     setupData("shared");
 

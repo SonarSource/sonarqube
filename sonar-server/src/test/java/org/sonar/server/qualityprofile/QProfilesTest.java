@@ -88,13 +88,16 @@ public class QProfilesTest {
   QProfileRuleOperations ruleOperations;
 
   @Mock
+  QProfileBackup backup;
+
+  @Mock
   ProfileRules rules;
 
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, profileLookup, service, activeRuleOperations, ruleOperations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, profileLookup, service, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test

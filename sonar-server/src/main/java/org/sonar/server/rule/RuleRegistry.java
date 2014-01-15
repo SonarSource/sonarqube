@@ -20,7 +20,9 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
@@ -255,10 +257,23 @@ public class RuleRegistry {
     }
   }
 
-  public void bulkIndexActiveRules(List<Integer> ids, SqlSession session) {
-    List<ActiveRuleDto> activeRules = activeRuleDao.selectByIds(ids, session);
+  public void bulkIndexProfile(int profileId, SqlSession session) {
+    bulkIndexActiveRules(activeRuleDao.selectByProfileId(profileId, session), session);
+  }
+
+  public void bulkIndexActiveRuleIds(List<Integer> activeRulesIds, SqlSession session) {
+    bulkIndexActiveRules(activeRuleDao.selectByIds(activeRulesIds, session), session);
+  }
+
+  private void bulkIndexActiveRules(List<ActiveRuleDto> activeRules, SqlSession session) {
     Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleIds(ids, session)) {
+    List<Integer> activeRulesIdList = newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
+      @Override
+      public Integer apply(ActiveRuleDto input) {
+        return input.getId();
+      }
+    }));
+    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleIds(activeRulesIdList, session)) {
       paramsByActiveRule.put(param.getActiveRuleId(), param);
     }
     bulkIndexActiveRules(activeRules, paramsByActiveRule);
@@ -267,7 +282,7 @@ public class RuleRegistry {
   public void bulkIndexActiveRules(List<Integer> ids) {
     SqlSession session = myBatis.openSession();
     try {
-      bulkIndexActiveRules(ids, session);
+      bulkIndexActiveRuleIds(ids, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

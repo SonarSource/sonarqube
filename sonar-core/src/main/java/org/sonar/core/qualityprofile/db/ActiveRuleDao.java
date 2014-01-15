@@ -97,19 +97,6 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public List<ActiveRuleDto> selectByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectByRuleId(ruleId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<ActiveRuleDto> selectByRuleId(Integer ruleId, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId);
-  }
-
   public List<ActiveRuleDto> selectByIds(List<Integer> ids) {
     SqlSession session = mybatis.openSession();
     try {
@@ -144,6 +131,33 @@ public class ActiveRuleDao implements ServerComponent {
   public List<ActiveRuleDto> selectAll(SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectAll();
   }
+
+  public List<ActiveRuleDto> selectByRuleId(Integer ruleId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByRuleId(ruleId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleDto> selectByRuleId(Integer ruleId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId);
+  }
+
+  public List<ActiveRuleDto> selectByProfileId(int profileId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByProfileId(profileId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActiveRuleDto> selectByProfileId(int profileId, SqlSession session) {
+    return session.getMapper(ActiveRuleMapper.class).selectByProfileId(profileId);
+  }
+
 
   @CheckForNull
   public ActiveRuleDto selectById(Integer id) {

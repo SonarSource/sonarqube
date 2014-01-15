@@ -28,21 +28,13 @@ import static org.fest.assertions.Assertions.assertThat;
 public class BadRequestExceptionTest {
 
   @Test
-  public void test_message() throws Exception {
+  public void text_error() throws Exception {
     BadRequestException exception = BadRequestException.of("error");
     assertThat(exception.getMessage()).isEqualTo("error");
   }
 
   @Test
-  public void test_l10n_errors() throws Exception {
-    BadRequestException exception = BadRequestException.ofL10n("issue.error.123", "10");
-    assertThat(exception.getMessage()).isNull();
-    assertThat(exception.l10nKey()).isEqualTo("issue.error.123");
-    assertThat(exception.l10nParams()).containsOnly("10");
-  }
-
-  @Test
-  public void test_text_error_message() throws Exception {
+  public void text_error_with_message() throws Exception {
     BadRequestException exception = BadRequestException.of("error", newArrayList(BadRequestException.Message.of("new error")));
 
     assertThat(exception.errors()).hasSize(1);
@@ -50,7 +42,15 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void test_l10n_message() throws Exception {
+  public void l10n_errors() throws Exception {
+    BadRequestException exception = BadRequestException.ofL10n("issue.error.123", "10");
+    assertThat(exception.getMessage()).isNull();
+    assertThat(exception.l10nKey()).isEqualTo("issue.error.123");
+    assertThat(exception.l10nParams()).containsOnly("10");
+  }
+
+  @Test
+  public void test_equals_and_hashcode() throws Exception {
     BadRequestException.Message msg = BadRequestException.Message.ofL10n("error.123", "10");
     BadRequestException.Message sameMsg = BadRequestException.Message.ofL10n("error.123", "10");
     BadRequestException.Message msg2 = BadRequestException.Message.ofL10n("error.123", "200");

@@ -64,6 +64,7 @@ public final class ProfilesConsole implements ServerComponent {
     this.importers.addAll(Arrays.asList(importers));
   }
 
+  @Deprecated
   public String backupProfile(int profileId) {
     DatabaseSession session = sessionFactory.getSession();
     RulesProfile profile = loadProfile(session, profileId);
@@ -75,6 +76,7 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
+  @Deprecated
   public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
@@ -120,6 +122,7 @@ public final class ProfilesConsole implements ServerComponent {
     return result;
   }
 
+  @Deprecated
   public String exportProfile(int profileId, String exporterKey) {
     DatabaseSession session = sessionFactory.getSession();
     RulesProfile profile = loadProfile(session, profileId);

@@ -146,15 +146,12 @@ class Api::ProfilesController < Api::ApiController
   # curl -X POST -u admin:admin -F 'backup=@backup.xml' -v http://localhost:9000/api/profiles/restore
   def restore
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters :backup
 
-    backup = Api::Utils.read_post_request_param(params[:backup])
+    result = Internal.quality_profiles.restore(Api::Utils.read_post_request_param(params[:backup]), true)
 
-    messages=java_facade.restoreProfile(backup, true)
-    status=(messages.hasErrors() ? 400 : 200)
     respond_to do |format|
-      format.json { render :json => jsonp(validation_messages_to_json(messages)), :status => status }
+      format.json { render :json => jsonp(validation_result_to_json(result)), :status => 200 }
     end
   end
 
@@ -165,6 +162,13 @@ class Api::ProfilesController < Api::ApiController
     hash[:errors]=messages.getErrors().to_a.map { |message| message }
     hash[:warnings]=messages.getWarnings().to_a.map { |message| message }
     hash[:infos]=messages.getInfos().to_a.map { |message| message }
+    hash
+  end
+
+  def validation_result_to_json(result)
+    hash={}
+    hash[:warnings]=result.warnings().to_a.map { |message| message }
+    hash[:infos]=result.infos().to_a.map { |message| message }
     hash
   end
 
