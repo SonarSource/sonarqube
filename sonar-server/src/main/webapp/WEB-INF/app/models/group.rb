@@ -30,6 +30,8 @@ class Group < ActiveRecord::Base
   validates_uniqueness_of   :name
   validate       :name_cant_be_anyone
 
+  attr_accessible :name, :description
+
   # all the users that are NOT members of this group
   def available_users
     User.find(:all, :conditions => ["active=?", true], :order => 'name') - users
@@ -51,5 +53,27 @@ class Group < ActiveRecord::Base
 
   def name_cant_be_anyone
     errors.add(:name, 'cannot be "Anyone" as this is a reserved group name.') if name && name.downcase == ANYONE
+  end
+  
+  def to_hash_json(options={})
+    {'key' => name, 'name' => name, 'description' => description}
+  end
+
+  def as_json(options={})
+    {
+      :key => name,
+      :name => name,
+      :description => description
+    }
+  end
+
+  def to_hash
+    hash = { :group => self }
+    if errors and !errors.empty?
+      hash[:errors] = errors.full_messages.map do |msg|
+        { :msg => msg }
+      end
+    end
+    hash
   end
 end
