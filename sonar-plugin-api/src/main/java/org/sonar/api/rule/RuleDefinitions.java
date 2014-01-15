@@ -21,6 +21,7 @@ package org.sonar.api.rule;
 
 import com.google.common.collect.*;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
@@ -86,6 +87,8 @@ public interface RuleDefinitions extends ServerExtension {
   static interface NewExtendedRepository {
     NewRule newRule(String ruleKey);
 
+    void loadAnnotatedClasses(Class... classes);
+
     void done();
   }
 
@@ -117,11 +120,22 @@ public interface RuleDefinitions extends ServerExtension {
     @Override
     public NewRule newRule(String ruleKey) {
       if (newRules.containsKey(ruleKey)) {
-        throw new IllegalArgumentException("The rule '" + ruleKey + "' of repository '" + key + "' is declared several times");
+        // Should fail in a perfect world, but at the time being the Findbugs plugin
+        // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
+        // See http://jira.codehaus.org/browse/SONARJAVA-428
+        LoggerFactory.getLogger(getClass()).warn(String.format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
       }
       NewRule newRule = new NewRule(key, ruleKey);
       newRules.put(ruleKey, newRule);
       return newRule;
+    }
+
+    /**
+     * Load definitions from classes annotated with #{@link org.sonar.check.Rule} of library sonar-check-api
+     */
+    @Override
+    public void loadAnnotatedClasses(Class... classes) {
+      new AnnotationRuleDefinitions().loadRules(this, classes);
     }
 
     @Override

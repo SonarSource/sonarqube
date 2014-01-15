@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
@@ -64,6 +65,7 @@ public class RuleRegistration implements Startable {
 
   @Override
   public void start() {
+    TimeProfiler profiler = new TimeProfiler().start("Register rules");
     SqlSession sqlSession = myBatis.openSession();
     try {
       Buffer buffer = new Buffer(system.now());
@@ -74,6 +76,7 @@ public class RuleRegistration implements Startable {
 
     } finally {
       sqlSession.close();
+      profiler.stop();
     }
   }
 

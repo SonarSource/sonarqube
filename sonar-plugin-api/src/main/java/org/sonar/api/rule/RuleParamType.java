@@ -35,6 +35,7 @@ public final class RuleParamType {
   public static final RuleParamType TEXT = new RuleParamType("TEXT");
   public static final RuleParamType BOOLEAN = new RuleParamType("BOOLEAN");
   public static final RuleParamType INTEGER = new RuleParamType("INTEGER");
+  public static final RuleParamType FLOAT = new RuleParamType("FLOAT");
 
   private final String type;
   private final String[] options;

@@ -21,12 +21,14 @@ package org.sonar.server.rule;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.rule.RuleParamType;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * Inject deprecated RuleRepository into RuleDefinitions for backward-compatibility.
@@ -57,7 +59,6 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRepository = (NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
-        // TODO remove org.sonar.api.rules.Rule#tags
         NewRule newRule = newRepository.newRule(rule.getKey());
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
@@ -68,6 +69,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
           NewParam newParam = newRule.newParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());
           newParam.setDescription(paramDescription(repository.getKey(), rule.getKey(), param));
+          newParam.setType(paramType(param.getType()));
         }
       }
       newRepository.done();
@@ -99,5 +101,25 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
       param.getDescription()
     );
     return StringUtils.defaultIfBlank(desc, null);
+  }
+
+  private RuleParamType paramType(@Nullable String s) {
+    if (StringUtils.isBlank(s)) {
+      return RuleParamType.STRING;
+    }
+    if ("i".equals(s) || "i{}".equals(s)) {
+      return RuleParamType.INTEGER;
+    }
+    if ("s".equals(s) || "s{}".equals(s) || "r".equals(s)) {
+      return RuleParamType.STRING;
+    }
+    if ("b".equals(s)) {
+      return RuleParamType.BOOLEAN;
+    }
+    if (s.startsWith("s[")) {
+      String values = StringUtils.substringBetween(s, "[", "]");
+      return RuleParamType.ofValues(StringUtils.split(values, ','));
+    }
+    return RuleParamType.parse(s);
   }
 }

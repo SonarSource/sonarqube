@@ -1,0 +1,161 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.api.rule;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.check.Priority;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class AnnotationRuleDefinitionsTest {
+
+  @org.junit.Rule
+  public final ExpectedException exception = ExpectedException.none();
+
+  @Test
+  public void rule_with_property() {
+    RuleDefinitions.Repository repository = load(RuleWithProperty.class);
+    assertThat(repository.rules()).hasSize(1);
+    RuleDefinitions.Rule rule = repository.rules().get(0);
+    assertThat(rule.key()).isEqualTo("foo");
+    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.name()).isEqualTo("bar");
+    assertThat(rule.htmlDescription()).isEqualTo("Foo Bar");
+    assertThat(rule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.params()).hasSize(1);
+
+    RuleDefinitions.Param prop = rule.param("property");
+    assertThat(prop.key()).isEqualTo("property");
+    assertThat(prop.description()).isEqualTo("Ignore ?");
+    assertThat(prop.defaultValue()).isEqualTo("false");
+    assertThat(prop.type()).isEqualTo(RuleParamType.STRING);
+  }
+
+  @Test
+  public void rule_with_integer_property() {
+    RuleDefinitions.Repository repository = load(RuleWithIntegerProperty.class);
+
+    RuleDefinitions.Param prop = repository.rules().get(0).param("property");
+    assertThat(prop.description()).isEqualTo("Max");
+    assertThat(prop.defaultValue()).isEqualTo("12");
+    assertThat(prop.type()).isEqualTo(RuleParamType.INTEGER);
+  }
+
+  @Test
+  public void rule_with_text_property() {
+    RuleDefinitions.Repository repository = load(RuleWithTextProperty.class);
+
+    RuleDefinitions.Param prop = repository.rules().get(0).param("property");
+    assertThat(prop.description()).isEqualTo("text");
+    assertThat(prop.defaultValue()).isEqualTo("Long text");
+    assertThat(prop.type()).isEqualTo(RuleParamType.TEXT);
+  }
+
+  @Test
+  @Ignore("TODO list supported types in RuleParamType")
+  public void should_reject_invalid_property_types() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Invalid property type [INVALID]");
+
+    load(RuleWithInvalidPropertyType.class);
+  }
+
+  @Test
+  public void should_recognize_type() {
+    assertThat(AnnotationRuleDefinitions.guessType(Integer.class)).isEqualTo(RuleParamType.INTEGER);
+    assertThat(AnnotationRuleDefinitions.guessType(int.class)).isEqualTo(RuleParamType.INTEGER);
+    assertThat(AnnotationRuleDefinitions.guessType(Float.class)).isEqualTo(RuleParamType.FLOAT);
+    assertThat(AnnotationRuleDefinitions.guessType(float.class)).isEqualTo(RuleParamType.FLOAT);
+    assertThat(AnnotationRuleDefinitions.guessType(Boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(AnnotationRuleDefinitions.guessType(boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(AnnotationRuleDefinitions.guessType(String.class)).isEqualTo(RuleParamType.STRING);
+    assertThat(AnnotationRuleDefinitions.guessType(Object.class)).isEqualTo(RuleParamType.STRING);
+  }
+
+  @Test
+  public void use_classname_when_missing_key() {
+    RuleDefinitions.Repository repository = load(RuleWithoutKey.class);
+    assertThat(repository.rules()).hasSize(1);
+    RuleDefinitions.Rule rule = repository.rules().get(0);
+    assertThat(rule.key()).isEqualTo(RuleWithoutKey.class.getCanonicalName());
+    assertThat(rule.name()).isEqualTo("foo");
+  }
+
+  @Test
+  public void overridden_class() {
+    RuleDefinitions.Repository repository = load(OverridingRule.class);
+    assertThat(repository.rules()).hasSize(1);
+    RuleDefinitions.Rule rule = repository.rules().get(0);
+    assertThat(rule.key()).isEqualTo("overriding_foo");
+    assertThat(rule.name()).isEqualTo("Overriding Foo");
+    assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.htmlDescription()).isEqualTo("Desc of Overriding Foo");
+    assertThat(rule.params()).hasSize(2);
+  }
+
+  private RuleDefinitions.Repository load(Class annotatedClass) {
+    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RuleDefinitions.NewRepository newRepository = context.newRepository("squid", "java");
+    new AnnotationRuleDefinitions().loadRules(newRepository, annotatedClass);
+    newRepository.done();
+    return context.repository("squid");
+  }
+
+  @org.sonar.check.Rule(name = "foo", description = "Foo")
+  static class RuleWithoutKey {
+  }
+
+  @org.sonar.check.Rule(key = "foo")
+  static class RuleWithoutNameNorDescription {
+  }
+
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER, status="BETA")
+  static class RuleWithProperty {
+    @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
+    private String property;
+  }
+
+  @org.sonar.check.Rule(key = "overriding_foo", name = "Overriding Foo", description = "Desc of Overriding Foo")
+  static class OverridingRule extends RuleWithProperty {
+    @org.sonar.check.RuleProperty
+    private String additionalProperty;
+  }
+
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  static class RuleWithIntegerProperty {
+    @org.sonar.check.RuleProperty(description = "Max", defaultValue = "12")
+    private Integer property;
+  }
+
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  static class RuleWithTextProperty {
+    @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "TEXT")
+    protected String property;
+  }
+
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  static class RuleWithInvalidPropertyType {
+    @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "INVALID")
+    public String property;
+  }
+}

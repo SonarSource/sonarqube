@@ -169,15 +169,11 @@ public class RuleDefinitionsTest {
   }
 
   @Test
-  public void fail_if_duplicated_rule_keys() {
+  public void warning_if_duplicated_rule_keys() {
     RuleDefinitions.NewRepository findbugs = context.newRepository("findbugs", "java");
     findbugs.newRule("NPE");
-    try {
-      findbugs.newRule("NPE");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The rule 'NPE' of repository 'findbugs' is declared several times");
-    }
+    findbugs.newRule("NPE");
+    // do not fail as long as http://jira.codehaus.org/browse/SONARJAVA-428 is not fixed
   }
 
   @Test
