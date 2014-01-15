@@ -87,6 +87,9 @@ public interface RuleDefinitions extends ServerExtension {
   static interface NewExtendedRepository {
     NewRule newRule(String ruleKey);
 
+    /**
+     * Reads definitions of rules from the annotations provided by the library sonar-check-api.
+     */
     void loadAnnotatedClasses(Class... classes);
 
     void done();
