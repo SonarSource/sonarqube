@@ -151,7 +151,7 @@ public class JavaFile extends Resource {
    */
   @Override
   public String getName() {
-    return className;
+    return StringUtils.isNotBlank(filename) ? filename : (className + JAVA_SUFFIX);
   }
 
   /**
