@@ -176,11 +176,11 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return session.getMapper(RuleMapper.class);
   }
 
-  public List<RuleTagDto> selectTags(SqlSession session) {
+  public List<RuleRuleTagDto> selectTags(SqlSession session) {
     return getMapper(session).selectAllTags();
   }
 
-  public void insert(RuleTagDto newTag, SqlSession session) {
+  public void insert(RuleRuleTagDto newTag, SqlSession session) {
     getMapper(session).insertTag(newTag);
   }
 
@@ -188,11 +188,15 @@ public class RuleDao implements BatchComponent, ServerComponent {
     getMapper(sqlSession).deleteParameter(persistedParam.getId());
   }
 
-  public void deleteTag(RuleTagDto tagToDelete, SqlSession session) {
+  public void deleteTag(RuleRuleTagDto tagToDelete, SqlSession session) {
     getMapper(session).deleteTag(tagToDelete.getId().intValue());
   }
 
-  public List<RuleTagDto> selectTags(Integer id) {
+  public void update(RuleRuleTagDto existingTag, SqlSession session) {
+    getMapper(session).updateTag(existingTag);
+  }
+
+  public List<RuleRuleTagDto> selectTags(Integer id) {
     SqlSession session = mybatis.openSession();
     try {
       return selectTags(id, session);
@@ -201,7 +205,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleTagDto> selectTags(Integer id, SqlSession session) {
+  public List<RuleRuleTagDto> selectTags(Integer id, SqlSession session) {
     return getMapper(session).selectTagsForRule(id);
   }
 }

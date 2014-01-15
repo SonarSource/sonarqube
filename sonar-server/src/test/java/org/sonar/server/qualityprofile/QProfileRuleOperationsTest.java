@@ -108,7 +108,7 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
-    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
@@ -148,7 +148,7 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
-    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
@@ -174,7 +174,7 @@ public class QProfileRuleOperationsTest {
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
-    List<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
@@ -197,7 +197,7 @@ public class QProfileRuleOperationsTest {
   public void create_rule() throws Exception {
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
-    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
+    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
     RuleDto result = operations.createRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
@@ -220,7 +220,7 @@ public class QProfileRuleOperationsTest {
     assertThat(ruleParamArgument.getValue().getName()).isEqualTo("max");
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("20");
 
-    ArgumentCaptor<RuleTagDto> ruleTagArgument = ArgumentCaptor.forClass(RuleTagDto.class);
+    ArgumentCaptor<RuleRuleTagDto> ruleTagArgument = ArgumentCaptor.forClass(RuleRuleTagDto.class);
     verify(ruleDao).insert(ruleTagArgument.capture(), eq(session));
     assertThat(ruleTagArgument.getValue().getTag()).isEqualTo("style");
     assertThat(ruleTagArgument.getValue().getType()).isEqualTo(RuleTagType.SYSTEM);
@@ -233,7 +233,7 @@ public class QProfileRuleOperationsTest {
   public void update_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
-    ArrayList<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(11), eq(session))).thenReturn(ruleTags);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
@@ -259,7 +259,7 @@ public class QProfileRuleOperationsTest {
     RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
     RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
     when(ruleDao.selectParameters(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
-    ArrayList<RuleTagDto> ruleTags = newArrayList(new RuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
+    ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(ruleId), eq(session))).thenReturn(ruleTags);
 
     final int activeRuleId = 5;

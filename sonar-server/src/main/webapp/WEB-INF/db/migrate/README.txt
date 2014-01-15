@@ -6,7 +6,7 @@ HOW TO ADD A MIGRATION
   + sonar-core/src/main/resources/org/sonar/core/persistence/rows-h2.sql :
     - add "INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('<THE MIGRATION ID>')"
 * Update the migration id defined in sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
-* If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseUtils.java
+* If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
 
 
 RECOMMENDATIONS

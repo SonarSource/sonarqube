@@ -197,19 +197,19 @@ public class RuleRegistryTest {
     Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
     params.put(ruleId2, paramRule2);
 
-    RuleTagDto systemTag1Rule2 = new RuleTagDto();
+    RuleRuleTagDto systemTag1Rule2 = new RuleRuleTagDto();
     systemTag1Rule2.setRuleId(ruleId2);
     systemTag1Rule2.setTag("tag1");
     systemTag1Rule2.setType(RuleTagType.SYSTEM);
-    RuleTagDto systemTag2Rule2 = new RuleTagDto();
+    RuleRuleTagDto systemTag2Rule2 = new RuleRuleTagDto();
     systemTag2Rule2.setRuleId(ruleId2);
     systemTag2Rule2.setTag("tag2");
     systemTag2Rule2.setType(RuleTagType.SYSTEM);
-    RuleTagDto adminTagRule2 = new RuleTagDto();
+    RuleRuleTagDto adminTagRule2 = new RuleRuleTagDto();
     adminTagRule2.setRuleId(ruleId2);
     adminTagRule2.setTag("tag");
     adminTagRule2.setType(RuleTagType.ADMIN);
-    Multimap<Integer, RuleTagDto> tags = ArrayListMultimap.create();
+    Multimap<Integer, RuleRuleTagDto> tags = ArrayListMultimap.create();
     tags.put(ruleId2, systemTag1Rule2);
     tags.put(ruleId2, systemTag2Rule2);
     tags.put(ruleId2, adminTagRule2);
@@ -259,7 +259,7 @@ public class RuleRegistryTest {
     assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
     when(ruleDao.selectNonManual(any(SqlSession.class))).thenReturn(rules);
     final Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
-    final Multimap<Integer, RuleTagDto> tags = ArrayListMultimap.create();
+    final Multimap<Integer, RuleRuleTagDto> tags = ArrayListMultimap.create();
     registry.bulkRegisterRules(rules, params, tags);
 
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))

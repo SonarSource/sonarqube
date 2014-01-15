@@ -20,17 +20,38 @@
 package org.sonar.core.rule;
 
 
-public class RuleTagDto {
+public class RuleRuleTagDto {
 
   private Long id;
+  private Integer ruleId;
+  private Long tagId;
   private String tag;
+  private String type;
 
   public Long getId() {
     return id;
   }
 
-  public RuleTagDto setId(Long id) {
+  public RuleRuleTagDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public Integer getRuleId() {
+    return ruleId;
+  }
+
+  public RuleRuleTagDto setRuleId(Integer ruleId) {
+    this.ruleId = ruleId;
+    return this;
+  }
+
+  public Long getTagId() {
+    return tagId;
+  }
+
+  public RuleRuleTagDto setTagId(Long tagId) {
+    this.tagId = tagId;
     return this;
   }
 
@@ -38,13 +59,23 @@ public class RuleTagDto {
     return tag;
   }
 
-  public RuleTagDto setTag(String tag) {
+  public RuleRuleTagDto setTag(String tag) {
     this.tag = tag;
+    return this;
+  }
+
+  public RuleTagType getType() {
+    return RuleTagType.valueOf(type);
+  }
+
+  public RuleRuleTagDto setType(RuleTagType type) {
+    this.type = type.name();
     return this;
   }
 
   @Override
   public String toString() {
-    return String.format("RuleTag[id=%d, tag=%s]", id, tag);
+    return String.format("RuleRuleTag[id=%d, ruleId=%d, tagId=%d, tag=%s, type=%s]",
+        id, ruleId, tagId, tag, type);
   }
 }

@@ -25,12 +25,15 @@ class AddRuleTags < ActiveRecord::Migration
 
   def self.up
     create_table :rule_tags do |t|
-      t.column :rule_id,            :integer,     :null => true
       t.column :tag,                :string,      :null => true,    :limit => 100
+    end
+    create_table :rules_rule_tags do |t|
+      t.column :rule_id,            :integer,     :null => false
+      t.column :rule_tag_id,        :integer,     :null => false
       t.column :tag_type,           :string,      :null => true,    :limit => 20
     end
     begin
-      add_index 'rule_tags', ['rule_id', 'tag'], :unique => true, :name => 'uniq_rule_tags'
+      add_index 'rules_rule_tags', ['rule_id', 'rule_tag_id'], :unique => true, :name => 'uniq_rule_tags'
     rescue
       # ignore
     end

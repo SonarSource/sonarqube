@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.core.rule.RuleRuleTagDto;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
@@ -145,11 +147,12 @@ public class QProfileRuleOperations implements ServerComponent {
         ruleParams.add(param);
       }
 
-      List<RuleTagDto> templateRuleTags = ruleDao.selectTags(templateRule.getId(), session);
-      List<RuleTagDto> ruleTags = newArrayList();
-      for (RuleTagDto tag: templateRuleTags) {
-        RuleTagDto newTag = new RuleTagDto()
+      List<RuleRuleTagDto> templateRuleTags = ruleDao.selectTags(templateRule.getId(), session);
+      List<RuleRuleTagDto> ruleTags = newArrayList();
+      for (RuleRuleTagDto tag: templateRuleTags) {
+        RuleRuleTagDto newTag = new RuleRuleTagDto()
           .setRuleId(rule.getId())
+          .setTagId(tag.getTagId())
           .setTag(tag.getTag())
           .setType(tag.getType());
         ruleDao.insert(newTag, session);
@@ -181,7 +184,7 @@ public class QProfileRuleOperations implements ServerComponent {
         ruleParam.setDefaultValue(Strings.emptyToNull(value));
         ruleDao.update(ruleParam, session);
       }
-      List<RuleTagDto> ruleTags = ruleDao.selectTags(rule.getId(), session);
+      List<RuleRuleTagDto> ruleTags = ruleDao.selectTags(rule.getId(), session);
       session.commit();
       reindexRule(rule, ruleParams, ruleTags);
     } finally {
@@ -222,7 +225,7 @@ public class QProfileRuleOperations implements ServerComponent {
     reindexRule(rule, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
   }
 
-  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams, List<RuleTagDto> ruleTags) {
+  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams, List<RuleRuleTagDto> ruleTags) {
     ruleRegistry.save(rule, ruleParams, ruleTags);
   }
 

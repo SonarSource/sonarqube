@@ -83,7 +83,7 @@ public class RuleRegistry {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/org/sonar/server/es/config/mappings/active_rule_mapping.json");
   }
 
-  public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {
+  public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     String[] ids = bulkIndexRules(rules, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
   }
@@ -158,11 +158,11 @@ public class RuleRegistry {
   public void saveOrUpdate(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
     Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
-    Collection<RuleTagDto> tags = ruleDao.selectTags(rule.getId());
+    Collection<RuleRuleTagDto> tags = ruleDao.selectTags(rule.getId());
     save(rule, params, tags);
   }
 
-  public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleTagDto> tags) {
+  public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
     try {
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params, tags));
     } catch (IOException ioexception) {
@@ -178,7 +178,7 @@ public class RuleRegistry {
     }
   }
 
-  private String[] bulkIndexRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {
+  private String[] bulkIndexRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     try {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
@@ -304,7 +304,7 @@ public class RuleRegistry {
     profiler.stop();
   }
 
-  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleTagDto> tags) throws IOException {
+  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(RuleDocument.FIELD_ID, rule.getId())
@@ -342,7 +342,7 @@ public class RuleRegistry {
 
     List<String> systemTags = Lists.newArrayList();
     List<String> adminTags = Lists.newArrayList();
-    for (RuleTagDto tag: tags) {
+    for (RuleRuleTagDto tag: tags) {
       if (tag.getType() == RuleTagType.SYSTEM) {
         systemTags.add(tag.getTag());
       } else {

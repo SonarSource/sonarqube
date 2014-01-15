@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.rule.RuleTagMapper">
+
+  <select id="selectAll" resultType="RuleTag">
+    SELECT id, tag
+    FROM rule_tags
+  </select>
+
+  <insert id="insert" parameterType="RuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rule_tags (tag)
+    VALUES (#{tag})
+  </insert>
+
+  <update id="delete" parameterType="Integer">
+    DELETE FROM rule_tags WHERE id=#{tagId}
+  </update>
+
+</mapper>
+

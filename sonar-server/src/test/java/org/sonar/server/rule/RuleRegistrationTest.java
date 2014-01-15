@@ -28,6 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleTagDao;
 import org.sonar.server.configuration.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -44,15 +45,17 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   RuleRegistry ruleRegistry = mock(RuleRegistry.class);
   MyBatis myBatis;
   RuleDao ruleDao;
+  RuleTagDao ruleTagDao;
   ActiveRuleDao activeRuleDao;
 
   @Before
   public void before() {
     myBatis = getMyBatis();
     ruleDao = new RuleDao(myBatis);
+    ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
   }
 
   @Test
@@ -60,7 +63,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     setupData("shared");
     task.start();
 
-    checkTables("should_insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags");
+    checkTables("should_insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }
 
   @Test
@@ -126,7 +129,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     setupData("updadeRuleFields");
     task.start();
 
-    checkTables("updadeRuleFields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags");
+    checkTables("updadeRuleFields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags", "rules_rule_tags");
   }
 
   @Test
@@ -165,7 +168,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("shared");
     task.start();
@@ -180,7 +183,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void should_insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
         new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, activeRuleDao);
+      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("empty");
     task.start();
@@ -255,7 +258,4 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     }
   }
 }
-
-
-
 

@@ -58,10 +58,7 @@ import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.*;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleMapper;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.*;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;
@@ -119,6 +116,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "RuleParam", RuleParamDto.class);
     loadAlias(conf, "RuleTag", RuleTagDto.class);
+    loadAlias(conf, "RuleRuleTag", RuleRuleTagDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "Semaphore", SemaphoreDto.class);
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
@@ -158,7 +156,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class, CharacteristicMapper.class,
+      NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class
     };
     loadMappers(conf, mappers);

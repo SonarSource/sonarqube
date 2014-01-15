@@ -19,7 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -35,11 +40,22 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.configuration.ProfilesManager;
 
 import javax.annotation.CheckForNull;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleRegistration implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(RuleRegistration.class);
@@ -49,17 +65,19 @@ public class RuleRegistration implements Startable {
   private final RuleRegistry ruleRegistry;
   private final MyBatis myBatis;
   private final RuleDao ruleDao;
+  private final RuleTagDao ruleTagDao;
   private final ActiveRuleDao activeRuleDao;
   private final System2 system = System2.INSTANCE;
 
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
                           RuleRegistry ruleRegistry,
-                          MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
+                          MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;
     this.myBatis = myBatis;
     this.ruleDao = ruleDao;
+    this.ruleTagDao = ruleTagDao;
     this.activeRuleDao = activeRuleDao;
   }
 
@@ -93,7 +111,10 @@ public class RuleRegistration implements Startable {
     for (RuleParamDto paramDto : ruleDao.selectParameters(sqlSession)) {
       buffer.add(paramDto);
     }
-    for (RuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
+    for (RuleTagDto tagDto : ruleTagDao.selectAll(sqlSession)) {
+      buffer.add(tagDto);
+    }
+    for (RuleRuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
       buffer.add(tagDto);
     }
   }
@@ -156,11 +177,7 @@ public class RuleRegistration implements Startable {
       ruleDao.insert(paramDto, sqlSession);
       buffer.add(paramDto);
     }
-    for (String tag : ruleDef.tags()) {
-      RuleTagDto tagDto = new RuleTagDto().setRuleId(ruleDto.getId()).setTag(tag).setType(RuleTagType.SYSTEM);
-      ruleDao.insert(tagDto, sqlSession);
-      buffer.add(tagDto);
-    }
+    mergeTags(buffer, sqlSession, ruleDef, ruleDto);
     return ruleDto;
   }
 
@@ -263,8 +280,8 @@ public class RuleRegistration implements Startable {
   private void mergeTags(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto) {
     Set<String> existingSystemTags = Sets.newHashSet();
 
-    Collection<RuleTagDto> tagDtos = ImmutableList.copyOf(buffer.tagsForRuleId(dto.getId()));
-    for (RuleTagDto tagDto : tagDtos) {
+    Collection<RuleRuleTagDto> tagDtos = ImmutableList.copyOf(buffer.tagsForRuleId(dto.getId()));
+    for (RuleRuleTagDto tagDto : tagDtos) {
       String tag = tagDto.getTag();
 
       if (tagDto.getType() == RuleTagType.SYSTEM) {
@@ -279,24 +296,40 @@ public class RuleRegistration implements Startable {
       } else {
         // tags created by end-users
         if (ruleDef.tags().contains(tag)) {
-          // End-user tag is converted to system tag
-          ruleDao.deleteTag(tagDto, sqlSession);
-          buffer.remove(tagDto);
-          RuleTagDto newTag = new RuleTagDto().setRuleId(dto.getId()).setTag(tag).setType(RuleTagType.SYSTEM);
-          ruleDao.insert(newTag, sqlSession);
+          long tagId = getOrCreateReferenceTagId(buffer, tag, sqlSession);
+          tagDto.setId(tagId);
+          tagDto.setType(RuleTagType.SYSTEM);
+          ruleDao.update(tagDto, sqlSession);
           existingSystemTags.add(tag);
-          buffer.add(newTag);
         }
       }
     }
 
     for (String tag : ruleDef.tags()) {
       if (!existingSystemTags.contains(tag)) {
-        RuleTagDto newTagDto = new RuleTagDto().setRuleId(dto.getId()).setTag(tag).setType(RuleTagType.SYSTEM);
+        long tagId = getOrCreateReferenceTagId(buffer, tag, sqlSession);
+        RuleRuleTagDto newTagDto = new RuleRuleTagDto()
+          .setRuleId(dto.getId())
+          .setTagId(tagId)
+          .setType(RuleTagType.SYSTEM);
         ruleDao.insert(newTagDto, sqlSession);
         buffer.add(newTagDto);
       }
     }
+  }
+
+  private long getOrCreateReferenceTagId(Buffer buffer, String tag, SqlSession sqlSession) {
+    // End-user tag is converted to system tag
+    long tagId = 0L;
+    if (buffer.referenceTagExists(tag)) {
+      tagId = buffer.referenceTagIdForValue(tag);
+    } else {
+      RuleTagDto newRuleTag = new RuleTagDto().setTag(tag);
+      ruleTagDao.insert(newRuleTag, sqlSession);
+      buffer.add(newRuleTag);
+      tagId = newRuleTag.getId();
+    }
+    return tagId;
   }
 
   private void processRemainingDbRules(Buffer buffer, SqlSession sqlSession) {
@@ -345,7 +378,8 @@ public class RuleRegistration implements Startable {
     private Map<RuleKey, RuleDto> rulesByKey = Maps.newHashMap();
     private Map<Integer, RuleDto> rulesById = Maps.newHashMap();
     private Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
-    private Multimap<Integer, RuleTagDto> tagsByRuleId = ArrayListMultimap.create();
+    private Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
+    private Map<String, RuleTagDto> referenceTagsByTagValue = Maps.newHashMap();
 
     Buffer(long now) {
       this.now = new Date(now);
@@ -360,15 +394,19 @@ public class RuleRegistration implements Startable {
       rulesByKey.put(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()), rule);
     }
 
+    void add(RuleTagDto tag) {
+      referenceTagsByTagValue.put(tag.getTag(), tag);
+    }
+
     void add(RuleParamDto param) {
       paramsByRuleId.put(param.getRuleId(), param);
     }
 
-    void add(RuleTagDto tag) {
+    void add(RuleRuleTagDto tag) {
       tagsByRuleId.put(tag.getRuleId(), tag);
     }
 
-    void remove(RuleTagDto tag) {
+    void remove(RuleRuleTagDto tag) {
       tagsByRuleId.remove(tag.getRuleId(), tag);
     }
 
@@ -381,8 +419,16 @@ public class RuleRegistration implements Startable {
       return paramsByRuleId.get(ruleId);
     }
 
-    Collection<RuleTagDto> tagsForRuleId(Integer ruleId) {
+    Collection<RuleRuleTagDto> tagsForRuleId(Integer ruleId) {
       return tagsByRuleId.get(ruleId);
+    }
+
+    boolean referenceTagExists(String tagValue) {
+      return referenceTagsByTagValue.containsKey(tagValue);
+    }
+
+    Long referenceTagIdForValue(String tagValue) {
+      return referenceTagsByTagValue.get(tagValue).getId();
     }
 
     void markUnprocessed(RuleDto ruleDto) {

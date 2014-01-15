@@ -124,27 +124,35 @@
   </update>
 
   <sql id="tagColumns">
-    id, rule_id as "ruleId", tag, tag_type as "type"
+    rrt.id, rrt.rule_id as "ruleId", rrt.rule_tag_id as "tagId", rrt.tag_type as "type", rt.tag
   </sql>
 
-  <select id="selectAllTags" resultType="RuleTag">
+  <select id="selectAllTags" resultType="RuleRuleTag">
     SELECT <include refid="tagColumns"/>
-    FROM rule_tags
+    FROM rules_rule_tags rrt
+    JOIN rule_tags rt ON rrt.rule_tag_id = rt.id
   </select>
 
-  <select id="selectTagsForRule" resultType="RuleTag">
+  <select id="selectTagsForRule" resultType="RuleRuleTag">
     select <include refid="tagColumns"/>
-    from rule_tags
-    where rule_id=#{id}
+    FROM rules_rule_tags rrt
+    JOIN rule_tags rt ON rrt.rule_tag_id = rt.id
+    WHERE rrt.rule_id=#{id}
   </select>
 
-  <insert id="insertTag" parameterType="RuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rule_tags (rule_id, tag, tag_type)
-    VALUES (#{ruleId}, #{tag}, #{type})
+  <insert id="insertTag" parameterType="RuleRuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rules_rule_tags (rule_id, rule_tag_id, tag_type)
+    VALUES (#{ruleId}, #{tagId}, #{type})
   </insert>
 
+  <update id="updateTag" parameterType="RuleRuleTag">
+    UPDATE rules_rule_tags
+    SET tag_type=#{type}
+    WHERE id=#{id}
+  </update>
+
   <update id="deleteTag" parameterType="Integer">
-    DELETE FROM rule_tags WHERE id=#{tagId}
+    DELETE FROM rules_rule_tags WHERE id=#{tagId}
   </update>
 
 </mapper>

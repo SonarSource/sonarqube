@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.core.rule.RuleTagDao;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
@@ -81,6 +83,7 @@ public final class DaoUtils {
       ResourceKeyUpdaterDao.class,
       RoleDao.class,
       RuleDao.class,
+      RuleTagDao.class,
       SemaphoreDao.class,
       SnapshotDataDao.class,
       UserDao.class
