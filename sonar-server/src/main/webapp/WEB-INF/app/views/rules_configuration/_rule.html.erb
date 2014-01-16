@@ -55,7 +55,6 @@
     %>
       <table width="100%" class="table spacer-bottom bordered background-gray">
         <%
-           puts "#### " + rule.to_s
            if parent_active_rule
              parent_active_rule_link = link_to parent_profile.name, :controller => 'rules_configuration', :action => 'index',
                                                  :id => parent_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
