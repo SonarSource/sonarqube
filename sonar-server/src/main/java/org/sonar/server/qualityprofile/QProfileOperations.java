@@ -21,24 +21,16 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
@@ -47,11 +39,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.StringReader;
-import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileOperations implements ServerComponent {
 
@@ -61,27 +49,19 @@ public class QProfileOperations implements ServerComponent {
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
   private final PropertiesDao propertiesDao;
-  private final List<ProfileImporter> importers;
+  private final QProfileExporter exporter;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
   private final QProfileLookup profileLookup;
   private final ProfilesManager profilesManager;
 
-  /**
-   * Used by pico when no plugin provide profile exporter / importer
-   */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profileLookup, profilesManager);
-  }
-
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
+                            QProfileExporter exporter, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
     this.propertiesDao = propertiesDao;
-    this.importers = importers;
+    this.exporter = exporter;
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
     this.profileLookup = profileLookup;
@@ -94,11 +74,11 @@ public class QProfileOperations implements ServerComponent {
       QProfile profile = newProfile(name, language, userSession, session);
 
       QProfileResult result = new QProfileResult();
-      List<RulesProfile> importProfiles = readProfilesFromXml(result, xmlProfilesByPlugin);
-      for (RulesProfile rulesProfile : importProfiles) {
-        importProfile(profile.id(), rulesProfile, session);
-      }
       result.setProfile(profile);
+
+      for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
+        result.add(exporter.importXml(profile, entry.getKey(), entry.getValue(), session));
+      }
       session.commit();
       dryRunCache.reportGlobalModification();
       return result;
@@ -142,21 +122,25 @@ public class QProfileOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      QualityProfileDto profile = findNotNull(profileId, session);
-      if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
-        throw new BadRequestException("This profile can not be deleted");
-      } else {
-        activeRuleDao.deleteParametersFromProfile(profile.getId(), session);
-        activeRuleDao.deleteFromProfile(profile.getId(), session);
-        dao.delete(profile.getId(), session);
-        propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
-        ruleRegistry.deleteActiveRulesFromProfile(profile.getId());
-        session.commit();
-
-        dryRunCache.reportGlobalModification();
-      }
+      deleteProfile(profileId, userSession, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteProfile(int profileId, UserSession userSession, SqlSession session) {
+    checkPermission(userSession);
+    QualityProfileDto profile = findNotNull(profileId, session);
+    if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
+      throw new BadRequestException("This profile can not be deleted");
+    } else {
+      activeRuleDao.deleteParametersFromProfile(profile.getId(), session);
+      activeRuleDao.deleteFromProfile(profile.getId(), session);
+      dao.delete(profile.getId(), session);
+      propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
+      ruleRegistry.deleteActiveRulesFromProfile(profile.getId());
+      dryRunCache.reportGlobalModification();
     }
   }
 
@@ -215,77 +199,6 @@ public class QProfileOperations implements ServerComponent {
       return dao.selectParent(profile.getId(), session);
     }
     return null;
-  }
-
-  private List<RulesProfile> readProfilesFromXml(QProfileResult result, Map<String, String> xmlProfilesByPlugin) {
-    List<RulesProfile> profiles = newArrayList();
-    ValidationMessages messages = ValidationMessages.create();
-    for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
-      String pluginKey = entry.getKey();
-      String file = entry.getValue();
-      ProfileImporter importer = getProfileImporter(pluginKey);
-      RulesProfile profile = importer.importProfile(new StringReader(file), messages);
-      processValidationMessages(messages, result);
-      profiles.add(profile);
-    }
-    return profiles;
-  }
-
-  public void importProfile(int profileId, RulesProfile rulesProfile, SqlSession sqlSession) {
-    List<ActiveRuleDto> activeRuleDtos = newArrayList();
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    for (ActiveRule activeRule : rulesProfile.getActiveRules()) {
-      ActiveRuleDto activeRuleDto = toActiveRuleDto(activeRule, profileId);
-      activeRuleDao.insert(activeRuleDto, sqlSession);
-      activeRuleDtos.add(activeRuleDto);
-      for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-        ActiveRuleParamDto activeRuleParamDto = toActiveRuleParamDto(activeRuleParam, activeRuleDto);
-        activeRuleDao.insert(activeRuleParamDto, sqlSession);
-        paramsByActiveRule.put(activeRuleDto.getId(), activeRuleParamDto);
-      }
-    }
-    ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
-  }
-
-  @CheckForNull
-  private ProfileImporter getProfileImporter(String exporterKey) {
-    for (ProfileImporter importer : importers) {
-      if (StringUtils.equals(exporterKey, importer.getKey())) {
-        return importer;
-      }
-    }
-    return null;
-  }
-
-  private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
-    if (!messages.getErrors().isEmpty()) {
-      List<BadRequestException.Message> errors = newArrayList();
-      for (String error : messages.getErrors()) {
-        errors.add(BadRequestException.Message.of(error));
-      }
-      throw BadRequestException.of("Fail to create profile", errors);
-    }
-    result.setWarnings(messages.getWarnings());
-    result.setInfos(messages.getInfos());
-  }
-
-  private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, int profileId) {
-    return new ActiveRuleDto()
-      .setProfileId(profileId)
-      .setRuleId(activeRule.getRule().getId())
-      .setSeverity(toSeverityLevel(activeRule.getSeverity()));
-  }
-
-  private Integer toSeverityLevel(RulePriority rulePriority) {
-    return rulePriority.ordinal();
-  }
-
-  private ActiveRuleParamDto toActiveRuleParamDto(ActiveRuleParam activeRuleParam, ActiveRuleDto activeRuleDto) {
-    return new ActiveRuleParamDto()
-      .setActiveRuleId(activeRuleDto.getId())
-      .setRulesParameterId(activeRuleParam.getRuleParam().getId())
-      .setKey(activeRuleParam.getKey())
-      .setValue(activeRuleParam.getValue());
   }
 
   private void checkPermission(UserSession userSession) {

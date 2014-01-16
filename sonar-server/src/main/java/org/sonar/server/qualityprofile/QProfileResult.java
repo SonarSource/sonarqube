@@ -63,4 +63,10 @@ public class QProfileResult {
     return this;
   }
 
+  public QProfileResult add(QProfileResult result) {
+    warnings.addAll(result.warnings());
+    infos.addAll(result.infos());
+    return this;
+  }
+
 }

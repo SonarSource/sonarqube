@@ -21,7 +21,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,18 +30,15 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,12 +47,6 @@ import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.io.Reader;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
@@ -96,7 +86,8 @@ public class QProfileOperationsTest {
   @Mock
   ProfilesManager profilesManager;
 
-  List<ProfileImporter> importers = newArrayList();
+  @Mock
+  QProfileExporter exporter;
 
   Integer currentId = 1;
 
@@ -127,7 +118,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profileLookup, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, ruleRegistry, profileLookup, profilesManager);
   }
 
   @Test
@@ -169,98 +160,6 @@ public class QProfileOperationsTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
-  }
-
-  @Test
-  public void create_profile_from_xml_plugin() throws Exception {
-    RulesProfile profile = RulesProfile.create("Default", "java");
-    Rule rule = Rule.create("pmd", "rule1");
-    rule.createParameter("max");
-    rule.setId(10);
-    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
-    activeRule.setParameter("max", "10");
-
-    Map<String, String> xmlProfilesByPlugin = newHashMap();
-    xmlProfilesByPlugin.put("pmd", "<xml/>");
-    ProfileImporter importer = mock(ProfileImporter.class);
-    when(importer.getKey()).thenReturn("pmd");
-    when(importer.importProfile(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
-    importers.add(importer);
-
-    operations.newProfile("Default", "java", xmlProfilesByPlugin, authorizedUserSession);
-    verify(session).commit();
-
-    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).insert(profileArgument.capture(), eq(session));
-    assertThat(profileArgument.getValue().getName()).isEqualTo("Default");
-    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
-
-    ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
-    verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
-    assertThat(activeRuleArgument.getValue().getRulId()).isEqualTo(10);
-    assertThat(activeRuleArgument.getValue().getSeverity()).isEqualTo(4);
-
-    ArgumentCaptor<ActiveRuleParamDto> activeRuleParamArgument = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
-    verify(activeRuleDao).insert(activeRuleParamArgument.capture(), eq(session));
-    assertThat(activeRuleParamArgument.getValue().getKey()).isEqualTo("max");
-    assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
-
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
-  }
-
-  @Test
-  public void create_profile_from_xml_plugin_add_infos_and_warnings() throws Exception {
-    final RulesProfile profile = RulesProfile.create("Default", "java");
-    Rule rule = Rule.create("pmd", "rule1");
-    rule.createParameter("max");
-    rule.setId(10);
-    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
-    activeRule.setParameter("max", "10");
-
-    Map<String, String> xmlProfilesByPlugin = newHashMap();
-    xmlProfilesByPlugin.put("pmd", "<xml/>");
-    ProfileImporter importer = mock(ProfileImporter.class);
-    when(importer.getKey()).thenReturn("pmd");
-    doAnswer(new Answer() {
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
-        ValidationMessages validationMessages = (ValidationMessages) args[1];
-        validationMessages.addInfoText("an info message");
-        validationMessages.addWarningText("a warning message");
-        return profile;
-      }
-    }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
-    importers.add(importer);
-
-    QProfileResult result = operations.newProfile("Default", "java", xmlProfilesByPlugin, authorizedUserSession);
-    assertThat(result.infos()).hasSize(1);
-    assertThat(result.warnings()).hasSize(1);
-  }
-
-  @Test
-  public void fail_to_create_profile_from_xml_plugin_if_error() throws Exception {
-    try {
-      Map<String, String> xmlProfilesByPlugin = newHashMap();
-      xmlProfilesByPlugin.put("pmd", "<xml/>");
-      ProfileImporter importer = mock(ProfileImporter.class);
-      when(importer.getKey()).thenReturn("pmd");
-      importers.add(importer);
-
-      doAnswer(new Answer() {
-        public Object answer(InvocationOnMock invocation) {
-          Object[] args = invocation.getArguments();
-          ValidationMessages validationMessages = (ValidationMessages) args[1];
-          validationMessages.addErrorText("error!");
-          return null;
-        }
-      }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
-
-      operations.newProfile("Default", "java", xmlProfilesByPlugin, authorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-    verify(session, never()).commit();
   }
 
   @Test
