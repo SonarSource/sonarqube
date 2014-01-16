@@ -57,9 +57,8 @@ class Api::IssueFiltersController < Api::ApiController
           :id => filter.id().to_i,
           :name => filter.name(),
           :user => filter.user(),
-          :shared => filter.shared(),
-          :description => filter.description()
-          # no need to export query field
+          :shared => filter.shared()
+          # no need to export description and query fields
         }
       end
     }
