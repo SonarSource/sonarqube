@@ -96,7 +96,38 @@ public interface RuleDefinitions extends ServerExtension {
     /**
      * Reads definitions of rules from a XML file. Format is :
      * <pre>
-     *
+     &lt;rules&gt;
+       &lt;rule&gt;
+        &lt;!-- required fields --&gt;
+        &lt;key&gt;the-rule-key&lt;/key&gt;
+        &lt;name&gt;The purpose of the rule&lt;/name&gt;
+        &lt;description&gt;
+          &lt;![CDATA[The description]]&gt;
+        &lt;/description&gt;
+
+        &lt;!-- optional fields --&gt;
+        &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
+        &lt;severity&gt;BLOCKER&lt;/severity&gt;
+        &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
+        &lt;status&gt;BETA&lt;/status&gt;
+        &lt;param&gt;
+          &lt;key&gt;the-param-key&lt;/key&gt;
+          &lt;description&gt;
+          &lt;![CDATA[
+            the param-description
+          ]]&gt;
+          &lt;/description&gt;
+          &lt;defaultValue&gt;42&lt;/defaultValue&gt;
+        &lt;/param&gt;
+        &lt;param&gt;
+          &lt;key&gt;another-param&lt;/key&gt;
+       &lt;/param&gt;
+
+       &lt;!-- deprecated fields --&gt;
+       &lt;priority&gt;BLOCKER&lt;/priority&gt;
+     &lt;/rule&gt;
+   &lt;/rules&gt;
+
      * </pre>
      */
     void loadXml(InputStream xmlInput, String encoding);
