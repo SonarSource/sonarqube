@@ -81,7 +81,7 @@ public final class RuleParamType {
     if ("i".equals(s) || "i{}".equals(s)) {
       return INTEGER;
     }
-    if ("s".equals(s) || "s{}".equals(s) || "r".equals(s)) {
+    if ("s".equals(s) || "s{}".equals(s) || "r".equals(s) || "REGULAR_EXPRESSION".equals(s)) {
       return STRING;
     }
     if ("b".equals(s)) {

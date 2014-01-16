@@ -85,6 +85,7 @@ public class RuleParamTypeTest {
     assertThat(RuleParamType.parse("r")).isEqualTo(RuleParamType.STRING);
     assertThat(RuleParamType.parse("TEXT")).isEqualTo(RuleParamType.TEXT);
     assertThat(RuleParamType.parse("STRING")).isEqualTo(RuleParamType.STRING);
+    assertThat(RuleParamType.parse("REGULAR_EXPRESSION")).isEqualTo(RuleParamType.STRING);
     RuleParamType list = RuleParamType.parse("s[FOO,BAR]");
     assertThat(list.type()).isEqualTo("SINGLE_SELECT_LIST");
     assertThat(list.options()).containsOnly("FOO", "BAR");
