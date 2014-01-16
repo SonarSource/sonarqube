@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.sonar.api.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.server.rule.ActiveRuleDocument;
 import org.sonar.server.rule.RuleDocument;
@@ -122,12 +123,13 @@ public class QProfileRule {
         }
       }
       for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
+        RuleParamType type = RuleParamType.parse((String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE));
         params.add(new QProfileRuleParam(
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
           activeRuleParams.containsKey(ruleParam.getKey()) ? (String) activeRuleParams.get(ruleParam.getKey()).get(ActiveRuleDocument.FIELD_PARAM_VALUE) : null,
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DESCRIPTION),
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DEFAULT_VALUE),
-          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE)
+          type
         ));
       }
     }

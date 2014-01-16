@@ -20,67 +20,27 @@
 module RulesConfigurationHelper
   include PropertiesHelper
 
-  PARAM_TYPE_STRING_LIST = "s{}"
-  PARAM_TYPE_INTEGER_LIST = "i{}"
-
-  # Kept for compatibility with old rule param type
-  def type_with_compatibility(type)
-    return PropertyType::TYPE_STRING if type == 's'
-    return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING_LIST
-    return PropertyType::TYPE_INTEGER if type == 'i'
-    return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
-    return PropertyType::TYPE_BOOLEAN if type == 'b'
-    return PropertyType::TYPE_REGULAR_EXPRESSION if type == 'r'
-    return PropertyType::TYPE_STRING if is_set(type)
-
-    type
+  def property_type(type)
+    value_type = type.type
+    return PropertyType::TYPE_STRING if value_type == 'STRING'
+    return PropertyType::TYPE_INTEGER if value_type == 'INTEGER'
+    return PropertyType::TYPE_BOOLEAN if value_type == 'BOOLEAN'
+    return PropertyType::TYPE_STRING if value_type == 'SINGLE_SELECT_LIST'
+    value_type
   end
 
-  def readable_type(param_type)
-    type=type_with_compatibility(param_type)
+  def readable_type(type)
+    property_type = property_type(type)
 
-    return "Set of comma delimited strings" if param_type == PARAM_TYPE_STRING_LIST
-    return "Number" if type == PropertyType::TYPE_INTEGER
-    return "Set of comma delimited numbers" if param_type == PARAM_TYPE_INTEGER_LIST
-    return "Regular expression" if type == PropertyType::TYPE_REGULAR_EXPRESSION
-    return "Set of comma delimited values" if is_set(param_type)
+    return "Number" if property_type == PropertyType::TYPE_INTEGER
+    return "Set of comma delimited values" if type.type() == PropertyType::TYPE_SINGLE_SELECT_LIST
     ""
   end
 
   def param_value_input(rule, parameter, value, options = {})
-    type = type_with_compatibility(parameter.type().to_s)
+    property_type = property_type(parameter.type())
     name = options[:name] || 'value'
-    property_input_field name, type, value, 'WIDGET', {:id => "#{rule.id().to_s}#{parameter.key().to_s}", :size => options[:size] }.update(options)
-  end
-
-  def is_set(type)
-    type.at(1) == "[" && type.ends_with?("]")
-  end
-
-  def validate_rule_param(attribute, param_type, errors, value)
-    return if attribute.nil? or attribute.length == 0
-
-    type=type_with_compatibility(param_type)
-
-    if is_set_type
-      attribute.split(',').each do |v|
-        if !get_allowed_tokens.include?(v)
-          errors.add("#{value}", "'#{v}' must be one of : " + get_allowed_tokens.join(', '))
-        end
-      end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER_LIST
-      attribute.split(',').each do |n|
-        if !Api::Utils.is_integer?(n)
-          errors.add("#{value}", "'#{n}' must be an integer.")
-        end
-      end
-    elsif type == PropertyType::TYPE_REGULAR_EXPRESSION
-      errors.add("#{value}", "'#{attribute}' must be a regular expression") unless Api::Utils.is_regexp?(attribute)
-    elsif type == PropertyType::TYPE_INTEGER
-      errors.add("#{value}", "'#{attribute}' must be an integer.") unless Api::Utils.is_integer?(attribute)
-    elsif type == PropertyType::TYPE_BOOLEAN
-      errors.add("#{value}", "'#{attribute}' must be one of : true,false") unless Api::Utils.is_boolean?(attribute)
-    end
+    property_input_field name, property_type, value, 'WIDGET', {:id => "#{rule.id().to_s}#{parameter.key().to_s}", :size => options[:size]}.update(options)
   end
 
   def rule_key(qProfileRule)

@@ -57,6 +57,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.*;
 
@@ -296,7 +297,7 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
     assertThat(argumentCaptor.getValue().getActiveRuleId()).isEqualTo(5);
 
-    verify(typeValidations).validate("30", "INTEGER", null);
+    verify(typeValidations).validate(eq("30"), eq("INTEGER"), anyList());
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq((String) null), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
@@ -337,7 +338,7 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getId()).isEqualTo(100);
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
 
-    verify(typeValidations).validate("30", "INTEGER", null);
+    verify(typeValidations).validate(eq("30"), eq("INTEGER"), anyList());
     verify(session).commit();
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));

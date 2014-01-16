@@ -26,6 +26,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
 import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleParamType;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
@@ -213,7 +214,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession, SqlSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
-    validateParam(ruleParam.getType(), value);
+    validateParam(ruleParam, value);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
     activeRuleDao.insert(activeRuleParam, session);
     session.commit();
@@ -230,7 +231,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession, SqlSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
-    validateParam(ruleParam.getType(), value);
+    validateParam(ruleParam, value);
 
     String sanitizedValue = Strings.emptyToNull(value);
     String oldValue = activeRuleParam.getValue();
@@ -416,8 +417,9 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private void validateParam(String type, String value) {
-    typeValidations.validate(value, type, null);
+  private void validateParam(RuleParamDto ruleParam, String value) {
+    RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
+    typeValidations.validate(value, ruleParamType.type(), ruleParamType.options());
   }
 
   private String getLoggedName(UserSession userSession) {

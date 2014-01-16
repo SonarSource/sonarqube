@@ -23,7 +23,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 
-import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.2
@@ -40,14 +42,14 @@ public final class RuleParamType {
   public static final RuleParamType FLOAT = new RuleParamType("FLOAT");
 
   private final String type;
-  private final String[] options;
+  private final List<String> options;
 
   // format is "type|comma-separated list of options", for example "INTEGER" or "SINGLE_SELECT_LIST|foo=one,bar,baz=two"
   private final String key;
 
   private RuleParamType(String type, String... options) {
     this.type = type;
-    this.options = options;
+    this.options = newArrayList(options);
     StringBuilder sb = new StringBuilder();
     sb.append(type);
     if (options.length > 0) {
@@ -64,7 +66,7 @@ public final class RuleParamType {
     return type;
   }
 
-  public String[] options() {
+  public List<String> options() {
     return options;
   }
 
