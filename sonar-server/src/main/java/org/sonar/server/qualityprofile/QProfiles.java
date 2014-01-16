@@ -126,7 +126,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public void setDefaultProfile(int profileId) {
-    operations.setDefaultProfile(1, UserSession.get());
+    operations.setDefaultProfile(profileId, UserSession.get());
   }
 
   @CheckForNull
