@@ -222,7 +222,8 @@ public class JavaFile extends Resource {
     javaFile.setKey(normalizedPath);
     javaFile.setPath(normalizedPath);
     String directoryKey = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
-    javaFile.parent = JavaPackage.create(directoryKey);
+    javaFile.parent = new Directory();
+    javaFile.parent.setKey(directoryKey);
     return javaFile;
   }
 
@@ -239,14 +240,15 @@ public class JavaFile extends Resource {
       }
       javaFile.fullyQualifiedName = javaFile.packageFullyQualifiedName + "." + javaFile.className;
       javaFile.setDeprecatedKey(javaFile.fullyQualifiedName);
+      javaFile.parent.setDeprecatedKey(Directory.parseKey(StringUtils.substringBeforeLast(relativePathFromSourceDir, Directory.SEPARATOR)));
     } else {
       javaFile.packageFullyQualifiedName = JavaPackage.DEFAULT_PACKAGE_NAME;
       javaFile.className = StringUtils.removeEndIgnoreCase(relativePathFromSourceDir, JAVA_SUFFIX);
       javaFile.fullyQualifiedName = javaFile.className;
       javaFile.setDeprecatedKey(JavaPackage.DEFAULT_PACKAGE_NAME + "." + javaFile.className);
+      javaFile.parent.setDeprecatedKey(Directory.ROOT);
     }
     javaFile.unitTest = unitTest;
-    javaFile.parent.setDeprecatedKey(javaFile.packageFullyQualifiedName);
     return javaFile;
   }
 

@@ -121,10 +121,10 @@ public class File extends Resource {
     if (StringUtils.isBlank(key)) {
       return null;
     }
-
-    key = key.replace('\\', '/');
-    key = StringUtils.trim(key);
-    return key;
+    String normalizedKey = key;
+    normalizedKey = normalizedKey.replace('\\', '/');
+    normalizedKey = StringUtils.trim(normalizedKey);
+    return normalizedKey;
   }
 
   /**
@@ -177,7 +177,7 @@ public class File extends Resource {
    */
   @Override
   public String getLongName() {
-    return getKey();
+    return StringUtils.defaultIfBlank(getPath(), getKey());
   }
 
   /**

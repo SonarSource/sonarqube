@@ -299,7 +299,11 @@ public abstract class Resource implements Serializable {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (o == null) {
+      return false;
+    }
+    // JavaPackage and Directory are considered equivalent since 4.2
+    if (getClass() != o.getClass() && !(this instanceof JavaPackage && o instanceof JavaPackage)) {
       return false;
     }
 

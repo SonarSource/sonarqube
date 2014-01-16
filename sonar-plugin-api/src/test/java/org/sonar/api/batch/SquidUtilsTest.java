@@ -42,7 +42,7 @@ public class SquidUtilsTest {
 
   @Test
   public void shouldConvertJavaPackageKeyFromSquidFormat() {
-    assertThat(new JavaPackage("java.lang")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("java/lang"));
+    assertThat(new JavaPackage("java/lang")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("java/lang"));
     assertThat(new JavaPackage("")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat(""));
     assertThat(new JavaPackage("singlepackage")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("singlepackage"));
   }

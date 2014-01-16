@@ -28,37 +28,25 @@ import static org.junit.Assert.assertThat;
 
 public class JavaPackageTest {
   @Test
-  public void defaultPackage() {
+  public void defaultPackageDeprecatedConstructor() {
     assertEquals(new JavaPackage(), new JavaPackage());
-    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME, new JavaPackage(null).getDeprecatedKey());
-    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME, new JavaPackage(null).getName());
-    assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME, new JavaPackage("").getDeprecatedKey());
+    assertEquals(Directory.ROOT, new JavaPackage(null).getDeprecatedKey());
+    assertEquals(Directory.ROOT, new JavaPackage("").getDeprecatedKey());
     assertThat(new JavaPackage(null).isDefault(), is(true));
-  }
-
-  @Test
-  public void testNewPackage() {
-    assertEquals(JavaPackage.create("src/foo/bar", " foo.bar   "), JavaPackage.create("src/foo/bar", "foo.bar"));
-    JavaPackage pac = JavaPackage.create("src/foo/bar", "foo.bar");
-    assertEquals("/src/foo/bar", pac.getKey());
-    assertEquals("foo.bar", pac.getDeprecatedKey());
-    assertEquals("foo.bar", pac.getName());
   }
 
   @Test
   public void testNewPackageDeprecatedConstructor() {
     assertEquals(new JavaPackage(" foo.bar   "), new JavaPackage("foo.bar"));
     JavaPackage pac = new JavaPackage("foo.bar");
-    assertEquals("foo.bar", pac.getDeprecatedKey());
-    assertEquals("foo.bar", pac.getName());
+    assertEquals("foo/bar", pac.getDeprecatedKey());
   }
 
   @Test
-  public void singleLevelPackage() {
+  public void singleLevelPackageDeprecatedConstructor() {
     assertEquals(new JavaPackage("foo"), new JavaPackage("foo"));
     JavaPackage pac = new JavaPackage("foo");
     assertEquals("foo", pac.getDeprecatedKey());
-    assertEquals("foo", pac.getName());
   }
 
   @Test

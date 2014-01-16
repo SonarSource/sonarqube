@@ -25,16 +25,15 @@ import org.sonar.api.utils.WildcardPattern;
 
 /**
  * @since 1.10
+ * Extends JavaPackage to allow smooth migration from JavaPackage to Directory
  */
-public class Directory extends Resource {
+public class Directory extends JavaPackage {
 
   public static final String SEPARATOR = "/";
   public static final String ROOT = "[root]";
 
-  private Language language;
-
-  private Directory() {
-    // USed by factory
+  Directory() {
+    // Used by factory
   }
 
   /**
@@ -51,12 +50,11 @@ public class Directory extends Resource {
   @Deprecated
   public Directory(String deprecatedKey, Language language) {
     setDeprecatedKey(parseKey(deprecatedKey));
-    this.language = language;
   }
 
   @Override
   public String getName() {
-    return getDeprecatedKey();
+    return getKey();
   }
 
   @Override
@@ -71,7 +69,7 @@ public class Directory extends Resource {
 
   @Override
   public Language getLanguage() {
-    return language;
+    return null;
   }
 
   @Override
@@ -99,12 +97,12 @@ public class Directory extends Resource {
     if (StringUtils.isBlank(key)) {
       return ROOT;
     }
-
-    key = key.replace('\\', '/');
-    key = StringUtils.trim(key);
-    key = StringUtils.removeStart(key, Directory.SEPARATOR);
-    key = StringUtils.removeEnd(key, Directory.SEPARATOR);
-    return key;
+    String normalizedKey = key;
+    normalizedKey = normalizedKey.replace('\\', '/');
+    normalizedKey = StringUtils.trim(normalizedKey);
+    normalizedKey = StringUtils.removeStart(normalizedKey, Directory.SEPARATOR);
+    normalizedKey = StringUtils.removeEnd(normalizedKey, Directory.SEPARATOR);
+    return normalizedKey;
   }
 
   public static Directory create(String path, String directoryDeprecatedKey) {
@@ -122,7 +120,6 @@ public class Directory extends Resource {
       .append("key", getKey())
       .append("deprecatedKey", getDeprecatedKey())
       .append("path", getPath())
-      .append("language", language)
       .toString();
   }
 

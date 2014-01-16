@@ -70,12 +70,12 @@ public class DirectoriesDecoratorTest {
   }
 
   @Test
-  public void packagesAreIgnored() {
+  public void packagesAreConsideredAsDirectories() {
     DirectoriesDecorator decorator = new DirectoriesDecorator();
-    Resource pac = new JavaPackage("org.foo");
+    Resource pac = new JavaPackage("org/foo");
     DecoratorContext context = mock(DecoratorContext.class);
     decorator.decorate(pac, context);
-    verify(context, never()).saveMeasure(eq(CoreMetrics.DIRECTORIES), anyDouble());
+    verify(context).saveMeasure(eq(CoreMetrics.DIRECTORIES), eq(1.0));
   }
 
   @Test

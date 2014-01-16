@@ -32,14 +32,13 @@ public class DirectoryTest {
     Resource dir = Directory.create("src/foo/bar/", "      /foo/bar/  ");
     assertThat(dir.getKey(), is("/src/foo/bar"));
     assertThat(dir.getDeprecatedKey(), is("foo/bar"));
-    assertThat(dir.getName(), is("foo/bar"));
+    assertThat(dir.getName(), is("/src/foo/bar"));
   }
 
   @Test
   public void shouldNotStartOrEndBySlashDeprecatedConstructor() {
     Resource dir = new Directory("      /foo/bar/  ");
     assertThat(dir.getDeprecatedKey(), is("foo/bar"));
-    assertThat(dir.getName(), is("foo/bar"));
   }
 
   @Test
@@ -53,7 +52,6 @@ public class DirectoryTest {
   public void backSlashesShouldBeReplacedBySlashes() {
     Resource dir = new Directory("  foo\\bar\\     ");
     assertThat(dir.getDeprecatedKey(), is("foo/bar"));
-    assertThat(dir.getName(), is("foo/bar"));
   }
 
   @Test

@@ -21,6 +21,7 @@ package org.sonar.api.batch;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
@@ -48,9 +49,13 @@ public final class SquidUtils {
     return new JavaFile(convertedKey);
   }
 
+  /**
+   * @deprecated since 4.2 JavaPackage key is now the same than directory (ie path)
+   */
+  @Deprecated
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
     String convertedKey = key.replace('/', '.');
-    return new JavaPackage(convertedKey);
+    return new Directory(key);
   }
 
   public static String convertToSquidKeyFormat(JavaFile file) {

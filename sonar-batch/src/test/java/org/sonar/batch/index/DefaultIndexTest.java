@@ -118,7 +118,7 @@ public class DefaultIndexTest {
     assertThat(index.index(file)).isTrue();
 
     Directory reference = Directory.create("src/org/foo", "org/foo");
-    assertThat(index.getResource(reference).getName()).isEqualTo("org/foo");
+    assertThat(index.getResource(reference).getName()).isEqualTo("/src/org/foo");
     assertThat(index.isIndexed(reference, true)).isTrue();
     assertThat(index.isExcluded(reference)).isFalse();
     assertThat(index.getChildren(reference)).hasSize(1);

@@ -20,7 +20,7 @@
 package org.sonar.core.component;
 
 import org.junit.Test;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 
@@ -33,9 +33,9 @@ public class ComponentKeysTest {
     Project project = new Project("my_project");
     assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
 
-    JavaPackage javaPackage = JavaPackage.create("src/org/foo", "org.foo");
-    assertThat(ComponentKeys.createEffectiveKey(project, javaPackage)).isEqualTo("my_project:/src/org/foo");
-    assertThat(ComponentKeys.createDeprecatedEffectiveKey(project, javaPackage)).isEqualTo("my_project:org.foo");
+    Directory dir = Directory.create("src/org/foo", "org/foo");
+    assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:/src/org/foo");
+    assertThat(ComponentKeys.createDeprecatedEffectiveKey(project, dir)).isEqualTo("my_project:org/foo");
 
     Library library = new Library("junit:junit", "4.7");
     assertThat(ComponentKeys.createEffectiveKey(project, library)).isEqualTo("junit:junit");

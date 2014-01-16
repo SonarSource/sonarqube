@@ -22,7 +22,7 @@ package org.sonar.plugins.design.batch;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Resource;
 import org.sonar.graph.DirectedGraph;
 import org.sonar.graph.Dsm;
@@ -43,8 +43,8 @@ public class DsmSerializerTest {
 
   @Test
   public void serialize() throws IOException {
-    Resource foo = new JavaPackage("org.foo").setId(7);
-    Resource bar = new JavaPackage("org.bar").setId(8);
+    Resource foo = Directory.create("src/org/foo", "org/foo").setId(7);
+    Resource bar = Directory.create("src/org/bar", "org/bar").setId(8);
     Dependency dep = new Dependency(foo, bar).setId(30l).setWeight(1);
 
     DirectedGraph<Resource, Dependency> graph = new DirectedGraph<Resource, Dependency>();
@@ -54,7 +54,7 @@ public class DsmSerializerTest {
 
     Dsm<Resource> dsm = new Dsm<Resource>(graph);
     DsmManualSorter.sort(dsm, bar, foo); // for test reproductibility
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/plugins/design/batch/DsmSerializerTest/dsm.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/plugins/design/batch/DsmSerializerTest/dsm.json")).trim();
     assertThat(DsmSerializer.serialize(dsm), is(json));
   }
 }

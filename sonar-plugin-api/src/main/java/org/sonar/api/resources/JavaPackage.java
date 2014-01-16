@@ -22,13 +22,13 @@ package org.sonar.api.resources;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.annotation.Nullable;
-
 /**
  * A class that represents a Java package in Sonar
  *
  * @since 1.10
+ * @deprecated since 4.2 use {@link Directory} instead
  */
+@Deprecated
 public class JavaPackage extends Resource {
 
   /**
@@ -51,14 +51,19 @@ public class JavaPackage extends Resource {
    */
   @Deprecated
   public JavaPackage(String deprecatedKey) {
-    setDeprecatedKey(StringUtils.defaultIfEmpty(StringUtils.trim(deprecatedKey), DEFAULT_PACKAGE_NAME));
+    if (DEFAULT_PACKAGE_NAME.equals(deprecatedKey)) {
+      deprecatedKey = Directory.ROOT;
+    }
+    String deprecatedDirectoryKey = StringUtils.trimToEmpty(deprecatedKey);
+    deprecatedDirectoryKey = deprecatedDirectoryKey.replaceAll("\\.", Directory.SEPARATOR);
+    setDeprecatedKey(StringUtils.defaultIfEmpty(deprecatedDirectoryKey, Directory.ROOT));
   }
 
   /**
    * @return whether the JavaPackage key is the default key
    */
   public boolean isDefault() {
-    return StringUtils.equals(getDeprecatedKey(), DEFAULT_PACKAGE_NAME);
+    return StringUtils.equals(getDeprecatedKey(), Directory.ROOT);
   }
 
   /**
@@ -90,7 +95,7 @@ public class JavaPackage extends Resource {
    */
   @Override
   public String getQualifier() {
-    return Qualifiers.PACKAGE;
+    return Qualifiers.DIRECTORY;
   }
 
   /**
@@ -98,7 +103,7 @@ public class JavaPackage extends Resource {
    */
   @Override
   public String getName() {
-    return getDeprecatedKey();
+    return getKey();
   }
 
   /**
@@ -118,28 +123,11 @@ public class JavaPackage extends Resource {
   }
 
   /**
-   * @return Java
+   * @return null
    */
   @Override
   public Language getLanguage() {
-    return Java.INSTANCE;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public static JavaPackage create(String path) {
-    JavaPackage pac = new JavaPackage();
-    String normalizedPath = normalize(path);
-    pac.setKey(normalizedPath);
-    pac.setPath(normalizedPath);
-    return pac;
-  }
-
-  public static JavaPackage create(String relativePathFromBasedir, @Nullable String packageQualifiedName) {
-    JavaPackage pac = JavaPackage.create(relativePathFromBasedir);
-    pac.setDeprecatedKey(StringUtils.defaultIfEmpty(StringUtils.trim(packageQualifiedName), DEFAULT_PACKAGE_NAME));
-    return pac;
+    return null;
   }
 
   @Override

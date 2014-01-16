@@ -58,10 +58,11 @@ public final class ResourceUtils {
   }
 
   /**
-   * @return whether a resource is a package
+   * @deprecated since 4.2 Package are now directory. Use {@link #isDirectory(Resource)}
    */
+  @Deprecated
   public static boolean isPackage(Resource resource) {
-    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier());
+    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier()) || isDirectory(resource);
   }
 
   /**
