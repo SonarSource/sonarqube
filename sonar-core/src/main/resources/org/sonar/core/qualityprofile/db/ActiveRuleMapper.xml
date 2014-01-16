@@ -48,6 +48,10 @@
     DELETE FROM active_rules WHERE rule_id=#{ruleId}
   </update>
 
+  <update id="deleteFromProfile" parameterType="Integer">
+    DELETE FROM active_rules WHERE profile_id=#{profileId}
+  </update>
+
   <select id="selectByIds" parameterType="map" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>
@@ -134,6 +138,10 @@
 
   <update id="deleteParametersWithParamId" parameterType="Integer">
     DELETE FROM active_rule_parameters WHERE rules_parameter_id=#{id}
+  </update>
+
+  <update id="deleteParametersFromProfile" parameterType="Integer">
+    DELETE FROM active_rule_parameters WHERE active_rule_id IN (SELECT id FROM active_rules WHERE profile_id=#{profileId})
   </update>
 
   <update id="deleteParameter" parameterType="Integer">

@@ -126,8 +126,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public void setDefaultProfile(int profileId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    operations.setDefaultProfile(qualityProfile, UserSession.get());
+    operations.setDefaultProfile(1, UserSession.get());
   }
 
   @CheckForNull
@@ -149,6 +148,14 @@ public class QProfiles implements ServerComponent {
 
   public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     return backup.restore(xmlBackup, deleteExisting, UserSession.get());
+  }
+
+  public boolean isDeletable(QProfile profile) {
+    return profileLookup.isDeletable(profile);
+  }
+
+  public void deleteProfile(int profileId) {
+    operations.deleteProfile(profileId, UserSession.get());
   }
 
 

@@ -60,16 +60,16 @@ class ProfilesController < ApplicationController
   end
 
   # POST /profiles/delete/<id>
-  # TODO use QProfiles facade instead
   def delete
     verify_post_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
-    @profile = Profile.find(params[:id])
-    if @profile && @profile.deletable?
-      @profile.destroy
+    profile_id = params[:id].to_i
+    call_backend do
+      Internal.quality_profiles.deleteProfile(profile_id)
+      Alert.delete_all(['profile_id=?', profile_id])
     end
+
     redirect_to(:controller => 'profiles', :action => 'index')
   end
 

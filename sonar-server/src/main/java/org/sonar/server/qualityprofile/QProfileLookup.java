@@ -72,7 +72,17 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile defaultProfile(String language) {
-    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
+    SqlSession session = myBatis.openSession();
+    try {
+      return defaultProfile(language, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  private QProfile defaultProfile(String language, SqlSession session) {
+    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language, session);
     if (dto != null) {
       return QProfile.from(dto);
     }
@@ -106,11 +116,28 @@ public class QProfileLookup implements ServerComponent {
     return ancestors;
   }
 
-  private void incrementAncestors(QProfile profile, List<QProfile> ancestors, SqlSession session){
+  public boolean isDeletable(QProfile profile, SqlSession session) {
+    QProfile defaultProfile = defaultProfile(profile.language(), session);
+    if (defaultProfile != null && defaultProfile.id().equals(profile.id())) {
+      return false;
+    }
+    return countChildren(profile, session) == 0;
+  }
+
+  public boolean isDeletable(QProfile profile) {
+    SqlSession session = myBatis.openSession();
+    try {
+      return isDeletable(profile, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void incrementAncestors(QProfile profile, List<QProfile> ancestors, SqlSession session) {
     if (profile.parent() != null) {
       QualityProfileDto parentDto = dao.selectParent(profile.id(), session);
       if (parentDto == null) {
-        throw new IllegalStateException("Cannot find parent of profile : "+ profile.id());
+        throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
       }
       QProfile parent = QProfile.from(parentDto);
       ancestors.add(parent);
@@ -119,10 +146,19 @@ public class QProfileLookup implements ServerComponent {
   }
 
   public int countChildren(QProfile profile) {
-    return dao.countChildren(profile.name(), profile.language());
+    SqlSession session = myBatis.openSession();
+    try {
+      return countChildren(profile, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  private List<QProfile> toQProfiles(List<QualityProfileDto> dtos){
+  public int countChildren(QProfile profile, SqlSession session) {
+    return dao.countChildren(profile.name(), profile.language(), session);
+  }
+
+  private List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
     return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
       @Override
       public QProfile apply(QualityProfileDto input) {

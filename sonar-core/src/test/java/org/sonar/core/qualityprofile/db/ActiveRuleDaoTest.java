@@ -92,6 +92,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void delete_from_profile() {
+    setupData("shared");
+
+    dao.deleteFromProfile(2);
+
+    checkTables("delete_from_profile", "active_rules");
+  }
+
+  @Test
   public void select_by_id() {
     setupData("shared");
 
@@ -208,6 +217,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     dao.deleteParameter(1);
 
     checkTables("delete_parameter", "active_rule_parameters");
+  }
+
+  @Test
+  public void delete_parameters_from_profile_id() {
+    setupData("delete_parameters_from_profile_id");
+
+    dao.deleteParametersFromProfile(2);
+
+    checkTables("delete_parameters_from_profile_id", "active_rule_parameters");
   }
 
   @Test

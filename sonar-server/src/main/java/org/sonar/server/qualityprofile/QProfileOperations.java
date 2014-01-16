@@ -64,18 +64,19 @@ public class QProfileOperations implements ServerComponent {
   private final List<ProfileImporter> importers;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
+  private final QProfileLookup profileLookup;
   private final ProfilesManager profilesManager;
 
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
-    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profilesManager);
+                            PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
+    this(myBatis, dao, activeRuleDao, propertiesDao, Lists.<ProfileImporter>newArrayList(), dryRunCache, ruleRegistry, profileLookup, profilesManager);
   }
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, ProfilesManager profilesManager) {
+                            List<ProfileImporter> importers, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -83,6 +84,7 @@ public class QProfileOperations implements ServerComponent {
     this.importers = importers;
     this.dryRunCache = dryRunCache;
     this.ruleRegistry = ruleRegistry;
+    this.profileLookup = profileLookup;
     this.profilesManager = profilesManager;
   }
 
@@ -136,9 +138,38 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void setDefaultProfile(QualityProfileDto qualityProfile, UserSession userSession) {
+  public void deleteProfile(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto profile = findNotNull(profileId, session);
+      if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
+        throw new BadRequestException("This profile can not be deleted");
+      } else {
+        activeRuleDao.deleteParametersFromProfile(profile.getId(), session);
+        activeRuleDao.deleteFromProfile(profile.getId(), session);
+        dao.delete(profile.getId(), session);
+        propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
+        ruleRegistry.deleteActiveRulesFromProfile(profile.getId());
+        session.commit();
+
+        dryRunCache.reportGlobalModification();
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void setDefaultProfile(int profileId, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+      propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
@@ -216,6 +247,7 @@ public class QProfileOperations implements ServerComponent {
     ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
   }
 
+  @CheckForNull
   private ProfileImporter getProfileImporter(String exporterKey) {
     for (ProfileImporter importer : importers) {
       if (StringUtils.equals(exporterKey, importer.getKey())) {

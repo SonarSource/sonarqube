@@ -143,12 +143,12 @@ public class QProfileLookupTest {
   @Test
   public void count_children_profiles() throws Exception {
     search.countChildren(new QProfile().setName("Sonar Way").setLanguage("java"));
-    verify(dao).countChildren("Sonar Way", "java");
+    verify(dao).countChildren("Sonar Way", "java", session);
   }
 
   @Test
   public void default_profile() throws Exception {
-    when(dao.selectDefaultProfile("java", "sonar.profile.java")).thenReturn(
+    when(dao.selectDefaultProfile("java", "sonar.profile.java", session)).thenReturn(
       new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
     );
 
@@ -182,6 +182,33 @@ public class QProfileLookupTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
     }
+  }
+
+  @Test
+  public void is_deletable_if_not_default_profile_and_have_no_children() throws Exception {
+    when(dao.countChildren("Sonar Way", "java", session)).thenReturn(0);
+
+    assertThat(search.isDeletable(new QProfile().setId(2).setName("Sonar Way").setLanguage("java"))).isTrue();
+  }
+
+  @Test
+  public void is_not_deletable_if_is_default_profile() throws Exception {
+    when(dao.selectDefaultProfile("java", "sonar.profile.java", session)).thenReturn(
+      new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java")
+    );
+    when(dao.countChildren("Sonar Way", "java", session)).thenReturn(0);
+
+    assertThat(search.isDeletable(new QProfile().setId(1).setName("Sonar Way").setLanguage("java"))).isFalse();
+  }
+
+  @Test
+  public void is_not_deletable_if_have_children() throws Exception {
+    when(dao.selectDefaultProfile("java", "sonar.profile.java", session)).thenReturn(
+      new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java")
+    );
+    when(dao.countChildren("Sonar Way", "java", session)).thenReturn(1);
+
+    assertThat(search.isDeletable(new QProfile().setId(2).setName("Sonar Way").setLanguage("java"))).isFalse();
   }
 
 }

@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.search.SearchHit;
@@ -54,9 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -102,14 +101,10 @@ public class RuleRegistryTest {
     registry = new RuleRegistry(searchIndex, ruleDao, activeRuleDao, myBatis);
     registry.start();
 
-    String source1 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule1.json").toURI());
-    String source2 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule2.json").toURI());
-    String source3 = IOUtils.toString(TestUtils.getResource(getClass(), "rules/rule3.json").toURI());
-
     esSetup.execute(
-      EsSetup.index("rules", "rule", "1").withSource(source1),
-      EsSetup.index("rules", "rule", "2").withSource(source2),
-      EsSetup.index("rules", "rule", "3").withSource(source3)
+      EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
+      EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
+      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
     );
   }
 
@@ -340,6 +335,27 @@ public class RuleRegistryTest {
     ).execute().actionGet().getHits().getHits();
     assertThat(childHit).hasSize(1);
     assertThat(childHit[0].getId()).isEqualTo("1");
+  }
+
+  @Test
+  public void delete_active_rules_from_profile() throws Exception {
+    esSetup.client().prepareBulk()
+      // On profile 1
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1").source(testFileAsString("delete_from_profile/active_rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("3").source(testFileAsString("delete_from_profile/active_rule2702.json")))
+        // On profile 2
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("2").source(testFileAsString("delete_from_profile/active_rule523.json")))
+      .setRefresh(true)
+      .execute().actionGet();
+
+    registry.deleteActiveRulesFromProfile(1);
+    assertThat(!esSetup.exists("rules", "active_rule", "25"));
+    assertThat(!esSetup.exists("rules", "active_rule", "2702"));
+    assertThat(esSetup.exists("rules", "active_rule", "523"));
+  }
+
+  private String testFileAsString(String testFile) throws Exception {
+    return IOUtils.toString(TestUtils.getResource(getClass(), testFile).toURI());
   }
 
 }

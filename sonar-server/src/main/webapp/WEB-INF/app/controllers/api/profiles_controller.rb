@@ -81,11 +81,12 @@ class Api::ProfilesController < Api::ApiController
     access_denied unless has_role?(:profileadmin)
     require_parameters :language, :name
 
-    profile=Profile.find_by_name_and_language(params[:name], params[:language])
+    profile = Internal.quality_profiles.profile(params[:name], params[:language])
     if profile
-      bad_request('This profile can not be deleted') unless profile.deletable?
-      profile.destroy
+      Internal.quality_profiles.deleteProfile(profile.id())
+      Alert.delete_all(['profile_id=?', profile.id()])
     end
+
     render_success(profile ? 'Profile destroyed' : 'Profile did not exist')
   end
 

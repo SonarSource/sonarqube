@@ -69,11 +69,11 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public void delete(Integer activeRuleId, SqlSession session) {
+  public void delete(int activeRuleId, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).delete(activeRuleId);
   }
 
-  public void delete(Integer activeRuleId) {
+  public void delete(int activeRuleId) {
     SqlSession session = mybatis.openSession();
     try {
       delete(activeRuleId, session);
@@ -83,14 +83,28 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public void deleteFromRule(Integer ruleId, SqlSession session) {
+  public void deleteFromRule(int ruleId, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).deleteFromRule(ruleId);
   }
 
-  public void deleteFromRule(Integer ruleId) {
+  public void deleteFromRule(int ruleId) {
     SqlSession session = mybatis.openSession();
     try {
       deleteFromRule(ruleId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteFromProfile(int profileId, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).deleteFromProfile(profileId);
+  }
+
+  public void deleteFromProfile(int profileId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteFromProfile(profileId, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -132,7 +146,7 @@ public class ActiveRuleDao implements ServerComponent {
     return session.getMapper(ActiveRuleMapper.class).selectAll();
   }
 
-  public List<ActiveRuleDto> selectByRuleId(Integer ruleId) {
+  public List<ActiveRuleDto> selectByRuleId(int ruleId) {
     SqlSession session = mybatis.openSession();
     try {
       return selectByRuleId(ruleId, session);
@@ -141,7 +155,7 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public List<ActiveRuleDto> selectByRuleId(Integer ruleId, SqlSession session) {
+  public List<ActiveRuleDto> selectByRuleId(int ruleId, SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId);
   }
 
@@ -160,7 +174,7 @@ public class ActiveRuleDao implements ServerComponent {
 
 
   @CheckForNull
-  public ActiveRuleDto selectById(Integer id) {
+  public ActiveRuleDto selectById(int id) {
     SqlSession session = mybatis.openSession();
     try {
       return selectById(id, session);
@@ -170,12 +184,12 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   @CheckForNull
-  public ActiveRuleDto selectById(Integer id, SqlSession session) {
+  public ActiveRuleDto selectById(int id, SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectById(id);
   }
 
   @CheckForNull
-  public ActiveRuleDto selectByProfileAndRule(Integer profileId, Integer ruleId) {
+  public ActiveRuleDto selectByProfileAndRule(int profileId, int ruleId) {
     SqlSession session = mybatis.openSession();
     try {
       return selectByProfileAndRule(profileId, ruleId, session);
@@ -185,7 +199,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   @CheckForNull
-  public ActiveRuleDto selectByProfileAndRule(Integer profileId, Integer ruleId, SqlSession session) {
+  public ActiveRuleDto selectByProfileAndRule(int profileId, int ruleId, SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectByProfileAndRule(profileId, ruleId);
   }
 
@@ -218,11 +232,11 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
 
-  public void deleteParameter(Integer activeRuleParamId, SqlSession session) {
+  public void deleteParameter(int activeRuleParamId, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).deleteParameter(activeRuleParamId);
   }
 
-  public void deleteParameter(Integer activeRuleParamId) {
+  public void deleteParameter(int activeRuleParamId) {
     SqlSession session = mybatis.openSession();
     try {
       deleteParameter(activeRuleParamId, session);
@@ -232,11 +246,11 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public void deleteParameters(Integer activeRuleId, SqlSession session) {
+  public void deleteParameters(int activeRuleId, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).deleteParameters(activeRuleId);
   }
 
-  public void deleteParameters(Integer activeRuleId) {
+  public void deleteParameters(int activeRuleId) {
     SqlSession session = mybatis.openSession();
     try {
       deleteParameters(activeRuleId, session);
@@ -246,8 +260,22 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public void deleteParametersWithParamId(Integer id, SqlSession session) {
+  public void deleteParametersWithParamId(int id, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).deleteParametersWithParamId(id);
+  }
+
+  public void deleteParametersFromProfile(int profileId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteParametersFromProfile(profileId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteParametersFromProfile(int profileId, SqlSession session) {
+    session.getMapper(ActiveRuleMapper.class).deleteParametersFromProfile(profileId);
   }
 
   public ActiveRuleParamDto selectParamById(Integer activeRuleParamId) {
@@ -259,7 +287,7 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public ActiveRuleParamDto selectParamByActiveRuleAndKey(Integer activeRuleId, String key) {
+  public ActiveRuleParamDto selectParamByActiveRuleAndKey(int activeRuleId, String key) {
     SqlSession session = mybatis.openSession();
     try {
       return selectParamByActiveRuleAndKey(activeRuleId, key, session);
@@ -268,11 +296,11 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public ActiveRuleParamDto selectParamByActiveRuleAndKey(Integer activeRuleId, String key, SqlSession session) {
+  public ActiveRuleParamDto selectParamByActiveRuleAndKey(int activeRuleId, String key, SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectParamByActiveRuleAndKey(activeRuleId, key);
   }
 
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId) {
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId) {
     SqlSession session = mybatis.openSession();
     try {
       return selectParamsByActiveRuleId(activeRuleId, session);
@@ -281,7 +309,7 @@ public class ActiveRuleDao implements ServerComponent {
     }
   }
 
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId, SqlSession session) {
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId, SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectParamsByActiveRuleId(activeRuleId);
   }
 

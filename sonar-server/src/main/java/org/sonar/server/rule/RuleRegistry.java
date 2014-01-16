@@ -31,6 +31,8 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
@@ -82,8 +84,6 @@ public class RuleRegistry {
   }
 
   public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleTagDto> tagsByRule) {
-    TimeProfiler profiler = new TimeProfiler();
-
     String[] ids = bulkIndexRules(rules, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
   }
@@ -226,6 +226,13 @@ public class RuleRegistry {
     if (!indexIds.isEmpty()) {
       searchIndex.bulkDelete(INDEX_RULES, TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
     }
+  }
+
+  public void deleteActiveRulesFromProfile(int profileId) {
+    searchIndex.client().prepareDeleteByQuery(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, profileId)))
+      .execute().actionGet();
   }
 
   public String[] bulkIndexActiveRules(List<ActiveRuleDto> activeRules, Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule) {

@@ -79,7 +79,7 @@ public class QProfilesTest {
   QProfileLookup profileLookup;
 
   @Mock
-  QProfileOperations service;
+  QProfileOperations profileOperations;
 
   @Mock
   QProfileActiveRuleOperations activeRuleOperations;
@@ -97,7 +97,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, profileLookup, service, activeRuleOperations, ruleOperations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
@@ -162,7 +162,7 @@ public class QProfilesTest {
   public void create_new_profile() throws Exception {
     Map<String, String> xmlProfilesByPlugin = newHashMap();
     qProfiles.newProfile("Default", "java", xmlProfilesByPlugin);
-    verify(service).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
+    verify(profileOperations).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
   }
 
   @Test
@@ -178,7 +178,7 @@ public class QProfilesTest {
   @Test
   public void rename_profile() throws Exception {
     qProfiles.renameProfile(1, "Default profile");
-    verify(service).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
+    verify(profileOperations).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
   }
 
   @Test
@@ -193,18 +193,27 @@ public class QProfilesTest {
   }
 
   @Test
-  public void update_default_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("Default").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
+  public void is_deletable() throws Exception {
+    qProfiles.isDeletable(new QProfile());
+    verify(profileLookup).isDeletable(any(QProfile.class));
+  }
 
+  @Test
+  public void delete_profile() throws Exception {
+    qProfiles.deleteProfile(1);
+    verify(profileOperations).deleteProfile(eq(1), any(UserSession.class));
+  }
+
+  @Test
+  public void update_default_profile() throws Exception {
     qProfiles.setDefaultProfile(1);
-    verify(service).setDefaultProfile(eq(qualityProfile), any(UserSession.class));
+    verify(profileOperations).setDefaultProfile(eq(1), any(UserSession.class));
   }
 
   @Test
   public void update_parent_profile() throws Exception {
     qProfiles.updateParentProfile(1, 2);
-    verify(service).updateParentProfile(eq(1), eq(2), any(UserSession.class));
+    verify(profileOperations).updateParentProfile(eq(1), eq(2), any(UserSession.class));
   }
 
   @Test
@@ -501,7 +510,7 @@ public class QProfilesTest {
       assertThat(e).isInstanceOf(BadRequestException.class);
       assertThat(((BadRequestException) e).errors()).hasSize(3);
     }
-    verifyZeroInteractions(service);
+    verifyZeroInteractions(profileOperations);
     verifyZeroInteractions(rules);
   }
 
@@ -523,7 +532,7 @@ public class QProfilesTest {
       assertThat(e).isInstanceOf(BadRequestException.class);
       assertThat(((BadRequestException) e).errors()).hasSize(1);
     }
-    verifyZeroInteractions(service);
+    verifyZeroInteractions(profileOperations);
     verifyZeroInteractions(rules);
   }
 
@@ -569,7 +578,7 @@ public class QProfilesTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
-    verifyZeroInteractions(service);
+    verifyZeroInteractions(profileOperations);
     verifyZeroInteractions(rules);
   }
 

@@ -91,6 +91,9 @@ public class QProfileOperationsTest {
   RuleRegistry ruleRegistry;
 
   @Mock
+  QProfileLookup profileLookup;
+
+  @Mock
   ProfilesManager profilesManager;
 
   List<ProfileImporter> importers = newArrayList();
@@ -124,7 +127,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, importers, dryRunCache, ruleRegistry, profileLookup, profilesManager);
   }
 
   @Test
@@ -300,14 +303,14 @@ public class QProfileOperationsTest {
 
   @Test
   public void update_default_profile() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
 
-    operations.setDefaultProfile(qualityProfile, authorizedUserSession);
+    operations.setDefaultProfile(1, authorizedUserSession);
 
     ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
-    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("Default");
   }
 
   @Test
@@ -417,6 +420,41 @@ public class QProfileOperationsTest {
     assertThat(operations.isCycle(level1, level3, session)).isTrue();
     assertThat(operations.isCycle(level1, level2, session)).isTrue();
     assertThat(operations.isCycle(level2, level3, session)).isTrue();
+  }
+
+  @Test
+  public void delete_profile() {
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(profileLookup.isDeletable(any(QProfile.class), eq(session))).thenReturn(true);
+
+    operations.deleteProfile(1, authorizedUserSession);
+
+    verify(session).commit();
+    verify(activeRuleDao).deleteParametersFromProfile(1, session);
+    verify(activeRuleDao).deleteFromProfile(1, session);
+    verify(qualityProfileDao).delete(1, session);
+    verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "Default", session);
+    verify(ruleRegistry).deleteActiveRulesFromProfile(1);
+    verify(dryRunCache).reportGlobalModification();
+  }
+
+  @Test
+  public void not_delete_profile_if_not_deletable() {
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(profileLookup.isDeletable(any(QProfile.class), eq(session))).thenReturn(false);
+
+    try {
+      operations.deleteProfile(1, authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+
+    verify(session, never()).commit();
+    verifyZeroInteractions(activeRuleDao);
+    verify(qualityProfileDao, never()).delete(anyInt(), eq(session));
+    verifyZeroInteractions(propertiesDao);
+    verifyZeroInteractions(ruleRegistry);
   }
 
 }

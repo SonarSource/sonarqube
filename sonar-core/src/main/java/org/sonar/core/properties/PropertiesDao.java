@@ -110,20 +110,22 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public void setProperty(PropertyDto property, SqlSession session) {
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    PropertyDto persistedProperty = mapper.selectByKey(property);
+    if (persistedProperty != null && !StringUtils.equals(persistedProperty.getValue(), property.getValue())) {
+      persistedProperty.setValue(property.getValue());
+      mapper.update(persistedProperty);
+    } else if (persistedProperty == null) {
+      mapper.insert(property);
+    }
+  }
+
   public void setProperty(PropertyDto property) {
     SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      PropertyDto persistedProperty = mapper.selectByKey(property);
-      if (persistedProperty != null && !StringUtils.equals(persistedProperty.getValue(), property.getValue())) {
-        persistedProperty.setValue(property.getValue());
-        mapper.update(persistedProperty);
-        session.commit();
-
-      } else if (persistedProperty == null) {
-        mapper.insert(property);
-        session.commit();
-      }
+      setProperty(property, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -140,11 +142,15 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public void deleteProjectProperties(String key, String value) {
-    SqlSession session = mybatis.openSession();
+  public void deleteProjectProperties(String key, String value, SqlSession session) {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    mapper.deleteProjectProperties(key, value);
+  }
+
+    public void deleteProjectProperties(String key, String value) {
+    SqlSession session = mybatis.openSession();
     try {
-      mapper.deleteProjectProperties(key, value);
+      deleteProjectProperties(key, value, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -163,13 +169,16 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public void deleteGlobalProperty(String key, SqlSession session) {
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    mapper.deleteGlobalProperty(key);
+  }
+
   public void deleteGlobalProperty(String key) {
     SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      mapper.deleteGlobalProperty(key);
+      deleteGlobalProperty(key, session);
       session.commit();
-
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -327,7 +327,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return newParams;
   }
 
-  private void restoreSeverityFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions, UserSession userSession, SqlSession session) {
+  private void restoreSeverityFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions,
+                                                   UserSession userSession, SqlSession session) {
     Integer oldSeverity = activeRule.getSeverity();
     Integer newSeverity = parent.getSeverity();
     if (!oldSeverity.equals(newSeverity)) {

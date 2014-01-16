@@ -32,17 +32,19 @@ public interface ActiveRuleMapper {
 
   void update(ActiveRuleDto dto);
 
-  void delete(Integer activeRuleId);
+  void delete(int activeRuleId);
 
-  void deleteFromRule(Integer ruleId);
+  void deleteFromRule(int ruleId);
+
+  void deleteFromProfile(int profileId);
 
   @CheckForNull
   ActiveRuleDto selectById(Integer id);
 
   @CheckForNull
-  ActiveRuleDto selectByProfileAndRule(@Param("profileId") Integer profileId, @Param("ruleId") Integer ruleId);
+  ActiveRuleDto selectByProfileAndRule(@Param("profileId") int profileId, @Param("ruleId") int ruleId);
 
-  List<ActiveRuleDto> selectByRuleId(Integer ruleId);
+  List<ActiveRuleDto> selectByRuleId(int ruleId);
 
   List<ActiveRuleDto> selectByProfileId(int profileId);
 
@@ -52,19 +54,21 @@ public interface ActiveRuleMapper {
 
   void updateParameter(ActiveRuleParamDto dto);
 
-  void deleteParameters(Integer activeRuleId);
+  void deleteParameters(int activeRuleId);
 
-  void deleteParameter(Integer activeRuleParamId);
+  void deleteParameter(int activeRuleParamId);
 
-  void deleteParametersWithParamId(Integer id);
+  void deleteParametersWithParamId(int id);
+
+  void deleteParametersFromProfile(int profileId);
 
   @CheckForNull
-  ActiveRuleParamDto selectParamById(Integer activeRuleParamId);
+  ActiveRuleParamDto selectParamById(int activeRuleParamId);
 
   @CheckForNull
-  ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") Integer activeRuleId, @Param("key") String key);
+  ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") int activeRuleId, @Param("key") String key);
 
-  List<ActiveRuleParamDto> selectParamsByActiveRuleId(Integer activeRuleId);
+  List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
   List<ActiveRuleParamDto> selectAllParams();
 

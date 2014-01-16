@@ -66,10 +66,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public void delete(int id, SqlSession session) {
+    session.getMapper(QualityProfileMapper.class).delete(id);
+  }
+
   public void delete(int id) {
     SqlSession session = mybatis.openSession();
     try {
-      session.getMapper(QualityProfileMapper.class).delete(id);
+      delete(id, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -85,10 +89,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public QualityProfileDto selectDefaultProfile(String language, String key, SqlSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, key);
+  }
+
   public QualityProfileDto selectDefaultProfile(String language, String key) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, key);
+      return selectDefaultProfile(language, key, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -151,10 +159,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public int countChildren(String name, String language, SqlSession session) {
+    return session.getMapper(QualityProfileMapper.class).countChildren(StringUtils.upperCase(name), language);
+  }
+
   public int countChildren(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).countChildren(StringUtils.upperCase(name), language);
+      return countChildren(StringUtils.upperCase(name), language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
