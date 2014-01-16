@@ -305,7 +305,7 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
       .field(RuleDocument.FIELD_NAME, rule.getName())
       .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
-      .field(RuleDocument.FIELD_PARENT_KEY, rule.getParentId() == null ? null : rule.getParentId())
+      .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId() == null ? null : rule.getParentId())
       .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
       .field(RuleDocument.FIELD_SEVERITY, getSeverityFromOrdinal(rule.getSeverity()))
       .field(RuleDocument.FIELD_STATUS, rule.getStatus())
@@ -357,7 +357,7 @@ public class RuleRegistry {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(ActiveRuleDocument.FIELD_ID, activeRule.getId())
-      .field(ActiveRuleDocument.FIELD_PARENT_ID, activeRule.getParentId())
+      .field(ActiveRuleDocument.FIELD_ACTIVE_RULE_PARENT_ID, activeRule.getParentId())
       .field(ActiveRuleDocument.FIELD_SEVERITY, getSeverityFromOrdinal(activeRule.getSeverity()))
       .field(ActiveRuleDocument.FIELD_PROFILE_ID, activeRule.getProfileId())
       .field(ActiveRuleDocument.FIELD_INHERITANCE, activeRule.getInheritance());

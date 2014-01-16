@@ -30,7 +30,7 @@ public final class RuleDocument {
   public static final String FIELD_STATUS = "status";
   public static final String FIELD_SEVERITY = "severity";
   public static final String FIELD_REPOSITORY_KEY = "repositoryKey";
-  public static final String FIELD_PARENT_KEY = "parentKey";
+  public static final String FIELD_TEMPLATE_ID = "templateId";
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_LANGUAGE = "language";

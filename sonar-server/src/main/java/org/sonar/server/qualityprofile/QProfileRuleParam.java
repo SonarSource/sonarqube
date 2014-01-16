@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -58,5 +60,10 @@ public class QProfileRuleParam {
 
   public String type() {
     return type;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this).toString();
   }
 }

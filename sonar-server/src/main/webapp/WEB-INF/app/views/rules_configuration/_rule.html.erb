@@ -55,14 +55,14 @@
     %>
       <table width="100%" class="table spacer-bottom bordered background-gray">
         <%
+           puts "#### " + rule.to_s
            if parent_active_rule
              parent_active_rule_link = link_to parent_profile.name, :controller => 'rules_configuration', :action => 'index',
                                                  :id => parent_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
         %>
           <tr>
             <td colspan="2">
-              <%= message(rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
-                          :params => parent_active_rule_link) -%>
+              <%= message(rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x', :params => parent_active_rule_link) -%>
               <% if parent_active_rule.severity != rule.severity %>
                 <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
                 <span class="form-val-note" style="font-weight: bold"> <%= message('rules_configuration.original_severity') -%>

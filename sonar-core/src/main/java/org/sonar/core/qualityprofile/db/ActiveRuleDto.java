@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.persistence.Transient;
 
 import java.util.Date;
 
@@ -42,6 +43,8 @@ public class ActiveRuleDto {
   private String noteUserLogin;
   private String noteData;
 
+  // This field do not exists in db, it's only retrieve by joins
+  @Transient
   private Integer parentId;
 
   public Integer getId() {

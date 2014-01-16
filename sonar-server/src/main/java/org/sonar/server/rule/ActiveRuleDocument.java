@@ -23,10 +23,10 @@ package org.sonar.server.rule;
 public class ActiveRuleDocument {
 
   public static final String FIELD_ID = "id";
-  public static final String FIELD_PARENT_ID = "parentId";
   public static final String FIELD_SEVERITY = "severity";
   public static final String FIELD_PROFILE_ID = "profileId";
   public static final String FIELD_INHERITANCE = "inheritance";
+  public static final String FIELD_ACTIVE_RULE_PARENT_ID = "activeRuleParentId";
   public static final String FIELD_PARAMS = "params";
 
   public static final String FIELD_NOTE = "note";

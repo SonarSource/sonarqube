@@ -62,7 +62,7 @@
 
   <select id="selectById" parameterType="Integer" resultType="ActiveRule">
     SELECT <include refid="activeRuleColumns"/>
-    FROM active_rules a
+    FROM active_rules a1
     <include refid="activeRuleJoin"/>
     <where>
       AND a.id=#{id}
@@ -99,7 +99,7 @@
 
   <select id="selectAll" parameterType="map" resultType="ActiveRule">
     select
-    <include refid="activeRuleColumns"/>,active_rule_parent.id as parentId
+    <include refid="activeRuleColumns"/>
     from active_rules a
     <include refid="activeRuleJoin"/>
   </select>

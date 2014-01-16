@@ -287,7 +287,7 @@ public class QProfilesTest {
   public void parent_active_rule() throws Exception {
     QProfileRule rule = mock(QProfileRule.class);
     when(rule.id()).thenReturn(10);
-    when(rule.parentId()).thenReturn(6);
+    when(rule.activeRuleParentId()).thenReturn(6);
 
     qProfiles.parentProfileRule(rule);
     verify(rules).findByActiveRuleId(6);
@@ -297,7 +297,7 @@ public class QProfilesTest {
   public void parent_active_rule_return_null_when_no_parent() throws Exception {
     QProfileRule rule = mock(QProfileRule.class);
     when(rule.id()).thenReturn(10);
-    when(rule.parentId()).thenReturn(null);
+    when(rule.activeRuleParentId()).thenReturn(null);
 
     assertThat(qProfiles.parentProfileRule(rule)).isNull();
     verify(rules, never()).findByActiveRuleId(anyInt());

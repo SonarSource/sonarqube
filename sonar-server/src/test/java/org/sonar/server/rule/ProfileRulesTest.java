@@ -102,6 +102,21 @@ public class ProfileRulesTest {
   }
 
   @Test
+  public void find_by_active_rule_id_with_inheritance() throws Exception {
+    esSetup.client().prepareBulk()
+      // Parent active rule
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("25").source(testFileAsString("find_active_rules_with_inheritance/active_rule25.json")))
+        // Child active rule
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("759").source(testFileAsString("find_active_rules_with_inheritance/active_rule391.json")))
+      .setRefresh(true)
+      .execute().actionGet();
+
+    QProfileRule child = profileRules.findByActiveRuleId(391);
+    assertThat(child.inheritance()).isEqualTo("INHERITED");
+    assertThat(child.activeRuleParentId()).isEqualTo(25);
+  }
+
+  @Test
   public void find_by_profile_id_and_rule_id() {
     // Rules on profiles
     QProfileRule rule = profileRules.findByProfileIdAndRuleId(1, 759);

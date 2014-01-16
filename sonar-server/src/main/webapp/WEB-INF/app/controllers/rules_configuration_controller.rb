@@ -191,10 +191,10 @@ class RulesConfigurationController < ApplicationController
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
       @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
-      if @rule.ruleId().nil?
+      if @rule.templateId().nil?
         redirect_to :action => 'index', :id => params[:id]
       else
-        @parent_rule = Internal.quality_profiles.rule(@rule.ruleId())
+        @parent_rule = Internal.quality_profiles.rule(@rule.templateId())
         @active_rules = Internal.quality_profiles.countActiveRules(@rule)
       end
     end

@@ -39,19 +39,19 @@ public class QProfileRule {
   public static final String OVERRIDES = "OVERRIDES";
 
   private final Integer id;
-  private final Integer parentId;
   private final String key;
   private final String repositoryKey;
   private final String name;
   private final String description;
   private final String status;
   private final String cardinality;
-  private final Integer ruleId;
+  private final Integer templateId;
   private final Date createdAt;
   private final Date updatedAt;
   private final QProfileRuleNote ruleNote;
 
   private final Integer activeRuleId;
+  private final Integer activeRuleParentId;
   private final String severity;
   private final String inheritance;
   private final QProfileRuleNote activeRuleNote;
@@ -68,7 +68,7 @@ public class QProfileRule {
     description = (String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION);
     status = (String) ruleSource.get(RuleDocument.FIELD_STATUS);
     cardinality = (String) ruleSource.get("cardinality");
-    ruleId = (Integer) ruleSource.get(RuleDocument.FIELD_PARENT_KEY);
+    templateId = (Integer) ruleSource.get(RuleDocument.FIELD_TEMPLATE_ID);
     createdAt = parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource);
     updatedAt = parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource);
 
@@ -89,12 +89,12 @@ public class QProfileRule {
       severity = (String) ruleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = null;
       activeRuleNote = null;
-      parentId = null;
+      activeRuleParentId = null;
     } else {
       activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
       severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
-      parentId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_PARENT_ID);
+      activeRuleParentId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ACTIVE_RULE_PARENT_ID);
 
       if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
         Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
@@ -207,13 +207,13 @@ public class QProfileRule {
   }
 
   @CheckForNull
-  public Integer ruleId() {
-    return ruleId;
+  public Integer templateId() {
+    return templateId;
   }
 
   @CheckForNull
-  public Integer parentId() {
-    return parentId;
+  public Integer activeRuleParentId() {
+    return activeRuleParentId;
   }
 
   public boolean isInherited() {
@@ -229,7 +229,7 @@ public class QProfileRule {
   }
 
   public boolean isEditable() {
-    return ruleId != null;
+    return templateId != null;
   }
 
   public List<QProfileRuleParam> params() {
@@ -245,17 +245,17 @@ public class QProfileRule {
     return activeRuleNote;
   }
 
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this).toString();
-  }
-
   public List<String> systemTags() {
     return systemTags;
   }
 
   public List<String> adminTags() {
     return adminTags;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this).toString();
   }
 
 }

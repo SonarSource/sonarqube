@@ -19,7 +19,7 @@
         "type": "integer",
         "index": "not_analyzed"
       },
-      "parentId": {
+      "activeRuleParentId": {
         "type": "integer",
         "index": "not_analyzed"
       },

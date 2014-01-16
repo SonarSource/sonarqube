@@ -27,7 +27,7 @@
         "type": "string",
         "index": "no"
       },
-      "parentKey": {
+      "templateId": {
         "type": "string",
         "index": "not_analyzed"
       },

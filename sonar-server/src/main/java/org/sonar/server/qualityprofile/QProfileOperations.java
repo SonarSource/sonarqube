@@ -154,15 +154,13 @@ public class QProfileOperations implements ServerComponent {
         throw new BadRequestException("Please do not select a child profile as parent.");
       }
       String parentName = parentProfile != null ? parentProfile.getName() : null;
-
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
-      ruleRegistry.deleteActiveRules(actions.idsToDelete());
-      ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
-
       profile.setParent(parentName);
       dao.update(profile, session);
       session.commit();
 
+      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
+      ruleRegistry.deleteActiveRules(actions.idsToDelete());
+      ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
     } finally {
       MyBatis.closeQuietly(session);
     }
