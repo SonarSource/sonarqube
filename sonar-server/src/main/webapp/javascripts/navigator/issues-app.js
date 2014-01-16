@@ -10,6 +10,7 @@ jQuery(function() {
 
 
   NavigatorApp.addRegions({
+    headerRegion: '.navigator-header',
     filtersRegion: '.navigator-filters',
     resultsRegion: '.navigator-results',
     actionsRegion: '.navigator-actions'
@@ -19,6 +20,13 @@ jQuery(function() {
   NavigatorApp.addInitializer(function() {
     this.issues = new window.SS.Issues();
     this.issuesPage = 1;
+
+    this.favoriteFilter = new window.SS.FavoriteFilter();
+    this.issuesHeaderView = new window.SS.IssuesHeaderView({
+      app: this,
+      model: this.favoriteFilter
+    });
+    this.headerRegion.show(this.issuesHeaderView);
 
     this.issuesView = new window.SS.IssuesView({
       collection: this.issues
@@ -35,18 +43,6 @@ jQuery(function() {
 
   NavigatorApp.addInitializer(function() {
     this.filters = new window.SS.Filters();
-
-    if (_.isObject(window.SS.favorites)) {
-      this.filters.add([
-        new window.SS.Filter({
-          type: window.SS.FavoriteFilterView,
-          enabled: true,
-          optional: false,
-          choices: window.SS.favorites,
-          favoriteUrl: '/issues/filter',
-          manageUrl: '/issues/manage'
-        })]);
-    }
 
     this.filters.add([
       new window.SS.Filter({
@@ -141,6 +137,20 @@ jQuery(function() {
     ]);
 
 
+    this.favoriteFilters = new window.SS.FavoriteFilters();
+    this.filters.unshift([
+      new window.SS.Filter({
+        type: window.SS.IssuesFavoriteFilterView,
+        enabled: true,
+        optional: false,
+        choices: this.favoriteFilters,
+        manageUrl: '/issues/manage'
+      })]);
+    this.favoriteFilters.fetch({
+      reset: true
+    });
+
+
     this.filterBarView = new window.SS.IssuesFilterBarView({
       app: this,
       collection: this.filters,
@@ -158,7 +168,12 @@ jQuery(function() {
     this.router = new window.SS.IssuesRouter({
       app: this
     });
-    Backbone.history.start()
+    Backbone.history.start();
+
+    var router = this.router;
+    this.favoriteFilter.on('change:query', function(model, query) {
+      router.navigate(query, { trigger: true });
+    });
   });
 
 
@@ -182,7 +197,7 @@ jQuery(function() {
 
     var queryString = _.map(fullQuery, function(v, k) {
       return [k, encodeURIComponent(v)].join('=');
-    }).join('&');
+    }).join('|');
     this.router.navigate(queryString);
   };
 

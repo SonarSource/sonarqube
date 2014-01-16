@@ -287,7 +287,22 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         });
 
         this.renderBase();
+      } else {
+        this.clear();
       }
+    },
+
+
+    clear: function() {
+      var that = this;
+      this.model.unset('value');
+      if (this.selection && this.choices) {
+        this.selection.each(function(m) {
+          that.choices.add(m);
+        });
+        this.selection.reset([]);
+      }
+      this.renderBase();
     },
 
 

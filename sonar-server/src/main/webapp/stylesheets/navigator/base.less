@@ -71,11 +71,42 @@
   padding: 0 @navigatorPadding;
   border-bottom: 1px solid @navigatorBorderColor;
   background-color: @navigatorBarBackground;
+  font-size: 0;
 }
 
 .navigator-header-title {
+  position: relative;
+  top: -2px;
+  display: inline-block;
+  vertical-align: middle;
   font-size: 20px;
   line-height: @navigatorHeaderHeight;
+}
+
+.navigator-header-actions {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 24px;
+
+  & > button {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    padding: 2px 8px;
+    font-size: @smallFontSize;
+    font-weight: normal;
+    cursor: pointer;
+
+    &:hover, &:focus {
+      z-index: 3;
+    }
+  }
+
+  & > button + button {
+    left: -1px;
+  }
 }
 
 

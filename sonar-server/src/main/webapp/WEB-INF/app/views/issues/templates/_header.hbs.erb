@@ -1,0 +1,11 @@
+<script id="issues-header-template" type="text/x-handlebars-template">
+  <h1 class="navigator-header-title">{{#if name}}{{name}}{{else}}<%= message ('issues') -%>{{/if}}</h1>
+
+  <div class="navigator-header-actions">
+    <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>
+    {{#if canSave}}<button id="issues-filter-save"><%= message('save') -%></button>{{/if}}
+    {{#if canSaveAs}}<button id="issues-filter-save-as"><%= message('save_as') -%></button>{{/if}}
+    {{#if canCopy}}<button id="issues-filter-copy"><%= message('copy') -%></button>{{/if}}
+    {{#if canEdit}}<button id="issues-filter-edit"><%= message('edit') -%></button>{{/if}}
+  </div>
+</script>

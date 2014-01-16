@@ -164,6 +164,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       var param = _.findWhere(q, { key: this.model.get('property') });
       if (param && param.value) {
         this.restore(param.value, param);
+      } else {
+        this.clear();
       }
     },
 
@@ -171,6 +173,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     restore: function(value) {
       this.model.set({ value: value }, { silent: true });
       this.renderBase();
+    },
+
+
+    clear: function() {
+      this.model.unset('value');
     },
 
 
@@ -222,7 +229,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     itemViewOptions: function() {
       return {
-        filterBarView: this
+        filterBarView: this,
+        app: this.options.app
       };
     },
 
@@ -249,7 +257,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     render: function() {
       Backbone.Marionette.CompositeView.prototype.render.apply(this, arguments);
 
-      if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0) {
+      if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0 ||
+          this.collection.where({ type: window.SS.IssuesFavoriteFilterView }).length > 0) {
         this.$el.addClass('navigator-filter-list-favorite');
       }
     },

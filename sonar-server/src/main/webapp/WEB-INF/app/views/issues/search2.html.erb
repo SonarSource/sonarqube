@@ -1,17 +1,10 @@
 <div class="navigator">
-
-  <div class="navigator-header">
-    <h1 class="navigator-header-title">Issues</h1>
-  </div>
-
+  <div class="navigator-header"></div>
   <div class="navigator-filters"></div>
   <div class="navigator-results"></div>
   <div class="navigator-details"></div>
-
   <div class="navigator-actions"></div>
-
 </div>
-
 
 <script id="filterBarTemplate" type="text/template">
   <div class="navigator-filters-list"></div>
@@ -19,10 +12,11 @@
 </script>
 
 <%= render :partial => '/navigator/filter_templates' -%>
+<%= render :partial => '/issues/templates/header.hbs' -%>
 <%= render :partial => '/issues/templates/issue.hbs' -%>
 <%= render :partial => '/issues/templates/issues_actions.hbs' -%>
 <%= render :partial => '/issues/templates/no_issues.hbs' -%>
-
+<%= render :partial => '/issues/templates/issues_details_favorite_filter.hbs' -%>
 
 <script>
   _.templateSettings = {
@@ -41,7 +35,6 @@
       'any':           '<%= escape_javascript message('any') -%>',
       'anytime':       '<%= escape_javascript message('anytime') -%>',
       'all':           '<%= escape_javascript message('all') -%>',
-      'manage':        '<%= escape_javascript message('manage') -%>',
       'to':            '<%= escape_javascript message('to') -%>',
       'project':       '<%= escape_javascript message('issue_filter.criteria.project') -%>',
       'severity':      '<%= escape_javascript message('issue_filter.criteria.severity') -%>',

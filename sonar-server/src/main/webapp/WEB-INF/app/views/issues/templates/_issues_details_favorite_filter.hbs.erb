@@ -1,0 +1,13 @@
+<script id="issues-details-favorite-filter-template" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list">
+    {{#each items}}
+      <li>
+        <label data-id="{{id}}">{{{name}}}</label>
+      </li>
+    {{/each}}
+    <li class="line"></li>
+    <li class="manage">
+      <label id="manage-favorites"><%= message('manage') -%></label>
+    </li>
+  </ul>
+</script>

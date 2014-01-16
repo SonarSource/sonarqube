@@ -76,6 +76,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
    */
 
   _.extend(window.SS, {
+    DetailsFavoriteFilterView: DetailsFavoriteFilterView,
     FavoriteFilterView: FavoriteFilterView
   });
 

@@ -209,12 +209,20 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       if (this.choices && this.selection && value.length > 0) {
         this.selection.reset([]);
+        this.model.set({
+          value: value,
+          enabled: true
+        }, {
+          silent: true
+        });
 
         if (_.isArray(param.text) && param.text.length === value.length) {
           this.restoreFromText(value, param.text);
         } else {
           this.restoreByRequests(value);
         }
+      } else {
+        this.clear();
       }
     },
 
@@ -245,12 +253,16 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     onRestore: function(value) {
       this.detailsView.updateLists();
-      this.model.set({
-        value: value,
-        enabled: true
-      }, {
-        silent: true
-      });
+      this.renderBase();
+    },
+
+
+    clear: function() {
+      this.model.unset('value');
+      if (this.selection && this.choices) {
+        this.choices.reset([]);
+        this.selection.reset([]);
+      }
       this.renderBase();
     },
 
@@ -300,8 +312,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         detailsView: AjaxSelectDetailsFilterView
       });
 
-      this.selection = new ProjectSuggestions();
-      this.choices = new ProjectSuggestions();
+      this.selection = new ComponentSuggestions();
+      this.choices = new ComponentSuggestions();
     },
 
 

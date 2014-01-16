@@ -4,12 +4,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 jQuery(function() {
 
-  var Issue = Backbone.Model.extend({
-
-  });
-
-
-
+  var Issue = Backbone.Model.extend({});
   var Issues = Backbone.Collection.extend({
     model: Issue,
 
@@ -35,6 +30,36 @@ jQuery(function() {
         });
       });
 
+    }
+  });
+
+
+
+  var FavoriteFilter = Backbone.Model.extend({
+
+    url: function() {
+      return baseUrl + '/api/issue_filters/show/' + this.get('id');
+    },
+
+
+    parse: function(r) {
+      return r.filter ? r.filter : r;
+    }
+  });
+
+
+
+  var FavoriteFilters = Backbone.Collection.extend({
+    model: FavoriteFilter,
+
+
+    url: function() {
+      return baseUrl + '/api/issue_filters/favorites';
+    },
+
+
+    parse: function(r) {
+      return r.favoriteFilters;
     }
   });
 
@@ -220,6 +245,69 @@ jQuery(function() {
 
 
 
+  var IssuesHeaderView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issues-header-template').html() || ''),
+
+
+    modelEvents: {
+      'change': 'render'
+    },
+
+
+    events: {
+      'click #issues-new-search': 'newSearch'
+    },
+
+
+    newSearch: function() {
+      this.options.app.router.navigate('', { trigger: true });
+    }
+
+  });
+
+
+
+  var IssuesDetailsFavoriteFilterView = window.SS.DetailsFavoriteFilterView.extend({
+    template: Handlebars.compile(jQuery('#issues-details-favorite-filter-template').html() || ''),
+
+
+    applyFavorite: function(e) {
+      var id = $j(e.target).data('id'),
+          filter = this.model.get('choices').get(id),
+          app = this.options.filterView.options.app;
+
+      filter.fetch({
+        success: function() {
+          app.favoriteFilter.set(filter.toJSON());
+        }
+      });
+
+      this.options.filterView.hideDetails();
+    },
+
+
+    serializeData: function() {
+      return _.extend({}, this.model.toJSON(), {
+        items: this.model.get('choices').toJSON()
+      });
+    }
+  });
+
+
+
+  var IssuesFavoriteFilterView = window.SS.FavoriteFilterView.extend({
+
+    initialize: function() {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
+        detailsView: IssuesDetailsFavoriteFilterView
+      });
+
+      this.listenTo(this.model.get('choices'), 'reset', this.render);
+    }
+  });
+
+
+
   var IssuesRouter = Backbone.Router.extend({
 
     routes: {
@@ -234,7 +322,7 @@ jQuery(function() {
 
 
     index: function(query) {
-      var params = (query || '').split('&').map(function(t) {
+      var params = (query || '').split('|').map(function(t) {
         return {
           key: t.split('=')[0],
           value: decodeURIComponent(t.split('=')[1])
@@ -255,10 +343,14 @@ jQuery(function() {
   _.extend(window.SS, {
     Issue: Issue,
     Issues: Issues,
+    FavoriteFilter: FavoriteFilter,
+    FavoriteFilters: FavoriteFilters,
     IssueView: IssueView,
     IssuesView: IssuesView,
     IssuesActionsView: IssuesActionsView,
     IssuesFilterBarView: IssuesFilterBarView,
+    IssuesHeaderView: IssuesHeaderView,
+    IssuesFavoriteFilterView: IssuesFavoriteFilterView,
     IssuesRouter: IssuesRouter
   });
 

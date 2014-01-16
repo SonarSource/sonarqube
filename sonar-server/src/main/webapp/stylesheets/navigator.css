@@ -73,10 +73,38 @@
   padding: 0 10px;
   border-bottom: 1px solid #cdcdcd;
   background-color: #efefef;
+  font-size: 0;
 }
 .navigator-header-title {
+  position: relative;
+  top: -2px;
+  display: inline-block;
+  vertical-align: middle;
   font-size: 20px;
   line-height: 34px;
+}
+.navigator-header-actions {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 24px;
+}
+.navigator-header-actions > button {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: normal;
+  cursor: pointer;
+}
+.navigator-header-actions > button:hover,
+.navigator-header-actions > button:focus {
+  z-index: 3;
+}
+.navigator-header-actions > button + button {
+  left: -1px;
 }
 .navigator-results {
   border-right: 1px solid #e1e1e1;
