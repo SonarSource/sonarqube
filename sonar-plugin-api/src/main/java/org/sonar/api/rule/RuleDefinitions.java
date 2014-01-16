@@ -155,8 +155,10 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
-    public NewRepositoryImpl setName(String s) {
-      this.name = s;
+    public NewRepositoryImpl setName(@Nullable String s) {
+      if (StringUtils.isNotEmpty(s)) {
+        this.name = s;
+      }
       return this;
     }
 

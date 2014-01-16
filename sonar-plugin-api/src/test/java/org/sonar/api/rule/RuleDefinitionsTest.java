@@ -158,6 +158,13 @@ public class RuleDefinitionsTest {
   }
 
   @Test
+  public void cant_set_blank_repository_name() throws Exception {
+    context.newRepository("findbugs", "java").setName(null).done();
+
+    assertThat(context.repository("findbugs").name()).isEqualTo("findbugs");
+  }
+
+  @Test
   public void fail_if_duplicated_repo_keys() {
     context.newRepository("findbugs", "java").done();
     try {
