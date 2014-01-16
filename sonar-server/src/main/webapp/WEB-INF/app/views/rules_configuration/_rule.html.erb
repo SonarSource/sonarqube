@@ -88,9 +88,11 @@
       </table>
     <% end %>
 
-    <div id="active_rule_note_<%= rule.activeRuleId -%>">
-      <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
-    </div>
+    <% if rule.activeRuleId %>
+      <div id="active_rule_note_<%= rule.activeRuleId -%>">
+        <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
+      </div>
+    <% end %>
 
     <% if profiles_administrator? %>
       <% if rule.template? %>
