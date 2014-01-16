@@ -1,4 +1,5 @@
 <% #locals = rule, profile, parent_profile -%>
+<% is_activated = !rule.activeRuleId.nil? %>
 
 <td nowrap valign="top" class="left" x="<%= rule.severity -%>" width="1%">
   <form id="levels_<%= rule.id -%>" action="" class="rule-levels-form">
@@ -14,9 +15,9 @@
                                   data:'level='+$j('#levels_select_#{rule.id} :selected').val()})}"
     %>
 
-    <%= check_box_tag(check_box_id, 'yes', !rule.activeRuleId.nil?, :onclick => activate_rule, :disabled => !enable_modification || rule.inherited? || rule.overrides?) %>
+    <%= check_box_tag(check_box_id, 'yes', is_activated, :onclick => activate_rule, :disabled => !enable_modification || rule.inherited? || rule.overrides?) %>
     <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, rule.severity),
-                   {:onchange => changel_level, :disabled => (!(enable_modification))}) %>
+                   {:onchange => changel_level, :disabled => (!(enable_modification) || !is_activated)}) %>
 
     <% if rule.inherited? %>
       <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="<%= message('rules_configuration.inherited_from_parent') -%>"/>
@@ -88,7 +89,7 @@
       </table>
     <% end %>
 
-    <% if rule.activeRuleId %>
+    <% if is_activated %>
       <div id="active_rule_note_<%= rule.activeRuleId -%>">
         <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
       </div>
