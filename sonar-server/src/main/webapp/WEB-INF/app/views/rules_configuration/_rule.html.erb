@@ -76,7 +76,9 @@
             </td>
           </tr>
         <% end %>
-        <% rule.params.each do |parameter| %>
+        <%
+           rule.params.to_a.sort_by { |parameter| parameter.key}.each do |parameter|
+        %>
           <tr id="param_<%= parameter.key -%>">
             <%= render :partial => 'rule_param', :object => nil,
                        :locals => {:parameter => parameter, :profile => profile, :rule => rule, :parent_active_rule => parent_active_rule} %>
