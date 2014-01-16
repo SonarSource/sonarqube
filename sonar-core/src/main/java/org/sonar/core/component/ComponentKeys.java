@@ -42,7 +42,7 @@ public final class ComponentKeys {
    * @param resource
    * @return the full key of a component, based on its parent projects' key and own key
    */
-  public static String createKey(Project project, Resource resource) {
+  public static String createEffectiveKey(Project project, Resource resource) {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
@@ -55,7 +55,7 @@ public final class ComponentKeys {
     return key;
   }
 
-  public static String createDeprecatedKey(Project project, Resource resource) {
+  public static String createDeprecatedEffectiveKey(Project project, Resource resource) {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library

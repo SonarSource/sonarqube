@@ -38,7 +38,6 @@ import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
-import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
@@ -89,7 +88,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     // temporary hack
     project.setEffectiveKey(project.getKey());
 
-    ResourceModel model = findOrCreateModel(null, project);
+    ResourceModel model = findOrCreateModel(project);
     // ugly, only for projects
     model.setLanguageKey(project.getLanguageKey());
 
@@ -187,7 +186,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot persistLibrary(Project project, Library library) {
-    ResourceModel model = findOrCreateModel(null, library);
+    ResourceModel model = findOrCreateModel(library);
     model = session.save(model);
     // TODO to be removed
     library.setId(model.getId());
@@ -231,7 +230,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private Snapshot persistFileOrDirectory(Project project, Resource resource, Resource parentReference) {
     Snapshot moduleSnapshot = snapshotsByResource.get(project);
     Integer moduleId = moduleSnapshot.getResourceId();
-    ResourceModel model = findOrCreateModel(moduleId, resource);
+    ResourceModel model = findOrCreateModel(resource);
     model.setRootId(moduleId);
     model = session.save(model);
     resource.setId(model.getId());
@@ -268,14 +267,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
   }
 
-  /**
-   * @param rootModuleId can be null and in this case resource will be searched using deprecated key instead of path
-   */
-  private ResourceModel findOrCreateModel(@Nullable Integer rootModuleId, Resource resource) {
+  private ResourceModel findOrCreateModel(Resource resource) {
     ResourceModel model;
     try {
       model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
-      if (model == null) {
+      if (model == null && !StringUtils.equals(resource.getEffectiveKey(), resource.getDeprecatedEffectiveKey())) {
         // Fallback on deprecated key when resource has not already been migrated
         model = session.getSingleResult(ResourceModel.class, "key", resource.getDeprecatedEffectiveKey(), "deprecatedKey", null);
       }

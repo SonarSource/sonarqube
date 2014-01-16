@@ -29,6 +29,7 @@ public final class Library extends Resource {
 
   public Library(String key, String version) {
     setKey(key);
+    setDeprecatedKey(key);
     this.version = version;
   }
 
@@ -112,9 +113,9 @@ public final class Library extends Resource {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("key", getKey())
-        .append("name", getName())
-        .append("version", version)
-        .toString();
+      .append("key", getKey())
+      .append("name", getName())
+      .append("version", version)
+      .toString();
   }
 }

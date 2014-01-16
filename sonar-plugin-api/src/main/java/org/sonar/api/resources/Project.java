@@ -84,7 +84,9 @@ public class Project extends Resource implements Component {
 
   public Project(String key) {
     setKey(key);
+    setDeprecatedKey(key);
     setEffectiveKey(key);
+    setDeprecatedEffectiveKey(key);
   }
 
   public Project(String key, String branch, String name) {
@@ -95,7 +97,9 @@ public class Project extends Resource implements Component {
       setKey(key);
       this.name = name;
     }
+    setDeprecatedKey(getKey());
     setEffectiveKey(getKey());
+    setDeprecatedEffectiveKey(getKey());
     this.branch = branch;
   }
 
@@ -178,7 +182,7 @@ public class Project extends Resource implements Component {
   }
 
   public Project getRoot() {
-    return parent==null ? this : parent.getRoot();
+    return parent == null ? this : parent.getRoot();
   }
 
   /**
@@ -321,7 +325,7 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public boolean getReuseExistingRulesConfig() {
-    return configuration!=null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false);
+    return configuration != null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false);
   }
 
   /**
@@ -346,7 +350,7 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public String[] getExclusionPatterns() {
-    return trimExclusions(ImmutableList.<String> builder()
+    return trimExclusions(ImmutableList.<String>builder()
       .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
       .add(configuration.getStringArray(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)).build());
   }
@@ -365,9 +369,9 @@ public class Project extends Resource implements Component {
       globalTestExclusions = new String[] {CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT};
     }
 
-    return trimExclusions(ImmutableList.<String> builder()
-        .add(configuration.getStringArray(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY))
-        .add(globalTestExclusions).build());
+    return trimExclusions(ImmutableList.<String>builder()
+      .add(configuration.getStringArray(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY))
+      .add(globalTestExclusions).build());
   }
 
   // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
@@ -466,10 +470,10 @@ public class Project extends Resource implements Component {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("key", getKey())
-        .append("qualifier", getQualifier())
-        .toString();
+      .append("id", getId())
+      .append("key", getKey())
+      .append("qualifier", getQualifier())
+      .toString();
   }
 
   @Override

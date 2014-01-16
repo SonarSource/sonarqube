@@ -31,14 +31,14 @@ public class ComponentKeysTest {
   @Test
   public void shouldCreateUID() {
     Project project = new Project("my_project");
-    assertThat(ComponentKeys.createKey(project, project)).isEqualTo("my_project");
+    assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
 
     JavaPackage javaPackage = JavaPackage.create("src/org/foo", "org.foo");
-    assertThat(ComponentKeys.createKey(project, javaPackage)).isEqualTo("my_project:/src/org/foo");
-    assertThat(ComponentKeys.createDeprecatedKey(project, javaPackage)).isEqualTo("my_project:org.foo");
+    assertThat(ComponentKeys.createEffectiveKey(project, javaPackage)).isEqualTo("my_project:/src/org/foo");
+    assertThat(ComponentKeys.createDeprecatedEffectiveKey(project, javaPackage)).isEqualTo("my_project:org.foo");
 
     Library library = new Library("junit:junit", "4.7");
-    assertThat(ComponentKeys.createKey(project, library)).isEqualTo("junit:junit");
+    assertThat(ComponentKeys.createEffectiveKey(project, library)).isEqualTo("junit:junit");
   }
 
 }

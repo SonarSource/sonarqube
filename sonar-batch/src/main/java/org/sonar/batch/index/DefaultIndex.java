@@ -554,8 +554,8 @@ public class DefaultIndex extends SonarIndex {
       return null;
     }
 
-    resource.setEffectiveKey(ComponentKeys.createKey(currentProject, resource));
-    resource.setDeprecatedEffectiveKey(ComponentKeys.createDeprecatedKey(currentProject, resource));
+    resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
+    resource.setDeprecatedEffectiveKey(ComponentKeys.createDeprecatedEffectiveKey(currentProject, resource));
     bucket = new Bucket(resource).setParent(parentBucket);
     buckets.put(resource, bucket);
 
@@ -639,7 +639,7 @@ public class DefaultIndex extends SonarIndex {
       for (Map.Entry<Resource, Bucket> entry : buckets.entrySet()) {
         Resource indexedResource = entry.getKey();
         if (res.getClass() == indexedResource.getClass() && res.getDeprecatedKey().equals(indexedResource.getDeprecatedKey())) {
-          LOG.warn("Resource was found using deprecated key. Please update your plugin.");
+          LOG.warn("Resource " + res + " was found using deprecated key. Please update your plugin.");
           // Fix resource key
           Bucket bucket = entry.getValue();
           res.setKey(bucket.getResource().getKey());
