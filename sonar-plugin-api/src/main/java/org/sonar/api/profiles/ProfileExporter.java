@@ -44,7 +44,7 @@ public abstract class ProfileExporter implements BatchExtension, ServerExtension
 
   public abstract void exportProfile(RulesProfile profile, Writer writer);
 
-  public final String getKey() {
+  public String getKey() {
     return key;
   }
 
@@ -67,7 +67,7 @@ public abstract class ProfileExporter implements BatchExtension, ServerExtension
     return this;
   }
 
-  public final String getMimeType() {
+  public String getMimeType() {
     return mimeType;
   }
 

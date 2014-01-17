@@ -30,6 +30,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -39,10 +41,12 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 
 import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -60,12 +64,19 @@ public class QProfileExporterTest {
   SqlSession session;
 
   @Mock
+  DatabaseSessionFactory sessionFactory;
+
+  @Mock
+  DatabaseSession hibernateSession;
+
+  @Mock
   ActiveRuleDao activeRuleDao;
 
   @Mock
   RuleRegistry ruleRegistry;
 
   List<ProfileImporter> importers = newArrayList();
+  List<ProfileExporter> exporters = newArrayList();
 
   Integer currentId = 1;
 
@@ -73,6 +84,8 @@ public class QProfileExporterTest {
 
   @Before
   public void setUp() throws Exception {
+    when(sessionFactory.getSession()).thenReturn(hibernateSession);
+
     // Associate an id when inserting an object to simulate the db id generator
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
@@ -83,7 +96,7 @@ public class QProfileExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileExporter(activeRuleDao, importers, ruleRegistry);
+    operations = new QProfileExporter(sessionFactory, activeRuleDao, ruleRegistry, importers, exporters);
   }
 
   @Test
@@ -101,6 +114,8 @@ public class QProfileExporterTest {
     importers.add(importer);
 
     operations.importXml(new QProfile().setId(1), "pmd", "<xml/>", session);
+
+    verify(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
@@ -144,32 +159,109 @@ public class QProfileExporterTest {
 
   @Test
   public void fail_to_import_profile_from_xml_plugin_if_error() throws Exception {
+    final RulesProfile profile = RulesProfile.create("Default", "java");
+    Rule rule = Rule.create("pmd", "rule1");
+    rule.createParameter("max");
+    rule.setId(10);
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+
+    ProfileImporter importer = mock(ProfileImporter.class);
+    when(importer.getKey()).thenReturn("pmd");
+    importers.add(importer);
+
+    doAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        ValidationMessages validationMessages = (ValidationMessages) args[1];
+        validationMessages.addErrorText("error!");
+        return profile;
+      }
+    }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
+
     try {
-      final RulesProfile profile = RulesProfile.create("Default", "java");
-      Rule rule = Rule.create("pmd", "rule1");
-      rule.createParameter("max");
-      rule.setId(10);
-      ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
-      activeRule.setParameter("max", "10");
-
-      ProfileImporter importer = mock(ProfileImporter.class);
-      when(importer.getKey()).thenReturn("pmd");
-      importers.add(importer);
-
-      doAnswer(new Answer() {
-        public Object answer(InvocationOnMock invocation) {
-          Object[] args = invocation.getArguments();
-          ValidationMessages validationMessages = (ValidationMessages) args[1];
-          validationMessages.addErrorText("error!");
-          return profile;
-        }
-      }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
-
       operations.importXml(new QProfile().setId(1), "pmd", "<xml/>", session);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
+  }
+
+  @Test
+  public void fail_to_import_profile_when_missing_importer() throws Exception {
+    final RulesProfile profile = RulesProfile.create("Default", "java");
+    Rule rule = Rule.create("pmd", "rule1");
+    rule.createParameter("max");
+    rule.setId(10);
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+
+    ProfileImporter importer = mock(ProfileImporter.class);
+    when(importer.getKey()).thenReturn("pmd");
+    importers.add(importer);
+
+    when(importer.importProfile(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
+
+    try {
+      operations.importXml(new QProfile().setId(1), "unknown", "<xml/>", session);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such importer : unknown");
+    }
+    verify(importer, never()).importProfile(any(Reader.class), any(ValidationMessages.class));
+  }
+
+  @Test
+  public void export_to_plugin_xml() throws Exception {
+    RulesProfile profile = RulesProfile.create("Default", "java").setId(1);
+    Rule rule = Rule.create("pmd", "rule1");
+    rule.createParameter("max");
+    rule.setId(10);
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
+
+    ProfileExporter exporter = mock(ProfileExporter.class);
+    when(exporter.getKey()).thenReturn("pmd");
+    exporters.add(exporter);
+
+    operations.exportToXml(new QProfile().setId(1), "pmd");
+
+    verify(exporter).exportProfile(eq(profile), any(Writer.class));
+  }
+
+  @Test
+  public void fail_to_export_profile_when_missing_exporter() throws Exception {
+    RulesProfile profile = RulesProfile.create("Default", "java").setId(1);
+    Rule rule = Rule.create("pmd", "rule1");
+    rule.createParameter("max");
+    rule.setId(10);
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
+
+    ProfileExporter exporter = mock(ProfileExporter.class);
+    when(exporter.getKey()).thenReturn("pmd");
+    exporters.add(exporter);
+
+    try {
+      operations.exportToXml(new QProfile().setId(1), "unknown");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such exporter : unknown");
+    }
+
+    verify(exporter, never()).exportProfile(any(RulesProfile.class), any(Writer.class));
+  }
+
+  @Test
+  public void get_profile_exporter_mime_type() throws Exception {
+    ProfileExporter exporter = mock(ProfileExporter.class);
+    when(exporter.getKey()).thenReturn("pmd");
+    when(exporter.getMimeType()).thenReturn("mime");
+    exporters.add(exporter);
+
+    assertThat(operations.getProfileExporterMimeType("pmd")).isEqualTo("mime");
   }
 
 }

@@ -91,13 +91,17 @@ public class QProfilesTest {
   QProfileBackup backup;
 
   @Mock
+  QProfileExporter exporter;
+
+  @Mock
   ProfileRules rules;
 
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules);
+    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, exporter,
+      profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
@@ -214,6 +218,19 @@ public class QProfilesTest {
   public void update_parent_profile() throws Exception {
     qProfiles.updateParentProfile(1, 2);
     verify(profileOperations).updateParentProfile(eq(1), eq(2), any(UserSession.class));
+  }
+
+  @Test
+  public void export_profile_to_xml_plugin() throws Exception {
+    QProfile profile = new QProfile().setId(1);
+    qProfiles.exportProfileToXml(profile, "pmd");
+    verify(exporter).exportToXml(profile, "pmd");
+  }
+
+  @Test
+  public void get_profile_exporter_mime_type() throws Exception {
+    qProfiles.getProfileExporterMimeType("pmd");
+    verify(exporter).getProfileExporterMimeType("pmd");
   }
 
   @Test

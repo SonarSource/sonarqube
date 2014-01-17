@@ -61,7 +61,7 @@ public class QProfiles implements ServerComponent {
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
   private final QProfileBackup backup;
-
+  private final QProfileExporter exporter;
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
@@ -69,7 +69,7 @@ public class QProfiles implements ServerComponent {
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfileLookup profileLookup,
+                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfileExporter exporter, QProfileLookup profileLookup,
                    QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
@@ -78,6 +78,7 @@ public class QProfiles implements ServerComponent {
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
     this.backup = backup;
+    this.exporter = exporter;
     this.profileLookup = profileLookup;
     this.operations = operations;
     this.activeRuleOperations = activeRuleOperations;
@@ -158,6 +159,13 @@ public class QProfiles implements ServerComponent {
     operations.deleteProfile(profileId, UserSession.get());
   }
 
+  public String exportProfileToXml(QProfile profile, String pluginKey) {
+    return exporter.exportToXml(profile, pluginKey);
+  }
+
+  public String getProfileExporterMimeType(String exporterKey) {
+    return exporter.getProfileExporterMimeType(exporterKey);
+  }
 
   // PROJECTS
 

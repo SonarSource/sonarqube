@@ -154,24 +154,24 @@ class ProfilesController < ApplicationController
 
 
   # GET /profiles/export?name=<profile name>&language=<language>&format<exporter key>
-  # TODO use QProfiles facade instead
   def export
     language = params[:language]
     if (params[:name].blank?)
-      profile = Profile.by_default(language)
+      profile = Internal.quality_profiles.defaultProfile(language)
     else
-      profile = Profile.find_by_name_and_language(CGI::unescape(params[:name]), language)
+      profile = Internal.quality_profiles.profile(CGI::unescape(params[:name]), language)
     end
     not_found('Profile not found') unless profile
 
     if (params[:format].blank?)
       # standard sonar format
+      # TODO
       result = java_facade.backupProfile(profile.id)
       send_data(result, :type => 'text/xml', :disposition => 'inline')
     else
       exporter_key = params[:format]
-      result = java_facade.exportProfile(profile.id, exporter_key)
-      send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+      result = Internal.quality_profiles.exportProfileToXml(profile, exporter_key)
+      send_data(result, :type => Internal.quality_profiles.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
     end
   end
 
