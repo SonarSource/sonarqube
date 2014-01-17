@@ -26,12 +26,16 @@ import org.apache.commons.lang.StringUtils;
  */
 public class RuleTagFormat {
 
+  // Allowed characters are the same as those on StackOverflow
+  // see http://meta.stackoverflow.com/questions/22624/what-symbols-characters-are-not-allowed-in-tags
+  private static final String VALID_CHARACTERS_REGEX = "^[a-z0-9\\+#\\-\\.]+$";
+
   private RuleTagFormat() {
     // only static methods
   }
 
   public static boolean isValid(String tag) {
-    return StringUtils.isNotBlank(tag) && StringUtils.indexOf(tag, " ") < 0;
+    return StringUtils.isNotBlank(tag) && tag.matches(VALID_CHARACTERS_REGEX);
   }
 
   public static void validate(String tag) {

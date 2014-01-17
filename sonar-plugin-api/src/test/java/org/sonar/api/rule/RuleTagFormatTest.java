@@ -31,8 +31,14 @@ public class RuleTagFormatTest {
     assertThat(RuleTagFormat.isValid("")).isFalse();
     assertThat(RuleTagFormat.isValid(" ")).isFalse();
     assertThat(RuleTagFormat.isValid("coding style")).isFalse();
+    assertThat(RuleTagFormat.isValid("Style")).isFalse();
+    assertThat(RuleTagFormat.isValid("sTyle")).isFalse();
+    assertThat(RuleTagFormat.isValid("@style")).isFalse();
 
     assertThat(RuleTagFormat.isValid("style")).isTrue();
+    assertThat(RuleTagFormat.isValid("c++")).isTrue();
+    assertThat(RuleTagFormat.isValid("f#")).isTrue();
+    assertThat(RuleTagFormat.isValid("c++11")).isTrue();
   }
 
   @Test
