@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import com.github.tlrx.elasticsearch.test.request.Index;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
@@ -77,34 +78,59 @@ public class ESRuleTagsTest {
   }
 
   @Test
+  public void should_skip_bulk_if_no_tag() {
+    esSetup.execute(
+      indexTagDocument("tag5"),
+      indexTagDocument("tag6"),
+      indexTagDocument("tag7"));
+    ruleTags.putAllTags(ImmutableList.<RuleTagDto>of());
+    checkTagCount(0L);
+  }
+
+  @Test
   public void should_register_new_tags() throws Exception {
     ruleTags.putAllTags(ImmutableList.of(
-      new RuleTagDto().setTag("tag1"),
-      new RuleTagDto().setTag("tag2"),
-      new RuleTagDto().setTag("tag3"),
-      new RuleTagDto().setTag("tag4"),
-      new RuleTagDto().setTag("tag5")
+      newRuleTagDto("tag1"),
+      newRuleTagDto("tag2"),
+      newRuleTagDto("tag3"),
+      newRuleTagDto("tag4"),
+      newRuleTagDto("tag5")
     ));
 
-    assertThat(esSetup.client().prepareCount("rules").setTypes(ESRuleTags.TYPE_TAG).execute().actionGet().getCount()).isEqualTo(5L);
+    checkTagCount(5L);
   }
+
 
   @Test
   public void should_remove_unused_tags() throws Exception {
 
     esSetup.execute(
-      EsSetup.index(RuleRegistry.INDEX_RULES, ESRuleTags.TYPE_TAG).withSource("{\"value\":\"tag5\"}"),
-      EsSetup.index(RuleRegistry.INDEX_RULES, ESRuleTags.TYPE_TAG).withSource("{\"value\":\"tag6\"}"),
-      EsSetup.index(RuleRegistry.INDEX_RULES, ESRuleTags.TYPE_TAG).withSource("{\"value\":\"tag7\"}"));
+      indexTagDocument("tag4"),
+      indexTagDocument("tag5"),
+      indexTagDocument("tag6"),
+      indexTagDocument("tag7"));
 
     ruleTags.putAllTags(ImmutableList.of(
-      new RuleTagDto().setTag("tag1"),
-      new RuleTagDto().setTag("tag2"),
-      new RuleTagDto().setTag("tag3"),
-      new RuleTagDto().setTag("tag4"),
-      new RuleTagDto().setTag("tag5")
+      newRuleTagDto("tag1"),
+      newRuleTagDto("tag2"),
+      newRuleTagDto("tag3"),
+      newRuleTagDto("tag4"),
+      newRuleTagDto("tag5")
     ));
 
-    assertThat(esSetup.client().prepareCount("rules").setTypes(ESRuleTags.TYPE_TAG).execute().actionGet().getCount()).isEqualTo(5L);
+    checkTagCount(5L);
+  }
+
+  private void checkTagCount(long count) {
+    assertThat(esSetup.client().prepareCount("rules").setTypes(ESRuleTags.TYPE_TAG)
+        .execute().actionGet().getCount()).isEqualTo(count);
+  }
+
+  private RuleTagDto newRuleTagDto(String tagValue) {
+    return new RuleTagDto().setTag(tagValue);
+  }
+
+  private Index indexTagDocument(String tagValue) {
+    return EsSetup.index(RuleRegistry.INDEX_RULES, ESRuleTags.TYPE_TAG).withSource(String.format("{\"value\":\"%s\"}", tagValue));
   }
 }

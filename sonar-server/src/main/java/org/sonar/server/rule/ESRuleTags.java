@@ -45,25 +45,27 @@ public class ESRuleTags {
 
   public void putAllTags(Collection<RuleTagDto> tags) {
     String[] ids = new String[tags.size()];
-    BytesStream[] sources = new BytesStream[tags.size()];
-    int tagCounter = 0;
     try {
-      for (RuleTagDto tag: tags) {
-        ids[tagCounter] = tag.getTag();
-        sources[tagCounter] = XContentFactory.jsonBuilder()
-          .startObject()
-          .field(RuleTagDocument.FIELD_VALUE, tag.getTag())
-          .endObject();
-        tagCounter ++;
+      if (!tags.isEmpty()) {
+        BytesStream[] sources = new BytesStream[tags.size()];
+        int tagCounter = 0;
+        for (RuleTagDto tag: tags) {
+          ids[tagCounter] = tag.getTag();
+          sources[tagCounter] = XContentFactory.jsonBuilder()
+            .startObject()
+            .field(RuleTagDocument.FIELD_VALUE, tag.getTag())
+            .endObject();
+          tagCounter ++;
+        }
+        index.bulkIndex(RuleRegistry.INDEX_RULES, TYPE_TAG, ids, sources);
       }
-      index.bulkIndex(RuleRegistry.INDEX_RULES, TYPE_TAG, ids, sources);
       index.client().prepareDeleteByQuery(RuleRegistry.INDEX_RULES).setTypes(TYPE_TAG)
       .setQuery(
-        QueryBuilders.filteredQuery(
-          QueryBuilders.matchAllQuery(),
-          FilterBuilders.notFilter(
-            FilterBuilders.termsFilter(RuleTagDocument.FIELD_VALUE, ids))))
-            .execute().actionGet();
+          QueryBuilders.filteredQuery(
+              QueryBuilders.matchAllQuery(),
+              FilterBuilders.notFilter(
+                  FilterBuilders.termsFilter(RuleTagDocument.FIELD_VALUE, ids))))
+                  .execute().actionGet();
     } catch(IOException ioException) {
       throw new IllegalStateException("Unable to index tags", ioException);
     }
