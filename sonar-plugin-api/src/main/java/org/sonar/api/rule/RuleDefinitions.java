@@ -44,7 +44,7 @@ public interface RuleDefinitions extends ServerExtension {
   /**
    * Instantiated by core but not by plugins
    */
-  static class Context {
+  class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 
@@ -85,7 +85,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-  static interface NewExtendedRepository {
+  interface NewExtendedRepository {
     NewRule newRule(String ruleKey);
 
     /**
@@ -135,11 +135,11 @@ public interface RuleDefinitions extends ServerExtension {
     void done();
   }
 
-  static interface NewRepository extends NewExtendedRepository {
+  interface NewRepository extends NewExtendedRepository {
     NewRepository setName(String s);
   }
 
-  static class NewRepositoryImpl implements NewRepository {
+  class NewRepositoryImpl implements NewRepository {
     private final Context context;
     private final boolean extended;
     private final String key;
@@ -198,7 +198,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-  static interface ExtendedRepository {
+  interface ExtendedRepository {
     String key();
 
     String language();
@@ -209,11 +209,11 @@ public interface RuleDefinitions extends ServerExtension {
     List<Rule> rules();
   }
 
-  static interface Repository extends ExtendedRepository {
+  interface Repository extends ExtendedRepository {
     String name();
   }
 
-  static class RepositoryImpl implements Repository {
+  class RepositoryImpl implements Repository {
     private final String key, language, name;
     private final Map<String, Rule> rulesByKey;
 
@@ -274,7 +274,7 @@ public interface RuleDefinitions extends ServerExtension {
   }
 
 
-  static class NewRule {
+  class NewRule {
     private final String repoKey, key;
     private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
     private boolean template;
@@ -369,11 +369,11 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-  static enum Status {
+  enum Status {
     BETA, DEPRECATED, READY
   }
 
-  static class Rule {
+  class Rule {
     private final Repository repository;
     private final String repoKey, key, name, htmlDescription, metadata, defaultSeverity;
     private final boolean template;
@@ -475,7 +475,7 @@ public interface RuleDefinitions extends ServerExtension {
   }
 
 
-  static class NewParam {
+  class NewParam {
     private final String key;
     private String name, description, defaultValue;
     private RuleParamType type = RuleParamType.STRING;
@@ -509,7 +509,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-  static class Param {
+  class Param {
     private final String key, name, description, defaultValue;
     private final RuleParamType type;
 
