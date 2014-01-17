@@ -19,22 +19,37 @@
  */
 package org.sonar.server.ws;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.StringWriter;
 import java.io.Writer;
 
-/**
- * HTTP response
- *
- * @since 4.2
- */
-public abstract class Response {
+public class SimpleResponse extends Response {
+  private int httpStatus = HttpServletResponse.SC_OK;
+  private final Writer writer = new StringWriter();
 
-  public abstract JsonWriter newJsonWriter();
+  @Override
+  public JsonWriter newJsonWriter() {
+    return JsonWriter.of(writer);
+  }
 
-  public abstract XmlWriter newXmlWriter();
+  @Override
+  public XmlWriter newXmlWriter() {
+    return XmlWriter.of(writer);
+  }
 
-  public abstract Writer writer();
+  @Override
+  public Writer writer() {
+    return writer;
+  }
 
-  public abstract int status();
+  @Override
+  public int status() {
+    return httpStatus;
+  }
 
-  public abstract Response setStatus(int httpStatus);
+  @Override
+  public Response setStatus(int httpStatus) {
+    this.httpStatus = httpStatus;
+    return this;
+  }
 }

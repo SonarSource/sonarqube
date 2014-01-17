@@ -71,12 +71,8 @@ public class WebServiceEngine implements ServerComponent, Startable {
     return context.controllers();
   }
 
-  public Response execute(Request request,
+  public void execute(Request request, Response response,
                           String controllerPath, String actionKey) {
-    // Not possible to stream response with Ruby on Rails 2.3 (not possible to set HTTP status).
-    // At term StringWriter must be replaced by the stream writer of servlets.
-    Response response = new Response(new StringWriter());
-
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
       verifyRequest(action, request);
@@ -89,7 +85,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
       // TODO support authentication exceptions and others...
       sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage(), response);
     }
-    return response;
   }
 
   private WebService.Action getAction(String controllerPath, String actionKey) throws RequestException {

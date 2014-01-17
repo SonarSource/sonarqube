@@ -57,12 +57,12 @@ public class ListingWebServiceTest {
     listingWs.define(context);
     new MetricWebService().define(context);
 
-    StringWriter json = new StringWriter();
-    listingWs.list(context.controllers(), new Response(json));
+    SimpleResponse response = new SimpleResponse();
+    listingWs.list(context.controllers(), response);
 
     JSONAssert.assertEquals(
       IOUtils.toString(getClass().getResource("/org/sonar/server/ws/ListingWebServiceTest/index.json")),
-      json.toString(), true
+      response.writer().toString(), true
     );
   }
 

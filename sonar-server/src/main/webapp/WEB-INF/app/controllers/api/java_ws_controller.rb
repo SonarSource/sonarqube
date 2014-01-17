@@ -33,8 +33,13 @@ class Api::JavaWsController < Api::ApiController
   def execute(media_type)
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request)
     ws_request.setMediaType(media_type)
+
+    # servlet_request is declared in jruby-rack but not servlet_response !
+    # request.env must be used.
+    ws_response = Java::OrgSonarServerWs::ServletResponse.new(request.env['java.servlet_response'])
+
     engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
-    ws_response = engine.execute(ws_request, params[:wspath], params[:wsaction])
+    engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction])
     render :text => ws_response.writer(), :status => ws_response.status(), :content_type => media_type
   end
 end
