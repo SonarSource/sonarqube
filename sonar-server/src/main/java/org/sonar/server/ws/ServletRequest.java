@@ -19,26 +19,34 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import javax.servlet.http.HttpServletRequest;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class ServletRequest extends Request {
 
-public class RequestTest {
-  @Test
-  public void string_params() {
-    Request request = new Request(ImmutableMap.of("foo", "bar"));
-    assertThat(request.param("none")).isNull();
-    assertThat(request.param("foo")).isEqualTo("bar");
+  private final HttpServletRequest source;
+  private String mediaType = "application/json";
+
+  public ServletRequest(HttpServletRequest source) {
+    this.source = source;
   }
 
-  @Test
-  public void int_params() {
-    Request request = new Request(ImmutableMap.of("foo", "123"));
-    assertThat(request.intParam("none")).isNull();
-    assertThat(request.intParam("foo")).isEqualTo(123);
+  @Override
+  public String param(String key) {
+    return source.getParameter(key);
+  }
 
-    assertThat(request.intParam("none", 456)).isEqualTo(456);
-    assertThat(request.intParam("foo", 456)).isEqualTo(123);
+  @Override
+  public String mediaType() {
+    return mediaType;
+  }
+
+  public ServletRequest setMediaType(String s) {
+    this.mediaType = s;
+    return this;
+  }
+
+  @Override
+  public boolean isPost() {
+    return "POST".equals(source.getMethod());
   }
 }

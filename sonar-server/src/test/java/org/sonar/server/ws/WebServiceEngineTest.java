@@ -48,7 +48,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() throws Exception {
-    Request request = new Request(Maps.<String, String>newHashMap());
+    Request request = new SimpleRequest();
     Response response = engine.execute(request, "api/system", "health");
 
     assertThat(response.writer().toString()).isEqualTo("good");
@@ -57,7 +57,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_controller() throws Exception {
-    Request request = new Request(Maps.<String, String>newHashMap());
+    Request request = new SimpleRequest();
     Response response = engine.execute(request, "api/xxx", "health");
 
     assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
@@ -66,7 +66,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_action() throws Exception {
-    Request request = new Request(Maps.<String, String>newHashMap());
+    Request request = new SimpleRequest();
     Response response = engine.execute(request, "api/system", "xxx");
 
     assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
@@ -75,7 +75,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_not_allowed() throws Exception {
-    Request request = new Request(Maps.<String, String>newHashMap());
+    Request request = new SimpleRequest();
     Response response = engine.execute(request, "api/system", "ping");
 
     assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");

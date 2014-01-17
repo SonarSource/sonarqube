@@ -19,16 +19,26 @@
  */
 package org.sonar.server.ws;
 
-/**
- * @since 4.2
- */
-public class WriterException extends RuntimeException {
+import com.google.common.collect.ImmutableMap;
+import org.junit.Test;
 
-  public WriterException(String message) {
-    super(message);
+import static org.fest.assertions.Assertions.assertThat;
+
+public class SimpleRequestTest {
+  @Test
+  public void string_params() {
+    Request request = new SimpleRequest().setParams(ImmutableMap.of("foo", "bar"));
+    assertThat(request.param("none")).isNull();
+    assertThat(request.param("foo")).isEqualTo("bar");
   }
 
-  public WriterException(String message, Throwable cause) {
-    super(message, cause);
+  @Test
+  public void int_params() {
+    Request request = new SimpleRequest().setParams(ImmutableMap.of("foo", "123"));
+    assertThat(request.intParam("none")).isNull();
+    assertThat(request.intParam("foo")).isEqualTo(123);
+
+    assertThat(request.intParam("none", 456)).isEqualTo(456);
+    assertThat(request.intParam("foo", 456)).isEqualTo(123);
   }
 }

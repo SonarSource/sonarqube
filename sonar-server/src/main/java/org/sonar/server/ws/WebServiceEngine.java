@@ -25,8 +25,10 @@ import org.sonar.api.ServerComponent;
 import javax.servlet.http.HttpServletResponse;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * @since 4.2
+ */
 public class WebServiceEngine implements ServerComponent, Startable {
 
   static class RequestException extends Exception {

@@ -31,8 +31,7 @@ class Api::JavaWsController < Api::ApiController
 
   private
   def execute(media_type)
-    ws_request = Java::OrgSonarServerWs::Request.new(params)
-    ws_request.setPost(request.post?)
+    ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request)
     ws_request.setMediaType(media_type)
     engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
     ws_response = engine.execute(ws_request, params[:wspath], params[:wsaction])
