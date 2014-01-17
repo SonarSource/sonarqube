@@ -256,4 +256,46 @@ public class QProfilePluginExporterTest {
     assertThat(operations.getProfileExporterMimeType("pmd")).isEqualTo("mime");
   }
 
+  @Test
+  public void get_profile_exporters_for_language() throws Exception {
+    // 2 exporters not declaring supported languages -> match all languages -> to be include in result
+    ProfileExporter exporterWithEmptySupportedLanguagesList = mock(ProfileExporter.class);
+    when(exporterWithEmptySupportedLanguagesList.getSupportedLanguages()).thenReturn(new String[]{});
+    exporters.add(exporterWithEmptySupportedLanguagesList);
+    exporters.add(mock(ProfileExporter.class));
+
+    // 1 exporter supporting the java language -> to be include in result
+    ProfileExporter exporterSupportingJava = mock(ProfileExporter.class);
+    when(exporterSupportingJava.getSupportedLanguages()).thenReturn(new String[]{"java"});
+    exporters.add(exporterSupportingJava);
+
+    // 1 exporter supporting another language -> not to be include in result
+    ProfileExporter exporterSupportingAnotherLanguage = mock(ProfileExporter.class);
+    when(exporterSupportingAnotherLanguage.getSupportedLanguages()).thenReturn(new String[]{"js"});
+    exporters.add(exporterSupportingAnotherLanguage);
+
+    assertThat(operations.getProfileExportersForLanguage("java")).hasSize(3);
+  }
+
+  @Test
+  public void get_profile_importers_for_language() throws Exception {
+    // 2 importers not declaring supported languages -> match all languages -> to be include in result
+    ProfileImporter importersWithEmptySupportedLanguagesList = mock(ProfileImporter.class);
+    when(importersWithEmptySupportedLanguagesList.getSupportedLanguages()).thenReturn(new String[]{});
+    importers.add(importersWithEmptySupportedLanguagesList);
+    importers.add(mock(ProfileImporter.class));
+
+    // 1 importers supporting the java language -> to be include in result
+    ProfileImporter importerSupportingJava = mock(ProfileImporter.class);
+    when(importerSupportingJava.getSupportedLanguages()).thenReturn(new String[]{"java"});
+    importers.add(importerSupportingJava);
+
+    // 1 importers supporting another language -> not to be include in result
+    ProfileImporter importerSupportingAnotherLanguage = mock(ProfileImporter.class);
+    when(importerSupportingAnotherLanguage.getSupportedLanguages()).thenReturn(new String[]{"js"});
+    importers.add(importerSupportingAnotherLanguage);
+
+    assertThat(operations.getProfileImportersForLanguage("java")).hasSize(3);
+  }
+
 }

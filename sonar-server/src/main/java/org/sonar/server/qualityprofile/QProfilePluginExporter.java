@@ -23,6 +23,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -45,6 +46,7 @@ import org.sonar.server.rule.RuleRegistry;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -162,6 +164,26 @@ public class QProfilePluginExporter implements ServerComponent {
       }
     }
     throw BadRequestException.of("No such exporter : " + exporterKey);
+  }
+
+  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
+    List<ProfileExporter> result = new ArrayList<ProfileExporter>();
+    for (ProfileExporter exporter : exporters) {
+      if (exporter.getSupportedLanguages() == null || exporter.getSupportedLanguages().length == 0 || ArrayUtils.contains(exporter.getSupportedLanguages(), language)) {
+        result.add(exporter);
+      }
+    }
+    return result;
+  }
+
+  public List<ProfileImporter> getProfileImportersForLanguage(String language) {
+    List<ProfileImporter> result = new ArrayList<ProfileImporter>();
+    for (ProfileImporter importer : importers) {
+      if (importer.getSupportedLanguages() == null || importer.getSupportedLanguages().length == 0 || ArrayUtils.contains(importer.getSupportedLanguages(), language)) {
+        result.add(importer);
+      }
+    }
+    return result;
   }
 
 }

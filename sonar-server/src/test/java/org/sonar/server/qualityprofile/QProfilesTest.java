@@ -241,6 +241,18 @@ public class QProfilesTest {
   }
 
   @Test
+  public void get_profile_exporters_for_language() throws Exception {
+    qProfiles.getProfileExportersForLanguage("java");
+    verify(exporter).getProfileExportersForLanguage("java");
+  }
+
+  @Test
+  public void get_profile_importers_for_language() throws Exception {
+    qProfiles.getProfileImportersForLanguage("java");
+    verify(exporter).getProfileImportersForLanguage("java");
+  }
+
+  @Test
   public void projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);

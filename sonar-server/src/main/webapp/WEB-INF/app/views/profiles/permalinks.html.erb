@@ -2,7 +2,7 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Permalinks'} %>
 
 <div class="tabs-panel marginbottom10 ">
-	<% exporters = controller.java_facade.getProfileExportersForLanguage(@profile.language()) %>
+	<% exporters = Internal.quality_profiles.getProfileExportersForLanguage(@profile.language()) %>
 	<br/>
 	<table class="data without-header marginbottom10" id="permalinks-table">
 	  <tbody>

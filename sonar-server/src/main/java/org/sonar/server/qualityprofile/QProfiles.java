@@ -23,6 +23,8 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
+import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -166,6 +168,15 @@ public class QProfiles implements ServerComponent {
   public String getProfileExporterMimeType(String exporterKey) {
     return exporter.getProfileExporterMimeType(exporterKey);
   }
+
+  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
+    return exporter.getProfileExportersForLanguage(language);
+  }
+
+  public List<ProfileImporter> getProfileImportersForLanguage(String language) {
+    return exporter.getProfileImportersForLanguage(language);
+  }
+
 
   // PROJECTS
 

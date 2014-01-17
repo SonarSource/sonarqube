@@ -68,7 +68,7 @@ public abstract class ProfileImporter implements ServerExtension {
   /**
    * @return if empty, then any languages are supported.
    */
-  public final String[] getSupportedLanguages() {
+  public String[] getSupportedLanguages() {
     return supportedLanguages;
   }
 
