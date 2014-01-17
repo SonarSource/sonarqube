@@ -1,0 +1,13 @@
+{
+  "tag": {
+    "_id": {
+      "path": "value"
+    },
+    "properties": {
+      "value": {
+        "type": "string",
+        "index": "not_analyzed"
+      }
+    }
+  }
+}

@@ -332,6 +332,7 @@ public final class Platform {
 
     // rules
     servicesContainer.addSingleton(RuleRegistry.class);
+    servicesContainer.addSingleton(ESRuleTags.class);
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);
 

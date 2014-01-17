@@ -48,6 +48,7 @@ public class RuleRegistration implements Startable {
   private final RuleDefinitionsLoader defLoader;
   private final ProfilesManager profilesManager;
   private final RuleRegistry ruleRegistry;
+  private final ESRuleTags esRuleTags;
   private final MyBatis myBatis;
   private final RuleDao ruleDao;
   private final RuleTagDao ruleTagDao;
@@ -55,11 +56,12 @@ public class RuleRegistration implements Startable {
   private final System2 system = System2.INSTANCE;
 
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                          RuleRegistry ruleRegistry,
+                          RuleRegistry ruleRegistry, ESRuleTags esRuleTags,
                           MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;
+    this.esRuleTags = esRuleTags;
     this.myBatis = myBatis;
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
@@ -356,6 +358,7 @@ public class RuleRegistration implements Startable {
 
   private void index(Buffer buffer) {
     ruleRegistry.bulkRegisterRules(buffer.rulesById.values(), buffer.paramsByRuleId, buffer.tagsByRuleId);
+    esRuleTags.putAllTags(buffer.referenceTagsByTagValue.values());
   }
 
   static class Buffer {

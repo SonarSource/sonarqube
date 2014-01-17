@@ -43,6 +43,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   RuleRegistration task;
   ProfilesManager profilesManager = mock(ProfilesManager.class);
   RuleRegistry ruleRegistry = mock(RuleRegistry.class);
+  ESRuleTags esRuleTags = mock(ESRuleTags.class);
   MyBatis myBatis;
   RuleDao ruleDao;
   RuleTagDao ruleTagDao;
@@ -55,7 +56,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
   }
 
   @Test
@@ -168,7 +169,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("shared");
     task.start();
@@ -183,7 +184,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void should_insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
         new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("empty");
     task.start();
