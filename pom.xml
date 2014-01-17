@@ -40,6 +40,7 @@
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
     <module>plugins/sonar-maven-batch-plugin</module>
+    <module>plugins/sonar-xoo-plugin</module>
   </modules>
 
   <organization>
