@@ -222,6 +222,12 @@ public class QProfilesTest {
   }
 
   @Test
+  public void copy_profile() throws Exception {
+    qProfiles.copyProfile(1, "Copy Profile");
+    verify(profileOperations).copyProfile(eq(1), eq("Copy Profile"), any(UserSession.class));
+  }
+
+  @Test
   public void update_parent_profile() throws Exception {
     qProfiles.updateParentProfile(1, 2);
     verify(profileOperations).updateParentProfile(eq(1), eq(2), any(UserSession.class));

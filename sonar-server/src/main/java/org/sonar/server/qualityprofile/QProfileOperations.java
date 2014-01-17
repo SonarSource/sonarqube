@@ -72,7 +72,7 @@ public class QProfileOperations implements ServerComponent {
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
     SqlSession session = myBatis.openSession();
     try {
-      QProfile profile = newProfile(name, language, userSession, session);
+      QProfile profile = newProfile(name, language, true, userSession, session);
 
       QProfileResult result = new QProfileResult();
       result.setProfile(profile);
@@ -89,17 +89,17 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public QProfile newProfile(String name, String language, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
+    return newProfile(name, language, null, failIfAlreadyExists, userSession, session);
+  }
+
+  public QProfile newProfile(String name, String language, String parent, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
     checkPermission(userSession);
     if (failIfAlreadyExists) {
       checkNotAlreadyExists(name, language, session);
     }
-    QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setVersion(1).setUsed(false);
+    QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setParent(parent).setVersion(1).setUsed(false);
     dao.insert(dto, session);
     return QProfile.from(dto);
-  }
-
-  private QProfile newProfile(String name, String language, UserSession userSession, SqlSession session) {
-    return newProfile(name, language, true, userSession, session);
   }
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
@@ -186,6 +186,19 @@ public class QProfileOperations implements ServerComponent {
       ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
       ruleRegistry.deleteActiveRules(actions.idsToDelete());
       ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void copyProfile(int profileId, String copyProfileName, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto profileDto = findNotNull(profileId, session);
+      checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
+      int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
+      ruleRegistry.bulkIndexProfile(copyProfileId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

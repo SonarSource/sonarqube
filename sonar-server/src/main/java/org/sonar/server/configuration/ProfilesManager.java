@@ -44,7 +44,7 @@ public class ProfilesManager extends BaseDao {
     this.dryRunCache = dryRunCache;
   }
 
-  public void copyProfile(int profileId, String newProfileName) {
+  public int copyProfile(int profileId, String newProfileName) {
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
     RulesProfile toImport = (RulesProfile) profile.clone();
     toImport.setName(newProfileName);
@@ -52,6 +52,7 @@ public class ProfilesManager extends BaseDao {
     pb.importProfile(rulesDao, toImport);
     getSession().commit();
     dryRunCache.reportGlobalModification();
+    return toImport.getId();
   }
 
   public void deleteAllProfiles() {

@@ -5,13 +5,7 @@
       <h2> <%= message('quality_profiles.copy_x_title', :params => [h @profile.name]) -%></h2>
     </div>
     <div class="modal-body">
-      <% if @errors
-          @errors.each do |error|
-      %>
-        <p class="error"><%= h error -%></p>
-      <% end
-      end
-      %>
+      <div class="modal-error"/>
       <div class="modal-field">
         <label for="name"><%= message 'quality_profiles.copy_new_name' -%> <em class="mandatory">*</em></label>
         <input id="copy-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>

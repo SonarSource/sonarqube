@@ -87,34 +87,30 @@ class ProfilesController < ApplicationController
 
 
   # GET /profiles/copy_form/<profile id>
-  # TODO use QProfiles facade instead
   def copy_form
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
-    @profile = Profile.find(params[:id])
+
+    profile_id = params[:id].to_i
+    call_backend do
+      @profile = Internal.quality_profiles.profile(profile_id)
+    end
+    not_found('Profile not found') unless @profile
+
     render :partial => 'profiles/copy_form'
   end
 
   # POST /profiles/copy/<id>?name=<name of new profile>
-  # TODO use QProfiles facade instead
   def copy
     verify_post_request
     verify_ajax_request
-    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
-    @profile = Profile.find(params[:id])
+    profile_id = params[:id].to_i
     name = params['name']
-
-    target_profile=Profile.new(:name => name, :language => @profile.language)
-    if target_profile.valid?
-      java_facade.copyProfile(@profile.id, name)
+    call_backend do
+      @profile = Internal.quality_profiles.copyProfile(profile_id, name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
       render :text => 'ok', :status => 200
-    else
-      @errors = []
-      target_profile.errors.each{|attr,msg| @errors<<msg}
-      render :partial => 'profiles/copy_form', :status => 400
     end
   end
 

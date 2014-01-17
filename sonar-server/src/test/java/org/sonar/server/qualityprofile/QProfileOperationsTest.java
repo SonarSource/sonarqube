@@ -384,4 +384,48 @@ public class QProfileOperationsTest {
     verifyZeroInteractions(ruleRegistry);
   }
 
+  @Test
+  public void copy_profile() throws Exception {
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(profilesManager.copyProfile(1, "Copy Default")).thenReturn(2);
+
+    operations.copyProfile(1, "Copy Default", authorizedUserSession);
+
+    verify(profilesManager).copyProfile(1, "Copy Default");
+    verify(ruleRegistry).bulkIndexProfile(2, session);
+  }
+
+  @Test
+  public void fail_to_copy_profile_on_unknown_profile() throws Exception {
+    when(qualityProfileDao.selectById(1, session)).thenReturn(null);
+    when(profilesManager.copyProfile(1, "Copy Default")).thenReturn(2);
+
+    try {
+      operations.copyProfile(1, "Copy Default", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(ruleRegistry);
+  }
+
+  @Test
+  public void fail_to_copy_profile_if_name_already_exists() throws Exception {
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(qualityProfileDao.selectByNameAndLanguage(anyString(), anyString(), eq(session))).thenReturn(new QualityProfileDto());
+    when(profilesManager.copyProfile(1, "Copy Default")).thenReturn(2);
+
+    try {
+      operations.copyProfile(1, "Copy Default", authorizedUserSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
+
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(ruleRegistry);
+  }
+
 }

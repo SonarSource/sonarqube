@@ -132,6 +132,11 @@ public class QProfiles implements ServerComponent {
     operations.setDefaultProfile(profileId, UserSession.get());
   }
 
+  public void copyProfile(int profileId, String copyProfileName) {
+    validateProfileName(copyProfileName);
+    operations.copyProfile(profileId, copyProfileName, UserSession.get());
+  }
+
   @CheckForNull
   public QProfile parent(QProfile profile) {
     return profileLookup.parent(profile);
