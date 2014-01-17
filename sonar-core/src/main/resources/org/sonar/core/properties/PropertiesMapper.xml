@@ -104,7 +104,7 @@
   </update>
 
   <update id="updateProperties" parameterType="map">
-    update properties set text_value=#{newValue} where text_value=#{oldValue} and prop_key=#{key}
+    update properties set text_value=#{newValue} where text_value LIKE #{oldValue} and prop_key=#{key}
   </update>
 
 </mapper>
