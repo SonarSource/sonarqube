@@ -128,14 +128,14 @@ class Api::ProfilesController < Api::ApiController
   def backup
     require_parameters :language
 
-    if params[:name].blank?
-      profile=Profile.by_default(params[:language])
+    language = params[:language]
+    if (params[:name].blank?)
+      profile = Internal.quality_profiles.defaultProfile(language)
     else
-      profile=Profile.find_by_name_and_language(params[:name], params[:language])
+      profile = Internal.quality_profiles.profile(params[:name], params[:language])
     end
     not_found('Profile not found') unless profile
-
-    backup = java_facade.backupProfile(profile.id)
+    backup = Internal.quality_profiles.backupProfile(profile)
     respond_to do |format|
       format.xml { render :xml => backup }
       format.json { render :json => jsonp({:backup => backup}) }
