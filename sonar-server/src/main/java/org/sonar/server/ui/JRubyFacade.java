@@ -255,11 +255,6 @@ public final class JRubyFacade {
     return get(RuleRepositories.class).repositoriesForLang(languageKey);
   }
 
-  // TODO move this to QProfiles
-  public void copyProfile(long profileId, String newProfileName) {
-    getProfilesManager().copyProfile((int) profileId, newProfileName);
-  }
-
   public void ruleActivated(int parentProfileId, int activeRuleId, String userName) {
     getProfilesManager().activated(parentProfileId, activeRuleId, userName);
   }
