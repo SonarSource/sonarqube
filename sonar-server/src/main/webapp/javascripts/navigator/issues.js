@@ -195,7 +195,7 @@ jQuery(function() {
         sortText: el.text(),
         asc: asc
       };
-      this.render();
+      this.options.app.fetchFirstPage();
     },
 
 
