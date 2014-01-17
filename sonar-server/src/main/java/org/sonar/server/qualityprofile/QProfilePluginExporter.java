@@ -49,7 +49,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class QProfileExporter implements ServerComponent {
+public class QProfilePluginExporter implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
   private final ActiveRuleDao activeRuleDao;
@@ -60,12 +60,12 @@ public class QProfileExporter implements ServerComponent {
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry) {
+  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry) {
     this(sessionFactory, activeRuleDao, ruleRegistry, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
   }
 
-  public QProfileExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry,
-                          List<ProfileImporter> importers, List<ProfileExporter> exporters) {
+  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry,
+                                List<ProfileImporter> importers, List<ProfileExporter> exporters) {
     this.sessionFactory = sessionFactory;
     this.activeRuleDao = activeRuleDao;
     this.ruleRegistry = ruleRegistry;

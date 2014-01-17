@@ -120,15 +120,15 @@ class ProfilesController < ApplicationController
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   # POST /profiles/backup?id=<profile id>
-  # TODO use QProfiles facade instead
   def backup
     verify_post_request
     require_parameters 'id'
 
-    profile = Profile.find(params[:id])
-    xml = java_facade.backupProfile(profile.id)
-    filename=profile.name.gsub(' ', '_')
-    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}_#{profile.language}.xml")
+    profile = Internal.quality_profiles.profile(params[:id].to_i)
+    not_found('Profile not found') unless profile
+    xml = Internal.quality_profiles.backupProfile(profile)
+    filename = profile.name().gsub(' ', '_')
+    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}_#{profile.language()}.xml")
   end
 
 
@@ -165,8 +165,7 @@ class ProfilesController < ApplicationController
 
     if (params[:format].blank?)
       # standard sonar format
-      # TODO
-      result = java_facade.backupProfile(profile.id)
+      result = Internal.quality_profiles.backupProfile(profile)
       send_data(result, :type => 'text/xml', :disposition => 'inline')
     else
       exporter_key = params[:format]
@@ -255,10 +254,10 @@ class ProfilesController < ApplicationController
   # GET /profiles/permalinks?id=<profile id>
   #
   #
-  # TODO use QProfiles facade instead
   def permalinks
     require_parameters 'id'
-    @profile = Profile.find(params[:id])
+    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    not_found('Profile not found') unless @profile
     set_profile_breadcrumbs
   end
 

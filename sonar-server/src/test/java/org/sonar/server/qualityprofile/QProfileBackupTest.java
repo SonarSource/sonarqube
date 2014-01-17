@@ -31,6 +31,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -43,6 +44,7 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.io.Reader;
+import java.io.Writer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -70,6 +72,9 @@ public class QProfileBackupTest {
   XMLProfileParser xmlProfileParser;
 
   @Mock
+  XMLProfileSerializer xmlProfileSerializer;;
+
+  @Mock
   QProfileLookup qProfileLookup;
 
   @Mock
@@ -87,7 +92,18 @@ public class QProfileBackupTest {
     when(myBatis.openSession()).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
-    backup = new QProfileBackup(sessionFactory, xmlProfileParser, myBatis, qProfileLookup, ruleRegistry, dryRunCache);
+    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, ruleRegistry, dryRunCache);
+  }
+
+  @Test
+  public void backup() throws Exception {
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(1);
+    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
+
+    backup.backupProfile(new QProfile().setId(1));
+
+    verify(xmlProfileSerializer).write(eq(profile), any(Writer.class));
   }
 
   @Test
@@ -151,7 +167,8 @@ public class QProfileBackupTest {
     when(profile.getId()).thenReturn(1);
     when(xmlProfileParser.parse(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
 
-    RulesProfile existingProfile = RulesProfile.create("Default", "java").setId(1);
+    RulesProfile existingProfile = mock(RulesProfile.class);
+    when(existingProfile.getId()).thenReturn(1);
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(existingProfile);
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 

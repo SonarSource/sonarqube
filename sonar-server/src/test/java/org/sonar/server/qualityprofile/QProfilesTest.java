@@ -91,7 +91,7 @@ public class QProfilesTest {
   QProfileBackup backup;
 
   @Mock
-  QProfileExporter exporter;
+  QProfilePluginExporter exporter;
 
   @Mock
   ProfileRules rules;
@@ -206,6 +206,19 @@ public class QProfilesTest {
   public void delete_profile() throws Exception {
     qProfiles.deleteProfile(1);
     verify(profileOperations).deleteProfile(eq(1), any(UserSession.class));
+  }
+
+  @Test
+  public void restore_profile() throws Exception {
+    qProfiles.restore("<xml/>", true);
+    verify(backup).restore(eq("<xml/>"), eq(true), any(UserSession.class));
+  }
+
+  @Test
+  public void backup_profile() throws Exception {
+    QProfile profile = new QProfile().setId(1);
+    qProfiles.backupProfile(profile);
+    verify(backup).backupProfile(profile);
   }
 
   @Test

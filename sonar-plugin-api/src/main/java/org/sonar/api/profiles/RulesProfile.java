@@ -116,11 +116,6 @@ public class RulesProfile implements Cloneable {
     return id;
   }
 
-  public RulesProfile setId(Integer id) {
-    this.id = id;
-    return this;
-  }
-
   /**
    * @return the profile name, unique by language.
    */

@@ -90,7 +90,7 @@ public class QProfileOperationsTest {
   ProfilesManager profilesManager;
 
   @Mock
-  QProfileExporter exporter;
+  QProfilePluginExporter exporter;
 
   Integer currentId = 1;
 

@@ -50,14 +50,14 @@ public class QProfileOperations implements ServerComponent {
   private final QualityProfileDao dao;
   private final ActiveRuleDao activeRuleDao;
   private final PropertiesDao propertiesDao;
-  private final QProfileExporter exporter;
+  private final QProfilePluginExporter exporter;
   private final PreviewCache dryRunCache;
   private final RuleRegistry ruleRegistry;
   private final QProfileLookup profileLookup;
   private final ProfilesManager profilesManager;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            QProfileExporter exporter, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
+                            QProfilePluginExporter exporter, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;

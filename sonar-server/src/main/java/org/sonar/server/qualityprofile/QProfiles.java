@@ -61,7 +61,7 @@ public class QProfiles implements ServerComponent {
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
   private final QProfileBackup backup;
-  private final QProfileExporter exporter;
+  private final QProfilePluginExporter exporter;
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
@@ -69,7 +69,7 @@ public class QProfiles implements ServerComponent {
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfileExporter exporter, QProfileLookup profileLookup,
+                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter, QProfileLookup profileLookup,
                    QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
@@ -149,6 +149,10 @@ public class QProfiles implements ServerComponent {
 
   public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     return backup.restore(xmlBackup, deleteExisting, UserSession.get());
+  }
+
+  public String backupProfile(QProfile profile) {
+    return backup.backupProfile(profile);
   }
 
   public boolean isDeletable(QProfile profile) {

@@ -58,7 +58,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileExporterTest {
+public class QProfilePluginExporterTest {
 
   @Mock
   SqlSession session;
@@ -80,7 +80,7 @@ public class QProfileExporterTest {
 
   Integer currentId = 1;
 
-  QProfileExporter operations;
+  QProfilePluginExporter operations;
 
   @Before
   public void setUp() throws Exception {
@@ -96,7 +96,7 @@ public class QProfileExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileExporter(sessionFactory, activeRuleDao, ruleRegistry, importers, exporters);
+    operations = new QProfilePluginExporter(sessionFactory, activeRuleDao, ruleRegistry, importers, exporters);
   }
 
   @Test
@@ -213,12 +213,8 @@ public class QProfileExporterTest {
 
   @Test
   public void export_to_plugin_xml() throws Exception {
-    RulesProfile profile = RulesProfile.create("Default", "java").setId(1);
-    Rule rule = Rule.create("pmd", "rule1");
-    rule.createParameter("max");
-    rule.setId(10);
-    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
-    activeRule.setParameter("max", "10");
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(1);
     when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
 
     ProfileExporter exporter = mock(ProfileExporter.class);
@@ -232,12 +228,8 @@ public class QProfileExporterTest {
 
   @Test
   public void fail_to_export_profile_when_missing_exporter() throws Exception {
-    RulesProfile profile = RulesProfile.create("Default", "java").setId(1);
-    Rule rule = Rule.create("pmd", "rule1");
-    rule.createParameter("max");
-    rule.setId(10);
-    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
-    activeRule.setParameter("max", "10");
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(1);
     when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
 
     ProfileExporter exporter = mock(ProfileExporter.class);

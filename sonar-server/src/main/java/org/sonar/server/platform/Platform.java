@@ -279,7 +279,7 @@ public final class Platform {
     servicesContainer.addSingleton(QProfileProjectOperations.class);
     servicesContainer.addSingleton(QProfileProjectLookup.class);
     servicesContainer.addSingleton(QProfileBackup.class);
-    servicesContainer.addSingleton(QProfileExporter.class);
+    servicesContainer.addSingleton(QProfilePluginExporter.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

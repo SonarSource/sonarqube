@@ -25,6 +25,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -35,6 +36,8 @@ import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -43,26 +46,36 @@ public class QProfileBackup implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
   private final XMLProfileParser xmlProfileParser;
+  private final XMLProfileSerializer xmlProfileSerializer;
 
   private final MyBatis myBatis;
   private final QProfileLookup qProfileLookup;
   private final RuleRegistry ruleRegistry;
   private final PreviewCache dryRunCache;
 
-  public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, MyBatis myBatis,
+  public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
                         QProfileLookup qProfileLookup, RuleRegistry ruleRegistry, PreviewCache dryRunCache) {
 
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
+    this.xmlProfileSerializer = xmlProfileSerializer;
     this.myBatis = myBatis;
     this.qProfileLookup = qProfileLookup;
     this.ruleRegistry = ruleRegistry;
     this.dryRunCache = dryRunCache;
   }
 
+  public String backupProfile(QProfile profile) {
+    DatabaseSession session = sessionFactory.getSession();
+    RulesProfile rulesProfile = session.getSingleResult(RulesProfile.class, "id", profile.id());
+    Writer writer = new StringWriter();
+    xmlProfileSerializer.write(rulesProfile, writer);
+    return writer.toString();
+  }
+
   /**
-   * deleteExisting is used to not fail if profile exist but to delete it first.
-   * It's only used by WS, and it should should be soon removed
+   * @param deleteExisting is used to not fail if profile exist but to delete it first.
+   *                       It's only used by WS, and it should should be soon removed
    */
   public QProfileResult restore(String xmlBackup, boolean deleteExisting, UserSession userSession) {
     checkPermission(userSession);

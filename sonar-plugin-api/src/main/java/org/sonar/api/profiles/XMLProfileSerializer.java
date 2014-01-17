@@ -32,7 +32,7 @@ import java.io.Writer;
 /**
  * @since 2.3
  */
-public final class XMLProfileSerializer implements ServerComponent {
+public class XMLProfileSerializer implements ServerComponent {
 
   public void write(RulesProfile profile, Writer writer) {
     try {
