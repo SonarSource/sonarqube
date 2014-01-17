@@ -108,7 +108,8 @@ public class QProfileBackupTest {
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).saveWithoutFlush(profile);
     verify(ruleRegistry).bulkIndexProfile(anyInt(), eq(session));
-    verify(dryRunCache).reportGlobalModification();
+    verify(dryRunCache).reportGlobalModification(session);
+    verify(session).commit();
   }
 
   @Test
@@ -153,7 +154,7 @@ public class QProfileBackupTest {
     when(profile.getId()).thenReturn(1);
     when(xmlProfileParser.parse(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
 
-    RulesProfile existingProfile = RulesProfile.create("Default", "java");
+    RulesProfile existingProfile = RulesProfile.create("Default", "java").setId(1);
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(existingProfile);
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
@@ -161,8 +162,10 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).removeWithoutFlush(eq(existingProfile));
+    verify(ruleRegistry).deleteActiveRulesFromProfile(eq(1));
     verify(ruleRegistry).bulkIndexProfile(anyInt(), eq(session));
-    verify(dryRunCache).reportGlobalModification();
+    verify(dryRunCache).reportGlobalModification(session);
+    verify(session).commit();
   }
 
   @Test

@@ -136,6 +136,7 @@ public class QProfileOperationsTest {
     assertThat(profileArgument.getValue().getVersion()).isEqualTo(1);
     assertThat(profileArgument.getValue().isUsed()).isFalse();
 
+    verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
 
@@ -334,7 +335,7 @@ public class QProfileOperationsTest {
     verify(qualityProfileDao).delete(1, session);
     verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "Default", session);
     verify(ruleRegistry).deleteActiveRulesFromProfile(1);
-    verify(dryRunCache).reportGlobalModification();
+    verify(dryRunCache).reportGlobalModification(session);
   }
 
   @Test

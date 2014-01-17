@@ -19,16 +19,17 @@
  */
 package org.sonar.core.preview;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.PreviewDatabaseFactory;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -44,15 +45,16 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PreviewCacheTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  private MyBatis myBatis;
+
+  private SqlSession session;
 
   private PreviewCache dryRunCache;
   private ServerFileSystem serverFileSystem;
@@ -65,6 +67,9 @@ public class PreviewCacheTest {
 
   @Before
   public void prepare() throws IOException {
+    myBatis = mock(MyBatis.class);
+    session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
     serverFileSystem = mock(ServerFileSystem.class);
     propertiesDao = mock(PropertiesDao.class);
     resourceDao = mock(ResourceDao.class);
@@ -74,7 +79,7 @@ public class PreviewCacheTest {
     when(serverFileSystem.getTempDir()).thenReturn(tempLocation);
     dryRunCacheLocation = new File(tempLocation, "dryRun");
 
-    dryRunCache = new PreviewCache(serverFileSystem, propertiesDao, resourceDao, dryRunDatabaseFactory);
+    dryRunCache = new PreviewCache(myBatis, serverFileSystem, propertiesDao, resourceDao, dryRunDatabaseFactory);
   }
 
   @Test
@@ -208,10 +213,12 @@ public class PreviewCacheTest {
   public void test_report_global_modification() {
     dryRunCache.reportGlobalModification();
 
-    verify(propertiesDao).setProperty(
-      new PropertyDto()
-        .setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)
-        .setValue(anyString()));
+    ArgumentCaptor<PropertyDto> argument = ArgumentCaptor.forClass(PropertyDto.class);
+    verify(propertiesDao).setProperty(argument.capture(), eq(session));
+    assertThat(argument.getValue().getKey()).isEqualTo(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY);
+    assertThat(argument.getValue().getValue()).isNotNull();
+
+    verify(session).commit();
   }
 
   @Test

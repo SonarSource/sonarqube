@@ -62,28 +62,33 @@ public class QProfileBackup implements ServerComponent {
     this.dryRunCache = dryRunCache;
   }
 
+  /**
+   * deleteExisting is used to not fail if profile exist but to delete it first.
+   * It's only used by WS, and it should should be soon removed
+   */
   public QProfileResult restore(String xmlBackup, boolean deleteExisting, UserSession userSession) {
     checkPermission(userSession);
 
+    SqlSession session = myBatis.openSession();
     QProfileResult result = new QProfileResult();
-    ValidationMessages messages = ValidationMessages.create();
-    RulesProfile importedProfile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
-    processValidationMessages(messages, result);
-    if (importedProfile != null) {
-      DatabaseSession hibernateSession = sessionFactory.getSession();
-      checkProfileDoesNotExists(importedProfile, deleteExisting, hibernateSession);
-      hibernateSession.saveWithoutFlush(importedProfile);
-      hibernateSession.commit();
+    try {
+      ValidationMessages messages = ValidationMessages.create();
+      RulesProfile importedProfile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
+      processValidationMessages(messages, result);
+      if (importedProfile != null) {
+        DatabaseSession hibernateSession = sessionFactory.getSession();
+        checkProfileDoesNotExists(importedProfile, deleteExisting, hibernateSession);
+        hibernateSession.saveWithoutFlush(importedProfile);
+        hibernateSession.commit();
 
-      SqlSession session = myBatis.openSession();
-      try {
         QProfile profile = qProfileLookup.profile(importedProfile.getId());
         ruleRegistry.bulkIndexProfile(profile.id(), session);
+        dryRunCache.reportGlobalModification(session);
+        session.commit();
         result.setProfile(profile);
-      } finally {
-        MyBatis.closeQuietly(session);
       }
-      dryRunCache.reportGlobalModification();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
     return result;
   }
@@ -94,9 +99,10 @@ public class QProfileBackup implements ServerComponent {
       throw BadRequestException.of("The profile " + existingProfile + " already exists. Please delete it before restoring.");
     }
     if (existingProfile != null) {
-      // TODO use QProfileOperations to do that (For ES unindexing)
+      // Warning, profile with children can be deleted as no check is done!
       hibernateSession.removeWithoutFlush(existingProfile);
       hibernateSession.commit();
+      ruleRegistry.deleteActiveRulesFromProfile(existingProfile.getId());
     }
   }
 

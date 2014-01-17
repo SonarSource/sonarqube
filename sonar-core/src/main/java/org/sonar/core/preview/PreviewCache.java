@@ -21,11 +21,13 @@ package org.sonar.core.preview;
 
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.PreviewDatabaseFactory;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -50,6 +52,8 @@ public class PreviewCache implements ServerExtension {
 
   public static final String SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY = "sonar.dryRun.cache.lastUpdate";
 
+  private MyBatis mybatis;
+
   private ServerFileSystem serverFileSystem;
   private PropertiesDao propertiesDao;
   private ResourceDao resourceDao;
@@ -59,7 +63,8 @@ public class PreviewCache implements ServerExtension {
 
   private PreviewDatabaseFactory previewDatabaseFactory;
 
-  public PreviewCache(ServerFileSystem serverFileSystem, PropertiesDao propertiesDao, ResourceDao resourceDao, PreviewDatabaseFactory previewDatabaseFactory) {
+  public PreviewCache(MyBatis mybatis, ServerFileSystem serverFileSystem, PropertiesDao propertiesDao, ResourceDao resourceDao, PreviewDatabaseFactory previewDatabaseFactory) {
+    this.mybatis = mybatis;
     this.serverFileSystem = serverFileSystem;
     this.propertiesDao = propertiesDao;
     this.resourceDao = resourceDao;
@@ -188,7 +193,17 @@ public class PreviewCache implements ServerExtension {
   }
 
   public void reportGlobalModification() {
-    propertiesDao.setProperty(new PropertyDto().setKey(SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY).setValue(String.valueOf(System.currentTimeMillis())));
+    SqlSession session = mybatis.openSession();
+    try {
+      reportGlobalModification(session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void reportGlobalModification(SqlSession session) {
+    propertiesDao.setProperty(new PropertyDto().setKey(SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY).setValue(String.valueOf(System.currentTimeMillis())), session);
   }
 
   public void reportResourceModification(String resourceKey) {

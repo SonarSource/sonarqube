@@ -79,8 +79,8 @@ public class QProfileOperations implements ServerComponent {
       for (Map.Entry<String, String> entry : xmlProfilesByPlugin.entrySet()) {
         result.add(exporter.importXml(profile, entry.getKey(), entry.getValue(), session));
       }
+      dryRunCache.reportGlobalModification(session);
       session.commit();
-      dryRunCache.reportGlobalModification();
       return result;
     } finally {
       MyBatis.closeQuietly(session);
@@ -107,6 +107,8 @@ public class QProfileOperations implements ServerComponent {
     try {
       QualityProfileDto profile = findNotNull(profileId, session);
 
+      // TODO rename children and properties
+
       if (!profile.getName().equals(newName)) {
         checkNotAlreadyExists(newName, profile.getLanguage(), session);
       }
@@ -129,7 +131,7 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void deleteProfile(int profileId, UserSession userSession, SqlSession session) {
+  private void deleteProfile(int profileId, UserSession userSession, SqlSession session) {
     checkPermission(userSession);
     QualityProfileDto profile = findNotNull(profileId, session);
     if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
@@ -140,7 +142,7 @@ public class QProfileOperations implements ServerComponent {
       dao.delete(profile.getId(), session);
       propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
       ruleRegistry.deleteActiveRulesFromProfile(profile.getId());
-      dryRunCache.reportGlobalModification();
+      dryRunCache.reportGlobalModification(session);
     }
   }
 
