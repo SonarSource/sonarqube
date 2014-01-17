@@ -86,6 +86,18 @@ public class JavaFileTest {
   }
 
   @Test
+  public void testNewClassInRootFolder() {
+    JavaFile javaClass = JavaFile.create("Hello.java", "Hello.java", false);
+    assertThat(javaClass.getKey()).isEqualTo("/Hello.java");
+    assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
+    assertThat(javaClass.getName(), is("Hello.java"));
+    assertThat(javaClass.getLongName(), is("Hello"));
+    assertThat(javaClass.getParent().getKey()).isEqualTo("/");
+    assertThat(javaClass.getParent().getDeprecatedKey()).isEqualTo(Directory.ROOT);
+    assertThat(javaClass.getParent().isDefault()).isTrue();
+  }
+
+  @Test
   public void testNewClassWithEmptyPackageDeprecatedConstructor() {
     JavaFile javaClass = new JavaFile("", "Hello", false);
     assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
