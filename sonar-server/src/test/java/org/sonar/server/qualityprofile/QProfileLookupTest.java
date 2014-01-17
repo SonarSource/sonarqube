@@ -61,7 +61,7 @@ public class QProfileLookupTest {
 
   @Test
   public void find_by_id() throws Exception {
-    when(dao.selectById(1)).thenReturn(
+    when(dao.selectById(1, session)).thenReturn(
       new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)
     );
 

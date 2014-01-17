@@ -101,7 +101,7 @@ public class QProfileBackupTest {
     when(profile.getId()).thenReturn(1);
     when(xmlProfileParser.parse(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
-    when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     QProfileResult result = backup.restore("<xml/>", false, userSession);
 
@@ -156,7 +156,7 @@ public class QProfileBackupTest {
 
     RulesProfile existingProfile = RulesProfile.create("Default", "java").setId(1);
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(existingProfile);
-    when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     QProfileResult result = backup.restore("<xml/>", true, userSession);
 
@@ -185,7 +185,7 @@ public class QProfileBackupTest {
     }).when(xmlProfileParser).parse(any(Reader.class), any(ValidationMessages.class));
 
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
-    when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     QProfileResult result = backup.restore("<xml/>", true, userSession);
 
@@ -210,7 +210,7 @@ public class QProfileBackupTest {
     }).when(xmlProfileParser).parse(any(Reader.class), any(ValidationMessages.class));
 
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
-    when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     try {
       backup.restore("<xml/>", false, userSession);
@@ -231,7 +231,7 @@ public class QProfileBackupTest {
   public void do_not_restore_if_xml_is_empty() throws Exception {
     when(xmlProfileParser.parse(any(Reader.class), any(ValidationMessages.class))).thenReturn(null);
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
-    when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     QProfileResult result = backup.restore("<xml/>", false, userSession);
 

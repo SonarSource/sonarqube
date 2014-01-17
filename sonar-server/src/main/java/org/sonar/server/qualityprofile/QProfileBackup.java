@@ -81,7 +81,7 @@ public class QProfileBackup implements ServerComponent {
         hibernateSession.saveWithoutFlush(importedProfile);
         hibernateSession.commit();
 
-        QProfile profile = qProfileLookup.profile(importedProfile.getId());
+        QProfile profile = qProfileLookup.profile(importedProfile.getId(), session);
         ruleRegistry.bulkIndexProfile(profile.id(), session);
         dryRunCache.reportGlobalModification(session);
         session.commit();

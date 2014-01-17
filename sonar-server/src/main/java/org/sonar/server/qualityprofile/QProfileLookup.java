@@ -54,7 +54,18 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile profile(int id) {
-    QualityProfileDto dto = findQualityProfile(id);
+    SqlSession session = myBatis.openSession();
+    try {
+      return profile(id, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+
+  @CheckForNull
+  public QProfile profile(int id, SqlSession session) {
+    QualityProfileDto dto = findQualityProfile(id, session);
     if (dto != null) {
       return QProfile.from(dto);
     }
@@ -168,8 +179,8 @@ public class QProfileLookup implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto findQualityProfile(int id) {
-    return dao.selectById(id);
+  private QualityProfileDto findQualityProfile(int id, SqlSession session) {
+    return dao.selectById(id, session);
   }
 
   @CheckForNull
