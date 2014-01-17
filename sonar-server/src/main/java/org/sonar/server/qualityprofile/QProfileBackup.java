@@ -45,18 +45,16 @@ public class QProfileBackup implements ServerComponent {
   private final XMLProfileParser xmlProfileParser;
 
   private final MyBatis myBatis;
-  private final QProfileOperations qProfileOperations;
   private final QProfileLookup qProfileLookup;
   private final RuleRegistry ruleRegistry;
   private final PreviewCache dryRunCache;
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, MyBatis myBatis,
-                        QProfileOperations qProfileOperations, QProfileLookup qProfileLookup, RuleRegistry ruleRegistry, PreviewCache dryRunCache) {
+                        QProfileLookup qProfileLookup, RuleRegistry ruleRegistry, PreviewCache dryRunCache) {
 
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.myBatis = myBatis;
-    this.qProfileOperations = qProfileOperations;
     this.qProfileLookup = qProfileLookup;
     this.ruleRegistry = ruleRegistry;
     this.dryRunCache = dryRunCache;

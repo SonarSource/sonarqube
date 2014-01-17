@@ -70,9 +70,6 @@ public class QProfileBackupTest {
   XMLProfileParser xmlProfileParser;
 
   @Mock
-  QProfileOperations qProfileOperations;
-
-  @Mock
   QProfileLookup qProfileLookup;
 
   @Mock
@@ -90,7 +87,7 @@ public class QProfileBackupTest {
     when(myBatis.openSession()).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
-    backup = new QProfileBackup(sessionFactory, xmlProfileParser, myBatis, qProfileOperations, qProfileLookup, ruleRegistry, dryRunCache);
+    backup = new QProfileBackup(sessionFactory, xmlProfileParser, myBatis, qProfileLookup, ruleRegistry, dryRunCache);
   }
 
   @Test
