@@ -331,6 +331,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (StringUtils.isNotBlank(resource.getDescription())) {
       model.setDescription(resource.getDescription());
     }
+    if (StringUtils.isNotBlank(resource.getPath())) {
+      model.setPath(resource.getPath());
+    }
     if (!ResourceUtils.isLibrary(resource)) {
       // SONAR-4245
       if (Scopes.PROJECT.equals(resource.getScope()) &&
