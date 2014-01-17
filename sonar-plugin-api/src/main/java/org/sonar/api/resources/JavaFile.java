@@ -171,11 +171,11 @@ public class JavaFile extends Resource {
   }
 
   /**
-   * @return QUALIFIER_UNIT_TEST_CLASS or QUALIFIER_CLASS depending whether it is a unit test class
+   * @return QUALIFIER_UNIT_TEST_CLASS or QUALIFIER_FILE depending whether it is a unit test class
    */
   @Override
   public String getQualifier() {
-    return unitTest ? Qualifiers.UNIT_TEST_FILE : Qualifiers.CLASS;
+    return unitTest ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   /**

@@ -111,9 +111,11 @@ public final class ResourceUtils {
 
   /**
    * @return whether a resource is a class
+   * @deprecated since 4.2 CLA qualifier is deprecated
    */
+  @Deprecated
   public static boolean isClass(Resource resource) {
-    return Qualifiers.CLASS.equals(resource.getQualifier());
+    return Qualifiers.CLASS.equals(resource.getQualifier()) || Qualifiers.FILE.equals(resource.getQualifier());
   }
 
   /**

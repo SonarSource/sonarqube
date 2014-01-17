@@ -68,9 +68,25 @@ public final class Qualifiers {
   public static final String PACKAGE = "PAC";
   public static final String DIRECTORY = "DIR";
   public static final String FILE = "FIL";
+  /**
+   * @deprecated since 4.2 now java files are considered as regular files. Use {@link #FILE} instead.
+   */
+  @Deprecated
   public static final String CLASS = "CLA";
+  /**
+   * @deprecated since 4.2 resources under FILE level will no more be supported.
+   */
+  @Deprecated
   public static final String PARAGRAPH = "PAR";
+  /**
+   * @deprecated since 4.2 resources under FILE level will no more be supported.
+   */
+  @Deprecated
   public static final String METHOD = "MET";
+  /**
+   * @deprecated since 4.2 resources under FILE level will no more be supported.
+   */
+  @Deprecated
   public static final String FIELD = "FLD";
 
   // ugly, should be replaced by "natures"
@@ -137,9 +153,11 @@ public final class Qualifiers {
 
   /**
    * @param resource not nullable
+   * @deprecated since 4.2 CLA qualifier is deprecated
    */
+  @Deprecated
   public static boolean isClass(final Resource resource) {
-    return StringUtils.equals(CLASS, resource.getQualifier());
+    return StringUtils.equals(CLASS, resource.getQualifier()) || isFile(resource);
   }
 
   /**
