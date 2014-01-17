@@ -234,7 +234,7 @@ end
 #   See https://github.com/rails/rails/issues/585
 # - actionview NumberHelper, patch for number_with_precision()
 
-require File.dirname(__FILE__) + '/../lib/sonar_webservice_plugins.rb'
+require File.dirname(__FILE__) + '/../lib/java_ws_routing.rb'
 require File.dirname(__FILE__) + '/../lib/database_version.rb'
 DatabaseVersion.automatic_setup
 

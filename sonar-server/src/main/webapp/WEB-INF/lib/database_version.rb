@@ -61,11 +61,11 @@ class DatabaseVersion
   def self.upgrade_and_start
     ActiveRecord::Migrator.migrate(migrations_path)
     Java::OrgSonarServerPlatform::Platform.getInstance().start()
-    load_plugin_webservices()
+    load_java_web_services
   end
 
-  def self.load_plugin_webservices
-    ActionController::Routing::Routes.load_sonar_plugins_routes
+  def self.load_java_web_services
+    ActionController::Routing::Routes.add_java_ws_routes
   end
 
   def self.automatic_setup
@@ -73,7 +73,7 @@ class DatabaseVersion
       try_restore_structure_dump()
       upgrade_and_start()
     elsif uptodate?
-      load_plugin_webservices()
+      load_java_web_services
     else
       puts 'Database must be upgraded. Please browse /setup'
     end

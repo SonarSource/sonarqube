@@ -19,42 +19,13 @@
  */
 package org.sonar.server.ws;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.io.Writer;
+public class WriterException extends RuntimeException {
 
-/**
- * HTTP response
- *
- * @since 4.2
- */
-public class Response {
-
-  private int httpStatus = HttpServletResponse.SC_OK;
-  private final Writer writer;
-
-  public Response(Writer writer) {
-    this.writer = writer;
+  public WriterException(String message) {
+    super(message);
   }
 
-  public JsonWriter newJsonWriter() {
-    return JsonWriter.of(writer);
-  }
-
-  public XmlWriter newXmlWriter() {
-    return XmlWriter.of(writer);
-  }
-
-  public Writer writer() {
-    return writer;
-  }
-
-  public int status() {
-    return httpStatus;
-  }
-
-  public Response setStatus(int httpStatus) {
-    this.httpStatus = httpStatus;
-    return this;
+  public WriterException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

@@ -1,0 +1,34 @@
+{
+  "webServices": [
+    {
+      "path": "api/metric",
+      "since": "3.2",
+      "description": "Metrics",
+      "actions": [
+        {
+          "key": "show",
+          "description": "Show metric",
+          "since": "3.2",
+          "post": false
+        },
+        {
+          "key": "create",
+          "description": "Create metric",
+          "since": "4.1",
+          "post": true
+        }
+      ]
+    },
+    {
+      "path": "api/webservices",
+      "since": "4.2",
+      "description": "List web services",
+      "actions": [
+        {
+          "key": "index",
+          "since": "4.2",
+          "post": false
+        }
+      ]
+    }
+  ]}

@@ -102,6 +102,8 @@ import org.sonar.server.ui.*;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.util.*;
+import org.sonar.server.ws.ListingWebService;
+import org.sonar.server.ws.WebServiceEngine;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
@@ -264,6 +266,10 @@ public final class Platform {
     servicesContainer.addSingleton(PreviewCache.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+
+    // web services
+    servicesContainer.addSingleton(WebServiceEngine.class);
+    servicesContainer.addSingleton(ListingWebService.class);
 
     // quality profiles
     servicesContainer.addSingleton(ProfileRules.class);

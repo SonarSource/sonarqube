@@ -21,14 +21,18 @@
 module ActionController
   module Routing
     class RouteSet
-      def load_sonar_plugins_routes
-        logger=Slf4jLogger.new('org.sonar.INFO')
-        web_service_plugins = Java::OrgSonarServerUi::JRubyFacade.new.getRubyRailsWebservices()
-        web_service_plugins.each do |plugin|
-          logger.info("Loading webservice /api/plugins/#{plugin.getId()}")
-          eval(plugin.getTemplate())
-          route = add_route("api/plugins/#{plugin.getId()}/:action/:id", {:controller => "api/#{plugin.getId()}", :requirements => { :id => /.*/ }})
-          logger.debug("Loaded webservice #{plugin.getId()} => #{route}")
+      def add_java_ws_routes
+        # Deprecated Ruby on Rails web services
+        deprecated_web_services = Java::OrgSonarServerUi::JRubyFacade.new.getRubyRailsWebservices()
+        deprecated_web_services.each do |ws|
+          eval(ws.getTemplate())
+          add_route("api/plugins/#{ws.getId()}/:action/:id", {:controller => "api/#{ws.getId()}", :requirements => { :id => /.*/ }})
+        end
+
+        # Full Java web services
+        ws_engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
+        ws_engine.controllers().each do |controller|
+          add_route("#{controller.path()}/:wsaction/:id", {:controller => 'api/java_ws', :action => 'index', :wspath => controller.path()})
         end
       end
     end
@@ -36,7 +40,7 @@ module ActionController
 end
 
 # support for routes reloading in dev mode
-if ENV['RAILS_ENV'] == "development"
+if ENV['RAILS_ENV'] == 'development'
   module ActionController
     module Routing
       class RouteSet
@@ -44,7 +48,7 @@ if ENV['RAILS_ENV'] == "development"
 
         def reload
           rails_reload
-          load_sonar_plugins_routes
+          add_java_ws_routes
         end
       end
     end

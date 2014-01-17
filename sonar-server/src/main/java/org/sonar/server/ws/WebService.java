@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
@@ -35,20 +36,20 @@ import java.util.Map;
  */
 public interface WebService extends ServerExtension {
 
-  static class Context {
+  class Context {
     private final Map<String, Controller> controllers = Maps.newHashMap();
 
-    public NewController newController(String key) {
-      return new NewController(this, key);
+    public NewController newController(String path) {
+      return new NewController(this, path);
     }
 
     private void register(NewController newController) {
-      if (controllers.containsKey(newController.key)) {
+      if (controllers.containsKey(newController.path)) {
         throw new IllegalStateException(
-            String.format("The web service '%s' is defined multiple times", newController.key)
+          String.format("The web service '%s' is defined multiple times", newController.path)
         );
       }
-      controllers.put(newController.key, new Controller(newController));
+      controllers.put(newController.path, new Controller(newController));
     }
 
     @CheckForNull
@@ -56,22 +57,21 @@ public interface WebService extends ServerExtension {
       return controllers.get(key);
     }
 
-    // TODO sort by keys
     public List<Controller> controllers() {
       return ImmutableList.copyOf(controllers.values());
     }
   }
 
-  static class NewController {
+  class NewController {
     private final Context context;
-    private final String key;
+    private final String path;
     private String description, since;
-    private boolean api = false;
     private final Map<String, NewAction> actions = Maps.newHashMap();
 
-    private NewController(Context context, String key) {
+    private NewController(Context context, String path) {
+      // TODO check format of path
       this.context = context;
-      this.key = key;
+      this.path = path;
     }
 
     public void done() {
@@ -83,11 +83,6 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
-    public NewController setApi(boolean b) {
-      this.api = b;
-      return this;
-    }
-
     public NewController setSince(@Nullable String s) {
       this.since = s;
       return this;
@@ -96,7 +91,7 @@ public interface WebService extends ServerExtension {
     public NewAction newAction(String actionKey) {
       if (actions.containsKey(actionKey)) {
         throw new IllegalStateException(
-            String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, key)
+          String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path)
         );
       }
       NewAction action = new NewAction(actionKey);
@@ -105,21 +100,19 @@ public interface WebService extends ServerExtension {
     }
   }
 
-  static class Controller {
-    private final String key, description, since;
-    private final boolean api;
+  class Controller {
+    private final String path, description, since;
     private final Map<String, Action> actions;
 
     private Controller(NewController newController) {
       if (newController.actions.isEmpty()) {
         throw new IllegalStateException(
-            String.format("At least one action must be declared in the web service '%s'", newController.key)
+          String.format("At least one action must be declared in the web service '%s'", newController.path)
         );
       }
-      this.key = newController.key;
+      this.path = newController.path;
       this.description = newController.description;
       this.since = newController.since;
-      this.api = newController.api;
       ImmutableMap.Builder<String, Action> mapBuilder = ImmutableMap.builder();
       for (NewAction newAction : newController.actions.values()) {
         mapBuilder.put(newAction.key, new Action(this, newAction));
@@ -127,12 +120,8 @@ public interface WebService extends ServerExtension {
       this.actions = mapBuilder.build();
     }
 
-    public String key() {
-      return key;
-    }
-
     public String path() {
-      return String.format("ws/%s", key);
+      return path;
     }
 
     @CheckForNull
@@ -141,7 +130,7 @@ public interface WebService extends ServerExtension {
     }
 
     public boolean isApi() {
-      return api;
+      return path.startsWith("api/");
     }
 
     @CheckForNull
@@ -159,7 +148,8 @@ public interface WebService extends ServerExtension {
     }
   }
 
-  static class NewAction {
+  // TODO define supported parameters
+  class NewAction {
     private final String key;
     private String description, since;
     private boolean post = false;
@@ -190,17 +180,16 @@ public interface WebService extends ServerExtension {
     }
   }
 
-  static class Action {
-    private final Controller controller;
-    private final String key, description, since;
+  class Action {
+    private final String key, path, description, since;
     private final boolean post;
     private final RequestHandler handler;
 
     private Action(Controller controller, NewAction newAction) {
-      this.controller = controller;
       this.key = newAction.key;
+      this.path = String.format("%s/%s", controller.path(), key);
       this.description = newAction.description;
-      this.since = newAction.since;
+      this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
       this.handler = newAction.handler;
     }
@@ -210,7 +199,7 @@ public interface WebService extends ServerExtension {
     }
 
     public String path() {
-      return String.format("%s/%s", controller.path(), key);
+      return path;
     }
 
     @CheckForNull
@@ -233,6 +222,11 @@ public interface WebService extends ServerExtension {
     @CheckForNull
     public RequestHandler handler() {
       return handler;
+    }
+
+    @Override
+    public String toString() {
+      return path;
     }
   }
 

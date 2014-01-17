@@ -28,6 +28,8 @@ import java.util.Map;
 public class Request {
 
   private final Map<String,String> params;
+  private String mediaType = "application/json";
+  private boolean post = false;
 
   public Request(Map<String, String> params) {
     this.params = params;
@@ -47,5 +49,23 @@ public class Request {
   public int intParam(String key, int defaultValue) {
     String s = params.get(key);
     return s == null ? defaultValue : Integer.parseInt(s);
+  }
+
+  public String mediaType() {
+    return mediaType;
+  }
+
+  public Request setMediaType(String s) {
+    this.mediaType = s;
+    return this;
+  }
+
+  public boolean isPost() {
+    return post;
+  }
+
+  public Request setPost(boolean b) {
+    this.post = b;
+    return this;
   }
 }

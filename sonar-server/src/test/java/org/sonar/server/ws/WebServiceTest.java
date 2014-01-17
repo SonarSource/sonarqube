@@ -31,13 +31,11 @@ public class WebServiceTest {
     boolean showCalled = false, createCalled = false;
     @Override
     public void define(Context context) {
-      NewController newController = context.newController("metric")
-          .setApi(true)
-          .setDescription("Metrics")
-          .setSince("3.2");
+      NewController newController = context.newController("api/metric")
+        .setDescription("Metrics")
+        .setSince("3.2");
       newController.newAction("show")
           .setDescription("Show metric")
-          .setSince("4.1")
           .setHandler(new RequestHandler() {
             @Override
             public void handle(Request request, Response response) {
@@ -45,14 +43,15 @@ public class WebServiceTest {
             }
           });
       newController.newAction("create")
-          .setDescription("Create metric")
-          .setPost(true)
-          .setHandler(new RequestHandler() {
-            @Override
-            public void handle(Request request, Response response) {
-              create(request, response);
-            }
-          });
+        .setDescription("Create metric")
+        .setSince("4.1")
+        .setPost(true)
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            create(request, response);
+          }
+        });
       newController.done();
     }
 
@@ -80,26 +79,41 @@ public class WebServiceTest {
 
     metricWs.define(context);
 
-    WebService.Controller controller = context.controller("metric");
+    WebService.Controller controller = context.controller("api/metric");
     assertThat(controller).isNotNull();
-    assertThat(controller.key()).isEqualTo("metric");
+    assertThat(controller.path()).isEqualTo("api/metric");
     assertThat(controller.description()).isEqualTo("Metrics");
     assertThat(controller.since()).isEqualTo("3.2");
     assertThat(controller.isApi()).isTrue();
-    assertThat(controller.path()).isEqualTo("ws/metric");
     assertThat(controller.actions()).hasSize(2);
     WebService.Action showAction = controller.action("show");
     assertThat(showAction).isNotNull();
     assertThat(showAction.key()).isEqualTo("show");
     assertThat(showAction.description()).isEqualTo("Show metric");
     assertThat(showAction.handler()).isNotNull();
-    assertThat(showAction.since()).isEqualTo("4.1");
+    // same as controller
+    assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();
-    assertThat(showAction.path()).isEqualTo("ws/metric/show");
+    assertThat(showAction.path()).isEqualTo("api/metric/show");
     WebService.Action createAction = controller.action("create");
     assertThat(createAction).isNotNull();
     assertThat(createAction.key()).isEqualTo("create");
+    // overrides controller version
+    assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
+  }
+
+  @Test
+  public void non_api_ws() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController controller = context.newController("rule");
+        controller.newAction("index");
+        controller.done();
+      }
+    }.define(context);
+    assertThat(context.controller("rule").isApi()).isFalse();
   }
 
   @Test
@@ -110,14 +124,14 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          NewController newController = context.newController("metric");
+          NewController newController = context.newController("api/metric");
           newController.newAction("delete");
           newController.done();
         }
       }.define(context);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("The web service 'metric' is defined multiple times");
+      assertThat(e).hasMessage("The web service 'api/metric' is defined multiple times");
     }
   }
 
@@ -156,16 +170,16 @@ public class WebServiceTest {
   }
 
   @Test
-  public void handle_request() {
+  public void handle_request() throws Exception {
     MetricWebService metricWs = new MetricWebService();
     metricWs.define(context);
 
     assertThat(metricWs.showCalled).isFalse();
     assertThat(metricWs.createCalled).isFalse();
-    context.controller("metric").action("show").handler().handle(mock(Request.class), mock(Response.class));
+    context.controller("api/metric").action("show").handler().handle(mock(Request.class), mock(Response.class));
     assertThat(metricWs.showCalled).isTrue();
     assertThat(metricWs.createCalled).isFalse();
-    context.controller("metric").action("create").handler().handle(mock(Request.class), mock(Response.class));
+    context.controller("api/metric").action("create").handler().handle(mock(Request.class), mock(Response.class));
     assertThat(metricWs.createCalled).isTrue();
   }
 }

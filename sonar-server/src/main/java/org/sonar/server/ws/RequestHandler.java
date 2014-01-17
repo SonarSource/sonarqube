@@ -26,6 +26,6 @@ import org.sonar.api.ServerExtension;
  */
 public interface RequestHandler extends ServerExtension {
 
-  void handle(Request request, Response response);
+  void handle(Request request, Response response) throws Exception;
 
 }
