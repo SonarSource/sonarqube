@@ -204,7 +204,7 @@ jQuery(function() {
       return _.extend(data || {}, {
         paging: this.collection.paging,
         sorting: this.collection.sorting,
-        query: (Backbone.history.fragment || '').replace(/|/g, '&')
+        query: (Backbone.history.fragment || '').replace(/\|/g, '&')
       });
     }
   });
