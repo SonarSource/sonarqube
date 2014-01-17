@@ -184,7 +184,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         }),
         metric = this.metrics()[this.mainMetric];
 
-    if (this.options().relativeScale) {
+    if (!this.options().relativeScale) {
       if (this.metrics()[this.mainMetric].type === 'PERCENT') {
         xDomain = [0, 100];
       } else {
