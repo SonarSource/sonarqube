@@ -121,7 +121,6 @@ public class ModuleScanContainer extends ComponentContainer {
       getComponentByType(ResourcePersister.class).getSnapshot(module),
 
       TimeMachineConfiguration.class,
-      org.sonar.api.database.daos.MeasuresDao.class,
       DefaultSensorContext.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,

@@ -245,7 +245,6 @@ public final class Platform {
     servicesContainer.addSingleton(CodeColorizers.class);
     servicesContainer.addComponent(RulesDao.class, false);
     servicesContainer.addComponent(MeasuresDao.class, false);
-    servicesContainer.addComponent(org.sonar.api.database.daos.MeasuresDao.class, false);
     servicesContainer.addComponent(ProfilesDao.class, false);
     servicesContainer.addComponent(ProfilesManager.class, false);
     servicesContainer.addSingleton(SecurityRealmFactory.class);

@@ -70,13 +70,6 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
     </dependency>

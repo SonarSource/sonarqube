@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Map;
 
@@ -32,9 +31,8 @@ import static org.mockito.Mockito.verify;
 
 public class RubyRuleServiceTest {
 
-  RuleI18nManager i18n = mock(RuleI18nManager.class);
   RuleRegistry ruleRegistry = mock(RuleRegistry.class);
-  RubyRuleService facade = new RubyRuleService(i18n, ruleRegistry);
+  RubyRuleService facade = new RubyRuleService(ruleRegistry);
 
   @Test
   @SuppressWarnings({"unchecked", "rawtypes"})

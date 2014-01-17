@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Map;
 
@@ -32,14 +31,12 @@ import java.util.Map;
  */
 public class RubyRuleService implements ServerComponent, Startable {
 
-  private final RuleI18nManager i18n;
   private final RuleRegistry ruleRegistry;
 
   private static final String OPTIONS_STATUS = "status";
   private static final String OPTIONS_LANGUAGE = "language";
 
-  public RubyRuleService(RuleI18nManager i18n, RuleRegistry ruleRegistry) {
-    this.i18n = i18n;
+  public RubyRuleService(RuleRegistry ruleRegistry) {
     this.ruleRegistry = ruleRegistry;
   }
 

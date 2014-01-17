@@ -31,7 +31,9 @@ import java.util.Locale;
  * {@link I18n}-companion component that provides translation facilities for rule names, descriptions and parameter names.
  * 
  * @since 3.2
+ * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
  */
+@Deprecated
 public interface RuleI18n extends ServerComponent, BatchComponent {
 
   /**
