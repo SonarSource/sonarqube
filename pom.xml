@@ -1032,7 +1032,8 @@
       <dependency>
         <groupId>org.jruby</groupId>
         <artifactId>jruby-complete</artifactId>
-        <version>1.7.10</version>
+        <!-- do not upgrade to 1.7.10, much slower at startup -->
+        <version>1.7.9</version>
       </dependency>
       <dependency>
         <groupId>geronimo-spec</groupId>
