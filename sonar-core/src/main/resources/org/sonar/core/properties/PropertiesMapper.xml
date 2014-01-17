@@ -100,7 +100,11 @@
   </delete>
 
   <update id="renamePropertyKey" parameterType="map">
-    update properties set prop_key = #{newKey} where prop_key=#{oldKey}
+    update properties set prop_key=#{newKey} where prop_key=#{oldKey}
+  </update>
+
+  <update id="updateProperties" parameterType="map">
+    update properties set text_value=#{newValue} where text_value=#{oldValue} and prop_key=#{key}
   </update>
 
 </mapper>

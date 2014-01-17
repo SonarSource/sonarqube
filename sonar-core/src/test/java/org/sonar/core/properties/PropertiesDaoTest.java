@@ -258,6 +258,15 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     dao.renamePropertyKey(null, "foo");
   }
 
+  @Test
+  public void updatePropertiesFromKeyAndValueToNewValue() {
+    setupData("updatePropertiesFromKeyAndValueToNewValue");
+
+    dao.updateProperties("sonar.profile.java", "Sonar Way", "Default");
+
+    checkTable("updatePropertiesFromKeyAndValueToNewValue", "properties", "prop_key", "text_value", "resource_id", "user_id");
+  }
+
   private PropertyDto findById(List<PropertyDto> properties, int id) {
     for (PropertyDto property : properties) {
       if (property.getId() == id) {

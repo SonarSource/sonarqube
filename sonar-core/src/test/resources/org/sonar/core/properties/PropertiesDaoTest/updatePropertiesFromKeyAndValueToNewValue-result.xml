@@ -1,0 +1,9 @@
+<dataset>
+
+  <properties id="1" prop_key="sonar.profile.java" text_value="Default" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="sonar.profile.java" text_value="Default" resource_id="1" user_id="[null]"/>
+
+  <properties id="3" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="[null]" user_id="[null]"/>
+  <properties id="4" prop_key="sonar.profile.js" text_value="Sonar Way" resource_id="2" user_id="[null]"/>
+
+</dataset>

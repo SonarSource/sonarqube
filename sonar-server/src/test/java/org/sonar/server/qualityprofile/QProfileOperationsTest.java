@@ -47,6 +47,9 @@ import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collections;
+
+import static org.elasticsearch.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
@@ -165,16 +168,18 @@ public class QProfileOperationsTest {
 
   @Test
   public void rename_profile() throws Exception {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Old Default").setLanguage("java"));
+    when(profileLookup.children(any(QProfile.class), eq(session))).thenReturn(Collections.<QProfile>emptyList());
 
     operations.renameProfile(1, "Default profile", authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
-
+    assertThat(profileArgument.getValue().getId()).isEqualTo(1);
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
+    verify(propertiesDao).updateProperties("sonar.profile.java", "Old Default", "Default profile", session);
     verify(session).commit();
   }
 
@@ -199,6 +204,28 @@ public class QProfileOperationsTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
     }
+  }
+
+
+  @Test
+  public void rename_children_profile() throws Exception {
+    QualityProfileDto profile = new QualityProfileDto().setId(1).setName("Old Default").setLanguage("java");
+    when(qualityProfileDao.selectById(1, session)).thenReturn(profile);
+    when(profileLookup.children(any(QProfile.class), eq(session))).thenReturn(newArrayList(
+      new QProfile().setId(2).setName("Child1").setLanguage("java").setParent("Old Default")
+    ));
+
+    operations.renameProfile(1, "Default profile", authorizedUserSession);
+
+    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
+    // One call to update current profile and one other for child
+    verify(qualityProfileDao, times(2)).update(profileArgument.capture(), eq(session));
+    assertThat(profileArgument.getAllValues()).hasSize(2);
+    QualityProfileDto child = profileArgument.getAllValues().get(1);
+    assertThat(child.getId()).isEqualTo(2);
+    assertThat(child.getParent()).isEqualTo("Default profile");
+
+    verify(session).commit();
   }
 
   @Test

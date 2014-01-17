@@ -147,7 +147,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     mapper.deleteProjectProperties(key, value);
   }
 
-    public void deleteProjectProperties(String key, String value) {
+  public void deleteProjectProperties(String key, String value) {
     SqlSession session = mybatis.openSession();
     try {
       deleteProjectProperties(key, value, session);
@@ -229,4 +229,24 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
       }
     }
   }
+
+  /**
+   * Update all properties (global and projects ones) with a given key and value to a new value
+   */
+  public void updateProperties(String key, String oldValue, String newValue) {
+    SqlSession session = mybatis.openSession();
+    try {
+      updateProperties(key, oldValue, newValue, session);
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void updateProperties(String key, String oldValue, String newValue, SqlSession session) {
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    mapper.updateProperties(key, oldValue, newValue);
+  }
+
 }

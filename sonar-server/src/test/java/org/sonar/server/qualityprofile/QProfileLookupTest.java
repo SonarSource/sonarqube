@@ -137,7 +137,7 @@ public class QProfileLookupTest {
   @Test
   public void search_children_profiles() throws Exception {
     search.children(new QProfile().setName("Sonar Way").setLanguage("java"));
-    verify(dao).selectChildren("Sonar Way", "java");
+    verify(dao).selectChildren("Sonar Way", "java", session);
   }
 
   @Test

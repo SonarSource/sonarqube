@@ -150,10 +150,14 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public List<QualityProfileDto> selectChildren(String name, String language) {
+  public List<QualityProfileDto> selectChildren(String name, String language, SqlSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectChildren(StringUtils.upperCase(name), language);
+  }
+
+    public List<QualityProfileDto> selectChildren(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).selectChildren(StringUtils.upperCase(name), language);
+      return selectChildren(StringUtils.upperCase(name), language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

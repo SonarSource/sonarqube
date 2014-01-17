@@ -39,6 +39,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 public class QProfileOperations implements ServerComponent {
@@ -105,15 +106,22 @@ public class QProfileOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      QualityProfileDto profile = findNotNull(profileId, session);
+      QualityProfileDto profileDto = findNotNull(profileId, session);
+      String oldName = profileDto.getName();
 
-      // TODO rename children and properties
-
-      if (!profile.getName().equals(newName)) {
-        checkNotAlreadyExists(newName, profile.getLanguage(), session);
+      QProfile profile = QProfile.from(profileDto);
+      if (!oldName.equals(newName)) {
+        checkNotAlreadyExists(newName, profile.language(), session);
       }
-      profile.setName(newName);
-      dao.update(profile, session);
+      profileDto.setName(newName);
+      dao.update(profileDto, session);
+
+      List<QProfile> children = profileLookup.children(profile, session);
+      for (QProfile child : children) {
+        dao.update(child.setParent(newName).toDto(), session);
+      }
+      propertiesDao.updateProperties(PROFILE_PROPERTY_PREFIX + profile.language(), oldName, newName, session);
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

@@ -54,4 +54,6 @@ public interface PropertiesMapper {
   void deleteGlobalProperties();
 
   void renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
+
+  void updateProperties(@Param("key") String key, @Param("oldValue")String oldValue, @Param("newValue") String newValue);
 }

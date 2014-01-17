@@ -113,7 +113,16 @@ public class QProfileLookup implements ServerComponent {
   }
 
   public List<QProfile> children(QProfile profile) {
-    return toQProfiles(dao.selectChildren(profile.name(), profile.language()));
+    SqlSession session = myBatis.openSession();
+    try {
+      return children(profile, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<QProfile> children(QProfile profile, SqlSession session) {
+    return toQProfiles(dao.selectChildren(profile.name(), profile.language(), session));
   }
 
   public List<QProfile> ancestors(QProfile profile) {
