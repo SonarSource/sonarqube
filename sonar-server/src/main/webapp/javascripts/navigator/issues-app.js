@@ -8,7 +8,6 @@ jQuery(function() {
   window.SS.IssuesNavigatorApp = NavigatorApp;
 
 
-
   NavigatorApp.addRegions({
     headerRegion: '.navigator-header',
     filtersRegion: '.navigator-filters',
@@ -18,8 +17,14 @@ jQuery(function() {
 
 
   NavigatorApp.addInitializer(function() {
+    this.state = new Backbone.Model({
+      query: ''
+    });
+
     this.issues = new window.SS.Issues();
     this.issuesPage = 1;
+
+    this.filters = new window.SS.Filters();
 
     this.favoriteFilter = new window.SS.FavoriteFilter();
     this.issuesHeaderView = new window.SS.IssuesHeaderView({
@@ -42,8 +47,6 @@ jQuery(function() {
 
 
   NavigatorApp.addInitializer(function() {
-    this.filters = new window.SS.Filters();
-
     this.filters.add([
       new window.SS.Filter({
         name: window.SS.phrases.project,
@@ -179,11 +182,27 @@ jQuery(function() {
 
   NavigatorApp.addInitializer(function() {
     var app = this;
+
     window.onBulkIssues = function() {
       app.fetchFirstPage();
       jQuery('.ui-dialog, .ui-widget-overlay').remove();
-    }
+    };
+
+    window.onSaveAs = window.onCopy = window.onEdit = function(id) {
+      app.favoriteFilters.fetch({ reset: true });
+      app.router.navigate('id=' + id, { trigger: true });
+      jQuery('#modal').dialog('close');
+    };
   });
+
+
+  NavigatorApp.getQuery = function(withoutId) {
+    var query = this.filterBarView.getQuery();
+    if (!withoutId && this.favoriteFilter.id) {
+      query['id'] = this.favoriteFilter.id;
+    }
+    return query;
+  };
 
 
   NavigatorApp.storeQuery = function(query, sorting) {
@@ -217,7 +236,7 @@ jQuery(function() {
 
 
   NavigatorApp.fetchIssues = function(firstPage) {
-    var query = this.filterBarView.getQuery(),
+    var query = this.getQuery(),
         fetchQuery =_.extend({
           pageIndex: this.issuesPage
         }, query);
@@ -227,6 +246,11 @@ jQuery(function() {
         sort: this.issues.sorting.sort,
         asc: this.issues.sorting.asc
       });
+    }
+
+    if (this.favoriteFilter.id) {
+      query['id'] = this.favoriteFilter.id;
+      fetchQuery['id'] = this.favoriteFilter.id;
     }
 
     this.storeQuery(query, this.issues.sorting);

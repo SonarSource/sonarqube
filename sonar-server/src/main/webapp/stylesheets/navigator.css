@@ -104,7 +104,7 @@
   z-index: 3;
 }
 .navigator-header-actions > button + button {
-  left: -1px;
+  margin-left: -1px;
 }
 .navigator-results {
   border-right: 1px solid #e1e1e1;

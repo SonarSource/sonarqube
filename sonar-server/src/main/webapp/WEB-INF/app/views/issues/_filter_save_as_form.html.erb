@@ -14,7 +14,7 @@
 <script>
   $j("#save-as-filter-form").modalForm({
     success: function (data) {
-      window.location = baseUrl + '/issues/filter/' + data;
+      return onSaveAs(data);
     }
   });
 </script>

@@ -14,7 +14,7 @@
 <script>
   $j("#copy-filter-form").modalForm({
     success: function (data) {
-      window.location = baseUrl + '/issues/filter/' + data;
+      return onCopy(data);
     }
   });
 </script>

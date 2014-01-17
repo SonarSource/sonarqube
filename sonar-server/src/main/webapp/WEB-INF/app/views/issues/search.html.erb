@@ -14,6 +14,18 @@
     delete issues_query_params.pageIndex;
     window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
   }
+
+  function onSaveAs(data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }
+
+  function onCopy(data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }
+
+  function onEdit(data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }
 </script>
 
 <script id="filterBarTemplate" type="text/template">

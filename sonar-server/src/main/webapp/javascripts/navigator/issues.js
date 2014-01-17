@@ -204,7 +204,7 @@ jQuery(function() {
       return _.extend(data || {}, {
         paging: this.collection.paging,
         sorting: this.collection.sorting,
-        query: Backbone.history.fragment || ''
+        query: (Backbone.history.fragment || '').replace(/|/g, '&')
       });
     }
   });
@@ -233,6 +233,10 @@ jQuery(function() {
 
 
     search: function() {
+      this.options.app.state.set({
+        query: this.options.app.getQuery(),
+        search: true
+      });
       this.options.app.fetchFirstPage();
     },
 
@@ -255,12 +259,60 @@ jQuery(function() {
 
 
     events: {
-      'click #issues-new-search': 'newSearch'
+      'click #issues-new-search': 'newSearch',
+      'click #issues-filter-save-as': 'saveAs',
+      'click #issues-filter-save': 'save',
+      'click #issues-filter-copy': 'copy',
+      'click #issues-filter-edit': 'edit'
+    },
+
+
+    initialize: function(options) {
+      Backbone.Marionette.ItemView.prototype.initialize.apply(this, arguments);
+      this.listenTo(options.app.state, 'change', this.render);
     },
 
 
     newSearch: function() {
+      this.model.clear();
       this.options.app.router.navigate('', { trigger: true });
+    },
+
+
+    saveAs: function() {
+      var url = baseUrl + '/issues/save_as_form?' + (Backbone.history.fragment || '').replace(/\|/g, '&');
+      openModalWindow(url, {});
+    },
+
+
+    save: function() {
+      var that = this;
+          url = baseUrl + '/issues/save/' + this.model.id + '?' + (Backbone.history.fragment || '').replace(/\|/g, '&');
+      jQuery.ajax({
+        type: 'POST',
+        url: url
+      }).done(function() {
+            that.options.app.state.set('search', false);
+          });
+    },
+
+
+    copy: function() {
+      var url = baseUrl + '/issues/copy_form/' + this.model.id;
+      openModalWindow(url, {});
+    },
+
+
+    edit: function() {
+      var url = baseUrl + '/issues/edit_form/' + this.model.id;
+      openModalWindow(url, {});
+    },
+
+
+    serializeData: function() {
+      return _.extend({
+        canSave: this.model.id && this.options.app.state.get('search')
+      }, this.model.toJSON());
     }
 
   });
@@ -278,6 +330,7 @@ jQuery(function() {
 
       filter.fetch({
         success: function() {
+          app.state.set('search', false);
           app.favoriteFilter.set(filter.toJSON());
         }
       });
@@ -321,17 +374,43 @@ jQuery(function() {
     },
 
 
-    index: function(query) {
-      var params = (query || '').split('|').map(function(t) {
+    parseQuery: function(query) {
+      return (query || '').split('|').map(function(t) {
         return {
           key: t.split('=')[0],
           value: decodeURIComponent(t.split('=')[1])
         }
       });
+    },
+
+
+    index: function(query) {
+      var params = this.parseQuery(query);
+
+      var idObj = _.findWhere(params, { key: 'id' });
+      if (idObj) {
+        var that = this,
+            f = this.app.favoriteFilter;
+        this.app.canSave = false;
+        f.set('id', idObj.value);
+        f.fetch({
+          success: function() {
+            params = _.extend({}, that.parseQuery(f.get('query')), params);
+            that.loadResults(params);
+          }
+        });
+      } else {
+        this.loadResults(params);
+      }
+    },
+
+
+    loadResults: function(params) {
       this.app.filterBarView.restoreFromQuery(params);
       this.app.restoreSorting(params);
       this.app.fetchFirstPage();
     }
+
   });
 
 
