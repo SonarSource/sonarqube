@@ -71,8 +71,9 @@ public class QProfiles implements ServerComponent {
   private final ProfileRules rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
-                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter, QProfileLookup profileLookup,
-                   QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations, ProfileRules rules) {
+                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
+                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations,
+                   ProfileRules rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;

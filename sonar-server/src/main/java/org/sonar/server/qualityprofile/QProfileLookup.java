@@ -138,7 +138,7 @@ public class QProfileLookup implements ServerComponent {
 
   public boolean isDeletable(QProfile profile, SqlSession session) {
     QProfile defaultProfile = defaultProfile(profile.language(), session);
-    if (defaultProfile != null && defaultProfile.id().equals(profile.id())) {
+    if (defaultProfile != null && (defaultProfile.id() == profile.id())) {
       return false;
     }
     return countChildren(profile, session) == 0;

@@ -28,18 +28,18 @@ import javax.annotation.Nullable;
 
 public class QProfile {
 
-  private Integer id;
+  private int id;
   private String name;
   private String language;
   private String parent;
   private Integer version;
   private boolean used;
 
-  public Integer id() {
+  public int id() {
     return id;
   }
 
-  QProfile setId(Integer id) {
+  QProfile setId(int id) {
     this.id = id;
     return this;
   }
