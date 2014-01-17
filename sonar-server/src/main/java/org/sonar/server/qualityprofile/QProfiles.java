@@ -155,10 +155,6 @@ public class QProfiles implements ServerComponent {
     return backup.backupProfile(profile);
   }
 
-  public boolean isDeletable(QProfile profile) {
-    return profileLookup.isDeletable(profile);
-  }
-
   public void deleteProfile(int profileId) {
     operations.deleteProfile(profileId, UserSession.get());
   }

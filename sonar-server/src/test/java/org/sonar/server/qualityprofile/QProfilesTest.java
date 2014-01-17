@@ -197,12 +197,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void is_deletable() throws Exception {
-    qProfiles.isDeletable(new QProfile());
-    verify(profileLookup).isDeletable(any(QProfile.class));
-  }
-
-  @Test
   public void delete_profile() throws Exception {
     qProfiles.deleteProfile(1);
     verify(profileOperations).deleteProfile(eq(1), any(UserSession.class));
