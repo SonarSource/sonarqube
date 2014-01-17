@@ -37,7 +37,7 @@ import org.sonar.jpa.dao.RulesDao;
 
 import java.util.*;
 
-public class ProfilesBackup implements Backupable {
+public class ProfilesBackup {
 
   private static final String OPERATOR = "operator";
   private static final String VALUE_ERROR = "value-error";

@@ -46,7 +46,6 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.Platform;
@@ -265,7 +264,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-        RulePriority.values()[newSeverityId], userName);
+      RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -278,10 +277,6 @@ public final class JRubyFacade {
 
   public List<Footer> getWebFooters() {
     return getContainer().getComponentsByType(Footer.class);
-  }
-
-  public Backup getBackup() {
-    return get(Backup.class);
   }
 
   private ProfilesManager getProfilesManager() {
@@ -419,10 +414,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-          .setLogin(fields.get("login"))
-          .setName(fields.get("name"))
-          .setEmail(fields.get("email"))
-          .build());
+        .setLogin(fields.get("login"))
+        .setName(fields.get("name"))
+        .setEmail(fields.get("email"))
+        .build());
     }
   }
 

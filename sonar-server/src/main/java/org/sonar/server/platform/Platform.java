@@ -75,7 +75,6 @@ import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
-import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -247,7 +246,6 @@ public final class Platform {
     servicesContainer.addComponent(org.sonar.api.database.daos.MeasuresDao.class, false);
     servicesContainer.addComponent(ProfilesDao.class, false);
     servicesContainer.addComponent(ProfilesManager.class, false);
-    servicesContainer.addComponent(Backup.class, false);
     servicesContainer.addSingleton(SecurityRealmFactory.class);
     servicesContainer.addSingleton(ServerLifecycleNotifier.class);
     servicesContainer.addSingleton(AnnotationProfileParser.class);
