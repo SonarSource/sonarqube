@@ -94,7 +94,6 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
-import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
@@ -258,7 +257,6 @@ public final class Platform {
     servicesContainer.addSingleton(XMLRuleParser.class);
     servicesContainer.addSingleton(DefaultRuleFinder.class);
     servicesContainer.addSingleton(DefaultMetricFinder.class);
-    servicesContainer.addSingleton(ProfilesConsole.class);
     servicesContainer.addSingleton(ResourceTypes.class);
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
     servicesContainer.addSingleton(PageDecorations.class);

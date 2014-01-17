@@ -28,8 +28,6 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -38,7 +36,6 @@ import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.MeasureFilterEngine;
@@ -58,13 +55,13 @@ import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
+
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -256,37 +253,6 @@ public final class JRubyFacade {
 
   public Collection<RuleRepositories.Repository> getRuleRepositoriesByLanguage(String languageKey) {
     return get(RuleRepositories.class).repositoriesForLang(languageKey);
-  }
-
-  // TODO move this to QProfiles
-  public String backupProfile(int profileId) {
-    return get(ProfilesConsole.class).backupProfile(profileId);
-  }
-
-  // TODO move this to QProfiles
-  public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
-    return get(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
-  }
-
-  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
-    return get(ProfilesConsole.class).getProfileExportersForLanguage(language);
-  }
-
-  // TODO move this to QProfiles
-  public List<ProfileImporter> getProfileImportersForLanguage(String language) {
-    return get(ProfilesConsole.class).getProfileImportersForLanguage(language);
-  }
-
-  /**
-   * @throws IllegalArgumentException if no such exporter
-   */
-  // TODO move this to QProfiles
-  public String exportProfile(int profileId, String exporterKey) {
-    return get(ProfilesConsole.class).exportProfile(profileId, exporterKey);
-  }
-
-  public String getProfileExporterMimeType(String exporterKey) {
-    return get(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
   // TODO move this to QProfiles
