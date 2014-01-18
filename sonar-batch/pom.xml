@@ -77,11 +77,6 @@
       <artifactId>gson</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-    </dependency>
-
-    <dependency>
       <!-- local database -->
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

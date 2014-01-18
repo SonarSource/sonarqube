@@ -20,9 +20,10 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
-import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -33,7 +34,6 @@ import org.sonar.batch.bootstrap.BatchSettings;
 import org.sonar.batch.bootstrap.ServerClient;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +80,8 @@ public class ModuleSettings extends Settings {
   private void downloadSettings(String moduleKey) {
     String url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?project=" + moduleKey + "&dryRun=" + analysisMode.isPreview();
     String jsonText = client.request(url);
-    List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
+    List<Map<String, String>> json = new Gson().fromJson(jsonText, new TypeToken<List<Map<String, String>>>() {
+    }.getType());
     for (Map<String, String> jsonProperty : json) {
       String key = jsonProperty.get("k");
       String value = jsonProperty.get("v");
