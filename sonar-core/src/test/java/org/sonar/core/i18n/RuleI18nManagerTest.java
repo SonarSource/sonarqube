@@ -19,24 +19,15 @@
  */
 package org.sonar.core.i18n;
 
-import com.google.common.collect.Sets;
-import org.fest.assertions.Assertions;
 import org.hamcrest.core.Is;
 import org.junit.Test;
-import org.sonar.api.rules.Rule;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RuleI18nManagerTest {
 
@@ -119,35 +110,4 @@ public class RuleI18nManagerTest {
     assertThat(RuleI18nManager.isRuleProperty("something.else"), Is.is(false));
     assertThat(RuleI18nManager.isRuleProperty("checkstyle.page.name"), Is.is(false));
   }
-
-  @Test
-  public void shouldExtractRuleKey() {
-    RuleI18nManager.RuleKey ruleKey = RuleI18nManager.extractRuleKey("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name");
-    assertThat(ruleKey.getRepositoryKey(), Is.is("checkstyle"));
-    assertThat(ruleKey.getKey(), Is.is("com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck"));
-    assertThat(ruleKey.getNameProperty(), Is.is("rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name"));
-
-    ruleKey = RuleI18nManager.extractRuleKey("rule.pmd.Header.name");
-    assertThat(ruleKey.getRepositoryKey(), Is.is("pmd"));
-    assertThat(ruleKey.getKey(), Is.is("Header"));
-    assertThat(ruleKey.getNameProperty(), Is.is("rule.pmd.Header.name"));
-  }
-
-  @Test
-  public void shouldRegisterRuleKeysAtStartup() {
-    I18nManager i18n = mock(I18nManager.class);
-    when(i18n.getPropertyKeys()).thenReturn(Sets.newHashSet(
-        // rules
-        "rule.pmd.Header.name", "rule.pmd.Header.param.pattern", "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name",
-        // other
-        "by", "something.else"));
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-    ruleI18n.start();
-
-    List<RuleI18nManager.RuleKey> keys = Arrays.asList(ruleI18n.getRuleKeys());
-    assertThat(keys.size(), Is.is(2));
-    assertThat(keys, hasItem(new RuleI18nManager.RuleKey("pmd", "Header")));
-    assertThat(keys, hasItem(new RuleI18nManager.RuleKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck")));
-  }
-
 }

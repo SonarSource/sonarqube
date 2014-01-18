@@ -19,45 +19,28 @@
  */
 package org.sonar.core.i18n;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
 
 import javax.annotation.CheckForNull;
-
-import java.util.List;
 import java.util.Locale;
 
-public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension, Startable {
+/**
+ * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+ */
+@Deprecated
+public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension {
 
   private static final String NAME_SUFFIX = ".name";
   private static final String RULE_PREFIX = "rule.";
 
   private I18nManager i18nManager;
-  private RuleKey[] ruleKeys;
 
   public RuleI18nManager(I18nManager i18nManager) {
     this.i18nManager = i18nManager;
-  }
-
-  @Override
-  public void start() {
-    List<RuleKey> list = Lists.newArrayList();
-    for (String propertyKey : i18nManager.getPropertyKeys()) {
-      if (isRuleProperty(propertyKey)) {
-        list.add(extractRuleKey(propertyKey));
-      }
-    }
-    this.ruleKeys = list.toArray(new RuleKey[list.size()]);
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
   }
 
   /**
@@ -141,70 +124,8 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     return i18nManager.message(Locale.ENGLISH, propertyKey, null);
   }
 
-  RuleKey[] getRuleKeys() {
-    return ruleKeys;
-  }
-
-  static RuleKey extractRuleKey(String propertyKey) {
-    String s = StringUtils.substringBetween(propertyKey, RULE_PREFIX, NAME_SUFFIX);
-    String ruleKey = StringUtils.substringAfter(s, ".");
-    String repository = StringUtils.substringBefore(s, ".");
-    return new RuleKey(repository, ruleKey);
-  }
 
   static boolean isRuleProperty(String propertyKey) {
     return StringUtils.startsWith(propertyKey, RULE_PREFIX) && StringUtils.endsWith(propertyKey, NAME_SUFFIX) && !propertyKey.contains(".param.");
-  }
-
-  public static class RuleKey {
-    private String repositoryKey;
-    private String key;
-
-    RuleKey(String repositoryKey, String key) {
-      this.repositoryKey = repositoryKey;
-      this.key = key;
-    }
-
-    public String getRepositoryKey() {
-      return repositoryKey;
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    public String getNameProperty() {
-      return new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(key).append(NAME_SUFFIX).toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      RuleKey ruleKey = (RuleKey) o;
-      if (!key.equals(ruleKey.key)) {
-        return false;
-      }
-      if (!repositoryKey.equals(ruleKey.repositoryKey)) {
-        return false;
-      }
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = repositoryKey.hashCode();
-      result = 31 * result + key.hashCode();
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return new StringBuilder().append(repositoryKey).append(":").append(key).toString();
-    }
   }
 }
