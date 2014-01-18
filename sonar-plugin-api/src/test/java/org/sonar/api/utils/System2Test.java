@@ -63,6 +63,7 @@ public class System2Test {
     String key = System.getenv().keySet().iterator().next();
     String expected = System.getenv(key);
     assertThat(System2.INSTANCE.envVariable(key)).isNotNull().isEqualTo(expected);
+    assertThat(System2.INSTANCE.envVariable("UNKNOWN_VAR")).isNull();
   }
 
   @Test

@@ -44,8 +44,9 @@ import java.util.Properties;
  *
  * @Test
  * public void should_return_xxx() {
+ *   // using Mockito
  *   System2 system = mock(System2.class);
- *   long now = System.currentTimeMillis();
+ *   long now = 123456789L;
  *   doReturn(now).when(system).now();
  *   assertThat(new MyClass(system).xxx()).isEqualTo(now);
  * }
@@ -92,6 +93,7 @@ public class System2 {
   /**
    * Shortcut for {@link System#getenv(String)}
    */
+  @CheckForNull
   public String envVariable(String key) {
     return System.getenv(key);
   }
