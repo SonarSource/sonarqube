@@ -19,18 +19,13 @@
  */
 package org.sonar.api.resources;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.BaseModelTestCase;
 
-public class ProjectLinkTest extends BaseModelTestCase {
+import static org.junit.Assert.assertEquals;
 
-  private ProjectLink link;
+public class ProjectLinkTest {
 
-  @Before
-  public void setUp() throws Exception {
-    link = new ProjectLink();
-  }
+  ProjectLink link = new ProjectLink();
 
   @Test
   public void testSetName() {
@@ -47,10 +42,22 @@ public class ProjectLinkTest extends BaseModelTestCase {
   @Test
   public void testConstructor() {
     link = new ProjectLink("home",
-        overFillString(ProjectLink.NAME_COLUMN_SIZE),
-        overFillString(ProjectLink.HREF_COLUMN_SIZE));
+      overFillString(ProjectLink.NAME_COLUMN_SIZE),
+      overFillString(ProjectLink.HREF_COLUMN_SIZE));
     assertAbbreviated(ProjectLink.NAME_COLUMN_SIZE, link.getName());
     assertAbbreviated(ProjectLink.HREF_COLUMN_SIZE, link.getHref());
   }
 
+  private String overFillString(int maxSize) {
+    StringBuilder overFilled = new StringBuilder();
+    for (int i = 0; i < 50 + maxSize; i++) {
+      overFilled.append("x");
+    }
+    return overFilled.toString();
+  }
+
+  private void assertAbbreviated(int maxSize, String value) {
+    assertEquals(maxSize, value.length());
+    assertEquals('.', value.charAt(maxSize - 1));
+  }
 }
