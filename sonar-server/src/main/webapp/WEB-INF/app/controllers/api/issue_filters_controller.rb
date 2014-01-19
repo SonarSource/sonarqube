@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# since 3.6
+# since 4.2
 class Api::IssueFiltersController < Api::ApiController
 
   # Detail of an issue filter
