@@ -19,10 +19,10 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.web.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "health");
 
-    assertThat(response.writer().toString()).isEqualTo("good");
+    assertThat(response.outputAsString()).isEqualTo("good");
     assertThat(response.status()).isEqualTo(200);
   }
 
@@ -62,7 +62,7 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/xxx", "health");
 
-    assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
     assertThat(response.status()).isEqualTo(400);
   }
 
@@ -72,7 +72,7 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "xxx");
 
-    assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
     assertThat(response.status()).isEqualTo(400);
   }
 
@@ -82,7 +82,7 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.writer().toString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");
     assertThat(response.status()).isEqualTo(405);
   }
 
@@ -94,7 +94,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.writer().write("good");
+            response.output().write("good".getBytes());
           }
         });
       newController.newAction("ping")
@@ -102,7 +102,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.writer().write("pong");
+            response.output().write("pong".getBytes());
           }
         });
       newController.done();

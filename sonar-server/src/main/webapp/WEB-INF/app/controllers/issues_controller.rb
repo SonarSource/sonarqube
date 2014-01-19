@@ -60,6 +60,42 @@ class IssuesController < ApplicationController
 
   end
 
+  # GET /issues/init?[id=<optional filter id>]
+  def page_init
+    hash = {}
+    hash[:canBulkChange]=logged_in?
+    hash[:canManageFilter]=logged_in?
+
+    if logged_in?
+      favorite_filters = Internal.issues.findFavouriteIssueFiltersForCurrentUser()
+      hash[:favorites] = favorite_filters.map do |filter|
+        {
+          :id => filter.id().to_i,
+          :name => filter.name(),
+          :user => filter.user(),
+          :shared => filter.shared()
+          # no need to export description and query fields
+        }
+      end
+    end
+
+    if params[:id]
+      filter = Internal.issues.findIssueFilter(params[:id].to_i)
+      hash[:filter] = {
+        :id => filter.id().to_i,
+        :name => filter.name(),
+        :user => filter.user(),
+        :shared => filter.shared(),
+        :description => filter.description(),
+        :query => filter.data()
+      }
+    end
+
+    respond_to do |format|
+      format.json { render :json => hash, :status => 200 }
+    end
+  end
+
   # Load existing filter
   # GET /issues/filter/<filter id>
   def filter

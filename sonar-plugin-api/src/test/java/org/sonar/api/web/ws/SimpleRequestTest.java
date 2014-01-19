@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+import org.sonar.api.web.ws.Request;
+import org.sonar.api.web.ws.SimpleRequest;
 
 import static org.fest.assertions.Assertions.assertThat;
 

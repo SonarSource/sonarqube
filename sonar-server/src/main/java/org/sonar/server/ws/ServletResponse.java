@@ -19,11 +19,15 @@
  */
 package org.sonar.server.ws;
 
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.api.web.ws.Response;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 
-public class ServletResponse extends Response {
+public class ServletResponse implements Response {
 
   private final HttpServletResponse source;
 
@@ -50,9 +54,9 @@ public class ServletResponse extends Response {
   }
 
   @Override
-  public Writer writer() {
+  public OutputStream output() {
     try {
-      return source.getWriter();
+      return source.getOutputStream();
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

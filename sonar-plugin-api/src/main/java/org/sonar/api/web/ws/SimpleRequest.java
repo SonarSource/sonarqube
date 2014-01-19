@@ -17,32 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
+
+import com.google.common.collect.Maps;
 
 import javax.annotation.CheckForNull;
+import java.util.Map;
 
-/**
- * @since 4.2
- */
-public abstract class Request {
+public class SimpleRequest extends Request {
+  private Map<String, String> params = Maps.newHashMap();
 
-  @CheckForNull
-  public abstract String param(String key);
+  private String mediaType = "application/json";
+  private boolean post = false;
 
-  public abstract String mediaType();
-
-  public abstract boolean isPost();
-
-  @CheckForNull
-  public Integer intParam(String key) {
-    String s = param(key);
-    return s == null ? null : Integer.parseInt(s);
+  public SimpleRequest() {
   }
 
-  public int intParam(String key, int defaultValue) {
-    String s = param(key);
-    return s == null ? defaultValue : Integer.parseInt(s);
+  public SimpleRequest setParams(Map<String, String> m) {
+    this.params = m;
+    return this;
   }
 
+  public SimpleRequest setParams(String key, String value) {
+    this.params.put(key, value);
+    return this;
+  }
 
+  @Override
+  @CheckForNull
+  public String param(String key) {
+    return params.get(key);
+  }
+
+  @Override
+  public String mediaType() {
+    return mediaType;
+  }
+
+  public SimpleRequest setMediaType(String s) {
+    this.mediaType = s;
+    return this;
+  }
+
+  @Override
+  public boolean isPost() {
+    return post;
+  }
+
+  public SimpleRequest setPost(boolean b) {
+    this.post = b;
+    return this;
+  }
 }

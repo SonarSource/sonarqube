@@ -17,29 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.apache.commons.io.Charsets;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.XmlWriter;
 
-public class SimpleResponse extends Response {
-  private int httpStatus = HttpServletResponse.SC_OK;
-  private final Writer writer = new StringWriter();
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+
+public class SimpleResponse implements Response {
+  private int httpStatus = 200;
+  private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   @Override
   public JsonWriter newJsonWriter() {
-    return JsonWriter.of(writer);
+    return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    return XmlWriter.of(writer);
+    return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
   }
 
   @Override
-  public Writer writer() {
-    return writer;
+  public OutputStream output() {
+    return output;
+  }
+
+  // for unit testing
+  public String outputAsString() {
+    return new String(output.toByteArray(), Charsets.UTF_8);
   }
 
   @Override

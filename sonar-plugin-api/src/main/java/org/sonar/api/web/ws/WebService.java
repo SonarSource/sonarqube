@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -69,7 +69,9 @@ public interface WebService extends ServerExtension {
     private final Map<String, NewAction> actions = Maps.newHashMap();
 
     private NewController(Context context, String path) {
-      // TODO check format of path
+      if (StringUtils.isBlank(path)) {
+        throw new IllegalArgumentException("Web service path can't be empty");
+      }
       this.context = context;
       this.path = path;
     }
@@ -191,6 +193,9 @@ public interface WebService extends ServerExtension {
       this.description = newAction.description;
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
+      if (newAction.handler == null) {
+        throw new IllegalStateException("RequestHandler is not set on action " + path);
+      }
       this.handler = newAction.handler;
     }
 
@@ -219,7 +224,6 @@ public interface WebService extends ServerExtension {
       return post;
     }
 
-    @CheckForNull
     public RequestHandler handler() {
       return handler;
     }

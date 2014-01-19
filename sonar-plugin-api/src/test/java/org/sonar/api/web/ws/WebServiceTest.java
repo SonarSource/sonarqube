@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
 
 import org.junit.Test;
+import org.sonar.api.web.ws.Request;
+import org.sonar.api.web.ws.RequestHandler;
+import org.sonar.api.web.ws.Response;
+import org.sonar.api.web.ws.WebService;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -98,6 +102,7 @@ public class WebServiceTest {
     WebService.Action createAction = controller.action("create");
     assertThat(createAction).isNotNull();
     assertThat(createAction.key()).isEqualTo("create");
+    assertThat(createAction.toString()).isEqualTo("api/metric/create");
     // overrides controller version
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
@@ -109,7 +114,7 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController controller = context.newController("rule");
-        controller.newAction("index");
+        controller.newAction("index").setHandler(mock(RequestHandler.class));
         controller.done();
       }
     }.define(context);
@@ -132,6 +137,23 @@ public class WebServiceTest {
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("The web service 'api/metric' is defined multiple times");
+    }
+  }
+
+  @Test
+  public void fail_if_no_action_handler() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          NewController controller = context.newController("rule");
+          controller.newAction("show");
+          controller.done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("RequestHandler is not set on action rule/show");
     }
   }
 
@@ -166,6 +188,21 @@ public class WebServiceTest {
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("At least one action must be declared in the web service 'rule'");
+    }
+  }
+
+  @Test
+  public void fail_if_no_ws_path() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          context.newController(null).done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Web service path can't be empty");
     }
   }
 

@@ -22,8 +22,7 @@ package org.sonar.server.ws;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import java.io.StringWriter;
+import org.sonar.api.web.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -62,7 +61,7 @@ public class ListingWebServiceTest {
 
     JSONAssert.assertEquals(
       IOUtils.toString(getClass().getResource("/org/sonar/server/ws/ListingWebServiceTest/index.json")),
-      response.writer().toString(), true
+      response.outputAsString(), true
     );
   }
 

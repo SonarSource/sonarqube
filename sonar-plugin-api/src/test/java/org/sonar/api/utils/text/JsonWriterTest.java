@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.utils.text;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.WriterException;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JsonWriterTest {
 
@@ -70,6 +76,19 @@ public class JsonWriterTest {
   }
 
   @Test
+  public void type_of_values() throws Exception {
+    writer.beginObject()
+      .prop("aBoolean", true)
+      .prop("aInt", 123)
+      .prop("aLong", 1000L)
+      .prop("aDouble", 3.14)
+      .prop("aNumber", new AtomicInteger(123456789))
+      .prop("aString", "bar")
+      .endObject().close();
+    expect("{\"aBoolean\":true,\"aInt\":123,\"aLong\":1000,\"aDouble\":3.14,\"aNumber\":123456789,\"aString\":\"bar\"}");
+  }
+
+  @Test
   public void ignore_null_values() throws Exception {
     writer.beginObject()
       .prop("nullNumber", (Number) null)
@@ -99,5 +118,15 @@ public class JsonWriterTest {
   public void fail_if_not_valid() throws Exception {
     thrown.expect(WriterException.class);
     writer.beginObject().endArray().close();
+  }
+
+  @Test
+  public void fail_to_begin_array() throws Exception {
+    com.google.gson.stream.JsonWriter gson = mock(com.google.gson.stream.JsonWriter.class);
+    when(gson.beginArray()).thenThrow(new IOException("the reason"));
+    thrown.expect(WriterException.class);
+    thrown.expectMessage("Fail to write JSON: the reason");
+
+    new JsonWriter(gson).beginArray();
   }
 }

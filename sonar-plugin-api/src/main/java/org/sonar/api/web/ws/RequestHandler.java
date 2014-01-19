@@ -17,38 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
 
-import org.sonar.api.web.ws.Request;
+import org.sonar.api.ServerExtension;
 
-import javax.servlet.http.HttpServletRequest;
+/**
+ * @since 4.2
+ */
+public interface RequestHandler extends ServerExtension {
 
-public class ServletRequest extends Request {
+  void handle(Request request, Response response) throws Exception;
 
-  private final HttpServletRequest source;
-  private String mediaType = "application/json";
-
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
-  }
-
-  @Override
-  public String param(String key) {
-    return source.getParameter(key);
-  }
-
-  @Override
-  public String mediaType() {
-    return mediaType;
-  }
-
-  public ServletRequest setMediaType(String s) {
-    this.mediaType = s;
-    return this;
-  }
-
-  @Override
-  public boolean isPost() {
-    return "POST".equals(source.getMethod());
-  }
 }

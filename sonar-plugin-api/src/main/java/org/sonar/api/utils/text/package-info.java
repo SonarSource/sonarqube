@@ -17,24 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.api.utils.text;
 
-import java.io.Writer;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * HTTP response
- *
- * @since 4.2
- */
-public abstract class Response {
-
-  public abstract JsonWriter newJsonWriter();
-
-  public abstract XmlWriter newXmlWriter();
-
-  public abstract Writer writer();
-
-  public abstract int status();
-
-  public abstract Response setStatus(int httpStatus);
-}

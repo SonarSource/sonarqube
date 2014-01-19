@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.api.utils.text;
 
-import static org.junit.Assert.assertEquals;
+/**
+ * @since 4.2
+ */
+public class WriterException extends RuntimeException {
 
-public abstract class BaseModelTestCase {
-
-  protected String overFillString(int maxSize) {
-    StringBuilder overFilled = new StringBuilder();
-    for (int i = 0; i < 50 + maxSize; i++) {
-      overFilled.append("x");
-    }
-    return overFilled.toString();
+  public WriterException(String message) {
+    super(message);
   }
 
-  protected void assertAbbreviated(int maxSize, String value) {
-    assertEquals(maxSize, value.length());
-    assertEquals('.', value.charAt(maxSize - 1));
+  public WriterException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

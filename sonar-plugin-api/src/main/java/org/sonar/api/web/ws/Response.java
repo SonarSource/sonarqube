@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.web.ws;
+
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.XmlWriter;
+
+import java.io.OutputStream;
+import java.io.Writer;
 
 /**
+ * HTTP response
+ *
  * @since 4.2
  */
-public class WriterException extends RuntimeException {
+public interface Response {
 
-  public WriterException(String message) {
-    super(message);
-  }
+  int status();
 
-  public WriterException(String message, Throwable cause) {
-    super(message, cause);
-  }
+  Response setStatus(int httpStatus);
+
+  JsonWriter newJsonWriter();
+
+  XmlWriter newXmlWriter();
+
+  OutputStream output();
+
 }
