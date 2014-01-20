@@ -38,10 +38,6 @@ public class IssueFilterSerializer implements ServerComponent {
   public static final String KEY_VALUE_SEPARATOR = "=";
   public static final String LIST_SEPARATOR = ",";
 
-  public IssueFilterSerializer() {
-
-  }
-
   public String serialize(Map<String, Object> map) {
     StringBuilder stringBuilder = new StringBuilder();
 
