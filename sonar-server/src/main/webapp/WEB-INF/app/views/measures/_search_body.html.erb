@@ -15,12 +15,6 @@
               <li>
                 <a id="change-display" href="<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
               </li>
-              <li>
-                <%= message 'measure_filter.display_as' -%>:
-                <% MeasureFilterDisplay.keys.each do |display_key| %>
-                  <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), @filter.criteria.merge(:action => 'search', :display => display_key, :id => @filter.id), :id => "display_as_#{display_key}" -%>
-                <% end %>
-              </li>
             <% end %>
 
             <% if logged_in? %>
