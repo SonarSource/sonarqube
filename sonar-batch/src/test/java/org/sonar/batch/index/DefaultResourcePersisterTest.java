@@ -146,7 +146,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject,
-      Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:/src/main/java/org/foo").setDeprecatedEffectiveKey("foo:org.foo"));
+      Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo").setDeprecatedEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
     checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");

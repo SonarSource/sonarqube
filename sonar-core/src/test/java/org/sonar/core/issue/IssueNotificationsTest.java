@@ -143,7 +143,7 @@ public class IssueNotificationsTest {
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
     assertThat(notification.getFieldValue("componentKey")).isEqualTo("struts:Action.java");
-    assertThat(notification.getFieldValue("componentName")).isEqualTo("/Action.java");
+    assertThat(notification.getFieldValue("componentName")).isEqualTo("Action.java");
     assertThat(notification.getFieldValue("old.resolution")).isNull();
     assertThat(notification.getFieldValue("new.resolution")).isEqualTo("FIXED");
     Mockito.verify(manager).scheduleForSending(eq(Arrays.asList(notification)));

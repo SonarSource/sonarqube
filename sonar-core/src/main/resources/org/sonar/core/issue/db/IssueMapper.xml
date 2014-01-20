@@ -230,7 +230,7 @@
     </if>
     <if test="query.components().size() > 0">
       inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and
-      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">project_component.kee=#{component} or project_component.deprecated_kee=#{component}
+      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">project_component.kee=#{component}
       </foreach>
     </if>
     <if test="query.rules().size()>0">

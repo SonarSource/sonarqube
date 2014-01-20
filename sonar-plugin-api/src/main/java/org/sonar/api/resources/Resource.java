@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -236,16 +238,17 @@ public abstract class Resource implements Serializable {
   }
 
   protected static String normalize(@Nullable String path) {
-    if (path == null) {
+    if (StringUtils.isBlank(path)) {
       return null;
     }
     String normalizedPath = path;
-    if (!normalizedPath.startsWith(Directory.SEPARATOR)) {
-      normalizedPath = Directory.SEPARATOR + normalizedPath;
+    normalizedPath = normalizedPath.replace('\\', '/');
+    normalizedPath = StringUtils.trim(normalizedPath);
+    if (Directory.SEPARATOR.equals(normalizedPath)) {
+      return Directory.SEPARATOR;
     }
-    if (normalizedPath.length() > 1 && normalizedPath.endsWith(Directory.SEPARATOR)) {
-      normalizedPath = normalizedPath.substring(0, normalizedPath.length() - 1);
-    }
+    normalizedPath = StringUtils.removeStart(normalizedPath, Directory.SEPARATOR);
+    normalizedPath = StringUtils.removeEnd(normalizedPath, Directory.SEPARATOR);
     return normalizedPath;
   }
 

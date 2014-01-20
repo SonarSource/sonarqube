@@ -34,7 +34,7 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
 
     Directory dir = Directory.create("src/org/foo", "org/foo");
-    assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:/src/org/foo");
+    assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:src/org/foo");
     assertThat(ComponentKeys.createDeprecatedEffectiveKey(project, dir)).isEqualTo("my_project:org/foo");
 
     Library library = new Library("junit:junit", "4.7");

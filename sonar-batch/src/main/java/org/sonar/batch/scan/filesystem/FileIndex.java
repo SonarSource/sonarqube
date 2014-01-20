@@ -176,9 +176,6 @@ public class FileIndex implements BatchComponent {
     set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
 
     String resourceKey = PathUtils.sanitize(path);
-    if (!StringUtils.startsWith(resourceKey, "/")) {
-      resourceKey = "/" + resourceKey;
-    }
     set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
     if (Java.KEY.equals(lang)) {
       set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":"

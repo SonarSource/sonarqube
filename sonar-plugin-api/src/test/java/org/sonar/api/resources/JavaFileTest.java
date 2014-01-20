@@ -40,11 +40,11 @@ public class JavaFileTest {
   @Test
   public void testNewClass() {
     JavaFile javaClass = JavaFile.create("src/main/java/org/foo/bar/Hello.java", "org/foo/bar/Hello.java", false);
-    assertThat(javaClass.getKey()).isEqualTo("/src/main/java/org/foo/bar/Hello.java");
+    assertThat(javaClass.getKey()).isEqualTo("src/main/java/org/foo/bar/Hello.java");
     assertThat(javaClass.getDeprecatedKey(), is("org.foo.bar.Hello"));
     assertThat(javaClass.getName(), is("Hello.java"));
     assertThat(javaClass.getLongName(), is("org.foo.bar.Hello"));
-    assertThat(javaClass.getParent().getKey(), is("/src/main/java/org/foo/bar"));
+    assertThat(javaClass.getParent().getKey(), is("src/main/java/org/foo/bar"));
     assertThat(javaClass.getParent().getDeprecatedKey(), is("org/foo/bar"));
   }
 
@@ -76,11 +76,11 @@ public class JavaFileTest {
   @Test
   public void testNewClassWithEmptyPackage() {
     JavaFile javaClass = JavaFile.create("src/main/java/Hello.java", "Hello.java", false);
-    assertThat(javaClass.getKey()).isEqualTo("/src/main/java/Hello.java");
+    assertThat(javaClass.getKey()).isEqualTo("src/main/java/Hello.java");
     assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
     assertThat(javaClass.getName(), is("Hello.java"));
     assertThat(javaClass.getLongName(), is("Hello"));
-    assertThat(javaClass.getParent().getKey()).isEqualTo("/src/main/java");
+    assertThat(javaClass.getParent().getKey()).isEqualTo("src/main/java");
     assertThat(javaClass.getParent().getDeprecatedKey()).isEqualTo(Directory.ROOT);
     assertThat(javaClass.getParent().isDefault()).isTrue();
   }
@@ -88,7 +88,7 @@ public class JavaFileTest {
   @Test
   public void testNewClassInRootFolder() {
     JavaFile javaClass = JavaFile.create("Hello.java", "Hello.java", false);
-    assertThat(javaClass.getKey()).isEqualTo("/Hello.java");
+    assertThat(javaClass.getKey()).isEqualTo("Hello.java");
     assertThat(javaClass.getDeprecatedKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".Hello"));
     assertThat(javaClass.getName(), is("Hello.java"));
     assertThat(javaClass.getLongName(), is("Hello"));

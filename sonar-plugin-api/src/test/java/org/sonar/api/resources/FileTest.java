@@ -38,11 +38,11 @@ public class FileTest {
   @Test
   public void parentIsDirectory() {
     File file = File.create("src/foo/bar/toto.sql", "foo/bar/toto.sql", null, false);
-    assertThat(file.getKey(), is("/src/foo/bar/toto.sql"));
+    assertThat(file.getKey(), is("src/foo/bar/toto.sql"));
     assertThat(file.getDeprecatedKey(), is("foo/bar/toto.sql"));
-    assertThat(file.getLongName(), is("/src/foo/bar/toto.sql"));
+    assertThat(file.getLongName(), is("src/foo/bar/toto.sql"));
     assertThat(file.getName(), is("toto.sql"));
-    assertThat(file.getParent().getKey(), is("/src/foo/bar"));
+    assertThat(file.getParent().getKey(), is("src/foo/bar"));
     assertThat(ResourceUtils.isSpace(file.getParent()), is(true));
   }
 
@@ -57,7 +57,7 @@ public class FileTest {
   @Test
   public void rootFilesHaveParent() {
     File file = File.create("toto.sql", "toto.sql", null, false);
-    assertThat(file.getKey(), is("/toto.sql"));
+    assertThat(file.getKey(), is("toto.sql"));
     assertThat(file.getDeprecatedKey(), is("toto.sql"));
     assertThat(file.getName(), is("toto.sql"));
     assertThat(file.getParent().getKey(), is("/"));

@@ -40,11 +40,7 @@ class Project < ActiveRecord::Base
       ki=Integer(k)
       Project.find(ki)
     rescue
-      resource = Project.first(:conditions => {:kee => k})
-      if (resource.nil?)
-        resource = Project.first(:conditions => {:deprecated_kee => k})
-      end
-      resource
+      Project.first(:conditions => {:kee => k})
     end
   end
 

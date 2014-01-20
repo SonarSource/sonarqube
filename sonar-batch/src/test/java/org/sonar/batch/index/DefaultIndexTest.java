@@ -118,7 +118,7 @@ public class DefaultIndexTest {
     assertThat(index.index(file)).isTrue();
 
     Directory reference = Directory.create("src/org/foo", "org/foo");
-    assertThat(index.getResource(reference).getName()).isEqualTo("/src/org/foo");
+    assertThat(index.getResource(reference).getName()).isEqualTo("src/org/foo");
     assertThat(index.isIndexed(reference, true)).isTrue();
     assertThat(index.isExcluded(reference)).isFalse();
     assertThat(index.getChildren(reference)).hasSize(1);
@@ -134,7 +134,7 @@ public class DefaultIndexTest {
     assertThat(index.index(file, directory)).isTrue();
 
     File fileRef = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
-    assertThat(index.getResource(fileRef).getKey()).isEqualTo("/src/org/foo/Bar.java");
+    assertThat(index.getResource(fileRef).getKey()).isEqualTo("src/org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getDeprecatedKey()).isEqualTo("org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getLanguage().getKey()).isEqualTo("java");
     assertThat(index.isIndexed(fileRef, true)).isTrue();
@@ -275,9 +275,9 @@ public class DefaultIndexTest {
   @Test
   public void shouldComputePathOfIndexedModules() {
     assertThat(index.getResource(project).getPath()).isNull();
-    assertThat(index.getResource(moduleA).getPath()).isEqualTo("/moduleA");
-    assertThat(index.getResource(moduleB).getPath()).isEqualTo("/moduleB");
-    assertThat(index.getResource(moduleB1).getPath()).isEqualTo("/moduleB1");
+    assertThat(index.getResource(moduleA).getPath()).isEqualTo("moduleA");
+    assertThat(index.getResource(moduleB).getPath()).isEqualTo("moduleB");
+    assertThat(index.getResource(moduleB1).getPath()).isEqualTo("moduleB1");
   }
 
   @Test(expected = IllegalArgumentException.class)

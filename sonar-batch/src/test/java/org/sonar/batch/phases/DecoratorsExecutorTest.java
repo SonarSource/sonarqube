@@ -73,7 +73,7 @@ public class DecoratorsExecutorTest {
       fail("Exception has not been thrown");
 
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("/src/org/foo/Bar.java"));
+      assertThat(e.getMessage(), containsString("src/org/foo/Bar.java"));
     }
   }
 

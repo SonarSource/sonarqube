@@ -234,7 +234,12 @@ public class File extends Resource {
     String normalizedPath = normalize(relativePathFromBasedir);
     file.setKey(normalizedPath);
     file.setPath(normalizedPath);
-    String directoryKey = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
+    String directoryPath;
+    if (normalizedPath.contains(Directory.SEPARATOR)) {
+      directoryPath = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
+    } else {
+      directoryPath = Directory.SEPARATOR;
+    }
     file.setLanguage(language);
     if (relativePathFromSourceDir.contains(Directory.SEPARATOR)) {
       file.filename = StringUtils.substringAfterLast(relativePathFromSourceDir, Directory.SEPARATOR);
@@ -248,7 +253,7 @@ public class File extends Resource {
     if (unitTest) {
       file.setQualifier(Qualifiers.UNIT_TEST_FILE);
     }
-    file.parent = Directory.create(directoryKey, file.directoryDeprecatedKey);
+    file.parent = Directory.create(directoryPath, file.directoryDeprecatedKey);
     return file;
   }
 

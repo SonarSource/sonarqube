@@ -30,9 +30,9 @@ public class DirectoryTest {
   @Test
   public void shouldStartBySlashAndNotEndBySlash() {
     Resource dir = Directory.create("src/foo/bar/", "      /foo/bar/  ");
-    assertThat(dir.getKey(), is("/src/foo/bar"));
+    assertThat(dir.getKey(), is("src/foo/bar"));
     assertThat(dir.getDeprecatedKey(), is("foo/bar"));
-    assertThat(dir.getName(), is("/src/foo/bar"));
+    assertThat(dir.getName(), is("src/foo/bar"));
   }
 
   @Test

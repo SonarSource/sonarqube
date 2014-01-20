@@ -109,8 +109,8 @@ public class FileIndexerTest {
       @Override
       public boolean matches(Object arg0) {
         JavaFile javaFile = (JavaFile) arg0;
-        return javaFile.getKey().equals("/src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
-          && javaFile.getPath().equals("/src/test/java/foo/bar/FooTest.java")
+        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
+          && javaFile.getPath().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getQualifier().equals(Qualifiers.UNIT_TEST_FILE);
       }
     }));

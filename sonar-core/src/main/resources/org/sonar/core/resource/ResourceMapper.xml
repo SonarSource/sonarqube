@@ -64,7 +64,7 @@
         <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
       </if>
       <if test="key != null">
-        and (p.kee=#{key} or p.deprecated_kee=#{key})
+        and p.kee=#{key}
       </if>
       <if test="excludeDisabled">
         and p.enabled=${_true}
@@ -81,7 +81,7 @@
         <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
       </if>
       <if test="key != null">
-        and (p.kee=#{key} or p.deprecated_kee=#{key})
+        and p.kee=#{key}
       </if>
       <if test="excludeDisabled">
         and p.enabled=${_true}
@@ -225,7 +225,7 @@
         <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsKeysQuery" />
       ) authorized_projects on authorized_projects.root_project_kee = root_project.kee
       <where>
-        and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey} or project_components.deprecated_kee=#{componentRootKey}</foreach>
+        and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
         and project_components.enabled = ${_true}
       </where>
     ) authorized_input_components
