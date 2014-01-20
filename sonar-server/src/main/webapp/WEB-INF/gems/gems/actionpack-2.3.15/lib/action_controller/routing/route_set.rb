@@ -312,6 +312,18 @@ module ActionController
         route
       end
 
+      #sonar
+      # Used to declare new routes that should have greater priority than existing ones
+      # -> Java web services take precedence over Ruby on Rails web services
+      # -> for example Java /api/rules/search must not disable Ruby /api/rules/index
+      def prepend_route(path, options = {})
+        options.each { |k, v| options[k] = v.to_s if [:controller, :action].include?(k) && v.is_a?(Symbol) }
+        route = builder.build(path, options)
+        routes.insert(0, route)
+        route
+      end
+      #/sonar
+
       def add_named_route(name, path, options = {})
         # TODO - is options EVER used?
         name = options[:name_prefix] + name.to_s if options[:name_prefix]

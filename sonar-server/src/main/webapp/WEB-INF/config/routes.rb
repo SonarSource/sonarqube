@@ -22,7 +22,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
   map.connect 'api/sources', :controller => 'api/sources', :action => 'index'
 
-  map.resources 'rules', :path_prefix => 'api', :controller => 'api/rules'
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }
 
   # home page

@@ -26,13 +26,15 @@ module ActionController
         deprecated_web_services = Java::OrgSonarServerUi::JRubyFacade.new.getRubyRailsWebservices()
         deprecated_web_services.each do |ws|
           eval(ws.getTemplate())
-          add_route("api/plugins/#{ws.getId()}/:action/:id", {:controller => "api/#{ws.getId()}", :requirements => { :id => /.*/ }})
+          prepend_route("api/plugins/#{ws.getId()}/:action/:id", {:controller => "api/#{ws.getId()}", :requirements => { :id => /.*/ }})
         end
 
         # Full Java web services
         ws_engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
         ws_engine.controllers().each do |controller|
-          add_route("#{controller.path()}/:wsaction/:id", {:controller => 'api/java_ws', :action => 'index', :wspath => controller.path()})
+          controller.actions.each do |action|
+            prepend_route("#{controller.path()}/#{action.key()}/:id", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
+          end
         end
       end
     end
