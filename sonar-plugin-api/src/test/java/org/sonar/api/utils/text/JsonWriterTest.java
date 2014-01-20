@@ -22,11 +22,13 @@ package org.sonar.api.utils.text;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.WriterException;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -77,6 +79,7 @@ public class JsonWriterTest {
 
   @Test
   public void type_of_values() throws Exception {
+    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
     writer.beginObject()
       .prop("aBoolean", true)
       .prop("aInt", 123)
@@ -84,8 +87,9 @@ public class JsonWriterTest {
       .prop("aDouble", 3.14)
       .prop("aNumber", new AtomicInteger(123456789))
       .prop("aString", "bar")
+      .propDate("aDate", date)
       .endObject().close();
-    expect("{\"aBoolean\":true,\"aInt\":123,\"aLong\":1000,\"aDouble\":3.14,\"aNumber\":123456789,\"aString\":\"bar\"}");
+    expect("{\"aBoolean\":true,\"aInt\":123,\"aLong\":1000,\"aDouble\":3.14,\"aNumber\":123456789,\"aString\":\"bar\",\"aDate\":\"2010-05-18\"}");
   }
 
   @Test
@@ -95,6 +99,8 @@ public class JsonWriterTest {
       .prop("nullString", (String) null)
       .name("nullNumber").value((Number) null)
       .name("nullString").value((String) null)
+      .name("nullDate").valueDate(null)
+      .name("nullDateTime").valueDate(null)
       .endObject().close();
     expect("{}");
   }

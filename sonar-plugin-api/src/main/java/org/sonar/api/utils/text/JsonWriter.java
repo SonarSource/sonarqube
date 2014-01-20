@@ -19,8 +19,11 @@
  */
 package org.sonar.api.utils.text;
 
+import org.sonar.api.utils.DateUtils;
+
 import javax.annotation.Nullable;
 import java.io.Writer;
+import java.util.Date;
 
 /**
  * @since 4.2
@@ -152,6 +155,27 @@ public class JsonWriter {
   /**
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
+  public JsonWriter valueDate(@Nullable Date value) {
+    try {
+      stream.value(value==null ? null : DateUtils.formatDate(value));
+      return this;
+    } catch (Exception e) {
+      throw rethrow(e);
+    }
+  }
+
+  public JsonWriter valueDateTime(@Nullable Date value) {
+    try {
+      stream.value(value==null ? null : DateUtils.formatDateTime(value));
+      return this;
+    } catch (Exception e) {
+      throw rethrow(e);
+    }
+  }
+
+  /**
+   * @throws org.sonar.api.utils.text.WriterException on any failure
+   */
   public JsonWriter value(long value) {
     try {
       stream.value(value);
@@ -179,6 +203,24 @@ public class JsonWriter {
    */
   public JsonWriter prop(String name, @Nullable Number value) {
     return name(name).value(value);
+  }
+
+  /**
+   * Encodes the property name and date value (ISO format).
+   * Output is for example <code>"theDate":"2013-01-24"</code>.
+   * @throws org.sonar.api.utils.text.WriterException on any failure
+   */
+  public JsonWriter propDate(String name, @Nullable Date value) {
+    return name(name).valueDate(value);
+  }
+
+  /**
+   * Encodes the property name and datetime value (ISO format).
+   * Output is for example <code>"theDate":"2013-01-24T13:12:45+01"</code>.
+   * @throws org.sonar.api.utils.text.WriterException on any failure
+   */
+  public JsonWriter propDateTime(String name, @Nullable Date value) {
+    return name(name).valueDateTime(value);
   }
 
   /**
