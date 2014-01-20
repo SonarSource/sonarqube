@@ -303,7 +303,7 @@ jQuery(function() {
 
 
   var IssueDetailView = Backbone.Marionette.ItemView.extend({
-    template: Handlebars.compile(jQuery('#issue-detail-template').html() || ''),
+    template: Handlebars.compile(jQuery('#issue-detail-template').html() || '')
   });
 
 
