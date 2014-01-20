@@ -40,7 +40,8 @@ public class ListingWebService implements WebService {
     NewController controller = context.newController("api/webservices")
       .setDescription("List web services")
       .setSince("4.2");
-    controller.newAction("index").setHandler(new RequestHandler() {
+    controller.newAction("index")
+      .setHandler(new RequestHandler() {
       @Override
       public void handle(Request request, Response response) {
         list(context.controllers(), response);

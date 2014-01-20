@@ -37,7 +37,6 @@ public class ListingWebServiceTest {
     assertThat(controller.path()).isEqualTo("api/webservices");
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.isApi()).isTrue();
     assertThat(controller.actions()).hasSize(1);
 
     WebService.Action index = controller.action("index");
@@ -46,6 +45,7 @@ public class ListingWebServiceTest {
     assertThat(index.handler()).isNotNull();
     assertThat(index.since()).isEqualTo("4.2");
     assertThat(index.isPost()).isFalse();
+    assertThat(index.isPrivate()).isFalse();
   }
 
   @Test

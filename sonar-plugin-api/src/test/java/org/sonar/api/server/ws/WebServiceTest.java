@@ -46,6 +46,7 @@ public class WebServiceTest {
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
+        .setPrivate(true)
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -84,7 +85,6 @@ public class WebServiceTest {
     assertThat(controller.path()).isEqualTo("api/metric");
     assertThat(controller.description()).isEqualTo("Metrics");
     assertThat(controller.since()).isEqualTo("3.2");
-    assertThat(controller.isApi()).isTrue();
     assertThat(controller.actions()).hasSize(2);
     WebService.Action showAction = controller.action("show");
     assertThat(showAction).isNotNull();
@@ -94,6 +94,7 @@ public class WebServiceTest {
     // same as controller
     assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();
+    assertThat(showAction.isPrivate()).isFalse();
     assertThat(showAction.path()).isEqualTo("api/metric/show");
     WebService.Action createAction = controller.action("create");
     assertThat(createAction).isNotNull();
@@ -102,19 +103,7 @@ public class WebServiceTest {
     // overrides controller version
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
-  }
-
-  @Test
-  public void non_api_ws() {
-    new WebService() {
-      @Override
-      public void define(Context context) {
-        NewController controller = context.newController("rule");
-        controller.newAction("index").setHandler(mock(RequestHandler.class));
-        controller.done();
-      }
-    }.define(context);
-    assertThat(context.controller("rule").isApi()).isFalse();
+    assertThat(createAction.isPrivate()).isTrue();
   }
 
   @Test

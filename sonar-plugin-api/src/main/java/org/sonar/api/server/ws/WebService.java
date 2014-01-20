@@ -131,10 +131,6 @@ public interface WebService extends ServerExtension {
       return description;
     }
 
-    public boolean isApi() {
-      return path.startsWith("api/");
-    }
-
     @CheckForNull
     public String since() {
       return since;
@@ -155,6 +151,7 @@ public interface WebService extends ServerExtension {
     private final String key;
     private String description, since;
     private boolean post = false;
+    private boolean isPrivate = false;
     private RequestHandler handler;
 
     private NewAction(String key) {
@@ -176,6 +173,11 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
+    public NewAction setPrivate(boolean b) {
+      this.isPrivate = b;
+      return this;
+    }
+
     public NewAction setHandler(RequestHandler h) {
       this.handler = h;
       return this;
@@ -184,7 +186,7 @@ public interface WebService extends ServerExtension {
 
   class Action {
     private final String key, path, description, since;
-    private final boolean post;
+    private final boolean post, isPrivate;
     private final RequestHandler handler;
 
     private Action(Controller controller, NewAction newAction) {
@@ -193,6 +195,7 @@ public interface WebService extends ServerExtension {
       this.description = newAction.description;
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
+      this.isPrivate = newAction.isPrivate;
       if (newAction.handler == null) {
         throw new IllegalStateException("RequestHandler is not set on action " + path);
       }
@@ -222,6 +225,10 @@ public interface WebService extends ServerExtension {
 
     public boolean isPost() {
       return post;
+    }
+
+    public boolean isPrivate() {
+      return isPrivate;
     }
 
     public RequestHandler handler() {
