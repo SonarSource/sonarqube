@@ -21,7 +21,6 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
-import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -34,18 +33,14 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -70,13 +65,13 @@ public class JsonReport implements BatchComponent {
   private UserFinder userFinder;
 
   public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
+                    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
     this(settings, fileSystem, server, ruleFinder, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
   }
 
   @VisibleForTesting
   JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-    EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
+             EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -114,12 +109,10 @@ public class JsonReport implements BatchComponent {
 
   @VisibleForTesting
   void writeJson(Writer writer) {
-    JsonWriter json = null;
     try {
-      json = new JsonWriter(writer);
-      json.setSerializeNulls(false);
+      JsonWriter json = JsonWriter.of(writer);
       json.beginObject();
-      json.name("version").value(server.getVersion());
+      json.prop("version", server.getVersion());
 
       Set<RuleKey> ruleKeys = newHashSet();
       Set<String> userLogins = newHashSet();
@@ -129,12 +122,10 @@ public class JsonReport implements BatchComponent {
       writeJsonRules(json, ruleKeys);
       List<User> users = userFinder.findByLogins(new ArrayList<String>(userLogins));
       writeUsers(json, users);
-      json.endObject().flush();
+      json.endObject().close();
 
     } catch (IOException e) {
       throw new SonarException("Unable to write JSON report", e);
-    } finally {
-      Closeables.closeQuietly(json);
     }
   }
 
@@ -144,32 +135,26 @@ public class JsonReport implements BatchComponent {
       if (issue.resolution() == null && componentSelector.register(issue)) {
         json
           .beginObject()
-          .name("key").value(issue.key())
-          .name("component").value(issue.componentKey())
-          .name("line").value(issue.line())
-          .name("message").value(issue.message())
-          .name("severity").value(issue.severity())
-          .name("rule").value(issue.ruleKey().toString())
-          .name("status").value(issue.status())
-          .name("resolution").value(issue.resolution())
-          .name("isNew").value(issue.isNew())
-          .name("reporter").value(issue.reporter())
-          .name("assignee").value(issue.assignee())
-          .name("effortToFix").value(issue.effortToFix());
+          .prop("key", issue.key())
+          .prop("component", issue.componentKey())
+          .prop("line", issue.line())
+          .prop("message", issue.message())
+          .prop("severity", issue.severity())
+          .prop("rule", issue.ruleKey().toString())
+          .prop("status", issue.status())
+          .prop("resolution", issue.resolution())
+          .prop("isNew", issue.isNew())
+          .prop("reporter", issue.reporter())
+          .prop("assignee", issue.assignee())
+          .prop("effortToFix", issue.effortToFix())
+          .propDateTime("creationDate", issue.creationDate())
+          .propDateTime("updateDate", issue.updateDate())
+          .propDateTime("closeDate", issue.closeDate());
         if (issue.reporter() != null) {
           logins.add(issue.reporter());
         }
         if (issue.assignee() != null) {
           logins.add(issue.assignee());
-        }
-        if (issue.creationDate() != null) {
-          json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
-        }
-        if (issue.updateDate() != null) {
-          json.name("updateDate").value(DateUtils.formatDateTime(issue.updateDate()));
-        }
-        if (issue.closeDate() != null) {
-          json.name("closeDate").value(DateUtils.formatDateTime(issue.closeDate()));
         }
         json.endObject();
         ruleKeys.add(issue.ruleKey());
@@ -183,7 +168,7 @@ public class JsonReport implements BatchComponent {
     for (String componentKey : componentSelector.componentKeys()) {
       json
         .beginObject()
-        .name("key").value(componentKey)
+        .prop("key", componentKey)
         .endObject();
     }
     json.endArray();
@@ -194,10 +179,10 @@ public class JsonReport implements BatchComponent {
     for (RuleKey ruleKey : ruleKeys) {
       json
         .beginObject()
-        .name("key").value(ruleKey.toString())
-        .name("rule").value(ruleKey.rule())
-        .name("repository").value(ruleKey.repository())
-        .name("name").value(getRuleName(ruleKey))
+        .prop("key", ruleKey.toString())
+        .prop("rule", ruleKey.rule())
+        .prop("repository", ruleKey.repository())
+        .prop("name", getRuleName(ruleKey))
         .endObject();
     }
     json.endArray();
@@ -208,8 +193,8 @@ public class JsonReport implements BatchComponent {
     for (User user : users) {
       json
         .beginObject()
-        .name("login").value(user.login())
-        .name("name").value(user.name())
+        .prop("login", user.login())
+        .prop("name", user.name())
         .endObject();
     }
     json.endArray();
