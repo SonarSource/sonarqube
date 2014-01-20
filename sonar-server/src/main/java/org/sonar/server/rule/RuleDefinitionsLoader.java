@@ -20,7 +20,7 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions;
 
 /**
  * Loads all instances of RuleDefinitions and initializes RuleRepositories. Used at server startup.

@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions;
 
 import javax.annotation.CheckForNull;
 import java.util.Collection;

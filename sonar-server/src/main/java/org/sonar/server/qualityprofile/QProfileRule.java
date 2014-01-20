@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
-import org.sonar.api.rule.RuleParamType;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.server.rule.ActiveRuleDocument;
 import org.sonar.server.rule.RuleDocument;

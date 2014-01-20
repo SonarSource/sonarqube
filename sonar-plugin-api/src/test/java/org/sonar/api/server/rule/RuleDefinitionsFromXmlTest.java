@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.server.rule;
 
 import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rule.Severity;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -45,7 +46,7 @@ public class RuleDefinitionsFromXmlTest {
 
   @Test
   public void should_parse_xml() throws Exception {
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/rule/RuleDefinitionsFromXmlTest/rules.xml"), Charsets.UTF_8.name());
+    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/rules.xml"), Charsets.UTF_8.name());
     RuleDefinitions.Repository repository = load(reader);
     assertThat(repository.rules()).hasSize(2);
 
@@ -94,7 +95,7 @@ public class RuleDefinitionsFromXmlTest {
 
   @Test
   public void test_utf8_encoding() throws UnsupportedEncodingException {
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/rule/RuleDefinitionsFromXmlTest/utf8.xml"), Charsets.UTF_8.name());
+    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/utf8.xml"), Charsets.UTF_8.name());
     RuleDefinitions.Repository repository = load(reader);
 
     assertThat(repository.rules()).hasSize(1);
@@ -109,7 +110,7 @@ public class RuleDefinitionsFromXmlTest {
   @Test
   public void should_support_deprecated_format() throws UnsupportedEncodingException {
     // the deprecated format uses some attributes instead of nodes
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/rule/RuleDefinitionsFromXmlTest/deprecated.xml"), Charsets.UTF_8.name());
+    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/deprecated.xml"), Charsets.UTF_8.name());
     RuleDefinitions.Repository repository = load(reader);
 
     assertThat(repository.rules()).hasSize(1);

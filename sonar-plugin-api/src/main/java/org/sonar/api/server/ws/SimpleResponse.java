@@ -17,59 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.server.ws;
 
+import org.apache.commons.io.Charsets;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.api.server.ws.Response;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
-public class ServletResponse implements Response {
-
-  private final HttpServletResponse source;
-
-  public ServletResponse(HttpServletResponse hsr) {
-    this.source = hsr;
-  }
+public class SimpleResponse implements Response {
+  private int httpStatus = 200;
+  private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   @Override
   public JsonWriter newJsonWriter() {
-    try {
-      return JsonWriter.of(source.getWriter());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    try {
-      return XmlWriter.of(source.getWriter());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
   }
 
   @Override
   public OutputStream output() {
-    try {
-      return source.getOutputStream();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return output;
+  }
+
+  // for unit testing
+  public String outputAsString() {
+    return new String(output.toByteArray(), Charsets.UTF_8);
   }
 
   @Override
   public int status() {
-    return source.getStatus();
+    return httpStatus;
   }
 
   @Override
   public Response setStatus(int httpStatus) {
-    source.setStatus(httpStatus);
+    this.httpStatus = httpStatus;
     return this;
   }
 }

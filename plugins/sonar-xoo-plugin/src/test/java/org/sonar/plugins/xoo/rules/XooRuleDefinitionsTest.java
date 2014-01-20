@@ -20,8 +20,8 @@
 package org.sonar.plugins.xoo.rules;
 
 import org.junit.Test;
-import org.sonar.api.rule.RuleDefinitions;
-import org.sonar.api.rule.RuleDefinitions.Repository;
+import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions.Repository;
 
 import static org.fest.assertions.Assertions.assertThat;
 

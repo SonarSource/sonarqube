@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.api.rule.RuleParamType;
+import org.sonar.api.server.rule.RuleParamType;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

@@ -26,7 +26,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;

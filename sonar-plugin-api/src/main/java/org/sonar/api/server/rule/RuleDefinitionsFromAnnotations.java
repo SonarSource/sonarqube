@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.server.rule;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Read definitions of rules based on the annotations provided by sonar-check-api.
  * </p>
- * It is internally used by {@link org.sonar.api.rule.RuleDefinitions} and can't be directly
+ * It is internally used by {@link RuleDefinitions} and can't be directly
  * used by plugins.
  *
  * @since 4.2

@@ -19,10 +19,10 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.web.ws.Request;
-import org.sonar.api.web.ws.RequestHandler;
-import org.sonar.api.web.ws.Response;
-import org.sonar.api.web.ws.WebService;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
 public class RuleWebService implements WebService {
 

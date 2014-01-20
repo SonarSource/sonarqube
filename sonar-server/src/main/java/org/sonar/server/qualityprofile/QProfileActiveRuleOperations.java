@@ -26,7 +26,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
 import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleParamType;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;

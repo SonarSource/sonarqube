@@ -20,7 +20,7 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;

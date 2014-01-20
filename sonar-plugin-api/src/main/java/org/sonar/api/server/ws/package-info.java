@@ -17,32 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.web.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.api.server.ws;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * @since 4.2
- */
-public abstract class Request {
-
-  @CheckForNull
-  public abstract String param(String key);
-
-  public abstract String mediaType();
-
-  public abstract boolean isPost();
-
-  @CheckForNull
-  public Integer intParam(String key) {
-    String s = param(key);
-    return s == null ? null : Integer.parseInt(s);
-  }
-
-  public int intParam(String key, int defaultValue) {
-    String s = param(key);
-    return s == null ? defaultValue : Integer.parseInt(s);
-  }
-
-
-}

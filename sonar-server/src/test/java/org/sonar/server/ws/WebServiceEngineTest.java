@@ -22,7 +22,7 @@ package org.sonar.server.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.web.ws.*;
+import org.sonar.api.server.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 

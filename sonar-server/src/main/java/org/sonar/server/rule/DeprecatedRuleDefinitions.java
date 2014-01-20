@@ -20,8 +20,8 @@
 package org.sonar.server.rule;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rule.RuleDefinitions;
-import org.sonar.api.rule.RuleParamType;
+import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.check.Cardinality;

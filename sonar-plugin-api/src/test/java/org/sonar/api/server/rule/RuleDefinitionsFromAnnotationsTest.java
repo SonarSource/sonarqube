@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.server.rule;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitionsFromAnnotations;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Priority;
 
 import static org.fest.assertions.Assertions.assertThat;

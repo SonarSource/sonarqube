@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.PropertyType;
+import org.sonar.api.server.rule.RuleParamType;
 
 import static org.fest.assertions.Assertions.assertThat;
 

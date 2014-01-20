@@ -22,10 +22,10 @@ package org.sonar.server.rule;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.api.web.ws.RequestHandler;
-import org.sonar.api.web.ws.SimpleRequest;
-import org.sonar.api.web.ws.SimpleResponse;
-import org.sonar.api.web.ws.WebService;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.SimpleRequest;
+import org.sonar.api.server.ws.SimpleResponse;
+import org.sonar.api.server.ws.WebService;
 
 import static org.fest.assertions.Assertions.assertThat;
 

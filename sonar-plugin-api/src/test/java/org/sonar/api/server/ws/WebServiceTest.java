@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.web.ws;
+package org.sonar.api.server.ws;
 
 import org.junit.Test;
-import org.sonar.api.web.ws.Request;
-import org.sonar.api.web.ws.RequestHandler;
-import org.sonar.api.web.ws.Response;
-import org.sonar.api.web.ws.WebService;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;

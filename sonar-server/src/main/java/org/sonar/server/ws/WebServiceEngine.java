@@ -22,9 +22,9 @@ package org.sonar.server.ws;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.ws.Request;
-import org.sonar.api.web.ws.Response;
-import org.sonar.api.web.ws.WebService;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;

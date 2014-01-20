@@ -22,7 +22,7 @@ package org.sonar.server.ws;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.api.web.ws.*;
+import org.sonar.api.server.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 

@@ -17,48 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.web.ws;
+package org.sonar.api.server.ws;
 
-import org.apache.commons.io.Charsets;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 
-public class SimpleResponse implements Response {
-  private int httpStatus = 200;
-  private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+/**
+ * HTTP response
+ *
+ * @since 4.2
+ */
+public interface Response {
 
-  @Override
-  public JsonWriter newJsonWriter() {
-    return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
-  }
+  int status();
 
-  @Override
-  public XmlWriter newXmlWriter() {
-    return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
-  }
+  Response setStatus(int httpStatus);
 
-  @Override
-  public OutputStream output() {
-    return output;
-  }
+  JsonWriter newJsonWriter();
 
-  // for unit testing
-  public String outputAsString() {
-    return new String(output.toByteArray(), Charsets.UTF_8);
-  }
+  XmlWriter newXmlWriter();
 
-  @Override
-  public int status() {
-    return httpStatus;
-  }
+  OutputStream output();
 
-  @Override
-  public Response setStatus(int httpStatus) {
-    this.httpStatus = httpStatus;
-    return this;
-  }
 }

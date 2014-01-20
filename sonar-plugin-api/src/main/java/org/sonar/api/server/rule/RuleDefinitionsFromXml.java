@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.server.rule;
 
 import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.rule.Severity;
 import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;

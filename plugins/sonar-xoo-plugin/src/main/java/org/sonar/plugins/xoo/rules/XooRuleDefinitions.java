@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.xoo.rules;
 
-import org.sonar.api.rule.RuleDefinitions;
-import org.sonar.api.rule.RuleParamType;
+import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.plugins.xoo.base.XooConstants;
 import org.sonar.plugins.xoo.base.XooRuleKeys;
 

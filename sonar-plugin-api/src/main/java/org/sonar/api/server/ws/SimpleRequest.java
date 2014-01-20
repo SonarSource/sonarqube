@@ -17,24 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.server.ws;
 
-import org.sonar.api.server.ws.Request;
+import com.google.common.collect.Maps;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.CheckForNull;
+import java.util.Map;
 
-public class ServletRequest extends Request {
+public class SimpleRequest extends Request {
+  private Map<String, String> params = Maps.newHashMap();
 
-  private final HttpServletRequest source;
   private String mediaType = "application/json";
+  private boolean post = false;
 
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
+  public SimpleRequest() {
+  }
+
+  public SimpleRequest setParams(Map<String, String> m) {
+    this.params = m;
+    return this;
+  }
+
+  public SimpleRequest setParams(String key, String value) {
+    this.params.put(key, value);
+    return this;
   }
 
   @Override
+  @CheckForNull
   public String param(String key) {
-    return source.getParameter(key);
+    return params.get(key);
   }
 
   @Override
@@ -42,13 +54,18 @@ public class ServletRequest extends Request {
     return mediaType;
   }
 
-  public ServletRequest setMediaType(String s) {
+  public SimpleRequest setMediaType(String s) {
     this.mediaType = s;
     return this;
   }
 
   @Override
   public boolean isPost() {
-    return "POST".equals(source.getMethod());
+    return post;
+  }
+
+  public SimpleRequest setPost(boolean b) {
+    this.post = b;
+    return this;
   }
 }

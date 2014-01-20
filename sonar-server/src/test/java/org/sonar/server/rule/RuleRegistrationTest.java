@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;

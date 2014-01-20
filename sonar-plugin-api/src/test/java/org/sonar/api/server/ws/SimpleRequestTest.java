@@ -17,8 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.api.web.ws;
+package org.sonar.api.server.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.collect.ImmutableMap;
+import org.junit.Test;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+public class SimpleRequestTest {
+  @Test
+  public void string_params() {
+    Request request = new SimpleRequest().setParams(ImmutableMap.of("foo", "bar"));
+    assertThat(request.param("none")).isNull();
+    assertThat(request.param("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  public void int_params() {
+    Request request = new SimpleRequest().setParams(ImmutableMap.of("foo", "123"));
+    assertThat(request.intParam("none")).isNull();
+    assertThat(request.intParam("foo")).isEqualTo(123);
+
+    assertThat(request.intParam("none", 456)).isEqualTo(456);
+    assertThat(request.intParam("foo", 456)).isEqualTo(123);
+  }
+}
