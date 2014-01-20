@@ -42,6 +42,10 @@ import javax.annotation.CheckForNull;
 
 import java.util.*;
 
+/**
+ * Register rules at server startup
+ * @since 4.2
+ */
 public class RuleRegistration implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(RuleRegistration.class);
 
