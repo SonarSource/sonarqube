@@ -53,8 +53,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to results.user(assignee).name,
-                        {:controller => 'issues', :action => 'search', :assignees => assignee}.merge(options) -%>
+            <%= link_to results.user(assignee).name, url_for_issues(options.merge(:assignees => assignee)) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
@@ -72,8 +71,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to message('widget.reviews_per_developer.not_assigned'),
-                        {:controller => 'issues', :action => 'search', :assigned => 'false'}.merge(options) -%>
+            <%= link_to message('widget.reviews_per_developer.not_assigned'), url_for_issues(options.merge(:assigned => 'false')) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>

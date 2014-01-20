@@ -89,7 +89,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues/search?componentRoots=%s&createdAt=%s",
+      String url = String.format("%s/issues/search#componentRoots=%s|createdAt=%s",
         settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
       sb.append("\n").append("See it in SonarQube: ").append(url).append("\n");
     }
