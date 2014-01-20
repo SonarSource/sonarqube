@@ -849,7 +849,7 @@ th.operations, td.operations {
 }
 
 .code-issue-details {
-  padding: 5px 0;
+  padding: 0 0 5px;
   border-left: 1px solid #DDD;
   border-right: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
@@ -863,15 +863,20 @@ th.operations, td.operations {
 
 .code-issue-details .tabs {
   height: auto;
-  padding: 0 5px;
-  border-top: 1px solid #DDD;
-  border-bottom: none;
+  padding: 5px 10px;
+  border-bottom: 1px solid #DDD;
   background: #E4ECF3;
+}
+
+.code-issue-details .tabs li + li {
+  margin-left: 10px;
 }
 
 .code-issue-details .tabs li a:link,
 .code-issue-details .tabs li a:visited {
-  padding: 5px;
+  float: none;
+  margin: 0;
+  padding: 0;
 }
 
 .code-issue-details-list {

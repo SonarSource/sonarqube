@@ -21,6 +21,7 @@
     <js>/javascripts/third-party/tablekit.js</js>
     <js>/javascripts/third-party/jquery.min.js</js>
     <js>/javascripts/third-party/jquery-ui.min.js</js>
+    <js>/javascripts/third-party/jquery-ui.tabs.js</js>
     <js>/javascripts/third-party/d3.v3.min.js</js>
     <js>/javascripts/third-party/underscore-min.js</js>
     <js>/javascripts/third-party/backbone-min.js</js>

@@ -1,37 +1,110 @@
 <script id="issue-detail-template" type="text/x-handlebars-template">
+  <div class="source_title">
+    <div class="subtitle">{{project.longName}}</div>
+    <span class="h1">
+      {{#if component.longName}}
+        {{component.longName}}
+      {{else}}
+        {{component}} [<del><%= message('issue.component_deleted') %></del>]
+      {{/if}}
+    </span>
+  </div>
+
   <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component.key}}" data-issue-rule="{{rule.key}}">
     <div class="code-issue-name">
-      <div style="float: right">
-        <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink">
-          <img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif">
-        </a>
-      </div>
-
-      {{severityIcon severity}}&nbsp;
-      <span class="rulename">{{rule.name}}</span>
-      &nbsp;<img src="<%= ApplicationController.root_context -%>/images/sep12.png">&nbsp;
-      {{statusIcon status}}{{capitalize status}}
-      &nbsp;<img src="<%= ApplicationController.root_context -%>/images/sep12.png">&nbsp;
-      <%= message('issue.updated') -%>&nbsp;<a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link" id="toggle-issue-changelog">{{fromNow updateDate}}</a>
-      {{# if author}}
-        &nbsp;<img src="<%= ApplicationController.root_context -%>/images/sep12.png">&nbsp;
-        <span><%= message('issue.authorLogin') -%>&nbsp;{{author}}</span>
-      {{/if}}
-      {{# if technicalDebt}}
-        &nbsp;<img src="<%= ApplicationController.root_context -%>/images/sep12.png">&nbsp;
-        <%= message('issue.technical_debt') -%>&nbsp;<a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link" id="toggle-issue-technicaldebt">
-          {{#if technicalDebt.days}}{{technicalDebt.days}} days{{/if}}
-          {{#if technicalDebt.hours}}{{technicalDebt.hours}} hours{{/if}}
-          {{#if technicalDebt.minutes}}{{technicalDebt.minutes}} minutes{{/if}}
-        </a>
-      {{/if}}
+      {{severityIcon severity}}&nbsp;<span class="rulename">{{rule.name}}</span>
     </div>
 
-    <div class="issue-rule rule-desc" style="display: none"></div>
     <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
     <div class="issue-technicaldebt" id="issue-technicaldebt" style="display: none"></div>
 
     <div class="code-issue-msg">{{{message}}}</div>
+
+    <div class="code-issue-details">
+      <ul class="tabs">
+        <li>
+          <a href="#tab-issue-details"><%= message('issue.details') -%></a>
+        </li>
+        <li>
+          <a href="#tab-issue-rule"><%= message('rule') -%></a>
+        </li>
+        <li>
+          <a href="/dev/issue/changelog/{{key}}"><%= message('changelog') -%></a>
+        </li>
+      </ul>
+
+      <div id="tab-issue-details">
+        <ul class="code-issue-details-list">
+          <li>
+            <div class="code-issue-details-term"><%= message('severity') -%></div>
+            <div class="code-issue-details-value">
+              {{severityIcon severity}}{{capitalize severity}}
+            </div>
+          </li>
+          <li>
+            <div class="code-issue-details-term"><%= message('status') -%></div>
+            <div class="code-issue-details-value">
+              {{statusIcon status}}{{capitalize status}}
+            </div>
+          </li>
+          <li>
+            <div class="code-issue-details-term"><%= message('resolution') -%></div>
+            <div class="code-issue-details-value">
+              {{#if resolution}}
+                {{resolutionIcon resolution}}{{capitalize resolution}}
+              {{else}}
+                <%= message('unresolved') -%>
+              {{/if}}
+            </div>
+          </li>
+          <li>
+            <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
+            <div class="code-issue-details-value"></div>
+          </li>
+          {{#if technicalDebt}}
+            <li>
+              <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
+              <div class="code-issue-details-value">
+                {{#if technicalDebt.days}}{{technicalDebt.days}} days{{/if}}
+                {{#if technicalDebt.hours}}{{technicalDebt.hours}} hours{{/if}}
+                {{#if technicalDebt.minutes}}{{technicalDebt.minutes}} minutes{{/if}}
+              </div>
+            </li>
+          {{/if}}
+          {{# if reporter}}
+            <li>
+              <div class="code-issue-details-term"><%= message('reporter') -%></div>
+              <div class="code-issue-details-value">{{reporter}}</div>
+            </li>
+          {{/if}}
+          {{#if author}}
+            <li>
+              <div class="code-issue-details-term"><%= message('author') -%></div>
+              <div class="code-issue-details-value">{{author}}</div>
+            </li>
+          {{/if}}
+          {{# if assignee}}
+            <li>
+              <div class="code-issue-details-term"><%= message('assignee') -%></div>
+              <div class="code-issue-details-value">{{assignee}}</div>
+            </li>
+          {{/if}}
+          <li>
+            <div class="code-issue-details-term"><%= message('created') -%></div>
+            <div class="code-issue-details-value">{{creationDate}}</div>
+          </li>
+          <li>
+            <div class="code-issue-details-term"><%= message('updated') -%></div>
+            <div class="code-issue-details-value">{{updateDate}}</div>
+          </li>
+        </ul>
+      </div>
+
+      <div id="tab-issue-rule">
+        <div class="marginbottom10">{{{rule.desc}}}</div>
+        <p class="note">{{rule.key}}</p>
+      </div>
+    </div>
 
     <div class="code-issue-actions">
       <a href="#" onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus="">Comment</a>

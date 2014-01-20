@@ -17,7 +17,7 @@ jQuery(function() {
     parse: function(r) {
 
       function find(source, key) {
-        return _.findWhere(source, { key: key });
+        return _.findWhere(source, { key: key }) || key;
       }
 
       this.paging = r.paging;
@@ -303,7 +303,12 @@ jQuery(function() {
 
 
   var IssueDetailView = Backbone.Marionette.ItemView.extend({
-    template: Handlebars.compile(jQuery('#issue-detail-template').html() || '')
+    template: Handlebars.compile(jQuery('#issue-detail-template').html() || ''),
+
+
+    onRender: function() {
+      this.$('.code-issue-details').tabs();
+    }
   });
 
 
