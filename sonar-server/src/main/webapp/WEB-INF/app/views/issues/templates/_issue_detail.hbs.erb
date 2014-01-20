@@ -15,9 +15,6 @@
       {{severityIcon severity}}&nbsp;<span class="rulename">{{rule.name}}</span>
     </div>
 
-    <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
-    <div class="issue-technicaldebt" id="issue-technicaldebt" style="display: none"></div>
-
     <div class="code-issue-msg">{{{message}}}</div>
 
     <div class="code-issue-details">
@@ -105,6 +102,16 @@
         <p class="note">{{rule.key}}</p>
       </div>
     </div>
+
+    {{#each comments}}
+      <div class="code-issue-comment" data-comment-key="{{key}}">
+        <h4>
+          <%= image_tag('reviews/comment.png') -%> &nbsp;<b>{{login}}</b>
+          ({{fromNow createdAt}})
+        </h4>
+        {{{htmlText}}}
+      </div>
+    {{/each}}
 
     <div class="code-issue-actions">
       <a href="#" onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus="">Comment</a>
