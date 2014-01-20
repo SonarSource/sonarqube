@@ -12,7 +12,8 @@ jQuery(function() {
     headerRegion: '.navigator-header',
     filtersRegion: '.navigator-filters',
     resultsRegion: '.navigator-results',
-    actionsRegion: '.navigator-actions'
+    actionsRegion: '.navigator-actions',
+    detailsRegion: '.navigator-details'
   });
 
 
@@ -34,6 +35,7 @@ jQuery(function() {
     this.headerRegion.show(this.issuesHeaderView);
 
     this.issuesView = new window.SS.IssuesView({
+      app: this,
       collection: this.issues
     });
     this.resultsRegion.show(this.issuesView);
@@ -43,6 +45,8 @@ jQuery(function() {
       collection: this.issues
     });
     this.actionsRegion.show(this.issuesActionsView);
+
+    this.issueDetailView = new window.SS.IssueDetailView();
   });
 
 

@@ -1,59 +1,23 @@
-<div class="navigator navigator-simple">
-
+<div class="navigator">
+  <div class="navigator-header"></div>
   <div class="navigator-filters"></div>
-
-
-  <div class="navigator-results">
-    <%= render :partial => 'search' -%>
-  </div>
+  <div class="navigator-results"></div>
+  <div class="navigator-details"></div>
+  <div class="navigator-actions"></div>
 </div>
 
-<script type="text/javascript">
-  function onBulkIssues(issues_query_params){
-    // SONAR-4723 pagination parameters should be removed after applying bulk change
-    delete issues_query_params.pageIndex;
-    window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
-  }
-
-  function onSaveAs(data) {
-    window.location = baseUrl + '/issues/filter/' + data;
-  }
-
-  function onCopy(data) {
-    window.location = baseUrl + '/issues/filter/' + data;
-  }
-
-  function onEdit(data) {
-    window.location = baseUrl + '/issues/filter/' + data;
-  }
-</script>
-
 <script id="filterBarTemplate" type="text/template">
-  <form method="get" action="<%= ApplicationController.root_context -%>/issues/search">
-    <% if @filter && @filter.id %>
-      <input type="hidden" name="id" value="<%= h @filter.id.to_s -%>">
-    <% end %>
-    <input type="hidden" name="sort" value="<%= h @issues_query.sort -%>"/>
-    <input type="hidden" name="asc" value="<%= h @issues_query.asc -%>"/>
-
-    <div class="navigator-filters-list"></div>
-    <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
-    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/issues/search"><%= message 'issue_filter.new_search' -%></a>
-  </form>
+  <div class="navigator-filters-list"></div>
+  <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
 </script>
 
 <%= render :partial => '/navigator/filter_templates' -%>
-
-<%
-   component_labels = Project.by_keys(@issues_query.componentRoots).map{|c| c ? c.name : nil}
-   assignee_keys = @issues_query.assignees
-   assignee_labels = user_labels(@issues_query.assignees)
-   if @issues_query.assigned==false
-     assignee_keys = ['<unassigned>'] + assignee_keys
-     assignee_labels = [message('unassigned')] + assignee_labels
-   end
-   reporter_labels = user_labels(@issues_query.reporters)
-%>
+<%= render :partial => '/issues/templates/header.hbs' -%>
+<%= render :partial => '/issues/templates/issue.hbs' -%>
+<%= render :partial => '/issues/templates/issues_actions.hbs' -%>
+<%= render :partial => '/issues/templates/no_issues.hbs' -%>
+<%= render :partial => '/issues/templates/issues_details_favorite_filter.hbs' -%>
+<%= render :partial => '/issues/templates/issue_detail.hbs' -%>
 
 <script>
   _.templateSettings = {
@@ -72,7 +36,6 @@
       'any':           '<%= escape_javascript message('any') -%>',
       'anytime':       '<%= escape_javascript message('anytime') -%>',
       'all':           '<%= escape_javascript message('all') -%>',
-      'manage':        '<%= escape_javascript message('manage') -%>',
       'to':            '<%= escape_javascript message('to') -%>',
       'project':       '<%= escape_javascript message('issue_filter.criteria.project') -%>',
       'severity':      '<%= escape_javascript message('issue_filter.criteria.severity') -%>',
@@ -107,17 +70,7 @@
     }
   });
 
-  var queryParams = [
-    { key: 'componentRoots', value: <%= @issues_query.componentRoots.to_json -%>, text: <%= component_labels.to_json -%> },
-    { key: 'severities[]', value: <%= @issues_query.severities.to_json -%> },
-    { key: 'statuses[]', value: <%= @issues_query.statuses.to_json -%> },
-    { key: 'resolutions[]', value: <%= @issues_query.resolutions.to_json -%> },
-    { key: 'assignees', value: <%= assignee_keys.to_json -%>, text: <%= assignee_labels.to_json -%> },
-    { key: 'reporters', value: <%= @issues_query.reporters.to_json -%>, text: <%= reporter_labels.to_json -%> },
-    { key: 'createdAfter', value: '<%= Api::Utils.format_date(@issues_query.createdAfter) -%>' },
-    { key: 'createdBefore', value: '<%= Api::Utils.format_date(@issues_query.createdBefore) -%>' }
-  ];
-
-  window.SS.IssuesNavigatorAppOld.start();
-  window.SS.IssuesNavigatorAppOld.filterBarView.restoreFromQuery(queryParams);
+  jQuery(function() {
+    window.SS.IssuesNavigatorApp.start();
+  });
 </script>

@@ -819,7 +819,7 @@ th.operations, td.operations {
   vertical-align: text-bottom;
 }
 
-.code-issue-comment, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;

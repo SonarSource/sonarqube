@@ -74,31 +74,11 @@ jQuery(function() {
 
 
     showDetails: function() {
-      var componentKey = this.model.get('component').key,
-          issueKey = this.model.get('key'),
-          url = baseUrl + '/resource/index/' + componentKey + '?&display_title=true&tab=issues',
-          details = jQuery('.navigator-details');
-
-      function collapseIssues() {
-        var issues = jQuery('.code-issue', details);
-        issues.addClass('code-issue-collapsed');
-        issues.filter('[data-issue-key="' + issueKey + '"]').removeClass('code-issue-collapsed');
-      }
-
       this.$el.parent().children().removeClass('active');
       this.$el.addClass('active');
 
-      if (this.options.issuesView.componentKey !== componentKey) {
-        this.options.issuesView.componentKey = componentKey;
-        details.empty().addClass('loading');
-        jQuery.ajax({
-          type: 'GET',
-          url: url
-        }).done(function(r) {
-              details.html(r).removeClass('loading');
-              collapseIssues();
-            });
-      }
+      this.options.app.issueDetailView.model = this.model;
+      this.options.app.detailsRegion.show(this.options.app.issueDetailView);
     }
   });
 
@@ -118,7 +98,10 @@ jQuery(function() {
 
 
     itemViewOptions: function() {
-      return { issuesView: this };
+      return {
+        issuesView: this,
+        app: this.options.app
+      };
     },
 
 
@@ -319,6 +302,12 @@ jQuery(function() {
 
 
 
+  var IssueDetailView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-template').html() || ''),
+  });
+
+
+
   var IssuesDetailsFavoriteFilterView = window.SS.DetailsFavoriteFilterView.extend({
     template: Handlebars.compile(jQuery('#issues-details-favorite-filter-template').html() || ''),
 
@@ -430,6 +419,7 @@ jQuery(function() {
     IssuesFilterBarView: IssuesFilterBarView,
     IssuesHeaderView: IssuesHeaderView,
     IssuesFavoriteFilterView: IssuesFavoriteFilterView,
+    IssueDetailView: IssueDetailView,
     IssuesRouter: IssuesRouter
   });
 

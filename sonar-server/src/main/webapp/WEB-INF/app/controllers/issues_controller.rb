@@ -35,6 +35,10 @@ class IssuesController < ApplicationController
 
   # GET /issues/search
   def search
+
+  end
+
+  def search2
     @issues_query_params = criteria_params
     @first_search = issues_query_params_sanitized.empty?
     @unchanged = issues_query_params_sanitized.empty?
@@ -54,10 +58,6 @@ class IssuesController < ApplicationController
       @ajax_mode = true
       render :partial => 'search_ajax'
     end
-  end
-
-  def search2
-
   end
 
   # GET /issues/init?[id=<optional filter id>]
