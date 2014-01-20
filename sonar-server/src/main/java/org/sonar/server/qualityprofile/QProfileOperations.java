@@ -92,7 +92,7 @@ public class QProfileOperations implements ServerComponent {
     return newProfile(name, language, null, failIfAlreadyExists, userSession, session);
   }
 
-  public QProfile newProfile(String name, String language, String parent, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
+  public QProfile newProfile(String name, String language, @Nullable String parent, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
     checkPermission(userSession);
     if (failIfAlreadyExists) {
       checkNotAlreadyExists(name, language, session);
