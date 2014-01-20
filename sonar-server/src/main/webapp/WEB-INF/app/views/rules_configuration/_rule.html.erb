@@ -37,6 +37,17 @@
       <% end %>
     </div>
   <% end %>
+  <% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
+  <div class="rule-tags">
+    <% rule.systemTags.each do |tag| %>
+    <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
+    <% end %>
+    <% rule.adminTags.each do |tag| %>
+    <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
+    <% end %>
+  </div>
+  <% end %>
+
 
   <div class="h3 rule-title"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
     page.toggle "desc_#{rule.id}"
@@ -108,15 +119,6 @@
       <span id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository') %>: <%= rule.repositoryKey %></span>
       &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
       <span id="rule_key_<%= rule.id -%>"><%= message('key') %>: <%= rule.key %></span>
-      <% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
-      &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-        <% rule.systemTags.each do |tag| %>
-        <span id="rule_tag_<%= rule.id -%>_<%= tag -%>" style="background-color: #efe;padding: 1px 2px"><%= tag -%></span>
-        <% end %>
-        <% rule.adminTags.each do |tag| %>
-        <span id="rule_tag_<%= rule.id -%>_<%= tag -%>" style="background-color: #eef;padding: 1px 2px"><%= tag -%></span>
-        <% end %>
-      <% end %>
       &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
       <% if rule.status == "REMOVED" %>
         <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since') %>: <%= human_short_date(Api::Utils.java_to_ruby_datetime(rule.updatedAt)) %></span>
