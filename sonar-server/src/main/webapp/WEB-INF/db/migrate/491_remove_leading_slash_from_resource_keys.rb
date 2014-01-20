@@ -29,7 +29,7 @@ class RemoveLeadingSlashFromResourceKeys < ActiveRecord::Migration
   end
 
   def self.up
-    resources = Project.find(:all)
+    resources = Project.find(:all, :conditions => ['path is not null'])
     resources.each do |resource|
       key = resource.kee.split(":").last
       prefix = resource.kee.chomp(key)
