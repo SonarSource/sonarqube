@@ -19,13 +19,18 @@
  */
 package org.sonar.server.ws;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.api.server.ws.Response;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 
 public class ServletResponse implements Response {
 
@@ -37,11 +42,7 @@ public class ServletResponse implements Response {
 
   @Override
   public JsonWriter newJsonWriter() {
-    try {
-      return JsonWriter.of(source.getWriter());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return JsonWriter.of(new Buffer(source));
   }
 
   @Override
@@ -54,7 +55,7 @@ public class ServletResponse implements Response {
   }
 
   @Override
-  public OutputStream output() {
+  public OutputStream stream() {
     try {
       return source.getOutputStream();
     } catch (IOException e) {
@@ -71,5 +72,29 @@ public class ServletResponse implements Response {
   public Response setStatus(int httpStatus) {
     source.setStatus(httpStatus);
     return this;
+  }
+
+  private static class Buffer extends StringWriter {
+    private final HttpServletResponse httpResponse;
+
+    public Buffer(HttpServletResponse httpResponse) {
+      this.httpResponse = httpResponse;
+    }
+
+    @Override
+    public void close() throws IOException {
+      super.close();
+
+      ServletOutputStream stream = null;
+      try {
+        stream = httpResponse.getOutputStream();
+        IOUtils.copy(new ByteArrayInputStream(toString().getBytes(Charsets.UTF_8)), stream);
+        stream.flush();
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to flush buffer", e);
+      } finally {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 }

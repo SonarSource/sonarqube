@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue;
+package org.sonar.server.issue.filter;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.IssueFinder;
@@ -62,33 +61,18 @@ import static org.mockito.Mockito.*;
 
 public class IssueFilterServiceTest {
 
-  private IssueFilterService service;
-
-  private IssueFilterDao issueFilterDao;
-  private IssueFilterFavouriteDao issueFilterFavouriteDao;
-  private IssueFinder issueFinder;
-  private AuthorizationDao authorizationDao;
-  private IssueFilterSerializer issueFilterSerializer;
-
-  private UserSession userSession;
-
-  @Before
-  public void before() {
-    userSession = MockUserSession.create().setLogin("john");
-
-    issueFilterDao = mock(IssueFilterDao.class);
-    issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
-    issueFinder = mock(IssueFinder.class);
-    authorizationDao = mock(AuthorizationDao.class);
-    issueFilterSerializer = mock(IssueFilterSerializer.class);
-
-    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao, issueFilterSerializer);
-  }
+  IssueFilterDao issueFilterDao = mock(IssueFilterDao.class);
+  IssueFilterFavouriteDao issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
+  IssueFinder issueFinder = mock(IssueFinder.class);
+  AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+  IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
+  UserSession userSession = MockUserSession.create().setLogin("john");
+  IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao, issueFilterSerializer);
 
   @Test
   public void should_find_by_id() {
-    IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
-    when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
+    IssueFilterDto dto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
+    when(issueFilterDao.selectById(1L)).thenReturn(dto);
 
     DefaultIssueFilter issueFilter = service.findById(1L);
     assertThat(issueFilter).isNotNull();
@@ -218,7 +202,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
-    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto> emptyList());
+    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto>emptyList());
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("henry").setShared(true)));
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue").setShared(true);
     try {
@@ -546,9 +530,9 @@ public class IssueFilterServiceTest {
   @Test
   public void should_find_shared_issue_filter() {
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(
-        new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
-        new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
-        ));
+      new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
+      new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
+    ));
 
     List<DefaultIssueFilter> results = service.findSharedFiltersWithoutUserFilters(userSession);
     assertThat(results).hasSize(1);
@@ -580,7 +564,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_issue_filter_id() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     boolean result = service.toggleFavouriteIssueFilter(1L, userSession);
@@ -596,7 +580,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_on_shared_filter() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     boolean result = service.toggleFavouriteIssueFilter(1L, userSession);
@@ -653,7 +637,7 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void user_can_share_filter_if_logged_and_own_sharing_permission(){
+  public void user_can_share_filter_if_logged_and_own_sharing_permission() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
     UserSession userSession = MockUserSession.create().setLogin("john");
     assertThat(service.canShareFilter(userSession)).isTrue();

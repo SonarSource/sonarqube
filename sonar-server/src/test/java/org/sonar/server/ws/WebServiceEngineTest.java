@@ -82,8 +82,18 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");
     assertThat(response.status()).isEqualTo(405);
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");
+  }
+
+  @Test
+  public void internal_error() throws Exception {
+    Request request = new SimpleRequest();
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "fail");
+
+    assertThat(response.status()).isEqualTo(500);
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
   }
 
   static class SystemWebService implements WebService {
@@ -94,7 +104,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.output().write("good".getBytes());
+            response.stream().write("good".getBytes());
           }
         });
       newController.newAction("ping")
@@ -102,7 +112,14 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.output().write("pong".getBytes());
+            response.stream().write("pong".getBytes());
+          }
+        });
+      newController.newAction("fail")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) throws Exception {
+            throw new IllegalStateException("Unexpected");
           }
         });
       newController.done();

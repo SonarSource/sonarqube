@@ -42,7 +42,7 @@ public class SimpleResponse implements Response {
   }
 
   @Override
-  public OutputStream output() {
+  public OutputStream stream() {
     return output;
   }
 

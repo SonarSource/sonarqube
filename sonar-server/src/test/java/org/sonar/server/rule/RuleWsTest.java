@@ -19,26 +19,21 @@
  */
 package org.sonar.server.rule;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.SimpleRequest;
-import org.sonar.api.server.ws.SimpleResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleWebServiceTest {
+public class RuleWsTest {
 
-  WebService.Context context = new WebService.Context();
-  RuleWebService ws = new RuleWebService();
+  RuleWs ws = new RuleWs();
+  WsTester tester = new WsTester(ws);
 
   @Test
   public void define_ws() throws Exception {
-    ws.define(context);
-
-    WebService.Controller controller = context.controller("api/rules");
+    WebService.Controller controller = tester.controller("api/rules");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
@@ -53,17 +48,7 @@ public class RuleWebServiceTest {
 
   @Test
   public void search_for_rules() throws Exception {
-    ws.define(context);
-    RequestHandler handler = context.controller("api/rules").action("search").handler();
     SimpleRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
-
-    handler.handle(request, response);
-
-    String json = response.outputAsString();
-    JSONAssert.assertEquals(
-      IOUtils.toString(getClass().getResource("/org/sonar/server/rule/RuleWebServiceTest/search.json")),
-      json, true
-    );
+    tester.execute("search", request).assertJson(getClass(), "search.json");
   }
 }

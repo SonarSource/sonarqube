@@ -85,6 +85,8 @@ import org.sonar.server.es.ESNode;
 import org.sonar.server.group.GroupMembershipFinder;
 import org.sonar.server.group.InternalGroupMembershipService;
 import org.sonar.server.issue.*;
+import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.filter.IssueFilterWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
@@ -102,7 +104,7 @@ import org.sonar.server.ui.*;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.util.*;
-import org.sonar.server.ws.ListingWebService;
+import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
 import javax.annotation.Nullable;
@@ -268,7 +270,7 @@ public final class Platform {
 
     // web services
     servicesContainer.addSingleton(WebServiceEngine.class);
-    servicesContainer.addSingleton(ListingWebService.class);
+    servicesContainer.addSingleton(ListingWs.class);
 
     // quality profiles
     servicesContainer.addSingleton(ProfileRules.class);
@@ -322,6 +324,7 @@ public final class Platform {
     servicesContainer.addSingleton(IssueFilterService.class);
     servicesContainer.addSingleton(IssueBulkChangeService.class);
     servicesContainer.addSingleton(IssueChangelogFormatter.class);
+    servicesContainer.addSingleton(IssueFilterWs.class);
     // issues actions
     servicesContainer.addSingleton(AssignAction.class);
     servicesContainer.addSingleton(PlanAction.class);
@@ -335,7 +338,7 @@ public final class Platform {
     servicesContainer.addSingleton(RuleTagLookup.class);
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);
-    servicesContainer.addSingleton(RuleWebService.class);
+    servicesContainer.addSingleton(RuleWs.class);
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);

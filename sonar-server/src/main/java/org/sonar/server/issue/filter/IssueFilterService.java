@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue;
+package org.sonar.server.issue.filter;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -43,15 +43,11 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @since 3.7
- */
 public class IssueFilterService implements ServerComponent {
 
   private final IssueFilterDao filterDao;
@@ -60,8 +56,9 @@ public class IssueFilterService implements ServerComponent {
   private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer serializer;
 
-  public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao, IssueFinder finder, AuthorizationDao authorizationDao,
-      IssueFilterSerializer serializer) {
+  public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao,
+                            IssueFinder finder, AuthorizationDao authorizationDao,
+                            IssueFilterSerializer serializer) {
     this.filterDao = filterDao;
     this.favouriteDao = favouriteDao;
     this.finder = finder;
@@ -205,7 +202,7 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterDto;
   }
 
-  public boolean canShareFilter(UserSession userSession){
+  public boolean canShareFilter(UserSession userSession) {
     if (userSession.isLoggedIn()) {
       String user = userSession.login();
       return hasUserSharingPermission(user);
@@ -213,7 +210,7 @@ public class IssueFilterService implements ServerComponent {
     return false;
   }
 
-  String getLoggedLogin(UserSession userSession) {
+  public String getLoggedLogin(UserSession userSession) {
     String user = userSession.login();
     if (!userSession.isLoggedIn()) {
       throw new UnauthorizedException("User is not logged in");
@@ -221,7 +218,7 @@ public class IssueFilterService implements ServerComponent {
     return user;
   }
 
-  void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, String login) {
+  public void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, String login) {
     if (!issueFilter.user().equals(login) && !issueFilter.shared()) {
       throw new ForbiddenException("User is not authorized to read this filter");
     }
@@ -301,8 +298,8 @@ public class IssueFilterService implements ServerComponent {
 
   private void addFavouriteIssueFilter(Long issueFilterId, String user) {
     IssueFilterFavouriteDto issueFilterFavouriteDto = new IssueFilterFavouriteDto()
-        .setIssueFilterId(issueFilterId)
-        .setUserLogin(user);
+      .setIssueFilterId(issueFilterId)
+      .setUserLogin(user);
     favouriteDao.insert(issueFilterFavouriteDto);
   }
 
@@ -338,7 +335,7 @@ public class IssueFilterService implements ServerComponent {
     return new IssueFilterResult(issueQueryResult, issueQuery);
   }
 
-  private boolean hasUserSharingPermission(String user){
+  private boolean hasUserSharingPermission(String user) {
     return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermissions.DASHBOARD_SHARING);
   }
 

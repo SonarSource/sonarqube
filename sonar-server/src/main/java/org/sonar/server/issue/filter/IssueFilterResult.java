@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.XmlWriter;
+package org.sonar.server.issue.filter;
 
-import java.io.OutputStream;
-import java.io.Writer;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 
 /**
- * HTTP response
- *
- * @since 4.2
+ * @since 3.7
  */
-public interface Response {
+public class IssueFilterResult {
 
-  int status();
+  private IssueQueryResult issueQueryResult;
+  private IssueQuery issueQuery;
 
-  Response setStatus(int httpStatus);
+  public IssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
+    this.issueQueryResult = issueQueryResult;
+    this.issueQuery = issueQuery;
+  }
 
-  JsonWriter newJsonWriter();
+  public IssueQueryResult result() {
+    return issueQueryResult;
+  }
 
-  XmlWriter newXmlWriter();
-
-  OutputStream stream();
-
+  public IssueQuery query() {
+    return issueQuery;
+  }
 }

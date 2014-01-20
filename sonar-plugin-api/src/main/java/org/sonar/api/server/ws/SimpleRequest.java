@@ -38,8 +38,10 @@ public class SimpleRequest extends Request {
     return this;
   }
 
-  public SimpleRequest setParams(String key, String value) {
-    this.params.put(key, value);
+  public SimpleRequest setParam(String key, @CheckForNull String value) {
+    if (value != null) {
+      params.put(key, value);
+    }
     return this;
   }
 

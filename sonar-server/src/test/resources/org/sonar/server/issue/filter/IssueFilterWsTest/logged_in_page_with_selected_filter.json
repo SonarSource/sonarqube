@@ -1,0 +1,12 @@
+{
+    "canManageFilter": true,
+    "canBulkChange": true,
+    "filter": {
+        "id": 13,
+        "name": "Blocker issues",
+        "shared": false,
+        "query": "severity=BLOCKER"
+    },
+    "favorites": [
+    ]
+}

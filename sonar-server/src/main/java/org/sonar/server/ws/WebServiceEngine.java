@@ -21,27 +21,21 @@ package org.sonar.server.ws;
 
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ServerException;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 /**
  * @since 4.2
  */
 public class WebServiceEngine implements ServerComponent, Startable {
-
-  static class RequestException extends Exception {
-    private final int httpStatus;
-
-    RequestException(int httpStatus, String message) {
-      super(message);
-      this.httpStatus = httpStatus;
-    }
-  }
 
   private final WebService.Context context;
 
@@ -50,10 +44,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
     for (WebService webService : webServices) {
       webService.define(context);
     }
-  }
-
-  public WebServiceEngine() {
-    this(new WebService[0]);
   }
 
   @Override
@@ -75,36 +65,36 @@ public class WebServiceEngine implements ServerComponent, Startable {
   }
 
   public void execute(Request request, Response response,
-                          String controllerPath, String actionKey) {
+                      String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
       verifyRequest(action, request);
       action.handler().handle(request, response);
 
-    } catch (RequestException e) {
-      sendError(e.httpStatus, e.getMessage(), response);
+    } catch (ServerException e) {
+      // TODO support ServerException l10n messages
+      sendError(e.httpCode(), e.getMessage(), response);
 
     } catch (Exception e) {
-      // TODO support authentication exceptions and others...
       sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage(), response);
     }
   }
 
-  private WebService.Action getAction(String controllerPath, String actionKey) throws RequestException {
+  private WebService.Action getAction(String controllerPath, String actionKey) {
     WebService.Controller controller = context.controller(controllerPath);
     if (controller == null) {
-      throw new RequestException(HttpServletResponse.SC_BAD_REQUEST, String.format("Unknown web service: %s", controllerPath));
+      throw new BadRequestException(String.format("Unknown web service: %s", controllerPath));
     }
     WebService.Action action = controller.action(actionKey);
     if (action == null) {
-      throw new RequestException(HttpServletResponse.SC_BAD_REQUEST, String.format("Unknown action: %s/%s", controllerPath, actionKey));
+      throw new BadRequestException(String.format("Unknown action: %s/%s", controllerPath, actionKey));
     }
     return action;
   }
 
-  private void verifyRequest(WebService.Action action, Request request) throws RequestException {
+  private void verifyRequest(WebService.Action action, Request request) {
     if (request.isPost() != action.isPost()) {
-      throw new RequestException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method POST is required");
+      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method POST is required");
     }
     // TODO verify required parameters
   }
@@ -112,7 +102,9 @@ public class WebServiceEngine implements ServerComponent, Startable {
   private void sendError(int status, String message, Response response) {
     response.setStatus(status);
 
-    JsonWriter json = response.newJsonWriter();
+    // Reset response by directly using the stream. Response#newJsonWriter()
+    // must not be used because it potentially contains some partial response
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(response.stream()));
     json.beginObject();
     json.name("errors").beginArray();
     json.beginObject().prop("msg", message).endObject();

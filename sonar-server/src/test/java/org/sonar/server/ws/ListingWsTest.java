@@ -26,13 +26,14 @@ import org.sonar.api.server.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ListingWebServiceTest {
+public class ListingWsTest {
+
+  ListingWs ws = new ListingWs();
+  WsTester tester = new WsTester(ws);
+
   @Test
   public void define_ws() throws Exception {
-    WebService.Context context = new WebService.Context();
-    new ListingWebService().define(context);
-
-    WebService.Controller controller = context.controller("api/webservices");
+    WebService.Controller controller = tester.controller("api/webservices");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/webservices");
     assertThat(controller.description()).isNotEmpty();
@@ -52,12 +53,11 @@ public class ListingWebServiceTest {
   public void index() throws Exception {
     // register web services, including itself
     WebService.Context context = new WebService.Context();
-    ListingWebService listingWs = new ListingWebService();
-    listingWs.define(context);
+    ws.define(context);
     new MetricWebService().define(context);
 
     SimpleResponse response = new SimpleResponse();
-    listingWs.list(context.controllers(), response);
+    ws.list(context.controllers(), response);
 
     JSONAssert.assertEquals(
       IOUtils.toString(getClass().getResource("/org/sonar/server/ws/ListingWebServiceTest/index.json")),

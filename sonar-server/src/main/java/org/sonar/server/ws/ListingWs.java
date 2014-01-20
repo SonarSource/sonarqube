@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @since 4.2
  */
-public class ListingWebService implements WebService {
+public class ListingWs implements WebService {
 
   @Override
   public void define(final Context context) {

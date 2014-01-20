@@ -17,30 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.server.issue.filter;
 
-package org.sonar.server.issue;
-
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
-
-/**
- * @since 3.7
- */
-public class IssueFilterResult {
-
-  private IssueQueryResult issueQueryResult;
-  private IssueQuery issueQuery;
-
-  public IssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
-    this.issueQueryResult = issueQueryResult;
-    this.issueQuery = issueQuery;
-  }
-
-  public IssueQueryResult result() {
-    return issueQueryResult;
-  }
-
-  public IssueQuery query() {
-    return issueQuery;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

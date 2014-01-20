@@ -30,6 +30,7 @@ import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.RubyIssueService;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.web.UserRole;
+import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;

@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
-public class RuleWebService implements WebService {
+public class RuleWs implements WebService {
 
   @Override
   public void define(Context context) {
