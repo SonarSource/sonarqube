@@ -254,4 +254,26 @@ public class QProfileBackupTest {
     verifyZeroInteractions(ruleRegistry);
     verifyZeroInteractions(dryRunCache);
   }
+
+  @Test
+  public void do_not_restore_if_new_profile_is_null_after_import() throws Exception {
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getName()).thenReturn("Default");
+    when(profile.getLanguage()).thenReturn("java");
+    when(profile.getId()).thenReturn(1);
+    when(xmlProfileParser.parse(any(Reader.class), any(ValidationMessages.class))).thenReturn(profile);
+
+    when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
+    when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(null);
+
+    try {
+      backup.restore("<xml/>", false, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Restore of the profile has failed.");
+    }
+
+    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(dryRunCache);
+  }
 }

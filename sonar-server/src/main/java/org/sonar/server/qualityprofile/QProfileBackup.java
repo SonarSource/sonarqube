@@ -92,11 +92,14 @@ public class QProfileBackup implements ServerComponent {
         hibernateSession.saveWithoutFlush(importedProfile);
         hibernateSession.commit();
 
-        QProfile profile = qProfileLookup.profile(importedProfile.getId(), session);
-        ruleRegistry.bulkIndexProfile(profile.id(), session);
+        QProfile newProfile = qProfileLookup.profile(importedProfile.getId(), session);
+        if (newProfile == null) {
+          throw new BadRequestException("Restore of the profile has failed.");
+        }
+        ruleRegistry.bulkIndexProfile(newProfile.id(), session);
         dryRunCache.reportGlobalModification(session);
         session.commit();
-        result.setProfile(profile);
+        result.setProfile(newProfile);
       }
     } finally {
       MyBatis.closeQuietly(session);
