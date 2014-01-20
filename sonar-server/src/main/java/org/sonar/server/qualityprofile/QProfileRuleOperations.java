@@ -20,8 +20,6 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.core.rule.RuleRuleTagDto;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
@@ -39,7 +37,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.RuleRuleTagDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
