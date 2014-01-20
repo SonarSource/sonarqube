@@ -122,8 +122,7 @@ public class ESRuleTagsTest {
   }
 
   private void checkTagCount(long count) {
-    assertThat(esSetup.client().prepareCount("rules").setTypes(ESRuleTags.TYPE_TAG)
-        .execute().actionGet().getCount()).isEqualTo(count);
+    assertThat(ruleTags.searchAllTags()).hasSize((int) count);
   }
 
   private RuleTagDto newRuleTagDto(String tagValue) {

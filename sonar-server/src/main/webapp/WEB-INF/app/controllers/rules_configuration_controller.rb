@@ -76,6 +76,7 @@ class RulesConfigurationController < ApplicationController
                                         [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
                                         [message('rules.status.ready'), Rule::STATUS_READY]]
       @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
+      @select_tags = ANY_SELECTION + Internal.quality_profiles.listAllTags().sort
     end
   end
 
@@ -346,6 +347,7 @@ class RulesConfigurationController < ApplicationController
     @activation = params[:rule_activation] || STATUS_ACTIVE
     @inheritance = params[:inheritance] || 'any'
     @status = params[:status]
+    @tags = filter_any(params[:tags]) || ['']
     @sort_by = !params[:sort_by].blank? ? params[:sort_by] : Rule::SORT_BY_RULE_NAME
     @searchtext = params[:searchtext]
   end
@@ -359,7 +361,8 @@ class RulesConfigurationController < ApplicationController
 
   def init_criteria()
     {"profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
-     "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "sort_by" => @sort_by}
+     "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "tags" => @tags,
+     "sort_by" => @sort_by}
   end
 
   def criteria_params

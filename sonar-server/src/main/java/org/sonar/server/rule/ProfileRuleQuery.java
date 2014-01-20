@@ -52,6 +52,7 @@ public class ProfileRuleQuery {
   private static final String PARAM_REPOSITORY_KEYS = "repositoryKeys";
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
+  private static final String PARAM_TAGS = "tags";
   private static final String PARAM_INHERITANCE = "inheritance";
   private static final String PARAM_SORT = "sort_by";
   private static final String PARAM_ASC = "asc";
@@ -100,6 +101,9 @@ public class ProfileRuleQuery {
     }
     if (params.get(PARAM_STATUSES) != null) {
       result.addStatuses(optionalVarargs(params.get(PARAM_STATUSES)));
+    }
+    if (params.get(PARAM_TAGS) != null) {
+      result.addTags(optionalVarargs(params.get(PARAM_TAGS)));
     }
 
     if (params.containsKey(PARAM_INHERITANCE)) {

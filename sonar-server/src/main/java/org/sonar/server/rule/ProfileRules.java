@@ -276,6 +276,13 @@ public class ProfileRules implements ServerExtension {
     BoolFilterBuilder filter = ruleFilterForActiveRuleSearch(query)
       .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
     addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
+
+    for (String tag: query.tags()) {
+      filter.must(
+        queryFilter(
+          multiMatchQuery(tag, RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS)));
+    }
+
     return filter;
   }
 

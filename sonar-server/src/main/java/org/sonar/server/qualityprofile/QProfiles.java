@@ -37,12 +37,14 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
+import org.sonar.server.rule.RuleTagLookup;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -69,11 +71,12 @@ public class QProfiles implements ServerComponent {
   private final QProfileActiveRuleOperations activeRuleOperations;
   private final QProfileRuleOperations ruleOperations;
   private final ProfileRules rules;
+  private final RuleTagLookup ruleTagLookup;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
                    QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
                    QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations,
-                   ProfileRules rules) {
+                   ProfileRules rules, RuleTagLookup ruleTagLookup) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
@@ -87,6 +90,7 @@ public class QProfiles implements ServerComponent {
     this.activeRuleOperations = activeRuleOperations;
     this.ruleOperations = ruleOperations;
     this.rules = rules;
+    this.ruleTagLookup = ruleTagLookup;
   }
 
   public List<QProfile> allProfiles() {
@@ -367,6 +371,9 @@ public class QProfiles implements ServerComponent {
     return activeRuleDao.selectByRuleId(rule.id()).size();
   }
 
+  public Collection<String> listAllTags() {
+    return ruleTagLookup.listAllTags();
+  }
 
   //
   // Quality profile validation

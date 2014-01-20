@@ -23,6 +23,7 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.rule.RuleTagDto;
 import org.sonar.server.es.ESIndex;
 
@@ -69,5 +70,12 @@ public class ESRuleTags {
     } catch(IOException ioException) {
       throw new IllegalStateException("Unable to index tags", ioException);
     }
+  }
+
+  public Collection<String> searchAllTags() {
+    final int scrollSize = 50;
+    return index.findDocumentIds(index.client().prepareSearch(RuleRegistry.INDEX_RULES)
+      .setTypes(TYPE_TAG)
+      .addSort(RuleTagDocument.FIELD_VALUE, SortOrder.ASC), scrollSize);
   }
 }

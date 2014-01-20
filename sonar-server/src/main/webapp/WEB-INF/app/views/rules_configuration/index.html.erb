@@ -85,6 +85,14 @@
           }, {:id => 'search_inheritance'} -%>
         </div>
       <% end %>
+      <div class="rule-search top">
+        <span class="note"><%= message('rules_configuration.tags_filters') -%></span><br/>
+        <%= dropdown_tag "tags", options_for_select(@select_tags, @tags), {
+            :show_search_box => true,
+            :width => '120px',
+            :placeholder => message('any')
+        }, {:id => 'search_tag', :multiple => true} -%>
+      </div>
       <div class="rule-search">
         <br/>
         <%= submit_tag message('search_verb'), :id => 'submit_search', :onclick => 'submitSearch();' %>

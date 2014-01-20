@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
+import org.sonar.server.rule.RuleTagLookup;
 import org.sonar.server.user.UserSession;
 
 import java.util.Map;
@@ -49,9 +50,9 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -96,12 +97,15 @@ public class QProfilesTest {
   @Mock
   ProfileRules rules;
 
+  @Mock
+  RuleTagLookup ruleTagLookup;
+
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
     qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, exporter,
-      profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules);
+      profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules, ruleTagLookup);
   }
 
   @Test
