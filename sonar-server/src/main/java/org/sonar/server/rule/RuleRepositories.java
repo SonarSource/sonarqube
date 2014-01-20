@@ -77,6 +77,13 @@ public class RuleRepositories implements ServerComponent {
     }
 
     /**
+     * Kept for backward-compatibility in SQALE
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
      * Kept for backward-compatibility in Ruby code
      */
     public String getLanguage() {
