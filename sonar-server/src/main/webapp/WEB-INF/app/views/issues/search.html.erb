@@ -30,7 +30,7 @@
     severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
     statuses: <%= @options_for_statuses.to_json.html_safe -%>,
     resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,
-    favorites: <%= render :partial => 'issues/filter_favourites2' -%>,
+    favorites: <%= render :partial => 'issues/filter_favourites' -%>,
 
     phrases: {
       'any':           '<%= escape_javascript message('any') -%>',
