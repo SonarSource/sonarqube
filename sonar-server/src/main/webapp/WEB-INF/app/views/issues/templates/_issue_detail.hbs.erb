@@ -26,7 +26,7 @@
           <a href="#tab-issue-rule"><%= message('rule') -%></a>
         </li>
         <li>
-          <a href="/dev/issue/changelog/{{key}}"><%= message('changelog') -%></a>
+          <a href="<%= ApplicationController.root_context -%>/issue/changelog/{{key}}"><%= message('changelog') -%></a>
         </li>
       </ul>
 
