@@ -29,6 +29,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
@@ -41,6 +42,11 @@ public class ProfilesManager extends BaseDao {
   public ProfilesManager(DatabaseSession session, RulesDao rulesDao, PreviewCache dryRunCache) {
     super(session);
     this.rulesDao = rulesDao;
+    this.dryRunCache = dryRunCache;
+  }
+
+  public ProfilesManager(DatabaseSession session, PreviewCache dryRunCache) {
+    super(session);
     this.dryRunCache = dryRunCache;
   }
 
@@ -137,7 +143,7 @@ public class ProfilesManager extends BaseDao {
   /**
    * Rule param was changed
    */
-  public RuleInheritanceActions ruleParamChanged(int profileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
+  public RuleInheritanceActions ruleParamChanged(int profileId, int activeRuleId, String paramKey, @Nullable String oldValue, @Nullable String newValue, String userName) {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
 
@@ -391,12 +397,14 @@ public class ProfilesManager extends BaseDao {
     getSession().removeWithoutFlush(activeRule);
   }
 
-  RulesProfile getProfile(String language, String name) {
+  @CheckForNull
+  RulesProfile getProfile(String language, @Nullable String name) {
     return getSession().getSingleResult(RulesProfile.class,
       "language", language,
       "name", name);
   }
 
+  @CheckForNull
   RulesProfile getParentProfile(RulesProfile profile) {
     if (profile.getParentName() == null) {
       return null;

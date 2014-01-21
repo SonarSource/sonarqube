@@ -26,9 +26,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
 import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
@@ -118,7 +118,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.insert(activeRuleParam, session);
     }
     session.commit();
-    ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(profileId, activeRule.getId(), userSession.name());
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(profileId, activeRule.getId(), getLoggedName(userSession));
     reindexInheritanceResult(actions, session);
     return activeRule;
   }
@@ -159,7 +159,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private boolean deactivateRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
     if (activeRule.getInheritance() == null) {
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), userSession.name());
+      ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), getLoggedName(userSession));
 
       activeRuleDao.deleteParameters(activeRule.getId(), session);
       activeRuleDao.delete(activeRule.getId(), session);
@@ -219,7 +219,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     activeRuleDao.insert(activeRuleParam, session);
     session.commit();
 
-    ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, null, value, userSession.name());
+    ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(
+      activeRule.getProfileId(), activeRule.getId(), key, null, value, getLoggedName(userSession));
     reindexInheritanceResult(actions, session);
   }
 
@@ -310,7 +311,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       } else {
         activeRuleDao.deleteParameter(param.getId(), session);
         session.commit();
-        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, param.getValue(), null, userSession.name()));
+        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, param.getValue(), null, getLoggedName(userSession)));
       }
       paramKeys.add(key);
     }
@@ -321,7 +322,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
         activeRuleDao.insert(activeRuleParam, session);
         session.commit();
         newParams.add(activeRuleParam);
-        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(), userSession.name()));
+        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(), getLoggedName(userSession)));
       }
     }
     return newParams;
@@ -336,7 +337,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       activeRuleDao.update(activeRule, session);
       session.commit();
       actions.add(profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
-        RulePriority.valueOf(getSeverityFromOrdinal(oldSeverity)), RulePriority.valueOf(getSeverityFromOrdinal(newSeverity)), userSession.name()));
+        RulePriority.valueOf(getSeverityFromOrdinal(oldSeverity)), RulePriority.valueOf(getSeverityFromOrdinal(newSeverity)), getLoggedName(userSession)));
     }
   }
 
@@ -382,7 +383,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     ProfilesManager.RuleInheritanceActions actions = new ProfilesManager.RuleInheritanceActions();
     for (ActiveRuleParamDto activeRuleParam : params) {
       actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), activeRuleParam.getValue(),
-        null, userSession.name()));
+        null, getLoggedName(userSession)));
     }
     reindexInheritanceResult(actions, session);
   }
@@ -390,7 +391,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private void notifySeverityChanged(ActiveRuleDto activeRule, String newSeverity, String oldSeverity, SqlSession session, UserSession userSession) {
     ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
       RulePriority.valueOf(oldSeverity), RulePriority.valueOf(newSeverity),
-      userSession.name());
+      getLoggedName(userSession));
     reindexInheritanceResult(actions, session);
   }
 

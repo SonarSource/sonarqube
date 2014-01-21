@@ -98,7 +98,7 @@ public class ProfilesBackup {
   public void importXml(SonarConfig sonarConfig) {
     if (sonarConfig.getProfiles() != null && !sonarConfig.getProfiles().isEmpty()) {
       LoggerFactory.getLogger(getClass()).info("Delete profiles");
-      ProfilesManager profilesManager = new ProfilesManager(session, null, dryRunCache);
+      ProfilesManager profilesManager = new ProfilesManager(session, dryRunCache);
       profilesManager.deleteAllProfiles();
 
       RulesDao rulesDao = new RulesDao(session);
