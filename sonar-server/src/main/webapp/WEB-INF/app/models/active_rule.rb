@@ -94,14 +94,6 @@ class ActiveRule < ActiveRecord::Base
     nil
   end
 
-  def copy
-    new_active_rule = ActiveRule.new(:rule => rule, :failure_level => failure_level)
-    self.active_rule_parameters.each do |active_rule_parameter|
-      new_active_rule.active_rule_parameters << active_rule_parameter.copy
-    end
-    new_active_rule
-  end
-
   def inherited?
     inheritance=='INHERITED'
   end

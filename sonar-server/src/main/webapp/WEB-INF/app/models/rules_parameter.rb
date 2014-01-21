@@ -25,18 +25,6 @@ class RulesParameter < ActiveRecord::Base
   validates_presence_of :name, :param_type
   belongs_to :rule
 
-  def is_set_type
-    param_type.at(1) == "[" && param_type.ends_with?("]")
-  end
-
-  def get_allowed_tokens
-    param_type[2, param_type.length-3].split(",")
-  end
-
-  def validate_value(attribute, errors, value)
-    validate_rule_param(attribute, param_type, errors, value)
-  end
-
   def to_hash_json(active_rule)
     json = {'name' => name}
     json['description']=description if description

@@ -31,12 +31,4 @@
      rules_parameter
    end
 
-   def validate
-     rules_parameter.validate_value(value, errors, "value")
-   end
-
-   def copy
-     ActiveRuleParameter.new(:rules_parameter => rules_parameter, :value => value, :rules_parameter_key => rules_parameter.name)
-   end
-
  end
