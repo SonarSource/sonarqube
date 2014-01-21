@@ -237,7 +237,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private Resource resourceOrProject(Resource resource) {
-    return resource != null ? getResource(resource) : project;
+    if (resource == null) {
+      return project;
+    }
+    Resource indexedResource = getResource(resource);
+    return indexedResource != null ? indexedResource : resource;
   }
 
   @Override
