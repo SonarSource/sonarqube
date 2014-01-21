@@ -20,7 +20,6 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleTagFormat;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -54,7 +53,7 @@ public class RuleTagFormatTest {
       RuleTagFormat.validate("  ");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Whitespaces are not allowed in rule tags: '  '");
+      assertThat(e).hasMessage("Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.' - '  '");
     }
   }
 }
