@@ -16,8 +16,10 @@ jQuery(function() {
 
     parse: function(r) {
 
-      function find(source, key) {
-        return _.findWhere(source, { key: key }) || key;
+      function find(source, key, keyField) {
+        var searchDict = {};
+        searchDict[keyField || 'key'] = key;
+        return _.findWhere(source, searchDict) || key;
       }
 
       this.paging = r.paging;
@@ -26,7 +28,13 @@ jQuery(function() {
         return _.extend({}, issue, {
           component: find(r.components, issue.component),
           project: find(r.projects, issue.project),
-          rule: find(r.rules, issue.rule)
+          rule: find(r.rules, issue.rule),
+          author: find(r.users, issue.author, 'login'),
+          comments: (issue.comments || []).map(function(comment) {
+            return _.extend({}, comment, {
+              user: find(r.users, comment.login, 'login')
+            });
+          })
         });
       });
 

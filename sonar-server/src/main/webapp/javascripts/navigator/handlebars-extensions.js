@@ -26,4 +26,12 @@
     return moment(time).fromNow(true);
   });
 
+  Handlebars.registerHelper('dashboardUrl', function(component) {
+    var url = '/dashboard/index/' + decodeURIComponent(component.key);
+    if (component.qualifier === 'FIL' || component.qualifier === 'CLA') {
+      url += '?metric=sqale_index';
+    }
+    return url;
+  });
+
 })();

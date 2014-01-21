@@ -3,7 +3,7 @@
     <div class="subtitle">{{project.longName}}</div>
     <span class="h1">
       {{#if component.longName}}
-        {{component.longName}}
+        <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component}}">{{component.longName}}</a>
       {{else}}
         {{component}} [<del><%= message('issue.component_deleted') %></del>]
       {{/if}}
@@ -105,15 +105,18 @@
       </div>
     </div>
 
-    {{#each comments}}
-      <div class="code-issue-comment" data-comment-key="{{key}}">
-        <h4>
-          <%= image_tag('reviews/comment.png') -%> &nbsp;<b>{{login}}</b>
-          ({{fromNow createdAt}})
-        </h4>
-        {{{htmlText}}}
-      </div>
-    {{/each}}
+    <div class="code-issue-comments">
+      {{#each comments}}
+        <div class="code-issue-comment" data-comment-key="{{key}}">
+          <h4>
+            <%= image_tag('reviews/comment.png') -%>
+            <b>{{#if user}}{{user.name}}{{else}}{{login}}{{/if}}</b>
+            ({{fromNow createdAt}})
+          </h4>
+          {{{htmlText}}}
+        </div>
+      {{/each}}
+    </div>
 
     <div class="code-issue-actions">
       <a href="#" onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus="">Comment</a>

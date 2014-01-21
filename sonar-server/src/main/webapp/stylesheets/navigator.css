@@ -189,6 +189,9 @@
 .navigator-details.loading {
   background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
 }
+.navigator-details .source_title {
+  padding: 0 0 10px;
+}
 .navigator-actions {
   padding: 0 10px 0 0;
   line-height: 30px;
