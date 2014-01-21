@@ -392,6 +392,7 @@ public class QProfileOperationsTest {
     operations.copyProfile(1, "Copy Default", authorizedUserSession);
 
     verify(profilesManager).copyProfile(1, "Copy Default");
+    verify(session).commit();
     verify(ruleRegistry).bulkIndexProfile(2, session);
   }
 
@@ -408,6 +409,7 @@ public class QProfileOperationsTest {
     }
 
     verifyZeroInteractions(profilesManager);
+    verify(session, never()).commit();
     verifyZeroInteractions(ruleRegistry);
   }
 
@@ -425,6 +427,7 @@ public class QProfileOperationsTest {
     }
 
     verifyZeroInteractions(profilesManager);
+    verify(session, never()).commit();
     verifyZeroInteractions(ruleRegistry);
   }
 

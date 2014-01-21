@@ -199,6 +199,7 @@ public class QProfileOperations implements ServerComponent {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
       int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
+      session.commit();
       ruleRegistry.bulkIndexProfile(copyProfileId, session);
     } finally {
       MyBatis.closeQuietly(session);
