@@ -19,9 +19,9 @@
  */
 package org.sonar.core.rule;
 
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.api.ServerExtension;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.ServerExtension;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
 
@@ -50,6 +50,7 @@ public class RuleTagDao implements ServerExtension {
     SqlSession session = myBatis.openSession();
     try {
       insert(newRuleTag, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -63,6 +64,7 @@ public class RuleTagDao implements ServerExtension {
     SqlSession session = myBatis.openSession();
     try {
       delete(tagId, session);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -70,5 +72,18 @@ public class RuleTagDao implements ServerExtension {
 
   public void delete(long tagId, SqlSession session) {
     session.getMapper(RuleTagMapper.class).delete(tagId);
+  }
+
+  public Long selectId(String tag) {
+    SqlSession session = myBatis.openSession();
+    try {
+      return selectId(tag, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public Long selectId(String tag, SqlSession session) {
+    return session.getMapper(RuleTagMapper.class).selectId(tag);
   }
 }

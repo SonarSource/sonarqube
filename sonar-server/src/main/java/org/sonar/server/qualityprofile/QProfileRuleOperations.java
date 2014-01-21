@@ -24,6 +24,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.Severity;
@@ -34,17 +37,16 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.*;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -53,19 +55,21 @@ public class QProfileRuleOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
+  private final RuleTagDao ruleTagDao;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
-  public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, ruleRegistry, System2.INSTANCE);
+  public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleRegistry ruleRegistry) {
+    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleRegistry ruleRegistry, System2 system) {
+  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
+    this.ruleTagDao = ruleTagDao;
     this.ruleRegistry = ruleRegistry;
     this.system = system;
   }
@@ -219,6 +223,57 @@ public class QProfileRuleOperations implements ServerComponent {
     }
   }
 
+  public void updateTags(RuleDto rule, List<String> newTags, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      boolean ruleChanged = false;
+      Map<String, Long> neededTagIds = Maps.newHashMap();
+      Set<String> unknownTags = Sets.newHashSet();
+      for (String tag: newTags) {
+        Long tagId = ruleTagDao.selectId(tag, session);
+        if (tagId == null) {
+          unknownTags.add(tag);
+        } else {
+          neededTagIds.put(tag, tagId);
+        }
+      }
+      if (!unknownTags.isEmpty()) {
+        throw new NotFoundException("The following tags are unknown and must be created before association: "
+          + StringUtils.join(unknownTags, ", "));
+      }
+
+      Set<String> tagsToKeep = Sets.newHashSet();
+      final Integer ruleId = rule.getId();
+
+      List<RuleRuleTagDto> currentTags = ruleDao.selectTags(ruleId, session);
+      for (RuleRuleTagDto existingTag: currentTags) {
+        if(existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
+          ruleDao.deleteTag(existingTag, session);
+          ruleChanged = true;
+        } else {
+          tagsToKeep.add(existingTag.getTag());
+        }
+      }
+
+      for (String tag: newTags) {
+        if (! tagsToKeep.contains(tag)) {
+          ruleDao.insert(new RuleRuleTagDto().setRuleId(ruleId).setTagId(neededTagIds.get(tag)).setType(RuleTagType.ADMIN), session);
+          ruleChanged = true;
+        }
+      }
+
+      if (ruleChanged) {
+        rule.setUpdatedAt(new Date(system.now()));
+        ruleDao.update(rule, session);
+        session.commit();
+        reindexRule(rule, session);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   private void reindexRule(RuleDto rule, SqlSession session) {
     reindexRule(rule, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
   }
@@ -243,5 +298,4 @@ public class QProfileRuleOperations implements ServerComponent {
   private static int getSeverityOrdinal(String severity) {
     return Severity.ALL.indexOf(severity);
   }
-
 }

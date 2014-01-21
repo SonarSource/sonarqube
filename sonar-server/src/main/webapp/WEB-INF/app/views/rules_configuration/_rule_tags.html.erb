@@ -1,0 +1,9 @@
+<% #locals = rule -%>
+<% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
+  <% rule.systemTags.each do |tag| %>
+  <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
+  <% end %>
+  <% rule.adminTags.each do |tag| %>
+  <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
+  <% end %>
+<% end %>

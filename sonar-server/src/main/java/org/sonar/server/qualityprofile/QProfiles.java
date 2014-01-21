@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableList;
+
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
@@ -39,6 +41,7 @@ import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleTagLookup;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
@@ -373,6 +376,16 @@ public class QProfiles implements ServerComponent {
 
   public Collection<String> listAllTags() {
     return ruleTagLookup.listAllTags();
+  }
+
+  public QProfileRule updateRuleTags(int ruleId, Object tags) {
+    RuleDto rule = findRuleNotNull(ruleId);
+    List<String> newTags = RubyUtils.toStrings(tags);
+    if (newTags == null) {
+      newTags = ImmutableList.of();
+    }
+    ruleOperations.updateTags(rule, newTags, UserSession.get());
+    return rules.findByRuleId(ruleId);
   }
 
   //

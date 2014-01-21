@@ -19,15 +19,49 @@
  */
 package org.sonar.core.rule;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
-public interface RuleTagMapper {
+import static org.fest.assertions.Assertions.assertThat;
 
-  List<RuleTagDto> selectAll();
+public class RuleTagDaoTest extends AbstractDaoTestCase {
 
-  void insert(RuleTagDto newTag);
+  RuleTagDao dao;
 
-  void delete(Long tagId);
+  @Before
+  public void createDao() {
+    dao = new RuleTagDao(getMyBatis());
+  }
 
-  Long selectId(String tag);
+  @Test
+  public void should_select_all_tags() {
+    setupData("shared");
+
+    assertThat(dao.selectAll()).hasSize(3);
+  }
+
+  @Test
+  public void should_select_id() {
+    setupData("shared");
+
+    assertThat(dao.selectId("tag1")).isEqualTo(1L);
+    assertThat(dao.selectId("unknown")).isNull();
+  }
+
+  @Test
+  public void should_insert_tag() {
+    setupData("shared");
+
+    dao.insert(new RuleTagDto().setTag("tag4"));
+    checkTable("insert", "rule_tags");
+  }
+
+  @Test
+  public void should_delete_tag() {
+    setupData("shared");
+
+    dao.delete(1L);
+    checkTable("delete", "rule_tags");
+  }
 }

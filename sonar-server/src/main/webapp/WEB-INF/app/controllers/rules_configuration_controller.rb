@@ -337,6 +337,23 @@ class RulesConfigurationController < ApplicationController
     render :partial => 'active_rule_note', :locals => {:rule => rule}
   end
 
+  def show_select_tags
+    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
+    tags = []
+    Internal.quality_profiles.listAllTags().sort.each do |tag|
+      tags.push({
+        :value => tag,
+        :selected => (rule.systemTags.contains?(tag) || rule.adminTags.contains?(tag)),
+        :read_only => rule.systemTags.contains?(tag)
+      })
+    end
+    render :partial => 'select_tags', :locals => { :rule => rule, :tags => tags, :profile_id => params[:profile_id] }
+  end
+
+  def select_tags
+    rule = Internal.quality_profiles.updateRuleTags(params[:rule_id].to_i, params[:tags])
+    render :partial => 'rule_tags', :locals => {:rule => rule}
+  end
 
   private
 

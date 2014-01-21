@@ -17,5 +17,11 @@
     DELETE FROM rule_tags WHERE id=#{tagId}
   </update>
 
+  <select id="selectId" resultType="Long" parameterType="String">
+    SELECT id
+    FROM rule_tags
+    WHERE tag=#{tag}
+  </select>
+
 </mapper>
 

@@ -37,17 +37,9 @@
       <% end %>
     </div>
   <% end %>
-  <% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
-  <div class="rule-tags">
-    <% rule.systemTags.each do |tag| %>
-    <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
-    <% end %>
-    <% rule.adminTags.each do |tag| %>
-    <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
-    <% end %>
+  <div class="rule-tags" id="rule_tags_<%= rule.id %>">
+  <%= render :partial => 'rule_tags', :locals => {:rule => rule} -%>
   </div>
-  <% end %>
-
 
   <div class="h3 rule-title"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
     page.toggle "desc_#{rule.id}"
@@ -98,6 +90,12 @@
            end
         %>
       </table>
+    <% end %>
+
+    <% if profiles_administrator? %>
+      <div id="open_rule_tags_<%= rule.id -%>">
+          <a class="link-action open-modal" href="<%=ApplicationController.root_context-%>/rules_configuration/show_select_tags?rule_id=<%=rule.id-%>&amp;profile_id=<%= u profile.id %>">Select Tags</a>
+      </div>
     <% end %>
 
     <% if is_activated %>

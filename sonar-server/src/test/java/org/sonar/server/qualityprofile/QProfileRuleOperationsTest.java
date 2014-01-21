@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
@@ -41,6 +42,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.*;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -73,6 +75,9 @@ public class QProfileRuleOperationsTest {
   RuleDao ruleDao;
 
   @Mock
+  RuleTagDao ruleTagDao;
+
+  @Mock
   RuleRegistry ruleRegistry;
 
   @Mock
@@ -99,7 +104,7 @@ public class QProfileRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleRegistry, system);
+    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleRegistry, system);
   }
 
   @Test
@@ -283,4 +288,70 @@ public class QProfileRuleOperationsTest {
     verify(ruleRegistry).deleteActiveRules(newArrayList(activeRuleId));
   }
 
+  @Test(expected = ForbiddenException.class)
+  public void should_fail_update_tags_on_unauthorized_user() {
+    operations.updateTags(new RuleDto(), ImmutableList.of("polop"), unauthorizedUserSession);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_fail_update_tags_on_unknown_tag() {
+    final String tag = "polop";
+    when(ruleTagDao.selectId(tag, session)).thenReturn(null);
+    operations.updateTags(new RuleDto(), ImmutableList.of(tag), authorizedUserSession);
+  }
+
+  @Test
+  public void should_add_new_tags() {
+    final int ruleId = 24;
+    final RuleDto rule = new RuleDto().setId(ruleId);
+    final String tag = "polop";
+    final long tagId = 42L;
+    when(ruleTagDao.selectId(tag, session)).thenReturn(tagId);
+
+    operations.updateTags(rule, ImmutableList.of(tag), authorizedUserSession);
+
+    verify(ruleTagDao).selectId(tag, session);
+    ArgumentCaptor<RuleRuleTagDto> capture = ArgumentCaptor.forClass(RuleRuleTagDto.class);
+    verify(ruleDao).insert(capture.capture(), eq(session));
+    final RuleRuleTagDto newTag = capture.getValue();
+    assertThat(newTag.getRuleId()).isEqualTo(ruleId);
+    assertThat(newTag.getTagId()).isEqualTo(tagId);
+    assertThat(newTag.getType()).isEqualTo(RuleTagType.ADMIN);
+    verify(ruleDao).update(rule, session);
+    verify(session).commit();
+  }
+
+  @Test
+  public void should_delete_removed_tags() {
+    final int ruleId = 24;
+    final RuleDto rule = new RuleDto().setId(ruleId);
+    final String tag = "polop";
+    RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
+    when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
+
+
+    operations.updateTags(rule, ImmutableList.<String>of(), authorizedUserSession);
+
+    verify(ruleDao, atLeast(1)).selectTags(ruleId, session);
+    verify(ruleDao).deleteTag(existingTag, session);
+    verify(ruleDao).update(rule, session);
+    verify(session).commit();
+  }
+
+  @Test
+  public void should_not_update_rule_if_tags_unchanged() {
+    final int ruleId = 24;
+    final RuleDto rule = new RuleDto().setId(ruleId);
+    final String tag = "polop";
+    final long tagId = 42L;
+    when(ruleTagDao.selectId(tag, session)).thenReturn(tagId);
+    RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
+    when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
+
+    operations.updateTags(rule, ImmutableList.of(tag), authorizedUserSession);
+
+    verify(ruleTagDao).selectId(tag, session);
+    verify(ruleDao).selectTags(ruleId, session);
+    verify(ruleDao, never()).update(rule);
+  }
 }

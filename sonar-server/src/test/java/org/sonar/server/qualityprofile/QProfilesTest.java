@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
@@ -43,16 +44,15 @@ import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.rule.RuleTagLookup;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -648,4 +648,32 @@ public class QProfilesTest {
     assertThat(qProfiles.countActiveRules(rule)).isEqualTo(2);
   }
 
+  @Test
+  public void should_find_all_tags() {
+    Collection<String> tags = ImmutableList.of("tag1", "tag2");
+    when(ruleTagLookup.listAllTags()).thenReturn(tags);
+    assertThat(qProfiles.listAllTags()).isEqualTo(tags);
+    verify(ruleTagLookup).listAllTags();
+  }
+
+  @Test
+  public void should_pass_tags_to_update() {
+    final int ruleId = 11;
+    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
+    when(ruleDao.selectById(ruleId)).thenReturn(rule);
+
+    qProfiles.updateRuleTags(ruleId, null);
+    verify(ruleOperations).updateTags(eq(rule), isA(List.class), any(UserSession.class));
+  }
+
+  @Test
+  public void should_prepare_empty_tag_list() {
+    final int ruleId = 11;
+    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
+    when(ruleDao.selectById(ruleId)).thenReturn(rule);
+
+    List<String> tags = ImmutableList.of("tag1", "tag2");
+    qProfiles.updateRuleTags(ruleId, tags);
+    verify(ruleOperations).updateTags(eq(rule), eq(tags), any(UserSession.class));
+  }
 }
