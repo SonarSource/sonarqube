@@ -96,8 +96,8 @@ public class ProfileRuleQueryTest {
   @Test
   public void parse_with_sort() {
     ProfileRuleQuery query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42),
-      "sort_by", ProfileRuleQuery.SORT_BY_CREATION_DATE));
-    assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_CREATION_DATE);
+      "sort_by", ProfileRuleQuery.SORT_BY_RULE_NAME, "asc", "true"));
+    assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_RULE_NAME);
     assertThat(query.asc()).isTrue();
 
     query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42),
@@ -105,6 +105,7 @@ public class ProfileRuleQueryTest {
     assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_RULE_NAME);
     assertThat(query.asc()).isFalse();
 
+    // Default sort
     query = ProfileRuleQuery.parse(ImmutableMap.of("profileId", (Object) Integer.toString(42)));
     assertThat(query.sort()).isEqualTo(ProfileRuleQuery.SORT_BY_RULE_NAME);
     assertThat(query.asc()).isTrue();

@@ -360,9 +360,16 @@ class RulesConfigurationController < ApplicationController
   end
 
   def init_criteria()
+    if @sort_by == Rule::SORT_BY_RULE_NAME
+      asc = true
+    elsif @sort_by == Rule::SORT_BY_CREATION_DATE
+      asc = false
+    else
+      asc = true
+    end
     {"profileId" => @profile.id.to_i, "activation" => @activation, "severities" => @priorities, "inheritance" => @inheritance, "statuses" => @status,
      "repositoryKeys" => @repositories, "nameOrKey" => @searchtext, "include_parameters_and_notes" => true, "language" => @profile.language, "tags" => @tags,
-     "sort_by" => @sort_by}
+     "sort_by" => @sort_by, "asc" => asc}
   end
 
   def criteria_params
