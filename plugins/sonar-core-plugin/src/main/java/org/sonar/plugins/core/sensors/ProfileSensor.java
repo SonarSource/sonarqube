@@ -26,33 +26,41 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.scan.language.ModuleLanguages;
 
 public class ProfileSensor implements Sensor {
 
   private final RulesProfile profile;
   private final DatabaseSession session;
+  private ModuleLanguages languages;
 
-  public ProfileSensor(RulesProfile profile, DatabaseSession session) {
+  public ProfileSensor(RulesProfile profile, DatabaseSession session, ModuleLanguages languages) {
     this.profile = profile;
     this.session = session;
+    this.languages = languages;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    // Views will define a fake profile with a null id
-    return profile.getId() != null;
+    // Views will define a fake profile
+    return profile instanceof RulesProfileWrapper;
   }
 
   public void analyse(Project project, SensorContext context) {
-    Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
-    Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());
-    if (profile.getId() != null) {
-      measure.setValue(profile.getId().doubleValue());
+    RulesProfileWrapper wrapper = (RulesProfileWrapper) profile;
+    for (String languageKey : languages.getModuleLanguageKeys()) {
+      RulesProfile realProfile = wrapper.getProfileByLanguage(languageKey);
+      Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
+      Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());
+      if (realProfile.getId() != null) {
+        measure.setValue(realProfile.getId().doubleValue());
 
-      profile.setUsed(true);
-      session.merge(profile);
+        realProfile.setUsed(true);
+        session.merge(realProfile);
+      }
+      context.saveMeasure(measure);
+      context.saveMeasure(measureVersion);
     }
-    context.saveMeasure(measure);
-    context.saveMeasure(measureVersion);
   }
 
   @Override

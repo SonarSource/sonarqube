@@ -28,6 +28,7 @@ import org.sonar.api.ServerComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +88,14 @@ public class Languages implements BatchComponent, ServerComponent {
    */
   public void add(Language language) {
     map.put(language.getKey(), language);
+  }
+
+  /**
+   * @since 4.2
+   */
+  public Language[] all() {
+    Collection<Language> languages = map.values();
+    return languages.toArray(new Language[languages.size()]);
   }
 
 }

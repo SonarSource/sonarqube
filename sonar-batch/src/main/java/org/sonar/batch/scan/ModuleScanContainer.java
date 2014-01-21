@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.scan.filesystem.ComponentIndexer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -28,9 +30,11 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
+import org.sonar.batch.DefaultProfileLoader;
 import org.sonar.batch.DefaultProjectClasspath;
 import org.sonar.batch.DefaultSensorContext;
 import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProfileLoader;
 import org.sonar.batch.ProfileProvider;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
@@ -46,7 +50,6 @@ import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
-import org.sonar.batch.phases.FileIndexer;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
@@ -59,6 +62,7 @@ import org.sonar.batch.scan.filesystem.LanguageRecognizer;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.RemoteFileHashes;
+import org.sonar.batch.scan.language.ModuleLanguages;
 import org.sonar.batch.scan.report.ComponentSelectorFactory;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
@@ -91,6 +95,11 @@ public class ModuleScanContainer extends ComponentContainer {
     // hack to initialize commons-configuration before ExtensionProviders
     getComponentByType(ModuleSettings.class);
 
+    // Don't override ProfileLoader provided by views plugin in parent container
+    if (getComponentByType(ProfileLoader.class) == null) {
+      add(DefaultProfileLoader.class);
+    }
+
     add(
       EventBus.class,
       PhaseExecutor.class,
@@ -109,7 +118,8 @@ public class ModuleScanContainer extends ComponentContainer {
       FileHashes.class,
       RemoteFileHashes.class,
       FileIndex.class,
-      FileIndexer.class,
+      ComponentIndexer.class,
+      ModuleLanguages.class,
       LanguageRecognizer.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,

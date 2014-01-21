@@ -19,27 +19,34 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatcher;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
+import org.sonar.api.utils.SonarException;
 
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class LanguageRecognizerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void test_sanitizeExtension() throws Exception {
@@ -51,65 +58,150 @@ public class LanguageRecognizerTest {
 
   @Test
   public void search_by_file_extension() throws Exception {
-    Language[] languages = new Language[] {new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")};
-    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
+    Languages languages = new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob"));
+    LanguageRecognizer recognizer = new LanguageRecognizer(new Settings(), languages);
 
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("Foo.java"))).isEqualTo("java");
-    assertThat(recognizer.of(temp.newFile("Foo.JAVA"))).isEqualTo("java");
-    assertThat(recognizer.of(temp.newFile("Foo.jav"))).isEqualTo("java");
-    assertThat(recognizer.of(temp.newFile("Foo.Jav"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("Foo.java"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("Foo.JAVA"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("Foo.jav"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("Foo.Jav"))).isEqualTo("java");
 
-    // multi-language is not supported yet -> filter on project language
-    assertThat(recognizer.of(temp.newFile("abc.cbl"))).isNull();
-    assertThat(recognizer.of(temp.newFile("abc.CBL"))).isNull();
-    assertThat(recognizer.of(temp.newFile("abc.php"))).isNull();
-    assertThat(recognizer.of(temp.newFile("abc"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc.cbl"))).isEqualTo("cobol");
+    assertThat(recognizer.of(newInputFile("abc.CBL"))).isEqualTo("cobol");
+
+    assertThat(recognizer.of(newInputFile("abc.php"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc"))).isNull();
     recognizer.stop();
   }
 
   @Test
   public void should_not_fail_if_no_language() throws Exception {
-    LanguageRecognizer recognizer = spy(new LanguageRecognizer(newProject("java")));
+    LanguageRecognizer recognizer = spy(new LanguageRecognizer(new Settings(), new Languages()));
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("Foo.java"))).isNull();
+    assertThat(recognizer.of(newInputFile("Foo.java"))).isNull();
   }
 
   @Test
   public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
-    Language[] languages = new Language[] {new MockLanguage("abap", "abap", "ABAP")};
+    Languages languages = new Languages(new MockLanguage("abap", "abap", "ABAP"));
 
-    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("abap"), languages);
+    LanguageRecognizer recognizer = new LanguageRecognizer(new Settings(), languages);
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("abc.abap"))).isEqualTo("abap");
+    assertThat(recognizer.of(newInputFile("abc.abap"))).isEqualTo("abap");
   }
 
   @Test
   public void language_with_no_extension() throws Exception {
     // abap does not declare any file extensions.
     // When analyzing an ABAP project, then all source files must be parsed.
-    Language[] languages = new Language[] {new MockLanguage("java", "java"), new MockLanguage("abap")};
+    Languages languages = new Languages(new MockLanguage("java", "java"), new MockLanguage("abap"));
 
     // No side-effect on non-ABAP projects
-    LanguageRecognizer recognizer = new LanguageRecognizer(newProject("java"), languages);
+    LanguageRecognizer recognizer = new LanguageRecognizer(new Settings(), languages);
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("abc"))).isNull();
-    assertThat(recognizer.of(temp.newFile("abc.abap"))).isNull();
-    assertThat(recognizer.of(temp.newFile("abc.java"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("abc"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc.abap"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc.java"))).isEqualTo("java");
     recognizer.stop();
 
-    recognizer = new LanguageRecognizer(newProject("abap"), languages);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "abap");
+    recognizer = new LanguageRecognizer(settings, languages);
     recognizer.start();
-    assertThat(recognizer.of(temp.newFile("abc"))).isEqualTo("abap");
-    assertThat(recognizer.of(temp.newFile("abc.txt"))).isEqualTo("abap");
-    assertThat(recognizer.of(temp.newFile("abc.java"))).isEqualTo("abap");
+    assertThat(recognizer.of(newInputFile("abc"))).isEqualTo("abap");
+    assertThat(recognizer.of(newInputFile("abc.txt"))).isEqualTo("abap");
+    assertThat(recognizer.of(newInputFile("abc.java"))).isEqualTo("abap");
     recognizer.stop();
   }
 
-  private Project newProject(String language) {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(language);
-    return project;
+  @Test
+  public void force_language_using_deprecated_property() throws Exception {
+    Languages languages = new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php"));
+
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "java");
+    LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
+    recognizer.start();
+    assertThat(recognizer.of(newInputFile("abc"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc.php"))).isNull();
+    assertThat(recognizer.of(newInputFile("abc.java"))).isEqualTo("java");
+    recognizer.stop();
+  }
+
+  @Test
+  public void fail_if_invalid_language() throws Exception {
+    Languages languages = new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php"));
+
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "unknow");
+    LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
+    recognizer.start();
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("No language is installed with key 'unknow'. Please update property 'sonar.language'");
+    recognizer.of(newInputFile("abc"));
+    recognizer.stop();
+  }
+
+  @Test
+  public void fail_if_conflicting_language_suffix() throws Exception {
+    Languages languages = new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml"));
+
+    Settings settings = new Settings();
+    LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
+    recognizer.start();
+    thrown.expect(SonarException.class);
+    thrown.expectMessage(new BaseMatcher<String>() {
+      @Override
+      public void describeTo(Description arg0) {
+      }
+
+      @Override
+      public boolean matches(Object arg0) {
+        // Need custom matcher because order of language in the exception is not deterministic (hashmap)
+        return arg0.toString().contains("Language of file 'abc.xhtml' can not be decided as the file extension 'xhtml' is declared by several languages: ")
+          && arg0.toString().contains("web")
+          && arg0.toString().contains("xml");
+      }
+    });
+    recognizer.of(newInputFile("abc.xhtml"));
+    recognizer.stop();
+  }
+
+  @Test
+  public void solve_conflict_using_filepattern() throws Exception {
+    Languages languages = new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml"));
+
+    Settings settings = new Settings();
+    settings.setProperty("sonar.xml.filePatterns", "xml/**");
+    settings.setProperty("sonar.web.filePatterns", "web/**");
+    LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
+    recognizer.start();
+    assertThat(recognizer.of(newInputFile("xml/abc.xhtml"))).isEqualTo("xml");
+    assertThat(recognizer.of(newInputFile("web/abc.xhtml"))).isEqualTo("web");
+    recognizer.stop();
+  }
+
+  @Test
+  public void fail_if_conflicting_filepattern() throws Exception {
+    Languages languages = new Languages(new MockLanguage("abap", "abap"), new MockLanguage("cobol", "cobol"));
+
+    Settings settings = new Settings();
+    settings.setProperty("sonar.abap.filePatterns", "*.abap,*.txt");
+    settings.setProperty("sonar.cobol.filePatterns", "*.cobol,*.txt");
+    LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
+    recognizer.start();
+    assertThat(recognizer.of(newInputFile("abc.abap"))).isEqualTo("abap");
+    assertThat(recognizer.of(newInputFile("abc.cobol"))).isEqualTo("cobol");
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Language of file 'abc.txt' can not be decided as the file matches patterns of both sonar.abap.filePatterns and sonar.cobol.filePatterns");
+    recognizer.of(newInputFile("abc.txt"));
+    recognizer.stop();
+  }
+
+  private InputFile newInputFile(String path) throws IOException {
+    File basedir = temp.newFolder();
+    return new InputFileBuilder(new File(basedir, path), Charsets.UTF_8, path).build();
   }
 
   static class MockLanguage implements Language {

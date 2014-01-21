@@ -120,6 +120,7 @@ public class FileIndex implements BatchComponent {
     }
 
     logger.info(String.format("%d files indexed", progress.count));
+
   }
 
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceDirs, List<File> sourceFiles, String type) {
@@ -161,14 +162,9 @@ public class FileIndex implements BatchComponent {
 
   @CheckForNull
   private InputFile newInputFile(ModuleFileSystem fileSystem, File sourceDir, String type, File file, String path) {
-    String lang = languageRecognizer.of(file);
-    if (lang == null) {
-      return null;
-    }
 
     Map<String, String> attributes = Maps.newHashMap();
     set(attributes, InputFile.ATTRIBUTE_TYPE, type);
-    set(attributes, InputFile.ATTRIBUTE_LANGUAGE, lang);
 
     // paths
     set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(sourceDir));
@@ -177,16 +173,22 @@ public class FileIndex implements BatchComponent {
 
     String resourceKey = PathUtils.sanitize(path);
     set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
-    if (Java.KEY.equals(lang)) {
-      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":"
-        + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
-    } else {
-      set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":" + sourceRelativePath);
-    }
     // hash + status
     initStatus(file, fileSystem.sourceCharset(), path, attributes);
 
-    return DefaultInputFile.create(file, fileSystem.sourceCharset(), path, attributes);
+    DefaultInputFile inputFile = DefaultInputFile.create(file, fileSystem.sourceCharset(), path, attributes);
+    String lang = languageRecognizer.of(inputFile);
+    if (lang == null) {
+      return null;
+    }
+    set(inputFile.attributes(), InputFile.ATTRIBUTE_LANGUAGE, lang);
+    if (Java.KEY.equals(lang)) {
+      set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":"
+        + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
+    } else {
+      set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":" + sourceRelativePath);
+    }
+    return inputFile;
   }
 
   private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {

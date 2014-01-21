@@ -81,7 +81,7 @@ abstract class PathPattern {
   }
 
   /**
-   * Path relative to source directory
+   * Path relative to module basedir
    */
   private static class RelativePathPattern extends PathPattern {
     private RelativePathPattern(String pattern) {
@@ -90,7 +90,7 @@ abstract class PathPattern {
 
     @Override
     boolean match(InputFile inputFile) {
-      String path = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      String path = inputFile.path();
       return path != null && pattern.match(path);
     }
 

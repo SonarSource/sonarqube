@@ -158,6 +158,10 @@ public interface CoreProperties {
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
 
+  /**
+   * @deprecated since 4.2 project are now multi-language
+   */
+  @Deprecated
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
 

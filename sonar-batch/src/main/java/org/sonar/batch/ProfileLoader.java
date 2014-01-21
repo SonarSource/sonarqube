@@ -23,6 +23,10 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
+/**
+  * This interface is implemented by the views plugin!!
+  *
+  */
 public interface ProfileLoader {
 
   /**

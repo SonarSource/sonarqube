@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -36,32 +37,37 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
  * @since 4.2
  */
 @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
-public class FileIndexer implements BatchComponent {
+public class ComponentIndexer implements BatchComponent {
 
-  private final DefaultModuleFileSystem fs;
   private final Languages languages;
   private final Settings settings;
   private final SonarIndex sonarIndex;
-  private ResourceKeyMigration migration;
-  private Project module;
+  private final ResourceKeyMigration migration;
+  private final Project module;
+  private final ModuleLanguages moduleLanguages;
+  private final ResourceDao resourceDao;
 
-  public FileIndexer(Project module, DefaultModuleFileSystem fs, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
+    ModuleLanguages moduleLanguages, ResourceDao resourceDao) {
     this.module = module;
-    this.fs = fs;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.settings = settings;
     this.migration = migration;
+    this.moduleLanguages = moduleLanguages;
+    this.resourceDao = resourceDao;
   }
 
-  public void execute() {
+  public void execute(DefaultModuleFileSystem fs) {
     boolean importSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
     Iterable<InputFile> inputFiles = fs.inputFiles(FileQuery.all());
     migration.migrateIfNeeded(module, inputFiles);
@@ -75,19 +81,40 @@ public class FileIndexer implements BatchComponent {
         sonarFile = File.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
       }
       if (sonarFile != null) {
+        moduleLanguages.addLanguage(languageKey);
         sonarIndex.index(sonarFile);
-        try {
-          if (importSource) {
-            String source = Files.toString(inputFile.file(), inputFile.encoding());
-            // SONAR-3860 Remove BOM character from source
-            source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-            sonarIndex.setSource(sonarFile, source);
-          }
-        } catch (Exception e) {
-          throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
-            + inputFile.encoding() + "'.", e);
+        if (importSource) {
+          importSources(inputFile, sonarFile);
         }
       }
+    }
+
+    updateModuleLanguage();
+  }
+
+  private void importSources(InputFile inputFile, Resource sonarFile) {
+    try {
+      String source = Files.toString(inputFile.file(), inputFile.encoding());
+      // SONAR-3860 Remove BOM character from source
+      source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
+      sonarIndex.setSource(sonarFile, source);
+    } catch (Exception e) {
+      throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
+        + inputFile.encoding() + "'.", e);
+    }
+  }
+
+  private void updateModuleLanguage() {
+    if (module.getId() != null) {
+      ResourceDto dto = resourceDao.getResource(module.getId());
+      if (moduleLanguages.getModuleLanguageKeys().size() == 1) {
+        dto.setLanguage(moduleLanguages.getModuleLanguageKeys().iterator().next());
+      } else if (moduleLanguages.getModuleLanguageKeys().size() > 1) {
+        dto.setLanguage(StringUtils.join(moduleLanguages.getModuleLanguageKeys(), ","));
+      } else {
+        dto.setLanguage("none");
+      }
+      resourceDao.insertOrUpdate(dto);
     }
   }
 }

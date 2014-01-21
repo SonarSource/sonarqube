@@ -20,43 +20,40 @@
 package org.sonar.batch.phases;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
 
 /**
  * Should be dropped when org.sonar.api.resources.Project is fully refactored.
  */
 public class ProjectInitializer implements BatchComponent {
 
-  private ResourceDao resourceDao;
   private Languages languages;
+  private Settings settings;
 
-  public ProjectInitializer(ResourceDao resourceDao, Languages languages) {
-    this.resourceDao = resourceDao;
+  public ProjectInitializer(Settings settings, Languages languages) {
+    this.settings = settings;
     this.languages = languages;
   }
 
   public void execute(Project project) {
     if (project.getLanguage() == null) {
-      initLanguage(project);
+      initDeprecatedLanguage(project);
     }
   }
 
-  private void initLanguage(Project project) {
-    Language language = languages.get(project.getLanguageKey());
-    if (language == null) {
-      throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
+  private void initDeprecatedLanguage(Project project) {
+    String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
+    if (languageKey != null) {
+      Language language = languages.get(languageKey);
+      if (language == null) {
+        throw new SonarException("Language with key '" + languageKey + "' not found");
+      }
+      project.setLanguage(language);
     }
-    project.setLanguage(language);
-    if (project.getId() != null) {
-      ResourceDto dto = resourceDao.getResource(project.getId());
-      dto.setLanguage(project.getLanguageKey());
-      resourceDao.insertOrUpdate(dto);
-    }
-
   }
 }

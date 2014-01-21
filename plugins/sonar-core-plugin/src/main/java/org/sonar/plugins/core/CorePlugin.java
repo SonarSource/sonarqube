@@ -20,10 +20,13 @@
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.*;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.technicaldebt.TechnicalDebtConverter;
@@ -33,21 +36,91 @@ import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.dashboards.*;
-import org.sonar.plugins.core.issue.*;
+import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectHotspotDashboard;
+import org.sonar.plugins.core.dashboards.ProjectIssuesDashboard;
+import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
+import org.sonar.plugins.core.issue.CountFalsePositivesDecorator;
+import org.sonar.plugins.core.issue.CountUnresolvedIssuesDecorator;
+import org.sonar.plugins.core.issue.InitialOpenIssuesSensor;
+import org.sonar.plugins.core.issue.InitialOpenIssuesStack;
+import org.sonar.plugins.core.issue.IssueHandlers;
+import org.sonar.plugins.core.issue.IssueTracking;
+import org.sonar.plugins.core.issue.IssueTrackingDecorator;
+import org.sonar.plugins.core.issue.IssuesDensityDecorator;
+import org.sonar.plugins.core.issue.WeightedIssuesDecorator;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesPlugin;
-import org.sonar.plugins.core.issue.notification.*;
+import org.sonar.plugins.core.issue.notification.ChangesOnMyIssueNotificationDispatcher;
+import org.sonar.plugins.core.issue.notification.IssueChangesEmailTemplate;
+import org.sonar.plugins.core.issue.notification.NewFalsePositiveNotificationDispatcher;
+import org.sonar.plugins.core.issue.notification.NewIssuesEmailTemplate;
+import org.sonar.plugins.core.issue.notification.NewIssuesNotificationDispatcher;
+import org.sonar.plugins.core.issue.notification.SendIssueNotificationsPostJob;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.sensors.*;
+import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.CheckAlertThresholds;
+import org.sonar.plugins.core.sensors.CommentDensityDecorator;
+import org.sonar.plugins.core.sensors.CoverageDecorator;
+import org.sonar.plugins.core.sensors.CoverageMeasurementFilter;
+import org.sonar.plugins.core.sensors.DirectoriesDecorator;
+import org.sonar.plugins.core.sensors.FileHashSensor;
+import org.sonar.plugins.core.sensors.FilesDecorator;
+import org.sonar.plugins.core.sensors.GenerateAlertEvents;
+import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.ItCoverageDecorator;
+import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
+import org.sonar.plugins.core.sensors.LineCoverageDecorator;
+import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
+import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
+import org.sonar.plugins.core.sensors.ProfileEventsSensor;
+import org.sonar.plugins.core.sensors.ProfileSensor;
+import org.sonar.plugins.core.sensors.ProjectLinksSensor;
+import org.sonar.plugins.core.sensors.UnitTestDecorator;
+import org.sonar.plugins.core.sensors.VersionEventsSensor;
 import org.sonar.plugins.core.technicaldebt.NewTechnicalDebtDecorator;
 import org.sonar.plugins.core.technicaldebt.TechnicalDebtDecorator;
-import org.sonar.plugins.core.timemachine.*;
+import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
+import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.TendencyDecorator;
+import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
+import org.sonar.plugins.core.timemachine.VariationDecorator;
 import org.sonar.plugins.core.web.TestsViewer;
-import org.sonar.plugins.core.widgets.*;
-import org.sonar.plugins.core.widgets.issues.*;
+import org.sonar.plugins.core.widgets.AlertsWidget;
+import org.sonar.plugins.core.widgets.BubbleChartWidget;
+import org.sonar.plugins.core.widgets.ComplexityWidget;
+import org.sonar.plugins.core.widgets.CoverageWidget;
+import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
+import org.sonar.plugins.core.widgets.DescriptionWidget;
+import org.sonar.plugins.core.widgets.DocumentationCommentsWidget;
+import org.sonar.plugins.core.widgets.DuplicationsWidget;
+import org.sonar.plugins.core.widgets.EventsWidget;
+import org.sonar.plugins.core.widgets.HotspotMetricWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
+import org.sonar.plugins.core.widgets.ItCoverageWidget;
+import org.sonar.plugins.core.widgets.MeasureFilterListWidget;
+import org.sonar.plugins.core.widgets.MeasureFilterTreemapWidget;
+import org.sonar.plugins.core.widgets.SizeWidget;
+import org.sonar.plugins.core.widgets.TechnicalDebtPyramidWidget;
+import org.sonar.plugins.core.widgets.TimeMachineWidget;
+import org.sonar.plugins.core.widgets.TimelineWidget;
+import org.sonar.plugins.core.widgets.TreemapWidget;
+import org.sonar.plugins.core.widgets.WelcomeWidget;
+import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
+import org.sonar.plugins.core.widgets.issues.FalsePositiveIssuesWidget;
+import org.sonar.plugins.core.widgets.issues.IssueFilterWidget;
+import org.sonar.plugins.core.widgets.issues.IssuesWidget;
+import org.sonar.plugins.core.widgets.issues.MyUnresolvedIssuesWidget;
+import org.sonar.plugins.core.widgets.issues.UnresolvedIssuesPerAssigneeWidget;
+import org.sonar.plugins.core.widgets.issues.UnresolvedIssuesStatusesWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsBubbleChartWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsHistogramWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterAsPieChartWidget;
@@ -113,9 +186,8 @@ import java.util.List;
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,
-    defaultValue = Java.KEY,
     name = "Default language",
-    description = "Default language of the source code to analyse",
+    description = "[Deprecated] Default language of the source code to analyse. Keep it blank to allow multi-language analysis.",
     project = false,
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),

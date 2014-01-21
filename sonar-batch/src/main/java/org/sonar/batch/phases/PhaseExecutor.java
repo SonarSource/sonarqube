@@ -29,10 +29,10 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.index.ScanPersister;
-import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
+import org.sonar.batch.scan.report.JsonReport;
 
 import java.util.Collection;
 
@@ -41,9 +41,9 @@ public final class PhaseExecutor {
   public static final Logger LOGGER = LoggerFactory.getLogger(PhaseExecutor.class);
 
   public static Collection<Class> getPhaseClasses() {
-    return Lists.<Class> newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-        PostJobsExecutor.class, SensorsExecutor.class,
-        InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
+    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+      PostJobsExecutor.class, SensorsExecutor.class,
+      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
   private EventBus eventBus;
@@ -64,11 +64,11 @@ public final class PhaseExecutor {
   private final JsonReport jsonReport;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
-      MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-      PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-      PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-      EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-      ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
+    PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+    PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+    EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
+    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -88,12 +88,12 @@ public final class PhaseExecutor {
   }
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
-      MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-      PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-      PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-      EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
+    PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+    PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport);
   }
 
   /**

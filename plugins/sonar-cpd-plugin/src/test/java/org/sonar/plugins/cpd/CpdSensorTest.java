@@ -19,14 +19,15 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Languages;
+import org.sonar.batch.scan.language.ModuleLanguages;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -38,6 +39,7 @@ public class CpdSensorTest {
   SonarBridgeEngine sonarBridgeEngine;
   CpdSensor sensor;
   Settings settings;
+  private Language phpLanguage;
 
   @Before
   public void setUp() {
@@ -45,45 +47,40 @@ public class CpdSensorTest {
     sonarEngine = new SonarEngine(indexFactory, null, null);
     sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
-    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings);
+    phpLanguage = new AbstractLanguage("php", "PHP") {
+
+      @Override
+      public String[] getFileSuffixes() {
+        return null;
+      }
+    };
+    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, new ModuleLanguages(settings, new Languages()));
   }
 
   @Test
   public void test_global_skip() {
     settings.setProperty("sonar.cpd.skip", true);
-    assertThat(sensor.isSkipped(createJavaProject())).isTrue();
+    assertThat(sensor.isSkipped(Java.INSTANCE)).isTrue();
   }
 
   @Test
   public void should_not_skip_by_default() {
-    assertThat(sensor.isSkipped(createJavaProject())).isFalse();
+    assertThat(sensor.isSkipped(Java.INSTANCE)).isFalse();
   }
 
   @Test
   public void should_skip_by_language() {
     settings.setProperty("sonar.cpd.skip", false);
     settings.setProperty("sonar.cpd.php.skip", true);
-    assertThat(sensor.isSkipped(createPhpProject())).isTrue();
-    assertThat(sensor.isSkipped(createJavaProject())).isFalse();
+
+    assertThat(sensor.isSkipped(phpLanguage)).isTrue();
+    assertThat(sensor.isSkipped(Java.INSTANCE)).isFalse();
   }
 
   @Test
   public void test_engine() {
-    assertThat(sensor.getEngine(createJavaProject())).isSameAs(sonarEngine);
-    assertThat(sensor.getEngine(createPhpProject())).isSameAs(sonarBridgeEngine);
-  }
-
-  private Project createJavaProject() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.language", "java");
-    return new Project("java_project").setConfiguration(conf).setLanguage(Java.INSTANCE);
-  }
-
-  private Project createPhpProject() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.language", "php");
-    Language phpLanguage = mock(Language.class);
-    return new Project("php_project").setConfiguration(conf).setLanguage(phpLanguage);
+    assertThat(sensor.getEngine(Java.INSTANCE)).isSameAs(sonarEngine);
+    assertThat(sensor.getEngine(phpLanguage)).isSameAs(sonarBridgeEngine);
   }
 
 }

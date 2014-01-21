@@ -25,47 +25,66 @@ import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.scan.language.ModuleLanguages;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProfileEventsSensorTest {
 
   private Project project;
   private SensorContext context;
+  private ModuleLanguages moduleLanguages;
+  private RulesProfileWrapper wrapper;
+  private RulesProfile profile;
 
   @Before
   public void prepare() {
     project = mock(Project.class);
     context = mock(SensorContext.class);
+
+    moduleLanguages = new ModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
+    moduleLanguages.addLanguage("java");
+    Map<String, RulesProfile> ruleProfilesPerLanguages = new HashMap<String, RulesProfile>();
+    profile = mock(RulesProfile.class);
+    ruleProfilesPerLanguages.put("java", profile);
+    wrapper = new RulesProfileWrapper(moduleLanguages, ruleProfilesPerLanguages);
   }
 
   @Test
   public void shouldExecuteWhenProfileWithId() {
-    RulesProfile profile = mock(RulesProfile.class);
     when(profile.getId()).thenReturn(123);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, null, moduleLanguages);
 
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     verifyZeroInteractions(project);
   }
 
   @Test
-  public void shouldNotExecuteIfProfileWithoutId() {
+  public void shouldNotExecuteIfProfileIsNotWrapper() {
     RulesProfile profile = mock(RulesProfile.class);
     when(profile.getId()).thenReturn(null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null, moduleLanguages);
 
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
     verifyZeroInteractions(project);
@@ -73,9 +92,9 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldDoNothingIfNoProfileChange() {
-    RulesProfile profile = mockProfileWithVersion(1);
+    mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, same version
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
 
     sensor.analyse(project, context);
 
@@ -84,9 +103,9 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldCreateEventIfProfileChange() {
-    RulesProfile profile = mockProfileWithVersion(1);
+    mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(21.0, "Bar", 1.0); // Different profile
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
 
     sensor.analyse(project, context);
 
@@ -98,9 +117,9 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldCreateEventIfProfileVersionChange() {
-    RulesProfile profile = mockProfileWithVersion(2);
+    mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, different version
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
 
     sensor.analyse(project, context);
 
@@ -112,9 +131,9 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldNotCreateEventIfFirstAnalysis() {
-    RulesProfile profile = mockProfileWithVersion(2);
+    mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(null, null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
 
     sensor.analyse(project, context);
 
@@ -123,9 +142,9 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() {
-    RulesProfile profile = mockProfileWithVersion(2);
+    mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(22.0, "Foo", null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
 
     sensor.analyse(project, context);
 
@@ -135,12 +154,10 @@ public class ProfileEventsSensorTest {
       same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
-  private RulesProfile mockProfileWithVersion(int version) {
-    RulesProfile profile = mock(RulesProfile.class);
+  private void mockProfileWithVersion(int version) {
     when(profile.getId()).thenReturn(22);
     when(profile.getName()).thenReturn("Foo");
     when(profile.getVersion()).thenReturn(version);
-    return profile;
   }
 
   private TimeMachine mockTM(double profileId, String profileName, Double versionValue) {

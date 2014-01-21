@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -31,6 +30,7 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFiles;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
 import javax.annotation.CheckForNull;
@@ -44,7 +44,7 @@ import java.util.List;
  *
  * @since 3.5
  */
-public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
+public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   private final String moduleKey;
   private final FileIndex index;
@@ -57,9 +57,12 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
   private List<File> sourceFiles = Lists.newArrayList();
   private List<File> testFiles = Lists.newArrayList();
   private AnalysisMode analysisMode;
-  private boolean dirsChanged = false;
+  private ComponentIndexer componentIndexer;
+  private boolean indexed;
 
-  public DefaultModuleFileSystem(Project module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode) {
+  public DefaultModuleFileSystem(Project module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode,
+    ComponentIndexer componentIndexer) {
+    this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
     this.settings = settings;
     this.index = index;
@@ -123,8 +126,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
    */
   @Deprecated
   void addSourceDir(File dir) {
-    sourceDirs.add(dir);
-    dirsChanged = true;
+    throw new UnsupportedOperationException("Modifications of the file system are not permitted");
   }
 
   /**
@@ -133,8 +135,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
    */
   @Deprecated
   void addTestDir(File dir) {
-    testDirs.add(dir);
-    dirsChanged = true;
+    throw new UnsupportedOperationException("Modifications of the file system are not permitted");
   }
 
   @Override
@@ -157,10 +158,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
    * @since 4.0
    */
   public Iterable<InputFile> inputFiles(FileQuery query) {
-    if (dirsChanged) {
-      index();
-      dirsChanged = false;
-    }
     List<InputFile> result = Lists.newArrayList();
     FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
     for (InputFile input : index.inputFiles(moduleKey)) {
@@ -176,16 +173,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     return InputFiles.toFiles(inputFiles(query));
   }
 
-  @Override
-  public void start() {
-    index();
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
-  }
-
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
@@ -193,11 +180,15 @@ public class DefaultModuleFileSystem implements ModuleFileSystem, Startable {
     this.sourceDirs = existingDirs(sourceDirs);
     this.testDirs = existingDirs(testDirs);
     this.binaryDirs = existingDirs(binaryDirs);
-    index();
   }
 
   public void index() {
+    if (indexed) {
+      throw new SonarException("Module filesystem can only be indexed once");
+    }
+    indexed = true;
     index.index(this);
+    componentIndexer.execute(this);
   }
 
   private List<File> existingDirs(List<File> dirs) {

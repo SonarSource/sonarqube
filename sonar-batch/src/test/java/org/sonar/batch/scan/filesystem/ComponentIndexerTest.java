@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -43,7 +43,8 @@ import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.core.resource.ResourceDao;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class FileIndexerTest {
+public class ComponentIndexerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -95,8 +96,10 @@ public class FileIndexerTest {
       newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false),
       newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
-    indexer.execute();
+    Languages languages = new Languages(Java.INSTANCE);
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+      mock(ResourceDao.class));
+    indexer.execute(fs);
 
     verify(sonarIndex).index(JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false));
     verify(sonarIndex).index(JavaFile.create("src/main/java2/foo/bar/Foo.java", "foo/bar/Foo.java", false));
@@ -119,8 +122,10 @@ public class FileIndexerTest {
       newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true)));
     when(project.getLanguageKey()).thenReturn("cobol");
 
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(cobolLanguage), sonarIndex, settings, mock(ResourceKeyMigration.class));
-    indexer.execute();
+    Languages languages = new Languages(cobolLanguage);
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+      mock(ResourceDao.class));
+    indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src2/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
@@ -134,8 +139,10 @@ public class FileIndexerTest {
     when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
       newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
-    indexer.execute();
+    Languages languages = new Languages(Java.INSTANCE);
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+      mock(ResourceDao.class));
+    indexer.execute(fs);
 
     Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
     verify(sonarIndex).index(sonarFile);
@@ -185,8 +192,10 @@ public class FileIndexerTest {
         .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
         .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
-    indexer.execute();
+    Languages languages = new Languages(Java.INSTANCE);
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+      mock(ResourceDao.class));
+    indexer.execute(fs);
 
     Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
 
@@ -212,8 +221,10 @@ public class FileIndexerTest {
             .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
             .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
-    indexer.execute();
+    Languages languages = new Languages(Java.INSTANCE);
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+      mock(ResourceDao.class));
+    indexer.execute(fs);
 
     Resource sonarFile = JavaFile.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
 

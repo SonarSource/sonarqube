@@ -229,8 +229,10 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return the project language
+   * @return the project language when there is only one language
+   * @deprecated since 4.2
    */
+  @Deprecated
   @Override
   public Language getLanguage() {
     return language;
@@ -242,10 +244,12 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return the language key
+   * @return the language key or empty if no language is specified
+   * @deprecated since 4.2
    */
+  @Deprecated
   public String getLanguageKey() {
-    return configuration.getString("sonar.language", Java.KEY);
+    return configuration.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "");
   }
 
   /**

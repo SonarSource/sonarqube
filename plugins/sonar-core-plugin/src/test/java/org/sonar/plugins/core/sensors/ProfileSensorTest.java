@@ -21,13 +21,23 @@ package org.sonar.plugins.core.sensors;
 
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.scan.language.ModuleLanguages;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ProfileSensorTest {
 
@@ -37,10 +47,17 @@ public class ProfileSensorTest {
     when(profile.getId()).thenReturn(22);
     when(profile.getName()).thenReturn("fake");
     when(profile.getVersion()).thenReturn(2);
+
+    ModuleLanguages moduleLanguages = new ModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
+    moduleLanguages.addLanguage("java");
+    Map<String, RulesProfile> ruleProfilesPerLanguages = new HashMap<String, RulesProfile>();
+    ruleProfilesPerLanguages.put("java", profile);
+    RulesProfileWrapper wrapper = new RulesProfileWrapper(moduleLanguages, ruleProfilesPerLanguages);
+
     SensorContext context = mock(SensorContext.class);
     DatabaseSession session = mock(DatabaseSession.class);
 
-    ProfileSensor sensor = new ProfileSensor(profile, session);
+    ProfileSensor sensor = new ProfileSensor(wrapper, session, moduleLanguages);
     sensor.analyse(null, context);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, 22d)));

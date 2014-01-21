@@ -29,6 +29,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.scan.language.ModuleLanguages;
 
 import java.util.List;
 
@@ -36,41 +38,47 @@ public class ProfileEventsSensor implements Sensor {
 
   private final RulesProfile profile;
   private final TimeMachine timeMachine;
+  private final ModuleLanguages moduleLanguages;
 
-  public ProfileEventsSensor(RulesProfile profile, TimeMachine timeMachine) {
+  public ProfileEventsSensor(RulesProfile profile, TimeMachine timeMachine, ModuleLanguages moduleLanguages) {
     this.profile = profile;
     this.timeMachine = timeMachine;
+    this.moduleLanguages = moduleLanguages;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    // Views will define a fake profile with a null id
-    return profile.getId() != null;
+    // Views will define a fake profile
+    return profile instanceof RulesProfileWrapper;
   }
 
   public void analyse(Project project, SensorContext context) {
-    Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
-    if (pastProfileMeasure == null) {
-      // first analysis
-      return;
-    }
-    int pastProfileId = pastProfileMeasure.getIntValue();
-    Measure pastProfileVersionMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE_VERSION);
-    final int pastProfileVersion;
-    // first analysis with versions
-    if (pastProfileVersionMeasure == null) {
-      pastProfileVersion = 1;
-    } else {
-      pastProfileVersion = pastProfileVersionMeasure.getIntValue();
-    }
-    String pastProfile = formatProfileDescription(pastProfileMeasure.getData(), pastProfileVersion);
+    RulesProfileWrapper profileWrapper = (RulesProfileWrapper) profile;
+    for (String languageKey : moduleLanguages.getModuleLanguageKeys()) {
+      RulesProfile realProfile = profileWrapper.getProfileByLanguage(languageKey);
+      Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
+      if (pastProfileMeasure == null) {
+        // first analysis
+        return;
+      }
+      int pastProfileId = pastProfileMeasure.getIntValue();
+      Measure pastProfileVersionMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE_VERSION);
+      final int pastProfileVersion;
+      // first analysis with versions
+      if (pastProfileVersionMeasure == null) {
+        pastProfileVersion = 1;
+      } else {
+        pastProfileVersion = pastProfileVersionMeasure.getIntValue();
+      }
+      String pastProfile = formatProfileDescription(pastProfileMeasure.getData(), pastProfileVersion);
 
-    int currentProfileId = profile.getId();
-    int currentProfileVersion = profile.getVersion();
-    String currentProfile = formatProfileDescription(profile.getName(), currentProfileVersion);
+      int currentProfileId = realProfile.getId();
+      int currentProfileVersion = realProfile.getVersion();
+      String currentProfile = formatProfileDescription(realProfile.getName(), currentProfileVersion);
 
-    if ((pastProfileId != currentProfileId) || (pastProfileVersion != currentProfileVersion)) {
-      // A different profile is used for this project or new version of same profile
-      context.createEvent(project, currentProfile, currentProfile + " is used instead of " + pastProfile, Event.CATEGORY_PROFILE, null);
+      if ((pastProfileId != currentProfileId) || (pastProfileVersion != currentProfileVersion)) {
+        // A different profile is used for this project or new version of same profile
+        context.createEvent(project, currentProfile, currentProfile + " is used instead of " + pastProfile, Event.CATEGORY_PROFILE, null);
+      }
     }
   }
 
@@ -80,8 +88,8 @@ public class ProfileEventsSensor implements Sensor {
 
   private Measure getPreviousMeasure(Project project, Metric metric) {
     TimeMachineQuery query = new TimeMachineQuery(project)
-        .setOnlyLastAnalysis(true)
-        .setMetrics(metric);
+      .setOnlyLastAnalysis(true)
+      .setMetrics(metric);
     List<Measure> measures = timeMachine.getMeasures(query);
     if (measures.isEmpty()) {
       return null;

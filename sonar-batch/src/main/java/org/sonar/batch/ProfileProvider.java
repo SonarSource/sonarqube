@@ -20,16 +20,12 @@
 package org.sonar.batch;
 
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
 public class ProfileProvider extends ProviderAdapter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ProfileProvider.class);
 
   private RulesProfile profile;
 
@@ -39,7 +35,6 @@ public class ProfileProvider extends ProviderAdapter {
   public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings, Languages languages) {
     if (profile == null) {
       profile = profileLoader.load(project, settings);
-      LOG.info("Quality profile : {}", profile);
     }
     return profile;
   }

@@ -26,7 +26,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.language.ModuleLanguages;
 
 public class CpdSensor implements Sensor {
 
@@ -35,30 +37,22 @@ public class CpdSensor implements Sensor {
   private CpdEngine sonarEngine;
   private CpdEngine sonarBridgeEngine;
   private Settings settings;
+  private ModuleLanguages moduleLanguages;
 
-  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings) {
+  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings, ModuleLanguages moduleLanguages) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
     this.settings = settings;
+    this.moduleLanguages = moduleLanguages;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    if (isSkipped(project)) {
-      LOG.info("Detection of duplicated code is skipped");
-      return false;
-    }
-
-    if (!getEngine(project).isLanguageSupported(project.getLanguage())) {
-      LOG.debug("Detection of duplicated code is not supported for {}.", project.getLanguage());
-      return false;
-    }
-
     return true;
   }
 
   @VisibleForTesting
-  CpdEngine getEngine(Project project) {
-    if (sonarEngine.isLanguageSupported(project.getLanguage())) {
+  CpdEngine getEngine(Language language) {
+    if (sonarEngine.isLanguageSupported(language)) {
       return sonarEngine;
     } else {
       return sonarBridgeEngine;
@@ -66,8 +60,8 @@ public class CpdSensor implements Sensor {
   }
 
   @VisibleForTesting
-  boolean isSkipped(Project project) {
-    String key = "sonar.cpd." + project.getLanguageKey() + ".skip";
+  boolean isSkipped(Language language) {
+    String key = "sonar.cpd." + language.getKey() + ".skip";
     if (settings.hasKey(key)) {
       return settings.getBoolean(key);
     }
@@ -75,9 +69,20 @@ public class CpdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    CpdEngine engine = getEngine(project);
-    LOG.info("{} is used", engine);
-    engine.analyse(project, context);
+    for (Language language : moduleLanguages.getModuleLanguages()) {
+      if (isSkipped(language)) {
+        LOG.info("Detection of duplicated code is skipped for {}.", language);
+        continue;
+      }
+
+      CpdEngine engine = getEngine(language);
+      if (!engine.isLanguageSupported(language)) {
+        LOG.debug("Detection of duplicated code is not supported for {}.", language);
+        continue;
+      }
+      LOG.info("{} is used for {}", engine, language);
+      engine.analyse(project, context);
+    }
   }
 
   @Override

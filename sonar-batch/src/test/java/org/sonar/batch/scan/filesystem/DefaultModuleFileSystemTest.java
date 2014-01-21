@@ -60,18 +60,20 @@ public class DefaultModuleFileSystemTest {
   FileIndex fileIndex = mock(FileIndex.class);
   ModuleFileSystemInitializer initializer = mock(ModuleFileSystemInitializer.class, Mockito.RETURNS_DEEP_STUBS);
   private AnalysisMode mode;
+  private ComponentIndexer componentIndexer;
 
   @Before
   public void before() {
     mode = mock(AnalysisMode.class);
+    componentIndexer = mock(ComponentIndexer.class);
   }
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
-    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
-    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
-    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(new Project("bar"), settings, fileIndex, initializer, mode);
-    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(new Project("bar", "branch", "My project"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
+    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
+    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(new Project("bar"), settings, fileIndex, initializer, mode, componentIndexer);
+    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(new Project("bar", "branch", "My project"), settings, fileIndex, initializer, mode, componentIndexer);
 
     assertThat(foo1.moduleKey()).isEqualTo("foo");
     assertThat(branch.moduleKey()).isEqualTo("bar:branch");
@@ -85,7 +87,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void default_source_encoding() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
     assertThat(fs.isDefaultSourceCharset()).isTrue();
@@ -94,7 +96,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void source_encoding_is_set() {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "Cp1124");
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.forName("Cp1124"));
 
@@ -118,7 +120,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.additionalSourceFiles()).thenReturn(Arrays.asList(additionalFile));
     when(initializer.additionalTestFiles()).thenReturn(Arrays.asList(additionalTest));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
     assertThat(fs.workingDir().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
@@ -137,7 +139,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.workingDir()).thenReturn(basedir);
     when(initializer.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     File existingDir = temp.newFolder("new_folder");
     File notExistingDir = new File(existingDir, "not_exist");
@@ -153,12 +155,11 @@ public class DefaultModuleFileSystemTest {
     assertThat(fs.testDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
     assertThat(fs.binaryDirs()).hasSize(1);
     assertThat(fs.binaryDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    verify(fileIndex).index(fs);
   }
 
   @Test
   public void should_search_input_files() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     File mainFile = temp.newFile();
     InputFile mainInput = DefaultInputFile.create(mainFile, Charsets.UTF_8, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
@@ -175,13 +176,13 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_index() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     verifyZeroInteractions(fileIndex);
 
-    fs.start();
+    fs.index();
     verify(fileIndex).index(fs);
-    fs.stop();
+    verify(componentIndexer).execute(fs);
   }
 
 }
