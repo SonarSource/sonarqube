@@ -178,12 +178,13 @@ public class QProfileOperations implements ServerComponent {
       if (isCycle(profile, parentProfile, session)) {
         throw new BadRequestException("Please do not select a child profile as parent.");
       }
-      String parentName = parentProfile != null ? parentProfile.getName() : null;
-      profile.setParent(parentName);
+      String newParentName = parentProfile != null ? parentProfile.getName() : null;
+      // Modification of inheritance has to be done before setting new parent name in order to be able to disable rules from old parent
+      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), newParentName, userSession.name());
+      profile.setParent(newParentName);
       dao.update(profile, session);
       session.commit();
 
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), parentName, userSession.name());
       ruleRegistry.deleteActiveRules(actions.idsToDelete());
       ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
     } finally {
