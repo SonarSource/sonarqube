@@ -124,7 +124,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._detailsHeight = this._lineHeight * this._metricsCount;
 
     this.detailsWrap = this.gWrap.append('g')
-        .attr('width', this.legendWidth());
+        .attr('width', this.legendWidth())
+        .style('display', 'none');
 
     this.detailsColorIndicator = this.detailsWrap.append('rect')
         .classed('details-color-indicator', true)
@@ -270,6 +271,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             widget.detailsColorIndicator
                 .style('opacity', 1)
                 .style('fill', widget.color(i));
+
+            widget.detailsWrap
+                .style('display', 'block');
           }
           widget.donutLabel
               .style('opacity', 1)
@@ -298,6 +302,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               .classed('hover', false);
           sector.
               classed('hover', false);
+          widget.detailsWrap
+              .style('display', 'none');
         },
 
         clickHandler = function(d) {
