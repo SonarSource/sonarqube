@@ -20,7 +20,6 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleParamType;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -29,8 +28,8 @@ public class RuleParamTypeTest {
   @Test
   public void testEquals() throws Exception {
     RuleParamType noOptions = RuleParamType.INTEGER;
-    RuleParamType withOptions1 = RuleParamType.ofValues("one", "two");
-    RuleParamType withOptions2 = RuleParamType.ofValues("three", "four");
+    RuleParamType withOptions1 = RuleParamType.singleListOfValues("one", "two");
+    RuleParamType withOptions2 = RuleParamType.singleListOfValues("three", "four");
 
     assertThat(RuleParamType.INTEGER)
       .isEqualTo(RuleParamType.INTEGER)
@@ -43,7 +42,7 @@ public class RuleParamTypeTest {
       .isEqualTo(withOptions1)
       .isNotEqualTo(noOptions)
       .isNotEqualTo(withOptions2)
-      .isNotEqualTo("SINGLE_SELECT_LIST|one,two,")
+      .isNotEqualTo("SINGLE_SELECT_LIST,values=one,two,")
       .isNotEqualTo(null);
   }
 
@@ -57,22 +56,58 @@ public class RuleParamTypeTest {
     RuleParamType type = RuleParamType.INTEGER;
     assertThat(type.toString()).isEqualTo("INTEGER");
     assertThat(RuleParamType.parse(type.toString()).type()).isEqualTo("INTEGER");
-    assertThat(RuleParamType.parse(type.toString()).options()).isEmpty();
+    assertThat(RuleParamType.parse(type.toString()).values()).isEmpty();
     assertThat(RuleParamType.parse(type.toString()).toString()).isEqualTo("INTEGER");
   }
 
   @Test
   public void testListOfValues() throws Exception {
-    RuleParamType selectList = RuleParamType.parse("SINGLE_SELECT_LIST|foo,bar,");
+    RuleParamType selectList = RuleParamType.parse("SINGLE_SELECT_LIST,values=\"foo,bar\",");
     assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
-    assertThat(selectList.options()).containsOnly("foo", "bar");
-    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST|foo,bar,");
+    assertThat(selectList.values()).containsOnly("foo", "bar");
+    assertThat(selectList.multiple()).isFalse();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,values=\"foo,bar,\"");
+
+    RuleParamType.parse("SINGLE_SELECT_LIST,values=\"foo,bar\",multiple=false");
+    assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(selectList.values()).containsOnly("foo", "bar");
+    assertThat(selectList.multiple()).isFalse();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,values=\"foo,bar,\"");
+
+    RuleParamType.parse("SINGLE_SELECT_LIST,\"values=foo,bar\",\"multiple=false\"");
+    assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(selectList.values()).containsOnly("foo", "bar");
+    assertThat(selectList.multiple()).isFalse();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,values=\"foo,bar,\"");
 
     // escape values
-    selectList = RuleParamType.ofValues("foo", "one,two|three,four");
+    selectList = RuleParamType.singleListOfValues("foo", "one,two|three,four");
     assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
-    assertThat(selectList.options()).containsOnly("foo", "one,two|three,four");
-    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST|foo,\"one,two|three,four\",");
+    assertThat(selectList.values()).containsOnly("foo", "one,two|three,four");
+    assertThat(selectList.multiple()).isFalse();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,values=\"foo,\"\"one,two|three,four\"\",\"");
+  }
+
+  @Test
+  public void testMultipleListOfValues() throws Exception {
+    RuleParamType selectList = RuleParamType.parse("SINGLE_SELECT_LIST,values=\"foo,bar\",multiple=true");
+    assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(selectList.values()).containsOnly("foo", "bar");
+    assertThat(selectList.multiple()).isTrue();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,multiple=true,values=\"foo,bar,\"");
+
+    RuleParamType.parse("SINGLE_SELECT_LIST,\"values=foo,bar\",\"multiple=true\"");
+    assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(selectList.values()).containsOnly("foo", "bar");
+    assertThat(selectList.multiple()).isTrue();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,multiple=true,values=\"foo,bar,\"");
+
+    // escape values
+    selectList = RuleParamType.multipleListOfValues("foo", "one,two|three,four");
+    assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
+    assertThat(selectList.values()).containsOnly("foo", "one,two|three,four");
+    assertThat(selectList.multiple()).isTrue();
+    assertThat(selectList.toString()).isEqualTo("SINGLE_SELECT_LIST,multiple=true,values=\"foo,\"\"one,two|three,four\"\",\"");
   }
 
   @Test
@@ -88,6 +123,6 @@ public class RuleParamTypeTest {
     assertThat(RuleParamType.parse("REGULAR_EXPRESSION")).isEqualTo(RuleParamType.STRING);
     RuleParamType list = RuleParamType.parse("s[FOO,BAR]");
     assertThat(list.type()).isEqualTo("SINGLE_SELECT_LIST");
-    assertThat(list.options()).containsOnly("FOO", "BAR");
+    assertThat(list.values()).containsOnly("FOO", "BAR");
   }
 }

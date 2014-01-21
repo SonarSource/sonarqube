@@ -32,6 +32,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.PropertyType;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -264,13 +265,12 @@ public class QProfileActiveRuleOperationsTest {
 
   @Test
   public void deactivate_rules() throws Exception {
-    when(profileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
     when(ruleDao.selectById(10, session)).thenReturn(new RuleDto().setId(10));
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
     when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    int result = operations.deactivateRules(1, newArrayList(5), authorizedUserSession);
+    int result = operations.deactivateRules(newArrayList(5), authorizedUserSession);
 
     assertThat(result).isEqualTo(1);
     verify(activeRuleDao).delete(eq(5), eq(session));
@@ -343,6 +343,21 @@ public class QProfileActiveRuleOperationsTest {
     verify(profilesManager).ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30"), eq("Nicolas"));
     verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
     verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
+  }
+
+  @Test
+  public void update_active_rule_param_with_single_select_list_type() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(1);
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(RuleParamType.multipleListOfValues("30", "31", "32", "33").toString());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(activeRuleParam);
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30, 31, 32"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
+
+    operations.updateActiveRuleParam(5, "max", "30, 31, 32", authorizedUserSession);
+
+    verify(typeValidations).validate(eq(newArrayList("30", "31", "32")), eq("SINGLE_SELECT_LIST"), anyList());
   }
 
   @Test

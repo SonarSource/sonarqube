@@ -32,7 +32,6 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public final class RuleParamType {
 
-  private static final String FIELD_SEPARATOR = "|";
   private static final String OPTION_SEPARATOR = ",";
 
   public static final RuleParamType STRING = new RuleParamType("STRING");
@@ -41,40 +40,74 @@ public final class RuleParamType {
   public static final RuleParamType INTEGER = new RuleParamType("INTEGER");
   public static final RuleParamType FLOAT = new RuleParamType("FLOAT");
 
+  private static final String CSV_SPLIT_REGEX = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
+  private static final String VALUES_PARAM = "values";
+  private static final String MULTIPLE_PARAM = "multiple";
+  private static final String PARAMETER_SEPARATOR = "=";
+
   private final String type;
-  private final List<String> options;
+  private final List<String> values;
+  private final boolean multiple;
 
   // format is "type|comma-separated list of options", for example "INTEGER" or "SINGLE_SELECT_LIST|foo=one,bar,baz=two"
   private final String key;
 
   private RuleParamType(String type, String... options) {
+    this(type, false, options);
+  }
+
+  private RuleParamType(String type, boolean multiple, String... values) {
     this.type = type;
-    this.options = newArrayList(options);
+    this.values = newArrayList(values);
     StringBuilder sb = new StringBuilder();
     sb.append(type);
-    if (options.length > 0) {
-      sb.append(FIELD_SEPARATOR);
-      for (String option : options) {
-        sb.append(StringEscapeUtils.escapeCsv(option));
-        sb.append(OPTION_SEPARATOR);
-      }
+    if (multiple) {
+      sb.append(OPTION_SEPARATOR);
+      sb.append(MULTIPLE_PARAM + PARAMETER_SEPARATOR);
+      sb.append(Boolean.toString(multiple));
+    }
+    if (values.length > 0) {
+      sb.append(OPTION_SEPARATOR);
+      sb.append(VALUES_PARAM + PARAMETER_SEPARATOR);
+      sb.append(StringEscapeUtils.escapeCsv(valuesToCsv(values)));
     }
     this.key = sb.toString();
+    this.multiple = multiple;
+  }
+
+  private String valuesToCsv(String... values) {
+    StringBuilder sb = new StringBuilder();
+    for (String value : values) {
+      sb.append(StringEscapeUtils.escapeCsv(value));
+      sb.append(OPTION_SEPARATOR);
+    }
+    return sb.toString();
   }
 
   public String type() {
     return type;
   }
 
-  public List<String> options() {
-    return options;
+  public List<String> values() {
+    return values;
   }
 
-  public static RuleParamType ofValues(String... acceptedValues) {
+  public boolean multiple() {
+    return multiple;
+  }
+
+  public static RuleParamType singleListOfValues(String... acceptedValues) {
     // reuse the same type as plugin properties in order to
     // benefit from shared helpers (validation, HTML component)
     String type = PropertyType.SINGLE_SELECT_LIST.name();
     return new RuleParamType(type, acceptedValues);
+  }
+
+  public static RuleParamType multipleListOfValues(String... acceptedValues) {
+    // reuse the same type as plugin properties in order to
+    // benefit from shared helpers (validation, HTML component)
+    String type = PropertyType.SINGLE_SELECT_LIST.name();
+    return new RuleParamType(type, true, acceptedValues);
   }
 
   // TODO validate format
@@ -91,16 +124,26 @@ public final class RuleParamType {
     }
     if (s.startsWith("s[")) {
       String values = StringUtils.substringBetween(s, "[", "]");
-      return ofValues(StringUtils.split(values, ','));
+      return multipleListOfValues(StringUtils.split(values, ','));
     }
 
     // standard format
-    String format = StringUtils.substringBefore(s, FIELD_SEPARATOR);
-    String options = StringUtils.substringAfter(s, FIELD_SEPARATOR);
-    if (StringUtils.isBlank(options)) {
+    String format = StringUtils.substringBefore(s, OPTION_SEPARATOR);
+    String values = null;
+    boolean multiple = false;
+    String[] options = s.split(CSV_SPLIT_REGEX);
+    for (String option : options) {
+      String opt = StringEscapeUtils.unescapeCsv(option);
+      if (opt.startsWith(VALUES_PARAM + PARAMETER_SEPARATOR)) {
+        values = StringEscapeUtils.unescapeCsv(StringUtils.substringAfter(opt, VALUES_PARAM + PARAMETER_SEPARATOR));
+      } else if (opt.startsWith(MULTIPLE_PARAM + PARAMETER_SEPARATOR)) {
+        multiple = Boolean.parseBoolean(StringUtils.substringAfter(opt, MULTIPLE_PARAM + PARAMETER_SEPARATOR));
+      }
+    }
+    if (values == null || StringUtils.isBlank(values)) {
       return new RuleParamType(format);
     }
-    return new RuleParamType(format, options.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
+    return new RuleParamType(format, multiple, values.split(CSV_SPLIT_REGEX));
   }
 
   @Override

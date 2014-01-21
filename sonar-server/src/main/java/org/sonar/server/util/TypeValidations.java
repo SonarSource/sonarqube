@@ -35,6 +35,13 @@ public class TypeValidations implements ServerComponent {
     this.typeValidationList = typeValidationList;
   }
 
+  public void validate(List<String> values, String type, List<String> options) {
+    TypeValidation typeValidation = findByKey(type);
+    for (String value : values) {
+      typeValidation.validate(value, options);
+    }
+  }
+
   public void validate(String value, String type, List<String> options) {
     TypeValidation typeValidation = findByKey(type);
     typeValidation.validate(value, options);

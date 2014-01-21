@@ -52,7 +52,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -447,7 +451,7 @@ public class QProfilesTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(1);
     when(rules.searchProfileRuleIds(query)).thenReturn(newArrayList(10));
     qProfiles.bulkDeactivateRule(query);
-    verify(activeRuleOperations).deactivateRules(eq(1), eq(newArrayList(10)), any(UserSession.class));
+    verify(activeRuleOperations).deactivateRules(eq(newArrayList(10)), any(UserSession.class));
   }
 
   @Test

@@ -20,9 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableList;
-
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.profiles.ProfileExporter;
@@ -46,7 +45,6 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -291,7 +289,7 @@ public class QProfiles implements ServerComponent {
 
   public int bulkDeactivateRule(ProfileRuleQuery query) {
     List<Integer> activeRuleIdsToDeactivate = rules.searchProfileRuleIds(query);
-    return activeRuleOperations.deactivateRules(query.profileId(), activeRuleIdsToDeactivate, UserSession.get());
+    return activeRuleOperations.deactivateRules(activeRuleIdsToDeactivate, UserSession.get());
   }
 
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {

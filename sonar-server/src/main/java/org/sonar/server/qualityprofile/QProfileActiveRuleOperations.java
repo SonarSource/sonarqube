@@ -21,6 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
@@ -44,7 +45,6 @@ import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
@@ -172,7 +172,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return false;
   }
 
-  public int deactivateRules(int profileId, List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
+  public int deactivateRules(List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
@@ -421,7 +421,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void validateParam(RuleParamDto ruleParam, String value) {
     RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
-    typeValidations.validate(value, ruleParamType.type(), ruleParamType.options());
+    if (ruleParamType.multiple()) {
+      List<String> values = newArrayList(Splitter.on(",").trimResults().split(value));
+      typeValidations.validate(values, ruleParamType.type(), ruleParamType.values());
+    } else {
+      typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
+    }
   }
 
   private String getLoggedName(UserSession userSession) {
