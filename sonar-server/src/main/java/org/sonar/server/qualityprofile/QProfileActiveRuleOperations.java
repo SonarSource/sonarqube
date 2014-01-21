@@ -422,7 +422,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private void validateParam(RuleParamDto ruleParam, String value) {
     RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
     if (ruleParamType.multiple()) {
-      List<String> values = newArrayList(Splitter.on(",").trimResults().split(value));
+      List<String> values = newArrayList(Splitter.on(",").split(value));
       typeValidations.validate(values, ruleParamType.type(), ruleParamType.values());
     } else {
       typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());

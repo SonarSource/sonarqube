@@ -353,9 +353,9 @@ public class QProfileActiveRuleOperationsTest {
     when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
     when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(activeRuleParam);
-    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30, 31, 32"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
+    when(profilesManager.ruleParamChanged(eq(1), eq(5), eq("max"), eq("20"), eq("30,31,32"), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
 
-    operations.updateActiveRuleParam(5, "max", "30, 31, 32", authorizedUserSession);
+    operations.updateActiveRuleParam(5, "max", "30,31,32", authorizedUserSession);
 
     verify(typeValidations).validate(eq(newArrayList("30", "31", "32")), eq("SINGLE_SELECT_LIST"), anyList());
   }
