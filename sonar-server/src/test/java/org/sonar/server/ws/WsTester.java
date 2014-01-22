@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.SimpleResponse;
 import org.sonar.api.server.ws.WebService;
 
 import javax.annotation.CheckForNull;
+
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
@@ -85,7 +86,11 @@ public class WsTester {
 
     public Result assertJson(Class clazz, String jsonResourcePath) throws Exception {
       String json = response.outputAsString();
-      URL url = clazz.getResource(clazz.getSimpleName() + "/" + jsonResourcePath);
+      String path = clazz.getSimpleName() + "/" + jsonResourcePath;
+      URL url = clazz.getResource(path);
+      if (url == null) {
+        throw new IllegalStateException("Cannot find " + path);
+      }
       JSONAssert.assertEquals(IOUtils.toString(url), json, true);
       return this;
     }

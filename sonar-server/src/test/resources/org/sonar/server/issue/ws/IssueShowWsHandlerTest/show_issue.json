@@ -1,0 +1,23 @@
+{
+  "issue": {
+    "key": "ABCD",
+    "component": "org.sonar.server.issue.IssueClient",
+    "project": "org.sonar.Sonar",
+    "rule": "squid:AvoidCycle",
+    "line": 12,
+    "message": "Fix it",
+    "resolution": "FIXED",
+    "status": "CLOSED",
+    "severity": "MAJOR",
+    "actionPlan" : "AP-ABCD",
+    "assignee": "john",
+    "assigneeName": "John",
+    "reporter": "steven",
+    "reporterName": "Steven",
+    "author": "henry",
+    "authorName": "Henry",
+    "transitions": [],
+    "actions": [],
+    "comments": []
+  }
+}

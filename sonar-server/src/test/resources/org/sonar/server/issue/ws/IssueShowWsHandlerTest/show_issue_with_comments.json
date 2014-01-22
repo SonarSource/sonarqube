@@ -1,0 +1,17 @@
+{
+  "issue": {
+    "key": "ABCD",
+    "component": "org.sonar.server.issue.IssueClient",
+    "project": "org.sonar.Sonar",
+    "rule": "squid:AvoidCycle",
+    "transitions": [],
+    "actions": [],
+    "comments": [
+      {
+        "key": "COMMENT-ABCD",
+        "userLogin": "john",
+        "userName": "John"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "issue": {
+    "key": "ABCD",
+    "component": "org.sonar.server.issue.IssueClient",
+    "project": "org.sonar.Sonar",
+    "rule": "squid:AvoidCycle",
+    "status": "OPEN",
+    "transitions": [],
+    "actions": [
+       "comment", "assign", "plan", "link-to-jira"
+    ],
+    "comments": []
+  }
+}

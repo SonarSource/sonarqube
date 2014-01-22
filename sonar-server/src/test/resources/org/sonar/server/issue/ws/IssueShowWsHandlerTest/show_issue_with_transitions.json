@@ -1,0 +1,13 @@
+{
+  "issue": {
+    "key": "ABCD",
+    "component": "org.sonar.server.issue.IssueClient",
+    "project": "org.sonar.Sonar",
+    "rule": "squid:AvoidCycle",
+    "status": "RESOLVED",
+    "resolution": "FIXED",
+    "transitions": ["reopen"],
+    "actions": ["comment"],
+    "comments": []
+  }
+}
