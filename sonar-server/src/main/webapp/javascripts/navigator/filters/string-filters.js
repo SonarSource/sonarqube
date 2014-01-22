@@ -68,6 +68,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         value: value,
         enabled: true
       });
+    },
+
+
+    clear: function() {
+      this.model.unset('value');
+      this.detailsView.render();
     }
 
   });

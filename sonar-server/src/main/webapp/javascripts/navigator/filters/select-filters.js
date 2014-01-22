@@ -295,14 +295,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     clear: function() {
       var that = this;
-      this.model.unset('value');
       if (this.selection && this.choices) {
         this.selection.each(function(m) {
           that.choices.add(m);
         });
         this.selection.reset([]);
       }
-      this.renderBase();
+      this.model.unset('value');
+      this.detailsView.render();
+      if (this.detailsView.updateCurrent) {
+        this.detailsView.updateCurrent(0);
+      }
     },
 
 

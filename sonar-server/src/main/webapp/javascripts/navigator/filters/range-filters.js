@@ -154,6 +154,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     formatValue: function() {
       return this.model.get('value');
+    },
+
+
+    clear: function() {
+      this.model.unset('value');
+      this.detailsView.render();
     }
 
   });

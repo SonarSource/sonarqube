@@ -4,6 +4,22 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 jQuery(function() {
 
+  var AppState = Backbone.Model.extend({
+
+    defaults: {
+      canManageFilter: false,
+      canBulkChange: false
+    },
+
+
+    url: function() {
+      return baseUrl + '/api/issue_filters/page';
+    }
+
+  });
+
+
+
   var Issue = Backbone.Model.extend({});
   var Issues = Backbone.Collection.extend({
     model: Issue,
@@ -195,6 +211,7 @@ jQuery(function() {
       return _.extend(data || {}, {
         paging: this.collection.paging,
         sorting: this.collection.sorting,
+        appState: window.SS.appState.toJSON(),
         query: (Backbone.history.fragment || '').replace(/\|/g, '&')
       });
     }
@@ -302,7 +319,8 @@ jQuery(function() {
 
     serializeData: function() {
       return _.extend({
-        canSave: this.model.id && this.options.app.state.get('search')
+        canSave: this.model.id && this.options.app.state.get('search'),
+        appState: window.SS.appState.toJSON()
       }, this.model.toJSON());
     }
 
@@ -327,7 +345,7 @@ jQuery(function() {
 
     applyFavorite: function(e) {
       var id = $j(e.target).data('id'),
-          filter = this.model.get('choices').get(id),
+          filter = new window.SS.FavoriteFilter({ id: id }),
           app = this.options.filterView.options.app;
 
       filter.fetch({
@@ -343,7 +361,7 @@ jQuery(function() {
 
     serializeData: function() {
       return _.extend({}, this.model.toJSON(), {
-        items: this.model.get('choices').toJSON()
+        items: this.model.get('choices')
       });
     }
   });
@@ -357,7 +375,13 @@ jQuery(function() {
         detailsView: IssuesDetailsFavoriteFilterView
       });
 
-      this.listenTo(this.model.get('choices'), 'reset', this.render);
+      this.listenTo(window.SS.appState, 'change:favorites', this.updateFavorites);
+    },
+
+
+    updateFavorites: function() {
+      this.model.set('choices', window.SS.appState.get('favorites'));
+      this.render();
     }
   });
 
@@ -376,11 +400,12 @@ jQuery(function() {
     },
 
 
-    parseQuery: function(query) {
-      return (query || '').split('|').map(function(t) {
+    parseQuery: function(query, separator) {
+      return (query || '').split(separator || '|').map(function(t) {
+        var tokens = t.split('=');
         return {
-          key: t.split('=')[0],
-          value: decodeURIComponent(t.split('=')[1])
+          key: tokens[0],
+          value: decodeURIComponent(tokens[1])
         }
       });
     },
@@ -422,6 +447,7 @@ jQuery(function() {
    */
 
   _.extend(window.SS, {
+    AppState: AppState,
     Issue: Issue,
     Issues: Issues,
     FavoriteFilter: FavoriteFilter,

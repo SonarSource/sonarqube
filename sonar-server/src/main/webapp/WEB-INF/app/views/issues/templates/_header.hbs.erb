@@ -1,13 +1,18 @@
 <script id="issues-header-template" type="text/x-handlebars-template">
   <h1 class="navigator-header-title">{{#if name}}{{name}}{{else}}<%= message ('issues') -%>{{/if}}</h1>
 
-  <div class="navigator-header-actions">
-    <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>
-    {{#if canSave}}<button id="issues-filter-save"><%= message('save') -%></button>{{/if}}
+    <div class="navigator-header-actions">
+      <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>
 
-    {{#unless id}}<button id="issues-filter-save-as"><%= message('save_as') -%></button>{{/unless}}
+      {{#if appState.canManageFilter}}
+        {{#if canSave}}<button id="issues-filter-save"><%= message('save') -%></button>{{/if}}
+        {{#unless id}}<button id="issues-filter-save-as"><%= message('save_as') -%></button>{{/unless}}
+        {{#if id}}<button id="issues-filter-copy"><%= message('copy') -%></button>{{/if}}
+        {{#if id}}<button id="issues-filter-edit"><%= message('edit') -%></button>{{/if}}
+      {{/if}}
+    </div>
 
-    {{#if id}}<button id="issues-filter-copy"><%= message('copy') -%></button>{{/if}}
-    {{#if id}}<button id="issues-filter-edit"><%= message('edit') -%></button>{{/if}}
-  </div>
+  {{#if description}}
+    <div class="navigator-header-description">{{description}}</div>
+  {{/if}}
 </script>

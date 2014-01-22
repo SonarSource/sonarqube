@@ -18,6 +18,9 @@ jQuery(function() {
 
 
   NavigatorApp.addInitializer(function() {
+    this.appState = new window.SS.AppState();
+    window.SS.appState = this.appState;
+
     this.state = new Backbone.Model({
       query: ''
     });
@@ -144,20 +147,6 @@ jQuery(function() {
     ]);
 
 
-    this.favoriteFilters = new window.SS.FavoriteFilters();
-    this.filters.unshift([
-      new window.SS.Filter({
-        type: window.SS.IssuesFavoriteFilterView,
-        enabled: true,
-        optional: false,
-        choices: this.favoriteFilters,
-        manageUrl: '/issues/manage'
-      })]);
-    this.favoriteFilters.fetch({
-      reset: true
-    });
-
-
     this.filterBarView = new window.SS.IssuesFilterBarView({
       app: this,
       collection: this.filters,
@@ -172,14 +161,30 @@ jQuery(function() {
 
 
   NavigatorApp.addInitializer(function() {
-    this.router = new window.SS.IssuesRouter({
-      app: this
-    });
-    Backbone.history.start();
+    var app = this;
 
-    var router = this.router;
-    this.favoriteFilter.on('change:query', function(model, query) {
-      router.navigate(query, { trigger: true });
+    jQuery.when(this.appState.fetch()).done(function() {
+
+      if (app.appState.get('favorites')) {
+        app.filters.unshift(
+          new window.SS.Filter({
+            type: window.SS.IssuesFavoriteFilterView,
+            enabled: true,
+            optional: false,
+            choices: app.appState.get('favorites'),
+            manageUrl: '/issues/manage'
+          })
+        );
+      }
+
+      app.router = new window.SS.IssuesRouter({
+        app: app
+      });
+      Backbone.history.start();
+
+      app.favoriteFilter.on('change:query', function(model, query) {
+        app.router.navigate(query, { trigger: true });
+      });
     });
   });
 
@@ -193,9 +198,17 @@ jQuery(function() {
     };
 
     window.onSaveAs = window.onCopy = window.onEdit = function(id) {
-      app.favoriteFilters.fetch({ reset: true });
-      app.router.navigate('id=' + id, { trigger: true });
       jQuery('#modal').dialog('close');
+      app.appState.fetch();
+
+      var filter = new window.SS.FavoriteFilter({ id: id });
+      filter.fetch({
+        success: function() {
+          app.state.set('search', false);
+          app.favoriteFilter.set(filter.toJSON());
+          app.fetchFirstPage();
+        }
+      });
     };
   });
 
@@ -277,6 +290,8 @@ jQuery(function() {
         }
       });
     }
+
+    this.detailsRegion.reset();
   };
 
 

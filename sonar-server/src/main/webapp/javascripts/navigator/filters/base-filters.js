@@ -163,6 +163,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     restoreFromQuery: function(q) {
       var param = _.findWhere(q, { key: this.model.get('property') });
       if (param && param.value) {
+        this.model.set('enabled', true);
         this.restore(param.value, param);
       } else {
         this.clear();
@@ -254,11 +255,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    render: function() {
-      Backbone.Marionette.CompositeView.prototype.render.apply(this, arguments);
-
-      if (this.collection.where({ type: window.SS.FavoriteFilterView }).length > 0 ||
-          this.collection.where({ type: window.SS.IssuesFavoriteFilterView }).length > 0) {
+    onAfterItemAdded: function(itemView) {
+      if (itemView.model.get('type') === window.SS.FavoriteFilterView ||
+          itemView.model.get('type') === window.SS.IssuesFavoriteFilterView) {
         this.$el.addClass('navigator-filter-list-favorite');
       }
     },
@@ -266,6 +265,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     restoreFromQuery: function(q) {
       this.collection.each(function(item) {
+        item.set('enabled', !item.get('optional'));
+        item.view.clear();
         item.view.restoreFromQuery(q);
       });
     },

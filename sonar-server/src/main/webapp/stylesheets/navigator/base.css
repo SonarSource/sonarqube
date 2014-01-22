@@ -83,10 +83,17 @@
   font-size: 20px;
   line-height: 34px;
 }
+.navigator-header-description {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 16px;
+  font-size: 11px;
+  font-style: italic;
+}
 .navigator-header-actions {
   display: inline-block;
   vertical-align: middle;
-  margin-left: 24px;
+  margin-left: 16px;
 }
 .navigator-header-actions > button {
   position: relative;
@@ -174,12 +181,6 @@
   padding-top: 20%;
   color: #999;
   text-align: center;
-}
-.navigator-results-no-issues i {
-  font-size: 32px;
-}
-.navigator-results-no-issues p {
-  margin-top: 10px;
 }
 .navigator-details {
   padding: 10px;
