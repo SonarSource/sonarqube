@@ -12,7 +12,9 @@
       {
         "key": "COMMENT-ABCD",
         "userLogin": "john",
-        "userName": "John"
+        "userName": "John",
+        "html": "<b>My comment</b>",
+        "creationDate": "2014-01-23T19:10:03+0100"
       }
     ]
   }

@@ -46,6 +46,7 @@ import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
+import org.sonar.server.text.RubyTextService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
@@ -74,6 +75,9 @@ public class IssueShowWsHandlerTest {
   @Mock
   InternalRubyTechnicalDebtService technicalDebtService;
 
+  @Mock
+  RubyTextService textService;
+
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
@@ -89,7 +93,7 @@ public class IssueShowWsHandlerTest {
     result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService, technicalDebtService)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService, technicalDebtService, textService)));
   }
 
   @Test
@@ -178,10 +182,16 @@ public class IssueShowWsHandlerTest {
   public void show_issue_with_comments() throws Exception {
     Issue issue = createStandardIssue()
       .addComment(
-        new DefaultIssueComment().setKey("COMMENT-ABCD").setMarkdownText("My comment").setUserLogin("john")
+        new DefaultIssueComment()
+          .setKey("COMMENT-ABCD")
+          .setMarkdownText("*My comment*")
+          .setUserLogin("john")
+          .setCreatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"))
       );
     issues.add(issue);
     result.addUsers(newArrayList((User) new DefaultUser().setLogin("john").setName("John")));
+
+    when(textService.markdownToHtml("*My comment*")).thenReturn("<b>My comment</b>");
 
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());

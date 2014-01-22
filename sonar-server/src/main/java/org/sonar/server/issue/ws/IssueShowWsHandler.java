@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
+import org.sonar.server.text.RubyTextService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
@@ -47,12 +48,15 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final ActionService actionService;
   private final InternalRubyTechnicalDebtService technicalDebtService;
+  private final RubyTextService textService;
 
-  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, ActionService actionService, InternalRubyTechnicalDebtService technicalDebtService) {
+  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, ActionService actionService,
+                            InternalRubyTechnicalDebtService technicalDebtService, RubyTextService textService) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.actionService = actionService;
     this.technicalDebtService = technicalDebtService;
+    this.textService = textService;
   }
 
   @Override
@@ -150,8 +154,10 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("key", comment.key())
         .prop("userLogin", userLogin)
         .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
-          // TODO convert markdown to HTML
-          // TODO add date
+        .prop("html", textService.markdownToHtml(comment.markdownText()))
+        // add markdownText ?
+        .prop("creationDate", DateUtils.formatDateTime(comment.createdAt()))
+          // TODO add formatted date
         .endObject();
     }
     json.endArray();
