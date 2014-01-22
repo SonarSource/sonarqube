@@ -29,7 +29,7 @@
              href="#!"><%=message('delete')-%></a>
         <% end %>
       </cite>
-      <p><%= note.data -%></p>
+      <p><%= html_text(note.data) -%></p>
     </blockquote>
   <% elsif profiles_administrator? %>
     <a href="#" onclick="$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_textarea_id -%>').focus(); return false;"
@@ -52,7 +52,7 @@
       <tr>
         <td class="width100" colspan="2">
           <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
-                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.data) unless note.nil? -%></textarea>
+                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(plain_text(note.data)) unless note.nil? -%></textarea>
         </td>
       </tr>
     <tr>

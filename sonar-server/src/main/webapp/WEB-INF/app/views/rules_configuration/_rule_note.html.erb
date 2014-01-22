@@ -18,8 +18,8 @@
   <% end %>
   </div>
 
-  <% unless rule.ruleNote.nil? %>
-    <p><%= rule.ruleNote.data -%></p>
+  <% if rule.ruleNote && !rule.ruleNote.data.strip.blank? %>
+    <p><%= html_text(rule.ruleNote.data) -%></p>
   <% end %>
 
   <% if profiles_administrator? %>
@@ -48,7 +48,7 @@
       </tr>
       <tr>
         <td class="width100" colspan="2">
-          <textarea name="text" id="<%= note_textarea_id -%>" rows="10" style="width:100%"><%= h(note.data) if note -%></textarea>
+          <textarea name="text" id="<%= note_textarea_id -%>" rows="10" style="width:100%"><%= h(plain_text(note.data)) if note -%></textarea>
         </td>
       </tr>
     <tr>

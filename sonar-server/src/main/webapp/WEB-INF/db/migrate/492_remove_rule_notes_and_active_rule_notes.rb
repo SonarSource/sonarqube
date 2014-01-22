@@ -17,26 +17,30 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class RuleNote < ActiveRecord::Base
-  belongs_to :rule
-  alias_attribute :text, :data
-  
-  validates_presence_of :rule, :message => "can't be empty"
-  validates_presence_of :user_login, :message => "can't be empty"
 
-  def user
-    @user ||=
-        begin
-          user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
-        end
+#
+# Sonar 4.2
+# SONAR-4923
+#
+class RemoveRuleNotesAndActiveRuleNotes < ActiveRecord::Migration
+
+  class Project < ActiveRecord::Base
   end
 
-  def html_text
-    Api::Utils.markdown_to_html(text)
+  def self.up
+    remove_index_quietly(:active_rule_notes, 'arn_active_rule_id')
+    drop_table(:active_rule_notes)
+
+    remove_index_quietly(:rule_notes, 'rule_notes_rule_id')
+    drop_table(:rule_notes)
   end
 
-  def plain_text
-    Api::Utils.convert_string_to_unix_newlines(text)
+  def self.remove_index_quietly(table, name)
+    begin
+      remove_index(table, :name => name)
+    rescue
+      # probably already removed
+    end
   end
-  
+
 end

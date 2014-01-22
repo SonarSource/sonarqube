@@ -21,8 +21,6 @@ class ActiveRule < ActiveRecord::Base
   belongs_to :rules_profile, :class_name => 'Profile', :foreign_key => 'profile_id'
   belongs_to :rule
   has_many :active_rule_parameters, :dependent => :destroy
-  has_one :active_rule_note
-  alias_attribute :note, :active_rule_note
 
   def level
     failure_level

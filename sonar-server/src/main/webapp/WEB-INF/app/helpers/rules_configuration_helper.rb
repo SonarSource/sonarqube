@@ -47,5 +47,13 @@ module RulesConfigurationHelper
     "#{qProfileRule.repositoryKey().to_s}:#{qProfileRule.key().to_s}"
   end
 
+  def html_text(text)
+    Api::Utils.markdown_to_html(text)
+  end
+
+  def plain_text(text)
+    Api::Utils.convert_string_to_unix_newlines(text)
+  end
+
 end
 

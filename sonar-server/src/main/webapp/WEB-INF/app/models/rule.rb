@@ -36,8 +36,6 @@ class Rule < ActiveRecord::Base
   has_many :rules_parameters, :inverse_of => :rule
   has_many :active_rules, :inverse_of => :rule
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
-  has_one :rule_note, :inverse_of => :rule
-  alias_attribute :note, :rule_note
 
 =begin TODO Uncomment these lines to make rule read-only when Rule facade is complete
   def read_only?
