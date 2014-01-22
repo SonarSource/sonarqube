@@ -22,7 +22,7 @@ class Profile < ActiveRecord::Base
 
   has_many :alerts, :dependent => :delete_all
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
-  has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters', 'active_rule_note']
+  has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters']
   has_many :changes, :class_name => 'ActiveRuleChange', :dependent => :destroy
 
   validates_uniqueness_of :name, :scope => :language, :case_sensitive => false, :message => Api::Utils.message('quality_profiles.already_exists')

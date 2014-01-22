@@ -186,7 +186,7 @@ class IssueController < ApplicationController
     verify_ajax_request
     require_parameters :id
     rule_key = params[:id].split(':')
-    @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]], :include => :rule_note)
+    @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]])
     render :partial => 'issue/rule'
   end
 

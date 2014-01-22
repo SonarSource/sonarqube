@@ -272,7 +272,7 @@ class Rule < ActiveRecord::Base
     conditions << "id IN (:ids)"
     values[:ids] = Array(Internal.rules.findIds(params))
 
-    includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
+    includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
     rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
     rules = Rule.sort_by(rules, options[:sort_by])
     filter(rules, options)

@@ -6,9 +6,9 @@
   <% end %>
 </div>
 
-<% if @rule.note %>
+<% if @rule.note_data %>
   <div class="marginbottom10">
-    <%= @rule.note.html_text -%>
+    <%= Api::Utils.markdown_to_html(@rule.note_data) -%>
   </div>
 <% end %>
 
