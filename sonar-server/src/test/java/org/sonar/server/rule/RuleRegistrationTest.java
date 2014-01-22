@@ -22,8 +22,8 @@ package org.sonar.server.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
@@ -44,6 +44,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   ProfilesManager profilesManager = mock(ProfilesManager.class);
   RuleRegistry ruleRegistry = mock(RuleRegistry.class);
   ESRuleTags esRuleTags = mock(ESRuleTags.class);
+  RuleTagOperations ruleTagOperations;
   MyBatis myBatis;
   RuleDao ruleDao;
   RuleTagDao ruleTagDao;
@@ -55,8 +56,9 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     ruleDao = new RuleDao(myBatis);
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
+    ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
   }
 
   @Test
@@ -169,7 +171,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("shared");
     task.start();
@@ -184,7 +186,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void should_insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
         new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("empty");
     task.start();

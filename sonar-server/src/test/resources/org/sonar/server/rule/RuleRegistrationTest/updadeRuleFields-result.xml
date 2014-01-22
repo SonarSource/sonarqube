@@ -7,7 +7,6 @@
   <rules_parameters id="2" rule_id="1" default_value="default value two" description="parameter two" name="param2" param_type="STRING"/>
 
   <rule_tags id="1" tag="tag1"/>
-  <rule_tags id="2" tag="tag2"/>
   <rule_tags id="3" tag="tag3"/>
   <rule_tags id="4" tag="tag4"/>
   <rule_tags id="5" tag="tag5"/>

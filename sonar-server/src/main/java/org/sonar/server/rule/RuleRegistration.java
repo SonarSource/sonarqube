@@ -26,10 +26,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
@@ -56,16 +56,18 @@ public class RuleRegistration implements Startable {
   private final MyBatis myBatis;
   private final RuleDao ruleDao;
   private final RuleTagDao ruleTagDao;
+  private final RuleTagOperations ruleTagOperations;
   private final ActiveRuleDao activeRuleDao;
   private final System2 system = System2.INSTANCE;
 
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                          RuleRegistry ruleRegistry, ESRuleTags esRuleTags,
+                          RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
                           MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;
     this.esRuleTags = esRuleTags;
+    this.ruleTagOperations = ruleTagOperations;
     this.myBatis = myBatis;
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
@@ -82,6 +84,8 @@ public class RuleRegistration implements Startable {
       enableRuleDefinitions(buffer, sqlSession);
       processRemainingDbRules(buffer, sqlSession);
       index(buffer);
+      ruleTagOperations.deleteUnusedTags(sqlSession);
+      sqlSession.commit();
 
     } finally {
       sqlSession.close();
