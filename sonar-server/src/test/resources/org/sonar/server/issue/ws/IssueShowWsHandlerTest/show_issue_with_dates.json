@@ -5,12 +5,11 @@
     "project": "org.sonar.Sonar",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
-    "status": "OPEN",
     "creationDate": "2014-01-22T19:10:03+0100",
+    "updateDate": "2014-01-23T19:10:03+0100",
+    "closeDate": "2014-01-24T19:10:03+0100",
     "transitions": [],
-    "actions": [
-       "comment", "assign", "plan", "link-to-jira"
-    ],
+    "actions": [],
     "comments": []
   }
 }

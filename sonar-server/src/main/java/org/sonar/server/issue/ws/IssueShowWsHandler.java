@@ -26,6 +26,7 @@ import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.exceptions.NotFoundException;
@@ -35,6 +36,7 @@ import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -75,26 +77,33 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    String actionPlanKey = issue.actionPlanKey();
     WorkDayDuration technicalDebt = issue.technicalDebt();
-    String techDebtLabel = technicalDebt != null ? technicalDebtService.format(technicalDebt) : null;
+    Date updateDate = issue.updateDate();
+    Date closeDate = issue.closeDate();
 
     json
       .prop("key", issue.key())
       .prop("component", issue.componentKey())
       .prop("project", result.project(issue).key())
       .prop("rule", issue.ruleKey().toString())
+      .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
-      .prop("technicalDebt", techDebtLabel)
       .prop("message", issue.message())
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
-      .prop("actionPlan", issue.actionPlanKey());
-    // TODO to be completed
+      .prop("actionPlan", actionPlanKey)
+      .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
+      .prop("technicalDebt", technicalDebt != null ? technicalDebtService.format(technicalDebt) : null)
+      .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
+      .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
+      .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null);
+    // TODO add formatted dates
 
-    addUserField(result, issue.assignee(), "assignee", json);
-    addUserField(result, issue.reporter(), "reporter", json);
-    addUserField(result, issue.authorLogin(), "author", json);
+    addUserWithLabel(result, issue.assignee(), "assignee", json);
+    addUserWithLabel(result, issue.reporter(), "reporter", json);
+    addUserWithLabel(result, issue.authorLogin(), "author", json);
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
@@ -148,11 +157,11 @@ public class IssueShowWsHandler implements RequestHandler {
     json.endArray();
   }
 
-  private void addUserField(IssueQueryResult result, String user, String field, JsonWriter json) {
-    if (user != null) {
+  private void addUserWithLabel(IssueQueryResult result, String value, String field, JsonWriter json) {
+    if (value != null) {
       json
-        .prop(field, user)
-        .prop(field + "Name", result.user(user).name());
+        .prop(field, value)
+        .prop(field + "Name", result.user(value).name());
     }
   }
 }

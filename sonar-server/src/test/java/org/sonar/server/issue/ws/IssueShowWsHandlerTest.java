@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.component.Component;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -34,8 +35,11 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
@@ -82,6 +86,7 @@ public class IssueShowWsHandlerTest {
     Component component = mock(Component.class);
     when(component.key()).thenReturn("org.sonar.Sonar");
     result.addProjects(newArrayList(component));
+    result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 
     tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService, technicalDebtService)));
@@ -98,11 +103,34 @@ public class IssueShowWsHandlerTest {
       .setLine(12)
       .setEffortToFix(2.0)
       .setMessage("Fix it")
-      .setReporter("steven")
       .setResolution("FIXED")
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
+      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+    issues.add(issue);
+
+    MockUserSession.set();
+    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    tester.execute("show", request).assertJson(getClass(), "show_issue.json");
+  }
+
+  @Test
+  public void show_issue_with_action_plan() throws Exception {
+    Issue issue = createStandardIssue()
       .setActionPlanKey("AP-ABCD")
+      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+    issues.add(issue);
+
+    result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2")));
+
+    MockUserSession.set();
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_action_plan.json");
+  }
+
+  @Test
+  public void show_issue_with_users() throws Exception {
+    Issue issue = createStandardIssue()
       .setAssignee("john")
       .setReporter("steven")
       .setAuthorLogin("henry");
@@ -115,37 +143,40 @@ public class IssueShowWsHandlerTest {
     ));
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
-    tester.execute("show", request).assertJson(getClass(), "show_issue.json");
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_users.json");
   }
 
   @Test
   public void show_issue_with_technical_debt() throws Exception {
-    String issueKey = "ABCD";
     WorkDayDuration technicalDebt = WorkDayDuration.of(1, 2, 0);
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("org.sonar.server.issue.IssueClient")
-      .setProjectKey("org.sonar.Sonar")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+    Issue issue = createStandardIssue()
       .setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
     when(technicalDebtService.format(technicalDebt)).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_technical_debt.json");
   }
 
   @Test
+  public void show_issue_with_dates() throws Exception {
+    Issue issue = createStandardIssue()
+      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
+      .setUpdateDate(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"))
+      .setCloseDate(DateUtils.parseDateTime("2014-01-24T19:10:03+0100"));
+    issues.add(issue);
+
+    MockUserSession.set();
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_dates.json");
+  }
+
+  @Test
   public void show_issue_with_comments() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("org.sonar.server.issue.IssueClient")
-      .setProjectKey("org.sonar.Sonar")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+    Issue issue = createStandardIssue()
       .addComment(
         new DefaultIssueComment().setKey("COMMENT-ABCD").setMarkdownText("My comment").setUserLogin("john")
       );
@@ -153,18 +184,13 @@ public class IssueShowWsHandlerTest {
     result.addUsers(newArrayList((User) new DefaultUser().setLogin("john").setName("John")));
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_comments.json");
   }
 
   @Test
   public void show_issue_with_transitions() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("org.sonar.server.issue.IssueClient")
-      .setProjectKey("org.sonar.Sonar")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+    Issue issue = createStandardIssue()
       .setStatus("RESOLVED")
       .setResolution("FIXED");
     issues.add(issue);
@@ -172,34 +198,24 @@ public class IssueShowWsHandlerTest {
     when(issueService.listTransitions(eq(issue), any(UserSession.class))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_transitions.json");
   }
 
   @Test
   public void show_issue_with_actions() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("org.sonar.server.issue.IssueClient")
-      .setProjectKey("org.sonar.Sonar")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+    Issue issue = createStandardIssue()
       .setStatus("OPEN");
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions.json");
   }
 
   @Test
   public void show_issue_with_actions_defined_by_plugins() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("org.sonar.server.issue.IssueClient")
-      .setProjectKey("org.sonar.Sonar")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+    Issue issue = createStandardIssue()
       .setStatus("OPEN");
     issues.add(issue);
 
@@ -208,7 +224,16 @@ public class IssueShowWsHandlerTest {
     when(actionService.listAvailableActions(issue)).thenReturn(newArrayList(action));
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions_defined_by_plugins.json");
+  }
+
+  private DefaultIssue createStandardIssue(){
+    return new DefaultIssue()
+      .setKey("ABCD")
+      .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setProjectKey("org.sonar.Sonar")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
   }
 }
