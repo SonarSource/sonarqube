@@ -22,8 +22,8 @@
     <p><%= Internal.text.interpretMacros(@rule.description) %></p>
   <% end %>
 
-  <% if @rule.note && !@rule.note.text.strip.blank? %>
-    <p><%= @rule.note.html_text -%></p>
+  <% if @rule.note_data && !@rule.note_data.strip.blank? %>
+    <p> <%= Api::Utils.markdown_to_html(@rule.note_data) -%></p>
   <% end %>
 
 </div>
