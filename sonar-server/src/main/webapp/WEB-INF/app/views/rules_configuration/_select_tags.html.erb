@@ -4,13 +4,39 @@
 </div>
 
 <form onsubmit="$j.ajax({
-                        url:'<%=ApplicationController.root_context-%>/rules_configuration/create_tag',
-                        success:function(response){ $j('#select-rule-tags').html(response); },
-                        error:function(response){ $j('#select-tags-error').html(response); },
+                        url:'<%=ApplicationController.root_context-%>/rules_configuration/select_tags',
+                        success:function(response){ closeModalWindow();$j('#rule_tags_<%=rule.id-%>').html(response); },
+                        error:function(result,status,errmsg){ $j('#select-tags-error').show().html(errmsg); },
                         data: $j(this).serialize(),
                         type:'post'});
                   return false;"
         method="post"
+        id="select-tags-form"
+        action="<%=ApplicationController.root_context-%>/rules_configuration/select_tags">
+  <%= hidden_field_tag :rule_id, rule.id -%>
+  <%= hidden_field_tag :profile_id, profile_id -%>
+  <fieldset>
+    <div class="modal-body">
+      <h2><%= message('rules_configuration.available_tags') -%></h2>
+      <div id="select-rule-tags" style="height: 200px; overflow-y: scroll; border: 1px solid #cdcdcd;">
+        <%= render :partial => 'select_tags_list', :locals => { :tags => tags } -%>
+      </div>
+    </div>
+
+  </fieldset>
+</form>
+
+<div class="modal-error" id="select-tags-error"/>
+
+<form onsubmit="$j.ajax({
+                        url:'<%=ApplicationController.root_context-%>/rules_configuration/create_tag',
+                        success:function(response){ $j('#select-tags-error').hide();$j('#select-rule-tags').html(response);$j('#new_tag').val('');},
+                        error:function(response){ $j('#select-tags-error').show().html(response.responseText); },
+                        data: $j(this).serialize(),
+                        type:'post'});
+                  return false;"
+        method="post"
+        id="create-tag-form"
         action="<%=ApplicationController.root_context-%>/rules_configuration/create_tag">
   <%= hidden_field_tag :rule_id, rule.id -%>
   <fieldset>
@@ -21,28 +47,7 @@
   </fieldset>
 </form>
 
-<form onsubmit="$j.ajax({
-                        url:'<%=ApplicationController.root_context-%>/rules_configuration/select_tags',
-                        success:function(response){ closeModalWindow();$j('#rule_tags_<%=rule.id-%>').html(response); },
-                        error:function(response){ $j('#select-tags-error').html(response); },
-                        data: $j(this).serialize(),
-                        type:'post'});
-                  return false;"
-        method="post"
-        action="<%=ApplicationController.root_context-%>/rules_configuration/select_tags">
-  <%= hidden_field_tag :rule_id, rule.id -%>
-  <%= hidden_field_tag :profile_id, profile_id -%>
-  <fieldset>
-    <div class="modal-body">
-      <div class="modal-error" id="select-tags-error"/>
-      <div id="select-rule-tags" style="height: 200px; overflow-y: visible">
-        <%= render :partial => 'select_tags_list', :locals => { :tags => tags } -%>
-      </div>
-    </div>
-
-    <div class="modal-foot">
-      <%= submit_tag message('rules_configuration.update_tags'), { :id => 'update_tags_' + rule.id.to_s } -%>
-      <a href="#" onclick="return closeModalWindow()" id="confirm-cancel"><%= h message('cancel') -%></a>
-    </div>
-  </fieldset>
-</form>
+<div class="modal-foot">
+  <button type="button" id="update_tags_<%= rule.id.to_s -%>" onclick="$j('#select-tags-form').submit();return true;"><%= message('rules_configuration.update_tags') -%></button>
+  <a href="#" onclick="return closeModalWindow()" id="confirm-cancel"><%= h message('cancel') -%></a>
+</div>
