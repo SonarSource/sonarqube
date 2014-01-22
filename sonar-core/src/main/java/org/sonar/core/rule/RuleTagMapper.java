@@ -30,4 +30,6 @@ public interface RuleTagMapper {
   void delete(Long tagId);
 
   Long selectId(String tag);
+
+  List<RuleTagDto> selectUnused();
 }

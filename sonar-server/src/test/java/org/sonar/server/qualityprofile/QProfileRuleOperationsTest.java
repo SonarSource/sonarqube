@@ -44,6 +44,7 @@ import org.sonar.core.rule.*;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule.RuleTagOperations;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -78,6 +79,9 @@ public class QProfileRuleOperationsTest {
   RuleTagDao ruleTagDao;
 
   @Mock
+  RuleTagOperations ruleTagOperations;
+
+  @Mock
   RuleRegistry ruleRegistry;
 
   @Mock
@@ -104,7 +108,7 @@ public class QProfileRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleRegistry, system);
+    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, ruleRegistry, system);
   }
 
   @Test
@@ -335,6 +339,7 @@ public class QProfileRuleOperationsTest {
     verify(ruleDao, atLeast(1)).selectTags(ruleId, session);
     verify(ruleDao).deleteTag(existingTag, session);
     verify(ruleDao).update(rule, session);
+    verify(ruleTagOperations).deleteUnusedTags(session);
     verify(session).commit();
   }
 
@@ -352,6 +357,7 @@ public class QProfileRuleOperationsTest {
 
     verify(ruleTagDao).selectId(tag, session);
     verify(ruleDao).selectTags(ruleId, session);
+    verify(ruleTagOperations).deleteUnusedTags(session);
     verify(ruleDao, never()).update(rule);
   }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+
+  <rules id="1" plugin_rule_key="rule1" plugin_name="fake" plugin_config_key="old_config_key" name="old name" description="old description"
+         status="READY" priority="2" cardinality="SINGLE" parent_id="[null]" />
+
+  <rule_tags id="1" tag="tag1"/>
+  <rule_tags id="2" tag="tag2"/>
+  <rule_tags id="3" tag="tag3"/>
+  <rule_tags id="4" tag="tag4"/>
+
+  <rules_rule_tags id="1" rule_id="1" rule_tag_id="1" tag_type="ADMIN"/>
+  <rules_rule_tags id="2" rule_id="1" rule_tag_id="2" tag_type="SYSTEM"/>
+
+</dataset>

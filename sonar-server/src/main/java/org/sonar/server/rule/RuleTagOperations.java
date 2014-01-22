@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.common.collect.Sets;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.core.permission.GlobalPermissions;
@@ -26,6 +28,8 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
+
+import java.util.Set;
 
 public class RuleTagOperations implements ServerExtension {
 
@@ -65,5 +69,16 @@ public class RuleTagOperations implements ServerExtension {
   private void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
+
+  public void deleteUnusedTags(SqlSession session) {
+    Set<String> deleted = Sets.newHashSet();
+    for (RuleTagDto unused: ruleTagDao.selectUnused(session)) {
+      deleted.add(unused.getTag());
+      ruleTagDao.delete(unused.getId(), session);
+    }
+    if (!deleted.isEmpty()) {
+      esRuleTags.delete(deleted.toArray(new String[0]));
+    }
   }
 }

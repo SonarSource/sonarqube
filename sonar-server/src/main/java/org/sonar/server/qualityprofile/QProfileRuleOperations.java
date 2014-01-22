@@ -41,6 +41,7 @@ import org.sonar.core.rule.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule.RuleTagOperations;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
@@ -56,20 +57,24 @@ public class QProfileRuleOperations implements ServerComponent {
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
   private final RuleTagDao ruleTagDao;
+  private final RuleTagOperations ruleTagOperations;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
-  public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleRegistry, System2.INSTANCE);
+  public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations,
+    RuleRegistry ruleRegistry) {
+    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleRegistry ruleRegistry, System2 system) {
+  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, RuleRegistry ruleRegistry,
+    System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
+    this.ruleTagOperations = ruleTagOperations;
     this.ruleRegistry = ruleRegistry;
     this.system = system;
   }
@@ -281,6 +286,8 @@ public class QProfileRuleOperations implements ServerComponent {
         ruleChanged = true;
       }
     }
+
+    ruleTagOperations.deleteUnusedTags(session);
 
     return ruleChanged;
   }

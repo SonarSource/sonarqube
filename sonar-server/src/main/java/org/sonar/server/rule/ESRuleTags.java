@@ -91,4 +91,8 @@ public class ESRuleTags {
       .field(RuleTagDocument.FIELD_VALUE, tag.getTag())
       .endObject();
   }
+
+  public void delete(String... deleted) {
+    index.bulkDelete(RuleRegistry.INDEX_RULES, TYPE_TAG, deleted);
+  }
 }

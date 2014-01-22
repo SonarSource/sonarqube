@@ -121,6 +121,20 @@ public class ESRuleTagsTest {
     checkTagCount(5L);
   }
 
+  @Test
+  public void should_delete_tags() throws Exception {
+
+    esSetup.execute(
+      indexTagDocument("tag1"),
+      indexTagDocument("tag2"),
+      indexTagDocument("tag3"),
+      indexTagDocument("tag4"));
+
+    ruleTags.delete("tag1", "tag2");
+
+    checkTagCount(2L);
+  }
+
   private void checkTagCount(long count) {
     assertThat(ruleTags.searchAllTags()).hasSize((int) count);
   }

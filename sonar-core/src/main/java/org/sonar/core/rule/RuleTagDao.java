@@ -43,7 +43,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public List<RuleTagDto> selectAll(SqlSession session) {
-    return session.getMapper(RuleTagMapper.class).selectAll();
+    return getMapper(session).selectAll();
   }
 
   public void insert(RuleTagDto newRuleTag) {
@@ -57,7 +57,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public void insert(RuleTagDto newRuleTag, SqlSession session) {
-    session.getMapper(RuleTagMapper.class).insert(newRuleTag);
+    getMapper(session).insert(newRuleTag);
   }
 
   public void delete(Long tagId) {
@@ -71,7 +71,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public void delete(long tagId, SqlSession session) {
-    session.getMapper(RuleTagMapper.class).delete(tagId);
+    getMapper(session).delete(tagId);
   }
 
   public Long selectId(String tag) {
@@ -84,6 +84,23 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public Long selectId(String tag, SqlSession session) {
-    return session.getMapper(RuleTagMapper.class).selectId(tag);
+    return getMapper(session).selectId(tag);
+  }
+
+  public List<RuleTagDto> selectUnused() {
+    SqlSession session = myBatis.openSession();
+    try {
+      return selectUnused(session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleTagDto> selectUnused(SqlSession session) {
+    return getMapper(session).selectUnused();
+  }
+
+  private RuleTagMapper getMapper(SqlSession session) {
+    return session.getMapper(RuleTagMapper.class);
   }
 }

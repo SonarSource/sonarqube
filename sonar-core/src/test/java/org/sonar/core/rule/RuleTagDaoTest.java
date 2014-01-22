@@ -64,4 +64,12 @@ public class RuleTagDaoTest extends AbstractDaoTestCase {
     dao.delete(1L);
     checkTable("delete", "rule_tags");
   }
+
+  @Test
+  public void should_select_unused_tags() {
+    setupData("select-unused");
+
+    assertThat(dao.selectUnused()).hasSize(2);
+  }
+
 }

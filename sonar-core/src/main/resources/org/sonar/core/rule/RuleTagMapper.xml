@@ -23,5 +23,9 @@
     WHERE tag=#{tag}
   </select>
 
+  <select id="selectUnused" resultType="RuleTag">
+    SELECT r.id, r.tag FROM rule_tags r LEFT JOIN rules_rule_tags rr ON rr.rule_tag_id = r.id WHERE rr.rule_id IS NULL
+  </select>
+
 </mapper>
 

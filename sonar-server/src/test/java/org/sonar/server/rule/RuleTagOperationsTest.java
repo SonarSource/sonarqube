@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +36,9 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,5 +90,28 @@ public class RuleTagOperationsTest {
     verify(ruleTagDao).insert(newTagDto.capture());
     assertThat(newTagDto.getValue().getTag()).isEqualTo(newTag);
     verify(esRuleTags).put(newTagDto.getValue());
+  }
+
+  @Test
+  public void should_delete_unused_tags() {
+    long tagId = 42L;
+    String tagValue = "answerlifeanevrythng";
+    RuleTagDto unusedTag = new RuleTagDto().setId(tagId).setTag(tagValue);
+    SqlSession session = mock(SqlSession.class);
+    when(ruleTagDao.selectUnused(session)).thenReturn(ImmutableList.of(unusedTag));
+    operations.deleteUnusedTags(session);
+
+    verify(ruleTagDao).selectUnused(session);
+    verify(ruleTagDao).delete(tagId, session);
+    verify(esRuleTags).delete(tagValue);
+  }
+
+  @Test
+  public void should_do_nothing_if_no_unused_tags() {
+    SqlSession session = mock(SqlSession.class);
+    operations.deleteUnusedTags(session);
+
+    verify(ruleTagDao).selectUnused(session);
+    verifyNoMoreInteractions(ruleTagDao, esRuleTags);
   }
 }
