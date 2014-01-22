@@ -41,7 +41,7 @@ class Api::JavaWsController < Api::ApiController
     engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
     engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction])
 
-    # response is already written to HttpServletResponse. No need to feed :text
-    render :text => '', :status => ws_response.status(), :content_type => media_type
+    # response is already written to HttpServletResponse
+    render :nothing => true
   end
 end

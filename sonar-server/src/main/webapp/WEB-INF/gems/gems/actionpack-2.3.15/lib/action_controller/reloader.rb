@@ -28,7 +28,10 @@ module ActionController
     end
 
     def self.run(lock = @@default_lock)
-      lock.lock
+      #sonar
+      # Development mode does not work with integration of Java web services (java_ws_controller.rb).
+      #lock.lock
+      #/sonar
       begin
         Dispatcher.reload_application
         status, headers, body = yield
@@ -46,7 +49,9 @@ module ActionController
         # run our cleanup code.
         [status, headers, BodyWrapper.new(body, lock)]
       rescue Exception
-        lock.unlock
+        #sonar
+        #lock.unlock
+        #/sonar
         raise
       end
     end

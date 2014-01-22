@@ -35,6 +35,7 @@ import java.io.StringWriter;
 public class ServletResponse implements Response {
 
   private final HttpServletResponse source;
+  private int httpStatus = 200;
 
   public ServletResponse(HttpServletResponse hsr) {
     this.source = hsr;
@@ -42,7 +43,7 @@ public class ServletResponse implements Response {
 
   @Override
   public JsonWriter newJsonWriter() {
-    return JsonWriter.of(new Buffer(source));
+    return JsonWriter.of(new Buffer());
   }
 
   @Override
@@ -70,24 +71,19 @@ public class ServletResponse implements Response {
 
   @Override
   public Response setStatus(int httpStatus) {
-    source.setStatus(httpStatus);
+    this.httpStatus = httpStatus;
     return this;
   }
 
-  private static class Buffer extends StringWriter {
-    private final HttpServletResponse httpResponse;
-
-    public Buffer(HttpServletResponse httpResponse) {
-      this.httpResponse = httpResponse;
-    }
-
+  private class Buffer extends StringWriter {
     @Override
     public void close() throws IOException {
       super.close();
 
+      source.setStatus(httpStatus);
       ServletOutputStream stream = null;
       try {
-        stream = httpResponse.getOutputStream();
+        stream = source.getOutputStream();
         IOUtils.copy(new ByteArrayInputStream(toString().getBytes(Charsets.UTF_8)), stream);
         stream.flush();
       } catch (IOException e) {
