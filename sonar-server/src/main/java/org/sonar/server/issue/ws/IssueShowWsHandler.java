@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -30,6 +31,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
@@ -42,11 +44,13 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueFinder issueFinder;
   private final IssueService issueService;
   private final ActionService actionService;
+  private final InternalRubyTechnicalDebtService technicalDebtService;
 
-  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, ActionService actionService) {
+  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, ActionService actionService, InternalRubyTechnicalDebtService technicalDebtService) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.actionService = actionService;
+    this.technicalDebtService = technicalDebtService;
   }
 
   @Override
@@ -71,14 +75,16 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    WorkDayDuration technicalDebt = issue.technicalDebt();
+    String techDebtLabel = technicalDebt != null ? technicalDebtService.format(technicalDebt) : null;
+
     json
       .prop("key", issue.key())
       .prop("component", issue.componentKey())
       .prop("project", result.project(issue).key())
       .prop("rule", issue.ruleKey().toString())
       .prop("line", issue.line())
-        // TODO
-//      .prop("technicalDebt", effortToFix)
+      .prop("technicalDebt", techDebtLabel)
       .prop("message", issue.message())
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
@@ -136,6 +142,7 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("userLogin", userLogin)
         .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
           // TODO convert markdown to HTML
+          // TODO add date
         .endObject();
     }
     json.endArray();

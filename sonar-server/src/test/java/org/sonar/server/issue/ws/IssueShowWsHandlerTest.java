@@ -32,6 +32,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.user.User;
@@ -40,6 +41,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
@@ -65,6 +67,9 @@ public class IssueShowWsHandlerTest {
   @Mock
   ActionService actionService;
 
+  @Mock
+  InternalRubyTechnicalDebtService technicalDebtService;
+
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
@@ -79,7 +84,7 @@ public class IssueShowWsHandlerTest {
     result.addProjects(newArrayList(component));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService, technicalDebtService)));
   }
 
   @Test
@@ -112,6 +117,25 @@ public class IssueShowWsHandlerTest {
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
     tester.execute("show", request).assertJson(getClass(), "show_issue.json");
+  }
+
+  @Test
+  public void show_issue_with_technical_debt() throws Exception {
+    String issueKey = "ABCD";
+    WorkDayDuration technicalDebt = WorkDayDuration.of(1, 2, 0);
+    Issue issue = new DefaultIssue()
+      .setKey(issueKey)
+      .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setProjectKey("org.sonar.Sonar")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setTechnicalDebt(technicalDebt);
+    issues.add(issue);
+
+    when(technicalDebtService.format(technicalDebt)).thenReturn("2 hours 1 minutes");
+
+    MockUserSession.set();
+    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_technical_debt.json");
   }
 
   @Test

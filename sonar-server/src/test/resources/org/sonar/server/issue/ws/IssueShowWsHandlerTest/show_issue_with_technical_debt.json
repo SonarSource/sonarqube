@@ -1,0 +1,12 @@
+{
+  "issue": {
+    "key": "ABCD",
+    "component": "org.sonar.server.issue.IssueClient",
+    "project": "org.sonar.Sonar",
+    "rule": "squid:AvoidCycle",
+    "technicalDebt": "2 hours 1 minutes",
+    "transitions": [],
+    "actions": [],
+    "comments": []
+  }
+}
