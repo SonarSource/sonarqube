@@ -639,7 +639,7 @@ public class DefaultIndex extends SonarIndex {
       for (Map.Entry<Resource, Bucket> entry : buckets.entrySet()) {
         Resource indexedResource = entry.getKey();
         if (res.getClass() == indexedResource.getClass() && res.getDeprecatedKey().equals(indexedResource.getDeprecatedKey())) {
-          LOG.warn("Resource " + res + " was found using deprecated key. Please update your plugin.");
+          LOG.debug("Resource " + res + " was found using deprecated key. Please update your plugin.");
           // Fix resource key
           Bucket bucket = entry.getValue();
           res.setKey(bucket.getResource().getKey());
