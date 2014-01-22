@@ -57,7 +57,7 @@ public class IssueShowWsHandler implements RequestHandler {
     writeIssue(queryResult, issue, json);
     writeTransitions(issue, json);
     writeComments(queryResult, issue, json);
-    //TODO write rule, component, changelog and available commands
+    //TODO write component, changelog and available commands
 
     json.endObject().endObject().close();
   }
@@ -70,7 +70,7 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("key", comment.key())
         .prop("userLogin", comment.userLogin())
         .prop("userName", queryResult.user(comment.userLogin()).name())
-          // TODO HTML content
+          // TODO convert markdown to HTML
         .endObject();
     }
     json.endArray();
@@ -85,6 +85,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("status", issue.status())
       .prop("status", issue.status())
       .prop("severity", issue.severity());
+    // TODO to be completed
     if (issue.assignee() != null) {
       json
         .prop("assignee", issue.assignee())
