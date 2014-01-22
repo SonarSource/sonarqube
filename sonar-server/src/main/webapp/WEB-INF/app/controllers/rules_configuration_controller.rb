@@ -76,7 +76,7 @@ class RulesConfigurationController < ApplicationController
                                         [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
                                         [message('rules.status.ready'), Rule::STATUS_READY]]
       @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
-      @select_tags = ANY_SELECTION + Internal.quality_profiles.listAllTags().sort
+      @select_tags = ANY_SELECTION + Internal.rule_tags.listAllTags().sort
     end
   end
 
@@ -340,7 +340,7 @@ class RulesConfigurationController < ApplicationController
   def show_select_tags
     rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
     tags = []
-    Internal.quality_profiles.listAllTags().sort.each do |tag|
+    Internal.rule_tags.listAllTags().sort.each do |tag|
       tags.push({
         :value => tag,
         :selected => (rule.systemTags.contains?(tag) || rule.adminTags.contains?(tag)),

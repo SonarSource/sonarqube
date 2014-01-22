@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -52,10 +53,7 @@ public class ESRuleTags {
         int tagCounter = 0;
         for (RuleTagDto tag: tags) {
           ids[tagCounter] = tag.getTag();
-          sources[tagCounter] = XContentFactory.jsonBuilder()
-            .startObject()
-            .field(RuleTagDocument.FIELD_VALUE, tag.getTag())
-            .endObject();
+          sources[tagCounter] = ruleTagDocument(tag);
           tagCounter ++;
         }
         index.bulkIndex(RuleRegistry.INDEX_RULES, TYPE_TAG, ids, sources);
@@ -72,10 +70,25 @@ public class ESRuleTags {
     }
   }
 
+  public void put(RuleTagDto tag) {
+    try {
+      index.putSynchronous(RuleRegistry.INDEX_RULES, TYPE_TAG, tag.getTag(), ruleTagDocument(tag));
+    } catch (IOException ioException) {
+      throw new IllegalStateException("Unable to index tag "+tag.getTag(), ioException);
+    }
+  }
+
   public Collection<String> searchAllTags() {
     final int scrollSize = 50;
     return index.findDocumentIds(index.client().prepareSearch(RuleRegistry.INDEX_RULES)
       .setTypes(TYPE_TAG)
       .addSort(RuleTagDocument.FIELD_VALUE, SortOrder.ASC), scrollSize);
+  }
+
+  private XContentBuilder ruleTagDocument(RuleTagDto tag) throws IOException {
+    return XContentFactory.jsonBuilder()
+      .startObject()
+      .field(RuleTagDocument.FIELD_VALUE, tag.getTag())
+      .endObject();
   }
 }

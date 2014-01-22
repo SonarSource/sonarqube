@@ -70,6 +70,10 @@ class Internal
     component(Java::OrgSonarServerQualityprofile::QProfiles.java_class)
   end
 
+  def self.rule_tags
+    component(Java::OrgSonarServerRule::RuleTags.java_class)
+  end
+
   private
 
   def self.component(component_java_class)

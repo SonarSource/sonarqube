@@ -339,11 +339,15 @@ public final class Platform {
 
     // rules
     servicesContainer.addSingleton(RuleRegistry.class);
-    servicesContainer.addSingleton(ESRuleTags.class);
-    servicesContainer.addSingleton(RuleTagLookup.class);
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);
     servicesContainer.addSingleton(RulesWs.class);
+
+    // rule tags
+    servicesContainer.addSingleton(ESRuleTags.class);
+    servicesContainer.addSingleton(RuleTagLookup.class);
+    servicesContainer.addSingleton(RuleTagOperations.class);
+    servicesContainer.addSingleton(RuleTags.class);
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);

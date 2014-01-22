@@ -41,10 +41,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.ProfileRules;
-import org.sonar.server.rule.RuleTagLookup;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -52,11 +50,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -101,15 +95,12 @@ public class QProfilesTest {
   @Mock
   ProfileRules rules;
 
-  @Mock
-  RuleTagLookup ruleTagLookup;
-
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
     qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, ruleDao, resourceDao, projectOperations, projectLookup, backup, exporter,
-      profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules, ruleTagLookup);
+      profileLookup, profileOperations, activeRuleOperations, ruleOperations, rules);
   }
 
   @Test
@@ -650,14 +641,6 @@ public class QProfilesTest {
     when(activeRuleDao.selectByRuleId(10)).thenReturn(newArrayList(new ActiveRuleDto().setId(50), new ActiveRuleDto().setId(51)));
 
     assertThat(qProfiles.countActiveRules(rule)).isEqualTo(2);
-  }
-
-  @Test
-  public void should_find_all_tags() {
-    Collection<String> tags = ImmutableList.of("tag1", "tag2");
-    when(ruleTagLookup.listAllTags()).thenReturn(tags);
-    assertThat(qProfiles.listAllTags()).isEqualTo(tags);
-    verify(ruleTagLookup).listAllTags();
   }
 
   @Test
