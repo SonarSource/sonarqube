@@ -71,14 +71,18 @@ public class ListingWsTest {
       NewController newController = context.newController("api/metric")
         .setDescription("Metrics")
         .setSince("3.2");
+
+      // action with default values
       newController.newAction("show")
-        .setDescription("Show metric")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
           }
         });
-      newController.newAction("create")
+
+
+      // action with a lot of overridden values
+      NewAction create = newController.newAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
@@ -87,6 +91,8 @@ public class ListingWsTest {
           public void handle(Request request, Response response) {
           }
         });
+      create.newParam("key").setDescription("Key of new metric");
+      create.newParam("name");
       newController.done();
     }
   }

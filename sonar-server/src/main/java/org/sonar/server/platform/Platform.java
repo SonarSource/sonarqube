@@ -87,6 +87,8 @@ import org.sonar.server.group.InternalGroupMembershipService;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWs;
+import org.sonar.server.issue.ws.IssueShowWsHandler;
+import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
@@ -325,6 +327,9 @@ public final class Platform {
     servicesContainer.addSingleton(IssueBulkChangeService.class);
     servicesContainer.addSingleton(IssueChangelogFormatter.class);
     servicesContainer.addSingleton(IssueFilterWs.class);
+    servicesContainer.addSingleton(IssueShowWsHandler.class);
+    servicesContainer.addSingleton(IssuesWs.class);
+
     // issues actions
     servicesContainer.addSingleton(AssignAction.class);
     servicesContainer.addSingleton(PlanAction.class);
@@ -338,7 +343,7 @@ public final class Platform {
     servicesContainer.addSingleton(RuleTagLookup.class);
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);
-    servicesContainer.addSingleton(RuleWs.class);
+    servicesContainer.addSingleton(RulesWs.class);
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);

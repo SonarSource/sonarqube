@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.server.issue.ws;
 
-import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
 
-import javax.servlet.http.HttpServletRequest;
+public class IssuesWs implements WebService {
 
-public class ServletRequest extends Request {
+  private final IssueShowWsHandler detailHandler;
 
-  private final HttpServletRequest source;
-
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
+  public IssuesWs(IssueShowWsHandler detailHandler) {
+    this.detailHandler = detailHandler;
   }
 
   @Override
-  public String method() {
-    return source.getMethod();
-  }
+  public void define(Context context) {
+    NewController controller = context.newController("api/issues");
+    controller.setDescription("Coding rule issues");
 
-  @Override
-  public String param(String key) {
-    return source.getParameter(key);
-  }
+    controller.newAction("show")
+      .setDescription("Detail of issue")
+      .setSince("4.2")
+      .setPrivate(true)
+      .setHandler(detailHandler)
+      .newParam("key", "Issue key");
 
+    controller.done();
+  }
 }

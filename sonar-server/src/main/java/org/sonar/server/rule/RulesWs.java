@@ -24,15 +24,14 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
-public class RuleWs implements WebService {
+public class RulesWs implements WebService {
 
   @Override
   public void define(Context context) {
     NewController controller = context.newController("api/rules")
       .setDescription("Coding rules");
 
-    NewAction search = controller.newAction("search");
-    search
+    controller.newAction("search")
       .setDescription("Search for coding rules")
       .setSince("4.2")
       .setHandler(new RequestHandler() {

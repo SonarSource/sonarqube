@@ -423,10 +423,6 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.find(id, UserSession.get());
   }
 
-  public List<DefaultIssueFilter> findUserIssueFilters() {
-    return issueFilterService.findByUser(UserSession.get());
-  }
-
   public boolean isUserAuthorized(DefaultIssueFilter issueFilter) {
     try {
       UserSession userSession = UserSession.get();

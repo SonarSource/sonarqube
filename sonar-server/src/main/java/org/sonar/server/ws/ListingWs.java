@@ -19,11 +19,13 @@
  */
 package org.sonar.server.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
+import com.google.common.base.Function;
+import com.google.common.collect.Ordering;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
 
 import java.util.List;
 
@@ -42,11 +44,11 @@ public class ListingWs implements WebService {
       .setSince("4.2");
     controller.newAction("index")
       .setHandler(new RequestHandler() {
-      @Override
-      public void handle(Request request, Response response) {
-        list(context.controllers(), response);
-      }
-    });
+        @Override
+        public void handle(Request request, Response response) {
+          list(context.controllers(), response);
+        }
+      });
     controller.done();
   }
 
@@ -54,7 +56,14 @@ public class ListingWs implements WebService {
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject();
     writer.name("webServices").beginArray();
-    for (Controller controller : controllers) {
+
+    // sort controllers by path
+    Ordering<Controller> ordering = Ordering.natural().onResultOf(new Function<Controller, String>() {
+      public String apply(Controller controller) {
+        return controller.path();
+      }
+    });
+    for (Controller controller : ordering.sortedCopy(controllers)) {
       write(writer, controller);
     }
     writer.endArray();
@@ -68,8 +77,14 @@ public class ListingWs implements WebService {
     writer.prop("since", controller.since());
     writer.prop("description", controller.description());
     if (!controller.actions().isEmpty()) {
+      // sort actions by key
+      Ordering<Action> ordering = Ordering.natural().onResultOf(new Function<Action, String>() {
+        public String apply(Action action) {
+          return action.key();
+        }
+      });
       writer.name("actions").beginArray();
-      for (Action action : controller.actions()) {
+      for (Action action : ordering.sortedCopy(controller.actions())) {
         write(writer, action);
       }
       writer.endArray();
@@ -83,6 +98,26 @@ public class ListingWs implements WebService {
     writer.prop("description", action.description());
     writer.prop("since", action.since());
     writer.prop("post", action.isPost());
+    if (!action.params().isEmpty()) {
+      // sort parameters by key
+      Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {
+        public String apply(Param param) {
+          return param.key();
+        }
+      });
+      writer.name("params").beginArray();
+      for (Param param : ordering.sortedCopy(action.params())) {
+        write(writer, param);
+      }
+      writer.endArray();
+    }
+    writer.endObject();
+  }
+
+  private void write(JsonWriter writer, Param param) {
+    writer.beginObject();
+    writer.prop("key", param.key());
+    writer.prop("description", param.description());
     writer.endObject();
   }
 }

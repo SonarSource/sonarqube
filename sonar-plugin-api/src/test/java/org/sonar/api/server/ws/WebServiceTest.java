@@ -29,19 +29,22 @@ public class WebServiceTest {
 
   static class MetricWebService implements WebService {
     boolean showCalled = false, createCalled = false;
+
     @Override
     public void define(Context context) {
       NewController newController = context.newController("api/metric")
         .setDescription("Metrics")
         .setSince("3.2");
+
       newController.newAction("show")
-          .setDescription("Show metric")
-          .setHandler(new RequestHandler() {
-            @Override
-            public void handle(Request request, Response response) {
-              show(request, response);
-            }
-          });
+        .setDescription("Show metric")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            show(request, response);
+          }
+        });
+
       newController.newAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
@@ -53,6 +56,7 @@ public class WebServiceTest {
             create(request, response);
           }
         });
+
       newController.done();
     }
 
@@ -204,4 +208,48 @@ public class WebServiceTest {
     context.controller("api/metric").action("create").handler().handle(mock(Request.class), mock(Response.class));
     assertThat(metricWs.createCalled).isTrue();
   }
+
+  @Test
+  public void action_parameters() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.newController("api/rule");
+        NewAction create = newController.newAction("create").setHandler(mock(RequestHandler.class));
+        create.newParam("key").setDescription("Key of the new rule");
+        create.newParam("severity");
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    assertThat(action.params()).hasSize(2);
+
+    assertThat(action.param("key").key()).isEqualTo("key");
+    assertThat(action.param("key").description()).isEqualTo("Key of the new rule");
+    assertThat(action.param("key").toString()).isEqualTo("key");
+
+    assertThat(action.param("severity").key()).isEqualTo("severity");
+    assertThat(action.param("severity").description()).isNull();
+  }
+
+  @Test
+  public void fail_if_duplicated_action_parameters() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          NewController controller = context.newController("api/rule");
+          NewAction action = controller.newAction("create").setHandler(mock(RequestHandler.class));
+          action.newParam("key");
+          action.newParam("key");
+          controller.done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("The parameter 'key' is defined multiple times in the action 'create'");
+    }
+  }
+
 }

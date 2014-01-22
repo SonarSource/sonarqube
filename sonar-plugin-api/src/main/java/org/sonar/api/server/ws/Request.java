@@ -19,6 +19,8 @@
  */
 package org.sonar.api.server.ws;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 
 /**
@@ -26,12 +28,32 @@ import javax.annotation.CheckForNull;
  */
 public abstract class Request {
 
+  /**
+   * Returns the name of the HTTP method with which this request was made. Possible
+   * values are GET and POST. Others are not supported.
+   */
+  public abstract String method();
+
   @CheckForNull
   public abstract String param(String key);
 
-  public abstract String mediaType();
+  /**
+   * Returns value of a required parameter
+   *
+   * @throws java.lang.IllegalArgumentException is value is null or blank
+   */
+  public String requiredParam(String key) {
+    String value = param(key);
+    if (StringUtils.isBlank(value)) {
+      throw new IllegalArgumentException(String.format("Parameter '%s' is missing", key));
+    }
+    return value;
+  }
 
-  public abstract boolean isPost();
+  @CheckForNull
+  public String param(String key, @CheckForNull String defaultValue) {
+    return StringUtils.defaultString(param(key), defaultValue);
+  }
 
   @CheckForNull
   public Integer intParam(String key) {
@@ -43,6 +65,4 @@ public abstract class Request {
     String s = param(key);
     return s == null ? defaultValue : Integer.parseInt(s);
   }
-
-
 }

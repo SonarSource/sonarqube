@@ -32,7 +32,6 @@ class Api::JavaWsController < Api::ApiController
   private
   def execute(media_type)
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request)
-    ws_request.setMediaType(media_type)
 
     # servlet_request is declared in jruby-rack but not servlet_response !
     # request.env must be used.

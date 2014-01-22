@@ -26,10 +26,9 @@ import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleWsTest {
+public class RulesWsTest {
 
-  RuleWs ws = new RuleWs();
-  WsTester tester = new WsTester(ws);
+  WsTester tester = new WsTester(new RulesWs());
 
   @Test
   public void define_ws() throws Exception {

@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.issue.ws;
 
-import org.sonar.api.server.ws.Request;
-
-import javax.servlet.http.HttpServletRequest;
-
-public class ServletRequest extends Request {
-
-  private final HttpServletRequest source;
-
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
-  }
-
-  @Override
-  public String method() {
-    return source.getMethod();
-  }
-
-  @Override
-  public String param(String key) {
-    return source.getParameter(key);
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

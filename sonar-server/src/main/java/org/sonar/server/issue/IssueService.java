@@ -108,6 +108,7 @@ public class IssueService implements ServerComponent {
    * Never return null, but an empty list if the issue does not exist.
    * No security check is done since it should already have been done to get the issue
    */
+  // TODO remove userSession parameter ?
   public List<Transition> listTransitions(@Nullable Issue issue, UserSession userSession) {
     if (issue == null) {
       return Collections.emptyList();

@@ -146,13 +146,12 @@ public interface WebService extends ServerExtension {
     }
   }
 
-  // TODO define supported parameters
   class NewAction {
     private final String key;
     private String description, since;
-    private boolean post = false;
-    private boolean isPrivate = false;
+    private boolean post = false, isPrivate = false;
     private RequestHandler handler;
+    private Map<String, NewParam> newParams = Maps.newHashMap();
 
     private NewAction(String key) {
       this.key = key;
@@ -182,12 +181,29 @@ public interface WebService extends ServerExtension {
       this.handler = h;
       return this;
     }
+
+    public NewParam newParam(String paramKey) {
+      if (newParams.containsKey(paramKey)) {
+        throw new IllegalStateException(
+          String.format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key)
+        );
+      }
+      NewParam newParam = new NewParam(paramKey);
+      newParams.put(paramKey, newParam);
+      return newParam;
+    }
+
+    public NewAction newParam(String paramKey, @Nullable String description) {
+      newParam(paramKey).setDescription(description);
+      return this;
+    }
   }
 
   class Action {
     private final String key, path, description, since;
     private final boolean post, isPrivate;
     private final RequestHandler handler;
+    private final Map<String, Param> params;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -196,10 +212,17 @@ public interface WebService extends ServerExtension {
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
       this.isPrivate = newAction.isPrivate;
+
       if (newAction.handler == null) {
         throw new IllegalStateException("RequestHandler is not set on action " + path);
       }
       this.handler = newAction.handler;
+
+      ImmutableMap.Builder<String, Param> mapBuilder = ImmutableMap.builder();
+      for (NewParam newParam : newAction.newParams.values()) {
+        mapBuilder.put(newParam.key, new Param(newParam));
+      }
+      this.params = mapBuilder.build();
     }
 
     public String key() {
@@ -235,9 +258,59 @@ public interface WebService extends ServerExtension {
       return handler;
     }
 
+    @CheckForNull
+    public Param param(String key) {
+      return params.get(key);
+    }
+
+    public Collection<Param> params() {
+      return params.values();
+    }
+
     @Override
     public String toString() {
       return path;
+    }
+  }
+
+  class NewParam {
+    private String key, description;
+
+    private NewParam(String key) {
+      this.key = key;
+    }
+
+    public NewParam setDescription(@Nullable String s) {
+      this.description = s;
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return key;
+    }
+  }
+
+  class Param {
+    private final String key, description;
+
+    public Param(NewParam newParam) {
+      this.key = newParam.key;
+      this.description = newParam.description;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    @CheckForNull
+    public String description() {
+      return description;
+    }
+
+    @Override
+    public String toString() {
+      return key;
     }
   }
 

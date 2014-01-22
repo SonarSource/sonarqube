@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import org.picocontainer.Startable;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -71,12 +72,18 @@ public class WebServiceEngine implements ServerComponent, Startable {
       verifyRequest(action, request);
       action.handler().handle(request, response);
 
+    } catch (IllegalArgumentException e) {
+      // TODO replace by BadRequestException in Request#requiredParam()
+      sendError(400, e.getMessage(), response);
+
     } catch (ServerException e) {
       // TODO support ServerException l10n messages
       sendError(e.httpCode(), e.getMessage(), response);
 
     } catch (Exception e) {
-      sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage(), response);
+      // TODO implement Request.toString()
+      LoggerFactory.getLogger(getClass()).error("Fail to process request " + request, e);
+      sendError(500, e.getMessage(), response);
     }
   }
 
@@ -93,10 +100,10 @@ public class WebServiceEngine implements ServerComponent, Startable {
   }
 
   private void verifyRequest(WebService.Action action, Request request) {
-    if (request.isPost() != action.isPost()) {
-      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method POST is required");
+    // verify the HTTP verb
+    if (action.isPost() && !"POST".equals(request.method())) {
+      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
     }
-    // TODO verify required parameters
   }
 
   private void sendError(int status, String message, Response response) {

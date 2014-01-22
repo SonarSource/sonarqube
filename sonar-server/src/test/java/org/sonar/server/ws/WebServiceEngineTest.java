@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +84,39 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/system", "ping");
 
     assertThat(response.status()).isEqualTo(405);
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Method POST is required\"}]}");
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
+  }
+
+  @Test
+  public void required_parameter_is_not_set() throws Exception {
+    Request request = new SimpleRequest();
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "print");
+
+    assertThat(response.status()).isEqualTo(400);
+    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'message' is missing\"}]}");
+  }
+
+  @Test
+  public void optional_parameter_is_not_set() throws Exception {
+    Request request = new SimpleRequest().setParam("message", "Hello World");
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "print");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.outputAsString()).isEqualTo("Hello World by -");
+  }
+
+  @Test
+  public void optional_parameter_is_set() throws Exception {
+    Request request = new SimpleRequest()
+      .setParam("message", "Hello World")
+      .setParam("author", "Marcel");
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "print");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.outputAsString()).isEqualTo("Hello World by Marcel");
   }
 
   @Test
@@ -120,6 +153,18 @@ public class WebServiceEngineTest {
           @Override
           public void handle(Request request, Response response) throws Exception {
             throw new IllegalStateException("Unexpected");
+          }
+        });
+
+      // parameter "message" is required but not "author"
+      newController.newAction("print")
+        .newParam("message", "required message")
+        .newParam("author", "optional author")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) throws Exception {
+            IOUtils.write(
+              request.requiredParam("message") + " by " + request.param("author", "-"), response.stream());
           }
         });
       newController.done();

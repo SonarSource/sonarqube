@@ -25,12 +25,18 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 
 public class SimpleRequest extends Request {
+
+  private String method = "GET";
   private Map<String, String> params = Maps.newHashMap();
 
-  private String mediaType = "application/json";
-  private boolean post = false;
+  @Override
+  public String method() {
+    return method;
+  }
 
-  public SimpleRequest() {
+  public SimpleRequest setMethod(String s) {
+    this.method = s;
+    return this;
   }
 
   public SimpleRequest setParams(Map<String, String> m) {
@@ -49,25 +55,5 @@ public class SimpleRequest extends Request {
   @CheckForNull
   public String param(String key) {
     return params.get(key);
-  }
-
-  @Override
-  public String mediaType() {
-    return mediaType;
-  }
-
-  public SimpleRequest setMediaType(String s) {
-    this.mediaType = s;
-    return this;
-  }
-
-  @Override
-  public boolean isPost() {
-    return post;
-  }
-
-  public SimpleRequest setPost(boolean b) {
-    this.post = b;
-    return this;
   }
 }
