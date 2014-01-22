@@ -339,20 +339,21 @@ class RulesConfigurationController < ApplicationController
 
   def show_select_tags
     rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
-    tags = []
-    Internal.rule_tags.listAllTags().sort.each do |tag|
-      tags.push({
-        :value => tag,
-        :selected => (rule.systemTags.contains?(tag) || rule.adminTags.contains?(tag)),
-        :read_only => rule.systemTags.contains?(tag)
-      })
-    end
+    tags = tag_selection_for_rule(rule)
     render :partial => 'select_tags', :locals => { :rule => rule, :tags => tags, :profile_id => params[:profile_id] }
   end
 
   def select_tags
     rule = Internal.quality_profiles.updateRuleTags(params[:rule_id].to_i, params[:tags])
     render :partial => 'rule_tags', :locals => {:rule => rule}
+  end
+
+  def create_tag
+    Internal.rule_tags.create(params[:new_tag])
+    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
+    tags = tag_selection_for_rule(rule)
+
+    render :partial => 'select_tags_list', :locals => {:tags => tags}
   end
 
   private
@@ -394,6 +395,16 @@ class RulesConfigurationController < ApplicationController
     new_params.delete('controller')
     new_params.delete('action')
     new_params
+  end
+
+  def tag_selection_for_rule(rule)
+    Internal.rule_tags.listAllTags().sort.collect do |tag|
+      {
+        :value => tag,
+        :selected => (rule.systemTags.contains?(tag) || rule.adminTags.contains?(tag)),
+        :read_only => rule.systemTags.contains?(tag)
+      }
+    end
   end
 
 end
