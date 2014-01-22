@@ -227,42 +227,11 @@ public class QProfileRuleOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      boolean ruleChanged = false;
-      Map<String, Long> neededTagIds = Maps.newHashMap();
-      Set<String> unknownTags = Sets.newHashSet();
-      for (String tag: newTags) {
-        Long tagId = ruleTagDao.selectId(tag, session);
-        if (tagId == null) {
-          unknownTags.add(tag);
-        } else {
-          neededTagIds.put(tag, tagId);
-        }
-      }
-      if (!unknownTags.isEmpty()) {
-        throw new NotFoundException("The following tags are unknown and must be created before association: "
-          + StringUtils.join(unknownTags, ", "));
-      }
+      Map<String, Long> neededTagIds = validateAndGetTagIds(newTags, session);
 
-      Set<String> tagsToKeep = Sets.newHashSet();
       final Integer ruleId = rule.getId();
 
-      List<RuleRuleTagDto> currentTags = ruleDao.selectTags(ruleId, session);
-      for (RuleRuleTagDto existingTag: currentTags) {
-        if(existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
-          ruleDao.deleteTag(existingTag, session);
-          ruleChanged = true;
-        } else {
-          tagsToKeep.add(existingTag.getTag());
-        }
-      }
-
-      for (String tag: newTags) {
-        if (! tagsToKeep.contains(tag)) {
-          ruleDao.insert(new RuleRuleTagDto().setRuleId(ruleId).setTagId(neededTagIds.get(tag)).setType(RuleTagType.ADMIN), session);
-          ruleChanged = true;
-        }
-      }
-
+      boolean ruleChanged = synchronizeTags(ruleId, newTags, neededTagIds, session);
       if (ruleChanged) {
         rule.setUpdatedAt(new Date(system.now()));
         ruleDao.update(rule, session);
@@ -272,6 +241,48 @@ public class QProfileRuleOperations implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private Map<String, Long> validateAndGetTagIds(List<String> newTags, SqlSession session) {
+    Map<String, Long> neededTagIds = Maps.newHashMap();
+    Set<String> unknownTags = Sets.newHashSet();
+    for (String tag: newTags) {
+      Long tagId = ruleTagDao.selectId(tag, session);
+      if (tagId == null) {
+        unknownTags.add(tag);
+      } else {
+        neededTagIds.put(tag, tagId);
+      }
+    }
+    if (!unknownTags.isEmpty()) {
+      throw new NotFoundException("The following tags are unknown and must be created before association: "
+        + StringUtils.join(unknownTags, ", "));
+    }
+    return neededTagIds;
+  }
+
+  private boolean synchronizeTags(final Integer ruleId, List<String> newTags, Map<String, Long> neededTagIds, SqlSession session) {
+    boolean ruleChanged = false;
+
+    Set<String> tagsToKeep = Sets.newHashSet();
+    List<RuleRuleTagDto> currentTags = ruleDao.selectTags(ruleId, session);
+    for (RuleRuleTagDto existingTag: currentTags) {
+      if(existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
+        ruleDao.deleteTag(existingTag, session);
+        ruleChanged = true;
+      } else {
+        tagsToKeep.add(existingTag.getTag());
+      }
+    }
+
+    for (String tag: newTags) {
+      if (! tagsToKeep.contains(tag)) {
+        ruleDao.insert(new RuleRuleTagDto().setRuleId(ruleId).setTagId(neededTagIds.get(tag)).setType(RuleTagType.ADMIN), session);
+        ruleChanged = true;
+      }
+    }
+
+    return ruleChanged;
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {
