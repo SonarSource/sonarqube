@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Encryption;

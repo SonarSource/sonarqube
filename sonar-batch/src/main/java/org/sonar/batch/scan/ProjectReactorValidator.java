@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.component.ComponentKeys;
 
 import com.google.common.base.Joiner;
-import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
