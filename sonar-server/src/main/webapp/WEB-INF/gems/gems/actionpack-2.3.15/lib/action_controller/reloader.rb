@@ -8,14 +8,20 @@ module ActionController
     class BodyWrapper
       def initialize(body, lock)
         @body = body
-        @lock = lock
+        #sonar
+        # Development mode does not work with integration of Java web services (java_ws_controller.rb).
+        #@lock = lock
+        #/sonar
       end
 
       def close
         @body.close if @body.respond_to?(:close)
       ensure
         Dispatcher.cleanup_application
-        @lock.unlock
+        #sonar
+        # Development mode does not work with integration of Java web services (java_ws_controller.rb).
+        #@lock.unlock
+        #/sonar
       end
 
       def method_missing(*args, &block)
