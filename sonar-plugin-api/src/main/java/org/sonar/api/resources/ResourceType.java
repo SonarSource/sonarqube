@@ -61,7 +61,7 @@ public class ResourceType {
     private String qualifier;
     private String iconPath;
     private boolean hasSourceCode = false;
-    private Map<String, String> properties = Maps.newHashMap();
+    private final Map<String, String> properties = Maps.newHashMap();
 
     /**
      * Creates a new {@link Builder}

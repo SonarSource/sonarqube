@@ -105,7 +105,7 @@ public class SonarEngine extends CpdEngine {
       return;
     }
     SonarDuplicationsIndex index = createIndex(project, sourceFiles);
-    detect(index, context, project, sourceFiles);
+    detect(index, context, sourceFiles);
   }
 
   private SonarDuplicationsIndex createIndex(Project project, Iterable<InputFile> sourceFiles) {
@@ -138,7 +138,7 @@ public class SonarEngine extends CpdEngine {
     return index;
   }
 
-  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, Iterable<InputFile> sourceFiles) {
+  private void detect(SonarDuplicationsIndex index, SensorContext context, Iterable<InputFile> sourceFiles) {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       for (InputFile inputFile : sourceFiles) {

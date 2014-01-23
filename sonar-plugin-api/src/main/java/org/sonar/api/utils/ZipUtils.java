@@ -96,15 +96,7 @@ public final class ZipUtils {
               throw new IOException(ERROR_CREATING_DIRECTORY + parent);
             }
 
-            FileOutputStream fos = new FileOutputStream(to);
-            InputStream input = null;
-            try {
-              input = zipFile.getInputStream(entry);
-              IOUtils.copy(input, fos);
-            } finally {
-              IOUtils.closeQuietly(input);
-              IOUtils.closeQuietly(fos);
-            }
+            copy(zipFile, entry, to);
           }
         }
       }
@@ -112,6 +104,18 @@ public final class ZipUtils {
 
     } finally {
       zipFile.close();
+    }
+  }
+
+  private static void copy(ZipFile zipFile, ZipEntry entry, File to) throws IOException {
+    FileOutputStream fos = new FileOutputStream(to);
+    InputStream input = null;
+    try {
+      input = zipFile.getInputStream(entry);
+      IOUtils.copy(input, fos);
+    } finally {
+      IOUtils.closeQuietly(input);
+      IOUtils.closeQuietly(fos);
     }
   }
 

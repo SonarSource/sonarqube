@@ -113,7 +113,8 @@ class Referentials {
       long[] block = new long[VIOLATION_GROUP_SIZE];
       int cursor = 0;
       while (rs.next()) {
-        block[cursor++] = rs.getLong(1);
+        block[cursor] = rs.getLong(1);
+        cursor++;
         totalViolations++;
         if (cursor == VIOLATION_GROUP_SIZE) {
           queue.add(block);

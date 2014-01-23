@@ -23,7 +23,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import java.io.OutputStream;
-import java.io.Writer;
 
 /**
  * HTTP response

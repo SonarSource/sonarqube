@@ -79,7 +79,8 @@ public final class RegisterNewDashboards {
     int nextOrderIndex = activeDashboardDao.selectMaxOrderIndexForNullUser() + 1;
 
     for (DashboardDto dashboardDto : new DashboardOrdering().sortedCopy(loadedDashboards)) {
-      activate(dashboardDto, nextOrderIndex++);
+      activate(dashboardDto, nextOrderIndex);
+      nextOrderIndex++;
     }
   }
 

@@ -43,8 +43,6 @@ import java.util.regex.PatternSyntaxException;
  */
 public class InternalPermissionTemplateService implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(InternalPermissionTemplateService.class);
-
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
   private final PermissionFinder finder;
