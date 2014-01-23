@@ -144,13 +144,12 @@ public class IssueShowWsHandlerTest {
     Issue issue = createStandardIssue()
       .setAssignee("john")
       .setReporter("steven")
-      .setAuthorLogin("henry");
+      .setAuthorLogin("Henry");
     issues.add(issue);
 
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setLogin("john").setName("John"),
-      new DefaultUser().setLogin("steven").setName("Steven"),
-      new DefaultUser().setLogin("henry").setName("Henry")
+      new DefaultUser().setLogin("steven").setName("Steven")
     ));
 
     MockUserSession.set();

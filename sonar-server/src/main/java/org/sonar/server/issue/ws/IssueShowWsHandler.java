@@ -187,6 +187,7 @@ public class IssueShowWsHandler implements RequestHandler {
         json
           .beginObject()
           .prop("key", entry.getKey())
+          // TODO convert tech debt
           .prop("newValue", (String) diff.newValue())
           .prop("oldValue", (String) diff.oldValue())
           .endObject();
