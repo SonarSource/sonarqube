@@ -31,6 +31,11 @@ import java.io.OutputStream;
  */
 public interface Response {
 
+  interface Stream {
+    Stream setMediaType(String s);
+    OutputStream output();
+  }
+
   int status();
 
   Response setStatus(int httpStatus);
@@ -39,6 +44,6 @@ public interface Response {
 
   XmlWriter newXmlWriter();
 
-  OutputStream stream();
+  Stream stream();
 
 }

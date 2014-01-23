@@ -20,11 +20,10 @@
 package org.sonar.server.issue.filter;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.ws.WsTester;
 
 import java.util.Arrays;
 
@@ -55,16 +54,14 @@ public class IssueFilterWsTest {
   @Test
   public void anonymous_page() throws Exception {
     MockUserSession.set().setLogin(null);
-    SimpleRequest request = new SimpleRequest();
-    tester.execute("page", request).assertJson(getClass(), "anonymous_page.json");
+    tester.newRequest("page").execute().assertJson(getClass(), "anonymous_page.json");
   }
 
   @Test
   public void logged_in_page() throws Exception {
     MockUserSession.set().setLogin("eric").setUserId(123);
-    SimpleRequest request = new SimpleRequest();
-    tester.execute("page", request)
-      .assertHttpStatus(200)
+    tester.newRequest("page").execute()
+      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page.json");
   }
 
@@ -75,9 +72,8 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(6L).setName("My issues"),
       new DefaultIssueFilter().setId(13L).setName("Blocker issues")
     ));
-    SimpleRequest request = new SimpleRequest();
-    tester.execute("page", request)
-      .assertHttpStatus(200)
+    tester.newRequest("page").execute()
+      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
   }
 
@@ -88,9 +84,8 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER")
     );
 
-    SimpleRequest request = new SimpleRequest().setParam("id", "13");
-    tester.execute("page", request)
-      .assertHttpStatus(200)
+    tester.newRequest("page").setParam("id", "13").execute()
+      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
   }
 }

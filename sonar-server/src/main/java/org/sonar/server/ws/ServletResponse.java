@@ -34,6 +34,24 @@ import java.io.StringWriter;
 
 public class ServletResponse implements Response {
 
+  private class ServletStream implements Stream {
+
+    @Override
+    public Stream setMediaType(String s) {
+      source.setContentType(s);
+      return this;
+    }
+
+    @Override
+    public OutputStream output() {
+      try {
+        return source.getOutputStream();
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to get servlet output stream", e);
+      }
+    }
+  }
+
   private final HttpServletResponse source;
   private int httpStatus = 200;
 
@@ -43,25 +61,17 @@ public class ServletResponse implements Response {
 
   @Override
   public JsonWriter newJsonWriter() {
-    return JsonWriter.of(new Buffer());
+    return JsonWriter.of(new Buffer("application/json"));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    try {
-      return XmlWriter.of(source.getWriter());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return XmlWriter.of(new Buffer("application/xml"));
   }
 
   @Override
-  public OutputStream stream() {
-    try {
-      return source.getOutputStream();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+  public Stream stream() {
+    return new ServletStream();
   }
 
   @Override
@@ -76,11 +86,18 @@ public class ServletResponse implements Response {
   }
 
   private class Buffer extends StringWriter {
+    private final String mediaType;
+
+    private Buffer(String mediaType) {
+      this.mediaType = mediaType;
+    }
+
     @Override
     public void close() throws IOException {
       super.close();
 
       source.setStatus(httpStatus);
+      source.setContentType(mediaType);
       ServletOutputStream stream = null;
       try {
         stream = source.getOutputStream();

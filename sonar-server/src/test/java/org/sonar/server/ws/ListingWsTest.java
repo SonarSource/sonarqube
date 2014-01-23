@@ -19,9 +19,7 @@
  */
 package org.sonar.server.ws;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.server.ws.*;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,10 +27,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ListingWsTest {
 
   ListingWs ws = new ListingWs();
-  WsTester tester = new WsTester(ws);
 
   @Test
   public void define_ws() throws Exception {
+    WsTester tester = new WsTester(ws);
     WebService.Controller controller = tester.controller("api/webservices");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/webservices");
@@ -51,18 +49,8 @@ public class ListingWsTest {
 
   @Test
   public void index() throws Exception {
-    // register web services, including itself
-    WebService.Context context = new WebService.Context();
-    ws.define(context);
-    new MetricWebService().define(context);
-
-    SimpleResponse response = new SimpleResponse();
-    ws.list(context.controllers(), response);
-
-    JSONAssert.assertEquals(
-      IOUtils.toString(getClass().getResource("/org/sonar/server/ws/ListingWebServiceTest/index.json")),
-      response.outputAsString(), true
-    );
+    WsTester tester = new WsTester(ws, new MetricWebService());
+    tester.newRequest("api/webservices", "index").execute().assertJson(getClass(), "index.json");
   }
 
   static class MetricWebService implements WebService {

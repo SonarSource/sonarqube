@@ -65,4 +65,15 @@ public abstract class Request {
     String s = param(key);
     return s == null ? defaultValue : Integer.parseInt(s);
   }
+
+  @CheckForNull
+  public Boolean booleanParam(String key) {
+    String s = param(key);
+    return s == null ? null : Boolean.parseBoolean(s);
+  }
+
+  public boolean booleanParam(String key, boolean defaultValue) {
+    String s = param(key);
+    return s == null ? defaultValue : Boolean.parseBoolean(s);
+  }
 }

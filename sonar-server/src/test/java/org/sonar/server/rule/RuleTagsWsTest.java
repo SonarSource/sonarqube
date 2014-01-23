@@ -25,15 +25,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.rule.RuleTagDto;
-import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleTagsWsTest {
@@ -75,8 +73,7 @@ public class RuleTagsWsTest {
   @Test
   public void list_tags() throws Exception {
     when(ruleTags.listAllTags()).thenReturn(ImmutableList.of("tag1", "tag2", "tag3"));
-    SimpleRequest request = new SimpleRequest();
-    tester.execute("list", request).assertJson(getClass(), "list.json");
+    tester.newRequest("list").execute().assertJson(getClass(), "list.json");
     verify(ruleTags).listAllTags();
   }
 
@@ -86,18 +83,19 @@ public class RuleTagsWsTest {
     Long tagId = 42L;
     RuleTagDto newTag = new RuleTagDto().setId(tagId).setTag(tag);
     when(ruleTags.create("newtag")).thenReturn(newTag);
-    SimpleRequest request = new SimpleRequest();
-    request.setParam("tag", tag);
-    tester.execute("create", request).assertJson(getClass(), "create_ok.json");
+
+    WsTester.TestRequest request = tester.newRequest("create").setParam("tag", tag);
+    request.execute().assertJson(getClass(), "create_ok.json");
     verify(ruleTags).create(tag);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test
   public void create_missing_parameter() throws Exception {
-    SimpleRequest request = new SimpleRequest();
+    WsTester.TestRequest request = tester.newRequest("create");
     try {
-      tester.execute("create", request);
-    } finally {
+      request.execute();
+      fail();
+    } catch (IllegalArgumentException e) {
       verifyZeroInteractions(ruleTags);
     }
   }

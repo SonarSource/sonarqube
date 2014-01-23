@@ -38,7 +38,7 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.server.ws.SimpleRequest;
+import org.sonar.api.server.ws.WsTester;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -53,7 +53,6 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsTester;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,8 +132,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issueKey);
-    tester.execute("show", request).assertJson(getClass(), "show_issue.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
+    request.execute().assertJson(getClass(), "show_issue.json");
   }
 
   @Test
@@ -146,8 +145,8 @@ public class IssueShowWsHandlerTest {
     result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2")));
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_action_plan.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_action_plan.json");
   }
 
   @Test
@@ -164,8 +163,8 @@ public class IssueShowWsHandlerTest {
     ));
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_users.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_users.json");
   }
 
   @Test
@@ -178,8 +177,8 @@ public class IssueShowWsHandlerTest {
     when(technicalDebtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_technical_debt.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_technical_debt.json");
   }
 
   @Test
@@ -199,8 +198,8 @@ public class IssueShowWsHandlerTest {
     when(i18n.formatDateTime(any(Locale.class), eq(closedDate))).thenReturn("Jan 24, 2014 10:03 AM");
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_dates.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_dates.json");
   }
 
   @Test
@@ -232,8 +231,8 @@ public class IssueShowWsHandlerTest {
     when(i18n.instant(any(Locale.class), eq(date2))).thenReturn("10 days");
 
     MockUserSession.set().setLogin("arthur");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_comments.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_comments.json");
   }
 
   @Test
@@ -246,8 +245,8 @@ public class IssueShowWsHandlerTest {
     when(issueService.listTransitions(eq(issue), any(UserSession.class))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_transitions.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_transitions.json");
   }
 
   @Test
@@ -257,8 +256,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_actions.json");
   }
 
   @Test
@@ -268,8 +267,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, issue.projectKey());
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_severity_action.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_severity_action.json");
   }
 
   @Test
@@ -279,8 +278,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_assign_to_me_action.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_assign_to_me_action.json");
   }
 
   @Test
@@ -295,8 +294,8 @@ public class IssueShowWsHandlerTest {
     ));
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_without_assign_to_me_action.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_without_assign_to_me_action.json");
   }
 
   @Test
@@ -310,8 +309,8 @@ public class IssueShowWsHandlerTest {
     when(actionService.listAvailableActions(issue)).thenReturn(newArrayList(action));
 
     MockUserSession.set().setLogin("john");
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions_defined_by_plugins.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_actions_defined_by_plugins.json");
   }
 
   @Test
@@ -339,8 +338,8 @@ public class IssueShowWsHandlerTest {
     when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Fev 23, 2014 10:03 AM");
 
     MockUserSession.set();
-    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
-    tester.execute("show", request).assertJson(getClass(), "show_issue_with_changelog.json");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_changelog.json");
   }
 
   private DefaultIssue createStandardIssue() {

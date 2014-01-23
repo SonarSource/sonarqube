@@ -19,25 +19,128 @@
  */
 package org.sonar.server.ws;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.*;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.XmlWriter;
+
+import javax.annotation.CheckForNull;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class WebServiceEngineTest {
+
+  private static class SimpleRequest extends Request {
+    private String method = "GET";
+    private Map<String, String> params = new HashMap<String, String>();
+
+    @Override
+    public String method() {
+      return method;
+    }
+
+    public SimpleRequest setMethod(String s) {
+      this.method = s;
+      return this;
+    }
+
+    public SimpleRequest setParams(Map<String, String> m) {
+      this.params = m;
+      return this;
+    }
+
+    public SimpleRequest setParam(String key, @CheckForNull String value) {
+      if (value != null) {
+        params.put(key, value);
+      }
+      return this;
+    }
+
+    @Override
+    @CheckForNull
+    public String param(String key) {
+      return params.get(key);
+    }
+
+  }
+
+  private static class SimpleResponse implements Response {
+    public class SimpleStream implements Response.Stream {
+      private String mediaType;
+
+      @CheckForNull
+      public String mediaType() {
+        return mediaType;
+      }
+
+      @Override
+      public Response.Stream setMediaType(String s) {
+        this.mediaType = s;
+        return this;
+      }
+
+      @Override
+      public OutputStream output() {
+        return output;
+      }
+    }
+
+    private int status = 200;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    @Override
+    public JsonWriter newJsonWriter() {
+      return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
+    }
+
+    @Override
+    public XmlWriter newXmlWriter() {
+      return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
+    }
+
+    @Override
+    public Stream stream() {
+      return new SimpleStream();
+    }
+
+    @Override
+    public int status() {
+      return status;
+    }
+
+    @Override
+    public Response setStatus(int httpStatus) {
+      this.status = httpStatus;
+      return this;
+    }
+
+    public String outputAsString() {
+      return new String(output.toByteArray(), Charsets.UTF_8);
+    }
+  }
 
   WebServiceEngine engine = new WebServiceEngine(new WebService[]{new SystemWebService()});
 
   @Before
-  public void before() {
+  public void start() {
     engine.start();
   }
 
   @After
-  public void after() {
+  public void stop() {
     engine.stop();
   }
 
@@ -78,13 +181,23 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void method_not_allowed() throws Exception {
+  public void method_get_not_allowed() throws Exception {
     Request request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
     assertThat(response.status()).isEqualTo(405);
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
+  }
+
+  @Test
+  public void method_post_required() throws Exception {
+    Request request = new SimpleRequest().setMethod("POST");
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "ping");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.outputAsString()).isEqualTo("pong");
   }
 
   @Test
@@ -137,7 +250,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.stream().write("good".getBytes());
+            response.stream().output().write("good".getBytes());
           }
         });
       newController.newAction("ping")
@@ -145,7 +258,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) throws Exception {
-            response.stream().write("pong".getBytes());
+            response.stream().output().write("pong".getBytes());
           }
         });
       newController.newAction("fail")
@@ -164,7 +277,7 @@ public class WebServiceEngineTest {
           @Override
           public void handle(Request request, Response response) throws Exception {
             IOUtils.write(
-              request.requiredParam("message") + " by " + request.param("author", "-"), response.stream());
+              request.requiredParam("message") + " by " + request.param("author", "-"), response.stream().output());
           }
         });
       newController.done();

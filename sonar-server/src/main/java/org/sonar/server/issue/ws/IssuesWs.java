@@ -23,10 +23,10 @@ import org.sonar.api.server.ws.WebService;
 
 public class IssuesWs implements WebService {
 
-  private final IssueShowWsHandler detailHandler;
+  private final IssueShowWsHandler showHandler;
 
-  public IssuesWs(IssueShowWsHandler detailHandler) {
-    this.detailHandler = detailHandler;
+  public IssuesWs(IssueShowWsHandler showHandler) {
+    this.showHandler = showHandler;
   }
 
   @Override
@@ -38,7 +38,7 @@ public class IssuesWs implements WebService {
       .setDescription("Detail of issue")
       .setSince("4.2")
       .setPrivate(true)
-      .setHandler(detailHandler)
+      .setHandler(showHandler)
       .newParam("key", "Issue key");
 
     controller.done();

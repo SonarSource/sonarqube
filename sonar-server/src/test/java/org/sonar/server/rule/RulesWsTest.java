@@ -20,9 +20,8 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.api.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -47,7 +46,6 @@ public class RulesWsTest {
 
   @Test
   public void search_for_rules() throws Exception {
-    SimpleRequest request = new SimpleRequest();
-    tester.execute("search", request).assertJson(getClass(), "search.json");
+    tester.newRequest("search").execute().assertJson(getClass(), "search.json");
   }
 }

@@ -21,7 +21,7 @@ package org.sonar.server.issue.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.api.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
