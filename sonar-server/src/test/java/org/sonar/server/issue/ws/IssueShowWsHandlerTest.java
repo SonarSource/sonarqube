@@ -48,14 +48,14 @@ import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
-import org.sonar.server.text.RubyTextService;
+import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
@@ -79,10 +79,7 @@ public class IssueShowWsHandlerTest {
   ActionService actionService;
 
   @Mock
-  InternalRubyTechnicalDebtService technicalDebtService;
-
-  @Mock
-  RubyTextService textService;
+  TechnicalDebtFormatter technicalDebtFormatter;
 
   List<Issue> issues;
   DefaultIssueQueryResult result;
@@ -101,7 +98,7 @@ public class IssueShowWsHandlerTest {
 
     when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtService, textService)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter)));
   }
 
   @Test
@@ -164,7 +161,7 @@ public class IssueShowWsHandlerTest {
       .setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
-    when(technicalDebtService.format(technicalDebt)).thenReturn("2 hours 1 minutes");
+    when(technicalDebtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
@@ -192,14 +189,21 @@ public class IssueShowWsHandlerTest {
           .setKey("COMMENT-ABCD")
           .setMarkdownText("*My comment*")
           .setUserLogin("john")
+          .setCreatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")))
+      .addComment(
+        new DefaultIssueComment()
+          .setKey("COMMENT-ABCE")
+          .setMarkdownText("Another comment")
+          .setUserLogin("arthur")
           .setCreatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"))
       );
     issues.add(issue);
-    result.addUsers(newArrayList((User) new DefaultUser().setLogin("john").setName("John")));
+    result.addUsers(Lists.<User>newArrayList(
+      new DefaultUser().setLogin("john").setName("John"),
+      new DefaultUser().setLogin("arthur").setName("Arthur")
+    ));
 
-    when(textService.markdownToHtml("*My comment*")).thenReturn("<b>My comment</b>");
-
-    MockUserSession.set();
+    MockUserSession.set().setLogin("arthur");
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_comments.json");
   }
@@ -262,13 +266,15 @@ public class IssueShowWsHandlerTest {
       .setDiff("status", "REOPEN", "RESOLVED")
       .setCreationDate(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"));
     when(issueChangelogService.changelog(issue)).thenReturn(new IssueChangelog(newArrayList(userChange, scanChange), users));
+    when(issueChangelogService.formatDiffs(userChange)).thenReturn(newArrayList("Action plan updated to 1.0"));
+    when(issueChangelogService.formatDiffs(scanChange)).thenReturn(newArrayList("Severity updated from Info to Blocker", "Status updated from Reopen to Resolved"));
 
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_changelog.json");
   }
 
-  private DefaultIssue createStandardIssue(){
+  private DefaultIssue createStandardIssue() {
     return new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org.sonar.server.issue.IssueClient")

@@ -7,14 +7,23 @@
     "ruleName": "Avoid cycle",
     "creationDate": "2014-01-22T19:10:03+0100",
     "transitions": [],
-    "actions": [],
+    "actions": ["comment", "assign", "plan"],
     "comments": [
       {
         "key": "COMMENT-ABCD",
-        "userLogin": "john",
         "userName": "John",
-        "html": "<b>My comment</b>",
-        "creationDate": "2014-01-23T19:10:03+0100"
+        "raw": "*My comment*",
+        "html": "<em>My comment</em>",
+        "creationDate": "2014-01-23T19:10:03+0100",
+        "updatable": false
+      },
+      {
+        "key": "COMMENT-ABCE",
+        "userName": "Arthur",
+        "raw": "Another comment",
+        "html": "Another comment",
+        "creationDate": "2014-01-23T19:10:03+0100",
+        "updatable": true
       }
     ],
     "changelog": []

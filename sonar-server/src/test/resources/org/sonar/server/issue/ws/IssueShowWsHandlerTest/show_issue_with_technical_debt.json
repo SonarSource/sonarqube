@@ -5,12 +5,7 @@
     "project": "org.sonar.Sonar",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
-    "technicalDebt": {
-      "days": 0,
-      "hours": 2,
-      "minutes": 1
-    },
-    "fTechnicalDebt": "2 hours 1 minutes",
+    "debt": "2 hours 1 minutes",
     "creationDate": "2014-01-22T19:10:03+0100",
     "transitions": [],
     "actions": [],

@@ -40,7 +40,6 @@ import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -64,14 +63,13 @@ public class InternalRubyIssueServiceTest {
   ActionService actionService = mock(ActionService.class);
   IssueFilterService issueFilterService = mock(IssueFilterService.class);
   IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
-  IssueChangelogFormatter issueChangelogFormatter = mock(IssueChangelogFormatter.class);
 
   @Before
   public void setUp() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
     service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, issueChangelogFormatter);
+      issueFilterService, issueBulkChangeService);
   }
 
   @Test
@@ -579,7 +577,7 @@ public class InternalRubyIssueServiceTest {
   public void format_changelog() {
     FieldDiffs fieldDiffs = new FieldDiffs();
     service.formatChangelog(fieldDiffs);
-    verify(issueChangelogFormatter).format(any(Locale.class), eq(fieldDiffs));
+    verify(changelogService).formatDiffs(eq(fieldDiffs));
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {

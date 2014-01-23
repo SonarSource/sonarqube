@@ -54,6 +54,7 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -83,13 +84,12 @@ public class InternalRubyIssueService implements ServerComponent {
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
-  private final IssueChangelogFormatter issueChangelogFormatter;
 
   public InternalRubyIssueService(IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
-    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService, IssueChangelogFormatter issueChangelogFormatter) {
+    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -99,7 +99,6 @@ public class InternalRubyIssueService implements ServerComponent {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
-    this.issueChangelogFormatter = issueChangelogFormatter;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -131,7 +130,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public List<String> formatChangelog(FieldDiffs diffs) {
-    return issueChangelogFormatter.format(UserSession.get().locale(), diffs);
+    return changelogService.formatDiffs(diffs);
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {

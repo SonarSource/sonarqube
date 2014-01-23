@@ -11,30 +11,13 @@
     "comments": [],
     "changelog": [
       {
-        "userLogin": "john",
         "userName": "John",
         "creationDate": "2014-01-22T19:10:03+0100",
-        "diffs": [
-          {
-            "key": "actionPlan",
-            "newValue": "1.0"
-          }
-        ]
+        "diffs": ["Action plan updated to 1.0"]
       },
       {
         "creationDate": "2014-01-23T19:10:03+0100",
-        "diffs": [
-          {
-            "key": "severity",
-            "newValue": "BLOCKER",
-            "oldValue": "INFO"
-          },
-          {
-            "key": "status",
-            "newValue": "RESOLVED",
-            "oldValue": "REOPEN"
-          }
-        ]
+        "diffs": ["Severity updated from Info to Blocker", "Status updated from Reopen to Resolved"]
       }
     ]
   }

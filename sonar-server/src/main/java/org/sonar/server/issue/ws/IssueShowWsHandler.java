@@ -30,19 +30,18 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
-import org.sonar.server.text.RubyTextService;
+import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -52,17 +51,15 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
-  private final InternalRubyTechnicalDebtService technicalDebtService;
-  private final RubyTextService textService;
+  private final TechnicalDebtFormatter technicalDebtFormatter;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            InternalRubyTechnicalDebtService technicalDebtService, RubyTextService textService) {
+                            TechnicalDebtFormatter technicalDebtFormatter) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
-    this.technicalDebtService = technicalDebtService;
-    this.textService = textService;
+    this.technicalDebtFormatter = technicalDebtFormatter;
   }
 
   @Override
@@ -105,6 +102,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("severity", issue.severity())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
+      .prop("debt", technicalDebt != null ? technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt) : null)
       .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
@@ -113,21 +111,6 @@ public class IssueShowWsHandler implements RequestHandler {
 
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
-    addTechnicalDebt(issue, json);
-  }
-
-  private void addTechnicalDebt(DefaultIssue issue, JsonWriter json) {
-    WorkDayDuration technicalDebt = issue.technicalDebt();
-    if (technicalDebt != null) {
-      json.prop("fTechnicalDebt", technicalDebtService.format(technicalDebt));
-      json.name("technicalDebt")
-        .beginObject()
-        .prop("days", technicalDebt.days())
-        .prop("hours", technicalDebt.hours())
-        .prop("minutes", technicalDebt.minutes())
-        .endObject();
-    }
-
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
@@ -172,11 +155,11 @@ public class IssueShowWsHandler implements RequestHandler {
       json
         .beginObject()
         .prop("key", comment.key())
-        .prop("userLogin", userLogin)
         .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
-        .prop("html", textService.markdownToHtml(comment.markdownText()))
-          // add markdownText ?
+        .prop("raw", comment.markdownText())
+        .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("creationDate", DateUtils.formatDateTime(comment.createdAt()))
+        .prop("updatable", UserSession.get().isLoggedIn() ? UserSession.get().login().equals(comment.userLogin()) : false)
           // TODO add formatted date
         .endObject();
     }
@@ -190,21 +173,14 @@ public class IssueShowWsHandler implements RequestHandler {
       String userLogin = diffs.userLogin();
       json
         .beginObject()
-        .prop("userLogin", userLogin)
         .prop("userName", userLogin != null ? changelog.user(diffs).name() : null)
         .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()));
       // TODO add formatted date
 
       json.name("diffs").beginArray();
-      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.diffs().entrySet()) {
-        FieldDiffs.Diff diff = entry.getValue();
-        json
-          .beginObject()
-          .prop("key", entry.getKey())
-          // TODO convert tech debt
-          .prop("newValue", (String) diff.newValue())
-          .prop("oldValue", (String) diff.oldValue())
-          .endObject();
+      List<String> diffsFormatted = issueChangelogService.formatDiffs(diffs);
+      for (String diff : diffsFormatted) {
+        json.value(diff);
       }
       json.endArray();
       json.endObject();

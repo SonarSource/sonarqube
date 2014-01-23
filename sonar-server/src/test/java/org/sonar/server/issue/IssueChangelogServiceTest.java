@@ -19,8 +19,11 @@
  */
 package org.sonar.server.issue;
 
-import java.util.Collections;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -32,8 +35,11 @@ import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -41,12 +47,27 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class IssueChangelogServiceTest {
 
-  IssueChangeDao changeDao = mock(IssueChangeDao.class);
-  UserFinder userFinder = mock(UserFinder.class);
-  DefaultIssueFinder issueFinder = mock(DefaultIssueFinder.class);
-  IssueChangelogService service = new IssueChangelogService(changeDao, userFinder, issueFinder);
+  @Mock
+  IssueChangeDao changeDao;
+
+  @Mock
+  UserFinder userFinder;
+
+  @Mock
+  DefaultIssueFinder issueFinder;
+
+  @Mock
+  IssueChangelogFormatter formatter;
+
+  IssueChangelogService service;
+
+  @Before
+  public void setUp() throws Exception {
+    service = new IssueChangelogService(changeDao, userFinder, issueFinder, formatter);
+  }
 
   @Test
   public void load_changelog_and_related_users() throws Exception {
@@ -80,5 +101,13 @@ public class IssueChangelogServiceTest {
       verifyNoMoreInteractions(changeDao);
       verifyNoMoreInteractions(userFinder);
     }
+  }
+
+  @Test
+  public void format_diffs() throws Exception {
+    FieldDiffs diffs = new FieldDiffs().setUserLogin("arthur").setDiff("severity", "MAJOR", "BLOCKER");
+    MockUserSession.set();
+    service.formatDiffs(diffs);
+    verify(formatter).format(any(Locale.class), eq(diffs));
   }
 }

@@ -29,6 +29,7 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,11 +44,13 @@ public class IssueChangelogService implements ServerComponent {
   private final IssueChangeDao changeDao;
   private final UserFinder userFinder;
   private final DefaultIssueFinder finder;
+  private final IssueChangelogFormatter formatter;
 
-  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, DefaultIssueFinder finder) {
+  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, DefaultIssueFinder finder, IssueChangelogFormatter formatter) {
     this.changeDao = changeDao;
     this.userFinder = userFinder;
     this.finder = finder;
+    this.formatter = formatter;
   }
 
   public IssueChangelog changelog(String issueKey) {
@@ -75,5 +78,9 @@ public class IssueChangelogService implements ServerComponent {
       throw new NotFoundException("Issue not found: " + issueKey);
     }
     return result;
+  }
+
+  public List<String> formatDiffs(FieldDiffs diffs) {
+    return formatter.format(UserSession.get().locale(), diffs);
   }
 }
