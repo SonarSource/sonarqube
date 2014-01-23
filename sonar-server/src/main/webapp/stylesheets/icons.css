@@ -117,9 +117,13 @@
 }
 .icon-arrow-down:before {
   content: "\f0d7";
+  position: relative;
+  top: -2px;
 }
 .icon-arrow-up:before {
   content: "\f0d8";
+  position: relative;
+  top: -2px;
 }
 .icon-arrow-left:before {
   content: "\f0d9";

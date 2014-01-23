@@ -20,7 +20,21 @@ jQuery(function() {
 
 
 
-  var Issue = Backbone.Model.extend({});
+  var Issue = Backbone.Model.extend({
+
+    url: function() {
+      return baseUrl + '/api/issues/show?key=' + this.get('key');
+    },
+
+
+    parse: function(r) {
+      return r.issue ? r.issue : r;
+    }
+
+  });
+
+
+
   var Issues = Backbone.Collection.extend({
     model: Issue,
 
@@ -101,8 +115,12 @@ jQuery(function() {
       this.$el.parent().children().removeClass('active');
       this.$el.addClass('active');
 
-      this.options.app.issueDetailView.model = this.model;
-      this.options.app.detailsRegion.show(this.options.app.issueDetailView);
+      var app = this.options.app,
+          detailView = this.options.app.issueDetailView;
+      detailView.model = new window.SS.Issue({ key: this.model.get('key') });
+      jQuery.when(detailView.model.fetch()).done(function() {
+        app.detailsRegion.show(detailView);
+      });
     }
   });
 
@@ -173,6 +191,12 @@ jQuery(function() {
 
 
     onRender: function() {
+      if (!this.collection.sorting.sortText) {
+        this.collection.sorting.sortText = this.$('[data-sort=' + this.collection.sorting.sort + ']:first').text();
+        this.render();
+        return;
+      }
+
       this.$el.toggle(this.collection.length > 0);
       this.$('.open-modal').modal();
     },

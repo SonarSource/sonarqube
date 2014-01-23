@@ -26,6 +26,10 @@ jQuery(function() {
     });
 
     this.issues = new window.SS.Issues();
+    this.issues.sorting = {
+      sort: 'UPDATE_DATE',
+      asc: false
+    };
     this.issuesPage = 1;
 
     this.filters = new window.SS.Filters();
