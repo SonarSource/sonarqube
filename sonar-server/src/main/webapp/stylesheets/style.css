@@ -2112,6 +2112,7 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
 .link-action {
   text-decoration: underline !important;
   color: #4183C4 !important;
+  cursor: pointer;
 }
 
 .link-red {

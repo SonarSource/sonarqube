@@ -352,13 +352,87 @@ jQuery(function() {
 
 
 
-  var IssueDetailView = Backbone.Marionette.ItemView.extend({
+  var IssueDetailCommentFormView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-comment-form-template').html() || ''),
+
+
+    ui: {
+      textarea: '#issue-comment-text',
+      cancelButton: '#issue-comment-cancel',
+      submitButton: '#issue-comment-submit'
+    },
+
+
+    events: {
+      'keyup #issue-comment-text': 'toggleSubmit',
+      'click #issue-comment-cancel': 'close',
+      'click #issue-comment-submit': 'submit'
+    },
+
+
+    toggleSubmit: function() {
+      this.ui.submitButton.prop('disabled', this.ui.textarea.val().length === 0);
+    },
+
+
+    submit: function() {
+      var that = this;
+      that.options.detailView.updateAfterAction();
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/add_comment',
+        data: {
+          issue: this.model.get('key'),
+          text: this.ui.textarea.val()
+        }
+      }).done(function() {
+            that.close();
+          });
+    },
+
+
+    onClose: function() {
+      this.options.detailView.updateAfterAction();
+    }
+  });
+
+
+
+  var IssueDetailView = Backbone.Marionette.Layout.extend({
     template: Handlebars.compile(jQuery('#issue-detail-template').html() || ''),
+
+
+    regions: {
+      formRegion: '.code-issue-form'
+    },
+
+
+    events: {
+      'click #issue-comment': 'comment'
+    },
 
 
     onRender: function() {
       this.$('.code-issue-details').tabs();
+      this.$('.code-issue-form').hide();
+    },
+
+
+    updateAfterAction: function() {
+      this.formRegion.reset();
+      this.$('.code-issue-form').hide();
+    },
+
+
+    comment: function() {
+      var commentFormView = new IssueDetailCommentFormView({
+        model: this.model,
+        detailView: this
+      });
+      this.$('.code-issue-form').show();
+      this.formRegion.show(commentFormView);
     }
+
   });
 
 

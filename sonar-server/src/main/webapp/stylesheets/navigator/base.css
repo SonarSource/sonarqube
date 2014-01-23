@@ -193,6 +193,27 @@
 .navigator-details .source_title {
   padding: 0 0 10px;
 }
+.navigator-details .code-issue-actions {
+  font-size: 0;
+}
+.navigator-details .code-issue-actions > li {
+  display: inline-block;
+  vertical-align: middle;
+  height: 14px;
+  line-height: 14px;
+  padding: 0 8px;
+  border-left: 1px solid #fff;
+  border-right: 1px solid #bfbfbf;
+  font-size: 12px;
+}
+.navigator-details .code-issue-actions > li:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.navigator-details .code-issue-actions > li:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
 .navigator-actions {
   padding: 0 10px 0 0;
   line-height: 30px;

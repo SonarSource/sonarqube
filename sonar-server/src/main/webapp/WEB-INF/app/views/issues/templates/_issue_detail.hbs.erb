@@ -2,17 +2,13 @@
   <div class="source_title">
     <div class="subtitle">{{project.longName}}</div>
     <span class="h1">
-      {{#if component.longName}}
-        <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component}}">{{component.longName}}</a>
-      {{else}}
-        {{component}} [<del><%= message('issue.component_deleted') %></del>]
-      {{/if}}
+      <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component}}">{{component}}</a>
     </span>
   </div>
 
   <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component.key}}" data-issue-rule="{{rule.key}}">
     <div class="code-issue-name">
-      {{severityIcon severity}}&nbsp;<span class="rulename">{{rule.name}}</span>
+      {{severityIcon severity}}&nbsp;<span class="rulename">{{ruleName}}</span>
     </div>
 
     <div class="code-issue-msg">{{{message}}}</div>
@@ -26,7 +22,7 @@
           <a href="#tab-issue-rule"><%= message('rule') -%></a>
         </li>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/issue/changelog/{{key}}"><%= message('changelog') -%></a>
+          <a href="#tab-issue-changelog"><%= message('changelog') -%></a>
         </li>
       </ul>
 
@@ -56,16 +52,12 @@
           </li>
           <li>
             <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
-            <div class="code-issue-details-value"></div>
+            <div class="code-issue-details-value">{{actionPlanName}}</div>
           </li>
           {{#if technicalDebt}}
             <li>
               <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
-              <div class="code-issue-details-value">
-                {{#if technicalDebt.days}}{{technicalDebt.days}} days{{/if}}
-                {{#if technicalDebt.hours}}{{technicalDebt.hours}} hours{{/if}}
-                {{#if technicalDebt.minutes}}{{technicalDebt.minutes}} minutes{{/if}}
-              </div>
+              <div class="code-issue-details-value">{{technicalDebt}}</div>
             </li>
           {{/if}}
           {{# if reporter}}
@@ -80,10 +72,10 @@
               <div class="code-issue-details-value">{{author}}</div>
             </li>
           {{/if}}
-          {{# if assignee}}
+          {{# if assigneeName}}
             <li>
               <div class="code-issue-details-term"><%= message('assignee') -%></div>
-              <div class="code-issue-details-value">{{assignee}}</div>
+              <div class="code-issue-details-value">{{assigneeName}}</div>
             </li>
           {{/if}}
           <li>
@@ -103,6 +95,24 @@
           <p class="note">{{rule.key}}</p>
         </div>
       </div>
+
+      <div id="tab-issue-changelog">
+        <table class="spaced">
+          <tbody>
+          {{#each changelog}}
+            <tr>
+              <td class="thin left top">{{creationDate}}</td>
+              <td class="thin left top">{{userName}}</td>
+              <td class="left top">
+                {{#each diffs}}
+                  {{key}}: from "{{oldValue}}" to "{{newValue}}"
+                {{/each}}
+              </td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="code-issue-comments">
@@ -110,48 +120,40 @@
         <div class="code-issue-comment" data-comment-key="{{key}}">
           <h4>
             <%= image_tag('reviews/comment.png') -%>
-            <b>{{#if user}}{{user.name}}{{else}}{{login}}{{/if}}</b>
-            ({{fromNow createdAt}})
+            <b>{{userName}}</b>
+            ({{creationDate}})
           </h4>
           {{{htmlText}}}
         </div>
       {{/each}}
     </div>
 
-    <div class="code-issue-actions">
-      <a href="#" onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus="">Comment</a>
+    <ul class="code-issue-actions">
+      <li>
+        <a id="issue-comment" class="link-action"><%= message('issue.comment.formlink') -%></a>
+      </li>
 
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-      &nbsp;
-        <span class="spacer-right">
-          <a href="#" onclick="return issueForm('assign', this)" class="link-action">Assign</a>
-          [<a href="#" onclick="return assignIssueToMe(this)" class="link-action">to me</a>]
-        </span>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-      &nbsp;
-        <span class="spacer-right">
-            <a href="#" onclick="return issueForm('plan', this)" class="link-action">Plan</a>
-        </span>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-      &nbsp;
-      <a href="#" onclick="return doIssueTransition(this, 'confirm')" class="link-action spacer-right">Confirm</a>
+      <li>
+        <a id="issue-assign" class="link-action"><%= message('issue.assign.formlink') -%></a>
+        [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+      </li>
 
-      <div class="dropdown">
-        <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
-        <ul style="display: none" class="dropdown-menu">
-          <li>
-            <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right">Change severity</a>
-          </li>
-          <li>
-            <a href="#" onclick="return doIssueTransition(this, 'resolve')" class="link-action spacer-right">Resolve</a>
-          </li>
-          <li>
-            <a href="#" onclick="return doIssueTransition(this, 'falsepositive')" class="link-action spacer-right">False positive</a>
-          </li>
-        </ul>
-      </div>
-    </div>
+      <li>
+        <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
+      </li>
 
-    <div class="code-issue-form hidden"></div>
+      <li>
+        <div class="dropdown">
+          <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
+          <ul style="display: none" class="dropdown-menu">
+            <li>
+              <a id="issue-change-severity" class="link-action spacer-right">Change severity</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <div class="code-issue-form"></div>
   </div>
 </script>

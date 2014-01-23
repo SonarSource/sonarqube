@@ -1,0 +1,18 @@
+<script id="issue-detail-comment-form-template" type="text/x-handlebars-template">
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top" colspan="2">
+        <textarea id="issue-comment-text" rows="4" name="text" style="width: 100%" autofocus></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 5px">
+        <input id="issue-comment-submit" type="submit" value="<%= message('issue.comment.submit') -%>" disabled>
+        <a id="issue-comment-cancel" class="link-action"><%= message('cancel') -%></a>
+      </td>
+      <td align="right">
+        <%= render :partial => 'markdown/tips' -%>
+      </td>
+    </tr>
+  </table>
+</script>
