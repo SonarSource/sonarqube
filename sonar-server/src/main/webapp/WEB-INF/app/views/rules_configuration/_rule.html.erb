@@ -50,7 +50,7 @@
     <a name="rule<%= rule.id -%>"></a>
 
     <div id="rule_note_<%= rule.id -%>" class="marginbottom10">
-      <%= render :partial => 'rule_note', :locals => {:rule => rule} %>
+      <%= render :partial => 'rule_note', :locals => {:rule => rule,:profile_id => profile.id} %>
     </div>
 
     <%
@@ -90,14 +90,6 @@
            end
         %>
       </table>
-    <% end %>
-
-    <% if profiles_administrator? %>
-      <div id="open_rule_tags_<%= rule.id -%>">
-          <a class="link-action open-modal"
-            href="<%=ApplicationController.root_context-%>/rules_configuration/show_select_tags?rule_id=<%=rule.id-%>&amp;profile_id=<%= u profile.id %>">
-          <%= message('rules_configuration.select_tags') -%></a>
-      </div>
     <% end %>
 
     <% if is_activated %>

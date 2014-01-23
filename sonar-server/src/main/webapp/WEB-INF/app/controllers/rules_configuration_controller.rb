@@ -56,7 +56,7 @@ class RulesConfigurationController < ApplicationController
       end
 
       @pagination.count = result.paging.total
-      unless @searchtext.blank?
+      unless @searchtext.blank? && @tags.empty?
         if @activation == STATUS_ACTIVE
           @hidden_inactives = Internal.quality_profiles.countInactiveProfileRules(query)
         else
@@ -347,7 +347,8 @@ class RulesConfigurationController < ApplicationController
   end
 
   def select_tags
-    rule = Internal.rules.updateRuleTags(params[:rule_id].to_i, params[:tags])
+    Internal.rules.updateRuleTags(params[:rule_id].to_i, params[:tags])
+    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
     render :partial => 'rule_tags', :locals => {:rule => rule}
   end
 

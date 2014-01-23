@@ -1,4 +1,4 @@
-<% #locals = rule
+<% #locals = rule, profile_id
   note = rule.ruleNote
   note_detail_div_id = "nd_" + rule.id.to_s
   note_extend_link_id = "nel_" + rule.id.to_s
@@ -26,8 +26,13 @@
     <div>
         <a href="#" id="<%= note_extend_link_id -%>" class="link-action spacer-right"
            onclick="$j('#<%= note_detail_div_id -%>').hide();$j('#<%= note_form_div_id -%>').show();$j('#<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
+        <a class="link-action open-modal"
+          href="<%=ApplicationController.root_context-%>/rules_configuration/show_select_tags?rule_id=<%= u rule.id -%>&amp;profile_id=<%= u profile_id %>">
+         <%= message('rules_configuration.select_tags') -%></a>
     </div>
+
   <% end %>
+  
 </div>
 
 <% if profiles_administrator? %>

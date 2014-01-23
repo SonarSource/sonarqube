@@ -1,9 +1,8 @@
 <% #locals = rule -%>
 <% unless rule.systemTags.isEmpty && rule.adminTags.isEmpty %>
-  <% rule.systemTags.each do |tag| %>
-  <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
-  <% end %>
-  <% rule.adminTags.each do |tag| %>
-  <span id="rule_tag_<%= rule.id -%>_<%= tag -%>"><%= tag -%></span>
+  <% (rule.systemTags + rule.adminTags).each do |tag| %>
+  <span id="rule_tag_<%= rule.id -%>_<%= tag -%>">
+    <%= link_to tag, url_for( params.merge({ 'tags[]' => tag, 'searchtext' => '' }) ) -%>
+  </span>
   <% end %>
 <% end %>

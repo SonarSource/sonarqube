@@ -16,9 +16,8 @@
   <%= hidden_field_tag :rule_id, rule.id -%>
   <%= hidden_field_tag :profile_id, profile_id -%>
   <fieldset>
-    <div class="modal-body">
-      <h2><%= message('rules_configuration.available_tags') -%></h2>
-      <div id="select-rule-tags" style="height: 200px; overflow-y: scroll; border: 1px solid #cdcdcd;">
+    <div class="modal-body select-list-container">
+      <div id="select-rule-tags" class="select-list-list-container" style="height: 400px; overflow: auto">
         <%= render :partial => 'select_tags_list', :locals => { :tags => tags } -%>
       </div>
     </div>
@@ -31,7 +30,7 @@
 <form onsubmit="$j.ajax({
                         url:'<%=ApplicationController.root_context-%>/rules_configuration/create_tag',
                         success:function(response){ $j('#select-tags-error').hide();$j('#select-rule-tags').html(response);$j('#new_tag').val('');},
-                        error:function(response){ $j('#select-tags-error').show().html(response.responseText); },
+                        error:function(response){ $j('#select-tags-error').show().html(response.responseText);$j('#new_tag').focus().select(); },
                         data: $j(this).serialize(),
                         type:'post'});
                   return false;"
@@ -51,3 +50,5 @@
   <button type="button" id="update_tags_<%= rule.id.to_s -%>" onclick="$j('#select-tags-form').submit();return true;"><%= message('rules_configuration.update_tags') -%></button>
   <a href="#" onclick="return closeModalWindow()" id="confirm-cancel"><%= h message('cancel') -%></a>
 </div>
+
+

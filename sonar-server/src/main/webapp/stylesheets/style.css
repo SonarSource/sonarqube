@@ -2466,7 +2466,6 @@ textarea.width100 {
 .rule-search {
   display: inline-block;
   line-height: 16px;
-  padding: 4px 2px;
 }
 
 .rule-title {
@@ -2481,6 +2480,11 @@ textarea.width100 {
   color: #777;
 }
 
+.rule-tags a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .rule-status span {
   text-transform: uppercase;
 }
@@ -2488,6 +2492,7 @@ textarea.width100 {
 .rule-tags span {
   background-color: #eee;
   padding: 3px 4px;
+  margin: 4px 2px;
   border-radius: 2px;
   box-shadow: 0px -1px 0px rgba(0, 0, 0, 0.12) inset;
 }
