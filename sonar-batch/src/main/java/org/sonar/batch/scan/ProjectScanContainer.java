@@ -52,6 +52,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
@@ -134,6 +135,7 @@ public class ProjectScanContainer extends ComponentContainer {
       MetricProvider.class,
       ProjectConfigurator.class,
       DefaultIndex.class,
+      ResourceKeyMigration.class,
       DefaultFileLinesContextFactory.class,
       ProjectLock.class,
       LastSnapshots.class,

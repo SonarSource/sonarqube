@@ -132,8 +132,6 @@ public abstract class Resource implements Serializable {
 
   private String effectiveKey = null;
 
-  private String deprecatedEffectiveKey = null;
-
   private boolean isExcluded = false;
 
   /**
@@ -261,21 +259,6 @@ public abstract class Resource implements Serializable {
    */
   public final Resource setEffectiveKey(String effectiveKey) {
     this.effectiveKey = effectiveKey;
-    return this;
-  }
-
-  /**
-   * Internal use only
-   */
-  public String getDeprecatedEffectiveKey() {
-    return deprecatedEffectiveKey;
-  }
-
-  /**
-   * Internal use only
-   */
-  public final Resource setDeprecatedEffectiveKey(String deprecatedEffectiveKey) {
-    this.deprecatedEffectiveKey = deprecatedEffectiveKey;
     return this;
   }
 

@@ -91,14 +91,17 @@ public class DefaultIndex extends SonarIndex {
   private final DeprecatedViolations deprecatedViolations;
   private ModuleIssues moduleIssues;
 
+  private ResourceKeyMigration migration;
+
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-    ScanGraph graph, DeprecatedViolations deprecatedViolations) {
+    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.graph = graph;
     this.deprecatedViolations = deprecatedViolations;
+    this.migration = migration;
   }
 
   public void start() {
@@ -111,6 +114,7 @@ public class DefaultIndex extends SonarIndex {
   void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
     buckets.put(rootProject, bucket);
+    migration.checkIfMigrationNeeded(rootProject);
     persistence.saveProject(rootProject, null);
     currentProject = rootProject;
 
@@ -555,7 +559,6 @@ public class DefaultIndex extends SonarIndex {
     }
 
     resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
-    resource.setDeprecatedEffectiveKey(ComponentKeys.createDeprecatedEffectiveKey(currentProject, resource));
     bucket = new Bucket(resource).setParent(parentBucket);
     buckets.put(resource, bucket);
 

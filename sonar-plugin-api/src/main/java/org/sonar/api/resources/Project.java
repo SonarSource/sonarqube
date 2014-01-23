@@ -86,7 +86,6 @@ public class Project extends Resource implements Component {
     setKey(key);
     setDeprecatedKey(key);
     setEffectiveKey(key);
-    setDeprecatedEffectiveKey(key);
   }
 
   public Project(String key, String branch, String name) {
@@ -99,7 +98,6 @@ public class Project extends Resource implements Component {
     }
     setDeprecatedKey(getKey());
     setEffectiveKey(getKey());
-    setDeprecatedEffectiveKey(getKey());
     this.branch = branch;
   }
 

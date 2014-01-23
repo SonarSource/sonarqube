@@ -35,40 +35,39 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 /**
- * Index all files/directories of the module in SQ database.
+ * Index all files/directories of the module in SQ database and importing source code.
  * @since 4.2
  */
 @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
 public class FileIndexer implements BatchComponent {
 
-  private final Project module;
   private final DefaultModuleFileSystem fs;
   private final Languages languages;
   private final Settings settings;
   private final SonarIndex sonarIndex;
+  private ResourceKeyMigration migration;
+  private Project module;
 
-  private boolean importSource;
-
-  public FileIndexer(Project module, DefaultModuleFileSystem fs, Languages languages, SonarIndex sonarIndex, Settings settings) {
+  public FileIndexer(Project module, DefaultModuleFileSystem fs, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration) {
     this.module = module;
     this.fs = fs;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.settings = settings;
+    this.migration = migration;
   }
 
   public void execute() {
-    this.importSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-    String languageKey = module.getLanguageKey();
-    indexFiles(fs.inputFiles(FileQuery.onSource().onLanguage(languageKey)), false, languageKey);
-    indexFiles(fs.inputFiles(FileQuery.onTest().onLanguage(languageKey)), true, languageKey);
-  }
-
-  private void indexFiles(Iterable<InputFile> files, boolean unitTest, String languageKey) {
-    for (InputFile inputFile : files) {
+    boolean importSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
+    Iterable<InputFile> inputFiles = fs.inputFiles(FileQuery.all());
+    migration.migrateIfNeeded(module, inputFiles);
+    for (InputFile inputFile : inputFiles) {
+      String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);
+      boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
       Resource sonarFile;
       if (Java.KEY.equals(languageKey)) {
         sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);

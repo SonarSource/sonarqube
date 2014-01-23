@@ -86,7 +86,7 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     ProjectTree projectTree = mock(ProjectTree.class);
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations);
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations, mock(ResourceKeyMigration.class));
 
     java.io.File baseDir = temp.newFolder();
     project = new Project("project");

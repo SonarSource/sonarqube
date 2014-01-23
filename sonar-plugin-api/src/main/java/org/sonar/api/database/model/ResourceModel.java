@@ -380,8 +380,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     ResourceModel model = new ResourceModel();
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
-    model.setKey(resource.getKey());
-    model.setDeprecatedKey(resource.getDeprecatedKey());
+    model.setKey(resource.getEffectiveKey());
     model.setPath(resource.getPath());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());

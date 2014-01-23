@@ -20,7 +20,6 @@
 package org.sonar.batch.phases;
 
 import com.google.common.base.Charsets;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.junit.Before;
@@ -40,8 +39,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
+import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.io.File;
@@ -88,19 +89,13 @@ public class FileIndexerTest {
   }
 
   @Test
-  public void should_index_java_files() {
-    File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
-    File javaFile2 = new File(baseDir, "src/main/java2/foo/bar/Foo.java");
-    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY))).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/foo/bar/Foo.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java").build(),
-      new InputFileBuilder(javaFile2, Charsets.UTF_8, "src/main/java2/foo/bar/Foo.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java").build()));
-    File javaTestFile1 = new File(baseDir, "src/test/java/foo/bar/FooTest.java");
-    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
-      (Iterable) Arrays.asList(
-        new InputFileBuilder(javaTestFile1, Charsets.UTF_8, "src/test/java/foo/bar/FooTest.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/FooTest.java")
-          .build()));
+  public void should_index_java_files() throws IOException {
+    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
+      newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false),
+      newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false),
+      newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
+    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
     indexer.execute();
 
     verify(sonarIndex).index(JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false));
@@ -118,17 +113,13 @@ public class FileIndexerTest {
 
   @Test
   public void should_index_cobol_files() throws IOException {
-    File cobolFile1 = new File(baseDir, "src/foo/bar/Foo.cbl");
-    File cobolFile2 = new File(baseDir, "src2/foo/bar/Foo.cbl");
-    when(fs.inputFiles(FileQuery.onSource().onLanguage("cobol"))).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(cobolFile1, Charsets.UTF_8, "src/foo/bar/Foo.cbl").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.cbl").build(),
-      new InputFileBuilder(cobolFile2, Charsets.UTF_8, "src2/foo/bar/Foo.cbl").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.cbl").build()));
-    File cobolTestFile1 = new File(baseDir, "src/test/foo/bar/FooTest.cbl");
-    when(fs.inputFiles(FileQuery.onTest().onLanguage("cobol"))).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(cobolTestFile1, Charsets.UTF_8, "src/test/foo/bar/FooTest.cbl").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/FooTest.cbl").build()));
+    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
+      newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false),
+      newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false),
+      newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true)));
     when(project.getLanguageKey()).thenReturn("cobol");
 
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(cobolLanguage), sonarIndex, settings);
+    FileIndexer indexer = new FileIndexer(project, fs, new Languages(cobolLanguage), sonarIndex, settings, mock(ResourceKeyMigration.class));
     indexer.execute();
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
@@ -140,19 +131,25 @@ public class FileIndexerTest {
   public void shouldImportSource() throws IOException {
     settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
 
-    File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
-    FileUtils.write(javaFile1, "sample code");
-    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY))).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/foo/bar/Foo.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java").build()));
-    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
-      (Iterable) Collections.emptyList());
+    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
+      newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
+    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
     indexer.execute();
 
     Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
     verify(sonarIndex).index(sonarFile);
     verify(sonarIndex).setSource(sonarFile, "sample code");
+  }
+
+  private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
+    File file = new File(baseDir, path);
+    FileUtils.write(file, content);
+    return new InputFileBuilder(file, Charsets.UTF_8, path)
+      .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath)
+      .attribute(InputFile.ATTRIBUTE_LANGUAGE, languageKey)
+      .attribute(InputFile.ATTRIBUTE_TYPE, unitTest ? InputFile.TYPE_TEST : InputFile.TYPE_SOURCE)
+      .build();
   }
 
   @Test
@@ -182,12 +179,13 @@ public class FileIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
-    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY))).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/foo/bar/Foo.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java").build()));
-    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
-      (Iterable) Collections.emptyList());
+    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
+      new InputFileBuilder(javaFile1, Charset.forName("UTF-8"), "src/main/java/foo/bar/Foo.java")
+        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
+        .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
+        .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
+    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
     indexer.execute();
 
     Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
@@ -206,15 +204,15 @@ public class FileIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.copyFile(getFile(testFile), javaFile1);
-    when(fs.inputFiles(FileQuery.onSource().onLanguage(Java.KEY)))
+    when(fs.inputFiles(FileQuery.all()))
       .thenReturn(
         (Iterable) Arrays.asList(
-          new InputFileBuilder(javaFile1, Charset.forName(encoding), "src/main/java/foo/bar/Foo.java").attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
+          new InputFileBuilder(javaFile1, Charset.forName(encoding), "src/main/java/foo/bar/Foo.java")
+            .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
+            .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
             .build()));
-    when(fs.inputFiles(FileQuery.onTest().onLanguage(Java.KEY))).thenReturn(
-      (Iterable) Collections.emptyList());
     when(project.getLanguageKey()).thenReturn(Java.KEY);
-    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings);
+    FileIndexer indexer = new FileIndexer(project, fs, new Languages(Java.INSTANCE), sonarIndex, settings, mock(ResourceKeyMigration.class));
     indexer.execute();
 
     Resource sonarFile = JavaFile.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);

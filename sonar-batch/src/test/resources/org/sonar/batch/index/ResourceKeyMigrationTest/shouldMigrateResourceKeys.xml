@@ -1,0 +1,65 @@
+<dataset>
+
+  <!-- other project already migrated -->
+  <projects id="1000" scope="PRJ" qualifier="TRK" kee="my:key" root_id="[null]"
+            name="Other project" long_name="Other" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="my:key" />
+
+  <!-- Root project not migrated -->
+  <projects id="1001" scope="PRJ" qualifier="TRK" kee="root" root_id="[null]"
+            name="Root" long_name="Root" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <!-- PHP module -->
+  <projects id="1002" scope="PRJ" qualifier="BRC" kee="a" root_id="1001"
+            name="A" long_name="A" description="[null]"
+            enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <!-- Java module -->
+  <projects id="1003" scope="PRJ" qualifier="BRC" kee="b" root_id="1001"
+            name="B" long_name="B" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <!-- Java resources -->
+  <projects id="1004" scope="DIR" qualifier="DIR" kee="b:org/foo" root_id="1003"
+            name="org/foo" long_name="org/foo" description="[null]"
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1005" scope="FIL" qualifier="CLA" kee="b:org.foo.Bar" root_id="1003"
+            name="Bar" long_name="org.foo.Bar" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1006" scope="FIL" qualifier="UTS" kee="b:org.foo.BarTest" root_id="1003"
+            name="BarTest" long_name="org.foo.BarTest" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1007" scope="DIR" qualifier="DIR" kee="b:[root]" root_id="1003"
+          name="[root]" long_name="[root]" description="[null]"
+          enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1008" scope="FIL" qualifier="CLA" kee="b:[default].RootBar" root_id="1003"
+            name="RootBar" long_name="RootBar" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+
+  <!-- PHP resources -->
+  <projects id="1009" scope="DIR" qualifier="DIR" kee="a:org/foo" root_id="1002"
+            name="org/foo" long_name="org/foo" description="[null]"
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1010" scope="FIL" qualifier="FIL" kee="a:org/foo/Bar.php" root_id="1002"
+            name="Bar.php" long_name="Bar.php" description="[null]"
+            enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1011" scope="FIL" qualifier="UTS" kee="a:org/foo/BarTest.php" root_id="1002"
+            name="BarTest.php" long_name="BarTest.php" description="[null]"
+            enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1012" scope="DIR" qualifier="DIR" kee="a:[root]" root_id="1002"
+          name="[root]" long_name="[root]" description="[null]"
+          enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <projects id="1013" scope="FIL" qualifier="FIL" kee="a:RootBar.php" root_id="1002"
+            name="RootBar.php" long_name="RootBar.php" description="[null]"
+            enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+</dataset>

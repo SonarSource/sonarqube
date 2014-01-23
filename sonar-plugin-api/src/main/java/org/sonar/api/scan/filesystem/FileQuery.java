@@ -52,6 +52,13 @@ public class FileQuery {
     return query;
   }
 
+  /**
+   * @since 4.2
+   */
+  public static FileQuery all() {
+    return on();
+  }
+
   public static FileQuery onSource() {
     return on(FileType.SOURCE);
   }

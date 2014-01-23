@@ -87,8 +87,8 @@ public class JavaFile extends Resource {
    * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
   @Deprecated
-  public JavaFile(String key) {
-    this(key, false);
+  public JavaFile(String deprecatedKey) {
+    this(deprecatedKey, false);
   }
 
   /**
@@ -98,11 +98,11 @@ public class JavaFile extends Resource {
    * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
   @Deprecated
-  public JavaFile(String key, boolean unitTest) {
-    if (key == null) {
+  public JavaFile(String deprecatedKey, boolean unitTest) {
+    if (deprecatedKey == null) {
       throw new IllegalArgumentException("Java filename can not be null");
     }
-    String realKey = StringUtils.trim(key);
+    String realKey = StringUtils.trim(deprecatedKey);
     this.unitTest = unitTest;
 
     if (realKey.contains(".")) {

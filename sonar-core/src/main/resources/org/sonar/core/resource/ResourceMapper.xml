@@ -41,6 +41,7 @@
   <resultMap id="resourceResultMap" type="Resource">
     <id property="id" column="id"/>
     <result property="key" column="kee"/>
+    <result property="deprecatedKey" column="deprecated_kee"/>
     <result property="path" column="path"/>
     <result property="name" column="name"/>
     <result property="longName" column="long_name"/>
