@@ -117,7 +117,8 @@ jQuery(function() {
 
       var app = this.options.app,
           detailView = this.options.app.issueDetailView;
-      detailView.model = new window.SS.Issue({ key: this.model.get('key') });
+
+      detailView.model.set({ key: this.model.get('key') }, { silent: true});
       jQuery.when(detailView.model.fetch()).done(function() {
         app.detailsRegion.show(detailView);
       });
@@ -365,7 +366,7 @@ jQuery(function() {
 
     events: {
       'keyup #issue-comment-text': 'toggleSubmit',
-      'click #issue-comment-cancel': 'close',
+      'click #issue-comment-cancel': 'cancel',
       'click #issue-comment-submit': 'submit'
     },
 
@@ -375,24 +376,25 @@ jQuery(function() {
     },
 
 
+    cancel: function() {
+      this.options.detailView.updateAfterAction(false);
+    },
+
+
     submit: function() {
-      var that = this;
+      var that = this,
+          text = this.ui.textarea.val();
       that.options.detailView.updateAfterAction();
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/add_comment',
         data: {
           issue: this.model.get('key'),
-          text: this.ui.textarea.val()
+          text: text
         }
       }).done(function() {
-            that.close();
+            that.options.detailView.updateAfterAction(true);
           });
-    },
-
-
-    onClose: function() {
-      this.options.detailView.updateAfterAction();
     }
   });
 
@@ -408,7 +410,13 @@ jQuery(function() {
 
 
     events: {
-      'click #issue-comment': 'comment'
+      'click #issue-comment': 'comment',
+      'click .issue-transition': 'transition'
+    },
+
+
+    modelEvents: {
+      'change': 'render'
     },
 
 
@@ -418,9 +426,27 @@ jQuery(function() {
     },
 
 
-    updateAfterAction: function() {
-      this.formRegion.reset();
-      this.$('.code-issue-form').hide();
+    showActionView: function(view) {
+      this.$('.code-issue-actions').hide();
+      this.$('.code-issue-form').show();
+      this.formRegion.show(view);
+    },
+
+
+    updateAfterAction: function(fetch) {
+      var that = this;
+
+      if (fetch) {
+        jQuery.when(this.model.fetch()).done(function() {
+          that.formRegion.reset();
+          that.$('.code-issue-actions').show();
+          that.$('.code-issue-form').hide();
+        });
+      } else {
+        that.formRegion.reset();
+        that.$('.code-issue-actions').show();
+        that.$('.code-issue-form').hide();
+      }
     },
 
 
@@ -429,8 +455,22 @@ jQuery(function() {
         model: this.model,
         detailView: this
       });
-      this.$('.code-issue-form').show();
-      this.formRegion.show(commentFormView);
+      this.showActionView(commentFormView);
+    },
+
+
+    transition: function(e) {
+      var that = this;
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/do_transition',
+        data: {
+          issue: this.model.get('key'),
+          transition: jQuery(e.target).data('transition')
+        }
+      }).done(function() {
+            that.model.fetch();
+          });
     }
 
   });

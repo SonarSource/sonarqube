@@ -50,10 +50,12 @@
               {{/if}}
             </div>
           </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
-            <div class="code-issue-details-value">{{actionPlanName}}</div>
-          </li>
+          {{#if actionPlanName}}
+            <li>
+              <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
+              <div class="code-issue-details-value">{{actionPlanName}}</div>
+            </li>
+          {{/if}}
           {{#if technicalDebt}}
             <li>
               <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
@@ -123,32 +125,45 @@
             <b>{{userName}}</b>
             ({{creationDate}})
           </h4>
-          {{{htmlText}}}
+          {{{html}}}
         </div>
       {{/each}}
     </div>
 
     <ul class="code-issue-actions">
-      <li>
-        <a id="issue-comment" class="link-action"><%= message('issue.comment.formlink') -%></a>
-      </li>
+      {{#inArray actions "comment"}}
+        <li>
+          <a id="issue-comment" class="link-action"><%= message('issue.comment.formlink') -%></a>
+        </li>
+      {{/inArray}}
 
-      <li>
-        <a id="issue-assign" class="link-action"><%= message('issue.assign.formlink') -%></a>
-        [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
-      </li>
+      {{#inArray actions "assign"}}
+        <li>
+          <a id="issue-assign" class="link-action"><%= message('issue.assign.formlink') -%></a>
+          [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+        </li>
+      {{/inArray}}
 
-      <li>
-        <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
-      </li>
+      {{#inArray actions "plan"}}
+        <li>
+          <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
+        </li>
+      {{/inArray}}
 
       <li>
         <div class="dropdown">
           <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
           <ul style="display: none" class="dropdown-menu">
-            <li>
-              <a id="issue-change-severity" class="link-action spacer-right">Change severity</a>
-            </li>
+            {{#inArray actions "set_severity"}}
+              <li>
+                <a id="issue-change-severity" class="link-action spacer-right">Change severity</a>
+              </li>
+            {{/inArray}}
+            {{#each transitions}}
+              <li>
+                <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{this}}</a>
+              </li>
+            {{/each}}
           </ul>
         </div>
       </li>

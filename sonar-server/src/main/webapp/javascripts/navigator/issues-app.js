@@ -53,7 +53,9 @@ jQuery(function() {
     });
     this.actionsRegion.show(this.issuesActionsView);
 
-    this.issueDetailView = new window.SS.IssueDetailView();
+    this.issueDetailView = new window.SS.IssueDetailView({
+      model: new window.SS.Issue()
+    });
   });
 
 
