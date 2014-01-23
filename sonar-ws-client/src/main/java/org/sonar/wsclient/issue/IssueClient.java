@@ -43,6 +43,14 @@ public interface IssueClient {
   Issue assign(String issueKey, @Nullable String assignee);
 
   /**
+   * Assign an existing issue to current user.
+   *
+   * @return the updated issue
+   */
+  Issue assignToMe(String issueKey);
+
+
+  /**
    * Change the severity of an existing issue. Supported values are "INFO", "MINOR",
    * "MAJOR", "CRITICAL" and "BLOCKER".
    *

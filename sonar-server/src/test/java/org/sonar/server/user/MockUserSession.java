@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import com.google.common.collect.HashMultimap;
+import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
 
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.Mockito.mock;
 
 public class MockUserSession extends UserSession {
 
@@ -75,5 +77,10 @@ public class MockUserSession extends UserSession {
     this.projectPermissions.add(projectPermission);
     this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
     return this;
+  }
+
+  @Override
+  AuthorizationDao authorizationDao() {
+    return mock(AuthorizationDao.class);
   }
 }

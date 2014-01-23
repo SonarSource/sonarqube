@@ -37,6 +37,8 @@
       'any':           '<%= escape_javascript message('any') -%>',
       'anytime':       '<%= escape_javascript message('anytime') -%>',
       'all':           '<%= escape_javascript message('all') -%>',
+      'edit':          '<%= escape_javascript message('edit') -%>',
+      'delete':        '<%= escape_javascript message('delete') -%>',
       'to':            '<%= escape_javascript message('to') -%>',
       'project':       '<%= escape_javascript message('issue_filter.criteria.project') -%>',
       'severity':      '<%= escape_javascript message('issue_filter.criteria.severity') -%>',
@@ -55,6 +57,18 @@
         resolved:      '<%= escape_javascript message('issue.status.RESOLVED') -%>',
         closed:        '<%= escape_javascript message('issue.status.CLOSED') -%>'
       },
+      'actions': {
+        comment:        '<%= escape_javascript message('issue.comment.formlink') -%>',
+        assign:         '<%= escape_javascript message('issue.assign.formlink') -%>',
+        assign_to_me:   '<%= escape_javascript message('issue.assign.to_me') -%>',
+        assigned_to:    '<%= escape_javascript message('assigned_to') -%>',
+        plan:           '<%= escape_javascript message('issue.do_plan') -%>',
+        planned_for:    '<%= escape_javascript message('issue.planned_for') -%>',
+        severity:       '<%= escape_javascript message('issue.set_severity') -%>',
+        <%  Internal.issues.listPluginActions().each do |action| %>
+          <%= action.key -%>: '<%= escape_javascript message("issue.action.#{action.key}.formlink") -%>',
+        <% end %>
+      },
       assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
       resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
       resolutions: {
@@ -67,7 +81,8 @@
 
       moreCriteria:    '<%= escape_javascript message('issue_filter.more_criteria') -%>',
       unassigned:      '<%= escape_javascript message('unassigned') -%>',
-      filtersList:     '<%= escape_javascript message('issue_filter.filter_list') -%>'
+      filtersList:     '<%= escape_javascript message('issue_filter.filter_list') -%>',
+      commentConfirmDelete:     '<%= escape_javascript message('issue.comment.delete_confirm_message') -%>',
     }
   });
 

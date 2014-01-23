@@ -20,9 +20,11 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -59,6 +61,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * All the issue features that are not published to public API.
@@ -131,6 +135,15 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public List<String> formatChangelog(FieldDiffs diffs) {
     return changelogService.formatDiffs(diffs);
+  }
+
+  public List<String> listPluginActions() {
+    return newArrayList(Iterables.transform(actionService.listAllActions(), new Function<Action, String>() {
+      @Override
+      public String apply(@Nullable Action input) {
+        return input.key();
+      }
+    }));
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {

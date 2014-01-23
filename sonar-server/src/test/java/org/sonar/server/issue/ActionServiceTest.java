@@ -240,6 +240,12 @@ public class ActionServiceTest {
     assertThat(result.hasKey("sonar.jira.project.key")).isTrue();
   }
 
+  @Test
+  public void list_all_actions() {
+    actions.add("link-to-jira").setConditions(new AlwaysMatch());
+    assertThat(actionService.listAllActions()).hasSize(1);
+  }
+
   public class AlwaysMatch implements Condition {
     @Override
     public boolean matches(Issue issue) {

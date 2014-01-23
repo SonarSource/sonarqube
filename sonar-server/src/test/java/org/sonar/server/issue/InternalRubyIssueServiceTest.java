@@ -73,6 +73,12 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void list_plugin_actions() {
+    service.listPluginActions();
+    verify(actionService).listAllActions();
+  }
+
+    @Test
   public void should_create_action_plan() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");

@@ -71,6 +71,10 @@ public class ActionService implements ServerComponent {
     this.actions = actions;
   }
 
+  public List<Action> listAllActions() {
+    return actions.list();
+  }
+
   public List<Action> listAvailableActions(String issueKey) {
     IssueQueryResult queryResult = loadIssue(issueKey);
     final DefaultIssue issue = (DefaultIssue) queryResult.first();

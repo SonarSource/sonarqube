@@ -101,6 +101,22 @@ public class DefaultIssueClientTest {
   }
 
   @Test
+  public void assign_to_me() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    Issue result = client.assignToMe("ABCDE");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("me", "true")
+    );
+    assertThat(result).isNotNull();
+  }
+
+  @Test
   public void should_unassign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");

@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
@@ -124,7 +125,7 @@ public class IssueShowWsHandler implements RequestHandler {
     json.endArray();
   }
 
-  private void writeActions(Issue issue, JsonWriter json) {
+  private void writeActions(DefaultIssue issue, JsonWriter json) {
     json.name("actions").beginArray();
     for (String action : actions(issue)) {
       json.value(action);
@@ -133,13 +134,19 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   // TODO all available actions should be returned by ActionService or another service
-  private List<String> actions(Issue issue) {
+  private List<String> actions(DefaultIssue issue) {
     List<String> actions = newArrayList();
     if (UserSession.get().isLoggedIn()) {
       actions.add("comment");
       if (issue.resolution() == null) {
         actions.add("assign");
+        if (!UserSession.get().login().equals(issue.assignee())) {
+          actions.add("assign_to_me");
+        }
         actions.add("plan");
+        if (UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey())) {
+          actions.add("severity");
+        }
         for (Action action : actionService.listAvailableActions(issue)) {
           actions.add(action.key());
         }

@@ -9,7 +9,7 @@
     "creationDate": "2014-01-22T19:10:03+0100",
     "transitions": [],
     "actions": [
-       "comment", "assign", "assign_to_me", "plan"
+       "comment", "assign", "assign_to_me", "plan", "severity"
     ],
     "comments": [],
     "changelog": []

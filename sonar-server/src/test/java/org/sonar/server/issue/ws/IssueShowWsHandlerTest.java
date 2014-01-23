@@ -40,6 +40,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.SimpleRequest;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
@@ -210,7 +211,7 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_transitions() throws Exception {
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .setStatus("RESOLVED")
       .setResolution("FIXED");
     issues.add(issue);
@@ -224,13 +225,51 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_actions() throws Exception {
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .setStatus("OPEN");
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions.json");
+  }
+
+  @Test
+  public void show_issue_with_severity_action() throws Exception {
+    DefaultIssue issue = createStandardIssue()
+      .setStatus("OPEN");
+    issues.add(issue);
+
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, issue.projectKey());
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_severity_action.json");
+  }
+
+  @Test
+  public void show_issue_with_assign_to_me_action() throws Exception {
+    DefaultIssue issue = createStandardIssue()
+      .setStatus("OPEN");
+    issues.add(issue);
+
+    MockUserSession.set().setLogin("john");
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_assign_to_me_action.json");
+  }
+
+  @Test
+  public void show_issue_without_assign_to_me_action() throws Exception {
+    DefaultIssue issue = createStandardIssue()
+      .setStatus("OPEN")
+      .setAssignee("john");
+    issues.add(issue);
+
+    result.addUsers(Lists.<User>newArrayList(
+      new DefaultUser().setLogin("john").setName("John")
+    ));
+
+    MockUserSession.set().setLogin("john");
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_without_assign_to_me_action.json");
   }
 
   @Test

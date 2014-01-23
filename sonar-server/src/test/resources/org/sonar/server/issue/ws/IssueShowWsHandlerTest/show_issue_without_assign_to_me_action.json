@@ -5,11 +5,13 @@
     "project": "org.sonar.Sonar",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
+    "assignee": "john",
+    "assigneeName": "John",
     "status": "OPEN",
     "creationDate": "2014-01-22T19:10:03+0100",
     "transitions": [],
     "actions": [
-       "comment", "assign", "assign_to_me", "plan"
+       "comment", "assign", "plan"
     ],
     "comments": [],
     "changelog": []
