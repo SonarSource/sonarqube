@@ -51,6 +51,7 @@
     <js>/javascripts/navigator/filters/metric-filters.js</js>
     <js>/javascripts/navigator/filters/favorite-filters.js</js>
     <js>/javascripts/navigator/filters/more-criteria-filters.js</js>
+    <js>/javascripts/navigator/filters/context-filters.js</js>
 
     <js>/javascripts/navigator/issues.js</js>
     <js>/javascripts/navigator/issues-app.js</js>

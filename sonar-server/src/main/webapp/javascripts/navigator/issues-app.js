@@ -147,6 +147,20 @@ jQuery(function() {
         type: window.SS.DateRangeFilterView,
         enabled: false,
         optional: true
+      }),
+
+      new window.SS.Filter({
+        property: 'resolved',
+        type: window.SS.ContextFilterView,
+        enabled: true,
+        optional: false
+      }),
+
+      new window.SS.Filter({
+        property: 'actionPlans',
+        type: window.SS.ContextFilterView,
+        enabled: true,
+        optional: false
       })
     ]);
 
