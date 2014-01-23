@@ -35,8 +35,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
 import org.sonar.server.es.ESIndex;
-import org.sonar.server.rule.ActiveRuleDocument;
-import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;

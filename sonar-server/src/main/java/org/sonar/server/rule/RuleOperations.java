@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile;
+package org.sonar.server.rule;
+
+import org.sonar.server.qualityprofile.ESActiveRule;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -44,8 +46,6 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
-import org.sonar.server.rule.RuleTagOperations;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
@@ -55,7 +55,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class QProfileRuleOperations implements ServerComponent {
+public class RuleOperations implements ServerComponent {
 
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
@@ -67,13 +67,13 @@ public class QProfileRuleOperations implements ServerComponent {
 
   private final System2 system;
 
-  public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations,
+  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations,
     ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
     this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule,
+  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule,
     RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;

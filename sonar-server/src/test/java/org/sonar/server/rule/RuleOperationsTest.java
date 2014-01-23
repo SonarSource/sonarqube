@@ -18,8 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile;
+package org.sonar.server.rule;
 
+import org.sonar.server.qualityprofile.ESActiveRule;
+
+import org.sonar.server.rule.RuleOperations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.SqlSession;
@@ -73,7 +76,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileRuleOperationsTest {
+public class RuleOperationsTest {
 
   @Mock
   MyBatis myBatis;
@@ -107,7 +110,7 @@ public class QProfileRuleOperationsTest {
   UserSession authorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   UserSession unauthorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas");
 
-  QProfileRuleOperations operations;
+  RuleOperations operations;
 
   @Before
   public void setUp() throws Exception {
@@ -123,7 +126,7 @@ public class QProfileRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, system);
+    operations = new RuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, system);
   }
 
   @Test

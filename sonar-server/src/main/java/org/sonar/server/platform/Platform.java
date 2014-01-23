@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.qualityprofile.QProfileRuleLookup;
+import org.sonar.server.rule.RuleOperations;
 
+import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -282,7 +283,7 @@ public final class Platform {
     servicesContainer.addSingleton(QProfileLookup.class);
     servicesContainer.addSingleton(QProfileOperations.class);
     servicesContainer.addSingleton(QProfileActiveRuleOperations.class);
-    servicesContainer.addSingleton(QProfileRuleOperations.class);
+    servicesContainer.addSingleton(RuleOperations.class);
     servicesContainer.addSingleton(QProfileProjectOperations.class);
     servicesContainer.addSingleton(QProfileProjectLookup.class);
     servicesContainer.addSingleton(QProfileBackup.class);

@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
+
+import org.sonar.server.qualityprofile.ProfileRuleQuery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;

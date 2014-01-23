@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.rule.RuleOperations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -39,7 +40,6 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -83,7 +83,7 @@ public class QProfilesTest {
   QProfileActiveRuleOperations activeRuleOperations;
 
   @Mock
-  QProfileRuleOperations ruleOperations;
+  RuleOperations ruleOperations;
 
   @Mock
   QProfileBackup backup;

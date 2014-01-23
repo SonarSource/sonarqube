@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.QProfileRule;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;

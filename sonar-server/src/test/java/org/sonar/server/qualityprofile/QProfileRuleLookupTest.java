@@ -31,7 +31,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.test.TestUtils;
 

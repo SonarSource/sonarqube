@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.rule.RuleOperations;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerComponent;
@@ -36,7 +37,6 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.ProfileRuleQuery;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
@@ -68,12 +68,12 @@ public class QProfiles implements ServerComponent {
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
-  private final QProfileRuleOperations ruleOperations;
+  private final RuleOperations ruleOperations;
   private final QProfileRuleLookup rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
                    QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
-                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations,
+                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, RuleOperations ruleOperations,
                    QProfileRuleLookup rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
