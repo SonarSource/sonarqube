@@ -106,7 +106,6 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
-      .prop("technicalDebt", technicalDebt != null ? technicalDebtService.format(technicalDebt) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
       .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null);
@@ -114,6 +113,21 @@ public class IssueShowWsHandler implements RequestHandler {
 
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
+    addTechnicalDebt(issue, json);
+  }
+
+  private void addTechnicalDebt(DefaultIssue issue, JsonWriter json) {
+    WorkDayDuration technicalDebt = issue.technicalDebt();
+    if (technicalDebt != null) {
+      json.prop("fTechnicalDebt", technicalDebtService.format(technicalDebt));
+      json.name("technicalDebt")
+        .beginObject()
+        .prop("days", technicalDebt.days())
+        .prop("hours", technicalDebt.hours())
+        .prop("minutes", technicalDebt.minutes())
+        .endObject();
+    }
+
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
