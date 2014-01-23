@@ -353,6 +353,7 @@ public final class Platform {
     servicesContainer.addSingleton(RuleTagLookup.class);
     servicesContainer.addSingleton(RuleTagOperations.class);
     servicesContainer.addSingleton(RuleTags.class);
+    servicesContainer.addSingleton(RuleTagsWs.class);
 
     // technical debt
     servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);
