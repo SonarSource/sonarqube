@@ -11,6 +11,7 @@
     "actions": [
        "comment", "assign", "plan", "link-to-jira"
     ],
-    "comments": []
+    "comments": [],
+    "changelog": []
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -44,6 +45,8 @@ import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.IssueChangelog;
+import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.text.RubyTextService;
@@ -70,6 +73,9 @@ public class IssueShowWsHandlerTest {
   IssueService issueService;
 
   @Mock
+  IssueChangelogService issueChangelogService;
+
+  @Mock
   ActionService actionService;
 
   @Mock
@@ -93,7 +99,9 @@ public class IssueShowWsHandlerTest {
     result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, actionService, technicalDebtService, textService)));
+    when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
+
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtService, textService)));
   }
 
   @Test
@@ -121,8 +129,7 @@ public class IssueShowWsHandlerTest {
   @Test
   public void show_issue_with_action_plan() throws Exception {
     Issue issue = createStandardIssue()
-      .setActionPlanKey("AP-ABCD")
-      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+      .setActionPlanKey("AP-ABCD");
     issues.add(issue);
 
     result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2")));
@@ -236,6 +243,30 @@ public class IssueShowWsHandlerTest {
     MockUserSession.set().setLogin("john");
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
     tester.execute("show", request).assertJson(getClass(), "show_issue_with_actions_defined_by_plugins.json");
+  }
+
+  @Test
+  public void show_issue_with_changelog() throws Exception {
+    Issue issue = createStandardIssue();
+    issues.add(issue);
+
+    List<User> users = Lists.<User>newArrayList(
+      new DefaultUser().setLogin("john").setName("John")
+    );
+
+    FieldDiffs userChange = new FieldDiffs()
+      .setUserLogin("john")
+      .setDiff("actionPlan", null, "1.0")
+      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+    FieldDiffs scanChange = new FieldDiffs()
+      .setDiff("severity", "INFO", "BLOCKER")
+      .setDiff("status", "REOPEN", "RESOLVED")
+      .setCreationDate(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"));
+    when(issueChangelogService.changelog(issue)).thenReturn(new IssueChangelog(newArrayList(userChange, scanChange), users));
+
+    MockUserSession.set();
+    SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
+    tester.execute("show", request).assertJson(getClass(), "show_issue_with_changelog.json");
   }
 
   private DefaultIssue createStandardIssue(){

@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -31,6 +32,8 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.IssueChangelog;
+import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.text.RubyTextService;
@@ -39,6 +42,7 @@ import org.sonar.server.user.UserSession;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -46,14 +50,16 @@ public class IssueShowWsHandler implements RequestHandler {
 
   private final IssueFinder issueFinder;
   private final IssueService issueService;
+  private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
   private final InternalRubyTechnicalDebtService technicalDebtService;
   private final RubyTextService textService;
 
-  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, ActionService actionService,
+  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
                             InternalRubyTechnicalDebtService technicalDebtService, RubyTextService textService) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
+    this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
     this.technicalDebtService = technicalDebtService;
     this.textService = textService;
@@ -75,7 +81,7 @@ public class IssueShowWsHandler implements RequestHandler {
     writeTransitions(issue, json);
     writeActions(issue, json);
     writeComments(queryResult, issue, json);
-    //TODO write changelog
+    writeChangelog(issue, json);
 
     json.endObject().endObject().close();
   }
@@ -97,6 +103,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
+      .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
       .prop("technicalDebt", technicalDebt != null ? technicalDebtService.format(technicalDebt) : null)
@@ -107,7 +114,6 @@ public class IssueShowWsHandler implements RequestHandler {
 
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
-    addUserWithLabel(result, issue.authorLogin(), "author", json);
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
@@ -155,10 +161,38 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("userLogin", userLogin)
         .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
         .prop("html", textService.markdownToHtml(comment.markdownText()))
-        // add markdownText ?
+          // add markdownText ?
         .prop("creationDate", DateUtils.formatDateTime(comment.createdAt()))
           // TODO add formatted date
         .endObject();
+    }
+    json.endArray();
+  }
+
+  private void writeChangelog(Issue issue, JsonWriter json) {
+    json.name("changelog").beginArray();
+    IssueChangelog changelog = issueChangelogService.changelog(issue);
+    for (FieldDiffs diffs : changelog.changes()) {
+      String userLogin = diffs.userLogin();
+      json
+        .beginObject()
+        .prop("userLogin", userLogin)
+        .prop("userName", userLogin != null ? changelog.user(diffs).name() : null)
+        .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()));
+      // TODO add formatted date
+
+      json.name("diffs").beginArray();
+      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.diffs().entrySet()) {
+        FieldDiffs.Diff diff = entry.getValue();
+        json
+          .beginObject()
+          .prop("key", entry.getKey())
+          .prop("newValue", (String) diff.newValue())
+          .prop("oldValue", (String) diff.oldValue())
+          .endObject();
+      }
+      json.endArray();
+      json.endObject();
     }
     json.endArray();
   }
