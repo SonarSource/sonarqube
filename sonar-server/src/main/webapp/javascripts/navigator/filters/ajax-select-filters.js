@@ -348,7 +348,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
           text: window.SS.phrases.unassigned
         }]);
       }
-
     },
 
 
@@ -370,6 +369,27 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
       this.selection = new UserSuggestions();
       this.choices = new UserSuggestions();
+    },
+
+
+    restoreFromQuery: function(q) {
+      var param = _.findWhere(q, { key: this.model.get('property') }),
+          assigned = _.findWhere(q, { key: 'assigned' });
+
+      if (!!assigned) {
+        if (!param) {
+          param = { value: '<unassigned>' };
+        } else {
+          param.value += ',<unassigned>';
+        }
+      }
+
+      if (param && param.value) {
+        this.model.set('enabled', true);
+        this.restore(param.value, param);
+      } else {
+        this.clear();
+      }
     },
 
 
@@ -413,6 +433,17 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
+    clear: function() {
+      this.model.unset('value');
+      if (this.selection && this.choices) {
+        this.detailsView.resetChoices();
+        this.selection.reset([]);
+      }
+      this.renderBase();
+      this.detailsView.updateLists();
+    },
+
+
     formatValue: function() {
       var q = {};
       if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
@@ -420,7 +451,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         if (assignees.length > 0) {
           q[this.model.get('property')] = assignees.join(',');
         }
-        q.assigned = this.model.get('value').length <= assignees.length;
+        if (this.model.get('value').length > assignees.length) {
+          q.assigned = false;
+        }
       }
       return q;
     }
