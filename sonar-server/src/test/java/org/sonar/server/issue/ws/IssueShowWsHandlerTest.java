@@ -91,9 +91,17 @@ public class IssueShowWsHandlerTest {
   public void setUp() throws Exception {
     issues = new ArrayList<Issue>();
     result = new DefaultIssueQueryResult(issues);
+
     Component component = mock(Component.class);
-    when(component.key()).thenReturn("org.sonar.Sonar");
-    result.addProjects(newArrayList(component));
+    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
+    when(component.longName()).thenReturn("SonarQube :: Issue Client");
+    when(component.qualifier()).thenReturn("FIL");
+    result.addComponents(newArrayList(component));
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("org.sonar.Sonar");
+    when(project.longName()).thenReturn("SonarQube");
+    result.addProjects(newArrayList(project));
+
     result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 

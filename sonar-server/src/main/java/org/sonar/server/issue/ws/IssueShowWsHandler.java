@@ -93,7 +93,10 @@ public class IssueShowWsHandler implements RequestHandler {
     json
       .prop("key", issue.key())
       .prop("component", issue.componentKey())
+      .prop("componentLongName", result.component(issue).longName())
+      .prop("componentQualifier", result.component(issue).qualifier())
       .prop("project", result.project(issue).key())
+      .prop("projectLongName", result.project(issue).longName())
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
