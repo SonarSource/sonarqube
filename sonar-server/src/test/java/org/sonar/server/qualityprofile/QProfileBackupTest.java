@@ -39,7 +39,6 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -51,7 +50,12 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileBackupTest {
@@ -78,7 +82,7 @@ public class QProfileBackupTest {
   QProfileLookup qProfileLookup;
 
   @Mock
-  RuleRegistry ruleRegistry;
+  ESActiveRule esActiveRule;
 
   @Mock
   PreviewCache dryRunCache;
@@ -92,7 +96,7 @@ public class QProfileBackupTest {
     when(myBatis.openSession()).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
-    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, ruleRegistry, dryRunCache);
+    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, esActiveRule, dryRunCache);
   }
 
   @Test
@@ -120,7 +124,7 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).saveWithoutFlush(profile);
-    verify(ruleRegistry).bulkIndexProfile(anyInt(), eq(session));
+    verify(esActiveRule).bulkIndexProfile(anyInt(), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -134,7 +138,7 @@ public class QProfileBackupTest {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -155,7 +159,7 @@ public class QProfileBackupTest {
     }
 
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -176,8 +180,8 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).removeWithoutFlush(eq(existingProfile));
-    verify(ruleRegistry).deleteActiveRulesFromProfile(eq(1));
-    verify(ruleRegistry).bulkIndexProfile(anyInt(), eq(session));
+    verify(esActiveRule).deleteActiveRulesFromProfile(eq(1));
+    verify(esActiveRule).bulkIndexProfile(anyInt(), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -237,7 +241,7 @@ public class QProfileBackupTest {
     }
 
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -251,7 +255,7 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNull();
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -273,7 +277,7 @@ public class QProfileBackupTest {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Restore of the profile has failed.");
     }
 
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 }

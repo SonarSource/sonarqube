@@ -43,7 +43,6 @@ import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -53,11 +52,17 @@ import static org.elasticsearch.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileOperationsTest {
@@ -81,7 +86,7 @@ public class QProfileOperationsTest {
   PreviewCache dryRunCache;
 
   @Mock
-  RuleRegistry ruleRegistry;
+  ESActiveRule esActiveRule;
 
   @Mock
   QProfileLookup profileLookup;
@@ -121,7 +126,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, ruleRegistry, profileLookup, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, esActiveRule, profileLookup, profilesManager);
   }
 
   @Test
@@ -257,8 +262,8 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
+    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
+    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -277,8 +282,8 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
+    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
+    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -298,8 +303,8 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, null, "Nicolas");
-    verify(ruleRegistry).deleteActiveRules(anyListOf(Integer.class));
-    verify(ruleRegistry).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
+    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
+    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -361,7 +366,7 @@ public class QProfileOperationsTest {
     verify(activeRuleDao).deleteFromProfile(1, session);
     verify(qualityProfileDao).delete(1, session);
     verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "Default", session);
-    verify(ruleRegistry).deleteActiveRulesFromProfile(1);
+    verify(esActiveRule).deleteActiveRulesFromProfile(1);
     verify(dryRunCache).reportGlobalModification(session);
   }
 
@@ -381,7 +386,7 @@ public class QProfileOperationsTest {
     verifyZeroInteractions(activeRuleDao);
     verify(qualityProfileDao, never()).delete(anyInt(), eq(session));
     verifyZeroInteractions(propertiesDao);
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -393,7 +398,7 @@ public class QProfileOperationsTest {
 
     verify(profilesManager).copyProfile(1, "Copy Default");
     verify(session).commit();
-    verify(ruleRegistry).bulkIndexProfile(2, session);
+    verify(esActiveRule).bulkIndexProfile(2, session);
   }
 
   @Test
@@ -410,7 +415,7 @@ public class QProfileOperationsTest {
 
     verifyZeroInteractions(profilesManager);
     verify(session, never()).commit();
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -428,7 +433,7 @@ public class QProfileOperationsTest {
 
     verifyZeroInteractions(profilesManager);
     verify(session, never()).commit();
-    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(esActiveRule);
   }
 
 }

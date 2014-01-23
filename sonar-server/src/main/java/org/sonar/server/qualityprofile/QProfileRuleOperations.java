@@ -29,7 +29,6 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
@@ -37,7 +36,12 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
@@ -58,23 +62,25 @@ public class QProfileRuleOperations implements ServerComponent {
   private final RuleDao ruleDao;
   private final RuleTagDao ruleTagDao;
   private final RuleTagOperations ruleTagOperations;
+  private final ESActiveRule esActiveRule;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
   public QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations,
-    RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, ruleRegistry, System2.INSTANCE);
+    ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
+    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, RuleRegistry ruleRegistry,
-    System2 system) {
+  QProfileRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule,
+    RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
     this.ruleTagOperations = ruleTagOperations;
+    this.esActiveRule = esActiveRule;
     this.ruleRegistry = ruleRegistry;
     this.system = system;
   }
@@ -127,7 +133,7 @@ public class QProfileRuleOperations implements ServerComponent {
         .setParentId(templateRule.getId())
         .setName(name)
         .setDescription(description)
-        .setSeverity(getSeverityOrdinal(severity))
+        .setSeverity(severity)
         .setRepositoryKey(templateRule.getRepositoryKey())
         .setConfigKey(templateRule.getConfigKey())
         .setRuleKey(templateRule.getRuleKey() + "_" + system.now())
@@ -181,7 +187,7 @@ public class QProfileRuleOperations implements ServerComponent {
     try {
       rule.setName(name)
         .setDescription(description)
-        .setSeverity(getSeverityOrdinal(severity))
+        .setSeverity(severity)
         .setUpdatedAt(new Date(system.now()));
       ruleDao.update(rule, session);
 
@@ -217,7 +223,7 @@ public class QProfileRuleOperations implements ServerComponent {
       }
       activeRuleDao.deleteFromRule(rule.getId(), session);
       session.commit();
-      ruleRegistry.deleteActiveRules(newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
+      esActiveRule.deleteActiveRules(newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
         @Override
         public Integer apply(ActiveRuleDto input) {
           return input.getId();
@@ -311,9 +317,5 @@ public class QProfileRuleOperations implements ServerComponent {
       throw new BadRequestException("User login can't be null");
     }
     return login;
-  }
-
-  private static int getSeverityOrdinal(String severity) {
-    return Severity.ALL.indexOf(severity);
   }
 }

@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
@@ -48,7 +49,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileId(1)
       .setRuleId(10)
-      .setSeverity(2)
+      .setSeverity(Severity.MAJOR)
       .setInheritance("INHERITED");
 
     dao.insert(dto);
@@ -64,7 +65,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
       .setId(1)
       .setProfileId(1)
       .setRuleId(10)
-      .setSeverity(4)
+      .setSeverity(Severity.BLOCKER)
       .setInheritance(null)
       .setNoteData("text");
 
@@ -108,7 +109,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getProfileId()).isEqualTo(1);
     assertThat(result.getRulId()).isEqualTo(10);
-    assertThat(result.getSeverity()).isEqualTo(2);
+    assertThat(result.getSeverityString()).isEqualTo(Severity.MAJOR);
     assertThat(result.getInheritance()).isEqualTo("INHERITED");
     assertThat(result.getNoteData()).isEqualTo("some note");
     assertThat(result.getNoteUserLogin()).isEqualTo("henry");
@@ -135,7 +136,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getProfileId()).isEqualTo(1);
     assertThat(result.getRulId()).isEqualTo(10);
-    assertThat(result.getSeverity()).isEqualTo(2);
+    assertThat(result.getSeverityString()).isEqualTo(Severity.MAJOR);
     assertThat(result.getInheritance()).isEqualTo("INHERITED");
     assertThat(result.getNoteData()).isEqualTo("some note");
     assertThat(result.getNoteUserLogin()).isEqualTo("henry");

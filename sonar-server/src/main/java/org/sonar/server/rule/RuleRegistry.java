@@ -20,27 +20,20 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
 
@@ -61,53 +54,24 @@ public class RuleRegistry {
 
   public static final String INDEX_RULES = "rules";
   public static final String TYPE_RULE = "rule";
-  public static final String TYPE_ACTIVE_RULE = "active_rule";
-
   private static final String PARAM_NAMEORKEY = "nameOrKey";
   private static final String PARAM_STATUS = "status";
 
   private final ESIndex searchIndex;
   private final RuleDao ruleDao;
-  private final ActiveRuleDao activeRuleDao;
-  private final MyBatis myBatis;
 
-  public RuleRegistry(ESIndex searchIndex, RuleDao ruleDao, ActiveRuleDao activeRuleDao, MyBatis myBatis) {
+  public RuleRegistry(ESIndex searchIndex, RuleDao ruleDao) {
     this.searchIndex = searchIndex;
     this.ruleDao = ruleDao;
-    this.activeRuleDao = activeRuleDao;
-    this.myBatis = myBatis;
   }
 
   public void start() {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
-    searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_ACTIVE_RULE, "/org/sonar/server/es/config/mappings/active_rule_mapping.json");
   }
 
   public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     String[] ids = bulkIndexRules(rules, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
-  }
-
-  public void bulkRegisterActiveRules() {
-    SqlSession session = myBatis.openSession();
-    try {
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Rebuilding active rules index - query");
-
-      List<ActiveRuleDto> activeRules = activeRuleDao.selectAll(session);
-      List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectAllParams(session);
-      profiler.stop();
-
-      Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-      for (ActiveRuleParamDto param : activeRuleParams) {
-        paramsByActiveRule.put(param.getActiveRuleId(), param);
-      }
-
-      String[] ids = bulkIndexActiveRules(activeRules, paramsByActiveRule);
-      removeDeletedActiveRules(ids);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   /**
@@ -170,14 +134,6 @@ public class RuleRegistry {
     }
   }
 
-  public void save(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) {
-    try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_ACTIVE_RULE, Long.toString(activeRule.getId()), activeRuleDocument(activeRule, params), Long.toString(activeRule.getRulId()));
-    } catch (IOException ioexception) {
-      throw new IllegalStateException("Unable to index active rule with id=" + activeRule.getId(), ioexception);
-    }
-  }
-
   private String[] bulkIndexRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     try {
       String[] ids = new String[rules.size()];
@@ -214,96 +170,6 @@ public class RuleRegistry {
     }
   }
 
-  public void deleteActiveRules(List<Integer> activeRuleIds) {
-    List<String> indexIds = newArrayList();
-    for (Integer ruleId : activeRuleIds) {
-      indexIds.add(ruleId.toString());
-    }
-    bulkDeleteActiveRules(indexIds);
-  }
-
-  protected void bulkDeleteActiveRules(List<String> indexIds) {
-    if (!indexIds.isEmpty()) {
-      searchIndex.bulkDelete(INDEX_RULES, TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
-    }
-  }
-
-  public void deleteActiveRulesFromProfile(int profileId) {
-    searchIndex.client().prepareDeleteByQuery(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, profileId)))
-      .execute().actionGet();
-  }
-
-  public String[] bulkIndexActiveRules(List<ActiveRuleDto> activeRules, Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule) {
-    try {
-      int size = activeRules.size();
-      String[] ids = new String[size];
-      BytesStream[] docs = new BytesStream[size];
-      String[] parentIds = new String[size];
-      int index = 0;
-
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Build active rules documents");
-      for (ActiveRuleDto activeRule : activeRules) {
-        ids[index] = activeRule.getId().toString();
-        docs[index] = activeRuleDocument(activeRule, paramsByActiveRule.get(activeRule.getId()));
-        parentIds[index] = activeRule.getRulId().toString();
-        index++;
-      }
-      profiler.stop();
-
-      if (!activeRules.isEmpty()) {
-        profiler.start("Index active rules");
-        searchIndex.bulkIndex(INDEX_RULES, TYPE_ACTIVE_RULE, ids, docs, parentIds);
-        profiler.stop();
-      }
-      return ids;
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to index active rules", e);
-    }
-  }
-
-  public void bulkIndexProfile(int profileId, SqlSession session) {
-    bulkIndexActiveRules(activeRuleDao.selectByProfileId(profileId, session), session);
-  }
-
-  public void bulkIndexActiveRuleIds(List<Integer> activeRulesIds, SqlSession session) {
-    bulkIndexActiveRules(activeRuleDao.selectByIds(activeRulesIds, session), session);
-  }
-
-  private void bulkIndexActiveRules(List<ActiveRuleDto> activeRules, SqlSession session) {
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    List<Integer> activeRulesIdList = newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
-      @Override
-      public Integer apply(ActiveRuleDto input) {
-        return input.getId();
-      }
-    }));
-    for (ActiveRuleParamDto param : activeRuleDao.selectParamsByActiveRuleIds(activeRulesIdList, session)) {
-      paramsByActiveRule.put(param.getActiveRuleId(), param);
-    }
-    bulkIndexActiveRules(activeRules, paramsByActiveRule);
-  }
-
-  public void bulkIndexActiveRules(List<Integer> ids) {
-    SqlSession session = myBatis.openSession();
-    try {
-      bulkIndexActiveRuleIds(ids, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void removeDeletedActiveRules(String[] ids) {
-    TimeProfiler profiler = new TimeProfiler();
-    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_ACTIVE_RULE));
-    indexIds.removeAll(newArrayList(ids));
-    profiler.start("Remove deleted active rule documents");
-    bulkDeleteActiveRules(indexIds);
-    profiler.stop();
-  }
-
   private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
@@ -314,7 +180,7 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
       .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId() == null ? null : rule.getParentId())
       .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
-      .field(RuleDocument.FIELD_SEVERITY, getSeverityFromOrdinal(rule.getSeverity()))
+      .field(RuleDocument.FIELD_SEVERITY, rule.getSeverityString())
       .field(RuleDocument.FIELD_STATUS, rule.getStatus())
       .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
@@ -359,39 +225,4 @@ public class RuleRegistry {
     document.endObject();
     return document;
   }
-
-  private XContentBuilder activeRuleDocument(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) throws IOException {
-    XContentBuilder document = XContentFactory.jsonBuilder()
-      .startObject()
-      .field(ActiveRuleDocument.FIELD_ID, activeRule.getId())
-      .field(ActiveRuleDocument.FIELD_ACTIVE_RULE_PARENT_ID, activeRule.getParentId())
-      .field(ActiveRuleDocument.FIELD_SEVERITY, getSeverityFromOrdinal(activeRule.getSeverity()))
-      .field(ActiveRuleDocument.FIELD_PROFILE_ID, activeRule.getProfileId())
-      .field(ActiveRuleDocument.FIELD_INHERITANCE, activeRule.getInheritance());
-    if (activeRule.getNoteData() != null || activeRule.getNoteUserLogin() != null) {
-      document.startObject(RuleDocument.FIELD_NOTE)
-        .field(ActiveRuleDocument.FIELD_NOTE_DATA, activeRule.getNoteData())
-        .field(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN, activeRule.getNoteUserLogin())
-        .field(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, activeRule.getNoteCreatedAt())
-        .field(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, activeRule.getNoteUpdatedAt())
-        .endObject();
-    }
-    if (!params.isEmpty()) {
-      document.startArray(ActiveRuleDocument.FIELD_PARAMS);
-      for (ActiveRuleParamDto param : params) {
-        document.startObject()
-          .field(ActiveRuleDocument.FIELD_PARAM_KEY, param.getKey())
-          .field(ActiveRuleDocument.FIELD_PARAM_VALUE, param.getValue())
-          .endObject();
-      }
-      document.endArray();
-    }
-    document.endObject();
-    return document;
-  }
-
-  private static String getSeverityFromOrdinal(int ordinal) {
-    return Severity.ALL.get(ordinal);
-  }
-
 }

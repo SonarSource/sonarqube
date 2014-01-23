@@ -113,10 +113,20 @@ public final class RuleDto {
     return severity;
   }
 
+  public String getSeverityString() {
+    return SeverityUtil.getSeverityFromOrdinal(severity);
+  }
+
+  public RuleDto setSeverity(String severity) {
+    this.severity = SeverityUtil.getOrdinalFromSeverity(severity);
+    return this;
+  }
+
   public RuleDto setSeverity(Integer severity) {
     this.severity = severity;
     return this;
   }
+
 
   public Cardinality getCardinality() {
     return cardinality;
@@ -231,7 +241,7 @@ public final class RuleDto {
       .append("key", ruleKey)
       .append("configKey", configKey)
       .append("plugin", repositoryKey)
-      .append("severity", getSeverity())
+      .append("severity", getSeverityString())
       .append("cardinality", cardinality)
       .append("status", status)
       .append("language", language)

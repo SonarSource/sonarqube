@@ -19,10 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.server.rule.ProfileRuleQuery;
-import org.sonar.server.rule.RuleRegistry;
-
-import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
@@ -35,8 +31,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.qualityprofile.Paging;
-import org.sonar.server.qualityprofile.QProfileRule;
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.test.TestUtils;
 
 import java.util.List;
@@ -65,8 +61,10 @@ public class QProfileRuleLookupTest {
     settings.setProperty("sonar.log.profilingLevel", "FULL");
     ESIndex index = new ESIndex(searchNode, new Profiling(settings));
     index.start();
-    RuleRegistry registry = new RuleRegistry(index, null, null, null);
+    RuleRegistry registry = new RuleRegistry(index, null);
     registry.start();
+    ESActiveRule esActiveRule = new ESActiveRule(index, null, null);
+    esActiveRule.start();
     profileRules = new QProfileRuleLookup(index);
 
     esSetup.client().prepareBulk()

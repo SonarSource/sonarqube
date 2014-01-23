@@ -50,18 +50,18 @@ public class QProfileBackup implements ServerComponent {
 
   private final MyBatis myBatis;
   private final QProfileLookup qProfileLookup;
-  private final RuleRegistry ruleRegistry;
+  private final ESActiveRule esActiveRule;
   private final PreviewCache dryRunCache;
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, RuleRegistry ruleRegistry, PreviewCache dryRunCache) {
+                        QProfileLookup qProfileLookup, ESActiveRule esActiveRule, PreviewCache dryRunCache) {
 
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
     this.myBatis = myBatis;
     this.qProfileLookup = qProfileLookup;
-    this.ruleRegistry = ruleRegistry;
+    this.esActiveRule = esActiveRule;
     this.dryRunCache = dryRunCache;
   }
 
@@ -96,7 +96,7 @@ public class QProfileBackup implements ServerComponent {
         if (newProfile == null) {
           throw new BadRequestException("Restore of the profile has failed.");
         }
-        ruleRegistry.bulkIndexProfile(newProfile.id(), session);
+        esActiveRule.bulkIndexProfile(newProfile.id(), session);
         dryRunCache.reportGlobalModification(session);
         session.commit();
         result.setProfile(newProfile);
@@ -116,7 +116,7 @@ public class QProfileBackup implements ServerComponent {
       // Warning, profile with children can be deleted as no check is done!
       hibernateSession.removeWithoutFlush(existingProfile);
       hibernateSession.commit();
-      ruleRegistry.deleteActiveRulesFromProfile(existingProfile.getId());
+      esActiveRule.deleteActiveRulesFromProfile(existingProfile.getId());
     }
   }
 

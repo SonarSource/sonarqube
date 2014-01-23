@@ -33,7 +33,6 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -52,19 +51,19 @@ public class QProfileOperations implements ServerComponent {
   private final PropertiesDao propertiesDao;
   private final QProfilePluginExporter exporter;
   private final PreviewCache dryRunCache;
-  private final RuleRegistry ruleRegistry;
+  private final ESActiveRule esActiveRule;
   private final QProfileLookup profileLookup;
   private final ProfilesManager profilesManager;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            QProfilePluginExporter exporter, PreviewCache dryRunCache, RuleRegistry ruleRegistry, QProfileLookup profileLookup, ProfilesManager profilesManager) {
+                            QProfilePluginExporter exporter, PreviewCache dryRunCache, ESActiveRule esActiveRule, QProfileLookup profileLookup, ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
     this.propertiesDao = propertiesDao;
     this.exporter = exporter;
     this.dryRunCache = dryRunCache;
-    this.ruleRegistry = ruleRegistry;
+    this.esActiveRule = esActiveRule;
     this.profileLookup = profileLookup;
     this.profilesManager = profilesManager;
   }
@@ -149,7 +148,7 @@ public class QProfileOperations implements ServerComponent {
       activeRuleDao.deleteFromProfile(profile.getId(), session);
       dao.delete(profile.getId(), session);
       propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
-      ruleRegistry.deleteActiveRulesFromProfile(profile.getId());
+      esActiveRule.deleteActiveRulesFromProfile(profile.getId());
       dryRunCache.reportGlobalModification(session);
     }
   }
@@ -185,8 +184,8 @@ public class QProfileOperations implements ServerComponent {
       dao.update(profile, session);
       session.commit();
 
-      ruleRegistry.deleteActiveRules(actions.idsToDelete());
-      ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
+      esActiveRule.deleteActiveRules(actions.idsToDelete());
+      esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -200,7 +199,7 @@ public class QProfileOperations implements ServerComponent {
       checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
       int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
       session.commit();
-      ruleRegistry.bulkIndexProfile(copyProfileId, session);
+      esActiveRule.bulkIndexProfile(copyProfileId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

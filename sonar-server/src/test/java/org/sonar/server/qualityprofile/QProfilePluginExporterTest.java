@@ -34,6 +34,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -43,7 +44,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.RuleRegistry;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -55,7 +55,11 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilePluginExporterTest {
@@ -73,7 +77,7 @@ public class QProfilePluginExporterTest {
   ActiveRuleDao activeRuleDao;
 
   @Mock
-  RuleRegistry ruleRegistry;
+  ESActiveRule esActiveRule;
 
   List<ProfileImporter> importers = newArrayList();
   List<ProfileExporter> exporters = newArrayList();
@@ -96,7 +100,7 @@ public class QProfilePluginExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfilePluginExporter(sessionFactory, activeRuleDao, ruleRegistry, importers, exporters);
+    operations = new QProfilePluginExporter(sessionFactory, activeRuleDao, esActiveRule, importers, exporters);
   }
 
   @Test
@@ -120,14 +124,14 @@ public class QProfilePluginExporterTest {
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
     assertThat(activeRuleArgument.getValue().getRulId()).isEqualTo(10);
-    assertThat(activeRuleArgument.getValue().getSeverity()).isEqualTo(4);
+    assertThat(activeRuleArgument.getValue().getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     ArgumentCaptor<ActiveRuleParamDto> activeRuleParamArgument = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
     verify(activeRuleDao).insert(activeRuleParamArgument.capture(), eq(session));
     assertThat(activeRuleParamArgument.getValue().getKey()).isEqualTo("max");
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
 
-    verify(ruleRegistry).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
+    verify(esActiveRule).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
   }
 
   @Test

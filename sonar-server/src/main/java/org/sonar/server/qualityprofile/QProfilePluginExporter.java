@@ -41,7 +41,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -55,22 +54,22 @@ public class QProfilePluginExporter implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
   private final ActiveRuleDao activeRuleDao;
-  private final RuleRegistry ruleRegistry;
+  private final ESActiveRule ruleRegistry;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
 
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry) {
-    this(sessionFactory, activeRuleDao, ruleRegistry, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
+  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule) {
+    this(sessionFactory, activeRuleDao, esActiveRule, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
   }
 
-  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, RuleRegistry ruleRegistry,
+  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule,
                                 List<ProfileImporter> importers, List<ProfileExporter> exporters) {
     this.sessionFactory = sessionFactory;
     this.activeRuleDao = activeRuleDao;
-    this.ruleRegistry = ruleRegistry;
+    this.ruleRegistry = esActiveRule;
     this.importers = importers;
     this.exporters = exporters;
   }
@@ -136,8 +135,8 @@ public class QProfilePluginExporter implements ServerComponent {
       .setSeverity(toSeverityLevel(activeRule.getSeverity()));
   }
 
-  private Integer toSeverityLevel(RulePriority rulePriority) {
-    return rulePriority.ordinal();
+  private String toSeverityLevel(RulePriority rulePriority) {
+    return rulePriority.name();
   }
 
   private ActiveRuleParamDto toActiveRuleParamDto(ActiveRuleParam activeRuleParam, ActiveRuleDto activeRuleDto) {

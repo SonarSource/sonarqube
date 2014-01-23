@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
@@ -110,7 +111,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDescription("new description")
       .setStatus(Rule.STATUS_DEPRECATED)
       .setConfigKey("NewConfigKey")
-      .setSeverity(0)
+      .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.MULTIPLE)
       .setLanguage("dart")
       .setParentId(3)
@@ -135,7 +136,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription = "new description";
     String newStatus = Rule.STATUS_DEPRECATED;
     String newConfigKey = "NewConfigKey";
-    Integer newSeverity = 0;
+    String newSeverity = Severity.INFO;
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date updatedAt = new Date();
@@ -147,7 +148,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     ruleToInsert.setDescription(newDescription);
     ruleToInsert.setStatus(newStatus);
     ruleToInsert.setConfigKey(newConfigKey);
-    ruleToInsert.setSeverity(0);
+    ruleToInsert.setSeverity(Severity.INFO);
     ruleToInsert.setCardinality(newCardinality);
     ruleToInsert.setLanguage(newLanguage);
     ruleToInsert.setUpdatedAt(updatedAt);
@@ -165,7 +166,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(insertedRule.getDescription()).isEqualTo(newDescription);
     assertThat(insertedRule.getStatus()).isEqualTo(newStatus);
     assertThat(insertedRule.getConfigKey()).isEqualTo(newConfigKey);
-    assertThat(insertedRule.getSeverity()).isEqualTo(newSeverity);
+    assertThat(insertedRule.getSeverityString()).isEqualTo(newSeverity);
     assertThat(insertedRule.getCardinality()).isEqualTo(newCardinality);
     assertThat(insertedRule.getLanguage()).isEqualTo(newLanguage);
     assertThat(insertedRule.getParentId()).isEqualTo(newParentId);
@@ -181,7 +182,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription = "new description1";
     String newStatus = Rule.STATUS_DEPRECATED;
     String newConfigKey = "NewConfigKey1";
-    Integer newSeverity = 0;
+    String newSeverity = Severity.INFO;
     Cardinality newCardinality = Cardinality.MULTIPLE;
     String newLanguage = "dart";
     Date createdAt = new Date();
@@ -206,7 +207,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     String newDescription1 = "new description2";
     String newStatus1 = Rule.STATUS_DEPRECATED;
     String newConfigKey1 = "NewConfigKey2";
-    Integer newSeverity1 = 0;
+    String newSeverity1 = Severity.INFO;
     Cardinality newCardinality1 = Cardinality.MULTIPLE;
     String newLanguage1 = "dart";
     Date createdAt1 = new Date();

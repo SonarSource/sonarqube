@@ -20,6 +20,8 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.sonar.core.rule.SeverityUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
@@ -78,8 +80,17 @@ public class ActiveRuleDto {
     return severity;
   }
 
+  public String getSeverityString() {
+    return SeverityUtil.getSeverityFromOrdinal(severity);
+  }
+
   public ActiveRuleDto setSeverity(Integer severity) {
     this.severity = severity;
+    return this;
+  }
+
+  public ActiveRuleDto setSeverity(String severity) {
+    this.severity = SeverityUtil.getOrdinalFromSeverity(severity);
     return this;
   }
 

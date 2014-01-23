@@ -40,7 +40,12 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleRegistry;
@@ -58,7 +63,14 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileRuleOperationsTest {
@@ -80,6 +92,9 @@ public class QProfileRuleOperationsTest {
 
   @Mock
   RuleTagOperations ruleTagOperations;
+
+  @Mock
+  ESActiveRule esActiveRule;
 
   @Mock
   RuleRegistry ruleRegistry;
@@ -108,7 +123,7 @@ public class QProfileRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, ruleRegistry, system);
+    operations = new QProfileRuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, system);
   }
 
   @Test
@@ -217,7 +232,7 @@ public class QProfileRuleOperationsTest {
     assertThat(ruleArgument.getValue().getParentId()).isEqualTo(10);
     assertThat(ruleArgument.getValue().getName()).isEqualTo("My New Rule");
     assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Rule Description");
-    assertThat(ruleArgument.getValue().getSeverity()).isEqualTo(4);
+    assertThat(ruleArgument.getValue().getSeverityString()).isEqualTo(Severity.BLOCKER);
     assertThat(ruleArgument.getValue().getConfigKey()).isEqualTo("Xpath");
     assertThat(ruleArgument.getValue().getRepositoryKey()).isEqualTo("squid");
     assertThat(ruleArgument.getValue().getRuleKey()).startsWith("AvoidCycle");
@@ -252,7 +267,7 @@ public class QProfileRuleOperationsTest {
     verify(ruleDao).update(ruleArgument.capture(), eq(session));
     assertThat(ruleArgument.getValue().getName()).isEqualTo("Updated Rule");
     assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Updated Description");
-    assertThat(ruleArgument.getValue().getSeverity()).isEqualTo(2);
+    assertThat(ruleArgument.getValue().getSeverityString()).isEqualTo(Severity.MAJOR);
 
     ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
     verify(ruleDao).update(ruleParamArgument.capture(), eq(session));
@@ -272,7 +287,7 @@ public class QProfileRuleOperationsTest {
     when(ruleDao.selectTags(eq(ruleId), eq(session))).thenReturn(ruleTags);
 
     final int activeRuleId = 5;
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(1);
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(Severity.MINOR);
     when(activeRuleDao.selectByRuleId(ruleId)).thenReturn(newArrayList(activeRule));
 
     long now = System.currentTimeMillis();
@@ -289,7 +304,7 @@ public class QProfileRuleOperationsTest {
     verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
     verify(activeRuleDao).deleteFromRule(eq(ruleId), eq(session));
     verify(session, times(2)).commit();
-    verify(ruleRegistry).deleteActiveRules(newArrayList(activeRuleId));
+    verify(esActiveRule).deleteActiveRules(newArrayList(activeRuleId));
   }
 
   @Test(expected = ForbiddenException.class)

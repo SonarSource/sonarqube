@@ -19,10 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.server.rule.ActiveRuleDocument;
-import org.sonar.server.rule.ProfileRuleQuery;
-import org.sonar.server.rule.RuleDocument;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +35,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
 import org.sonar.server.es.ESIndex;
+import org.sonar.server.rule.ActiveRuleDocument;
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;
 
@@ -47,10 +46,14 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
+import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
-import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
 public class QProfileRuleLookup implements ServerExtension {
@@ -68,7 +71,7 @@ public class QProfileRuleLookup implements ServerExtension {
 
   @CheckForNull
   public QProfileRule findByActiveRuleId(int activeRuleId) {
-    GetResponse activeRuleResponse = index.client().prepareGet(INDEX_RULES, TYPE_ACTIVE_RULE, Integer.toString(activeRuleId))
+    GetResponse activeRuleResponse = index.client().prepareGet(INDEX_RULES, ESActiveRule.TYPE_ACTIVE_RULE, Integer.toString(activeRuleId))
       .setFields(FIELD_SOURCE, FIELD_PARENT)
       .execute().actionGet();
     Map<String, Object> activeRuleSource = activeRuleResponse.getSourceAsMap();
@@ -111,7 +114,7 @@ public class QProfileRuleLookup implements ServerExtension {
   }
 
   public QProfileRuleResult search(ProfileRuleQuery query, Paging paging) {
-    SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(TYPE_ACTIVE_RULE, activeRuleFilter(query))));
+    SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(ESActiveRule.TYPE_ACTIVE_RULE, activeRuleFilter(query))));
     List<Integer> ruleIds = Lists.newArrayList();
     for (SearchHit ruleHit : ruleHits) {
       ruleIds.add(Integer.valueOf(ruleHit.id()));
@@ -144,7 +147,7 @@ public class QProfileRuleLookup implements ServerExtension {
       @Override
       public int search(int currentPage) {
         Paging paging = Paging.create(pageSize, currentPage);
-        SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(TYPE_ACTIVE_RULE, activeRuleFilter(query))));
+        SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(ESActiveRule.TYPE_ACTIVE_RULE, activeRuleFilter(query))));
         List<Integer> ruleIds = Lists.newArrayList();
         for (SearchHit ruleHit : ruleHits) {
           ruleIds.add(Integer.valueOf(ruleHit.id()));
@@ -166,7 +169,7 @@ public class QProfileRuleLookup implements ServerExtension {
     return index.executeCount(
       index.client()
         .prepareCount(INDEX_RULES)
-        .setTypes(TYPE_ACTIVE_RULE)
+        .setTypes(ESActiveRule.TYPE_ACTIVE_RULE)
         .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
           activeRuleFilter(query).must(hasParentFilter(TYPE_RULE, ruleFilterForActiveRuleSearch(query)))))
     );
@@ -218,7 +221,7 @@ public class QProfileRuleLookup implements ServerExtension {
   }
 
   private SearchHits searchActiveRules(ProfileRuleQuery query, List<Integer> ruleIds, String... fields) {
-    SearchRequestBuilder activeRuleBuilder = index.client().prepareSearch(INDEX_RULES).setTypes(TYPE_ACTIVE_RULE)
+    SearchRequestBuilder activeRuleBuilder = index.client().prepareSearch(INDEX_RULES).setTypes(ESActiveRule.TYPE_ACTIVE_RULE)
       .setPostFilter(boolFilter()
         .must(
           termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId()),
@@ -275,7 +278,7 @@ public class QProfileRuleLookup implements ServerExtension {
 
   private BoolFilterBuilder ruleFilterForInactiveRuleSearch(ProfileRuleQuery query) {
     BoolFilterBuilder filter = ruleFilterForActiveRuleSearch(query)
-      .mustNot(hasChildFilter(TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
+      .mustNot(hasChildFilter(ESActiveRule.TYPE_ACTIVE_RULE, termFilter(ActiveRuleDocument.FIELD_PROFILE_ID, query.profileId())));
     addMustTermOrTerms(filter, RuleDocument.FIELD_SEVERITY, query.severities());
 
     for (String tag: query.tags()) {

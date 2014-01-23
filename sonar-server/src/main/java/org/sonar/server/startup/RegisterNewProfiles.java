@@ -30,7 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
@@ -38,10 +42,14 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.rule.RuleRegistration;
-import org.sonar.server.rule.RuleRegistry;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RegisterNewProfiles {
 
@@ -51,7 +59,7 @@ public class RegisterNewProfiles {
   private final List<ProfileDefinition> definitions;
   private final LoadedTemplateDao loadedTemplateDao;
   private final RuleFinder ruleFinder;
-  private final RuleRegistry ruleRegistry;
+  private final ESActiveRule esActiveRule;
   private final DatabaseSessionFactory sessionFactory;
   private final PersistentSettings settings;
   private DatabaseSession session = null;
@@ -59,13 +67,13 @@ public class RegisterNewProfiles {
   public RegisterNewProfiles(List<ProfileDefinition> definitions,
                              PersistentSettings settings,
                              RuleFinder ruleFinder,
-                             RuleRegistry ruleRegistry,
+                             ESActiveRule esActiveRule,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
                              RuleRegistration registerRulesBefore) {
     this.settings = settings;
     this.ruleFinder = ruleFinder;
-    this.ruleRegistry = ruleRegistry;
+    this.esActiveRule = esActiveRule;
     this.definitions = definitions;
     this.loadedTemplateDao = loadedTemplateDao;
     this.sessionFactory = sessionFactory;
@@ -73,11 +81,11 @@ public class RegisterNewProfiles {
 
   public RegisterNewProfiles(PersistentSettings settings,
                              RuleFinder ruleFinder,
-                             RuleRegistry ruleRegistry,
+                             ESActiveRule esActiveRule,
                              LoadedTemplateDao loadedTemplateDao,
                              DatabaseSessionFactory sessionFactory,
                              RuleRegistration registerRulesBefore) {
-    this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, ruleRegistry, loadedTemplateDao, sessionFactory, registerRulesBefore);
+    this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, esActiveRule, loadedTemplateDao, sessionFactory, registerRulesBefore);
   }
 
   public void start() {
@@ -100,7 +108,7 @@ public class RegisterNewProfiles {
     session.commit();
     profiler.stop();
 
-    ruleRegistry.bulkRegisterActiveRules();
+    esActiveRule.bulkRegisterActiveRules();
   }
 
   private void setDefault(String language, List<RulesProfile> profiles) {

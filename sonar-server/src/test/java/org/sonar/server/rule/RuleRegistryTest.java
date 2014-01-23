@@ -27,10 +27,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,24 +36,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.test.TestUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -70,9 +66,6 @@ public class RuleRegistryTest {
 
   @Mock
   RuleDao ruleDao;
-
-  @Mock
-  ActiveRuleDao activeRuleDao;
 
   @Mock
   MyBatis myBatis;
@@ -98,7 +91,7 @@ public class RuleRegistryTest {
     searchIndex = new ESIndex(node, profiling);
     searchIndex.start();
 
-    registry = new RuleRegistry(searchIndex, ruleDao, activeRuleDao, myBatis);
+    registry = new RuleRegistry(searchIndex, ruleDao);
     registry.start();
 
     esSetup.execute(
@@ -117,7 +110,7 @@ public class RuleRegistryTest {
   @Test
   public void should_register_mapping_at_startup() {
     assertThat(esSetup.exists("rules")).isTrue();
-    assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule", "active_rule").execute().actionGet().isExists()).isTrue();
+    assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule").execute().actionGet().isExists()).isTrue();
   }
 
   @Test
@@ -179,7 +172,7 @@ public class RuleRegistryTest {
     rule1.setRepositoryKey("repo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
-    rule1.setSeverity(1);
+    rule1.setSeverity(Severity.MINOR);
     rule1.setNoteData("noteData");
     rule1.setNoteUserLogin("userLogin");
     int ruleId2 = 4;
@@ -187,7 +180,7 @@ public class RuleRegistryTest {
     rule2.setRepositoryKey("repo");
     rule2.setRuleKey("key2");
     rule2.setId(ruleId2);
-    rule2.setSeverity(2);
+    rule2.setSeverity(Severity.MAJOR);
     rule2.setParentId(ruleId1);
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
@@ -228,7 +221,7 @@ public class RuleRegistryTest {
     RuleDto rule = new RuleDto();
     rule.setRepositoryKey("repo");
     rule.setRuleKey("key");
-    rule.setSeverity(1);
+    rule.setSeverity(Severity.MINOR);
     int id = 3;
     rule.setId(id);
     when(ruleDao.selectById(id)).thenReturn(rule);
@@ -246,14 +239,14 @@ public class RuleRegistryTest {
     rule1.setRepositoryKey("xoo");
     rule1.setRuleKey("key1");
     rule1.setId(ruleId1);
-    rule1.setSeverity(1);
+    rule1.setSeverity(Severity.MINOR);
     int ruleId2 = 2;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("xoo");
     rule2.setRuleKey("key2");
     rule2.setId(ruleId2);
     rule2.setParentId(ruleId1);
-    rule2.setSeverity(1);
+    rule2.setSeverity(Severity.MINOR);
     List<RuleDto> rules = ImmutableList.of(rule1, rule2);
 
     assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
@@ -266,92 +259,6 @@ public class RuleRegistryTest {
       .hasSize(2)
       .containsOnly(ruleId1, ruleId2);
     assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
-  }
-
-  @Test
-  public void bulk_index_active_rules() throws IOException {
-    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2).setParentId(5));
-    Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
-    paramsByActiveRule.putAll(1, newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
-
-    registry.bulkIndexActiveRules(activeRules, paramsByActiveRule);
-    assertThat(esSetup.exists("rules", "active_rule", "1"));
-
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasChildFilter("active_rule", termFilter("profileId", 10))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(parentHit).hasSize(1);
-    assertThat(parentHit[0].getId()).isEqualTo("1");
-
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(childHit).hasSize(1);
-    assertThat(childHit[0].getId()).isEqualTo("1");
-  }
-
-  @Test
-  public void bulk_index_active_rules_from_ids() throws IOException {
-    when(myBatis.openSession()).thenReturn(session);
-
-    List<Integer> ids = newArrayList(1);
-    when(activeRuleDao.selectByIds(ids, session)).thenReturn(
-      newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2).setParentId(5)));
-    when(activeRuleDao.selectParamsByActiveRuleIds(ids, session)).thenReturn(
-      newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters")));
-
-    registry.bulkIndexActiveRules(ids);
-    assertThat(esSetup.exists("rules", "active_rule", "1"));
-
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasChildFilter("active_rule", termFilter("profileId", 10))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(parentHit).hasSize(1);
-    assertThat(parentHit[0].getId()).isEqualTo("1");
-
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(childHit).hasSize(1);
-    assertThat(childHit[0].getId()).isEqualTo("1");
-  }
-
-  @Test
-  public void save_active_rule() throws IOException {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(2);
-    ArrayList<ActiveRuleParamDto> params = newArrayList(new ActiveRuleParamDto().setId(1).setActiveRuleId(1).setRulesParameterId(1).setKey("key").setValue("RuleWithParameters"));
-
-    registry.save(activeRule, params);
-    assertThat(esSetup.exists("rules", "active_rule", "1"));
-
-    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasChildFilter("active_rule", termFilter("profileId", 10))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(parentHit).hasSize(1);
-    assertThat(parentHit[0].getId()).isEqualTo("1");
-
-    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
-      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
-    ).execute().actionGet().getHits().getHits();
-    assertThat(childHit).hasSize(1);
-    assertThat(childHit[0].getId()).isEqualTo("1");
-  }
-
-  @Test
-  public void delete_active_rules_from_profile() throws Exception {
-    esSetup.client().prepareBulk()
-      // On profile 1
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1").source(testFileAsString("delete_from_profile/active_rule25.json")))
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("3").source(testFileAsString("delete_from_profile/active_rule2702.json")))
-        // On profile 2
-      .add(Requests.indexRequest().index("rules").type("active_rule").parent("2").source(testFileAsString("delete_from_profile/active_rule523.json")))
-      .setRefresh(true)
-      .execute().actionGet();
-
-    registry.deleteActiveRulesFromProfile(1);
-    assertThat(!esSetup.exists("rules", "active_rule", "25"));
-    assertThat(!esSetup.exists("rules", "active_rule", "2702"));
-    assertThat(esSetup.exists("rules", "active_rule", "523"));
   }
 
   private String testFileAsString(String testFile) throws Exception {

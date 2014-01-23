@@ -33,18 +33,22 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -56,25 +60,25 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
   private final QualityProfileDao profileDao;
-  private final RuleRegistry ruleRegistry;
+  private final ESActiveRule esActiveRule;
   private final ProfilesManager profilesManager;
 
   private final System2 system;
   private final TypeValidations typeValidations;
 
-  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
+  public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, ESActiveRule esActiveRule,
                                       ProfilesManager profilesManager, TypeValidations typeValidations) {
-    this(myBatis, activeRuleDao, ruleDao, profileDao, ruleRegistry, profilesManager, typeValidations, System2.INSTANCE);
+    this(myBatis, activeRuleDao, ruleDao, profileDao, esActiveRule, profilesManager, typeValidations, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, RuleRegistry ruleRegistry,
+  QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, ESActiveRule esActiveRule,
                                ProfilesManager profilesManager, TypeValidations typeValidations, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
-    this.ruleRegistry = ruleRegistry;
+    this.esActiveRule = esActiveRule;
     this.profilesManager = profilesManager;
     this.typeValidations = typeValidations;
     this.system = system;
@@ -103,7 +107,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     ActiveRuleDto activeRule = new ActiveRuleDto()
       .setProfileId(profileId)
       .setRuleId(ruleId)
-      .setSeverity(getSeverityOrdinal(severity));
+      .setSeverity(severity);
     activeRuleDao.insert(activeRule, session);
 
     List<RuleParamDto> ruleParams = ruleDao.selectParameters(ruleId, session);
@@ -124,12 +128,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, SqlSession session) {
-    Integer oldSeverity = activeRule.getSeverity();
-    activeRule.setSeverity(getSeverityOrdinal(newSeverity));
+    String oldSeverity = activeRule.getSeverityString();
+    activeRule.setSeverity(newSeverity);
     activeRuleDao.update(activeRule, session);
     session.commit();
 
-    notifySeverityChanged(activeRule, newSeverity, getSeverityFromOrdinal(oldSeverity), session, userSession);
+    notifySeverityChanged(activeRule, newSeverity, oldSeverity, session, userSession);
   }
 
   public void activateRules(int profileId, List<Integer> ruleIdsToActivate, UserSession userSession) {
@@ -139,7 +143,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     try {
       for (Integer ruleId : ruleIdsToActivate) {
         RuleDto rule = findRuleNotNull(ruleId, session);
-        createActiveRule(profileId, ruleId, getSeverityFromOrdinal(rule.getSeverity()), userSession, session);
+        createActiveRule(profileId, ruleId, rule.getSeverityString(), userSession, session);
       }
     } finally {
       MyBatis.closeQuietly(session);
@@ -330,14 +334,14 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   private void restoreSeverityFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions,
                                                    UserSession userSession, SqlSession session) {
-    Integer oldSeverity = activeRule.getSeverity();
-    Integer newSeverity = parent.getSeverity();
+    String oldSeverity = activeRule.getSeverityString();
+    String newSeverity = parent.getSeverityString();
     if (!oldSeverity.equals(newSeverity)) {
       activeRule.setSeverity(newSeverity);
       activeRuleDao.update(activeRule, session);
       session.commit();
       actions.add(profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
-        RulePriority.valueOf(getSeverityFromOrdinal(oldSeverity)), RulePriority.valueOf(getSeverityFromOrdinal(newSeverity)), getLoggedName(userSession)));
+        RulePriority.valueOf(oldSeverity), RulePriority.valueOf(newSeverity), getLoggedName(userSession)));
     }
   }
 
@@ -396,8 +400,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private void reindexInheritanceResult(ProfilesManager.RuleInheritanceActions actions, SqlSession session) {
-    ruleRegistry.deleteActiveRules(actions.idsToDelete());
-    ruleRegistry.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
+    esActiveRule.deleteActiveRules(actions.idsToDelete());
+    esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {
@@ -405,7 +409,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, List<ActiveRuleParamDto> params) {
-    ruleRegistry.save(activeRuleDto, params);
+    esActiveRule.save(activeRuleDto, params);
   }
 
   private void validatePermission(UserSession userSession) {
@@ -482,9 +486,4 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private static String getSeverityFromOrdinal(int ordinal) {
     return Severity.ALL.get(ordinal);
   }
-
-  private static int getSeverityOrdinal(String severity) {
-    return Severity.ALL.indexOf(severity);
-  }
-
 }

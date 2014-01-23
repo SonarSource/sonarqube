@@ -19,7 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -35,12 +40,22 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.configuration.ProfilesManager;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Register rules at server startup
@@ -155,7 +170,7 @@ public class RuleRegistration implements Startable {
         .setName(ruleDef.name())
         .setRepositoryKey(ruleDef.repository().key())
         .setRuleKey(ruleDef.key())
-        .setSeverity(RulePriority.valueOf(ruleDef.defaultSeverity()).ordinal())
+        .setSeverity(RulePriority.valueOf(ruleDef.defaultSeverity()).name())
         .setCreatedAt(buffer.now())
         .setUpdatedAt(buffer.now())
         .setStatus(ruleDef.status().name());
@@ -199,8 +214,8 @@ public class RuleRegistration implements Startable {
       dto.setConfigKey(def.metadata());
       changed = true;
     }
-    int severity = RulePriority.valueOf(def.defaultSeverity()).ordinal();
-    if (!ObjectUtils.equals(dto.getSeverity(), severity)) {
+    String severity = RulePriority.valueOf(def.defaultSeverity()).name();
+    if (!ObjectUtils.equals(dto.getSeverityString(), severity)) {
       dto.setSeverity(severity);
       changed = true;
     }
