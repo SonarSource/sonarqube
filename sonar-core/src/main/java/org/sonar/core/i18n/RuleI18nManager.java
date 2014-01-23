@@ -26,6 +26,7 @@ import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Locale;
 
 /**
@@ -37,10 +38,10 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
   private static final String NAME_SUFFIX = ".name";
   private static final String RULE_PREFIX = "rule.";
 
-  private I18nManager i18nManager;
+  private DefaultI18n defaultI18n;
 
-  public RuleI18nManager(I18nManager i18nManager) {
-    this.i18nManager = i18nManager;
+  public RuleI18nManager(DefaultI18n defaultI18n) {
+    this.defaultI18n = defaultI18n;
   }
 
   /**
@@ -95,7 +96,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
     String ruleDescriptionFilePath = "rules/" + repositoryKey + "/" + ruleKey + ".html";
-    String description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty);
+    String description = defaultI18n.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty);
     if (description == null) {
       // Following line is to ensure backward compatibility (SONAR-3319)
       description = lookUpDescriptionInFormerLocation(ruleKey, relatedProperty);
@@ -110,7 +111,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
    * See http://jira.codehaus.org/browse/SONAR-3319
    */
   private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty) {
-    return i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
+    return defaultI18n.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
   }
 
   @CheckForNull
@@ -121,7 +122,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
   @CheckForNull
   String message(String repositoryKey, String ruleKey, String suffix) {
     String propertyKey = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
-    return i18nManager.message(Locale.ENGLISH, propertyKey, null);
+    return defaultI18n.message(Locale.ENGLISH, propertyKey, null);
   }
 
 

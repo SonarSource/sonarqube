@@ -26,18 +26,18 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
 public class ProjectLinksSensor implements Sensor {
 
   private Settings settings;
-  private I18nManager i18nManager;
+  private DefaultI18n defaultI18n;
 
-  public ProjectLinksSensor(Settings settings, I18nManager i18nManager) {
+  public ProjectLinksSensor(Settings settings, DefaultI18n defaultI18n) {
     this.settings = settings;
-    this.i18nManager = i18nManager;
+    this.defaultI18n = defaultI18n;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -55,7 +55,7 @@ public class ProjectLinksSensor implements Sensor {
   private void handleLink(SensorContext context, String linkProperty) {
     String home = settings.getString(linkProperty);
     String linkType = StringUtils.substringAfterLast(linkProperty, ".");
-    String name = i18nManager.message(Locale.getDefault(), "project_links." + linkType, linkProperty);
+    String name = defaultI18n.message(Locale.getDefault(), "project_links." + linkType, linkProperty);
     updateLink(context, linkType, name, home);
   }
 

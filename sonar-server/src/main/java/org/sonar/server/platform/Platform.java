@@ -19,9 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.rule.RuleOperations;
-
-import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -41,8 +38,8 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
+import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.GwtI18n;
-import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.IssueNotifications;
@@ -204,7 +201,7 @@ public final class Platform {
     rootContainer.addSingleton(DefaultServerFileSystem.class);
     rootContainer.addSingleton(ApplicationDeployer.class);
     rootContainer.addSingleton(JRubyI18n.class);
-    rootContainer.addSingleton(I18nManager.class);
+    rootContainer.addSingleton(DefaultI18n.class);
     rootContainer.addSingleton(RuleI18nManager.class);
     rootContainer.addSingleton(GwtI18n.class);
     rootContainer.addSingleton(PreviewDatabaseFactory.class);

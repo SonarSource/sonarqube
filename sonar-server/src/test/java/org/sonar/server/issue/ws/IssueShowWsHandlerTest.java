@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.component.Component;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
@@ -55,6 +56,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -82,6 +84,9 @@ public class IssueShowWsHandlerTest {
   @Mock
   TechnicalDebtFormatter technicalDebtFormatter;
 
+  @Mock
+  I18n i18n;
+
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
@@ -107,7 +112,7 @@ public class IssueShowWsHandlerTest {
 
     when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter, i18n)));
   }
 
   @Test
@@ -179,11 +184,19 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_dates() throws Exception {
+    Date creationDate = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
+    Date updateDate = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
+    Date closedDate = DateUtils.parseDateTime("2014-01-24T19:10:03+0100");
+
     Issue issue = createStandardIssue()
-      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
-      .setUpdateDate(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"))
-      .setCloseDate(DateUtils.parseDateTime("2014-01-24T19:10:03+0100"));
+      .setCreationDate(creationDate)
+      .setUpdateDate(updateDate)
+      .setCloseDate(closedDate);
     issues.add(issue);
+
+    when(i18n.formatDateTime(any(Locale.class), eq(creationDate))).thenReturn("Jan 22, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(updateDate))).thenReturn("Jan 23, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(closedDate))).thenReturn("Jan 24, 2014 10:03 AM");
 
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
@@ -192,25 +205,31 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_comments() throws Exception {
+    Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
+    Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");
+
     Issue issue = createStandardIssue()
       .addComment(
         new DefaultIssueComment()
           .setKey("COMMENT-ABCD")
           .setMarkdownText("*My comment*")
           .setUserLogin("john")
-          .setCreatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")))
+          .setCreatedAt(date1))
       .addComment(
         new DefaultIssueComment()
           .setKey("COMMENT-ABCE")
           .setMarkdownText("Another comment")
           .setUserLogin("arthur")
-          .setCreatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"))
+          .setCreatedAt(date2)
       );
     issues.add(issue);
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setLogin("john").setName("John"),
       new DefaultUser().setLogin("arthur").setName("Arthur")
     ));
+
+    when(i18n.instant(any(Locale.class), eq(date1))).thenReturn("9 days");
+    when(i18n.instant(any(Locale.class), eq(date2))).thenReturn("10 days");
 
     MockUserSession.set().setLogin("arthur");
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());
@@ -300,21 +319,24 @@ public class IssueShowWsHandlerTest {
     Issue issue = createStandardIssue();
     issues.add(issue);
 
-    List<User> users = Lists.<User>newArrayList(
-      new DefaultUser().setLogin("john").setName("John")
-    );
+    Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
+    Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");
 
+    List<User> users = Lists.<User>newArrayList(new DefaultUser().setLogin("john").setName("John"));
     FieldDiffs userChange = new FieldDiffs()
       .setUserLogin("john")
       .setDiff("actionPlan", null, "1.0")
-      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+      .setCreationDate(date1);
     FieldDiffs scanChange = new FieldDiffs()
       .setDiff("severity", "INFO", "BLOCKER")
       .setDiff("status", "REOPEN", "RESOLVED")
-      .setCreationDate(DateUtils.parseDateTime("2014-01-23T19:10:03+0100"));
+      .setCreationDate(date2);
     when(issueChangelogService.changelog(issue)).thenReturn(new IssueChangelog(newArrayList(userChange, scanChange), users));
     when(issueChangelogService.formatDiffs(userChange)).thenReturn(newArrayList("Action plan updated to 1.0"));
     when(issueChangelogService.formatDiffs(scanChange)).thenReturn(newArrayList("Severity updated from Info to Blocker", "Status updated from Reopen to Resolved"));
+
+    when(i18n.formatDateTime(any(Locale.class), eq(date1))).thenReturn("Fev 22, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Fev 23, 2014 10:03 AM");
 
     MockUserSession.set();
     SimpleRequest request = new SimpleRequest().setParam("key", issue.key());

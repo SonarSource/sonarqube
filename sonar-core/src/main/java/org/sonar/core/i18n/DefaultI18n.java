@@ -31,17 +31,19 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.System2;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.*;
 
-public class I18nManager implements I18n, ServerExtension, BatchExtension, Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
+public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Startable {
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultI18n.class);
 
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
 
@@ -49,9 +51,16 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension, Start
   private I18nClassloader i18nClassloader;
   private Map<String, String> propertyToBundles;
   private final ResourceBundle.Control control;
+  private final System2 system2;
 
-  public I18nManager(PluginRepository pluginRepository) {
+  public DefaultI18n(PluginRepository pluginRepository) {
+    this(pluginRepository, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  DefaultI18n(PluginRepository pluginRepository, System2 system2) {
     this.pluginRepository = pluginRepository;
+    this.system2 = system2;
     // SONAR-2927
     this.control = new ResourceBundle.Control() {
       @Override
@@ -119,9 +128,26 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension, Start
     return message(locale, duration.key(), null, duration.value());
   }
 
+  public String instant(Locale locale, Date date) {
+    long duration = system2.now() - date.getTime();
+    return instant(locale, duration);
+  }
+
   public String ago(Locale locale, long durationInMillis) {
     DurationLabel.Result duration = DurationLabel.ago(durationInMillis);
     return message(locale, duration.key(), null, duration.value());
+  }
+
+  public String ago(Locale locale, Date date) {
+    return ago(locale, system2.now() - date.getTime());
+  }
+
+  public String formatDateTime(Locale locale, Date date) {
+    return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, locale).format(date);
+  }
+
+  public String formatDate(Locale locale, Date date) {
+    return DateFormat.getDateInstance(DateFormat.DEFAULT, locale).format(date);
   }
 
   /**

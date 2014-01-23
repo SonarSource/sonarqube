@@ -21,8 +21,13 @@ package org.sonar.core.i18n;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -34,9 +39,13 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class I18nManagerTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DefaultI18nTest {
 
-  private I18nManager manager;
+  @Mock
+  System2 system2;
+
+  DefaultI18n manager;
 
   @Before
   public void init() {
@@ -47,7 +56,7 @@ public class I18nManagerTest {
     I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
       newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
     });
-    manager = new I18nManager(pluginRepository);
+    manager = new DefaultI18n(pluginRepository, system2);
     manager.doStart(i18nClassloader);
   }
 
@@ -162,11 +171,27 @@ public class I18nManagerTest {
   @Test
   public void get_time_ago() {
     assertThat(manager.ago(Locale.ENGLISH, 10)).isEqualTo("less than a minute ago");
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-02").getTime());
+    assertThat(manager.ago(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day ago");
   }
 
   @Test
   public void get_time_instant() {
     assertThat(manager.instant(Locale.ENGLISH, 10)).isEqualTo("less than a minute");
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-02").getTime());
+    assertThat(manager.instant(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day");
+  }
+
+  @Test
+  public void format_date_time() {
+    assertThat(manager.formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).isEqualTo("Jan 22, 2014 7:10 PM");
+  }
+
+  @Test
+  public void format_date() {
+    assertThat(manager.formatDate(Locale.ENGLISH, DateUtils.parseDate("2014-01-22"))).isEqualTo("Jan 22, 2014");
   }
 
   static URLClassLoader newCoreClassloader() {
@@ -194,7 +219,7 @@ public class I18nManagerTest {
   private static URLClassLoader newClassLoader(String... resourcePaths) {
     URL[] urls = new URL[resourcePaths.length];
     for (int index = 0; index < resourcePaths.length; index++) {
-      urls[index] = I18nManagerTest.class.getResource(resourcePaths[index]);
+      urls[index] = DefaultI18nTest.class.getResource(resourcePaths[index]);
     }
     return new URLClassLoader(urls);
   }

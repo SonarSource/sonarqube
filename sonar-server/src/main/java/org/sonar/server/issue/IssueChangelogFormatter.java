@@ -22,7 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
 
@@ -37,11 +37,11 @@ public class IssueChangelogFormatter implements ServerComponent {
 
   private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
 
-  private final I18nManager i18nManager;
+  private final DefaultI18n defaultI18n;
   private final TechnicalDebtFormatter technicalDebtFormatter;
 
-  public IssueChangelogFormatter(I18nManager i18nManager, TechnicalDebtFormatter technicalDebtFormatter) {
-    this.i18nManager = i18nManager;
+  public IssueChangelogFormatter(DefaultI18n defaultI18n, TechnicalDebtFormatter technicalDebtFormatter) {
+    this.defaultI18n = defaultI18n;
     this.technicalDebtFormatter = technicalDebtFormatter;
   }
 
@@ -52,13 +52,13 @@ public class IssueChangelogFormatter implements ServerComponent {
       String key = entry.getKey();
       IssueChangelogDiffFormat diffFormat = format(locale, key, entry.getValue());
       if (diffFormat.newValue() != null) {
-        message.append(i18nManager.message(locale, "issue.changelog.changed_to", null, i18nManager.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
+        message.append(defaultI18n.message(locale, "issue.changelog.changed_to", null, defaultI18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
       } else {
-        message.append(i18nManager.message(locale, "issue.changelog.removed", null, i18nManager.message(locale, ISSUE_CHANGELOG_FIELD + key, null)));
+        message.append(defaultI18n.message(locale, "issue.changelog.removed", null, defaultI18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null)));
       }
       if (diffFormat.oldValue() != null) {
         message.append(" (");
-        message.append(i18nManager.message(locale, "issue.changelog.was", null, diffFormat.oldValue()));
+        message.append(defaultI18n.message(locale, "issue.changelog.was", null, diffFormat.oldValue()));
         message.append(")");
       }
       result.add(message.toString());

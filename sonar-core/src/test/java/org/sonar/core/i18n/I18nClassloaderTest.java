@@ -36,8 +36,8 @@ public class I18nClassloaderTest {
 
   @Before
   public void init() {
-    URLClassLoader sqale = I18nManagerTest.newSqaleClassloader();
-    URLClassLoader checkstyle = I18nManagerTest.newCheckstyleClassloader();
+    URLClassLoader sqale = DefaultI18nTest.newSqaleClassloader();
+    URLClassLoader checkstyle = DefaultI18nTest.newCheckstyleClassloader();
 
     i18nClassloader = new I18nClassloader(new ClassLoader[]{sqale, checkstyle});
   }

@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
 
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -50,13 +51,39 @@ public interface I18n extends ServerComponent, BatchComponent {
   String message(final Locale locale, final String key, @Nullable final String defaultValue, final Object... parameters);
 
   /**
+   * TODO add documentation
    * @since 4.2
    */
   String instant(Locale locale, long durationInMillis);
 
   /**
+   * TODO add documentation
+   * @since 4.2
+   */
+  String instant(Locale locale, Date date);
+
+  /**
+   * TODO add documentation
    * @since 4.2
    */
   String ago(Locale locale, long durationInMillis);
+
+  /**
+   * TODO add documentation
+   * @since 4.2
+   */
+  String ago(Locale locale, Date date);
+
+  /**
+   * TODO add documentation
+   * @since 4.2
+   */
+  String formatDateTime(Locale locale, Date date);
+
+  /**
+   * @since 4.2
+   * TODO add documentation
+   */
+  String formatDate(Locale locale, Date date);
 
 }

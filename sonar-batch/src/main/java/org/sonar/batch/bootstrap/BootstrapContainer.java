@@ -29,7 +29,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.*;
 import org.sonar.core.config.Logback;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.persistence.*;
@@ -107,7 +107,7 @@ public class BootstrapContainer extends ComponentContainer {
   private void addCoreComponents() {
     add(
       EmailSettings.class,
-      I18nManager.class,
+      DefaultI18n.class,
       RuleI18nManager.class,
       MeasuresDao.class,
       RulesDao.class,

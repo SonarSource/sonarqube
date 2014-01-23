@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import java.util.Locale;
@@ -45,7 +45,7 @@ public class NewIssuesEmailTemplateTest {
   TimeZone initialTimeZone = TimeZone.getDefault();
 
   @Mock
-  I18nManager i18n;
+  DefaultI18n i18n;
 
   @Before
   public void setUp() {

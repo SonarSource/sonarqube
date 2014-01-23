@@ -41,7 +41,7 @@ public class GwtI18nTest {
   @Before
   public void init() {
     bundle = ResourceBundle.getBundle("org.sonar.core.i18n.GwtI18nTest.gwt", Locale.ENGLISH);
-    i18n = new GwtI18n(mock(I18nManager.class));
+    i18n = new GwtI18n(mock(DefaultI18n.class));
     i18n.doStart(bundle);
   }
 

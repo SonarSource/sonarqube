@@ -26,12 +26,12 @@ import org.sonar.api.ServerComponent;
 import java.util.*;
 
 public class GwtI18n implements ServerComponent {
-  public static final String GWT_BUNDLE = I18nManager.BUNDLE_PACKAGE + "gwt";
+  public static final String GWT_BUNDLE = DefaultI18n.BUNDLE_PACKAGE + "gwt";
 
-  private I18nManager manager;
+  private DefaultI18n manager;
   private String[] propertyKeys;
 
-  public GwtI18n(I18nManager manager) {
+  public GwtI18n(DefaultI18n manager) {
     this.manager = manager;
   }
 

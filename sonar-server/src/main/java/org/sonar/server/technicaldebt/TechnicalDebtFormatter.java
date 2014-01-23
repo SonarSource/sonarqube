@@ -22,35 +22,35 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
 public class TechnicalDebtFormatter implements ServerComponent {
 
-  private final I18nManager i18nManager;
+  private final DefaultI18n defaultI18n;
 
-  public TechnicalDebtFormatter(I18nManager i18nManager) {
-    this.i18nManager = i18nManager;
+  public TechnicalDebtFormatter(DefaultI18n defaultI18n) {
+    this.defaultI18n = defaultI18n;
   }
 
   public String format(Locale locale, WorkDayDuration technicalDebt) {
     StringBuilder message = new StringBuilder();
     if (technicalDebt.days() > 0) {
-      message.append(i18nManager.message(locale, "issue.technical_debt.x_days", null, technicalDebt.days()));
+      message.append(defaultI18n.message(locale, "issue.technical_debt.x_days", null, technicalDebt.days()));
     }
     if (technicalDebt.hours() > 0) {
       if (message.length() > 0) {
         message.append(" ");
       }
-      message.append(i18nManager.message(locale, "issue.technical_debt.x_hours", null, technicalDebt.hours()));
+      message.append(defaultI18n.message(locale, "issue.technical_debt.x_hours", null, technicalDebt.hours()));
     }
     // Do not display minutes if days is not null to not have too much information
     if (technicalDebt.minutes() > 0 && technicalDebt.days() == 0) {
       if (message.length() > 0) {
         message.append(" ");
       }
-      message.append(i18nManager.message(locale, "issue.technical_debt.x_minutes", null, technicalDebt.minutes()));
+      message.append(defaultI18n.message(locale, "issue.technical_debt.x_minutes", null, technicalDebt.minutes()));
     }
     return message.toString();
   }

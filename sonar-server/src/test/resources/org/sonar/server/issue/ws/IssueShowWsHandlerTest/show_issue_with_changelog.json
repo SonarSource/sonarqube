@@ -15,11 +15,13 @@
     "changelog": [
       {
         "userName": "John",
-        "creationDate": "2014-01-22T19:10:03+0100",
+        "creationDate": "2014-02-22T19:10:03+0100",
+        "fCreationDate": "Fev 22, 2014 10:03 AM",
         "diffs": ["Action plan updated to 1.0"]
       },
       {
-        "creationDate": "2014-01-23T19:10:03+0100",
+        "creationDate": "2014-02-23T19:10:03+0100",
+        "fCreationDate": "Fev 23, 2014 10:03 AM",
         "diffs": ["Severity updated from Info to Blocker", "Status updated from Reopen to Resolved"]
       }
     ]

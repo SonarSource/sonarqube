@@ -27,7 +27,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
@@ -52,12 +52,12 @@ public class ProjectLinksSensorTest {
   public void shouldSaveLinks() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home");
-    I18nManager i18nManager = mock(I18nManager.class);
-    when(i18nManager.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
+    DefaultI18n defaultI18n = mock(DefaultI18n.class);
+    when(defaultI18n.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(settings, i18nManager).analyse(project, context);
+    new ProjectLinksSensor(settings, defaultI18n).analyse(project, context);
 
     verify(context).saveLink(argThat(new MatchLink("homepage", "HOME", "http://home")));
   }
@@ -66,12 +66,12 @@ public class ProjectLinksSensorTest {
   public void shouldDeleteLink() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.LINKS_HOME_PAGE, "");
-    I18nManager i18nManager = mock(I18nManager.class);
-    when(i18nManager.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
+    DefaultI18n defaultI18n = mock(DefaultI18n.class);
+    when(defaultI18n.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(settings, i18nManager).analyse(project, context);
+    new ProjectLinksSensor(settings, defaultI18n).analyse(project, context);
 
     verify(context).deleteLink("homepage");
   }

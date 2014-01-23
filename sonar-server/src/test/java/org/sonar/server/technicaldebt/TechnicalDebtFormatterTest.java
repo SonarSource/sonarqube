@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
@@ -39,20 +39,20 @@ public class TechnicalDebtFormatterTest {
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
   @Mock
-  private I18nManager i18nManager;
+  private DefaultI18n defaultI18n;
 
   private TechnicalDebtFormatter formatter;
 
   @Before
   public void before() {
-    formatter = new TechnicalDebtFormatter(i18nManager);
+    formatter = new TechnicalDebtFormatter(defaultI18n);
   }
 
   @Test
   public void format() {
-    when(i18nManager.message(DEFAULT_LOCALE, "issue.technical_debt.x_days", null, 5)).thenReturn("5 days");
-    when(i18nManager.message(DEFAULT_LOCALE, "issue.technical_debt.x_hours", null, 2)).thenReturn("2 hours");
-    when(i18nManager.message(DEFAULT_LOCALE, "issue.technical_debt.x_minutes", null, 1)).thenReturn("1 minutes");
+    when(defaultI18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_days", null, 5)).thenReturn("5 days");
+    when(defaultI18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_hours", null, 2)).thenReturn("2 hours");
+    when(defaultI18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_minutes", null, 1)).thenReturn("1 minutes");
 
     assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 5))).isEqualTo("5 days");
     assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 2, 0))).isEqualTo("2 hours");

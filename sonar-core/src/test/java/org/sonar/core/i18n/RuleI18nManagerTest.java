@@ -33,7 +33,7 @@ public class RuleI18nManagerTest {
 
   @Test
   public void shouldGetName() {
-    I18nManager i18n = mock(I18nManager.class);
+    DefaultI18n i18n = mock(DefaultI18n.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
 
     ruleI18n.getName("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
@@ -45,7 +45,7 @@ public class RuleI18nManagerTest {
 
   @Test
   public void shouldGetParamDescription() {
-    I18nManager i18n = mock(I18nManager.class);
+    DefaultI18n i18n = mock(DefaultI18n.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
 
     ruleI18n.getParamDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", "pattern", Locale.ENGLISH);
@@ -59,7 +59,7 @@ public class RuleI18nManagerTest {
   public void shouldGetDescriptionFromFile() {
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
 
-    I18nManager i18n = mock(I18nManager.class);
+    DefaultI18n i18n = mock(DefaultI18n.class);
     when(i18n.messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName)).thenReturn("Description");
 
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
@@ -75,7 +75,7 @@ public class RuleI18nManagerTest {
   public void shouldGetDescriptionFromFileWithBackwardCompatibility() {
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
 
-    I18nManager i18n = mock(I18nManager.class);
+    DefaultI18n i18n = mock(DefaultI18n.class);
     // this is the "old" way of storing HTML description files for rules (they are not in the "rules/<repo-key>" folder)
     when(i18n.messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName)).thenReturn("Description");
 
@@ -90,7 +90,7 @@ public class RuleI18nManagerTest {
 
   @Test
   public void shoudlReturnNullIfMissingDescription() {
-    I18nManager i18n = mock(I18nManager.class);
+    DefaultI18n i18n = mock(DefaultI18n.class);
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
 
     assertThat(ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH), nullValue());

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -40,6 +41,9 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -53,14 +57,16 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
   private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final I18n i18n;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            TechnicalDebtFormatter technicalDebtFormatter) {
+                            TechnicalDebtFormatter technicalDebtFormatter, I18n i18n) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
     this.technicalDebtFormatter = technicalDebtFormatter;
+    this.i18n = i18n;
   }
 
   @Override
@@ -109,9 +115,11 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("debt", technicalDebt != null ? technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt) : null)
       .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
+      .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
-      .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null);
-    // TODO add formatted dates
+      .prop("fUpdateDate", formatDate(updateDate))
+      .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
+      .prop("fCloseDate", formatDate(issue.closeDate()));
 
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
@@ -169,8 +177,8 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("raw", comment.markdownText())
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("creationDate", DateUtils.formatDateTime(comment.createdAt()))
+        .prop("fCreationDate", i18n.instant(UserSession.get().locale(), comment.createdAt()))
         .prop("updatable", UserSession.get().isLoggedIn() ? UserSession.get().login().equals(comment.userLogin()) : false)
-          // TODO add formatted date
         .endObject();
     }
     json.endArray();
@@ -184,8 +192,8 @@ public class IssueShowWsHandler implements RequestHandler {
       json
         .beginObject()
         .prop("userName", userLogin != null ? changelog.user(diffs).name() : null)
-        .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()));
-      // TODO add formatted date
+        .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()))
+        .prop("fCreationDate", formatDate(diffs.creationDate()));
 
       json.name("diffs").beginArray();
       List<String> diffsFormatted = issueChangelogService.formatDiffs(diffs);
@@ -204,5 +212,13 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop(field, value)
         .prop(field + "Name", result.user(value).name());
     }
+  }
+
+  @CheckForNull
+  private String formatDate(@Nullable Date date) {
+    if (date != null) {
+      return i18n.formatDateTime(UserSession.get().locale(), date);
+    }
+    return null;
   }
 }
