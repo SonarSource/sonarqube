@@ -283,11 +283,11 @@ public final class Platform {
     servicesContainer.addSingleton(QProfileLookup.class);
     servicesContainer.addSingleton(QProfileOperations.class);
     servicesContainer.addSingleton(QProfileActiveRuleOperations.class);
-    servicesContainer.addSingleton(RuleOperations.class);
     servicesContainer.addSingleton(QProfileProjectOperations.class);
     servicesContainer.addSingleton(QProfileProjectLookup.class);
     servicesContainer.addSingleton(QProfileBackup.class);
     servicesContainer.addSingleton(QProfilePluginExporter.class);
+    servicesContainer.addSingleton(ESActiveRule.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);
@@ -341,6 +341,8 @@ public final class Platform {
     servicesContainer.addSingleton(TransitionAction.class);
 
     // rules
+    servicesContainer.addSingleton(Rules.class);
+    servicesContainer.addSingleton(RuleOperations.class);
     servicesContainer.addSingleton(RuleRegistry.class);
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);

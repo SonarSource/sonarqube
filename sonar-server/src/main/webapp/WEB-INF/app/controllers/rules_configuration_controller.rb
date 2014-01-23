@@ -48,7 +48,7 @@ class RulesConfigurationController < ApplicationController
       paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
       criteria = init_criteria
-      query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+      query = Java::OrgSonarServerQualityprofile::ProfileRuleQuery::parse(criteria.to_java)
       if @activation==STATUS_ACTIVE
         result = Internal.quality_profiles.searchProfileRules(query, paging)
       else
@@ -148,7 +148,7 @@ class RulesConfigurationController < ApplicationController
     add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
                     {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
-    @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
+    @rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
   end
 
   #
@@ -164,7 +164,8 @@ class RulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     new_rule = nil
     call_backend do
-      new_rule = Internal.quality_profiles.createRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      new_rule_id = Internal.rules.createRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      new_rule = Internal.quality_profiles.findByRule(new_rule_id)
     end
 
     if new_rule
@@ -191,11 +192,11 @@ class RulesConfigurationController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
-      @rule = Internal.quality_profiles.rule(params[:rule_id].to_i)
+      @rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
       if @rule.templateId().nil?
         redirect_to :action => 'index', :id => params[:id]
       else
-        @parent_rule = Internal.quality_profiles.rule(@rule.templateId())
+        @parent_rule = Internal.quality_profiles.findByRule(@rule.templateId())
         @active_rules = Internal.quality_profiles.countActiveRules(@rule)
       end
     end
@@ -214,7 +215,8 @@ class RulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     rule = nil
     call_backend do
-      rule = Internal.quality_profiles.updateRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      Internal.rules.updateRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      rule = Internal.quality_profiles.findByRule(rule_id)
     end
 
     if rule
@@ -235,7 +237,7 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id, :rule_id
 
     call_backend do
-      Internal.quality_profiles.deleteRule(params[:rule_id].to_i)
+      Internal.rules.deleteRule(params[:rule_id].to_i)
       flash[:notice]=message('rules_configuration.rule_deleted')
     end
     redirect_to :action => 'index', :id => params[:id]
@@ -259,7 +261,7 @@ class RulesConfigurationController < ApplicationController
     @profile = Internal.quality_profiles.profile(params[:id].to_i)
     init_params
     criteria = init_criteria
-    query = Java::OrgSonarServerRule::ProfileRuleQuery::parse(criteria.to_java)
+    query = Java::OrgSonarServerQualityprofile::ProfileRuleQuery::parse(criteria.to_java)
     activation = params[:rule_activation] || STATUS_ACTIVE
     case params[:bulk_action]
       when 'activate'
@@ -308,7 +310,8 @@ class RulesConfigurationController < ApplicationController
 
     rule = nil
     call_backend do
-      rule = Internal.quality_profiles.updateRuleNote(params[:active_rule_id].to_i, params[:rule_id].to_i, params[:text])
+      Internal.rules.updateRuleNote(params[:rule_id].to_i, params[:text])
+      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
     end
     render :partial => 'rule_note', :locals => {:rule => rule}
   end
@@ -344,7 +347,7 @@ class RulesConfigurationController < ApplicationController
   end
 
   def select_tags
-    rule = Internal.quality_profiles.updateRuleTags(params[:rule_id].to_i, params[:tags])
+    rule = Internal.rules.updateRuleTags(params[:rule_id].to_i, params[:tags])
     render :partial => 'rule_tags', :locals => {:rule => rule}
   end
 

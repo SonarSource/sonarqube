@@ -34,7 +34,7 @@ class Internal
     component(Java::OrgSonarServerText::RubyTextService.java_class)
   end
 
-  def self.rules
+  def self.rrules
     component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
@@ -68,6 +68,10 @@ class Internal
 
   def self.quality_profiles
     component(Java::OrgSonarServerQualityprofile::QProfiles.java_class)
+  end
+
+  def self.rules
+    component(Java::OrgSonarServerRule::Rules.java_class)
   end
 
   def self.rule_tags

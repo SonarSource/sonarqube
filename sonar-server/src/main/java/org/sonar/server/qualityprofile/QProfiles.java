@@ -20,9 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.server.rule.RuleOperations;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.profiles.ProfileExporter;
@@ -33,12 +31,9 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
@@ -46,8 +41,6 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Used through ruby code <pre>Internal.quality_profiles</pre>
@@ -58,7 +51,6 @@ public class QProfiles implements ServerComponent {
 
   private final QualityProfileDao qualityProfileDao;
   private final ActiveRuleDao activeRuleDao;
-  private final RuleDao ruleDao;
   private final ResourceDao resourceDao;
 
   private final QProfileProjectOperations projectOperations;
@@ -68,16 +60,14 @@ public class QProfiles implements ServerComponent {
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
-  private final RuleOperations ruleOperations;
   private final QProfileRuleLookup rules;
 
-  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
+  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao,
                    QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
-                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, RuleOperations ruleOperations,
+                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations,
                    QProfileRuleLookup rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
-    this.ruleDao = ruleDao;
     this.resourceDao = resourceDao;
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
@@ -86,7 +76,6 @@ public class QProfiles implements ServerComponent {
     this.profileLookup = profileLookup;
     this.operations = operations;
     this.activeRuleOperations = activeRuleOperations;
-    this.ruleOperations = ruleOperations;
     this.rules = rules;
   }
 
@@ -322,60 +311,9 @@ public class QProfiles implements ServerComponent {
     return null;
   }
 
-
-  // RULES
-
-  public QProfileRule updateRuleNote(int activeRuleId, int ruleId, String note) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    String sanitizedNote = Strings.emptyToNull(note);
-    if (sanitizedNote != null) {
-      ruleOperations.updateRuleNote(rule, note, UserSession.get());
-    } else {
-      ruleOperations.deleteRuleNote(rule, UserSession.get());
-    }
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    return rules.findByActiveRuleId(activeRule.getId());
-  }
-
-  @CheckForNull
-  public QProfileRule rule(int ruleId) {
-    return rules.findByRuleId(ruleId);
-  }
-
-  public QProfileRule createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRule(null, name, severity, description);
-    RuleDto newRule = ruleOperations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
-    return rules.findByRuleId(newRule.getId());
-  }
-
-  public QProfileRule updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRuleParent(rule);
-    validateRule(ruleId, name, severity, description);
-    ruleOperations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
-    return rules.findByRuleId(ruleId);
-  }
-
-  public void deleteRule(int ruleId) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRuleParent(rule);
-    ruleOperations.deleteRule(rule, UserSession.get());
-  }
-
   public int countActiveRules(QProfileRule rule) {
     // TODO get it from E/S
     return activeRuleDao.selectByRuleId(rule.id()).size();
-  }
-
-  public QProfileRule updateRuleTags(int ruleId, Object tags) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    List<String> newTags = RubyUtils.toStrings(tags);
-    if (newTags == null) {
-      newTags = ImmutableList.of();
-    }
-    ruleOperations.updateTags(rule, newTags, UserSession.get());
-    return rules.findByRuleId(ruleId);
   }
 
   //
@@ -409,49 +347,6 @@ public class QProfiles implements ServerComponent {
       throw new NotFoundException("This project does not exists.");
     }
     return component;
-  }
-
-
-  //
-  // Rule validation
-  //
-
-  private void validateRule(@Nullable Integer updatingRuleId, @Nullable String name, @Nullable String severity, @Nullable String description) {
-    List<BadRequestException.Message> messages = newArrayList();
-    if (Strings.isNullOrEmpty(name)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
-    } else {
-      checkRuleNotAlreadyExists(updatingRuleId, name, messages);
-    }
-    if (Strings.isNullOrEmpty(description)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Description"));
-    }
-    if (Strings.isNullOrEmpty(severity)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Severity"));
-    }
-    if (!messages.isEmpty()) {
-      throw new BadRequestException(null, messages);
-    }
-  }
-
-  private void checkRuleNotAlreadyExists(@Nullable Integer updatingRuleId, String name, List<BadRequestException.Message> messages) {
-    RuleDto existingRule = ruleDao.selectByName(name);
-    boolean isModifyingCurrentRule = updatingRuleId != null && existingRule != null && existingRule.getId().equals(updatingRuleId);
-    if (!isModifyingCurrentRule && existingRule != null) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
-    }
-  }
-
-  private RuleDto findRuleNotNull(int ruleId) {
-    RuleDto rule = ruleDao.selectById(ruleId);
-    QProfileValidations.checkRuleIsNotNull(rule);
-    return rule;
-  }
-
-  private void validateRuleParent(RuleDto rule) {
-    if (rule.getParentId() == null) {
-      throw new NotFoundException("Unknown rule");
-    }
   }
 
   //

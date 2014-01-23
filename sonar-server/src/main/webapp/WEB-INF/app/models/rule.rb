@@ -270,7 +270,7 @@ class Rule < ActiveRecord::Base
     end
     params = java.util.HashMap.new(java_hash)
     conditions << "id IN (:ids)"
-    values[:ids] = Array(Internal.rules.findIds(params))
+    values[:ids] = Array(Internal.rrules.findIds(params))
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
     rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
