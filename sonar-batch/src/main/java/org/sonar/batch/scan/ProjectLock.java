@@ -22,11 +22,14 @@ package org.sonar.batch.scan;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.AnalysisMode;
+
+import java.util.Locale;
 
 public class ProjectLock {
 
@@ -35,11 +38,13 @@ public class ProjectLock {
   private final Semaphores semaphores;
   private final ProjectTree projectTree;
   private final AnalysisMode analysisMode;
+  private final I18n i18n;
 
-  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, AnalysisMode analysisMode) {
+  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, AnalysisMode analysisMode, I18n i18n) {
     this.semaphores = semaphores;
     this.projectTree = projectTree;
     this.analysisMode = analysisMode;
+    this.i18n = i18n;
   }
 
   public void start() {
@@ -54,8 +59,7 @@ public class ProjectLock {
 
   private String getErrorMessage(Semaphores.Semaphore semaphore) {
     long duration = semaphore.getDurationSinceLocked();
-    DurationLabel durationLabel = new DurationLabel();
-    String durationDisplay = durationLabel.label(duration);
+    String durationDisplay = i18n.ago(Locale.ENGLISH, duration);
 
     return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + ").";
   }

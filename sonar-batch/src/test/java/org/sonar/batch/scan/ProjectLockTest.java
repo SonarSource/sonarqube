@@ -21,26 +21,28 @@ package org.sonar.batch.scan;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
+import java.util.Locale;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class ProjectLockTest {
 
   ProjectLock projectLock;
   Semaphores semaphores = mock(Semaphores.class);
   ProjectTree projectTree = mock(ProjectTree.class);
-  Settings settings;
+  I18n i18n = mock(I18n.class);
   Project project;
   private AnalysisMode mode;
 
@@ -51,7 +53,7 @@ public class ProjectLockTest {
     project = new Project("my-project-key");
     when(projectTree.getRootProject()).thenReturn(project);
 
-    projectLock = new ProjectLock(semaphores, projectTree, mode);
+    projectLock = new ProjectLock(semaphores, projectTree, mode, i18n);
   }
 
   @Test
@@ -62,10 +64,16 @@ public class ProjectLockTest {
     verify(semaphores).acquire("batch-my-project-key", 15, 10);
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void shouldNotAcquireSemaphoreIfTheProjectIsAlreadyBeenAnalysing() {
     when(semaphores.acquire(anyString(), anyInt(), anyInt())).thenReturn(new Semaphores.Semaphore().setLocked(false).setDurationSinceLocked(1234L));
+    try {
     projectLock.start();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(SonarException.class);
+    }
+    verify(i18n).ago(eq(Locale.ENGLISH), eq(1234L));
   }
 
   @Test

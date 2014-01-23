@@ -38,12 +38,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 public class I18nManager implements I18n, ServerExtension, BatchExtension, Startable {
   private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
@@ -117,6 +112,16 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension, Start
       value = defaultValue;
     }
     return formatMessage(value, parameters);
+  }
+
+  public String instant(Locale locale, long durationInMillis) {
+    DurationLabel.Result duration = DurationLabel.instant(durationInMillis);
+    return message(locale, duration.key(), null, duration.value());
+  }
+
+  public String ago(Locale locale, long durationInMillis) {
+    DurationLabel.Result duration = DurationLabel.ago(durationInMillis);
+    return message(locale, duration.key(), null, duration.value());
   }
 
   /**

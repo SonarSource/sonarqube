@@ -49,4 +49,14 @@ public interface I18n extends ServerComponent, BatchComponent {
    */
   String message(final Locale locale, final String key, @Nullable final String defaultValue, final Object... parameters);
 
+  /**
+   * @since 4.2
+   */
+  String instant(Locale locale, long durationInMillis);
+
+  /**
+   * @since 4.2
+   */
+  String ago(Locale locale, long durationInMillis);
+
 }

@@ -159,6 +159,16 @@ public class I18nManagerTest {
     assertThat(html).isNull();
   }
 
+  @Test
+  public void get_time_ago() {
+    assertThat(manager.ago(Locale.ENGLISH, 10)).isEqualTo("less than a minute ago");
+  }
+
+  @Test
+  public void get_time_instant() {
+    assertThat(manager.instant(Locale.ENGLISH, 10)).isEqualTo("less than a minute");
+  }
+
   static URLClassLoader newCoreClassloader() {
     return newClassLoader("/org/sonar/core/i18n/corePlugin/");
   }
