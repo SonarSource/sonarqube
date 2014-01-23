@@ -19,28 +19,24 @@
  */
 package org.sonar.test;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sonar.api.utils.SonarException;
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Utilities for unit tests
- * 
+ *
  * @since 2.2
  */
 public final class TestUtils {
@@ -50,7 +46,7 @@ public final class TestUtils {
 
   /**
    * Search for a test resource in the classpath. For example getResource("org/sonar/MyClass/foo.txt");
-   * 
+   *
    * @param path the starting slash is optional
    * @return the resource. Null if resource not found
    */
@@ -73,7 +69,7 @@ public final class TestUtils {
     }
 
     try {
-      return Resources.toString(url, Charsets.UTF_8);
+      return IOUtils.toString(url, Charsets.UTF_8);
     } catch (IOException e) {
       throw new SonarException("Can not load the resource: " + path, e);
     }
@@ -82,7 +78,7 @@ public final class TestUtils {
   /**
    * Search for a resource in the classpath. For example calling the method getResource(getClass(), "myTestName/foo.txt") from
    * the class org.sonar.Foo loads the file $basedir/src/test/resources/org/sonar/Foo/myTestName/foo.txt
-   * 
+   *
    * @return the resource. Null if resource not found
    */
   public static File getResource(Class baseClass, String path) {
@@ -103,10 +99,10 @@ public final class TestUtils {
 
   /**
    * Create a temporary directory for unit tests.
-   * 
+   *
    * @param baseClass the unit test class
-   * @param testName the test name
-   * @param clean remove all the sub-directories and files ?
+   * @param testName  the test name
+   * @param clean     remove all the sub-directories and files ?
    */
   public static File getTestTempDir(Class baseClass, String testName, boolean clean) {
     File dir = new File("target/test-tmp/" + baseClass.getCanonicalName() + "/" + testName);
@@ -123,14 +119,6 @@ public final class TestUtils {
       throw new SonarException("Can not create the directory " + dir, e);
     }
     return dir;
-  }
-
-  /**
-   * Checks that a file or a directory is not null and exists.
-   */
-  public static void assertExists(File file) {
-    assertNotNull(file);
-    assertThat(file.exists(), is(true));
   }
 
   public static void assertSimilarXml(String expectedXml, String xml) throws Exception {

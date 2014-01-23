@@ -19,11 +19,7 @@
  */
 package org.sonar.test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.sonar.test.TestUtils.assertExists;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.test.TestUtils.assertSimilarXml;
 import static org.sonar.test.TestUtils.getResource;
 import static org.sonar.test.TestUtils.getTestTempDir;
@@ -39,36 +35,34 @@ public class TestUtilsTest {
   @Test
   public void testResource() {
     File file = getResource("org/sonar/test/TestUtilsTest/getResource/foo.txt");
-    TestUtils.assertExists(file);
+    assertThat(file).exists();
 
     file = getResource("/org/sonar/test/TestUtilsTest/getResource/foo.txt");
-    TestUtils.assertExists(file);
+    assertThat(file).exists();
 
     file = getResource(getClass(), "getResource/foo.txt");
-    TestUtils.assertExists(file);
+    assertThat(file).exists();
   }
 
   @Test
   public void testResourceNotFound() {
     File file = getResource("org/sonar/test/TestUtilsTest/unknown.txt");
-    assertNull(file);
+    assertThat(file).isNull();
   }
 
   @Test
   public void testTempDir() throws Exception {
     File dir = getTestTempDir(getClass(), "testTempDir");
-    assertExists(dir);
-    assertThat(dir.isDirectory(), is(true));
-    assertThat(dir.listFiles().length, is(0));
+    assertThat(dir).exists().isDirectory();
+    assertThat(dir.listFiles()).isEmpty();
 
     FileUtils.writeStringToFile(new File(dir, "bar.txt"), "some text");
-    assertThat(dir.listFiles().length, is(1));
+    assertThat(dir.listFiles()).hasSize(1);
 
     // the directory is cleaned
     dir = getTestTempDir(getClass(), "testTempDir");
-    TestUtils.assertExists(dir);
-    assertThat(dir.isDirectory(), is(true));
-    assertThat(dir.listFiles().length, is(0));
+    assertThat(dir).exists().isDirectory();
+    assertThat(dir.listFiles()).isEmpty();
   }
 
   @Test
@@ -82,12 +76,12 @@ public class TestUtilsTest {
     assertSimilarXml("<foo>     <bar />   </foo>", "<foo><bar/></foo>");
 
     // attribute values are checked
-    assertFalse(isSimilarXml("<foo id='1' />", "<foo id='2'/>").similar());
+    assertThat(isSimilarXml("<foo id='1' />", "<foo id='2'/>").similar()).isFalse();
 
     // different xml
-    assertFalse(isSimilarXml("<foo id='1' />", "<foo id='2'/>").similar());
+    assertThat(isSimilarXml("<foo id='1' />", "<foo id='2'/>").similar()).isFalse();
 
     // order of nodes is important
-    assertFalse(isSimilarXml("<foo><bar id='1' /><bar id='2' /></foo>", "<foo><bar id='2' /><bar id='1' /></foo>").similar());
+    assertThat(isSimilarXml("<foo><bar id='1' /><bar id='2' /></foo>", "<foo><bar id='2' /><bar id='1' /></foo>").similar()).isFalse();
   }
 }

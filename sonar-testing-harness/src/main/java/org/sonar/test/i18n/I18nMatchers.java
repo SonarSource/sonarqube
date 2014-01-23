@@ -19,13 +19,13 @@
  */
 package org.sonar.test.i18n;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -38,7 +38,7 @@ public final class I18nMatchers {
 
   /**
    * Returns a matcher which checks that a translation bundle is up to date with the corresponding default one found in the classpath.
-   * 
+   *
    * @return the matcher
    */
   public static BundleSynchronizedMatcher isBundleUpToDate() {
@@ -54,8 +54,8 @@ public final class I18nMatchers {
       fail("No bundle found in: " + BundleSynchronizedMatcher.L10N_PATH);
     }
 
-    Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[] {"properties"}, false);
-    Map<String, String> failedAssertionMessages = Maps.newHashMap();
+    Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[]{"properties"}, false);
+    Map<String, String> failedAssertionMessages = new HashMap();
     for (File bundle : bundles) {
       String bundleName = bundle.getName();
       if (bundleName.indexOf('_') > 0) {

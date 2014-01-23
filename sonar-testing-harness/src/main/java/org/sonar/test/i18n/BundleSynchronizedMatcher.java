@@ -19,8 +19,6 @@
  */
 package org.sonar.test.i18n;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -32,6 +30,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -128,9 +127,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     }
   }
 
-  @VisibleForTesting
   protected static SortedMap<String, String> retrieveMissingTranslations(InputStream bundle, InputStream referenceBundle) throws IOException {
-    SortedMap<String, String> missingKeys = Maps.newTreeMap();
+    SortedMap<String, String> missingKeys = new TreeMap();
 
     Properties bundleProps = loadProperties(bundle);
     Properties referenceProperties = loadProperties(referenceBundle);
@@ -145,21 +143,18 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return missingKeys;
   }
 
-  @VisibleForTesting
   protected static Properties loadProperties(InputStream inputStream) throws IOException {
     Properties props = new Properties();
     props.load(inputStream);
     return props;
   }
 
-  @VisibleForTesting
   protected static InputStream getBundleFileInputStream(String bundleName) {
     InputStream bundle = BundleSynchronizedMatcher.class.getResourceAsStream(L10N_PATH + bundleName);
     assertThat("File '" + bundleName + "' does not exist in '/org/sonar/l10n/'.", bundle, notNullValue());
     return bundle;
   }
 
-  @VisibleForTesting
   protected static InputStream getDefaultBundleFileInputStream(String bundleName) {
     String defaultBundleName = extractDefaultBundleName(bundleName);
     InputStream bundle = BundleSynchronizedMatcher.class.getResourceAsStream(L10N_PATH + defaultBundleName);
@@ -167,11 +162,10 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return bundle;
   }
 
-  @VisibleForTesting
   protected static String extractDefaultBundleName(String bundleName) {
     int firstUnderScoreIndex = bundleName.indexOf('_');
     assertThat("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0,
-        is(true));
+      is(true));
     return bundleName.substring(0, firstUnderScoreIndex) + ".properties";
   }
 
