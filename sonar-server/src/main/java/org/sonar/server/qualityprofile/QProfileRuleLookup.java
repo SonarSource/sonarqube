@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
+
+import org.sonar.server.rule.ActiveRuleDocument;
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.RuleDocument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -35,9 +39,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rules.Rule;
 import org.sonar.server.es.ESIndex;
-import org.sonar.server.qualityprofile.Paging;
-import org.sonar.server.qualityprofile.PagingResult;
-import org.sonar.server.qualityprofile.QProfileRule;
 
 import javax.annotation.CheckForNull;
 
@@ -52,7 +53,7 @@ import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
 import static org.sonar.server.rule.RuleRegistry.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
-public class ProfileRules implements ServerExtension {
+public class QProfileRuleLookup implements ServerExtension {
 
   private static final int PAGE_SIZE = 100;
 
@@ -61,7 +62,7 @@ public class ProfileRules implements ServerExtension {
 
   private final ESIndex index;
 
-  public ProfileRules(ESIndex index) {
+  public QProfileRuleLookup(ESIndex index) {
     this.index = index;
   }
 

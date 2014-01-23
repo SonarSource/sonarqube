@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
 
+import org.sonar.server.rule.ProfileRuleQuery;
+import org.sonar.server.rule.RuleRegistry;
+
+import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;
@@ -41,9 +45,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProfileRulesTest {
+public class QProfileRuleLookupTest {
 
-  private ProfileRules profileRules;
+  private QProfileRuleLookup profileRules;
   private EsSetup esSetup;
 
   @Before
@@ -63,7 +67,7 @@ public class ProfileRulesTest {
     index.start();
     RuleRegistry registry = new RuleRegistry(index, null, null, null);
     registry.start();
-    profileRules = new ProfileRules(index);
+    profileRules = new QProfileRuleLookup(index);
 
     esSetup.client().prepareBulk()
       // On profile 1

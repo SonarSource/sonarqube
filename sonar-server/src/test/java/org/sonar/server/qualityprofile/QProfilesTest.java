@@ -40,7 +40,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
-import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -93,7 +92,7 @@ public class QProfilesTest {
   QProfilePluginExporter exporter;
 
   @Mock
-  ProfileRules rules;
+  QProfileRuleLookup rules;
 
   QProfiles qProfiles;
 
@@ -405,7 +404,7 @@ public class QProfilesTest {
     final int profileId = 42;
     ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
     Paging paging = Paging.create(20, 1);
-    ProfileRules.QProfileRuleResult result = mock(ProfileRules.QProfileRuleResult.class);
+    QProfileRuleLookup.QProfileRuleResult result = mock(QProfileRuleLookup.QProfileRuleResult.class);
     when(rules.searchInactives(query, paging)).thenReturn(result);
     assertThat(qProfiles.searchInactiveProfileRules(query, paging)).isEqualTo(result);
   }

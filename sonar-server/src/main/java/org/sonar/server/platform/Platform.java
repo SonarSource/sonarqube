@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.qualityprofile.QProfileRuleLookup;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
@@ -275,7 +277,7 @@ public final class Platform {
     servicesContainer.addSingleton(ListingWs.class);
 
     // quality profiles
-    servicesContainer.addSingleton(ProfileRules.class);
+    servicesContainer.addSingleton(QProfileRuleLookup.class);
     servicesContainer.addSingleton(QProfiles.class);
     servicesContainer.addSingleton(QProfileLookup.class);
     servicesContainer.addSingleton(QProfileOperations.class);

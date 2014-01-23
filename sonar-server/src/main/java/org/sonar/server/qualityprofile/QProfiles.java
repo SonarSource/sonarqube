@@ -37,7 +37,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.ProfileRuleQuery;
-import org.sonar.server.rule.ProfileRules;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
@@ -70,12 +69,12 @@ public class QProfiles implements ServerComponent {
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
   private final QProfileRuleOperations ruleOperations;
-  private final ProfileRules rules;
+  private final QProfileRuleLookup rules;
 
   public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, RuleDao ruleDao, ResourceDao resourceDao,
                    QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
                    QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations, QProfileRuleOperations ruleOperations,
-                   ProfileRules rules) {
+                   QProfileRuleLookup rules) {
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
@@ -246,7 +245,7 @@ public class QProfiles implements ServerComponent {
     return rules.findByProfileIdAndRuleId(profileId, ruleId);
   }
 
-  public ProfileRules.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleLookup.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
     return rules.search(query, paging);
   }
 
@@ -254,7 +253,7 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(query);
   }
 
-  public ProfileRules.QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
+  public QProfileRuleLookup.QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
     return rules.searchInactives(query, paging);
   }
 
