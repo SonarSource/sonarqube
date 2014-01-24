@@ -123,7 +123,7 @@
           <h4>
             <%= image_tag('reviews/comment.png') -%>
             <b>{{userName}}</b>
-            ({{fCreationDate}})
+            ({{fCreatedAge}})
 
             {{#if updatable}}
               &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
@@ -137,46 +137,55 @@
       {{/each}}
     </div>
 
-    <ul class="code-issue-actions">
-      {{#inArray actions "comment"}}
-        <li>
-          <a id="issue-comment" class="link-action"><%= message('issue.comment.formlink') -%></a>
-        </li>
-      {{/inArray}}
+    {{#ifNotEmpty actions transitions}}
+      <ul class="code-issue-actions">
+        {{#inArray actions "comment"}}
+          <li>
+            <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
+          </li>
+        {{/inArray}}
 
-      {{#inArray actions "assign"}}
-        <li>
-          <a id="issue-assign" class="link-action"><%= message('issue.assign.formlink') -%></a>
-          {{#inArray actions "assign_to_me"}}
-            [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
-          {{/inArray}}
-        </li>
-      {{/inArray}}
-
-      {{#inArray actions "plan"}}
-        <li>
-          <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
-        </li>
-      {{/inArray}}
-
-      <li>
-        <div class="dropdown">
-          <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
-          <ul style="display: none" class="dropdown-menu">
-            {{#inArray actions "set_severity"}}
-              <li>
-                <a id="issue-change-severity" class="link-action spacer-right">Change severity</a>
-              </li>
+        {{#inArray actions "assign"}}
+          <li>
+            <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
+            {{#inArray actions "assign_to_me"}}
+              [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
             {{/inArray}}
-            {{#each transitions}}
-              <li>
-                <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{this}}</a>
-              </li>
-            {{/each}}
-          </ul>
-        </div>
-      </li>
-    </ul>
+          </li>
+        {{/inArray}}
+
+        {{#inArray actions "plan"}}
+          <li>
+            <a id="issue-plan" class="link-action">{{translate "actions.plan" }}</a>
+          </li>
+        {{/inArray}}
+
+        {{#ifHasExtraActions actions transitions}}
+          <li>
+            <div class="dropdown">
+              <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
+              <ul style="display: none" class="dropdown-menu">
+                {{#inArray actions "set_severity"}}
+                  <li>
+                    <a id="issue-change-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
+                  </li>
+                {{/inArray}}
+                {{#pluginActions actions}}
+                  <li>
+                    <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
+                  </li>
+                {{/pluginActions}}
+                {{#each transitions}}
+                  <li>
+                    <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
+                  </li>
+                {{/each}}
+              </ul>
+            </div>
+          </li>
+        {{/ifHasExtraActions}}
+      </ul>
+    {{/ifNotEmpty}}
 
     <div class="code-issue-form"></div>
   </div>

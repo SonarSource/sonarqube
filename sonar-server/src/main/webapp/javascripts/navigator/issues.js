@@ -53,6 +53,7 @@ jQuery(function() {
       }
 
       this.paging = r.paging;
+      this.maxResultsReached = r.maxResultsReached;
 
       return r.issues.map(function(issue) {
         return _.extend({}, issue, {
@@ -236,6 +237,7 @@ jQuery(function() {
       return _.extend(data || {}, {
         paging: this.collection.paging,
         sorting: this.collection.sorting,
+        maxResultsReached: this.collection.maxResultsReached,
         appState: window.SS.appState.toJSON(),
         query: (Backbone.history.fragment || '').replace(/\|/g, '&')
       });
@@ -383,15 +385,21 @@ jQuery(function() {
 
     submit: function() {
       var that = this,
-          text = this.ui.textarea.val();
-      that.options.detailView.updateAfterAction();
+          text = this.ui.textarea.val(),
+          update = this.model && this.model.has('key'),
+          url = baseUrl + '/api/issues/' + (update ? 'edit_comment' : 'add_comment'),
+          data = { text: text };
+
+      if (update) {
+        data.key = this.model.get('key');
+      } else {
+        data.issue = this.options.issue.get('key');
+      }
+
       jQuery.ajax({
         type: 'POST',
-        url: baseUrl + '/api/issues/add_comment',
-        data: {
-          issue: this.options.issue.get('key'),
-          text: text
-        }
+        url: url,
+        data: data
       }).done(function() {
             that.options.detailView.updateAfterAction(true);
           });
@@ -443,11 +451,13 @@ jQuery(function() {
           that.formRegion.reset();
           that.$('.code-issue-actions').show();
           that.$('.code-issue-form').hide();
+          that.$('[data-comment-key]').show();
         });
       } else {
         that.formRegion.reset();
         that.$('.code-issue-actions').show();
         that.$('.code-issue-form').hide();
+        that.$('[data-comment-key]').show();
       }
     },
 
@@ -462,11 +472,11 @@ jQuery(function() {
 
 
     editComment: function(e) {
-      var that = this,
-          commentKey = jQuery(e.target).closest('[data-comment-key]').data('comment-key'),
+      var commentEl = jQuery(e.target).closest('[data-comment-key]'),
+          commentKey = commentEl.data('comment-key'),
           comment = _.findWhere(this.model.get('comments'), { key: commentKey });
 
-      console.log(comment);
+      commentEl.hide();
 
       var commentFormView = new IssueDetailCommentFormView({
         model: new Backbone.Model(comment),
@@ -483,7 +493,7 @@ jQuery(function() {
           confirmMsg = jQuery(e.target).data('confirm-msg');
 
       if (confirm(confirmMsg)) {
-        $j.ajax({
+        jQuery.ajax({
           type: "POST",
           url: baseUrl + "/issue/delete_comment?id=" + commentKey
         }).done(function() {

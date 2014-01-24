@@ -1,19 +1,21 @@
 <script id="issues-actions-template" type="text/x-handlebars-template">
-  <div class="navigator-actions-order">
-    {{#if sorting}}
-      Ordered by {{sorting.sortText}} {{#if sorting.asc}}<i class="icon-arrow-up"></i>{{else}}<i class="icon-arrow-down"></i>{{/if}}
-    {{else}}
-      Order
-    {{/if}}
-  </div>
-  <ul class="navigator-actions-order-choices">
-    <li data-sort="UPDATE_DATE" data-asc="true"><%= message('issues.sort.update_date') -%> <i class="icon-arrow-up"></i></li>
-    <li data-sort="UPDATE_DATE" data-asc="false"><%= message('issues.sort.update_date') -%> <i class="icon-arrow-down"></i></li>
-    <li data-sort="SEVERITY" data-asc="true"><%= message('issues.sort.severity') -%> <i class="icon-arrow-up"></i></li>
-    <li data-sort="SEVERITY" data-asc="false"><%= message('issues.sort.severity') -%> <i class="icon-arrow-down"></i></li>
-    <li data-sort="STATUS" data-asc="true"><%= message('issues.sort.status') -%> <i class="icon-arrow-up"></i></li>
-    <li data-sort="STATUS" data-asc="false"><%= message('issues.sort.status') -%> <i class="icon-arrow-down"></i></li>
-  </ul>
+  {{#unless maxResultsReached}}
+    <div class="navigator-actions-order">
+      {{#if sorting}}
+        Ordered by {{sorting.sortText}} {{#if sorting.asc}}<i class="icon-arrow-up"></i>{{else}}<i class="icon-arrow-down"></i>{{/if}}
+      {{else}}
+        Order
+      {{/if}}
+    </div>
+    <ul class="navigator-actions-order-choices">
+      <li data-sort="UPDATE_DATE" data-asc="true"><%= message('issues.sort.update_date') -%> <i class="icon-arrow-up"></i></li>
+      <li data-sort="UPDATE_DATE" data-asc="false"><%= message('issues.sort.update_date') -%> <i class="icon-arrow-down"></i></li>
+      <li data-sort="SEVERITY" data-asc="true"><%= message('issues.sort.severity') -%> <i class="icon-arrow-up"></i></li>
+      <li data-sort="SEVERITY" data-asc="false"><%= message('issues.sort.severity') -%> <i class="icon-arrow-down"></i></li>
+      <li data-sort="STATUS" data-asc="true"><%= message('issues.sort.status') -%> <i class="icon-arrow-up"></i></li>
+      <li data-sort="STATUS" data-asc="false"><%= message('issues.sort.status') -%> <i class="icon-arrow-down"></i></li>
+    </ul>
+  {{/unless}}
   <div class="navigator-actions-total">
     Found: {{paging.total}}
     {{#if appState.canBulkChange}}

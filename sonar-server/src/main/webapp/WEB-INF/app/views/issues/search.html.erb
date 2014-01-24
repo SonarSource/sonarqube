@@ -69,6 +69,14 @@
           '<%= escape_javascript action -%>': '<%= escape_javascript message("issue.action.#{action}.formlink") -%>',
         <% end -%>
       },
+      'transitions': {
+        confirm:        '<%= escape_javascript message('issue.transition.confirm') -%>',
+        unconfirm:      '<%= escape_javascript message('issue.transition.unconfirm') -%>',
+        resolve:        '<%= escape_javascript message('issue.transition.resolve') -%>',
+        falsepositive:  '<%= escape_javascript message('issue.transition.falsepositive') -%>',
+        reopen:         '<%= escape_javascript message('issue.transition.reopen') -%>',
+        close:          '<%= escape_javascript message('issue.transition.close') -%>'
+      },
       assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
       resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
       resolutions: {
