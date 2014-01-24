@@ -65,10 +65,11 @@ public class WebServiceEngine implements ServerComponent, Startable {
     return context.controllers();
   }
 
-  public void execute(Request request, Response response,
+  public void execute(InternalRequest request, Response response,
                       String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
+      request.setAction(action);
       verifyRequest(action, request);
       action.handler().handle(request, response);
 

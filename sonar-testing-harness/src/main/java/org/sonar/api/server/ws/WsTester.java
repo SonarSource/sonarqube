@@ -43,13 +43,18 @@ public class WsTester {
   public static class TestRequest extends Request {
 
     private final WebService.Controller controller;
-    private final String actionKey;
+    private final WebService.Action action;
     private String method = "GET";
     private Map<String, String> params = new HashMap<String, String>();
 
-    private TestRequest(WebService.Controller controller, String actionKey) {
+    private TestRequest(WebService.Controller controller, WebService.Action action) {
       this.controller = controller;
-      this.actionKey = actionKey;
+      this.action = action;
+    }
+
+    @Override
+    public WebService.Action action() {
+      return action;
     }
 
     @Override
@@ -81,10 +86,6 @@ public class WsTester {
     }
 
     public Result execute() throws Exception {
-      WebService.Action action = controller.action(actionKey);
-      if (action == null) {
-        throw new IllegalArgumentException("Action not found: " + actionKey);
-      }
       TestResponse response = new TestResponse();
       action.handler().handle(this, response);
       return new Result(response);
@@ -207,10 +208,17 @@ public class WsTester {
     if (context.controllers().size() != 1) {
       throw new IllegalStateException("The method newRequest(String) requires to define one, and only one, controller");
     }
-    return new TestRequest(context.controllers().get(0), actionKey);
+    WebService.Controller controller = context.controllers().get(0);
+    WebService.Action action = controller.action(actionKey);
+    if (action == null) {
+      throw new IllegalArgumentException("Action not found: " + actionKey);
+    }
+    return new TestRequest(controller, action);
   }
 
   public TestRequest newRequest(String controllerPath, String actionKey) {
-    return new TestRequest(context.controller(controllerPath), actionKey);
+    WebService.Controller controller = context.controller(controllerPath);
+    WebService.Action action = controller.action(actionKey);
+    return new TestRequest(controller, action);
   }
 }

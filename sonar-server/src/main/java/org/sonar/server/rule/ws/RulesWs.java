@@ -31,22 +31,21 @@ public class RulesWs implements WebService {
     NewController controller = context.newController("api/rules")
       .setDescription("Coding rules");
 
-    controller.newAction("search")
-      .setDescription("Search for coding rules")
+    controller.newAction("list")
+      .setDescription("List coding rules")
       .setSince("4.2")
       .setHandler(new RequestHandler() {
         @Override
-        public void handle(Request request, Response response) throws Exception {
-          search(request, response);
+        public void handle(Request request, Response response) {
+          list(request, response);
         }
       });
 
     controller.done();
   }
 
-  void search(Request request, Response response) {
+  void list(Request request, Response response) {
     response.newJsonWriter().beginObject()
-      // TODO
       .prop("TODO", true)
       .endObject()
       .close();

@@ -49,7 +49,7 @@ public class IssueFilterWs implements WebService {
       .setPrivate(true)
       .setHandler(new RequestHandler() {
         @Override
-        public void handle(Request request, Response response) throws Exception {
+        public void handle(Request request, Response response) {
           page(request, response);
         }
       });

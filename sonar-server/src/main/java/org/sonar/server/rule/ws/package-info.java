@@ -17,15 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.rule.ws;
 
-import org.sonar.api.ServerExtension;
-
-/**
- * @since 4.2
- */
-public interface RequestHandler extends ServerExtension {
-
-  void handle(Request request, Response response);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -33,17 +33,17 @@ import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class WebServiceEngineTest {
 
-  private static class SimpleRequest extends Request {
+  private static class SimpleRequest extends InternalRequest {
     private String method = "GET";
     private Map<String, String> params = new HashMap<String, String>();
 
@@ -152,7 +152,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "health");
 
@@ -162,7 +162,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_controller() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/xxx", "health");
 
@@ -172,7 +172,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_action() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "xxx");
 
@@ -182,7 +182,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_get_not_allowed() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -192,7 +192,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_post_required() throws Exception {
-    Request request = new SimpleRequest().setMethod("POST");
+    InternalRequest request = new SimpleRequest().setMethod("POST");
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -202,7 +202,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void required_parameter_is_not_set() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -212,7 +212,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_not_set() throws Exception {
-    Request request = new SimpleRequest().setParam("message", "Hello World");
+    InternalRequest request = new SimpleRequest().setParam("message", "Hello World");
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -222,7 +222,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_set() throws Exception {
-    Request request = new SimpleRequest()
+    InternalRequest request = new SimpleRequest()
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
     SimpleResponse response = new SimpleResponse();
@@ -234,7 +234,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void internal_error() throws Exception {
-    Request request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest();
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "fail");
 
@@ -249,22 +249,30 @@ public class WebServiceEngineTest {
       newController.newAction("health")
         .setHandler(new RequestHandler() {
           @Override
-          public void handle(Request request, Response response) throws Exception {
-            response.stream().output().write("good".getBytes());
+          public void handle(Request request, Response response) {
+            try {
+              response.stream().output().write("good".getBytes());
+            } catch (IOException e) {
+              throw new IllegalStateException(e);
+            }
           }
         });
       newController.newAction("ping")
         .setPost(true)
         .setHandler(new RequestHandler() {
           @Override
-          public void handle(Request request, Response response) throws Exception {
-            response.stream().output().write("pong".getBytes());
+          public void handle(Request request, Response response) {
+            try {
+              response.stream().output().write("pong".getBytes());
+            } catch (IOException e) {
+              throw new IllegalStateException(e);
+            }
           }
         });
       newController.newAction("fail")
         .setHandler(new RequestHandler() {
           @Override
-          public void handle(Request request, Response response) throws Exception {
+          public void handle(Request request, Response response) {
             throw new IllegalStateException("Unexpected");
           }
         });
@@ -275,9 +283,13 @@ public class WebServiceEngineTest {
         .newParam("author", "optional author")
         .setHandler(new RequestHandler() {
           @Override
-          public void handle(Request request, Response response) throws Exception {
-            IOUtils.write(
+          public void handle(Request request, Response response) {
+            try {
+              IOUtils.write(
               request.requiredParam("message") + " by " + request.param("author", "-"), response.stream().output());
+            } catch (IOException e) {
+              throw new IllegalStateException(e);
+            }
           }
         });
       newController.done();

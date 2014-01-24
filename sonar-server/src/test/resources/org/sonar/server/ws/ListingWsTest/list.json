@@ -33,7 +33,7 @@
             "description": "List web services",
             "actions": [
                 {
-                    "key": "index",
+                    "key": "list",
                     "since": "4.2",
                     "post": false
                 }

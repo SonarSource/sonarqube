@@ -27,12 +27,23 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
 
 public class RequestTest {
 
   static class SimpleRequest extends Request {
 
     private final Map<String, String> params = new HashMap<String, String>();
+    private final WebService.Action action;
+
+    private SimpleRequest(WebService.Action action) {
+      this.action = action;
+    }
+
+    @Override
+    public WebService.Action action() {
+      return action;
+    }
 
     @Override
     public String method() {
@@ -54,7 +65,7 @@ public class RequestTest {
   }
 
 
-  SimpleRequest request = new SimpleRequest();
+  SimpleRequest request = new SimpleRequest(mock(WebService.Action.class));
 
   @Test
   public void required_param_is_missing() throws Exception {

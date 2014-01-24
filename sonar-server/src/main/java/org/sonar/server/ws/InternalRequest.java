@@ -17,15 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
+package org.sonar.server.ws;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
 
-/**
- * @since 4.2
- */
-public interface RequestHandler extends ServerExtension {
+public abstract class InternalRequest extends Request {
+  private WebService.Action action;
 
-  void handle(Request request, Response response);
+  @Override
+  public WebService.Action action() {
+    return action;
+  }
 
+  void setAction(WebService.Action action) {
+    this.action = action;
+  }
 }

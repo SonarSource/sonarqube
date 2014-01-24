@@ -35,17 +35,18 @@ public class RulesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(1);
 
-    WebService.Action search = controller.action("search");
+    WebService.Action search = controller.action("list");
     assertThat(search).isNotNull();
-    assertThat(search.key()).isEqualTo("search");
     assertThat(search.handler()).isNotNull();
     assertThat(search.since()).isEqualTo("4.2");
     assertThat(search.isPost()).isFalse();
+    assertThat(search.isPrivate()).isFalse();
   }
 
   @Test
   public void search_for_rules() throws Exception {
-    tester.newRequest("search").execute().assertJson(getClass(), "search.json");
+    tester.newRequest("list").execute().assertJson(getClass(), "list.json");
   }
 }

@@ -19,11 +19,9 @@
  */
 package org.sonar.server.ws;
 
-import org.sonar.api.server.ws.Request;
-
 import javax.servlet.http.HttpServletRequest;
 
-public class ServletRequest extends Request {
+public class ServletRequest extends InternalRequest {
 
   private final HttpServletRequest source;
 

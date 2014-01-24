@@ -28,6 +28,8 @@ import javax.annotation.CheckForNull;
  */
 public abstract class Request {
 
+  public abstract WebService.Action action();
+
   /**
    * Returns the name of the HTTP method with which this request was made. Possible
    * values are GET and POST. Others are not supported.

@@ -38,9 +38,9 @@ public class ListingWsTest {
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.actions()).hasSize(1);
 
-    WebService.Action index = controller.action("index");
+    WebService.Action index = controller.action("list");
     assertThat(index).isNotNull();
-    assertThat(index.key()).isEqualTo("index");
+    assertThat(index.key()).isEqualTo("list");
     assertThat(index.handler()).isNotNull();
     assertThat(index.since()).isEqualTo("4.2");
     assertThat(index.isPost()).isFalse();
@@ -50,7 +50,7 @@ public class ListingWsTest {
   @Test
   public void index() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
-    tester.newRequest("api/webservices", "index").execute().assertJson(getClass(), "index.json");
+    tester.newRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
   }
 
   static class MetricWebService implements WebService {

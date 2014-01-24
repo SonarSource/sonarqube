@@ -45,7 +45,7 @@ public class RuleTagsWs implements WebService {
       .setSince("4.2")
       .setHandler(new RequestHandler() {
         @Override
-        public void handle(Request request, Response response) throws Exception {
+        public void handle(Request request, Response response) {
           list(request, response);
         }
       });
@@ -56,7 +56,7 @@ public class RuleTagsWs implements WebService {
       .setSince("4.2")
       .setHandler(new RequestHandler() {
         @Override
-        public void handle(Request request, Response response) throws Exception {
+        public void handle(Request request, Response response) {
           create(request, response);
         }
       })
