@@ -32,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -127,6 +128,12 @@ public class WebServiceEngineTest {
       return this;
     }
 
+    @Override
+    public void noContent() {
+      setStatus(204);
+      IOUtils.closeQuietly(output);
+    }
+
     public String outputAsString() {
       return new String(output.toByteArray(), Charsets.UTF_8);
     }
@@ -158,6 +165,16 @@ public class WebServiceEngineTest {
 
     assertThat(response.outputAsString()).isEqualTo("good");
     assertThat(response.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void no_content() throws Exception {
+    InternalRequest request = new SimpleRequest();
+    SimpleResponse response = new SimpleResponse();
+    engine.execute(request, response, "api/system", "alive");
+
+    assertThat(response.outputAsString()).isEmpty();
+    assertThat(response.status()).isEqualTo(204);
   }
 
   @Test
@@ -276,6 +293,13 @@ public class WebServiceEngineTest {
             throw new IllegalStateException("Unexpected");
           }
         });
+      newController.newAction("alive")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          response.noContent();
+        }
+      });
 
       // parameter "message" is required but not "author"
       newController.newAction("print")

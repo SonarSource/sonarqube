@@ -17,35 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
+package org.sonar.server.rule.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.rule.Rules;
 
-import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Set;
 
-/**
- * HTTP response
- *
- * @since 4.2
- */
-public interface Response {
+public class RemoveTagsWsHandler extends AbstractUpdateTagsWsHandler {
 
-  interface Stream {
-    Stream setMediaType(String s);
-    OutputStream output();
+  public RemoveTagsWsHandler(Rules rules) {
+    super(rules);
   }
 
-  int status();
-
-  Response setStatus(int httpStatus);
-
-  JsonWriter newJsonWriter();
-
-  XmlWriter newXmlWriter();
-
-  Stream stream();
-
-  void noContent();
-
+  @Override
+  protected void updateTags(Set<String> currentTags, String[] tagsFromRequest) {
+    currentTags.removeAll(Arrays.asList(tagsFromRequest));
+  }
 }

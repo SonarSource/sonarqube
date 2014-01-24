@@ -56,7 +56,7 @@ public class RuleShowWsHandlerTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWs(new RuleShowWsHandler(rules, i18n)));
+    tester = new WsTester(new RulesWs(new RuleShowWsHandler(rules, i18n), mock(AddTagsWsHandler.class), mock(RemoveTagsWsHandler.class)));
   }
 
   @Test

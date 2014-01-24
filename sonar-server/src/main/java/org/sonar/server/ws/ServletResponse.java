@@ -27,6 +27,7 @@ import org.sonar.api.utils.text.XmlWriter;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -83,6 +84,16 @@ public class ServletResponse implements Response {
   public Response setStatus(int httpStatus) {
     this.httpStatus = httpStatus;
     return this;
+  }
+
+  @Override
+  public void noContent() {
+    setStatus(204);
+    try {
+      this.source.flushBuffer();
+    } catch(IOException ioex) {
+      throw new IllegalStateException("Fail to send 'no content' to client");
+    }
   }
 
   private class Buffer extends StringWriter {

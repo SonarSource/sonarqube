@@ -26,6 +26,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -142,6 +143,12 @@ public class WsTester {
       this.status = httpStatus;
       return this;
     }
+
+    @Override
+    public void noContent() {
+      setStatus(204);
+      IOUtils.closeQuietly(output);
+    }
   }
 
 
@@ -154,6 +161,11 @@ public class WsTester {
 
     public Result assertStatus(int httpStatus) {
       assertThat(httpStatus).isEqualTo(response.status());
+      return this;
+    }
+
+    public Result assertNoContent() {
+      assertStatus(204);
       return this;
     }
 

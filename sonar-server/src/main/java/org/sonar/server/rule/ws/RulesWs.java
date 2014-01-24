@@ -27,9 +27,13 @@ import org.sonar.api.server.ws.WebService;
 public class RulesWs implements WebService {
 
   private final RuleShowWsHandler showHandler;
+  private final AddTagsWsHandler addTagsWsHandler;
+  private final RemoveTagsWsHandler removeTagsWsHandler;
 
-  public RulesWs(RuleShowWsHandler showHandler) {
+  public RulesWs(RuleShowWsHandler showHandler, AddTagsWsHandler addTagsWsHandler, RemoveTagsWsHandler removeTagsWsHandler) {
     this.showHandler = showHandler;
+    this.addTagsWsHandler = addTagsWsHandler;
+    this.removeTagsWsHandler = removeTagsWsHandler;
   }
 
   @Override
@@ -52,6 +56,18 @@ public class RulesWs implements WebService {
       .setSince("4.2")
       .setHandler(showHandler);
 
+    addTagParams(controller.newAction("add_tags")
+      .setDescription("Add tags to a rule")
+      .setSince("4.2")
+      .setPost(true)
+      .setHandler(addTagsWsHandler));
+
+    addTagParams(controller.newAction("remove_tags")
+      .setDescription("Remove tags from a rule")
+      .setSince("4.2")
+      .setPost(true)
+      .setHandler(removeTagsWsHandler));
+
     controller.done();
   }
 
@@ -60,5 +76,10 @@ public class RulesWs implements WebService {
       .prop("TODO", true)
       .endObject()
       .close();
+  }
+
+  private void addTagParams(final NewAction action) {
+    action.newParam("key", "Full key of the rule");
+    action.newParam("tags", "Comma separated list of tags");
   }
 }
