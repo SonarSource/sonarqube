@@ -485,7 +485,7 @@ jQuery(function() {
       if (confirm(confirmMsg)) {
         $j.ajax({
           type: "POST",
-          url: baseUrl + "/issue/delete_comment?id=" + commentKey,
+          url: baseUrl + "/issue/delete_comment?id=" + commentKey
         }).done(function() {
               that.updateAfterAction(true);
             });
