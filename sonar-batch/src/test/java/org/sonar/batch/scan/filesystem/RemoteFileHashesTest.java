@@ -27,8 +27,8 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.source.SnapshotDataTypes;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDto;
 
 import java.util.Arrays;
 import java.util.Date;

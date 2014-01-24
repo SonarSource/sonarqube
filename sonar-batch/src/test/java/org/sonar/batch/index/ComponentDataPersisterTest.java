@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDao;
 
 public class ComponentDataPersisterTest extends AbstractDaoTestCase {
 

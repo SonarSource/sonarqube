@@ -21,11 +21,13 @@
 package org.sonar.core.source;
 
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
-import org.sonar.core.source.jdbc.SnapshotSourceDao;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotSourceDao;
 
 import java.util.List;
 
@@ -34,17 +36,21 @@ import static org.mockito.Mockito.*;
 
 public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
+
+  HtmlSourceDecorator sourceDecorator;
+
   @Before
   public void setUpDatasets() {
     setupData("shared");
+
+    SnapshotSourceDao snapshotSourceDao = new SnapshotSourceDao(getMyBatis());
+    SnapshotDataDao snapshotDataDao = new SnapshotDataDao(getMyBatis());
+    sourceDecorator = new HtmlSourceDecorator(getMyBatis(), snapshotSourceDao, snapshotDataDao);
   }
 
   @Test
-  public void should_highlight_syntax_with_html() throws Exception {
-
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
-
-    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(11L);
+  public void highlight_syntax_with_html() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(11L);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -57,11 +63,22 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_mark_symbols_with_html() throws Exception {
+  public void highlight_syntax_with_html_from_component() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher");
 
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
+    assertThat(decoratedSource).containsExactly(
+      "<span class=\"cppd\">/*</span>",
+      "<span class=\"cppd\"> * Header</span>",
+      "<span class=\"cppd\"> */</span>",
+      "",
+      "<span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {",
+      "}"
+    );
+  }
 
-    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(12L);
+  @Test
+  public void mark_symbols_with_html() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(12L);
 
     assertThat(decoratedSource).containsExactly(
       "/*",
@@ -74,11 +91,41 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_decorate_source_with_multiple_decoration_strategies() throws Exception {
+  public void mark_symbols_with_html_from_component() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager");
 
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
+    assertThat(decoratedSource).containsExactly(
+      "/*",
+      " * Header",
+      " */",
+      "",
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
+      "}"
+    );
+  }
 
-    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(13L);
+  @Test
+  public void decorate_source_with_multiple_decoration_strategies() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(13L);
+
+    assertThat(decoratedSource).containsExactly(
+      "<span class=\"cppd\">/*</span>",
+      "<span class=\"cppd\"> * Header</span>",
+      "<span class=\"cppd\"> */</span>",
+      "",
+      "<span class=\"k\">public </span><span class=\"k\">class </span><span class=\"sym-31 sym\">HelloWorld</span> {",
+      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"sym-58 sym\">foo</span>() {",
+      "  }",
+      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"sym-84 sym\">bar</span>() {",
+      "    <span class=\"sym-58 sym\">foo</span>();",
+      "  }",
+      "}"
+    );
+  }
+
+  @Test
+  public void decorate_source_with_multiple_decoration_strategies_from_component() throws Exception {
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor");
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -97,15 +144,29 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_not_query_sources_if_no_snapshot_data() throws Exception {
-
     SnapshotSourceDao snapshotSourceDao = mock(SnapshotSourceDao.class);
     SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
 
-    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(snapshotSourceDao, snapshotDataDao);
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
 
     sourceDecorator.getDecoratedSourceAsHtml(14L);
 
     verify(snapshotDataDao, times(1)).selectSnapshotData(14L, Lists.newArrayList("highlight_syntax", "symbol"));
     verify(snapshotSourceDao, times(0)).selectSnapshotSource(14L);
+  }
+
+  @Test
+  public void should_not_query_sources_if_no_snapshot_data_from_component() throws Exception {
+    SnapshotSourceDao snapshotSourceDao = mock(SnapshotSourceDao.class);
+    SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
+
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
+
+    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor");
+
+    verify(snapshotDataDao, times(1)).selectSnapshotDataByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"), eq(Lists.newArrayList("highlight_syntax", "symbol")),
+      any(SqlSession.class));
+    verify(snapshotSourceDao, times(0)).selectSnapshotSourceByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"),
+      any(SqlSession.class));
   }
 }

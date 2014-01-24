@@ -19,60 +19,82 @@
  */
 package org.sonar.core.source;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
-import org.sonar.core.source.jdbc.SnapshotSourceDao;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDto;
+import org.sonar.core.source.db.SnapshotSourceDao;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 
-/**
- * @since 3.6
- */
 public class HtmlSourceDecorator implements ServerComponent {
+
+  private final MyBatis mybatis;
 
   private final SnapshotSourceDao snapshotSourceDao;
   private final SnapshotDataDao snapshotDataDao;
 
-  public HtmlSourceDecorator(MyBatis myBatis) {
-    this.snapshotSourceDao = new SnapshotSourceDao(myBatis);
-    this.snapshotDataDao = new SnapshotDataDao(myBatis);
-  }
-
-  @VisibleForTesting
-  HtmlSourceDecorator(SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
+  public HtmlSourceDecorator(MyBatis mybatis, SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
+    this.mybatis = mybatis;
     this.snapshotSourceDao = snapshotSourceDao;
-    this.snapshotDataDao= snapshotDataDao;
+    this.snapshotDataDao = snapshotDataDao;
   }
 
+  @CheckForNull
+  public List<String> getDecoratedSourceAsHtml(String componentKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
+      if (!snapshotDataEntries.isEmpty()) {
+        String snapshotSource = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
+        return decorate(snapshotSource, snapshotDataEntries);
+      }
+      return null;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
   public List<String> getDecoratedSourceAsHtml(long snapshotId) {
-    List<String> highlightingDataTypes = Lists.newArrayList(SnapshotDataTypes.SYNTAX_HIGHLIGHTING,
-      SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
-
-    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes);
-
+    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes());
     if (!snapshotDataEntries.isEmpty()) {
       String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
-      if(snapshotSource != null) {
-        DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
-        for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
-          loadSnapshotData(decorationDataHolder, snapshotDataEntry);
-        }
-
-        HtmlTextDecorator textDecorator = new HtmlTextDecorator();
-        return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
+      if (snapshotSource != null) {
+        return decorate(snapshotSource, snapshotDataEntries);
       }
     }
     return null;
   }
 
+  @CheckForNull
+  private List<String> decorate(@Nullable String snapshotSource, Collection<SnapshotDataDto> snapshotDataEntries) {
+    if (snapshotSource != null) {
+      DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
+      for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
+        loadSnapshotData(decorationDataHolder, snapshotDataEntry);
+      }
+
+      HtmlTextDecorator textDecorator = new HtmlTextDecorator();
+      return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
+    }
+    return null;
+  }
+
+  private List<String> highlightingDataTypes() {
+    return Lists.newArrayList(SnapshotDataTypes.SYNTAX_HIGHLIGHTING,
+      SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
+  }
+
   private void loadSnapshotData(DecorationDataHolder dataHolder, SnapshotDataDto entry) {
-    if(!Strings.isNullOrEmpty(entry.getData())) {
+    if (!Strings.isNullOrEmpty(entry.getData())) {
       if (SnapshotDataTypes.SYNTAX_HIGHLIGHTING.equals(entry.getDataType())) {
         dataHolder.loadSyntaxHighlightingData(entry.getData());
       } else if (SnapshotDataTypes.SYMBOL_HIGHLIGHTING.equals(entry.getDataType())) {

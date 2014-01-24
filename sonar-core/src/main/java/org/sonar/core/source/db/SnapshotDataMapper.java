@@ -18,7 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@ParametersAreNonnullByDefault
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * @since 3.6
+ */
+public interface SnapshotDataMapper {
+
+  void insert(SnapshotDataDto snapshotData);
+
+  Collection<SnapshotDataDto> selectSnapshotData(@Param("sid") long snapshotId, @Param("dataTypes") List<String> dataTypes);
+
+  Collection<SnapshotDataDto> selectSnapshotDataByComponentKey(@Param("componentKey") String componentKey, @Param("dataTypes") List<String> dataTypes);
+}

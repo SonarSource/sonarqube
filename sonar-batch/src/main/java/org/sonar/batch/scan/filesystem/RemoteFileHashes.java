@@ -27,10 +27,11 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.source.SnapshotDataTypes;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDto;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;

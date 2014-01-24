@@ -18,14 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+@ParametersAreNonnullByDefault
+package org.sonar.core.source.db;
 
-import org.apache.ibatis.annotations.Param;
-
-/**
- * @since 3.6
- */
-public interface SnapshotSourceMapper {
-
-  String selectSnapshotSource(@Param("sid") long snapshotId);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

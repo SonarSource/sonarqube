@@ -18,15 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
+
+import javax.annotation.CheckForNull;
 
 /**
  * @since 3.6
  */
-public class SnapshotSourceDao {
+public class SnapshotSourceDao implements ServerComponent {
 
   private final MyBatis mybatis;
 
@@ -34,9 +37,9 @@ public class SnapshotSourceDao {
     this.mybatis = myBatis;
   }
 
+  @CheckForNull
   public String selectSnapshotSource(long snapshotId) {
-
-    SqlSession session = mybatis.openBatchSession();
+    SqlSession session = mybatis.openSession();
 
     try {
       SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
@@ -46,4 +49,21 @@ public class SnapshotSourceDao {
       MyBatis.closeQuietly(session);
     }
   }
+
+  @CheckForNull
+  public String selectSnapshotSourceByComponentKey(String componentKey, SqlSession session) {
+      SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
+      return mapper.selectSnapshotSourceByComponentKey(componentKey);
+  }
+
+    @CheckForNull
+  public String selectSnapshotSourceByComponentKey(String componentKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectSnapshotSourceByComponentKey(componentKey, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
 }

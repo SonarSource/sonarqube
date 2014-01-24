@@ -22,8 +22,8 @@ package org.sonar.batch.index;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDto;
 
 import java.util.Map;
 

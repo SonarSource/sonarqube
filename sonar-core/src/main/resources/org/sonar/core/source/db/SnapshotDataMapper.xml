@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.source.db.SnapshotDataMapper">
+
+  <sql id="snapshotDataColumns">
+    snapshot_id AS "snapshotId",
+    snapshot_data AS "data",
+    data_type AS "dataType"
+  </sql>
+
+  <select id="selectSnapshotData" parameterType="map" resultType="SnapshotData">
+    SELECT <include refid="snapshotDataColumns"/>
+    FROM snapshot_data
+    WHERE snapshot_id = #{sid}
+    AND data_type IN
+    <foreach item="dataType" index="index" collection="dataTypes" open="(" separator="," close=")">#{dataType}</foreach>
+  </select>
+
+  <select id="selectSnapshotDataByComponentKey" parameterType="map" resultType="SnapshotData">
+    SELECT <include refid="snapshotDataColumns"/>
+    FROM snapshot_data sd
+    INNER JOIN projects p ON p.id=sd.resource_id and p.enabled=${_true}
+    WHERE p.kee = #{componentKey}
+    AND data_type IN
+    <foreach item="dataType" index="index" collection="dataTypes" open="(" separator="," close=")">#{dataType}</foreach>
+  </select>
+
+  <insert id="insert" parameterType="SnapshotData" useGeneratedKeys="false">
+    insert into snapshot_data
+    (resource_id, snapshot_id, snapshot_data, data_type, created_at, updated_at)
+    values (
+    #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  </insert>
+</mapper>
+

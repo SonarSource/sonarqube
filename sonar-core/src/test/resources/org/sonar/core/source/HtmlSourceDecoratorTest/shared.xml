@@ -1,6 +1,8 @@
 <dataset>
 
-    <projects id="1" kee="org.apache.struts:struts" enabled="[true]"/>
+    <projects id="1" kee="org.apache.struts:struts:Dispatcher" enabled="[true]"/>
+    <projects id="2" kee="org.apache.struts:struts:VelocityManager" enabled="[true]"/>
+    <projects id="3" kee="org.apache.struts:struts:DebuggingInterceptor" enabled="[true]"/>
 
     <snapshots id="11" project_id="1" islast="[true]" />
     <snapshots id="12" project_id="2" islast="[true]" />

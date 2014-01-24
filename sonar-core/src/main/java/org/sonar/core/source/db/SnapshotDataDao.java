@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -44,10 +44,24 @@ public class SnapshotDataDao implements BatchComponent, ServerComponent {
     try {
       SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
       return mapper.selectSnapshotData(snapshotId, dataTypes);
-
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+
+  public Collection<SnapshotDataDto> selectSnapshotDataByComponentKey(String componentKey, List<String> dataTypes) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectSnapshotDataByComponentKey(componentKey, dataTypes, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public Collection<SnapshotDataDto> selectSnapshotDataByComponentKey(String componentKey, List<String> dataTypes, SqlSession session) {
+    SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
+    return mapper.selectSnapshotDataByComponentKey(componentKey, dataTypes);
   }
 
   void insert(SnapshotDataDto snapshotData) {

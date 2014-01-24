@@ -18,29 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+/**
+ * @since 3.6
+ */
+public interface SnapshotSourceMapper {
 
-import static org.fest.assertions.Assertions.assertThat;
+  String selectSnapshotSource(long snapshotId);
 
-public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
-
-  private SnapshotSourceDao dao;
-
-  @Before
-  public void setUpTestData() {
-    dao = new SnapshotSourceDao(getMyBatis());
-    setupData("shared");
-  }
-
-  @Test
-  public void should_retrieve_snapshot_source() throws Exception {
-
-    String snapshotSource = dao.selectSnapshotSource(10L);
-
-    assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
-  }
+  String selectSnapshotSourceByComponentKey(String componentKey);
 }

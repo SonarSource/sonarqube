@@ -18,56 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
-/**
- * @since 3.6
- */
-public class SnapshotDataDto {
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
-  private long id;
-  private long snapshotId;
-  private long resourceId;
-  private String data;
-  private String dataType;
+import static org.fest.assertions.Assertions.assertThat;
 
-  public long getSnapshotId() {
-    return snapshotId;
+public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
+
+  private SnapshotSourceDao dao;
+
+  @Before
+  public void setUpTestData() {
+    dao = new SnapshotSourceDao(getMyBatis());
+    setupData("shared");
   }
 
-  public long getResourceId() {
-    return resourceId;
+  @Test
+  public void select_snapshot_source() throws Exception {
+    String snapshotSource = dao.selectSnapshotSource(11L);
+
+    assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
   }
 
-  public String getData() {
-    return data;
-  }
+  @Test
+  public void select_snapshot_source_by_component_key() throws Exception {
+    String snapshotSource = dao.selectSnapshotSourceByComponentKey("org.apache.struts:struts:Dispatcher");
 
-  public String getDataType() {
-    return dataType;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
-
-  public void setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-  }
-
-  public void setResourceId(long resourceId) {
-    this.resourceId = resourceId;
-  }
-
-  public void setData(String data) {
-    this.data = data;
-  }
-
-  public void setDataType(String dataType) {
-    this.dataType = dataType;
+    assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
   }
 }

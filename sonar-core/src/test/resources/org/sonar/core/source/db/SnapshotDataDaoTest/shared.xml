@@ -1,0 +1,8 @@
+<dataset>
+
+  <projects id="1" kee="org.apache.struts:struts:Dispatcher" enabled="[true]"/>
+
+  <snapshot_data id="101" resource_id="1" snapshot_id="10" snapshot_data="0,10,k;" data_type="highlight_syntax"/>
+  <snapshot_data id="102" resource_id="1" snapshot_id="10" snapshot_data="20,25,20,35,45;" data_type="symbol"/>
+
+</dataset>

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.core.source.db;
 
 import com.google.common.collect.Lists;
 import org.junit.Before;
@@ -40,8 +40,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_retrieve_snapshot_data_by_snapshot_id() throws Exception {
-
+  public void select_snapshot_data_by_snapshot_id() throws Exception {
     Collection<SnapshotDataDto> data = dao.selectSnapshotData(10L, Lists.newArrayList("highlight_syntax", "symbol"));
 
     assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
@@ -50,8 +49,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_serialize_snapshot_data() throws Exception {
-
+  public void serialize_snapshot_data() throws Exception {
     String data = "0,10,k;";
     String dataType = "highlight_syntax";
 
@@ -68,5 +66,15 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
     assertThat(serializedData).onProperty("snapshotId").containsOnly(11L);
     assertThat(serializedData).onProperty("dataType").containsOnly(dataType);
     assertThat(serializedData).onProperty("data").containsOnly(data);
+  }
+
+  @Test
+  public void select_snapshot_data_by_project_id() throws Exception {
+    Collection<SnapshotDataDto> data = dao.selectSnapshotDataByComponentKey("org.apache.struts:struts:Dispatcher", Lists.newArrayList("highlight_syntax", "symbol"));
+
+    assertThat(data).isNotEmpty();
+    assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
+    assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
+    assertThat(data).onProperty("data").containsOnly("0,10,k;", "20,25,20,35,45;");
   }
 }

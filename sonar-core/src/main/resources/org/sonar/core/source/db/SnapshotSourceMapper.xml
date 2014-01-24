@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.source.db.SnapshotSourceMapper">
+
+  <select id="selectSnapshotSource" parameterType="int" resultType="string">
+    SELECT data
+    FROM snapshot_sources
+    WHERE snapshot_id = #{sid}
+  </select>
+
+  <select id="selectSnapshotSourceByComponentKey" parameterType="String" resultType="string">
+    SELECT data
+    FROM snapshot_sources source
+    INNER JOIN snapshots s ON s.id=source.snapshot_id and s.islast=${_true}
+    INNER JOIN projects p ON p.id=s.project_id and p.enabled=${_true}
+    WHERE p.kee = #{componentKey}
+  </select>
+
+</mapper>
+

@@ -18,19 +18,56 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.jdbc;
-
-import org.apache.ibatis.annotations.Param;
-
-import java.util.Collection;
-import java.util.List;
+package org.sonar.core.source.db;
 
 /**
  * @since 3.6
  */
-public interface SnapshotDataMapper {
+public class SnapshotDataDto {
 
-  void insert(SnapshotDataDto snapshotData);
+  private long id;
+  private long snapshotId;
+  private long resourceId;
+  private String data;
+  private String dataType;
 
-  Collection<SnapshotDataDto> selectSnapshotData(@Param("sid") long snapshotId, @Param("dataTypes") List<String> dataTypes);
+  public long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public long getResourceId() {
+    return resourceId;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public String getDataType() {
+    return dataType;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public void setSnapshotId(long snapshotId) {
+    this.snapshotId = snapshotId;
+  }
+
+  public void setResourceId(long resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
+  public void setDataType(String dataType) {
+    this.dataType = dataType;
+  }
 }

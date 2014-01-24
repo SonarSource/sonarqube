@@ -19,8 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.rule.RuleTagDao;
-
 import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
@@ -39,7 +37,9 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.*;
@@ -86,6 +86,7 @@ public final class DaoUtils {
       RuleTagDao.class,
       SemaphoreDao.class,
       SnapshotDataDao.class,
+      SnapshotSourceDao.class,
       UserDao.class
     );
   }

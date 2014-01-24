@@ -1,0 +1,10 @@
+<dataset>
+
+    <projects id="1" kee="org.apache.struts:struts:Dispatcher" enabled="[true]"/>
+
+    <snapshots id="10" project_id="1" islast="[false]" />
+    <snapshots id="11" project_id="1" islast="[true]" />
+
+    <snapshot_sources id="101" snapshot_id="11" data="public class Foo {public Foo(){}}" />
+
+</dataset>
