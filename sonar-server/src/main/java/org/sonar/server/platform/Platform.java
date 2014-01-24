@@ -100,6 +100,7 @@ import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.RuleShowWsHandler;
 import org.sonar.server.rule.ws.RuleTagsWs;
 import org.sonar.server.rule.ws.RulesWs;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.SourcesShowWsHandler;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
@@ -369,6 +370,7 @@ public final class Platform {
 
     // source
     servicesContainer.addSingleton(HtmlSourceDecorator.class);
+    servicesContainer.addSingleton(SourceService.class);
     servicesContainer.addSingleton(SourcesWs.class);
     servicesContainer.addSingleton(SourcesShowWsHandler.class);
 

@@ -24,23 +24,23 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.source.SourceService;
 
 import java.util.List;
 
 public class SourcesShowWsHandler implements RequestHandler {
 
-  private final HtmlSourceDecorator sourceDecorator;
+  private final SourceService sourceService;
 
-  public SourcesShowWsHandler(HtmlSourceDecorator sourceDecorator) {
-    this.sourceDecorator = sourceDecorator;
+  public SourcesShowWsHandler(SourceService sourceService) {
+    this.sourceService = sourceService;
   }
 
   @Override
   public void handle(Request request, Response response) {
     String componentKey = request.requiredParam("key");
-    List<String> sourceHtml = sourceDecorator.getDecoratedSourceAsHtml(componentKey);
+    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey);
     if (sourceHtml == null) {
       throw new NotFoundException("Source code not found for : " + componentKey);
     }

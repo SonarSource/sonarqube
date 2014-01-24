@@ -18,45 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.source.ws;
+package org.sonar.server.source;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.server.ws.WsTester;
-import org.sonar.server.source.SourceService;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.server.user.MockUserSession;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SourcesShowWsHandlerTest {
+public class SourceServiceTest {
 
   @Mock
-  SourceService sourceService;
+  HtmlSourceDecorator sourceDecorator;
 
-  WsTester tester;
+  @Mock
+  ResourceDao resourceDao;
+
+  SourceService service;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new SourcesShowWsHandler(sourceService)));
+    service = new SourceService(sourceDecorator, resourceDao);
   }
 
   @Test
-  public void show_source() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(componentKey)).thenReturn(newArrayList(
-      "/*",
-      " * Header",
-      " */",
-      "",
-      "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
-      "}"
-    ));
+  public void sources_from_component() throws Exception {
+    String projectKey = "org.sonar.sample";
+    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
-    request.execute().assertJson(getClass(), "show_source.json");
+    service.sourcesFromComponent(componentKey);
+
+    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey);
   }
 }
