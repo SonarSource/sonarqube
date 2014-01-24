@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.server.rule.RuleRegistry;
-
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -29,6 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.search.SearchHit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +42,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
@@ -101,6 +101,12 @@ public class ESActiveRuleTest {
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
       EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
     );
+  }
+
+  @After
+  public void tearDown() {
+    searchIndex.stop();
+    esSetup.terminate();
   }
 
   @Test
