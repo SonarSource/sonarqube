@@ -59,27 +59,15 @@ public final class SourceScanner implements Sensor {
    * {@inheritDoc}
    */
   public void analyse(Project project, SensorContext context) {
-    parseDirs(project, false);
-    parseDirs(project, true);
-  }
-
-  protected void parseDirs(Project project, boolean isTest) {
     Charset sourcesEncoding = fileSystem.sourceCharset();
 
-    Iterable<InputFile> files;
-    if (isTest) {
-      files = fileSystem.inputFiles(FileQuery.onTest().onLanguage(project.getLanguageKey()));
-    } else {
-      files = fileSystem.inputFiles(FileQuery.onSource().onLanguage(project.getLanguageKey()));
-    }
-
-    for (InputFile inputFile : files) {
+    for (InputFile inputFile : fileSystem.inputFiles(FileQuery.all())) {
       try {
         String componentEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
         if (componentEffectiveKey != null) {
-          String relativePathFromSource = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
-          inclusionPatternInitializer.initializePatternsForPath(relativePathFromSource, componentEffectiveKey);
-          exclusionPatternInitializer.initializePatternsForPath(relativePathFromSource, componentEffectiveKey);
+          String path = inputFile.path();
+          inclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
+          exclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
           if (exclusionPatternInitializer.hasFileContentPattern()) {
             regexpScanner.scan(componentEffectiveKey, inputFile.file(), sourcesEncoding);
           }

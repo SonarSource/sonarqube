@@ -31,13 +31,17 @@ public interface InputFile extends Serializable {
   /**
    * Canonical path of source directory.
    * Example: <code>/path/to/module/src/main/java</code> or <code>C:\path\to\module\src\main\java</code>
+   * @deprecated since 4.2 No more sonar.sources
    */
+  @Deprecated
   String ATTRIBUTE_SOURCEDIR_PATH = "SRC_DIR_PATH";
 
   /**
    * Relative path from source directory. File separator is the forward slash ('/'),
    * even on MSWindows.
+   * @deprecated since 4.2 No more sonar.sources
    */
+  @Deprecated
   String ATTRIBUTE_SOURCE_RELATIVE_PATH = "SRC_REL_PATH";
 
   /**
