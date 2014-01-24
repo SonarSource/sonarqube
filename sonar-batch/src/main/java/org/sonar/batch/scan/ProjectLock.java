@@ -59,9 +59,9 @@ public class ProjectLock {
 
   private String getErrorMessage(Semaphores.Semaphore semaphore) {
     long duration = semaphore.getDurationSinceLocked();
-    String durationDisplay = i18n.ago(Locale.ENGLISH, duration);
+    String durationDisplay = i18n.age(Locale.ENGLISH, duration);
 
-    return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + ").";
+    return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + " ago).";
   }
 
   public void stop() {

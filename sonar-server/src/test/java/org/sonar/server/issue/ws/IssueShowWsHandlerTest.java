@@ -227,8 +227,8 @@ public class IssueShowWsHandlerTest {
       new DefaultUser().setLogin("arthur").setName("Arthur")
     ));
 
-    when(i18n.instant(any(Locale.class), eq(date1))).thenReturn("9 days");
-    when(i18n.instant(any(Locale.class), eq(date2))).thenReturn("10 days");
+    when(i18n.ageFromNow(any(Locale.class), eq(date1))).thenReturn("9 days");
+    when(i18n.ageFromNow(any(Locale.class), eq(date2))).thenReturn("10 days");
 
     MockUserSession.set().setLogin("arthur");
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());

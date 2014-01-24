@@ -123,23 +123,17 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     return formatMessage(value, parameters);
   }
 
-  public String instant(Locale locale, long durationInMillis) {
-    DurationLabel.Result duration = DurationLabel.instant(durationInMillis);
+  public String age(Locale locale, long durationInMillis) {
+    DurationLabel.Result duration = DurationLabel.label(durationInMillis);
     return message(locale, duration.key(), null, duration.value());
   }
 
-  public String instant(Locale locale, Date date) {
-    long duration = system2.now() - date.getTime();
-    return instant(locale, duration);
+  public String age(Locale locale, Date fromDate, Date toDate) {
+    return age(locale, toDate.getTime() - fromDate.getTime());
   }
 
-  public String ago(Locale locale, long durationInMillis) {
-    DurationLabel.Result duration = DurationLabel.ago(durationInMillis);
-    return message(locale, duration.key(), null, duration.value());
-  }
-
-  public String ago(Locale locale, Date date) {
-    return ago(locale, system2.now() - date.getTime());
+  public String ageFromNow(Locale locale, Date date) {
+    return age(locale, system2.now() - date.getTime());
   }
 
   public String formatDateTime(Locale locale, Date date) {

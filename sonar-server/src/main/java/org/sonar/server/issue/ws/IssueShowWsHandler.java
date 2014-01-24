@@ -177,7 +177,7 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("raw", comment.markdownText())
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
-        .prop("fCreatedAt", i18n.instant(UserSession.get().locale(), comment.createdAt()))
+        .prop("fCreatedAge", i18n.ageFromNow(UserSession.get().locale(), comment.createdAt()))
         .prop("updatable", UserSession.get().isLoggedIn() && UserSession.get().login().equals(comment.userLogin()))
         .endObject();
     }

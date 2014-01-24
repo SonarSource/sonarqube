@@ -29,7 +29,7 @@ import java.util.Locale;
 
 /**
  * Main component that provides translation facilities.
- * 
+ *
  * @since 2.10
  */
 public interface I18n extends ServerComponent, BatchComponent {
@@ -42,47 +42,57 @@ public interface I18n extends ServerComponent, BatchComponent {
    * If additional parameters are given (in the objects list), the result is used as a message pattern
    * to use in a MessageFormat object along with the given parameters.
    *
-   * @param locale the locale to translate into
-   * @param key the key of the pattern to translate
+   * @param locale       the locale to translate into
+   * @param key          the key of the pattern to translate
    * @param defaultValue the default pattern returned when the key is not found in any bundle
-   * @param parameters the parameters used to format the message from the translated pattern.
+   * @param parameters   the parameters used to format the message from the translated pattern.
    * @return the message formatted with the translated pattern and the given parameters
    */
   String message(final Locale locale, final String key, @Nullable final String defaultValue, final Object... parameters);
 
   /**
-   * TODO add documentation
+   * Return the distance in time for a duration in milliseconds
+   *
+   * @param locale           the locale to translate into
+   * @param durationInMillis
    * @since 4.2
    */
-  String instant(Locale locale, long durationInMillis);
+  String age(Locale locale, long durationInMillis);
 
   /**
-   * TODO add documentation
+   * Return the distance in time between two dates
+   *
+   * @param locale   the locale to translate into
+   * @param fromDate
+   * @param toDate
    * @since 4.2
    */
-  String instant(Locale locale, Date date);
+  String age(Locale locale, Date fromDate, Date toDate);
 
   /**
-   * TODO add documentation
+   * Reports the distance in time a date and now
+   *
+   * @param locale the locale to translate into
+   * @param date
    * @since 4.2
    */
-  String ago(Locale locale, long durationInMillis);
+  String ageFromNow(Locale locale, Date date);
 
   /**
-   * TODO add documentation
-   * @since 4.2
-   */
-  String ago(Locale locale, Date date);
-
-  /**
-   * TODO add documentation
+   * Return the formatted datetime
+   *
+   * @param locale the locale to translate into
+   * @param date
    * @since 4.2
    */
   String formatDateTime(Locale locale, Date date);
 
   /**
+   * Return the formatted date
+   *
+   * @param locale the locale to translate into
+   * @param date
    * @since 4.2
-   * TODO add documentation
    */
   String formatDate(Locale locale, Date date);
 

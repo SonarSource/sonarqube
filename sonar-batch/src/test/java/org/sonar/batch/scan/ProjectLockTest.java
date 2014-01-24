@@ -73,7 +73,7 @@ public class ProjectLockTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(SonarException.class);
     }
-    verify(i18n).ago(eq(Locale.ENGLISH), eq(1234L));
+    verify(i18n).age(eq(Locale.ENGLISH), eq(1234L));
   }
 
   @Test

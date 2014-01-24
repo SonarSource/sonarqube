@@ -40,6 +40,7 @@ class Issue
     hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
     hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
+    hash[:fUpdateAge] = Api::Utils.age_from_now(issue.updateDate) if issue.updateDate
     hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate
     hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     if issue.comments.size>0

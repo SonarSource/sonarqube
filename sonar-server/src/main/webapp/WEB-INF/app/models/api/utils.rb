@@ -19,6 +19,7 @@
 #
 require 'time'
 require 'uri'
+#include ActionView::Helpers
 
 class Api::Utils
 
@@ -58,6 +59,10 @@ class Api::Utils
   # Added in 3.6
   def self.java_to_ruby_datetime(java_date)
     java_date && Time.at(java_date.time/1000)
+  end
+
+  def self.age_from_now(java_date)
+    ActionController::Base.helpers.time_ago_in_words(java_to_ruby_datetime(java_date))
   end
 
   def self.is_number?(s)

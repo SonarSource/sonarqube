@@ -47,94 +47,86 @@ public class DurationLabelTest {
   private static final long YEAR = 365 * DAY;
 
   @Test
-  public void instant_seconds() {
+  public void age_in_seconds() {
     long now = System.currentTimeMillis();
-    DurationLabel.Result result = DurationLabel.instant(now - System.currentTimeMillis());
+    DurationLabel.Result result = DurationLabel.label(now - System.currentTimeMillis());
     assertThat(result.key()).isEqualTo("duration.seconds");
     assertThat(result.value()).isNull();
   }
 
   @Test
-  public void ago_seconds() {
-    long now = System.currentTimeMillis();
-    DurationLabel.Result result = DurationLabel.ago(now - System.currentTimeMillis());
-    assertThat(result.key()).isEqualTo("duration.seconds.ago");
+  public void age_in_minute() {
+    DurationLabel.Result result = DurationLabel.label(now() - ago(MINUTE));
+    assertThat(result.key()).isEqualTo("duration.minute");
     assertThat(result.value()).isNull();
   }
 
   @Test
-  public void ago_minute() {
-    DurationLabel.Result result = DurationLabel.label(now() - ago(MINUTE), true);
-    assertThat(result.key()).isEqualTo("duration.minute.ago");
-    assertThat(result.value()).isNull();
-  }
-
-  @Test
-  public void ago_minutes() {
+  public void age_in_minutes() {
     long minutes = 2;
-    DurationLabel.Result result = DurationLabel.label(now() - ago(minutes * MINUTE), true);
-    assertThat(result.key()).isEqualTo("duration.minutes.ago");
+    DurationLabel.Result result = DurationLabel.label(now() - ago(minutes * MINUTE));
+    assertThat(result.key()).isEqualTo("duration.minutes");
     assertThat(result.value()).isEqualTo(minutes);
 
   }
 
   @Test
-  public void ago_hour() {
-    DurationLabel.Result result = DurationLabel.label(now() - ago(HOUR), true);
-    assertThat(result.key()).isEqualTo("duration.hour.ago");
+  public void age_in_hour() {
+    DurationLabel.Result result = DurationLabel.label(now() - ago(HOUR));
+    assertThat(result.key()).isEqualTo("duration.hour");
     assertThat(result.value()).isNull();
   }
 
   @Test
-  public void ago_hours() {
+  public void age_in_hours() {
     long hours = 3;
-    DurationLabel.Result result =  DurationLabel.label(now() - ago(hours * HOUR), true);
-    assertThat(result.key()).isEqualTo("duration.hours.ago");
+    DurationLabel.Result result =  DurationLabel.label(now() - ago(hours * HOUR));
+    assertThat(result.key()).isEqualTo("duration.hours");
     assertThat(result.value()).isEqualTo(hours);
   }
 
   @Test
-  public void ago_day() {
-    DurationLabel.Result result = DurationLabel.label(now() - ago(30 * HOUR), true);
-    assertThat(result.key()).isEqualTo("duration.day.ago");
+  public void age_in_day() {
+    DurationLabel.Result result = DurationLabel.label(now() - ago(30 * HOUR));
+    assertThat(result.key()).isEqualTo("duration.day");
     assertThat(result.value()).isNull();
   }
 
   @Test
-  public void ago_days() {
+  public void age_in_days() {
     long days = 4;
-    DurationLabel.Result result = DurationLabel.label(now() - ago(days * DAY), true);
-    assertThat(result.key()).isEqualTo("duration.days.ago");
+    DurationLabel.Result result = DurationLabel.label(now() - ago(days * DAY));
+    assertThat(result.key()).isEqualTo("duration.days");
     assertThat(result.value()).isEqualTo(days);
   }
 
   @Test
-  public void ago_month() {
-    DurationLabel.Result result = DurationLabel.label(now() - ago(35 * DAY), true);
-    assertThat(result.key()).isEqualTo("duration.month.ago");
+  public void age_in_month() {
+    DurationLabel.Result result = DurationLabel.label(now() - ago(35 * DAY));
+    assertThat(result.key()).isEqualTo("duration.month");
     assertThat(result.value()).isNull();
   }
 
   @Test
-  public void ago_months() {
+  public void age_in_months() {
     long months = 2;
-    DurationLabel.Result result = DurationLabel.label(now() - ago(months * MONTH), true);
-    assertThat(result.key()).isEqualTo("duration.months.ago");
+    DurationLabel.Result result = DurationLabel.label(now() - ago(months * MONTH));
+    assertThat(result.key()).isEqualTo("duration.months");
     assertThat(result.value()).isEqualTo(months);
   }
 
   @Test
   public void year_ago() {
-    DurationLabel.Result result = DurationLabel.label(now() - ago(14 * MONTH), true);
-    assertThat(result.key()).isEqualTo("duration.year.ago");
+    DurationLabel.Result result = DurationLabel.label(now() - ago(14 * MONTH));
+    assertThat(result.key()).isEqualTo("duration.year");
     assertThat(result.value()).isNull();
   }
 
   @Test
   public void years_ago() {
     long years = 7;
-    DurationLabel.Result result = DurationLabel.label(now() - ago(years * YEAR), true);
-    assertThat(result.key()).isEqualTo("duration.years.ago");
+    DurationLabel.Result result = DurationLabel.label(now() - ago(years * YEAR));
+    assertThat(result.key()).isEqualTo("duration.years");
     assertThat(result.value()).isEqualTo(years);
   }
 

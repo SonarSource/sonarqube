@@ -169,19 +169,19 @@ public class DefaultI18nTest {
   }
 
   @Test
-  public void get_time_ago() {
-    assertThat(manager.ago(Locale.ENGLISH, 10)).isEqualTo("less than a minute ago");
-
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-02").getTime());
-    assertThat(manager.ago(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day ago");
+  public void get_age_with_duration() {
+    assertThat(manager.age(Locale.ENGLISH, 10)).isEqualTo("less than a minute");
   }
 
   @Test
-  public void get_time_instant() {
-    assertThat(manager.instant(Locale.ENGLISH, 10)).isEqualTo("less than a minute");
+  public void get_age_with_dates() {
+    assertThat(manager.age(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"), DateUtils.parseDate("2014-01-02"))).isEqualTo("a day");
+  }
 
+  @Test
+  public void get_age_from_now() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-02").getTime());
-    assertThat(manager.instant(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day");
+    assertThat(manager.ageFromNow(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day");
   }
 
   @Test
