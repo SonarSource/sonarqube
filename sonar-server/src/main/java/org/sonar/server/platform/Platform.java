@@ -97,6 +97,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
+import org.sonar.server.rule.ws.RuleShowWsHandler;
 import org.sonar.server.rule.ws.RuleTagsWs;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.startup.*;
@@ -346,6 +347,7 @@ public final class Platform {
     servicesContainer.addSingleton(RubyRuleService.class);
     servicesContainer.addSingleton(RuleRepositories.class);
     servicesContainer.addSingleton(RulesWs.class);
+    servicesContainer.addSingleton(RuleShowWsHandler.class);
 
     // rule tags
     servicesContainer.addSingleton(ESRuleTags.class);

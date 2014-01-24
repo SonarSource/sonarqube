@@ -1,0 +1,118 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.rule.ws;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.server.ws.WsTester;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.server.user.MockUserSession;
+
+import java.util.Date;
+import java.util.Locale;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class RuleShowWsHandlerTest {
+
+  @Mock
+  RuleFinder ruleFinder;
+
+  @Mock
+  I18n i18n;
+
+  WsTester tester;
+
+  @Before
+  public void setUp() throws Exception {
+    tester = new WsTester(new RulesWs(new RuleShowWsHandler(ruleFinder, i18n)));
+  }
+
+  @Test
+  public void show_rule() throws Exception {
+    String ruleKey = "squid:AvoidCycle";
+    Rule rule = Rule.create("squid", "AvoidCycle", "Avoid cycle")
+      .setDescription("Avoid cycle between packages");
+
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    request.execute().assertJson(getClass(), "show_rule.json");
+  }
+
+  @Test
+  public void show_rule_with_dates() throws Exception {
+    Date date1 = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
+    Date date2 = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
+    Rule rule = createStandardRule()
+      .setCreatedAt(date1)
+      .setUpdatedAt(date2);
+
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+    when(i18n.formatDateTime(any(Locale.class), eq(date1))).thenReturn("Jan 22, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Jan 23, 2014 10:03 AM");
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_dates.json");
+  }
+
+  @Test
+  @Ignore
+  public void show_rule_with_note() throws Exception {
+    Rule rule = createStandardRule();
+
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_note.json");
+  }
+
+  @Test
+  @Ignore
+  public void show_rule_with_tags() throws Exception {
+    Rule rule = createStandardRule();
+
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_tags.json");
+  }
+
+  private Rule createStandardRule() {
+    return Rule.create("squid", "AvoidCycle", "Avoid cycle")
+      .setDescription("Avoid cycle between packages");
+  }
+}

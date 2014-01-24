@@ -176,9 +176,9 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
         .prop("raw", comment.markdownText())
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
-        .prop("creationDate", DateUtils.formatDateTime(comment.createdAt()))
-        .prop("fCreationDate", i18n.instant(UserSession.get().locale(), comment.createdAt()))
-        .prop("updatable", UserSession.get().isLoggedIn() ? UserSession.get().login().equals(comment.userLogin()) : false)
+        .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
+        .prop("fCreatedAt", i18n.instant(UserSession.get().locale(), comment.createdAt()))
+        .prop("updatable", UserSession.get().isLoggedIn() && UserSession.get().login().equals(comment.userLogin()))
         .endObject();
     }
     json.endArray();

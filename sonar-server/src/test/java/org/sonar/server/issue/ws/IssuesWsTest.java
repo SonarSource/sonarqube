@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WsTester;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+
 public class IssuesWsTest {
 
   IssueShowWsHandler showHandler = mock(IssueShowWsHandler.class);

@@ -17,8 +17,8 @@
         "userName": "John",
         "raw": "*My comment*",
         "html": "<em>My comment</em>",
-        "creationDate": "2014-02-22T19:10:03+0100",
-        "fCreationDate": "9 days",
+        "createdAt": "2014-02-22T19:10:03+0100",
+        "fCreatedAt": "9 days",
         "updatable": false
       },
       {
@@ -26,8 +26,8 @@
         "userName": "Arthur",
         "raw": "Another comment",
         "html": "Another comment",
-        "creationDate": "2014-02-23T19:10:03+0100",
-        "fCreationDate": "10 days",
+        "createdAt": "2014-02-23T19:10:03+0100",
+        "fCreatedAt": "10 days",
         "updatable": true
       }
     ],

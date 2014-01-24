@@ -29,11 +29,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
 

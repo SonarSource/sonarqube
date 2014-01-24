@@ -26,6 +26,12 @@ import org.sonar.api.server.ws.WebService;
 
 public class RulesWs implements WebService {
 
+  private final RuleShowWsHandler showHandler;
+
+  public RulesWs(RuleShowWsHandler showHandler) {
+    this.showHandler = showHandler;
+  }
+
   @Override
   public void define(Context context) {
     NewController controller = context.newController("api/rules")
@@ -40,6 +46,11 @@ public class RulesWs implements WebService {
           list(request, response);
         }
       });
+
+    controller.newAction("show")
+      .setDescription("Detail of rule")
+      .setSince("4.2")
+      .setHandler(showHandler);
 
     controller.done();
   }

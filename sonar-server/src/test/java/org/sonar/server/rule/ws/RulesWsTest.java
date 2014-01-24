@@ -24,10 +24,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class RulesWsTest {
 
-  WsTester tester = new WsTester(new RulesWs());
+  RuleShowWsHandler showHandler = mock(RuleShowWsHandler.class);
+  WsTester tester = new WsTester(new RulesWs(showHandler));
 
   @Test
   public void define_ws() throws Exception {
@@ -35,7 +37,7 @@ public class RulesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
 
     WebService.Action search = controller.action("list");
     assertThat(search).isNotNull();
@@ -43,10 +45,18 @@ public class RulesWsTest {
     assertThat(search.since()).isEqualTo("4.2");
     assertThat(search.isPost()).isFalse();
     assertThat(search.isPrivate()).isFalse();
+
+    WebService.Action show = controller.action("show");
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.since()).isEqualTo("4.2");
+    assertThat(show.isPost()).isFalse();
+    assertThat(show.isPrivate()).isFalse();
   }
 
   @Test
   public void search_for_rules() throws Exception {
     tester.newRequest("list").execute().assertJson(getClass(), "list.json");
   }
+
 }
