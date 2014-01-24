@@ -52,14 +52,19 @@ public class DefaultProfileLoader implements ProfileLoader {
   public RulesProfile load(Project module, Settings settings) {
     Map<String, RulesProfile> profilesPerLanguageKey = new HashMap<String, RulesProfile>();
 
-    // TODO For now we have to load profile of all languages even if module will only use part of them because ModuleLanguages may not be
-    // initialized yet
+    if (!moduleLanguages.getModuleLanguageKeys().isEmpty()) {
+      return loadSingleProfile(settings);
+    }
+
+    return loadProfileWrapper(settings, profilesPerLanguageKey);
+  }
+
+  private RulesProfile loadProfileWrapper(Settings settings, Map<String, RulesProfile> profilesPerLanguageKey) {
+    // We have to load profile of all languages even if module will only use part of them because language detection was not done
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
 
-      String profileName = StringUtils.defaultIfBlank(
-        settings.getString("sonar.profile"),
-        settings.getString("sonar.profile." + languageKey));
+      String profileName = settings.getString("sonar.profile." + languageKey);
 
       RulesProfile profile = dao.getProfile(languageKey, profileName);
       if (profile == null) {
@@ -74,6 +79,22 @@ public class DefaultProfileLoader implements ProfileLoader {
       LOG.info("Quality profile for {}: {}", profiles.getKey(), profiles.getValue());
     }
     return profile;
+  }
+
+  private RulesProfile loadSingleProfile(Settings settings) {
+    // Single language is forced, load a single quality profile
+    String languageKey = moduleLanguages.getModuleLanguageKeys().iterator().next();
+
+    String profileName = StringUtils.defaultIfBlank(
+      settings.getString("sonar.profile"),
+      settings.getString("sonar.profile." + languageKey));
+
+    RulesProfile profile = dao.getProfile(languageKey, profileName);
+    if (profile == null) {
+      throw new SonarException("Quality profile not found : " + profileName + ", language " + languageKey);
+    }
+    LOG.info("Quality profile for {}: {}", languageKey, profile);
+    return hibernateHack(profile);
   }
 
   private RulesProfile hibernateHack(RulesProfile profile) {
