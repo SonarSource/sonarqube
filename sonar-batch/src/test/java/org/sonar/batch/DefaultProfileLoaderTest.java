@@ -35,7 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.jpa.dao.ProfilesDao;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class DefaultProfileLoaderTest {
     when(dao.getProfile(Java.KEY, "legacy profile")).thenReturn(RulesProfile.create("legacy profile", "java"));
     when(dao.getProfile("cobol", "cobol profile")).thenReturn(RulesProfile.create("cobol profile", "cobol"));
 
-    ModuleLanguages moduleLanguages = new ModuleLanguages(settings, languages);
+    DefaultModuleLanguages moduleLanguages = new DefaultModuleLanguages(settings, languages);
     moduleLanguages.addLanguage("java");
     RulesProfile profile = new DefaultProfileLoader(dao, moduleLanguages, languages).load(javaProject, settings);
 
@@ -101,7 +101,7 @@ public class DefaultProfileLoaderTest {
     cobolProfile.setAlerts(Arrays.asList(cobolAlert));
     when(dao.getProfile("cobol", "cobol profile")).thenReturn(cobolProfile);
 
-    ModuleLanguages moduleLanguages = new ModuleLanguages(settings, languages);
+    DefaultModuleLanguages moduleLanguages = new DefaultModuleLanguages(settings, languages);
     moduleLanguages.addLanguage("java");
     moduleLanguages.addLanguage("cobol");
     RulesProfile profile = new DefaultProfileLoader(dao, moduleLanguages, languages).load(javaProject, settings);
@@ -137,7 +137,7 @@ public class DefaultProfileLoaderTest {
     cobolProfile.addActiveRule(cobolActiveRule);
     when(dao.getProfile("cobol", "cobol profile")).thenReturn(cobolProfile);
 
-    ModuleLanguages moduleLanguages = new ModuleLanguages(settings, languages);
+    DefaultModuleLanguages moduleLanguages = new DefaultModuleLanguages(settings, languages);
     moduleLanguages.addLanguage("java");
     moduleLanguages.addLanguage("cobol");
     RulesProfile profile = new DefaultProfileLoader(dao, moduleLanguages, languages).load(javaProject, settings);
@@ -154,7 +154,7 @@ public class DefaultProfileLoaderTest {
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Quality profile not found : unknown, language java");
-    new DefaultProfileLoader(dao, new ModuleLanguages(settings, languages), languages).load(javaProject, settings);
+    new DefaultProfileLoader(dao, new DefaultModuleLanguages(settings, languages), languages).load(javaProject, settings);
   }
 
   private Project newProject(String language) {

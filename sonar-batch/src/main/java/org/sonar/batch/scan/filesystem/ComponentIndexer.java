@@ -37,7 +37,7 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
@@ -53,11 +53,11 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
-  private final ModuleLanguages moduleLanguages;
+  private final DefaultModuleLanguages moduleLanguages;
   private final ResourceDao resourceDao;
 
   public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-    ModuleLanguages moduleLanguages, ResourceDao resourceDao) {
+    DefaultModuleLanguages moduleLanguages, ResourceDao resourceDao) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;

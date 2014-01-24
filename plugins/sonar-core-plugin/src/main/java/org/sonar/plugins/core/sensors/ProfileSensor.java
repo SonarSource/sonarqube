@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
@@ -27,13 +28,12 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.RulesProfileWrapper;
-import org.sonar.batch.scan.language.ModuleLanguages;
 
 public class ProfileSensor implements Sensor {
 
   private final RulesProfile profile;
   private final DatabaseSession session;
-  private ModuleLanguages languages;
+  private final ModuleLanguages languages;
 
   public ProfileSensor(RulesProfile profile, DatabaseSession session, ModuleLanguages languages) {
     this.profile = profile;

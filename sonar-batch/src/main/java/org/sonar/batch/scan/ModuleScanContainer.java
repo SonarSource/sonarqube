@@ -62,7 +62,7 @@ import org.sonar.batch.scan.filesystem.LanguageRecognizer;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.RemoteFileHashes;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.report.ComponentSelectorFactory;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
@@ -119,7 +119,7 @@ public class ModuleScanContainer extends ComponentContainer {
       RemoteFileHashes.class,
       FileIndex.class,
       ComponentIndexer.class,
-      ModuleLanguages.class,
+      DefaultModuleLanguages.class,
       LanguageRecognizer.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,

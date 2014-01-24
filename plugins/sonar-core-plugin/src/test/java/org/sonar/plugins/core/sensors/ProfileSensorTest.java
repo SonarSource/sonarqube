@@ -29,7 +29,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.batch.RulesProfileWrapper;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class ProfileSensorTest {
     when(profile.getName()).thenReturn("fake");
     when(profile.getVersion()).thenReturn(2);
 
-    ModuleLanguages moduleLanguages = new ModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
+    DefaultModuleLanguages moduleLanguages = new DefaultModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
     moduleLanguages.addLanguage("java");
     Map<String, RulesProfile> ruleProfilesPerLanguages = new HashMap<String, RulesProfile>();
     ruleProfilesPerLanguages.put("java", profile);

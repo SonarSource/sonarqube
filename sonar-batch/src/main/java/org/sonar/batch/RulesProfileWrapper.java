@@ -21,12 +21,12 @@ package org.sonar.batch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.language.ModuleLanguages;
 
 import java.util.ArrayList;
 import java.util.List;

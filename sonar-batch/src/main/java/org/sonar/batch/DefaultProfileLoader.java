@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
@@ -29,7 +30,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.language.ModuleLanguages;
 import org.sonar.jpa.dao.ProfilesDao;
 
 import java.util.HashMap;

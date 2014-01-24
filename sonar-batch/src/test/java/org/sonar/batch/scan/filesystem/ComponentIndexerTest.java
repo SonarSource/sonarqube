@@ -43,7 +43,7 @@ import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.core.resource.ResourceDao;
 
 import java.io.File;
@@ -97,7 +97,7 @@ public class ComponentIndexerTest {
       newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class));
     indexer.execute(fs);
 
@@ -123,7 +123,7 @@ public class ComponentIndexerTest {
     when(project.getLanguageKey()).thenReturn("cobol");
 
     Languages languages = new Languages(cobolLanguage);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class));
     indexer.execute(fs);
 
@@ -140,7 +140,7 @@ public class ComponentIndexerTest {
       newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false)));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class));
     indexer.execute(fs);
 
@@ -193,7 +193,7 @@ public class ComponentIndexerTest {
         .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class));
     indexer.execute(fs);
 
@@ -222,7 +222,7 @@ public class ComponentIndexerTest {
             .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new ModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class));
     indexer.execute(fs);
 

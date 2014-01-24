@@ -35,7 +35,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collection;
@@ -50,10 +50,10 @@ public class SensorsExecutor implements BatchComponent {
   private BatchExtensionDictionnary selector;
   private final DatabaseSession session;
   private final SensorMatcher sensorMatcher;
-  private final ModuleLanguages moduleLanguages;
+  private final DefaultModuleLanguages moduleLanguages;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-    DatabaseSession session, SensorMatcher sensorMatcher, ModuleLanguages moduleLanguages) {
+    DatabaseSession session, SensorMatcher sensorMatcher, DefaultModuleLanguages moduleLanguages) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;

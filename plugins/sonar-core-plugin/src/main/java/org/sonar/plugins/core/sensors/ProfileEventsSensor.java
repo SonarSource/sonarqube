@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.sensors;
 
 import org.sonar.api.batch.Event;
+import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
@@ -30,7 +31,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.RulesProfileWrapper;
-import org.sonar.batch.scan.language.ModuleLanguages;
 
 import java.util.List;
 

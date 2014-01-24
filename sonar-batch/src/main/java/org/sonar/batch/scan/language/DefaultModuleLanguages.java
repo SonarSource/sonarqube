@@ -21,8 +21,8 @@ package org.sonar.batch.scan.language;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -36,15 +36,15 @@ import java.util.Map;
  * Give access to all languages detected on the current module
  * @since 4.2
  */
-public class ModuleLanguages implements BatchExtension {
+public class DefaultModuleLanguages implements ModuleLanguages {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ModuleLanguages.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleLanguages.class);
 
   private Map<String, Language> moduleLanguages = new HashMap<String, Language>();
 
   private Languages languages;
 
-  public ModuleLanguages(Settings settings, Languages languages) {
+  public DefaultModuleLanguages(Settings settings, Languages languages) {
     this.languages = languages;
     if (settings.hasKey(CoreProperties.PROJECT_LANGUAGE_PROPERTY)) {
       String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);

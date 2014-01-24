@@ -27,7 +27,7 @@ import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class CpdSensorTest {
         return null;
       }
     };
-    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, new ModuleLanguages(settings, new Languages()));
+    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, new DefaultModuleLanguages(settings, new Languages()));
   }
 
   @Test

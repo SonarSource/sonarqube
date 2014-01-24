@@ -33,7 +33,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.RulesProfileWrapper;
-import org.sonar.batch.scan.language.ModuleLanguages;
+import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class ProfileEventsSensorTest {
 
   private Project project;
   private SensorContext context;
-  private ModuleLanguages moduleLanguages;
+  private DefaultModuleLanguages moduleLanguages;
   private RulesProfileWrapper wrapper;
   private RulesProfile profile;
 
@@ -63,7 +63,7 @@ public class ProfileEventsSensorTest {
     project = mock(Project.class);
     context = mock(SensorContext.class);
 
-    moduleLanguages = new ModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
+    moduleLanguages = new DefaultModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
     moduleLanguages.addLanguage("java");
     Map<String, RulesProfile> ruleProfilesPerLanguages = new HashMap<String, RulesProfile>();
     profile = mock(RulesProfile.class);
