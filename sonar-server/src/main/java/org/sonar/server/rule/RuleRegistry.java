@@ -27,11 +27,15 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.sonar.api.rules.Rule;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.search.SearchHits;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
+
+import javax.annotation.CheckForNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -92,7 +96,7 @@ public class RuleRegistry {
       searchQuery.searchString(params.remove(PARAM_NAMEORKEY));
     }
     if (!params.containsKey(PARAM_STATUS)) {
-      searchQuery.notField(PARAM_STATUS, Rule.STATUS_REMOVED);
+      searchQuery.notField(PARAM_STATUS, org.sonar.api.rules.Rule.STATUS_REMOVED);
     }
 
     for (Map.Entry<String, String> param : params.entrySet()) {
@@ -127,6 +131,21 @@ public class RuleRegistry {
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params, tags));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
+    }
+  }
+
+  @CheckForNull
+  public Rule findByKey(RuleKey key) {
+    final SearchHits hits = searchIndex.executeRequest(searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+      .setPostFilter(FilterBuilders.boolFilter()
+        .must(
+          FilterBuilders.termFilter(RuleDocument.FIELD_REPOSITORY_KEY, key.repository()),
+          FilterBuilders.termFilter(RuleDocument.FIELD_KEY, key.rule())
+          )));
+    if (hits.totalHits() == 0) {
+      return null;
+    } else {
+      return new Rule(hits.hits()[0].sourceAsMap());
     }
   }
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import org.sonar.api.rule.RuleKey;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerExtension;
@@ -42,10 +44,12 @@ public class Rules implements ServerExtension {
 
   private final RuleDao ruleDao;
   private final RuleOperations ruleOperations;
+  private final RuleRegistry ruleRegistry;
 
-  public Rules(RuleDao ruleDao, RuleOperations ruleOperations) {
+  public Rules(RuleDao ruleDao, RuleOperations ruleOperations, RuleRegistry ruleRegistry) {
     this.ruleOperations = ruleOperations;
     this.ruleDao = ruleDao;
+    this.ruleRegistry = ruleRegistry;
   }
 
   public void updateRuleNote(int ruleId, String note) {
@@ -85,6 +89,10 @@ public class Rules implements ServerExtension {
       newTags = ImmutableList.of();
     }
     ruleOperations.updateTags(rule, newTags, UserSession.get());
+  }
+
+  public Rule findByKey(RuleKey key) {
+    return ruleRegistry.findByKey(key);
   }
 
   //

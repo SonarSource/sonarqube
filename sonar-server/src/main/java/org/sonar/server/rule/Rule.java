@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 
@@ -183,5 +184,9 @@ public class Rule {
 
   public List<? extends RuleParam> params() {
     return params;
+  }
+
+  public RuleKey ruleKey() {
+    return RuleKey.of(repositoryKey, key);
   }
 }

@@ -36,14 +36,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.test.TestUtils;
@@ -112,6 +109,18 @@ public class RuleRegistryTest {
     assertThat(esSetup.exists("rules")).isTrue();
     assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule").execute().actionGet().isExists()).isTrue();
   }
+
+
+  @Test
+  public void should_find_rule_by_key() {
+    assertThat(registry.findByKey(RuleKey.of("unknown", "OneIssuePerLine"))).isNull();
+    assertThat(registry.findByKey(RuleKey.of("xoo", "unknown"))).isNull();
+    final Rule rule = registry.findByKey(RuleKey.of("xoo", "OneIssuePerLine"));
+    assertThat(rule).isNotNull();
+    assertThat(rule.repositoryKey()).isEqualTo("xoo");
+    assertThat(rule.key()).isEqualTo("OneIssuePerLine");
+  }
+
 
   @Test
   public void should_filter_removed_rules() {

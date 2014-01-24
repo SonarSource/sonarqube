@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
@@ -41,6 +42,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -54,11 +56,14 @@ public class RulesTest {
   @Mock
   RuleOperations ruleOperations;
 
+  @Mock
+  RuleRegistry ruleRegistry;
+
   Rules rules;
 
   @Before
   public void setUp() {
-    rules = new Rules(ruleDao, ruleOperations);
+    rules = new Rules(ruleDao, ruleOperations, ruleRegistry);
   }
 
 
@@ -208,5 +213,14 @@ public class RulesTest {
     List<String> tags = ImmutableList.of("tag1", "tag2");
     rules.updateRuleTags(ruleId, tags);
     verify(ruleOperations).updateTags(eq(rule), eq(tags), any(UserSession.class));
+  }
+
+  @Test
+  public void should_find_by_key() {
+    RuleKey key = RuleKey.of("polop", "palap");
+    Rule rule = mock(Rule.class);
+    when(ruleRegistry.findByKey(key)).thenReturn(rule );
+    assertThat(rules.findByKey(key)).isEqualTo(rule);
+    verify(ruleRegistry).findByKey(key);
   }
 }

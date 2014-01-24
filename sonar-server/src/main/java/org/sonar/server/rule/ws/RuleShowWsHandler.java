@@ -22,8 +22,6 @@ package org.sonar.server.rule.ws;
 
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -31,6 +29,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.Rules;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -39,18 +39,18 @@ import java.util.Date;
 
 public class RuleShowWsHandler implements RequestHandler {
 
-  private final RuleFinder ruleFinder;
+  private final Rules rules;
   private final I18n i18n;
 
-  public RuleShowWsHandler(RuleFinder ruleFinder, I18n i18n) {
-    this.ruleFinder = ruleFinder;
+  public RuleShowWsHandler(Rules rules, I18n i18n) {
+    this.rules = rules;
     this.i18n = i18n;
   }
 
   @Override
   public void handle(Request request, Response response) {
     final String ruleKey = request.requiredParam("key");
-    Rule rule = ruleFinder.findByKey(RuleKey.parse(ruleKey));
+    Rule rule = rules.findByKey(RuleKey.parse(ruleKey));
     if (rule == null) {
       throw new NotFoundException("Rule not found: " + ruleKey);
     }
@@ -65,32 +65,35 @@ public class RuleShowWsHandler implements RequestHandler {
   private void writeRule(Rule rule, JsonWriter json) {
     json
       .prop("key", rule.ruleKey().toString())
-      .prop("name", rule.getName())
-      .prop("description", rule.getDescription())
+      .prop("name", rule.name())
+      .prop("description", rule.description())
     ;
     addNote(rule, json);
-    addDate(rule.getCreatedAt(), "createdAt", json);
-    addFormattedDate(rule.getCreatedAt(), "fCreatedAt", json);
-    addDate(rule.getUpdatedAt(), "updatedAt", json);
-    addFormattedDate(rule.getUpdatedAt(), "fUpdatedAt", json);
+    addDate(rule.createdAt(), "createdAt", json);
+    addFormattedDate(rule.createdAt(), "fCreatedAt", json);
+    addDate(rule.updatedAt(), "updatedAt", json);
+    addFormattedDate(rule.updatedAt(), "fUpdatedAt", json);
   }
 
   private void addNote(Rule rule, JsonWriter json) {
-    // TODO
-    json.prop("noteRaw", "*Extended rule description*")
-      .prop("noteHtml", Markdown.convertToHtml("<em>Extended rule description</em>"))
-    ;
+    if (rule.ruleNote() != null && rule.ruleNote().data() != null) {
+      json.prop("noteRaw", rule.ruleNote().data())
+        .prop("noteHtml", Markdown.convertToHtml(rule.ruleNote().data()));
+    }
   }
 
-  // TODO
   private void writeTags(Rule rule, JsonWriter json) {
-    json.name("tags").beginArray()
-      .value("Complexity")
-      .endArray();
+    json.name("tags").beginArray();
+    for (String adminTag: rule.adminTags()) {
+      json.value(adminTag);
+    }
+    json.endArray();
 
-    json.name("sysTags").beginArray()
-      .value("Security")
-      .endArray();
+    json.name("sysTags").beginArray();
+    for (String systemTag: rule.systemTags()) {
+      json.value(systemTag);
+    }
+    json.endArray();
   }
 
   private void addDate(@Nullable Date date, String dateKey, JsonWriter json) {

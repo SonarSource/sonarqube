@@ -20,18 +20,19 @@
 
 package org.sonar.server.rule.ws;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleNote;
+import org.sonar.server.rule.Rules;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
@@ -39,13 +40,14 @@ import java.util.Locale;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleShowWsHandlerTest {
 
   @Mock
-  RuleFinder ruleFinder;
+  Rules rules;
 
   @Mock
   I18n i18n;
@@ -54,16 +56,15 @@ public class RuleShowWsHandlerTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWs(new RuleShowWsHandler(ruleFinder, i18n)));
+    tester = new WsTester(new RulesWs(new RuleShowWsHandler(rules, i18n)));
   }
 
   @Test
   public void show_rule() throws Exception {
     String ruleKey = "squid:AvoidCycle";
-    Rule rule = Rule.create("squid", "AvoidCycle", "Avoid cycle")
-      .setDescription("Avoid cycle between packages");
+    Rule rule = createStandardRule();
 
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
@@ -74,11 +75,11 @@ public class RuleShowWsHandlerTest {
   public void show_rule_with_dates() throws Exception {
     Date date1 = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
-    Rule rule = createStandardRule()
-      .setCreatedAt(date1)
-      .setUpdatedAt(date2);
+    Rule rule = createStandardRule();
+    when(rule.createdAt()).thenReturn(date1);
+    when(rule.updatedAt()).thenReturn(date2);
 
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
     when(i18n.formatDateTime(any(Locale.class), eq(date1))).thenReturn("Jan 22, 2014 10:03 AM");
     when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Jan 23, 2014 10:03 AM");
 
@@ -87,32 +88,22 @@ public class RuleShowWsHandlerTest {
     request.execute().assertJson(getClass(), "show_rule_with_dates.json");
   }
 
-  @Test
-  @Ignore
-  public void show_rule_with_note() throws Exception {
-    Rule rule = createStandardRule();
-
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
-
-    MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_note.json");
-  }
-
-  @Test
-  @Ignore
-  public void show_rule_with_tags() throws Exception {
-    Rule rule = createStandardRule();
-
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
-
-    MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_tags.json");
+  private Rule create(String repoKey, String key, String name, String description) {
+    Rule mockRule = mock(Rule.class);
+    when(mockRule.repositoryKey()).thenReturn(repoKey);
+    when(mockRule.key()).thenReturn(key);
+    when(mockRule.ruleKey()).thenReturn(RuleKey.of(repoKey, key));
+    when(mockRule.name()).thenReturn(name);
+    when(mockRule.description()).thenReturn(description);
+    when(mockRule.adminTags()).thenReturn(ImmutableList.of("complexity"));
+    when(mockRule.systemTags()).thenReturn(ImmutableList.of("security"));
+    RuleNote note = mock(RuleNote.class);
+    when(note.data()).thenReturn("*Extended rule description*");
+    when(mockRule.ruleNote()).thenReturn(note);
+    return mockRule;
   }
 
   private Rule createStandardRule() {
-    return Rule.create("squid", "AvoidCycle", "Avoid cycle")
-      .setDescription("Avoid cycle between packages");
+    return create("squid", "AvoidCycle", "Avoid cycle", "Avoid cycle between packages");
   }
 }
