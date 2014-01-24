@@ -124,7 +124,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     setupData("should_disable_deprecated_rules");
     task.start();
 
-    checkTables("should_disable_deprecated_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters");
+    checkTables("should_disable_deprecated_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }
 
   @Test

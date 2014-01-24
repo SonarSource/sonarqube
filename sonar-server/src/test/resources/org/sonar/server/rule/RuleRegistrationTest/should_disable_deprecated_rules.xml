@@ -8,4 +8,10 @@
 
   <rules_parameters id="1" rule_id="1" name="deprecated-prop" description="[null]" param_type="STRING"/>
 
+  <rule_tags id="1" tag="formertag1"/>
+  <rule_tags id="2" tag="formertag2"/>
+
+  <rules_rule_tags id="1" rule_id="1" rule_tag_id="1" tag_type="SYSTEM"/>
+  <rules_rule_tags id="2" rule_id="1" rule_tag_id="2" tag_type="ADMIN"/>
+
 </dataset>

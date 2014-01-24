@@ -19,12 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -40,22 +35,12 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagDto;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
 import org.sonar.server.configuration.ProfilesManager;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Register rules at server startup
@@ -364,6 +349,9 @@ public class RuleRegistration implements Startable {
         LOG.info("Disable rule " + ruleDto.getRuleKey());
         ruleDto.setStatus(Rule.STATUS_REMOVED);
         ruleDto.setUpdatedAt(buffer.now());
+        for (RuleRuleTagDto removed: buffer.tagsByRuleId.removeAll(ruleDto.getId())) {
+          ruleDao.deleteTag(removed, sqlSession);
+        }
         ruleDao.update(ruleDto, sqlSession);
         removedIds.add(ruleDto.getId());
         if (removedIds.size() % 100 == 0) {
