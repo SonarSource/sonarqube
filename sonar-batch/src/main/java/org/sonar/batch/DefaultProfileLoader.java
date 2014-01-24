@@ -50,16 +50,17 @@ public class DefaultProfileLoader implements ProfileLoader {
   }
 
   public RulesProfile load(Project module, Settings settings) {
-    Map<String, RulesProfile> profilesPerLanguageKey = new HashMap<String, RulesProfile>();
 
     if (!moduleLanguages.getModuleLanguageKeys().isEmpty()) {
       return loadSingleProfile(settings);
     }
 
-    return loadProfileWrapper(settings, profilesPerLanguageKey);
+    return loadProfileWrapper(settings);
   }
 
-  private RulesProfile loadProfileWrapper(Settings settings, Map<String, RulesProfile> profilesPerLanguageKey) {
+  private RulesProfile loadProfileWrapper(Settings settings) {
+    Map<String, RulesProfile> profilesPerLanguageKey = new HashMap<String, RulesProfile>();
+
     // We have to load profile of all languages even if module will only use part of them because language detection was not done
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
@@ -82,6 +83,8 @@ public class DefaultProfileLoader implements ProfileLoader {
   }
 
   private RulesProfile loadSingleProfile(Settings settings) {
+    Map<String, RulesProfile> profilesPerLanguageKey = new HashMap<String, RulesProfile>();
+
     // Single language is forced, load a single quality profile
     String languageKey = moduleLanguages.getModuleLanguageKeys().iterator().next();
 
@@ -93,8 +96,10 @@ public class DefaultProfileLoader implements ProfileLoader {
     if (profile == null) {
       throw new SonarException("Quality profile not found : " + profileName + ", language " + languageKey);
     }
+    profilesPerLanguageKey.put(languageKey, hibernateHack(profile));
     LOG.info("Quality profile for {}: {}", languageKey, profile);
-    return hibernateHack(profile);
+
+    return new RulesProfileWrapper(moduleLanguages, profilesPerLanguageKey);
   }
 
   private RulesProfile hibernateHack(RulesProfile profile) {
