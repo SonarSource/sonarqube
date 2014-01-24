@@ -97,6 +97,8 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
+import org.sonar.server.rule.ws.RuleTagsWs;
+import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;

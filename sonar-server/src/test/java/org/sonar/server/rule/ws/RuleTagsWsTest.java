@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -28,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.rule.RuleTagDto;
+import org.sonar.server.rule.RuleTags;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
