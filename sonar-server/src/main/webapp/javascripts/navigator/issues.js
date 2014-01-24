@@ -389,7 +389,7 @@ jQuery(function() {
         type: 'POST',
         url: baseUrl + '/api/issues/add_comment',
         data: {
-          issue: this.model.get('key'),
+          issue: this.options.issue.get('key'),
           text: text
         }
       }).done(function() {
@@ -411,6 +411,8 @@ jQuery(function() {
 
     events: {
       'click #issue-comment': 'comment',
+      'click .issue-comment-edit': 'editComment',
+      'click .issue-comment-delete': 'deleteComment',
       'click .issue-transition': 'transition'
     },
 
@@ -452,10 +454,42 @@ jQuery(function() {
 
     comment: function() {
       var commentFormView = new IssueDetailCommentFormView({
-        model: this.model,
+        issue: this.model,
         detailView: this
       });
       this.showActionView(commentFormView);
+    },
+
+
+    editComment: function(e) {
+      var that = this,
+          commentKey = jQuery(e.target).closest('[data-comment-key]').data('comment-key'),
+          comment = _.findWhere(this.model.get('comments'), { key: commentKey });
+
+      console.log(comment);
+
+      var commentFormView = new IssueDetailCommentFormView({
+        model: new Backbone.Model(comment),
+        issue: this.model,
+        detailView: this
+      });
+      this.showActionView(commentFormView);
+    },
+
+
+    deleteComment: function(e) {
+      var that = this,
+          commentKey = jQuery(e.target).closest('[data-comment-key]').data('comment-key'),
+          confirmMsg = jQuery(e.target).data('confirm-msg');
+
+      if (confirm(confirmMsg)) {
+        $j.ajax({
+          type: "POST",
+          url: baseUrl + "/issue/delete_comment?id=" + commentKey,
+        }).done(function() {
+              that.updateAfterAction(true);
+            });
+      }
     },
 
 

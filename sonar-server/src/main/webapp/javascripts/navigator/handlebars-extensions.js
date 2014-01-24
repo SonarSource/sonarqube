@@ -32,12 +32,11 @@
     } else {
       return options.inverse(this);
     }
-
   });
 
-  Handlebars.registerHelper('dashboardUrl', function(component) {
-    var url = '/dashboard/index/' + decodeURIComponent(component.key);
-    if (component.qualifier === 'FIL' || component.qualifier === 'CLA') {
+  Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
+    var url = '/dashboard/index/' + decodeURIComponent(componentKey);
+    if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {
       url += '?metric=sqale_index';
     }
     return url;

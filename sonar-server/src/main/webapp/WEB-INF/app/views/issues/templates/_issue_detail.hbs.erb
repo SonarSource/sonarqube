@@ -1,12 +1,12 @@
 <script id="issue-detail-template" type="text/x-handlebars-template">
   <div class="source_title">
-    <div class="subtitle">{{project.longName}}</div>
+    <div class="subtitle">{{projectLongName}}</div>
     <span class="h1">
-      <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component}}">{{component}}</a>
+      <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component componentQualifier}}">{{componentLongName}}</a>
     </span>
   </div>
 
-  <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component.key}}" data-issue-rule="{{rule.key}}">
+  <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
     <div class="code-issue-name">
       {{severityIcon severity}}&nbsp;<span class="rulename">{{ruleName}}</span>
     </div>
@@ -82,11 +82,11 @@
           {{/if}}
           <li>
             <div class="code-issue-details-term"><%= message('created') -%></div>
-            <div class="code-issue-details-value">{{creationDate}}</div>
+            <div class="code-issue-details-value">{{fCreationDate}}</div>
           </li>
           <li>
             <div class="code-issue-details-term"><%= message('updated') -%></div>
-            <div class="code-issue-details-value">{{updateDate}}</div>
+            <div class="code-issue-details-value">{{fUpdateDate}}</div>
           </li>
         </ul>
       </div>
@@ -103,11 +103,11 @@
           <tbody>
           {{#each changelog}}
             <tr>
-              <td class="thin left top">{{creationDate}}</td>
+              <td class="left top">{{fCreationDate}}</td>
               <td class="thin left top">{{userName}}</td>
               <td class="left top">
                 {{#each diffs}}
-                  {{key}}: from "{{oldValue}}" to "{{newValue}}"
+                  {{this}}<br>
                 {{/each}}
               </td>
             </tr>
@@ -123,7 +123,14 @@
           <h4>
             <%= image_tag('reviews/comment.png') -%>
             <b>{{userName}}</b>
-            ({{creationDate}})
+            ({{fCreationDate}})
+
+            {{#if updatable}}
+              &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
+              <a class="link-action issue-comment-edit"><%= message('edit') -%></a>
+              <a class="link-action spacer-right issue-comment-delete"
+                 data-confirm-msg="<%= h message('issue.comment.delete_confirm_message') -%>"><%= message('delete') -%></a>
+            {{/if}}
           </h4>
           {{{html}}}
         </div>
@@ -140,7 +147,9 @@
       {{#inArray actions "assign"}}
         <li>
           <a id="issue-assign" class="link-action"><%= message('issue.assign.formlink') -%></a>
-          [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+          {{#inArray actions "assign_to_me"}}
+            [<a id="issue-assign-to-me" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+          {{/inArray}}
         </li>
       {{/inArray}}
 
