@@ -82,14 +82,15 @@ public class RuleShowWsHandler implements RequestHandler {
     ;
   }
 
+  // TODO
   private void writeTags(Rule rule, JsonWriter json) {
-    json.name("tags").beginArray();
-    // TODO
-    json.endArray();
+    json.name("tags").beginArray()
+      .value("Complexity")
+      .endArray();
 
-    json.name("sysTags").beginArray();
-    // TODO
-    json.endArray();
+    json.name("sysTags").beginArray()
+      .value("Security")
+      .endArray();
   }
 
   private void addDate(@Nullable Date date, String dateKey, JsonWriter json) {
