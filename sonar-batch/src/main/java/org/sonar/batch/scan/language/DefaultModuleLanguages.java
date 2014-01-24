@@ -49,6 +49,10 @@ public class DefaultModuleLanguages implements ModuleLanguages {
     if (settings.hasKey(CoreProperties.PROJECT_LANGUAGE_PROPERTY)) {
       String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
       LOG.info("Language is forced to {}", languageKey);
+      Language language = languages.get(languageKey);
+      if (language == null) {
+        throw new SonarException("You must install a plugin that supports the language key '" + languageKey + "'");
+      }
       addLanguage(languageKey);
     }
   }
@@ -56,7 +60,7 @@ public class DefaultModuleLanguages implements ModuleLanguages {
   public void addLanguage(String languageKey) {
     Language language = languages.get(languageKey);
     if (language == null) {
-      throw new SonarException("Unknow language " + languageKey);
+      throw new SonarException("Language with key '" + languageKey + "' not found");
     }
     moduleLanguages.put(languageKey, language);
   }
