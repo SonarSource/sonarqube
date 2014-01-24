@@ -20,6 +20,7 @@
 
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Strings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
@@ -76,7 +77,7 @@ public class RuleShowWsHandler implements RequestHandler {
   }
 
   private void addNote(Rule rule, JsonWriter json) {
-    if (rule.ruleNote() != null && rule.ruleNote().data() != null) {
+    if (rule.ruleNote() != null && !Strings.isNullOrEmpty(rule.ruleNote().data())) {
       json.prop("noteRaw", rule.ruleNote().data())
         .prop("noteHtml", Markdown.convertToHtml(rule.ruleNote().data()));
     }

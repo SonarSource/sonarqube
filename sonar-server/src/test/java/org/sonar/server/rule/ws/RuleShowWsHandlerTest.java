@@ -88,6 +88,33 @@ public class RuleShowWsHandlerTest {
     request.execute().assertJson(getClass(), "show_rule_with_dates.json");
   }
 
+  @Test
+  public void show_rule_with_note() throws Exception {
+    Rule rule = createStandardRule();
+    RuleNote note = mock(RuleNote.class);
+    when(note.data()).thenReturn("*Extended rule description*");
+    when(rule.ruleNote()).thenReturn(note);
+
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_note.json");
+  }
+
+  @Test
+  public void show_rule_with_tags() throws Exception {
+    Rule rule = createStandardRule();
+    when(rule.adminTags()).thenReturn(ImmutableList.of("complexity"));
+    when(rule.systemTags()).thenReturn(ImmutableList.of("security"));
+
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_tags.json");
+  }
+
   private Rule create(String repoKey, String key, String name, String description) {
     Rule mockRule = mock(Rule.class);
     when(mockRule.repositoryKey()).thenReturn(repoKey);
@@ -95,11 +122,6 @@ public class RuleShowWsHandlerTest {
     when(mockRule.ruleKey()).thenReturn(RuleKey.of(repoKey, key));
     when(mockRule.name()).thenReturn(name);
     when(mockRule.description()).thenReturn(description);
-    when(mockRule.adminTags()).thenReturn(ImmutableList.of("complexity"));
-    when(mockRule.systemTags()).thenReturn(ImmutableList.of("security"));
-    RuleNote note = mock(RuleNote.class);
-    when(note.data()).thenReturn("*Extended rule description*");
-    when(mockRule.ruleNote()).thenReturn(note);
     return mockRule;
   }
 

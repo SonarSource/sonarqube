@@ -5,7 +5,7 @@
     "description": "Avoid cycle between packages",
     "noteRaw": "*Extended rule description*",
     "noteHtml": "<em>Extended rule description</em>",
-    "tags": ["Complexity"],
-    "sysTags": ["Security"]
+    "tags": [],
+    "sysTags": []
   }
 }

@@ -3,9 +3,7 @@
     "key": "squid:AvoidCycle",
     "name": "Avoid cycle",
     "description": "Avoid cycle between packages",
-    "noteRaw": "*Extended rule description*",
-    "noteHtml": "<em>Extended rule description</em>",
-    "tags": ["complexity"],
-    "sysTags": ["security"]
+    "tags": [],
+    "sysTags": []
   }
 }
