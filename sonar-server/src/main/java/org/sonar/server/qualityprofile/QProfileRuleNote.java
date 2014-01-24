@@ -19,30 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.rule.RuleNote;
+
 import java.util.Date;
 
-public class QProfileRuleNote {
-  private final String data;
-  private final String userLogin;
-  private final Date createdAt;
-  private final Date updatedAt;
+public class QProfileRuleNote extends RuleNote {
+
   public QProfileRuleNote(String data, String userLogin, Date createdAt, Date updatedAt) {
-    super();
-    this.data = data;
-    this.userLogin = userLogin;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
-  public String data() {
-    return data;
-  }
-  public String userLogin() {
-    return userLogin;
-  }
-  public Date createdAt() {
-    return createdAt;
-  }
-  public Date updatedAt() {
-    return updatedAt;
+    super(data, userLogin, createdAt, updatedAt);
   }
 }

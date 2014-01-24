@@ -17,26 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.rule;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.server.rule.RuleParam;
+import org.sonar.api.server.rule.RuleParamType;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class QProfileRuleParam extends RuleParam {
+public class RuleParam {
 
-  private final String value;
+  private final String key;
+  private final String description;
+  private final String defaultValue;
+  private final RuleParamType type;
 
-  public QProfileRuleParam(RuleParam param, @Nullable String value) {
-    super(param.key(), param.description(), param.defaultValue(), param.type());
-    this.value = value;
+  public RuleParam(String key, String description, @Nullable String defaultValue, RuleParamType type) {
+    this.key = key;
+    this.description = description;
+    this.defaultValue = defaultValue;
+    this.type = type;
+  }
+
+  public String key() {
+    return key;
+  }
+
+  public String description() {
+    return description;
   }
 
   @CheckForNull
-  public String value() {
-    return value;
+  public String defaultValue() {
+    return defaultValue;
+  }
+
+  public RuleParamType type() {
+    return type;
   }
 
   @Override

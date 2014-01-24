@@ -17,30 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.rule;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.server.rule.RuleParam;
+import java.util.Date;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+public class RuleNote {
 
-public class QProfileRuleParam extends RuleParam {
+  private final String data;
+  private final String userLogin;
+  private final Date createdAt;
+  private final Date updatedAt;
 
-  private final String value;
-
-  public QProfileRuleParam(RuleParam param, @Nullable String value) {
-    super(param.key(), param.description(), param.defaultValue(), param.type());
-    this.value = value;
+  public RuleNote(String data, String userLogin, Date createdAt, Date updatedAt) {
+    super();
+    this.data = data;
+    this.userLogin = userLogin;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 
-  @CheckForNull
-  public String value() {
-    return value;
+  public String data() {
+    return data;
   }
 
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this).toString();
+  public String userLogin() {
+    return userLogin;
+  }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  public Date updatedAt() {
+    return updatedAt;
   }
 }
