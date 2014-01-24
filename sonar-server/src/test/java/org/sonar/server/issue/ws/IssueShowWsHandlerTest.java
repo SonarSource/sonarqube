@@ -261,14 +261,14 @@ public class IssueShowWsHandlerTest {
   }
 
   @Test
-  public void show_issue_with_severity_action() throws Exception {
+  public void show_issue_with_set_severity_action() throws Exception {
     DefaultIssue issue = createStandardIssue()
       .setStatus("OPEN");
     issues.add(issue);
 
     MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, issue.projectKey());
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_severity_action.json");
+    request.execute().assertJson(getClass(), "show_issue_with_set_severity_action.json");
   }
 
   @Test

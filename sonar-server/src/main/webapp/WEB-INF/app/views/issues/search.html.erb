@@ -64,7 +64,7 @@
         assigned_to:    '<%= escape_javascript message('assigned_to') -%>',
         plan:           '<%= escape_javascript message('issue.do_plan') -%>',
         planned_for:    '<%= escape_javascript message('issue.planned_for') -%>',
-        severity:       '<%= escape_javascript message('issue.set_severity') -%>',
+        set_severity:   '<%= escape_javascript message('issue.set_severity') -%>',
         <%  Internal.issues.listPluginActions().each do |action| -%>
           '<%= escape_javascript action -%>': '<%= escape_javascript message("issue.action.#{action}.formlink") -%>',
         <% end -%>

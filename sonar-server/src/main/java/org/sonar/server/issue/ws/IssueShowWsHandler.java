@@ -156,7 +156,7 @@ public class IssueShowWsHandler implements RequestHandler {
         }
         actions.add("plan");
         if (UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey())) {
-          actions.add("severity");
+          actions.add("set_severity");
         }
         for (Action action : actionService.listAvailableActions(issue)) {
           actions.add(action.key());
