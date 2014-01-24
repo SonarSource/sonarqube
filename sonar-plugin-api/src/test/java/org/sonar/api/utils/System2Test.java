@@ -33,7 +33,8 @@ public class System2Test {
   public void testNow() throws Exception {
     long start = System.currentTimeMillis();
     long now = System2.INSTANCE.now();
-    assertThat(now-start).isGreaterThanOrEqualTo(0).isLessThan(3);
+    long end = System.currentTimeMillis();
+    assertThat(now).isGreaterThanOrEqualTo(start).isLessThanOrEqualTo(end);
   }
 
   @Test
