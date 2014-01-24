@@ -159,8 +159,15 @@ class Api::IssuesController < Api::ApiController
     require_parameters :key, :text
 
     text = Api::Utils.read_post_request_param(params[:text])
-    comment = Internal.issues.editComment(params[:issue], text)
-    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
+    result = Internal.issues.editComment(params[:key], text)
+    hash = result_to_hash(result)
+    hash[:comment] = Issue.comment_to_hash(result.get) if result.get
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => result.httpStatus) }
+    end
   end
 
   #
