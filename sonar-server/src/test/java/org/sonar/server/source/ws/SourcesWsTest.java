@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+
+package org.sonar.server.source.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -26,17 +27,16 @@ import org.sonar.api.server.ws.WsTester;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+public class SourcesWsTest {
 
-public class IssuesWsTest {
-
-  IssueShowWsHandler showHandler = mock(IssueShowWsHandler.class);
-  WsTester tester = new WsTester(new IssuesWs(showHandler));
+  SourcesShowWsHandler showHandler = mock(SourcesShowWsHandler.class);
+  WsTester tester = new WsTester(new SourcesWs(showHandler));
 
   @Test
   public void define_ws() throws Exception {
-    WebService.Controller controller = tester.controller("api/issues");
+    WebService.Controller controller = tester.controller("api/sources");
     assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.description()).isNull();
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -46,5 +46,4 @@ public class IssuesWsTest {
     assertThat(show.isPrivate()).isTrue();
     assertThat(show.handler()).isSameAs(showHandler);
   }
-
 }

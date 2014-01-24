@@ -100,6 +100,8 @@ import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.RuleShowWsHandler;
 import org.sonar.server.rule.ws.RuleTagsWs;
 import org.sonar.server.rule.ws.RulesWs;
+import org.sonar.server.source.ws.SourcesShowWsHandler;
+import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
 import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
@@ -365,6 +367,11 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
+    // source
+    servicesContainer.addSingleton(HtmlSourceDecorator.class);
+    servicesContainer.addSingleton(SourcesWs.class);
+    servicesContainer.addSingleton(SourcesShowWsHandler.class);
+
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);
     servicesContainer.addSingleton(RubyTextService.class);
@@ -379,7 +386,6 @@ public final class Platform {
     servicesContainer.addSingleton(TestablePerspectiveLoader.class);
     servicesContainer.addSingleton(TestPlanPerspectiveLoader.class);
     servicesContainer.addSingleton(SnapshotPerspectives.class);
-    servicesContainer.addSingleton(HtmlSourceDecorator.class);
 
     // Type validation
     servicesContainer.addSingleton(TypeValidations.class);
