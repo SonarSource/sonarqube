@@ -65,7 +65,7 @@ public class DefaultProfileLoader implements ProfileLoader {
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
 
-      if (settings.hasKey("sonar.profile")) {
+      if (StringUtils.isNotBlank(settings.getString("sonar.profile"))) {
         throw new SonarException("Property sonar.profile should not be used in a multi-language project");
       }
       String profileName = settings.getString("sonar.profile." + languageKey);
