@@ -159,7 +159,7 @@ public class Rule {
     return severity;
   }
 
-  protected static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
+  public static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
     String dateValue = (String) ruleSource.get(field);
     if (dateValue == null) {
       return null;

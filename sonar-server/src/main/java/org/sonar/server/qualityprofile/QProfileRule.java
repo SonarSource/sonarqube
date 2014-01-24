@@ -22,29 +22,34 @@ package org.sonar.server.qualityprofile;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleNote;
 import org.sonar.server.rule.RuleParam;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileRule extends Rule {
+public class QProfileRule {
 
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";
+
+  private final Rule rule;
 
   private final Integer activeRuleId;
   private final Integer activeRuleParentId;
   private final String severity;
   private final String inheritance;
-  private final QProfileRuleNote activeRuleNote;
+  private final RuleNote activeRuleNote;
   private final List<QProfileRuleParam> params;
 
   public QProfileRule(Map<String, Object> ruleSource, Map<String, Object> activeRuleSource) {
 
-    super(ruleSource);
+    rule = new Rule(ruleSource);
 
     if (activeRuleSource.isEmpty()) {
       activeRuleId = null;
@@ -60,11 +65,11 @@ public class QProfileRule extends Rule {
 
       if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
         Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
-        activeRuleNote = new QProfileRuleNote(
+        activeRuleNote = new RuleNote(
           (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
           (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
-          parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
-          parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
+          Rule.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
+          Rule.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
         );
       } else {
         activeRuleNote = null;
@@ -78,7 +83,7 @@ public class QProfileRule extends Rule {
         paramValues.put((String) activeRuleParam.get(ActiveRuleDocument.FIELD_PARAM_KEY), (String) activeRuleParam.get(ActiveRuleDocument.FIELD_PARAM_VALUE));
       }
     }
-    for (RuleParam param: super.params()) {
+    for (RuleParam param: rule.params()) {
       params.add(new QProfileRuleParam(param, paramValues.get(param.key())));
     }
   }
@@ -87,12 +92,83 @@ public class QProfileRule extends Rule {
     this(ruleSource, Maps.<String, Object> newHashMap());
   }
 
+  public int id() {
+    return rule.id();
+  }
+
+  public String key() {
+    return rule.key();
+  }
+
+  public String repositoryKey() {
+    return rule.repositoryKey();
+  }
+
+  public String language() {
+    return rule.language();
+  }
+
+  public String name() {
+    return rule.name();
+  }
+
+  public String description() {
+    return rule.description();
+  }
+
+  public String status() {
+    return rule.status();
+  }
+
+  public Date createdAt() {
+    return rule.createdAt();
+  }
+
+  @CheckForNull
+  public Date updatedAt() {
+    return rule.updatedAt();
+  }
+
+  @CheckForNull
+  public Integer templateId() {
+    return rule.templateId();
+  }
+
+  public boolean isTemplate() {
+    return rule.isTemplate();
+  }
+
+  public boolean isEditable() {
+    return rule.isEditable();
+  }
+
+  public static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
+    String dateValue = (String) ruleSource.get(field);
+    if (dateValue == null) {
+      return null;
+    } else {
+      return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(dateValue).toDate();
+    }
+  }
+
+  @CheckForNull
+  public RuleNote ruleNote() {
+    return rule.ruleNote();
+  }
+
+  public List<String> systemTags() {
+    return rule.systemTags();
+  }
+
+  public List<String> adminTags() {
+    return rule.adminTags();
+  }
+
   @CheckForNull
   public Integer activeRuleId() {
     return activeRuleId;
   }
 
-  @Override
   public String severity() {
     return severity;
   }
@@ -115,13 +191,12 @@ public class QProfileRule extends Rule {
     return OVERRIDES.equals(inheritance);
   }
 
-  @Override
-  public List<? extends QProfileRuleParam> params() {
+  public List<QProfileRuleParam> params() {
     return params;
   }
 
   @CheckForNull
-  public QProfileRuleNote activeRuleNote() {
+  public RuleNote activeRuleNote() {
     return activeRuleNote;
   }
 
