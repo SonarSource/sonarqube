@@ -102,9 +102,11 @@ public class DefaultProfileLoaderTest {
     when(dao.getProfile("cobol", "cobol profile")).thenReturn(cobolProfile);
 
     DefaultModuleLanguages moduleLanguages = new DefaultModuleLanguages(settings, languages);
+    RulesProfile profile = new DefaultProfileLoader(dao, moduleLanguages, languages).load(javaProject, settings);
+
+    // Languages are detected later
     moduleLanguages.addLanguage("java");
     moduleLanguages.addLanguage("cobol");
-    RulesProfile profile = new DefaultProfileLoader(dao, moduleLanguages, languages).load(javaProject, settings);
 
     assertThat(profile.getActiveRules()).containsOnly(javaActiveRule, cobolActiveRule);
     assertThat(profile.getActiveRules(true)).containsOnly(javaActiveRule, cobolActiveRule);
