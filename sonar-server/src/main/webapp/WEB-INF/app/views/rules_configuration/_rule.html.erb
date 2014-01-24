@@ -50,8 +50,18 @@
     <a name="rule<%= rule.id -%>"></a>
 
     <div id="rule_note_<%= rule.id -%>" class="marginbottom10">
-      <%= render :partial => 'rule_note', :locals => {:rule => rule,:profile_id => profile.id} %>
+      <%= render :partial => 'rule_note', :locals => {:rule => rule} %>
     </div>
+
+    <% if profiles_administrator? %>
+      <div class="marginbottom10">
+          <a class="link-action open-modal"
+            href="<%=ApplicationController.root_context-%>/rules_configuration/show_select_tags?rule_id=<%= u rule.id -%>&amp;profile_id=<%= u profile.id %>">
+           <%= message('rules_configuration.select_tags') -%></a>
+      </div>
+
+    <% end %>
+
 
     <%
        parent_active_rule = Internal.quality_profiles.parentProfileRule(rule) if (rule.inherited? || rule.overrides?)
