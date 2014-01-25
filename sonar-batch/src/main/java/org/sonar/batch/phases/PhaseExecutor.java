@@ -29,6 +29,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.index.ScanPersister;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
@@ -62,13 +63,14 @@ public final class PhaseExecutor {
   private ScanPersister[] persisters;
   private FileSystemLogger fsLogger;
   private final JsonReport jsonReport;
+  private DefaultModuleFileSystem fs;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -85,15 +87,16 @@ public final class PhaseExecutor {
     this.persisters = persisters;
     this.fsLogger = fsLogger;
     this.jsonReport = jsonReport;
+    this.fs = fs;
   }
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs);
   }
 
   /**
@@ -167,8 +170,9 @@ public final class PhaseExecutor {
   private void executeMavenPhase(Project module) {
     if (phases.isEnabled(Phases.Phase.MAVEN)) {
       eventBus.fireEvent(new MavenPhaseEvent(true));
-      mavenPluginsConfigurator.execute(module);
       mavenPhaseExecutor.execute(module);
+      fs.index();
+      mavenPluginsConfigurator.execute(module);
       eventBus.fireEvent(new MavenPhaseEvent(false));
     }
   }
