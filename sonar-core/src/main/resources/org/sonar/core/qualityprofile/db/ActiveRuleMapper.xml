@@ -185,6 +185,14 @@
     </where>
   </select>
 
+  <select id="selectParamsByProfileId" parameterType="int" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+    inner join active_rules ar on ar.id=p.active_rule_id
+    where ar.profile_id=#{profileId}
+  </select>
+
   <select id="selectAllParams" parameterType="map" resultType="ActiveRuleParam">
     SELECT <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p

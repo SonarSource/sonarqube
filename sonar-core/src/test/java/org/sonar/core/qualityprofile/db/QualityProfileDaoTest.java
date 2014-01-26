@@ -223,5 +223,12 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectByProject(1L, "sonar.profile.%")).hasSize(2);
   }
 
+  @Test
+  public void update_used_column() {
+    setupData("update_used_column");
 
+    dao.updateUsedColumn(123, true);
+
+    checkTables("update_used_column", "rules_profiles");
+  }
 }

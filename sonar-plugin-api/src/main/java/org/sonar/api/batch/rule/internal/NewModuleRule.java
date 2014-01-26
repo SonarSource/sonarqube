@@ -26,12 +26,12 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-class NewModuleRule {
+public class NewModuleRule {
   final RuleKey ruleKey;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
 
-  public NewModuleRule(RuleKey ruleKey) {
+  NewModuleRule(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
   }
 

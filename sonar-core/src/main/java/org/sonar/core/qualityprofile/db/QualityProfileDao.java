@@ -211,4 +211,13 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
+  public void updateUsedColumn(int profileId, boolean used) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(QualityProfileMapper.class).updatedUsedColumn(profileId, used);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }

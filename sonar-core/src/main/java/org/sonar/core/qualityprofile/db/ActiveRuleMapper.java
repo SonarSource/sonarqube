@@ -70,6 +70,8 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
+  List<ActiveRuleParamDto> selectParamsByProfileId(int profileId);
+
   List<ActiveRuleParamDto> selectAllParams();
 
 

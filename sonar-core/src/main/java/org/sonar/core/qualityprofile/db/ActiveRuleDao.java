@@ -347,4 +347,13 @@ public class ActiveRuleDao implements ServerComponent {
   public List<ActiveRuleParamDto> selectAllParams(SqlSession session) {
     return session.getMapper(ActiveRuleMapper.class).selectAllParams();
   }
+
+  public List<ActiveRuleParamDto> selectParamsByProfileId(int profileId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ActiveRuleMapper.class).selectParamsByProfileId(profileId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }

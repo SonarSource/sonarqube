@@ -79,7 +79,6 @@ import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
 import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.ProfileEventsSensor;
-import org.sonar.plugins.core.sensors.ProfileSensor;
 import org.sonar.plugins.core.sensors.ProjectLinksSensor;
 import org.sonar.plugins.core.sensors.UnitTestDecorator;
 import org.sonar.plugins.core.sensors.VersionEventsSensor;
@@ -378,7 +377,6 @@ public final class CorePlugin extends SonarPlugin {
       NewTechnicalDebtDecorator.class,
 
       // batch
-      ProfileSensor.class,
       ProfileEventsSensor.class,
       ProjectLinksSensor.class,
       UnitTestDecorator.class,

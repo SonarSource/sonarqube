@@ -65,4 +65,5 @@ public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);
 
+  void updatedUsedColumn(@Param("id") int profileId, @Param("used") boolean used);
 }
