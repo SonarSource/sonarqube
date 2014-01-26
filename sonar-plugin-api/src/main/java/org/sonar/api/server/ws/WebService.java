@@ -27,6 +27,7 @@ import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,7 @@ public interface WebService extends ServerExtension {
     }
   }
 
+  @Immutable
   class Controller {
     private final String path, description, since;
     private final Map<String, Action> actions;
@@ -199,6 +201,7 @@ public interface WebService extends ServerExtension {
     }
   }
 
+  @Immutable
   class Action {
     private final String key, path, description, since;
     private final boolean post, isPrivate;
@@ -291,6 +294,7 @@ public interface WebService extends ServerExtension {
     }
   }
 
+  @Immutable
   class Param {
     private final String key, description;
 
