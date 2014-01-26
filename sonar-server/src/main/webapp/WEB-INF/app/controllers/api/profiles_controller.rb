@@ -135,7 +135,7 @@ class Api::ProfilesController < Api::ApiController
       profile = Internal.quality_profiles.profile(params[:name], params[:language])
     end
     not_found('Profile not found') unless profile
-    backup = Internal.quality_profiles.backupProfile(profile)
+    backup = Internal.profile_backup.backupProfile(profile)
     respond_to do |format|
       format.xml { render :xml => backup }
       format.json { render :json => jsonp({:backup => backup}) }
@@ -149,7 +149,7 @@ class Api::ProfilesController < Api::ApiController
     verify_post_request
     require_parameters :backup
 
-    result = Internal.quality_profiles.restore(Api::Utils.read_post_request_param(params[:backup]), true)
+    result = Internal.profile_backup.restore(Api::Utils.read_post_request_param(params[:backup]), true)
 
     respond_to do |format|
       format.json { render :json => jsonp(validation_result_to_json(result)), :status => 200 }

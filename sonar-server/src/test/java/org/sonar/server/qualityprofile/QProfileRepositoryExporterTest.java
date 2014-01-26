@@ -55,14 +55,10 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfilePluginExporterTest {
+public class QProfileRepositoryExporterTest {
 
   @Mock
   SqlSession session;
@@ -84,7 +80,7 @@ public class QProfilePluginExporterTest {
 
   Integer currentId = 1;
 
-  QProfilePluginExporter operations;
+  QProfileRepositoryExporter operations;
 
   @Before
   public void setUp() throws Exception {
@@ -100,7 +96,7 @@ public class QProfilePluginExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfilePluginExporter(sessionFactory, activeRuleDao, esActiveRule, importers, exporters);
+    operations = new QProfileRepositoryExporter(sessionFactory, activeRuleDao, esActiveRule, importers, exporters);
   }
 
   @Test

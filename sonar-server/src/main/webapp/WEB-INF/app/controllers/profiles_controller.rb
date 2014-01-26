@@ -122,7 +122,7 @@ class ProfilesController < ApplicationController
 
     profile = Internal.quality_profiles.profile(params[:id].to_i)
     not_found('Profile not found') unless profile
-    xml = Internal.quality_profiles.backupProfile(profile)
+    xml = Internal.profile_backup.backupProfile(profile)
     filename = profile.name().gsub(' ', '_')
     send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}_#{profile.language()}.xml")
   end
@@ -141,7 +141,7 @@ class ProfilesController < ApplicationController
       flash[:warning] = message('quality_profiles.please_upload_backup_file')
     else
       call_backend do
-        result = Internal.quality_profiles.restore(Api::Utils.read_post_request_param(params[:backup]), false)
+        result = Internal.profile_backup.restore(Api::Utils.read_post_request_param(params[:backup]), false)
         flash_result(result)
       end
     end
@@ -161,12 +161,12 @@ class ProfilesController < ApplicationController
 
     if (params[:format].blank?)
       # standard sonar format
-      result = Internal.quality_profiles.backupProfile(profile)
+      result = Internal.profile_backup.backupProfile(profile)
       send_data(result, :type => 'text/xml', :disposition => 'inline')
     else
       exporter_key = params[:format]
-      result = Internal.quality_profiles.exportProfileToXml(profile, exporter_key)
-      send_data(result, :type => Internal.quality_profiles.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+      result = Internal.profile_exporter.exportToXml(profile, exporter_key)
+      send_data(result, :type => Internal.profile_exporter.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
     end
   end
 
@@ -267,9 +267,10 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
 
     call_backend do
-      result = Internal.quality_profiles.projects(params[:id].to_i)
-      @profile = result.profile
-      @projects = Api::Utils.insensitive_sort(result.projects.to_a) { |p| p.name }
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
+      projects = Internal.quality_profiles.projects(params[:id].to_i)
+      @projects = Api::Utils.insensitive_sort(projects.to_a) { |p| p.name }
       set_profile_breadcrumbs
     end
   end

@@ -28,7 +28,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -133,13 +132,17 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
 
   public void deleteProjectProperty(String key, Long projectId) {
     SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      mapper.deleteProjectProperty(key, projectId);
+      deleteProjectProperty(key, projectId, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void deleteProjectProperty(String key, Long projectId, SqlSession session) {
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    mapper.deleteProjectProperty(key, projectId);
   }
 
   public void deleteProjectProperties(String key, String value, SqlSession session) {

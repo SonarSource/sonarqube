@@ -23,22 +23,12 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -49,30 +39,18 @@ public class QProfiles implements ServerComponent {
 
   private static final String LANGUAGE_PARAM = "language";
 
-  private final QualityProfileDao qualityProfileDao;
-  private final ActiveRuleDao activeRuleDao;
-  private final ResourceDao resourceDao;
-
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
-  private final QProfileBackup backup;
-  private final QProfilePluginExporter exporter;
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
   private final QProfileActiveRuleOperations activeRuleOperations;
   private final QProfileRuleLookup rules;
 
-  public QProfiles(QualityProfileDao qualityProfileDao, ActiveRuleDao activeRuleDao, ResourceDao resourceDao,
-                   QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup, QProfileBackup backup, QProfilePluginExporter exporter,
+  public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
                    QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations,
                    QProfileRuleLookup rules) {
-    this.qualityProfileDao = qualityProfileDao;
-    this.activeRuleDao = activeRuleDao;
-    this.resourceDao = resourceDao;
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
-    this.backup = backup;
-    this.exporter = exporter;
     this.profileLookup = profileLookup;
     this.operations = operations;
     this.activeRuleOperations = activeRuleOperations;
@@ -94,7 +72,7 @@ public class QProfiles implements ServerComponent {
 
   @CheckForNull
   public QProfile profile(String name, String language) {
-    validateProfileName(name);
+    checkProfileNameParam(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     return profileLookup.profile(name, language);
   }
@@ -109,13 +87,13 @@ public class QProfiles implements ServerComponent {
   }
 
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
-    validateProfileName(name);
+    checkProfileNameParam(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
   }
 
   public void renameProfile(int profileId, String newName) {
-    validateProfileName(newName);
+    checkProfileNameParam(newName);
     operations.renameProfile(profileId, newName, UserSession.get());
   }
 
@@ -124,7 +102,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public void copyProfile(int profileId, String copyProfileName) {
-    validateProfileName(copyProfileName);
+    checkProfileNameParam(copyProfileName);
     operations.copyProfile(profileId, copyProfileName, UserSession.get());
   }
 
@@ -145,40 +123,15 @@ public class QProfiles implements ServerComponent {
     operations.updateParentProfile(profileId, parentId, UserSession.get());
   }
 
-  public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
-    return backup.restore(xmlBackup, deleteExisting, UserSession.get());
-  }
-
-  public String backupProfile(QProfile profile) {
-    return backup.backupProfile(profile);
-  }
-
   public void deleteProfile(int profileId) {
     operations.deleteProfile(profileId, UserSession.get());
-  }
-
-  public String exportProfileToXml(QProfile profile, String pluginKey) {
-    return exporter.exportToXml(profile, pluginKey);
-  }
-
-  public String getProfileExporterMimeType(String exporterKey) {
-    return exporter.getProfileExporterMimeType(exporterKey);
-  }
-
-  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
-    return exporter.getProfileExportersForLanguage(language);
-  }
-
-  public List<ProfileImporter> getProfileImportersForLanguage(String language) {
-    return exporter.getProfileImportersForLanguage(language);
   }
 
 
   // PROJECTS
 
-  public QProfileProjectLookup.QProfileProjects projects(int profileId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    return projectLookup.projects(qualityProfile);
+  public List<Component> projects(int profileId) {
+    return projectLookup.projects(profileId);
   }
 
   public int countProjects(QProfile profile) {
@@ -193,30 +146,19 @@ public class QProfiles implements ServerComponent {
   }
 
   public void addProject(int profileId, long projectId) {
-    ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-
-    projectOperations.addProject(qualityProfile, project, UserSession.get());
+    projectOperations.addProject(profileId, projectId, UserSession.get());
   }
 
   public void removeProject(int profileId, long projectId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-    ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
-
-    projectOperations.removeProject(qualityProfile, project, UserSession.get());
+    projectOperations.removeProject(profileId, projectId, UserSession.get());
   }
 
   public void removeProjectByLanguage(String language, long projectId) {
-    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
-    ComponentDto project = (ComponentDto) findProjectNotNull(projectId);
-
-    projectOperations.removeProject(language, project, UserSession.get());
+    projectOperations.removeProject(language, projectId, UserSession.get());
   }
 
   public void removeAllProjects(int profileId) {
-    QualityProfileDto qualityProfile = findNotNull(profileId);
-
-    projectOperations.removeAllProjects(qualityProfile, UserSession.get());
+    projectOperations.removeAllProjects(profileId, UserSession.get());
   }
 
 
@@ -263,9 +205,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public int bulkActivateRule(ProfileRuleQuery query) {
-    List<Integer> ruleIdsToActivate = rules.searchInactiveProfileRuleIds(query);
-    activeRuleOperations.activateRules(query.profileId(), ruleIdsToActivate, UserSession.get());
-    return ruleIdsToActivate.size();
+    return activeRuleOperations.activateRules(query.profileId(), query, UserSession.get());
   }
 
   public void deactivateRule(int profileId, int ruleId) {
@@ -273,8 +213,7 @@ public class QProfiles implements ServerComponent {
   }
 
   public int bulkDeactivateRule(ProfileRuleQuery query) {
-    List<Integer> activeRuleIdsToDeactivate = rules.searchProfileRuleIds(query);
-    return activeRuleOperations.deactivateRules(activeRuleIdsToDeactivate, UserSession.get());
+    return activeRuleOperations.deactivateRules(query, UserSession.get());
   }
 
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
@@ -285,80 +224,27 @@ public class QProfiles implements ServerComponent {
     activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
   }
 
-  public QProfileRule updateActiveRuleNote(int activeRuleId, String note) {
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    String sanitizedNote = Strings.emptyToNull(note);
-    if (sanitizedNote != null) {
-      activeRuleOperations.updateActiveRuleNote(activeRule, note, UserSession.get());
-    }
-    // Empty note -> do nothing
-
-    return rules.findByActiveRuleId(activeRule.getId());
+  public void updateActiveRuleNote(int activeRuleId, String note) {
+    activeRuleOperations.updateActiveRuleNote(activeRuleId, note, UserSession.get());
   }
 
-  public QProfileRule deleteActiveRuleNote(int activeRuleId) {
-    ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId);
-    activeRuleOperations.deleteActiveRuleNote(activeRule, UserSession.get());
-    return rules.findByActiveRuleId(activeRule.getId());
+  public void deleteActiveRuleNote(int activeRuleId) {
+    activeRuleOperations.deleteActiveRuleNote(activeRuleId, UserSession.get());
   }
 
   @CheckForNull
   public QProfileRule parentProfileRule(QProfileRule rule) {
-    Integer parentId = rule.activeRuleParentId();
-    if (parentId != null) {
-      return rules.findByActiveRuleId(parentId);
-    }
-    return null;
+    return rules.findParentProfileRule(rule);
   }
 
-  public int countActiveRules(QProfileRule rule) {
-    // TODO get it from E/S
-    return activeRuleDao.selectByRuleId(rule.id()).size();
+  public long countActiveRules(int ruleId) {
+    return rules.countProfileRules(ruleId);
   }
 
-  //
-  // Quality profile validation
-  //
-
-  private QualityProfileDto findNotNull(int id) {
-    QualityProfileDto qualityProfile = findQualityProfile(id);
-    QProfileValidations.checkProfileIsNotNull(qualityProfile);
-    return qualityProfile;
-  }
-
-  @CheckForNull
-  private QualityProfileDto findQualityProfile(int id) {
-    return qualityProfileDao.selectById(id);
-  }
-
-  private void validateProfileName(String name) {
+  private void checkProfileNameParam(String name) {
     if (Strings.isNullOrEmpty(name)) {
       throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
     }
-  }
-
-  //
-  // Project validation
-  //
-
-  private Component findProjectNotNull(long projectId) {
-    Component component = resourceDao.findById(projectId);
-    if (component == null) {
-      throw new NotFoundException("This project does not exists.");
-    }
-    return component;
-  }
-
-  //
-  // Active Rule validation
-  //
-
-  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId) {
-    ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId);
-    if (activeRule == null) {
-      throw new NotFoundException("This active rule does not exists.");
-    }
-    return activeRule;
   }
 
 }

@@ -20,25 +20,35 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileProjectLookupTest {
+
+  @Mock
+  MyBatis myBatis;
+
+  @Mock
+  SqlSession session;
 
   @Mock
   QualityProfileDao qualityProfileDao;
@@ -50,17 +60,29 @@ public class QProfileProjectLookupTest {
 
   @Before
   public void setUp() throws Exception {
-    lookup = new QProfileProjectLookup(qualityProfileDao);
+    when(myBatis.openSession()).thenReturn(session);
+    lookup = new QProfileProjectLookup(myBatis, qualityProfileDao);
   }
 
   @Test
   public void search_projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java")).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
+    when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
+    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java", session)).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
 
-    QProfileProjectLookup.QProfileProjects result = lookup.projects(qualityProfile);
-    assertThat(result.profile()).isNotNull();
-    assertThat(result.projects()).hasSize(1);
+    assertThat(lookup.projects(1)).hasSize(1);
+  }
+
+  @Test
+  public void fail_to_search_projects_if_profile_not_found() throws Exception {
+    try {
+      when(qualityProfileDao.selectById(1, session)).thenReturn(null);
+      when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java", session)).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
+      lookup.projects(1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   @Test

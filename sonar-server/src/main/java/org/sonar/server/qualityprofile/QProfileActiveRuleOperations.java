@@ -33,11 +33,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -48,7 +44,6 @@ import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
@@ -62,24 +57,26 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   private final QualityProfileDao profileDao;
   private final ESActiveRule esActiveRule;
   private final ProfilesManager profilesManager;
+  private final QProfileRuleLookup rules;
 
   private final System2 system;
   private final TypeValidations typeValidations;
 
   public QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, ESActiveRule esActiveRule,
-                                      ProfilesManager profilesManager, TypeValidations typeValidations) {
-    this(myBatis, activeRuleDao, ruleDao, profileDao, esActiveRule, profilesManager, typeValidations, System2.INSTANCE);
+                                      ProfilesManager profilesManager, TypeValidations typeValidations, QProfileRuleLookup rules) {
+    this(myBatis, activeRuleDao, ruleDao, profileDao, esActiveRule, profilesManager, rules, typeValidations, System2.INSTANCE);
   }
 
   @VisibleForTesting
   QProfileActiveRuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao, ESActiveRule esActiveRule,
-                               ProfilesManager profilesManager, TypeValidations typeValidations, System2 system) {
+                               ProfilesManager profilesManager, QProfileRuleLookup rules, TypeValidations typeValidations, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
     this.esActiveRule = esActiveRule;
     this.profilesManager = profilesManager;
+    this.rules = rules;
     this.typeValidations = typeValidations;
     this.system = system;
   }
@@ -136,15 +133,17 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     notifySeverityChanged(activeRule, newSeverity, oldSeverity, session, userSession);
   }
 
-  public void activateRules(int profileId, List<Integer> ruleIdsToActivate, UserSession userSession) {
+  public int activateRules(int profileId, ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
+      List<Integer> ruleIdsToActivate = rules.searchInactiveProfileRuleIds(query);
       for (Integer ruleId : ruleIdsToActivate) {
         RuleDto rule = findRuleNotNull(ruleId, session);
         createActiveRule(profileId, ruleId, rule.getSeverityString(), userSession, session);
       }
+      return ruleIdsToActivate.size();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -176,12 +175,13 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return false;
   }
 
-  public int deactivateRules(List<Integer> activeRuleIdsToDeactivate, UserSession userSession) {
+  public int deactivateRules(ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     int numberOfDeactivatedRules = 0;
     try {
+      List<Integer> activeRuleIdsToDeactivate = rules.searchProfileRuleIds(query);
       for (int activeRuleId : activeRuleIdsToDeactivate) {
         ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
         if (deactivateRule(activeRule, userSession, session)) {
@@ -345,31 +345,38 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public void updateActiveRuleNote(ActiveRuleDto activeRule, String note, UserSession userSession) {
+  public void updateActiveRuleNote(int activeRuleId, String note, UserSession userSession) {
     validatePermission(userSession);
-    Date now = new Date(system.now());
     SqlSession session = myBatis.openSession();
-    try {
-      if (activeRule.getNoteData() == null) {
-        activeRule.setNoteCreatedAt(now);
-        activeRule.setNoteUserLogin(userSession.login());
-      }
-      activeRule.setNoteUpdatedAt(now);
-      activeRule.setNoteData(note);
-      activeRuleDao.update(activeRule, session);
-      session.commit();
 
-      reindexActiveRule(activeRule, session);
+    try {
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+      String sanitizedNote = Strings.emptyToNull(note);
+      if (sanitizedNote != null) {
+        Date now = new Date(system.now());
+        if (activeRule.getNoteData() == null) {
+          activeRule.setNoteCreatedAt(now);
+          activeRule.setNoteUserLogin(userSession.login());
+        }
+        activeRule.setNoteUpdatedAt(now);
+        activeRule.setNoteData(note);
+        activeRuleDao.update(activeRule, session);
+        session.commit();
+
+        reindexActiveRule(activeRule, session);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void deleteActiveRuleNote(ActiveRuleDto activeRule, UserSession userSession) {
+  public void deleteActiveRuleNote(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
     SqlSession session = myBatis.openSession();
     try {
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+
       activeRule.setNoteData(null);
       activeRule.setNoteUserLogin(null);
       activeRule.setNoteCreatedAt(null);
@@ -483,7 +490,4 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key, session);
   }
 
-  private static String getSeverityFromOrdinal(int ordinal) {
-    return Severity.ALL.get(ordinal);
-  }
 }

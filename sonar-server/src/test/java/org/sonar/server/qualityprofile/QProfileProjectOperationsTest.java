@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,20 +29,36 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileProjectOperationsTest {
+
+  @Mock
+  MyBatis myBatis;
+
+  @Mock
+  SqlSession session;
+
+  @Mock
+  QualityProfileDao qualityProfileDao;
+
+  @Mock
+  ResourceDao resourceDao;
 
   @Mock
   PropertiesDao propertiesDao;
@@ -52,62 +69,108 @@ public class QProfileProjectOperationsTest {
 
   @Before
   public void setUp() throws Exception {
-    service = new QProfileProjectOperations(propertiesDao);
+    when(myBatis.openSession()).thenReturn(session);
+    service = new QProfileProjectOperations(myBatis, qualityProfileDao, resourceDao, propertiesDao);
   }
 
   @Test
   public void add_project() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
     ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(resourceDao.findById(10L, session)).thenReturn(project);
 
-    service.addProject(qualityProfile, project, authorizedSession);
+    service.addProject(1, 10L, authorizedSession);
 
     ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).setProperty(argumentCaptor.capture());
+    verify(propertiesDao).setProperty(argumentCaptor.capture(), eq(session));
     assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("My profile");
     assertThat(argumentCaptor.getValue().getResourceId()).isEqualTo(10);
+    verify(session).commit();
   }
 
   @Test
   public void fail_to_add_project_without_profile_admin_permission() throws Exception {
     try {
       QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+      when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
       ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+      when(resourceDao.findById(10L, session)).thenReturn(project);
 
-      service.addProject(qualityProfile, project, MockUserSession.create());
+      service.addProject(1, 10L, MockUserSession.create());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
     verifyNoMoreInteractions(propertiesDao);
+    verify(session, never()).commit();
+  }
+
+  @Test
+  public void fail_to_add_project_if_profile_not_found() throws Exception {
+    try {
+      when(qualityProfileDao.selectById(1, session)).thenReturn(null);
+      ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+      when(resourceDao.findById(10L, session)).thenReturn(project);
+
+      service.addProject(1, 10L, authorizedSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verifyNoMoreInteractions(propertiesDao);
+    verify(session, never()).commit();
+  }
+
+  @Test
+  public void fail_to_add_project_if_project_not_found() throws Exception {
+    try {
+      QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+      when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
+      when(resourceDao.findById(10L, session)).thenReturn(null);
+
+      service.addProject(1, 10L, authorizedSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verifyNoMoreInteractions(propertiesDao);
+    verify(session, never()).commit();
   }
 
   @Test
   public void remove_project_by_quality_profile() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
     ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(resourceDao.findById(10L, session)).thenReturn(project);
 
-    service.removeProject(qualityProfile, project, authorizedSession);
+    service.removeProject(1, 10L, authorizedSession);
 
-    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L);
+    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L, session);
+    verify(session).commit();
   }
 
   @Test
   public void remove_project_by_language() throws Exception {
     ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
+    when(resourceDao.findById(10L, session)).thenReturn(project);
 
-    service.removeProject("java", project, authorizedSession);
+    service.removeProject("java", 10L, authorizedSession);
 
-    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L);
+    verify(propertiesDao).deleteProjectProperty("sonar.profile.java", 10L, session);
+    verify(session).commit();
   }
 
   @Test
   public void remove_all_projects() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
+    when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
 
-    service.removeAllProjects(qualityProfile, authorizedSession);
+    service.removeAllProjects(1, authorizedSession);
 
-    verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "My profile");
+    verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "My profile", session);
+    verify(session).commit();
   }
 }

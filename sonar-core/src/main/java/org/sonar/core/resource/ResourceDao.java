@@ -29,7 +29,6 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -170,7 +169,17 @@ public class ResourceDao {
 
   @CheckForNull
   public Component findById(Long id) {
-    ResourceDto resourceDto = getResource(id);
+    SqlSession session = mybatis.openSession();
+    try {
+      return findById(id, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public Component findById(Long id, SqlSession session) {
+    ResourceDto resourceDto = getResource(id, session);
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 

@@ -29,7 +29,6 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -61,7 +60,6 @@ public class QProfileLookup implements ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
-
 
   @CheckForNull
   public QProfile profile(int id, SqlSession session) {

@@ -40,7 +40,6 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -50,12 +49,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileBackupTest {
@@ -89,14 +83,14 @@ public class QProfileBackupTest {
 
   QProfileBackup backup;
 
-  UserSession userSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
     backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, esActiveRule, dryRunCache);
+
+    MockUserSession.set().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @Test
@@ -120,7 +114,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
-    QProfileResult result = backup.restore("<xml/>", false, userSession);
+    QProfileResult result = backup.restore("<xml/>", false);
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).saveWithoutFlush(profile);
@@ -132,7 +126,8 @@ public class QProfileBackupTest {
   @Test
   public void fail_to_restore_without_profile_admin_permission() throws Exception {
     try {
-      backup.restore("<xml/>", false, MockUserSession.create().setLogin("nicolas").setName("Nicolas"));
+      MockUserSession.set().setLogin("nicolas").setName("Nicolas");
+      backup.restore("<xml/>", false);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
@@ -152,7 +147,7 @@ public class QProfileBackupTest {
     when(qProfileLookup.profile(anyInt())).thenReturn(new QProfile().setId(1));
 
     try {
-      backup.restore("<xml/>", false, userSession);
+      backup.restore("<xml/>", false);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The profile [name=Default,language=java] already exists. Please delete it before restoring.");
@@ -176,7 +171,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(existingProfile);
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
-    QProfileResult result = backup.restore("<xml/>", true, userSession);
+    QProfileResult result = backup.restore("<xml/>", true);
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).removeWithoutFlush(eq(existingProfile));
@@ -205,7 +200,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
-    QProfileResult result = backup.restore("<xml/>", true, userSession);
+    QProfileResult result = backup.restore("<xml/>", true);
 
     assertThat(result.profile()).isNotNull();
     assertThat(result.warnings()).isNotEmpty();
@@ -231,7 +226,7 @@ public class QProfileBackupTest {
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
     try {
-      backup.restore("<xml/>", false, userSession);
+      backup.restore("<xml/>", false);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Fail to restore profile");
@@ -251,7 +246,7 @@ public class QProfileBackupTest {
     when(hibernateSession.getSingleResult(any(Class.class), eq("name"), eq("Default"), eq("language"), eq("java"))).thenReturn(null);
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(new QProfile().setId(1));
 
-    QProfileResult result = backup.restore("<xml/>", false, userSession);
+    QProfileResult result = backup.restore("<xml/>", false);
 
     assertThat(result.profile()).isNull();
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
@@ -271,7 +266,7 @@ public class QProfileBackupTest {
     when(qProfileLookup.profile(anyInt(), eq(session))).thenReturn(null);
 
     try {
-      backup.restore("<xml/>", false, userSession);
+      backup.restore("<xml/>", false);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Restore of the profile has failed.");

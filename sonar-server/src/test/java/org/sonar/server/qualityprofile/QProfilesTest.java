@@ -27,43 +27,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
-
-  @Mock
-  QualityProfileDao qualityProfileDao;
-
-  @Mock
-  ActiveRuleDao activeRuleDao;
-
-  @Mock
-  ResourceDao resourceDao;
 
   @Mock
   QProfileProjectOperations projectOperations;
@@ -81,20 +58,13 @@ public class QProfilesTest {
   QProfileActiveRuleOperations activeRuleOperations;
 
   @Mock
-  QProfileBackup backup;
-
-  @Mock
-  QProfilePluginExporter exporter;
-
-  @Mock
   QProfileRuleLookup rules;
 
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(qualityProfileDao, activeRuleDao, resourceDao, projectOperations, projectLookup, backup, exporter,
-      profileLookup, profileOperations, activeRuleOperations, rules);
+    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, profileOperations, activeRuleOperations, rules);
   }
 
   @Test
@@ -179,33 +149,9 @@ public class QProfilesTest {
   }
 
   @Test
-  public void fail_to_rename_profile_when_missing_new_name() throws Exception {
-    try {
-      qProfiles.renameProfile(1, "");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-    verify(qualityProfileDao, never()).update(any(QualityProfileDto.class));
-  }
-
-  @Test
   public void delete_profile() throws Exception {
     qProfiles.deleteProfile(1);
     verify(profileOperations).deleteProfile(eq(1), any(UserSession.class));
-  }
-
-  @Test
-  public void restore_profile() throws Exception {
-    qProfiles.restore("<xml/>", true);
-    verify(backup).restore(eq("<xml/>"), eq(true), any(UserSession.class));
-  }
-
-  @Test
-  public void backup_profile() throws Exception {
-    QProfile profile = new QProfile().setId(1);
-    qProfiles.backupProfile(profile);
-    verify(backup).backupProfile(profile);
   }
 
   @Test
@@ -227,36 +173,9 @@ public class QProfilesTest {
   }
 
   @Test
-  public void export_profile_to_xml_plugin() throws Exception {
-    QProfile profile = new QProfile().setId(1);
-    qProfiles.exportProfileToXml(profile, "pmd");
-    verify(exporter).exportToXml(profile, "pmd");
-  }
-
-  @Test
-  public void get_profile_exporter_mime_type() throws Exception {
-    qProfiles.getProfileExporterMimeType("pmd");
-    verify(exporter).getProfileExporterMimeType("pmd");
-  }
-
-  @Test
-  public void get_profile_exporters_for_language() throws Exception {
-    qProfiles.getProfileExportersForLanguage("java");
-    verify(exporter).getProfileExportersForLanguage("java");
-  }
-
-  @Test
-  public void get_profile_importers_for_language() throws Exception {
-    qProfiles.getProfileImportersForLanguage("java");
-    verify(exporter).getProfileImportersForLanguage("java");
-  }
-
-  @Test
   public void projects() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
     qProfiles.projects(1);
-    verify(projectLookup).projects(qualityProfile);
+    verify(projectLookup).projects(1);
   }
 
   @Test
@@ -274,77 +193,33 @@ public class QProfilesTest {
 
   @Test
   public void add_project() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    when(resourceDao.findById(10L)).thenReturn(project);
-
     qProfiles.addProject(1, 10L);
-    verify(projectOperations).addProject(eq(qualityProfile), eq(project), any(UserSession.class));
-  }
-
-  @Test
-  public void fail_to_add_project_if_project_not_found() throws Exception {
-    try {
-      QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-      when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-      when(resourceDao.findById(10L)).thenReturn(null);
-
-      qProfiles.addProject(1, 10L);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-    verifyZeroInteractions(projectOperations);
+    verify(projectOperations).addProject(eq(1), eq(10L), any(UserSession.class));
   }
 
   @Test
   public void remove_project_by_quality_profile_id() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-    when(resourceDao.findById(10L)).thenReturn(project);
-
     qProfiles.removeProject(1, 10L);
-    verify(projectOperations).removeProject(eq(qualityProfile), eq(project), any(UserSession.class));
+    verify(projectOperations).removeProject(eq(1), eq(10L), any(UserSession.class));
   }
 
   @Test
   public void remove_project_by_language() throws Exception {
-    ComponentDto project = new ComponentDto().setId(10L).setKey("org.codehaus.sonar:sonar").setName("SonarQube");
-    when(resourceDao.findById(10L)).thenReturn(project);
-
     qProfiles.removeProjectByLanguage("java", 10L);
-    verify(projectOperations).removeProject(eq("java"), eq(project), any(UserSession.class));
+    verify(projectOperations).removeProject(eq("java"), eq(10L), any(UserSession.class));
   }
 
   @Test
   public void remove_all_projects() throws Exception {
-    QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectById(1)).thenReturn(qualityProfile);
-
     qProfiles.removeAllProjects(1);
-    verify(projectOperations).removeAllProjects(eq(qualityProfile), any(UserSession.class));
+    verify(projectOperations).removeAllProjects(eq(1), any(UserSession.class));
   }
 
   @Test
   public void parent_active_rule() throws Exception {
     QProfileRule rule = mock(QProfileRule.class);
-    when(rule.id()).thenReturn(10);
-    when(rule.activeRuleParentId()).thenReturn(6);
-
     qProfiles.parentProfileRule(rule);
-    verify(rules).findByActiveRuleId(6);
-  }
-
-  @Test
-  public void parent_active_rule_return_null_when_no_parent() throws Exception {
-    QProfileRule rule = mock(QProfileRule.class);
-    when(rule.id()).thenReturn(10);
-    when(rule.activeRuleParentId()).thenReturn(null);
-
-    assertThat(qProfiles.parentProfileRule(rule)).isNull();
-    verify(rules, never()).findByActiveRuleId(anyInt());
+    verify(rules).findParentProfileRule(rule);
   }
 
   @Test
@@ -420,9 +295,8 @@ public class QProfilesTest {
   @Test
   public void bulk_activate_rule() throws Exception {
     ProfileRuleQuery query = ProfileRuleQuery.create(1);
-    when(rules.searchInactiveProfileRuleIds(query)).thenReturn(newArrayList(10));
     qProfiles.bulkActivateRule(query);
-    verify(activeRuleOperations).activateRules(eq(1), eq(newArrayList(10)), any(UserSession.class));
+    verify(activeRuleOperations).activateRules(eq(1), eq(query), any(UserSession.class));
   }
 
   @Test
@@ -434,9 +308,8 @@ public class QProfilesTest {
   @Test
   public void bulk_deactivate_rule() throws Exception {
     ProfileRuleQuery query = ProfileRuleQuery.create(1);
-    when(rules.searchProfileRuleIds(query)).thenReturn(newArrayList(10));
     qProfiles.bulkDeactivateRule(query);
-    verify(activeRuleOperations).deactivateRules(eq(newArrayList(10)), any(UserSession.class));
+    verify(activeRuleOperations).deactivateRules(eq(query), any(UserSession.class));
   }
 
   @Test
@@ -453,42 +326,20 @@ public class QProfilesTest {
 
   @Test
   public void create_active_rule_note() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
-    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
-
     qProfiles.updateActiveRuleNote(50, "My note");
-
-    verify(activeRuleOperations).updateActiveRuleNote(eq(activeRule), eq("My note"), any(UserSession.class));
-  }
-
-  @Test
-  public void not_update_rule_note_when_empty_note() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
-    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
-
-    qProfiles.updateActiveRuleNote(50, "");
-
-    verify(activeRuleOperations, never()).updateActiveRuleNote(eq(activeRule), anyString(), any(UserSession.class));
+    verify(activeRuleOperations).updateActiveRuleNote(eq(50), eq("My note"), any(UserSession.class));
   }
 
   @Test
   public void delete_active_rule_note() throws Exception {
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(50);
-    when(activeRuleDao.selectById(50)).thenReturn(activeRule);
-
     qProfiles.deleteActiveRuleNote(50);
-
-    verify(activeRuleOperations).deleteActiveRuleNote(eq(activeRule), any(UserSession.class));
+    verify(activeRuleOperations).deleteActiveRuleNote(eq(50), any(UserSession.class));
   }
 
   @Test
   public void count_active_rules() throws Exception {
-    QProfileRule rule = mock(QProfileRule.class);
-    when(rule.id()).thenReturn(10);
-
-    when(activeRuleDao.selectByRuleId(10)).thenReturn(newArrayList(new ActiveRuleDto().setId(50), new ActiveRuleDto().setId(51)));
-
-    assertThat(qProfiles.countActiveRules(rule)).isEqualTo(2);
+    qProfiles.countActiveRules(10);
+    verify(rules).countProfileRules(eq(10));
   }
 
 }

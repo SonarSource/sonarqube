@@ -32,7 +32,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringReader;
@@ -42,6 +41,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Used through ruby code <pre>Internal.profile_backup</pre>
+ */
 public class QProfileBackup implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
@@ -77,8 +79,8 @@ public class QProfileBackup implements ServerComponent {
    * @param deleteExisting is used to not fail if profile exist but to delete it first.
    *                       It's only used by WS, and it should should be soon removed
    */
-  public QProfileResult restore(String xmlBackup, boolean deleteExisting, UserSession userSession) {
-    checkPermission(userSession);
+  public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
+    checkPermission(UserSession.get());
 
     SqlSession session = myBatis.openSession();
     QProfileResult result = new QProfileResult();

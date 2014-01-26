@@ -50,7 +50,10 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class QProfilePluginExporter implements ServerComponent {
+/**
+ * Used through ruby code <pre>Internal.profile_exporter</pre>
+ */
+public class QProfileRepositoryExporter implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
   private final ActiveRuleDao activeRuleDao;
@@ -61,12 +64,12 @@ public class QProfilePluginExporter implements ServerComponent {
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule) {
+  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule) {
     this(sessionFactory, activeRuleDao, esActiveRule, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
   }
 
-  public QProfilePluginExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule,
-                                List<ProfileImporter> importers, List<ProfileExporter> exporters) {
+  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule,
+                                    List<ProfileImporter> importers, List<ProfileExporter> exporters) {
     this.sessionFactory = sessionFactory;
     this.activeRuleDao = activeRuleDao;
     this.ruleRegistry = esActiveRule;

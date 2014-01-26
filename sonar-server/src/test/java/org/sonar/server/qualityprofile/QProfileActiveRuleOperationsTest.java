@@ -37,11 +37,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -63,14 +59,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileActiveRuleOperationsTest {
@@ -92,6 +81,9 @@ public class QProfileActiveRuleOperationsTest {
 
   @Mock
   ESActiveRule esActiveRule;
+
+  @Mock
+  QProfileRuleLookup rules;
 
   @Mock
   ProfilesManager profilesManager;
@@ -123,7 +115,7 @@ public class QProfileActiveRuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, profileDao, esActiveRule, profilesManager, typeValidations, system);
+    operations = new QProfileActiveRuleOperations(myBatis, activeRuleDao, ruleDao, profileDao, esActiveRule, profilesManager, rules, typeValidations, system);
   }
 
   @Test
@@ -209,6 +201,8 @@ public class QProfileActiveRuleOperationsTest {
   public void activate_rules() throws Exception {
     when(profileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
     when(ruleDao.selectById(10, session)).thenReturn(new RuleDto().setId(10).setSeverity(Severity.CRITICAL));
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    when(rules.searchInactiveProfileRuleIds(query)).thenReturn(newArrayList(10));
 
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     final int idActiveRuleToUpdate = 42;
@@ -218,7 +212,7 @@ public class QProfileActiveRuleOperationsTest {
       .addToDelete(idActiveRuleToDelete);
     when(profilesManager.activated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(inheritanceActions);
 
-    operations.activateRules(1, newArrayList(10), authorizedUserSession);
+    operations.activateRules(1, query, authorizedUserSession);
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
@@ -279,8 +273,10 @@ public class QProfileActiveRuleOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR);
     when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
     when(profilesManager.deactivated(eq(1), anyInt(), eq("Nicolas"))).thenReturn(new ProfilesManager.RuleInheritanceActions());
+    ProfileRuleQuery query = ProfileRuleQuery.create(1);
+    when(rules.searchProfileRuleIds(query)).thenReturn(newArrayList(5));
 
-    int result = operations.deactivateRules(newArrayList(5), authorizedUserSession);
+    int result = operations.deactivateRules(query, authorizedUserSession);
 
     assertThat(result).isEqualTo(1);
     verify(activeRuleDao).delete(eq(5), eq(session));
@@ -538,6 +534,7 @@ public class QProfileActiveRuleOperationsTest {
   @Test
   public void update_active_rule_note_when_no_existing_note() throws Exception {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR).setNoteCreatedAt(null).setNoteData(null);
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
 
     List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
     when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
@@ -545,7 +542,7 @@ public class QProfileActiveRuleOperationsTest {
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.updateActiveRuleNote(activeRule, "My note", authorizedUserSession);
+    operations.updateActiveRuleNote(5, "My note", authorizedUserSession);
 
     ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
@@ -559,10 +556,23 @@ public class QProfileActiveRuleOperationsTest {
   }
 
   @Test
+  public void not_update_rule_note_when_empty_note() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR).setNoteCreatedAt(null).setNoteData(null);
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
+
+    operations.updateActiveRuleNote(5, "", authorizedUserSession);
+
+    verify(activeRuleDao, never()).update(any(ActiveRuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verifyZeroInteractions(esActiveRule);
+  }
+
+  @Test
   public void update_active_rule_note_when_already_note() throws Exception {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR)
       .setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
 
     List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
     when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
@@ -570,7 +580,7 @@ public class QProfileActiveRuleOperationsTest {
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.updateActiveRuleNote(activeRule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    operations.updateActiveRuleNote(5, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
@@ -588,6 +598,7 @@ public class QProfileActiveRuleOperationsTest {
     Date createdAt = DateUtils.parseDate("2013-12-20");
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR)
       .setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
+    when(activeRuleDao.selectById(5, session)).thenReturn(activeRule);
 
     List<ActiveRuleParamDto> activeRuleParams = newArrayList(new ActiveRuleParamDto());
     when(activeRuleDao.selectParamsByActiveRuleId(eq(5), eq(session))).thenReturn(activeRuleParams);
@@ -595,7 +606,7 @@ public class QProfileActiveRuleOperationsTest {
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.deleteActiveRuleNote(activeRule, authorizedUserSession);
+    operations.deleteActiveRuleNote(5, authorizedUserSession);
 
     ArgumentCaptor<ActiveRuleDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).update(argumentCaptor.capture());

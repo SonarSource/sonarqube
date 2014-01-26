@@ -197,7 +197,7 @@ class RulesConfigurationController < ApplicationController
         redirect_to :action => 'index', :id => params[:id]
       else
         @parent_rule = Internal.quality_profiles.findByRule(@rule.templateId())
-        @active_rules = Internal.quality_profiles.countActiveRules(@rule)
+        @active_rules = Internal.quality_profiles.countActiveRules(@rule.id()).to_i
       end
     end
   end
@@ -323,7 +323,8 @@ class RulesConfigurationController < ApplicationController
 
     rule = nil
     call_backend do
-      rule = Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
+      Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
+      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
     end
     render :partial => 'active_rule_note', :locals => {:rule => rule}
   end
@@ -335,7 +336,8 @@ class RulesConfigurationController < ApplicationController
 
     rule = nil
     call_backend do
-      rule = Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
+      Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
+      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
     end
     render :partial => 'active_rule_note', :locals => {:rule => rule}
   end

@@ -22,9 +22,12 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -34,21 +37,25 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileProjectLookup implements ServerComponent {
 
+  private final MyBatis myBatis;
   private final QualityProfileDao qualityProfileDao;
 
-  public QProfileProjectLookup(QualityProfileDao qualityProfileDao) {
+  public QProfileProjectLookup(MyBatis myBatis, QualityProfileDao qualityProfileDao) {
+    this.myBatis = myBatis;
     this.qualityProfileDao = qualityProfileDao;
   }
 
-  public QProfileProjects projects(QualityProfileDto qualityProfile) {
-    List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage());
-    List<Component> projects = newArrayList(Iterables.transform(componentDtos, new Function<ComponentDto, Component>() {
-      @Override
-      public Component apply(ComponentDto dto) {
-        return (Component) dto;
-      }
-    }));
-    return new QProfileProjects(QProfile.from(qualityProfile), projects);
+  public List<Component> projects(int profileId) {
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto qualityProfile = qualityProfileDao.selectById(profileId, session);
+      QProfileValidations.checkProfileIsNotNull(qualityProfile);
+      List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(
+        qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session);
+      return Lists.<Component>newArrayList(componentDtos);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public int countProjects(QProfile profile) {
@@ -65,22 +72,4 @@ public class QProfileProjectLookup implements ServerComponent {
     }));
   }
 
-  public static class QProfileProjects {
-
-    private QProfile profile;
-    private List<Component> projects;
-
-    public QProfileProjects(QProfile profile, List<Component> projects) {
-      this.profile = profile;
-      this.projects = projects;
-    }
-
-    public QProfile profile() {
-      return profile;
-    }
-
-    public List<Component> projects() {
-      return projects;
-    }
-  }
 }

@@ -38,18 +38,12 @@ import org.sonar.server.es.ESIndex;
 import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
-import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
 import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
@@ -111,6 +105,15 @@ public class QProfileRuleLookup implements ServerExtension {
     return null;
   }
 
+  @CheckForNull
+  public QProfileRule findParentProfileRule(QProfileRule rule) {
+    Integer parentId = rule.activeRuleParentId();
+    if (parentId != null) {
+      return findByActiveRuleId(parentId);
+    }
+    return null;
+  }
+
   public QProfileRuleResult search(ProfileRuleQuery query, Paging paging) {
     SearchHits ruleHits = searchRules(query, paging, ruleFilterForActiveRuleSearch(query).must(hasChildFilter(ESActiveRule.TYPE_ACTIVE_RULE, activeRuleFilter(query))));
     List<Integer> ruleIds = Lists.newArrayList();
@@ -168,9 +171,23 @@ public class QProfileRuleLookup implements ServerExtension {
       index.client()
         .prepareCount(INDEX_RULES)
         .setTypes(ESActiveRule.TYPE_ACTIVE_RULE)
-        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-          activeRuleFilter(query).must(hasParentFilter(TYPE_RULE, ruleFilterForActiveRuleSearch(query)))))
+        .setQuery(QueryBuilders.filteredQuery(
+          QueryBuilders.matchAllQuery(),
+          activeRuleFilter(query).must(hasParentFilter(TYPE_RULE, ruleFilterForActiveRuleSearch(query))))
+        )
     );
+  }
+
+  public long countProfileRules(int ruleId) {
+    return index.executeCount(
+      index.client()
+        .prepareCount(INDEX_RULES)
+        .setTypes(ESActiveRule.TYPE_ACTIVE_RULE)
+        .setQuery(QueryBuilders.filteredQuery(
+          QueryBuilders.matchAllQuery(),
+          boolFilter().must(hasParentFilter(TYPE_RULE, boolFilter().must(termFilter(RuleDocument.FIELD_ID, ruleId))))
+        )
+    ));
   }
 
   public QProfileRuleResult searchInactives(ProfileRuleQuery query, Paging paging) {

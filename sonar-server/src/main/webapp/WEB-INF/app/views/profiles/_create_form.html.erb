@@ -1,6 +1,6 @@
 <%
    language = controller.java_facade.getLanguages().find { |l| l.getKey()==language_key }
-   importers = Internal.quality_profiles.getProfileImportersForLanguage(language_key)
+   importers = Internal.profile_exporter.getProfileImportersForLanguage(language_key)
 %>
 <form id="create-profile-form" action="profiles/create" enctype="multipart/form-data" method="POST">
   <fieldset>

@@ -20,40 +20,101 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 public class QProfileProjectOperations implements ServerComponent {
 
+  private final MyBatis myBatis;
+  private final QualityProfileDao qualityProfileDao;
+  private final ResourceDao resourceDao;
   private final PropertiesDao propertiesDao;
 
-  public QProfileProjectOperations(PropertiesDao propertiesDao) {
+  public QProfileProjectOperations(MyBatis myBatis, QualityProfileDao qualityProfileDao, ResourceDao resourceDao, PropertiesDao propertiesDao) {
+    this.myBatis = myBatis;
+    this.qualityProfileDao = qualityProfileDao;
+    this.resourceDao = resourceDao;
     this.propertiesDao = propertiesDao;
   }
 
-  public void addProject(QualityProfileDto qualityProfile, ComponentDto component, UserSession userSession) {
+  public void addProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.setProperty(new PropertyDto().setKey(
-      QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(component.getId()));
+    SqlSession session = myBatis.openSession();
+    try {
+      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+
+      propertiesDao.setProperty(new PropertyDto().setKey(
+        QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  public void removeProject(QualityProfileDto qualityProfile, ComponentDto project, UserSession userSession) {
-    removeProject(qualityProfile.getLanguage(), project, userSession);
+  public void removeProject(int profileId, long projectId, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+
+      propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  public void removeProject(String language, ComponentDto project, UserSession userSession) {
+  public void removeProject(String language, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId());
+    SqlSession session = myBatis.openSession();
+    try {
+      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+
+      propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  public void removeAllProjects(QualityProfileDto qualityProfile, UserSession userSession) {
+  public void removeAllProjects(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    propertiesDao.deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName());
+    SqlSession session = myBatis.openSession();
+    try {
+      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+
+      propertiesDao.deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName(), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private QualityProfileDto findNotNull(int id, SqlSession session) {
+    QualityProfileDto qualityProfile = qualityProfileDao.selectById(id, session);
+    QProfileValidations.checkProfileIsNotNull(qualityProfile);
+    return qualityProfile;
+  }
+
+  private Component findProjectNotNull(long projectId, SqlSession session) {
+    Component component = resourceDao.findById(projectId, session);
+    if (component == null) {
+      throw new NotFoundException("This project does not exists.");
+    }
+    return component;
   }
 
   private void checkPermission(UserSession userSession) {

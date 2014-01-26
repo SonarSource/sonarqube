@@ -260,6 +260,19 @@ public class QProfileRuleLookupTest {
   }
 
   @Test
+  public void find_parent_active_rule() throws Exception {
+    QProfileRule rule = profileRules.findByActiveRuleId(391);
+    QProfileRule parent = profileRules.findParentProfileRule(rule);
+    assertThat(parent.id()).isEqualTo(25);
+  }
+
+  @Test
+  public void find_parent_active_rule_return_null_when_no_parent() throws Exception {
+    QProfileRule rule = profileRules.findByActiveRuleId(25);
+    assertThat(profileRules.findParentProfileRule(rule)).isNull();
+  }
+
+  @Test
   public void count_profile_rules() {
     // All rules for profile 1
     assertThat(profileRules.countProfileRules(ProfileRuleQuery.create(1))).isEqualTo(3);
@@ -269,6 +282,12 @@ public class QProfileRuleLookupTest {
 
     // Match on key
     assertThat(profileRules.countProfileRules(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"))).isEqualTo(1);
+  }
+
+  @Test
+  public void count_profile_rules_by_rule_id() {
+    assertThat(profileRules.countProfileRules(759)).isEqualTo(2);
+    assertThat(profileRules.countProfileRules(25)).isEqualTo(1);
   }
 
   @Test

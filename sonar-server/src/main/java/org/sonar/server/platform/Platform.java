@@ -287,7 +287,7 @@ public final class Platform {
     servicesContainer.addSingleton(QProfileProjectOperations.class);
     servicesContainer.addSingleton(QProfileProjectLookup.class);
     servicesContainer.addSingleton(QProfileBackup.class);
-    servicesContainer.addSingleton(QProfilePluginExporter.class);
+    servicesContainer.addSingleton(QProfileRepositoryExporter.class);
     servicesContainer.addSingleton(ESActiveRule.class);
 
     // users
