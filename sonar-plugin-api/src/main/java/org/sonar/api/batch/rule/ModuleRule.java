@@ -17,21 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.batch.rule;
 
-import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 
-import static org.fest.assertions.Assertions.assertThat;
+import javax.annotation.CheckForNull;
+import java.io.Serializable;
+import java.util.Map;
 
-public class SeverityTest {
+/**
+ * @since 4.2
+ */
+public interface ModuleRule {
 
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
-  }
+  RuleKey ruleKey();
 
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
-  }
+  String severity();
+
+  @CheckForNull
+  String param(String key);
+
+  Map<String, String> params();
+
 }

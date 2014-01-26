@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.check.Cardinality;
@@ -67,9 +68,9 @@ class RuleDefinitionsFromAnnotations {
 
     RuleDefinitions.NewRule rule = repo.newRule(ruleKey);
     rule.setName(ruleName).setHtmlDescription(description);
-    rule.setDefaultSeverity(ruleAnnotation.priority().name());
+    rule.setSeverity(ruleAnnotation.priority().name());
     rule.setTemplate(ruleAnnotation.cardinality() == Cardinality.MULTIPLE);
-    rule.setStatus(RuleDefinitions.Status.valueOf(ruleAnnotation.status()));
+    rule.setStatus(RuleStatus.valueOf(ruleAnnotation.status()));
 
     List<Field> fields = FieldUtils2.getFields(clazz, true);
     for (Field field : fields) {

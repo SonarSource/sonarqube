@@ -23,6 +23,7 @@ package org.sonar.server.rule;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -202,7 +203,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
       NewRule rule1 = repo.newRule("rule1")
           .setName("One")
           .setHtmlDescription("Description of One")
-          .setDefaultSeverity(Severity.BLOCKER)
+          .setSeverity(Severity.BLOCKER)
           .setMetadata("config1")
           .setTags("tag1", "tag3", "tag5");
       rule1.newParam("param1").setDescription("parameter one").setDefaultValue("default value one");
@@ -211,8 +212,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
       repo.newRule("rule2")
           .setName("Two")
           .setHtmlDescription("Description of Two")
-          .setDefaultSeverity(Severity.INFO)
-          .setStatus(Status.DEPRECATED);
+          .setSeverity(Severity.INFO)
+          .setStatus(RuleStatus.DEPRECATED);
       repo.done();
     }
   }
@@ -227,7 +228,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         NewRule rule = repo.newRule("rule" + i)
             .setName("name of " + i)
             .setHtmlDescription("description of " + i)
-            .setDefaultSeverity(Severity.BLOCKER)
+            .setSeverity(Severity.BLOCKER)
             .setMetadata("config1")
             .setTags("tag1", "tag3", "tag5");
         for (int j = 0; j < 20; j++) {

@@ -155,7 +155,7 @@ public class RuleRegistration implements Startable {
         .setName(ruleDef.name())
         .setRepositoryKey(ruleDef.repository().key())
         .setRuleKey(ruleDef.key())
-        .setSeverity(RulePriority.valueOf(ruleDef.defaultSeverity()).name())
+        .setSeverity(RulePriority.valueOf(ruleDef.severity()).name())
         .setCreatedAt(buffer.now())
         .setUpdatedAt(buffer.now())
         .setStatus(ruleDef.status().name());
@@ -199,7 +199,7 @@ public class RuleRegistration implements Startable {
       dto.setConfigKey(def.metadata());
       changed = true;
     }
-    String severity = RulePriority.valueOf(def.defaultSeverity()).name();
+    String severity = RulePriority.valueOf(def.severity()).name();
     if (!ObjectUtils.equals(dto.getSeverityString(), severity)) {
       dto.setSeverity(severity);
       changed = true;

@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -73,9 +74,9 @@ public class DeprecatedRuleDefinitionsTest {
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.name()).isEqualTo("Constant Name");
     assertThat(rule.htmlDescription()).isEqualTo("Checks that constant names conform to the specified format");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.metadata()).isEqualTo("Checker/TreeWalker/ConstantName");
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.params()).hasSize(1);
     RuleDefinitions.Param param = rule.param("format");

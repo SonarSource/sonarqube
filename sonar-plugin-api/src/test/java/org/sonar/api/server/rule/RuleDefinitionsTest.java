@@ -21,6 +21,7 @@ package org.sonar.api.server.rule;
 
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -65,9 +66,9 @@ public class RuleDefinitionsTest {
       .setName("Detect NPE")
       .setHtmlDescription("Detect <code>NPE</code>")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDefaultSeverity(Severity.BLOCKER)
+      .setSeverity(Severity.BLOCKER)
       .setMetadata("/something")
-      .setStatus(RuleDefinitions.Status.BETA)
+      .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
       .addTags("two", "three", "four");
     newFindbugs.newRule("ABC").setName("ABC").setHtmlDescription("ABC");
@@ -79,13 +80,13 @@ public class RuleDefinitionsTest {
     RuleDefinitions.Rule npeRule = findbugs.rule("NPE");
     assertThat(npeRule.key()).isEqualTo("NPE");
     assertThat(npeRule.name()).isEqualTo("Detect NPE");
-    assertThat(npeRule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(npeRule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
     assertThat(npeRule.params()).isEmpty();
     assertThat(npeRule.metadata()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
-    assertThat(npeRule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
 
@@ -103,10 +104,10 @@ public class RuleDefinitionsTest {
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.key()).isEqualTo("NPE");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.params()).isEmpty();
     assertThat(rule.metadata()).isNull();
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.READY);
+    assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
   }
 
@@ -234,10 +235,20 @@ public class RuleDefinitionsTest {
   @Test
   public void fail_if_bad_rule_severity() {
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setDefaultSeverity("VERY HIGH");
+      context.newRepository("findbugs", "java").newRule("NPE").setSeverity("VERY HIGH");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Default severity of rule [repository=findbugs, key=NPE] is not correct: VERY HIGH");
+      assertThat(e).hasMessage("Severity of rule [repository=findbugs, key=NPE] is not correct: VERY HIGH");
+    }
+  }
+
+  @Test
+  public void fail_if_removed_status() {
+    try {
+      context.newRepository("findbugs", "java").newRule("NPE").setStatus(RuleStatus.REMOVED);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
     }
   }
 }

@@ -23,9 +23,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RuleDefinitions;
-import org.sonar.api.server.rule.RuleDefinitionsFromAnnotations;
-import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.check.Priority;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -41,11 +39,10 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(repository.rules()).hasSize(1);
     RuleDefinitions.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("foo");
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.name()).isEqualTo("bar");
     assertThat(rule.htmlDescription()).isEqualTo("Foo Bar");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.params()).hasSize(1);
 
     RuleDefinitions.Param prop = rule.param("property");
@@ -112,7 +109,7 @@ public class RuleDefinitionsFromAnnotationsTest {
     RuleDefinitions.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("overriding_foo");
     assertThat(rule.name()).isEqualTo("Overriding Foo");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.htmlDescription()).isEqualTo("Desc of Overriding Foo");
     assertThat(rule.params()).hasSize(2);
   }

@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.rules.RuleParam;
@@ -64,8 +65,8 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
         newRule.setMetadata(rule.getConfigKey());
         newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
-        newRule.setDefaultSeverity(rule.getSeverity().toString());
-        newRule.setStatus(rule.getStatus() == null ? Status.READY : Status.valueOf(rule.getStatus()));
+        newRule.setSeverity(rule.getSeverity().toString());
+        newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));
         for (RuleParam param : rule.getParams()) {
           NewParam newParam = newRule.newParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());

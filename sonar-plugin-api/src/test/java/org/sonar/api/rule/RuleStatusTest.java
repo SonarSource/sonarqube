@@ -23,15 +23,9 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SeverityTest {
-
+public class RuleStatusTest {
   @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
-  }
-
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
+  public void default_is_ready() throws Exception {
+    assertThat(RuleStatus.defaultStatus()).isEqualTo(RuleStatus.READY);
   }
 }

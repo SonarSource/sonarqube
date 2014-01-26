@@ -17,21 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.batch.rule.internal;
 
-import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
-import static org.fest.assertions.Assertions.assertThat;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SeverityTest {
+class NewModuleRule {
+  final RuleKey ruleKey;
+  String severity = Severity.defaultSeverity();
+  Map<String, String> params = new HashMap<String, String>();
 
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
+  public NewModuleRule(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
   }
 
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
+  public NewModuleRule setSeverity(String severity) {
+    this.severity = severity;
+    return this;
+  }
+
+  public NewModuleRule setParam(String key, @Nullable String value) {
+    // possible improvement : check that the param key exists in rule definition
+    if (value == null) {
+      params.remove(key);
+    } else {
+      params.put(key, value);
+    }
+    return this;
   }
 }

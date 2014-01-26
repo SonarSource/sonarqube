@@ -25,6 +25,7 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
@@ -79,7 +80,7 @@ class RuleDefinitionsFromXml {
   }
 
   private void processRule(RuleDefinitions.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, metadata = null, severity = Severity.MAJOR, status = null;
+    String key = null, name = null, description = null, metadata = null, severity = Severity.defaultSeverity(), status = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<ParamStruct>();
 
@@ -128,12 +129,12 @@ class RuleDefinitionsFromXml {
     }
     RuleDefinitions.NewRule rule = repo.newRule(key)
       .setHtmlDescription(description)
-      .setDefaultSeverity(severity)
+      .setSeverity(severity)
       .setName(name)
       .setMetadata(metadata)
       .setTemplate(cardinality == Cardinality.MULTIPLE);
     if (status != null) {
-      rule.setStatus(RuleDefinitions.Status.valueOf(status));
+      rule.setStatus(RuleStatus.valueOf(status));
     }
     for (ParamStruct param : params) {
       rule.newParam(param.key)

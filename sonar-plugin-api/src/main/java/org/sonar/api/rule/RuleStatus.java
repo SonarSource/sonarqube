@@ -19,19 +19,13 @@
  */
 package org.sonar.api.rule;
 
-import org.junit.Test;
+/**
+ * @since 4.2
+ */
+public enum RuleStatus {
+  BETA, DEPRECATED, READY, REMOVED;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class SeverityTest {
-
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
-  }
-
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
+  public static RuleStatus defaultStatus() {
+    return READY;
   }
 }

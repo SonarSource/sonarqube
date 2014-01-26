@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+@ParametersAreNonnullByDefault
+package org.sonar.api.batch.rule.internal;
 
-import org.junit.Test;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class SeverityTest {
-
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
-  }
-
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

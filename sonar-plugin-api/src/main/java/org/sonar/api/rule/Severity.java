@@ -43,4 +43,7 @@ public final class Severity {
     // utility
   }
 
+  public static String defaultSeverity() {
+    return MAJOR;
+  }
 }

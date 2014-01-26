@@ -24,9 +24,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -97,38 +99,38 @@ public interface RuleDefinitions extends ServerExtension {
     /**
      * Reads definitions of rules from a XML file. Format is :
      * <pre>
-     &lt;rules&gt;
-       &lt;rule&gt;
-        &lt;!-- required fields --&gt;
-        &lt;key&gt;the-rule-key&lt;/key&gt;
-        &lt;name&gt;The purpose of the rule&lt;/name&gt;
-        &lt;description&gt;
-          &lt;![CDATA[The description]]&gt;
-        &lt;/description&gt;
-
-        &lt;!-- optional fields --&gt;
-        &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
-        &lt;severity&gt;BLOCKER&lt;/severity&gt;
-        &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
-        &lt;status&gt;BETA&lt;/status&gt;
-        &lt;param&gt;
-          &lt;key&gt;the-param-key&lt;/key&gt;
-          &lt;description&gt;
-          &lt;![CDATA[
-            the param-description
-          ]]&gt;
-          &lt;/description&gt;
-          &lt;defaultValue&gt;42&lt;/defaultValue&gt;
-        &lt;/param&gt;
-        &lt;param&gt;
-          &lt;key&gt;another-param&lt;/key&gt;
-       &lt;/param&gt;
-
-       &lt;!-- deprecated fields --&gt;
-       &lt;priority&gt;BLOCKER&lt;/priority&gt;
-     &lt;/rule&gt;
-   &lt;/rules&gt;
-
+     * &lt;rules&gt;
+     * &lt;rule&gt;
+     * &lt;!-- required fields --&gt;
+     * &lt;key&gt;the-rule-key&lt;/key&gt;
+     * &lt;name&gt;The purpose of the rule&lt;/name&gt;
+     * &lt;description&gt;
+     * &lt;![CDATA[The description]]&gt;
+     * &lt;/description&gt;
+     *
+     * &lt;!-- optional fields --&gt;
+     * &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
+     * &lt;severity&gt;BLOCKER&lt;/severity&gt;
+     * &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
+     * &lt;status&gt;BETA&lt;/status&gt;
+     * &lt;param&gt;
+     * &lt;key&gt;the-param-key&lt;/key&gt;
+     * &lt;description&gt;
+     * &lt;![CDATA[
+     * the param-description
+     * ]]&gt;
+     * &lt;/description&gt;
+     * &lt;defaultValue&gt;42&lt;/defaultValue&gt;
+     * &lt;/param&gt;
+     * &lt;param&gt;
+     * &lt;key&gt;another-param&lt;/key&gt;
+     * &lt;/param&gt;
+     *
+     * &lt;!-- deprecated fields --&gt;
+     * &lt;priority&gt;BLOCKER&lt;/priority&gt;
+     * &lt;/rule&gt;
+     * &lt;/rules&gt;
+     *
      * </pre>
      */
     void loadXml(InputStream xmlInput, String encoding);
@@ -214,6 +216,7 @@ public interface RuleDefinitions extends ServerExtension {
     String name();
   }
 
+  @Immutable
   class RepositoryImpl implements Repository {
     private final String key, language, name;
     private final Map<String, Rule> rulesByKey;
@@ -277,9 +280,9 @@ public interface RuleDefinitions extends ServerExtension {
 
   class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, metadata, defaultSeverity = Severity.MAJOR;
+    private String name, htmlDescription, metadata, severity = Severity.MAJOR;
     private boolean template;
-    private Status status = Status.READY;
+    private RuleStatus status = RuleStatus.defaultStatus();
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
@@ -289,6 +292,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewRule setName(String s) {
+      // TODO remove newlines
       this.name = s;
       return this;
     }
@@ -298,11 +302,11 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    public NewRule setDefaultSeverity(String s) {
+    public NewRule setSeverity(String s) {
       if (!Severity.ALL.contains(s)) {
-        throw new IllegalArgumentException(String.format("Default severity of rule %s is not correct: %s", this, s));
+        throw new IllegalArgumentException(String.format("Severity of rule %s is not correct: %s", this, s));
       }
-      this.defaultSeverity = s;
+      this.severity = s;
       return this;
     }
 
@@ -311,7 +315,10 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    public NewRule setStatus(Status status) {
+    public NewRule setStatus(RuleStatus status) {
+      if (status.equals(RuleStatus.REMOVED)) {
+        throw new IllegalArgumentException(String.format("Status 'REMOVED' is not accepted on rule '%s'", this));
+      }
       this.status = status;
       return this;
     }
@@ -370,17 +377,14 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-  enum Status {
-    BETA, DEPRECATED, READY
-  }
-
+  @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, metadata, defaultSeverity;
+    private final String repoKey, key, name, htmlDescription, metadata, severity;
     private final boolean template;
     private final Set<String> tags;
     private final Map<String, Param> params;
-    private final Status status;
+    private final RuleStatus status;
 
     private Rule(Repository repository, NewRule newRule) {
       this.repository = repository;
@@ -389,7 +393,7 @@ public interface RuleDefinitions extends ServerExtension {
       this.name = newRule.name;
       this.htmlDescription = newRule.htmlDescription;
       this.metadata = newRule.metadata;
-      this.defaultSeverity = newRule.defaultSeverity;
+      this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
@@ -412,8 +416,8 @@ public interface RuleDefinitions extends ServerExtension {
       return name;
     }
 
-    public String defaultSeverity() {
-      return defaultSeverity;
+    public String severity() {
+      return severity;
     }
 
     @CheckForNull
@@ -425,7 +429,7 @@ public interface RuleDefinitions extends ServerExtension {
       return template;
     }
 
-    public Status status() {
+    public RuleStatus status() {
       return status;
     }
 
@@ -510,6 +514,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
+  @Immutable
   class Param {
     private final String key, name, description, defaultValue;
     private final RuleParamType type;

@@ -17,21 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.batch.rule.internal;
 
-import org.junit.Test;
+import org.sonar.api.batch.rule.ModuleRules;
+import org.sonar.api.rule.RuleKey;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SeverityTest {
+/**
+ * For unit testing and internal use only.
+ *
+ * @since 4.2
+ */
+public class ModuleRulesBuilder {
 
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
+  private final Map<RuleKey, NewModuleRule> map = new HashMap<RuleKey, NewModuleRule>();
+
+  public NewModuleRule activate(RuleKey ruleKey) {
+    if (map.containsKey(ruleKey)) {
+      throw new IllegalStateException(String.format("Rule '%s' is already activated", ruleKey));
+    }
+    NewModuleRule newModuleRule = new NewModuleRule(ruleKey);
+    map.put(ruleKey, newModuleRule);
+    return newModuleRule;
   }
 
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
+  public ModuleRules build() {
+    return new DefaultModuleRules(map.values());
   }
 }

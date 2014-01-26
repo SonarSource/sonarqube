@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -54,11 +55,10 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(rule.key()).isEqualTo("complete");
     assertThat(rule.name()).isEqualTo("Complete");
     assertThat(rule.htmlDescription()).isEqualTo("Description of Complete");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.template()).isTrue();
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.metadata()).isEqualTo("Checker/TreeWalker/LocalVariableName");
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.BETA);
 
     assertThat(rule.params()).hasSize(2);
     RuleDefinitions.Param ignore = rule.param("ignore");
@@ -71,8 +71,8 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(rule.name()).isEqualTo("Minimal");
     assertThat(rule.htmlDescription()).isEqualTo("Description of Minimal");
     assertThat(rule.params()).isEmpty();
-    assertThat(rule.status()).isEqualTo(RuleDefinitions.Status.READY);
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.status()).isEqualTo(RuleStatus.READY);
+    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
   }
 
   @Test
@@ -116,7 +116,7 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(repository.rules()).hasSize(1);
     RuleDefinitions.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("org.sonar.it.checkstyle.MethodsCountCheck");
-    assertThat(rule.defaultSeverity()).isEqualTo(Severity.CRITICAL);
+    assertThat(rule.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(rule.htmlDescription()).isEqualTo("Count methods");
     assertThat(rule.param("minMethodsCount")).isNotNull();
   }

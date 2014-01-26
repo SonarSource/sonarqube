@@ -17,21 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
+package org.sonar.api.batch.rule.internal;
 
-import org.junit.Test;
+import javax.annotation.Nullable;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class NewRuleParam {
+  final String key;
+  String description;
 
-public class SeverityTest {
-
-  @Test
-  public void test_ALL() throws Exception {
-    assertThat(Severity.ALL).hasSize(5).containsSequence("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER");
+  NewRuleParam(String key) {
+    this.key = key;
   }
 
-  @Test
-  public void default_is_major() throws Exception {
-    assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
+  public NewRuleParam setDescription(@Nullable String s) {
+    description = s;
+    return this;
   }
 }
