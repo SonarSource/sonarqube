@@ -92,8 +92,8 @@ public class SonarEngine extends CpdEngine {
   }
 
   @Override
-  public boolean isLanguageSupported(Language language) {
-    return Java.KEY.equals(language.getKey());
+  public boolean isLanguageSupported(String language) {
+    return Java.KEY.equals(language);
   }
 
   @Override

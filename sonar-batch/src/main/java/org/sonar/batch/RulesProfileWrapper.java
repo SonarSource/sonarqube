@@ -33,7 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This wrapper is used to try to preserver backward compatibility for plugins that used to depends on {@link RulesProfile}
+ * This wrapper is used to try to preserve backward compatibility for plugins that used to
+ * depends on {@link RulesProfile}
  * @since 4.2
  */
 public class RulesProfileWrapper extends RulesProfile {
@@ -54,10 +55,10 @@ public class RulesProfileWrapper extends RulesProfile {
   }
 
   private RulesProfile getSingleProfileOrFail() {
-    if (moduleLanguages.getModuleLanguageKeys().size() != 1) {
+    if (moduleLanguages.keys().size() != 1) {
       throw new SonarException("Please update your plugin to support multi-language analysis");
     }
-    return ruleProfilesPerLanguages.get(moduleLanguages.getModuleLanguageKeys().iterator().next());
+    return ruleProfilesPerLanguages.get(moduleLanguages.keys().iterator().next());
   }
 
   public RulesProfile getProfileByLanguage(String languageKey) {
@@ -71,12 +72,12 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public String getLanguage() {
-    if (moduleLanguages.getModuleLanguageKeys().size() != 1) {
+    if (moduleLanguages.keys().size() != 1) {
       // FIXME This is a hack for CommonChecksDecorator that call this method in its constructor
       LOG.debug("Please update your plugin to support multi-language analysis", new SonarException("Please update your plugin to support multi-language analysis"));
       return "";
     }
-    return ruleProfilesPerLanguages.get(moduleLanguages.getModuleLanguageKeys().iterator().next()).getLanguage();
+    return ruleProfilesPerLanguages.get(moduleLanguages.keys().iterator().next()).getLanguage();
   }
 
   @Override

@@ -42,6 +42,7 @@ import org.sonar.duplications.internal.pmd.TokenizerBridge;
 import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -76,7 +77,7 @@ public class SonarBridgeEngine extends CpdEngine {
   }
 
   @Override
-  public boolean isLanguageSupported(Language language) {
+  public boolean isLanguageSupported(String language) {
     return getMapping(language) != null;
   }
 
@@ -90,7 +91,7 @@ public class SonarBridgeEngine extends CpdEngine {
       return;
     }
 
-    CpdMapping mapping = getMapping(project.getLanguage());
+    CpdMapping mapping = getMapping(project.getLanguage().getKey());
 
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);
@@ -167,10 +168,11 @@ public class SonarBridgeEngine extends CpdEngine {
     return minimumTokens;
   }
 
-  private CpdMapping getMapping(Language language) {
+  @CheckForNull
+  private CpdMapping getMapping(String language) {
     if (mappings != null) {
       for (CpdMapping cpdMapping : mappings) {
-        if (cpdMapping.getLanguage().equals(language)) {
+        if (cpdMapping.getLanguage().getKey().equals(language)) {
           return cpdMapping;
         }
       }

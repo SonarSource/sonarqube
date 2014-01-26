@@ -51,7 +51,7 @@ public class DefaultProfileLoader implements ProfileLoader {
 
   public RulesProfile load(Project module, Settings settings) {
 
-    if (!moduleLanguages.getModuleLanguageKeys().isEmpty()) {
+    if (!moduleLanguages.keys().isEmpty()) {
       return loadSingleProfile(settings);
     }
 
@@ -89,7 +89,7 @@ public class DefaultProfileLoader implements ProfileLoader {
     Map<String, RulesProfile> profilesPerLanguageKey = new HashMap<String, RulesProfile>();
 
     // Single language is forced, load a single quality profile
-    String languageKey = moduleLanguages.getModuleLanguageKeys().iterator().next();
+    String languageKey = moduleLanguages.keys().iterator().next();
 
     String profileName = StringUtils.defaultIfBlank(
       settings.getString("sonar.profile"),

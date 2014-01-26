@@ -53,7 +53,7 @@ public class ProfileEventsSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     RulesProfileWrapper profileWrapper = (RulesProfileWrapper) profile;
-    for (String languageKey : moduleLanguages.getModuleLanguageKeys()) {
+    for (String languageKey : moduleLanguages.keys()) {
       RulesProfile realProfile = profileWrapper.getProfileByLanguage(languageKey);
       Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
       if (pastProfileMeasure == null) {

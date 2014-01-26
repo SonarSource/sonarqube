@@ -78,7 +78,7 @@ public class SensorsExecutor implements BatchComponent {
         // For backward compatibility try to execute Sensor for each language until it is executed once (or never)
         String oldLanguageKey = module.getLanguageKey();
         Language oldLanguage = module.getLanguage();
-        for (Language language : moduleLanguages.getModuleLanguages()) {
+        for (Language language : moduleLanguages.languages()) {
           module.setLanguage(language);
           module.getConfiguration().setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language.getKey());
           if (sensor.shouldExecuteOnProject(module)) {

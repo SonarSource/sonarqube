@@ -27,7 +27,7 @@ import org.sonar.api.resources.Project;
 
 public abstract class CpdEngine implements BatchExtension {
 
-  abstract boolean isLanguageSupported(Language language);
+  abstract boolean isLanguageSupported(String language);
 
   abstract void analyse(Project project, SensorContext context);
 

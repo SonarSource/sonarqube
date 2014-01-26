@@ -31,8 +31,8 @@ import java.util.Collection;
  */
 public interface ModuleLanguages extends BatchExtension {
 
-  Collection<String> getModuleLanguageKeys();
+  Collection<String> keys();
 
-  Collection<Language> getModuleLanguages();
+  Collection<Language> languages();
 
 }

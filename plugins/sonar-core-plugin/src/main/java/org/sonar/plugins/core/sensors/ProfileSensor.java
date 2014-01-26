@@ -48,7 +48,7 @@ public class ProfileSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     RulesProfileWrapper wrapper = (RulesProfileWrapper) profile;
-    for (String languageKey : languages.getModuleLanguageKeys()) {
+    for (String languageKey : languages.keys()) {
       RulesProfile realProfile = wrapper.getProfileByLanguage(languageKey);
       Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
       Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());

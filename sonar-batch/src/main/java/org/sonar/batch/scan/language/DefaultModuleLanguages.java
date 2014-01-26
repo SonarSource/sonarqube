@@ -26,6 +26,7 @@ import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
 
 import java.util.Collection;
@@ -51,7 +52,7 @@ public class DefaultModuleLanguages implements ModuleLanguages {
       LOG.info("Language is forced to {}", languageKey);
       Language language = languages.get(languageKey);
       if (language == null) {
-        throw new SonarException("You must install a plugin that supports the language key '" + languageKey + "'");
+        throw MessageException.of("You must install a plugin that supports the language key '" + languageKey + "'");
       }
       addLanguage(languageKey);
     }
@@ -65,11 +66,11 @@ public class DefaultModuleLanguages implements ModuleLanguages {
     moduleLanguages.put(languageKey, language);
   }
 
-  public Collection<String> getModuleLanguageKeys() {
+  public Collection<String> keys() {
     return moduleLanguages.keySet();
   }
 
-  public Collection<Language> getModuleLanguages() {
+  public Collection<Language> languages() {
     return moduleLanguages.values();
   }
 }

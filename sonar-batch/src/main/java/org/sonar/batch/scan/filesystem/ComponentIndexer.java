@@ -107,10 +107,10 @@ public class ComponentIndexer implements BatchComponent {
   private void updateModuleLanguage() {
     if (module.getId() != null) {
       ResourceDto dto = resourceDao.getResource(module.getId());
-      if (moduleLanguages.getModuleLanguageKeys().size() == 1) {
-        dto.setLanguage(moduleLanguages.getModuleLanguageKeys().iterator().next());
-      } else if (moduleLanguages.getModuleLanguageKeys().size() > 1) {
-        dto.setLanguage(StringUtils.join(moduleLanguages.getModuleLanguageKeys(), ","));
+      if (moduleLanguages.keys().size() == 1) {
+        dto.setLanguage(moduleLanguages.keys().iterator().next());
+      } else if (moduleLanguages.keys().size() > 1) {
+        dto.setLanguage(StringUtils.join(moduleLanguages.keys(), ","));
       } else {
         dto.setLanguage("none");
       }

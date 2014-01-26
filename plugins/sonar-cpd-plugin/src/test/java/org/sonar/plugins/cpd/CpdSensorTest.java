@@ -39,7 +39,6 @@ public class CpdSensorTest {
   SonarBridgeEngine sonarBridgeEngine;
   CpdSensor sensor;
   Settings settings;
-  private Language phpLanguage;
 
   @Before
   public void setUp() {
@@ -47,25 +46,18 @@ public class CpdSensorTest {
     sonarEngine = new SonarEngine(indexFactory, null, null);
     sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
-    phpLanguage = new AbstractLanguage("php", "PHP") {
-
-      @Override
-      public String[] getFileSuffixes() {
-        return null;
-      }
-    };
     sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, new DefaultModuleLanguages(settings, new Languages()));
   }
 
   @Test
   public void test_global_skip() {
     settings.setProperty("sonar.cpd.skip", true);
-    assertThat(sensor.isSkipped(Java.INSTANCE)).isTrue();
+    assertThat(sensor.isSkipped(Java.KEY)).isTrue();
   }
 
   @Test
   public void should_not_skip_by_default() {
-    assertThat(sensor.isSkipped(Java.INSTANCE)).isFalse();
+    assertThat(sensor.isSkipped(Java.KEY)).isFalse();
   }
 
   @Test
@@ -73,14 +65,14 @@ public class CpdSensorTest {
     settings.setProperty("sonar.cpd.skip", false);
     settings.setProperty("sonar.cpd.php.skip", true);
 
-    assertThat(sensor.isSkipped(phpLanguage)).isTrue();
-    assertThat(sensor.isSkipped(Java.INSTANCE)).isFalse();
+    assertThat(sensor.isSkipped("php")).isTrue();
+    assertThat(sensor.isSkipped(Java.KEY)).isFalse();
   }
 
   @Test
   public void test_engine() {
-    assertThat(sensor.getEngine(Java.INSTANCE)).isSameAs(sonarEngine);
-    assertThat(sensor.getEngine(phpLanguage)).isSameAs(sonarBridgeEngine);
+    assertThat(sensor.getEngine(Java.KEY)).isSameAs(sonarEngine);
+    assertThat(sensor.getEngine("PHP")).isSameAs(sonarBridgeEngine);
   }
 
 }
