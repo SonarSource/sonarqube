@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.api.batch.coverage.CoberturaReportParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -29,7 +31,12 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -47,7 +54,17 @@ import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleRulesProvider;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.scan.filesystem.ComponentIndexer;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileHashes;
+import org.sonar.batch.scan.filesystem.FileIndex;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.LanguageRecognizer;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
+import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.RemoteFileHashes;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.report.ComponentSelectorFactory;
 import org.sonar.batch.scan.report.JsonReport;
@@ -134,6 +151,8 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
+
+      CoberturaReportParser.class,
 
       ScanPerspectives.class);
   }
