@@ -36,6 +36,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Instantiates checks (objects that provide implementation of coding
+ * rules) that use sonar-check-api annotations. Checks are selected and configured
+ * from the Quality profiles enabled on the current module.
+ * <p/>
+ * Example of check class:
+ * <pre>
+ *   @Rule(key = "S001")
+ *   public class CheckS001 {
+ *     @RuleProperty
+ *     private String pattern;
+ *
+ *     public String getPattern() {
+ *       return pattern;
+ *     }
+ * }
+ * </pre>
+ * How to use:
+ * <pre>
+ *   public class MyRuleEngine extends BatchExtension {
+ *     private final CheckFactory checkFactory;
+ *
+ *     public MyRuleEngine(CheckFactory checkFactory) {
+ *       this.checkFactory = checkFactory;
+ *     }
+ *
+ *     public void execute() {
+ *       Checks checks = checkFactory.create("my-rule-repository");
+ *       checks.addAnnotatedChecks(CheckS001.class);
+ *       // checks.all() contains an instance of CheckS001
+ *       // with field "pattern" set to the value specified in
+ *       // the Quality profile
+ *
+ *       // Checks are used to detect issues on source code
+ *
+ *       // checks.ruleKey(obj) can be used to create the detected
+ *       // issues.
+ *     }
+ *   }
+ * </pre>
+ * <p/>
+ * It replaces org.sonar.api.checks.AnnotationCheckFactory
  * @since 4.2
  */
 public class Checks<C> {

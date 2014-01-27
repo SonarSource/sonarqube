@@ -22,6 +22,9 @@ package org.sonar.api.batch.rule;
 import org.sonar.api.BatchComponent;
 
 /**
+ * Creates {@link org.sonar.api.batch.rule.Checks}. This class is available
+ * by dependency injection. It must not be extended by plugins.
+ *
  * @since 4.2
  */
 public class CheckFactory implements BatchComponent {
@@ -32,7 +35,7 @@ public class CheckFactory implements BatchComponent {
     this.moduleRules = moduleRules;
   }
 
-  public Checks create(String repository) {
-    return new Checks(moduleRules, repository);
+  public <C> Checks<C> create(String repository) {
+    return new Checks<C>(moduleRules, repository);
   }
 }
