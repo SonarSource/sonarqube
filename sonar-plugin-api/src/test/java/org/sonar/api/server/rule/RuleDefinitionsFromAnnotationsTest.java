@@ -22,8 +22,9 @@ package org.sonar.api.server.rule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleDefinitions.NewRule;
 import org.sonar.check.Priority;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -49,6 +50,33 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(prop.key()).isEqualTo("property");
     assertThat(prop.description()).isEqualTo("Ignore ?");
     assertThat(prop.defaultValue()).isEqualTo("false");
+    assertThat(prop.type()).isEqualTo(RuleParamType.STRING);
+  }
+
+  @Test
+  public void override_annotation_programmatically() {
+    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RuleDefinitions.NewRepository newRepository = context.newRepository("squid", "java");
+    NewRule newRule = newRepository.loadAnnotatedClass(RuleWithProperty.class);
+    newRule.setName("Overriden name");
+    newRule.param("property").setDefaultValue("true");
+    newRule.param("property").setDescription("Overriden");
+    newRepository.done();
+
+    RuleDefinitions.Repository repository = context.repository("squid");
+    assertThat(repository.rules()).hasSize(1);
+    RuleDefinitions.Rule rule = repository.rules().get(0);
+    assertThat(rule.key()).isEqualTo("foo");
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(rule.name()).isEqualTo("Overriden name");
+    assertThat(rule.htmlDescription()).isEqualTo("Foo Bar");
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.params()).hasSize(1);
+
+    RuleDefinitions.Param prop = rule.param("property");
+    assertThat(prop.key()).isEqualTo("property");
+    assertThat(prop.description()).isEqualTo("Overriden");
+    assertThat(prop.defaultValue()).isEqualTo("true");
     assertThat(prop.type()).isEqualTo(RuleParamType.STRING);
   }
 
@@ -116,8 +144,8 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   private RuleDefinitions.Repository load(Class annotatedClass) {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewRepository newRepository = context.newRepository("squid", "java");
-    new RuleDefinitionsFromAnnotations().loadRules(newRepository, annotatedClass);
+    RuleDefinitions.NewExtendedRepository newRepository = context.newRepository("squid", "java")
+      .loadAnnotatedClasses(annotatedClass);
     newRepository.done();
     return context.repository("squid");
   }
@@ -130,7 +158,7 @@ public class RuleDefinitionsFromAnnotationsTest {
   static class RuleWithoutNameNorDescription {
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER, status="BETA")
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER, status = "BETA")
   static class RuleWithProperty {
     @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
     private String property;
