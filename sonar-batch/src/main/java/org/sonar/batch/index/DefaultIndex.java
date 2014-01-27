@@ -32,27 +32,13 @@ import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.measures.*;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
-import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
@@ -60,21 +46,13 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
   private PersistenceManager persistence;
-  private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
   private final ScanGraph graph;
 
@@ -93,10 +71,9 @@ public class DefaultIndex extends SonarIndex {
 
   private ResourceKeyMigration migration;
 
-  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
+  public DefaultIndex(PersistenceManager persistence, ProjectTree projectTree, MetricFinder metricFinder,
+                      ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
     this.persistence = persistence;
-    this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.graph = graph;
@@ -170,8 +147,6 @@ public class DefaultIndex extends SonarIndex {
       projectDependency.setId(null);
       registerDependency(projectDependency);
     }
-
-    lock.unlock();
   }
 
   @Override
@@ -544,8 +519,6 @@ public class DefaultIndex extends SonarIndex {
       return null;
     }
 
-    checkLock(resource);
-
     Resource parent = null;
     if (!ResourceUtils.isLibrary(resource)) {
       // a library has no parent
@@ -574,25 +547,12 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
-  private void checkLock(Resource resource) {
-    if (lock.isLocked() && !ResourceUtils.isLibrary(resource) && lock.isFailWhenLocked()) {
-      throw new SonarException("Index is locked, resource can not be indexed: " + resource);
-    }
-  }
 
   private Bucket checkIndexed(Resource resource) {
     Bucket bucket = getBucket(resource, true);
     if (bucket == null) {
-      if (lock.isLocked()) {
-        if (lock.isFailWhenLocked()) {
-          throw new ResourceNotIndexedException(resource);
-        }
-        LOG.warn("Resource will be ignored in next SonarQube versions, index is locked: " + resource);
-      }
       if (Scopes.isDirectory(resource) || Scopes.isFile(resource)) {
         bucket = doIndex(resource);
-      } else if (!lock.isLocked()) {
-        LOG.warn("Resource will be ignored in next SonarQube versions, it must be indexed before adding data: " + resource);
       }
     }
     return bucket;
@@ -624,8 +584,9 @@ public class DefaultIndex extends SonarIndex {
    * Should support 3 situations
    * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
    * 2) key = old key and deprecatedKey = null : this is to support backard compatibility for plugins using
-   *  {@link SquidUtils#convertJavaFileKeyFromSquidFormat(String)} or {@link SquidUtils#convertJavaPackageKeyFromSquidFormat(String)}
+   * {@link SquidUtils#convertJavaFileKeyFromSquidFormat(String)} or {@link SquidUtils#convertJavaPackageKeyFromSquidFormat(String)}
    * 3) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of {@link JavaFile}, {@link JavaPackage}, {@link File}, {@link Directory}
+   *
    * @param res
    * @return
    */

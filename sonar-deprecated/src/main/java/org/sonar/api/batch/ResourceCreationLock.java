@@ -26,7 +26,9 @@ import org.sonar.api.BatchComponent;
  * when saving measures/violations on unknown resources.
  * 
  * @since 2.3
+ * @deprecated since 4.2. File system is immutable and does not require this class anymore.
  */
+@Deprecated
 public interface ResourceCreationLock extends BatchComponent {
 
   /**

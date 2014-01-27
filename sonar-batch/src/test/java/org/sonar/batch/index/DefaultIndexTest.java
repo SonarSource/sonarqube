@@ -25,25 +25,16 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
-import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
@@ -65,7 +56,6 @@ public class DefaultIndexTest {
 
   private DefaultIndex index = null;
   private DeprecatedViolations deprecatedViolations;
-  private DefaultResourceCreationLock lock;
   private Rule rule;
   private RuleFinder ruleFinder;
 
@@ -80,13 +70,12 @@ public class DefaultIndexTest {
   @Before
   public void createIndex() throws IOException {
     deprecatedViolations = mock(DeprecatedViolations.class);
-    lock = new DefaultResourceCreationLock(new Settings());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
     ProjectTree projectTree = mock(ProjectTree.class);
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations, mock(ResourceKeyMigration.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations, mock(ResourceKeyMigration.class));
 
     java.io.File baseDir = temp.newFolder();
     project = new Project("project");
@@ -108,7 +97,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), mock(ModuleIssues.class));
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), mock(ModuleIssues.class));
     index.doStart(project);
   }
 
@@ -167,27 +156,6 @@ public class DefaultIndexTest {
     assertThat(index.isExcluded(fileRef)).isFalse();
     assertThat(index.getChildren(fileRef)).isEmpty();
     assertThat(index.getParent(fileRef)).isNull();
-  }
-
-  /**
-   * Only a warning is logged when index is locked.
-   */
-  @Test
-  public void shouldIndexEvenIfLocked() {
-    lock.lock();
-
-    Directory dir = Directory.create("src/org/foo", "org/foo");
-    assertThat(index.index(dir)).isTrue();
-    assertThat(index.isIndexed(dir, true)).isTrue();
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldFailIfIndexingAndLocked() {
-    lock.setFailWhenLocked(true);
-    lock.lock();
-
-    Directory dir = Directory.create("src/org/foo", "org/foo");
-    index.index(dir);
   }
 
   @Test

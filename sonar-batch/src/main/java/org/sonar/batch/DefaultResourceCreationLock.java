@@ -20,43 +20,19 @@
 package org.sonar.batch;
 
 import org.sonar.api.batch.ResourceCreationLock;
-import org.sonar.api.config.Settings;
 
 /**
  * This lock is used to ensure that Sonar resources (files, packages, directories) are not created by buggy plugins
  * when saving measures/violations on unknown resources.
  *
  * @since 2.3
+ * @deprecated not used since 4.2
  */
+@Deprecated
 public final class DefaultResourceCreationLock implements ResourceCreationLock {
 
-  private boolean locked = false;
-  private boolean failWhenLocked = false;
-
-  public DefaultResourceCreationLock(Settings settings) {
-    this.failWhenLocked = settings.getBoolean("sonar.hardIndexLock");
-  }
-
-  public boolean isLocked() {
-    return locked;
-  }
-
+  @Override
   public void lock() {
-    this.locked = true;
   }
 
-  /**
-   * Unlocking is for internal use only.
-   */
-  public void unlock() {
-    locked = false;
-  }
-
-  public boolean isFailWhenLocked() {
-    return failWhenLocked;
-  }
-
-  public void setFailWhenLocked(boolean b) {
-    this.failWhenLocked = b;
-  }
 }
