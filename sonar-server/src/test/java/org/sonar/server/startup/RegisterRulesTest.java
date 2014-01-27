@@ -77,6 +77,16 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void save_rule_param_description_from_bundle() {
+    when(ruleI18nManager.getParamDescription("fake", "rule2", "param")).thenReturn("Param description of rule2");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule.getParams()).hasSize(1);
+    assertThat(rule.getParams().get(0).getDescription()).isEqualTo("Param description of rule2");
+  }
+
+  @Test
   public void should_update_template_rule() {
     setupData("should_update_template_rule_language");
     task.start();
@@ -383,6 +393,7 @@ class FakeRepository extends RuleRepository {
     rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
     rule2.setStatus(Rule.STATUS_DEPRECATED);
+    rule2.createParameter("param");
 
     return Arrays.asList(rule1, rule2);
   }
