@@ -78,6 +78,9 @@ public class SourcesShowWsHandler implements RequestHandler {
       json.name("scm").beginObject();
       List<String> authors = splitLine(authorData);
       List<String> dates = splitLine(scmDateData);
+
+      String previousAuthor = null;
+      String previousDate = null;
       for (int i = 0; i < authors.size(); i++) {
         String[] authorWithLine = splitColumn(authors.get(i));
         Integer line = Integer.parseInt(authorWithLine[0]);
@@ -86,12 +89,16 @@ public class SourcesShowWsHandler implements RequestHandler {
         String[] dateWithLine = splitColumn(dates.get(i));
         String date = dateWithLine[1];
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
-        if (line >= from && line <= to) {
+        if (!author.equals(previousAuthor) && !date.equals(previousDate) &&
+          line >= from && line <= to) {
           json.name(Integer.toString(line)).beginArray();
           json.value(author);
           json.value(formattedDate);
           json.endArray();
         }
+
+        previousAuthor = author;
+        previousDate = date;
       }
       json.endObject();
     }
