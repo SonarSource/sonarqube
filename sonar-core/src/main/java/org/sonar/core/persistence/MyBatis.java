@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.component.ComponentDto;
@@ -46,8 +45,10 @@ import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.issue.db.*;
-import org.sonar.core.measure.MeasureFilterDto;
-import org.sonar.core.measure.MeasureFilterMapper;
+import org.sonar.core.measure.db.MeasureDataDto;
+import org.sonar.core.measure.db.MeasureDataMapper;
+import org.sonar.core.measure.db.MeasureFilterDto;
+import org.sonar.core.measure.db.MeasureFilterMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.*;
@@ -125,7 +126,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
-    loadAlias(conf, "MeasureData", MeasureData.class);
+    loadAlias(conf, "MeasureData", MeasureDataDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
@@ -157,7 +158,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
-      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class
+      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
+      MeasureDataMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

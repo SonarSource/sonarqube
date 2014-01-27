@@ -17,41 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.measure;
+
+package org.sonar.core.measure.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-/**
- * @since 3.4
- */
-public class MeasureFilterDao implements BatchComponent, ServerComponent {
+public class MeasureDataDao implements ServerComponent {
+
   private MyBatis mybatis;
 
-  public MeasureFilterDao(MyBatis mybatis) {
+  public MeasureDataDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public MeasureFilterDto findSystemFilterByName(String name) {
+  public MeasureDataDto findByComponentKeyAndMetricKey(String componentKey, String metricKey) {
     SqlSession session = mybatis.openSession();
     try {
-      MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);
-      return mapper.findSystemFilterByName(name);
+      MeasureDataMapper mapper = session.getMapper(MeasureDataMapper.class);
+      return mapper.findByComponentKeyAndMetricKey(componentKey, metricKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void insert(MeasureFilterDto filter) {
-    SqlSession session = mybatis.openSession();
-    MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);
-    try {
-      mapper.insert(filter);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.measure.db.MeasureDataMapper">
+
+  <sql id="measureDataColumns">
+    m.id,
+    m.measure_id as measureId,
+    m.snapshot_id as snapshotId,
+    m.measure_id as measureId,
+    m.data as data
+  </sql>
+
+  <select id="findByComponentKeyAndMetricKey" parameterType="map" resultType="MeasureData">
+    SELECT
+    <include refid="measureDataColumns"/>
+    FROM measure_data m
+    INNER JOIN project_measures pm ON pm.id=m.measure_id
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
+    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN metrics metric ON metric.id=pm.metric_id
+    <where>
+      AND p.kee = #{componentKey}
+      AND metric.name = #{metricKey}
+    </where>
+  </select>
+
+</mapper>

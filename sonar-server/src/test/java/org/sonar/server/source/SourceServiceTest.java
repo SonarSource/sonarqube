@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.source.HtmlSourceDecorator;
@@ -45,11 +46,14 @@ public class SourceServiceTest {
   @Mock
   ResourceDao resourceDao;
 
+  @Mock
+  MeasureDataDao measureDataDao;
+
   SourceService service;
 
   @Before
   public void setUp() throws Exception {
-    service = new SourceService(sourceDecorator, resourceDao);
+    service = new SourceService(sourceDecorator, resourceDao, measureDataDao);
   }
 
   @Test
@@ -91,5 +95,19 @@ public class SourceServiceTest {
     service.sourcesFromComponent(componentKey, 1, 2);
 
     verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, 1, 2);
+  }
+
+  @Test
+  public void find_data_from_component() throws Exception {
+    String componentKey = "org.sonar.sample:Sample";
+    service.findDataFromComponent(componentKey, "metric_key");
+    verify(measureDataDao).findByComponentKeyAndMetricKey(componentKey, "metric_key");
+  }
+
+  @Test
+  public void not_find_data_from_component_if_no_data() throws Exception {
+    String componentKey = "org.sonar.sample:Sample";
+    when(measureDataDao.findByComponentKeyAndMetricKey(componentKey, "metric_key")).thenReturn(null);
+    assertThat(service.findDataFromComponent(componentKey, "metric_key")).isNull();
   }
 }

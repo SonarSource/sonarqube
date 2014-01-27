@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.core.measure.MeasureFilterMapper">
+<mapper namespace="org.sonar.core.measure.db.MeasureFilterMapper">
 
   <select id="findSystemFilterByName" parameterType="string" resultType="MeasureFilter">
     select id, name, user_id as "userId", shared, description, data, created_at as "createdAt", updated_at as "updatedAt"

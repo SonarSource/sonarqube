@@ -22,12 +22,15 @@ package org.sonar.server.source;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.measure.db.MeasureDataDao;
+import org.sonar.core.measure.db.MeasureDataDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
@@ -36,10 +39,12 @@ public class SourceService implements ServerComponent {
 
   private final HtmlSourceDecorator sourceDecorator;
   private final ResourceDao resourceDao;
+  private final MeasureDataDao measureDataDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, ResourceDao resourceDao) {
+  public SourceService(HtmlSourceDecorator sourceDecorator, ResourceDao resourceDao, MeasureDataDao measureDataDao) {
     this.sourceDecorator = sourceDecorator;
     this.resourceDao = resourceDao;
+    this.measureDataDao = measureDataDao;
   }
 
   public List<String> sourcesFromComponent(String componentKey) {
@@ -53,5 +58,15 @@ public class SourceService implements ServerComponent {
     }
     UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
     return sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
+  }
+
+  // TODO move this in another service
+  @CheckForNull
+  public String findDataFromComponent(String componentKey, String metricKey){
+    MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(componentKey, metricKey);
+    if (data != null) {
+      return data.getText();
+    }
+    return null;
   }
 }

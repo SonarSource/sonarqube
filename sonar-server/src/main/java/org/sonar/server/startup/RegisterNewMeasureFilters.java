@@ -30,8 +30,8 @@ import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
 import org.sonar.api.web.FilterTemplate;
-import org.sonar.core.measure.MeasureFilterDao;
-import org.sonar.core.measure.MeasureFilterDto;
+import org.sonar.core.measure.db.MeasureFilterDao;
+import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 

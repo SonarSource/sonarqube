@@ -20,6 +20,8 @@
 
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Splitter;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -28,6 +30,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class SourcesShowWsHandler implements RequestHandler {
 
@@ -40,22 +44,58 @@ public class SourcesShowWsHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String componentKey = request.requiredParam("key");
-    Integer from = request.intParam("from");
-    Integer to = request.intParam("to");
-
-    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey, from , to);
+    Integer fromParam = request.intParam("from");
+    Integer toParam = request.intParam("to");
+    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey, fromParam, toParam);
     if (sourceHtml == null) {
       throw new NotFoundException("Component : " + componentKey + " has no source.");
     }
 
-    from = from != null ? from : 1;
+    String scmAuthorData = sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+    String scmDataData = sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+
+    int from = fromParam != null ? fromParam : 1;
+    int to = toParam != null ? toParam : sourceHtml.size() + from;
     JsonWriter json = response.newJsonWriter();
-    json.beginObject().name("source").beginObject();
-    for (int i = 0; i < sourceHtml.size(); i++) {
-      String line = sourceHtml.get(i);
+    json.beginObject();
+    writeSource(sourceHtml, from, json);
+    writeScm(scmAuthorData, scmDataData, from, to, json);
+    json.endObject().close();
+  }
+
+  private void writeSource(List<String> source, int from, JsonWriter json) {
+    json.name("source").beginObject();
+    for (int i = 0; i < source.size(); i++) {
+      String line = source.get(i);
       json.prop(Integer.toString(i + from), line);
     }
-    json.endObject().endObject().close();
+    json.endObject();
+  }
+
+  private void writeScm(String authorData, String scmDateData, int from, int to , JsonWriter json) {
+    if (authorData != null) {
+      json.name("scm").beginObject();
+      List<String> authors = splitLine(authorData);
+      for (int i = 0; i < authors.size(); i++) {
+        String[] authorWithLine = splitColumn(authors.get(i));
+        Integer line = Integer.parseInt(authorWithLine[0]);
+        String author = authorWithLine[1];
+        if (line >= from && line <= to) {
+          json.name(Integer.toString(line)).beginArray();
+          json.value(author);
+          json.endArray();
+        }
+      }
+      json.endObject();
+    }
+  }
+
+  private List<String> splitLine(String line){
+    return newArrayList(Splitter.on(";").split(line));
+  }
+
+  private String[] splitColumn(String column){
+    return column.split("=");
   }
 
 }

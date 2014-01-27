@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
@@ -79,7 +80,7 @@ public class SourcesShowWsHandlerTest {
   }
 
   @Test
-  public void show_source_with_params_from_and_to() throws Exception {
+  public void show_source_with_from_and_to_params() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
     when(sourceService.sourcesFromComponent(componentKey, 3, 5)).thenReturn(newArrayList(
       " */",
@@ -88,5 +89,33 @@ public class SourcesShowWsHandlerTest {
     ));
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
     request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
+  }
+
+  @Test
+  public void show_source_with_scm() throws Exception {
+    String componentKey = "org.apache.struts:struts:Dispatcher";
+    when(sourceService.sourcesFromComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
+    ));
+
+    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY)).thenReturn("1=julien;2=simon");
+
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
+    request.execute().assertJson(getClass(), "show_source_with_scm.json");
+  }
+
+  @Test
+  public void show_source_with_scm_with_from_and_to_params() throws Exception {
+    String componentKey = "org.apache.struts:struts:Dispatcher";
+    when(sourceService.sourcesFromComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+      " */",
+      "",
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
+    ));
+    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY))
+      .thenReturn("1=julien;2=simon;3=julien;4=simon;5=simon;6=julien");
+
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
+    request.execute().assertJson(getClass(), "show_source_with_scm_with_from_and_to_params.json");
   }
 }
