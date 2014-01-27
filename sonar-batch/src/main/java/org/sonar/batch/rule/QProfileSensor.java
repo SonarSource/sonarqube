@@ -57,7 +57,7 @@ public class QProfileSensor implements Sensor {
       String language = moduleLanguages.keys().iterator().next();
       ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
       if (qProfile != null) {
-        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name());
+        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double)qProfile.id());
         Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
         context.saveMeasure(measure);
         context.saveMeasure(measureVersion);
