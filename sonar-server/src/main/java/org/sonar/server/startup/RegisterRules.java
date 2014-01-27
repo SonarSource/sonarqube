@@ -166,7 +166,9 @@ public final class RegisterRules {
         ruleI18nManager.getParamDescription(rule.getRepositoryKey(), rule.getKey(), param.getKey()),
         param.getDescription()
       );
-      param.setDescription(desc);
+      if (!Strings.isNullOrEmpty(desc)) {
+        param.setDescription(desc);
+      }
     }
   }
 

@@ -37,9 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
@@ -85,6 +83,17 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.getParams()).hasSize(1);
     assertThat(rule.getParams().get(0).getDescription()).isEqualTo("Param description of rule2");
+  }
+
+  @Test
+  public void not_save_rule_param_description_from_bundle_on_empty_value() {
+    setupData("empty");
+    when(ruleI18nManager.getParamDescription("fake", "rule2", "param")).thenReturn("");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule.getParams()).hasSize(1);
+    assertThat(rule.getParams().get(0).getDescription()).isNull();
   }
 
   @Test
