@@ -1,15 +1,15 @@
 <dataset>
 
-  <rules_profiles id="1" name="Java One" language="java" parent_name="[null]" version="1"
+  <rules_profiles id="1" name="Java One" language="java" parent_name="[null]" version="10"
                   used_profile="[false]"/>
 
-  <rules_profiles id="2" name="Java Two" language="java" parent_name="[null]" version="1"
+  <rules_profiles id="2" name="Java Two" language="java" parent_name="[null]" version="20"
                   used_profile="[true]"/>
 
-  <rules_profiles id="3" name="Php One" language="php" parent_name="[null]" version="1"
+  <rules_profiles id="3" name="Php One" language="php" parent_name="[null]" version="30"
                   used_profile="[true]"/>
 
-  <rules_profiles id="4" name="Cobol One" language="cbl" parent_name="[null]" version="1"
+  <rules_profiles id="4" name="Cobol One" language="cbl" parent_name="[null]" version="40"
                   used_profile="[false]"/>
 
 </dataset>

@@ -23,7 +23,9 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
+import org.sonar.api.test.IsMeasure;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -38,6 +40,13 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
   ModuleLanguages moduleLanguages = mock(ModuleLanguages.class);
   Project project = mock(Project.class);
   SensorContext sensorContext = mock(SensorContext.class);
+
+  @Test
+  public void to_string() throws Exception {
+    QualityProfileDao dao = mock(QualityProfileDao.class);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    assertThat(sensor.toString()).isEqualTo("QProfileSensor");
+  }
 
   @Test
   public void no_qprofiles() throws Exception {
@@ -68,5 +77,26 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     sensor.analyse(project, sensorContext);
 
     checkTable("mark_profiles_as_used", "rules_profiles");
+
+    // no measures on multi-language modules
+    verifyZeroInteractions(sensorContext);
+  }
+
+  @Test
+  public void store_measures_on_single_lang_module() throws Exception {
+    setupData("shared");
+
+    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
+    when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
+    when(moduleLanguages.keys()).thenReturn(Arrays.asList("java"));
+
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    sensor.analyse(project, sensorContext);
+
+    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, "Java Two")));
+    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE_VERSION, 20.0)));
   }
 }

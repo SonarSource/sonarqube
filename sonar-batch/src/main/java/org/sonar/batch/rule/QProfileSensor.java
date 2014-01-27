@@ -22,6 +22,8 @@ package org.sonar.batch.rule;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -47,13 +49,18 @@ public class QProfileSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     for (String language : moduleLanguages.keys()) {
       ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
-      // TODO does not support multi-language modules
-//        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name());
-//        Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
-//        context.saveMeasure(measure);
-//        context.saveMeasure(measureVersion);
       if (qProfile != null) {
         dao.updateUsedColumn(qProfile.id(), true);
+      }
+    }
+    if (moduleLanguages.keys().size() == 1) {
+      String language = moduleLanguages.keys().iterator().next();
+      ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
+      if (qProfile != null) {
+        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name());
+        Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
+        context.saveMeasure(measure);
+        context.saveMeasure(measureVersion);
       }
     }
   }
