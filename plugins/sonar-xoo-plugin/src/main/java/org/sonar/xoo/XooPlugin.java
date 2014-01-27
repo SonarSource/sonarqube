@@ -1,9 +1,3 @@
-package org.sonar.plugins.xoo;
-
-import org.junit.Test;
-import org.sonar.plugins.xoo.rules.XooRuleDefinitions;
-import static org.fest.assertions.Assertions.assertThat;
-
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2013 SonarSource
@@ -23,11 +17,29 @@ import static org.fest.assertions.Assertions.assertThat;
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.xoo;
 
-public class XooPluginTest {
+import org.sonar.api.SonarPlugin;
+import org.sonar.xoo.rule.XooQualityProfile;
+import org.sonar.xoo.rule.XooRuleDefinitions;
 
-  @Test
-  public void should_provide_rule_repository() {
-    assertThat(new XooPlugin().getExtensions()).containsOnly(Xoo.class, XooRuleDefinitions.class, XooProfile.class);
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Plugin entry-point, as declared in pom.xml.
+ */
+public class XooPlugin extends SonarPlugin {
+
+  /**
+   * Declares all the extensions implemented in the plugin
+   */
+  @Override
+  public List getExtensions() {
+    return Arrays.asList(
+      Xoo.class,
+      XooRuleDefinitions.class,
+      XooQualityProfile.class);
   }
+
 }

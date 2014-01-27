@@ -11,7 +11,7 @@
   <artifactId>sonar-xoo-plugin</artifactId>
   <name>SonarQube :: Plugins :: Xoo</name>
   <packaging>sonar-plugin</packaging>
-  <description>Fake language plugin for backend tests.</description>
+  <description>Sample of plugin to document and test available APIs</description>
 
   <dependencies>
     <dependency>
@@ -23,6 +23,13 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- unit testing -->
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -39,7 +46,7 @@
         <configuration>
           <pluginKey>xoo</pluginKey>
           <pluginName>Xoo</pluginName>
-          <pluginClass>org.sonar.plugins.xoo.XooPlugin</pluginClass>
+          <pluginClass>org.sonar.xoo.XooPlugin</pluginClass>
         </configuration>
       </plugin>
     </plugins>

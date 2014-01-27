@@ -17,23 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xoo;
+@ParametersAreNonnullByDefault
+package org.sonar.xoo.rule;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.xoo.rules.XooRuleDefinitions;
-
-import java.util.List;
-
-public class XooPlugin extends SonarPlugin {
-
-  @Override
-  public List getExtensions() {
-    return ImmutableList.of(
-      Xoo.class,
-      XooRuleDefinitions.class,
-      XooProfile.class);
-  }
-
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

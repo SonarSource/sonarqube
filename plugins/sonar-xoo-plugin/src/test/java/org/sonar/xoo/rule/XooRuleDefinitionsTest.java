@@ -17,7 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.xoo.base;
+package org.sonar.xoo.rule;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.server.rule.RuleDefinitions;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class XooRuleDefinitionsTest {
+
+  @Test
+  public void define_xoo_rules() {
+    XooRuleDefinitions def = new XooRuleDefinitions();
+    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    def.define(context);
+
+    RuleDefinitions.Repository repo = context.repository("xoo");
+    assertThat(repo).isNotNull();
+    assertThat(repo.name()).isEqualTo("Xoo");
+    assertThat(repo.language()).isEqualTo("xoo");
+    assertThat(repo.rules()).hasSize(1);
+    assertThat(repo.rules().get(0).key()).isEqualTo("x1");
+  }
+}

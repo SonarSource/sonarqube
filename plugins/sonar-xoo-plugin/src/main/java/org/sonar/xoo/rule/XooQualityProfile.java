@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xoo;
+package org.sonar.xoo.rule;
 
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.xoo.base.XooConstants;
-import org.sonar.plugins.xoo.base.XooRuleKeys;
+import org.sonar.xoo.Xoo;
 
-public class XooProfile extends ProfileDefinition {
+public class XooQualityProfile extends ProfileDefinition {
 
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
-    final RulesProfile profile = RulesProfile.create("Basic", XooConstants.LANGUAGE_KEY);
+    final RulesProfile profile = RulesProfile.create("Basic", Xoo.KEY);
 
-    profile.activateRule(Rule.create(XooConstants.REPOSITORY_KEY, XooRuleKeys.RULE_MINIMAL), RulePriority.MAJOR);
+    profile.activateRule(Rule.create(XooRuleDefinitions.XOO_REPOSITORY, "x1"), RulePriority.MAJOR);
 
     return profile;
   }

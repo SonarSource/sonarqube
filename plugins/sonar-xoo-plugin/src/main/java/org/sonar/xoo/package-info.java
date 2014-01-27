@@ -17,32 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xoo;
+@ParametersAreNonnullByDefault
+package org.sonar.xoo;
 
-import org.sonar.api.resources.Language;
-import org.sonar.plugins.xoo.base.XooConstants;
-
-public class Xoo implements Language {
-
-  public static final String XOO_LANGUAGE_NAME = "Xoo";
-  public static final String XOO_SUFFIX = ".xoo";
-
-  private static final String[] XOO_SUFFIXES = {
-    XOO_SUFFIX
-  };
-
-  @Override
-  public String getKey() {
-    return XooConstants.LANGUAGE_KEY;
-  }
-
-  @Override
-  public String getName() {
-    return XOO_LANGUAGE_NAME;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    return XOO_SUFFIXES;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.xoo;
+package org.sonar.xoo;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.resources.Language;
+
+public class Xoo implements Language {
+
+  public static final String KEY = "xoo";
+  public static final String NAME = "Xoo";
+  public static final String FILE_SUFFIX = ".xoo";
+
+  private static final String[] XOO_SUFFIXES = {
+    FILE_SUFFIX
+  };
+
+  @Override
+  public String getKey() {
+    return KEY;
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public String[] getFileSuffixes() {
+    return XOO_SUFFIXES;
+  }
+}
