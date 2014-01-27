@@ -80,7 +80,7 @@ public class RulesProfileWrapper extends RulesProfile {
       LOG.debug("Please update your plugin to support multi-language analysis", new SonarException("Please update your plugin to support multi-language analysis"));
       return "";
     }
-    return singleLanguageProfile.getName();
+    return singleLanguageProfile.getLanguage();
   }
 
   public RulesProfile getProfileByLanguage(String languageKey) {
