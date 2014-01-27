@@ -25,5 +25,15 @@ package org.sonar.api.scan.filesystem;
  */
 @Deprecated
 public enum FileType {
-  SOURCE, TEST
+  SOURCE(InputFile.TYPE_MAIN), TEST(InputFile.TYPE_TEST);
+
+  private String typeValue;
+
+  private FileType(String typeValue) {
+    this.typeValue = typeValue;
+  }
+
+  String typeValue() {
+    return typeValue;
+  }
 }
