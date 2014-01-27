@@ -103,6 +103,19 @@ jQuery(function() {
   });
 
 
+  var Rule = Backbone.Model.extend({
+
+    url: function() {
+      return baseUrl + '/api/rules/show/?key=' + this.get('key');
+    },
+
+
+    parse: function(r) {
+      return r.rule ? r.rule : r;
+    }
+  });
+
+
 
   var IssueView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-template').html() || ''),
@@ -408,16 +421,27 @@ jQuery(function() {
 
 
 
+  var IssueDetailRuleView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-rule-template').html() || ''),
+    className: 'rule-desc',
+    modelEvents: { 'change': 'render' }
+  });
+
+
+
   var IssueDetailView = Backbone.Marionette.Layout.extend({
     template: Handlebars.compile(jQuery('#issue-detail-template').html() || ''),
 
 
     regions: {
-      formRegion: '.code-issue-form'
+      formRegion: '.code-issue-form',
+      ruleRegion: '#tab-issue-rule'
     },
 
 
     events: {
+      'click [href=#tab-issue-rule]': 'fetchRule',
+
       'click #issue-comment': 'comment',
       'click .issue-comment-edit': 'editComment',
       'click .issue-comment-delete': 'deleteComment',
@@ -433,6 +457,18 @@ jQuery(function() {
     onRender: function() {
       this.$('.code-issue-details').tabs();
       this.$('.code-issue-form').hide();
+      this.rule = new Rule({ key: this.model.get('rule') });
+      this.ruleRegion.show(new IssueDetailRuleView({ model: this.rule }));
+    },
+
+
+    onClose: function() {
+      this.ruleRegion.close();
+    },
+
+
+    fetchRule: function() {
+      this.rule.fetch();
     },
 
 
