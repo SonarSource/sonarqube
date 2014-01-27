@@ -61,7 +61,6 @@ public class IssueFilterWsTest {
   public void logged_in_page() throws Exception {
     MockUserSession.set().setLogin("eric").setUserId(123);
     tester.newRequest("page").execute()
-      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page.json");
   }
 
@@ -73,7 +72,6 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues")
     ));
     tester.newRequest("page").execute()
-      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
   }
 
@@ -85,7 +83,6 @@ public class IssueFilterWsTest {
     );
 
     tester.newRequest("page").setParam("id", "13").execute()
-      .assertStatus(200)
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
   }
 }

@@ -97,6 +97,7 @@ public class WsTester {
 
     public class TestStream implements Response.Stream {
       private String mediaType;
+      private int status;
 
       @CheckForNull
       public String mediaType() {
@@ -110,12 +111,17 @@ public class WsTester {
       }
 
       @Override
+      public Response.Stream setStatus(int i) {
+        this.status = i;
+        return this;
+      }
+
+      @Override
       public OutputStream output() {
         return output;
       }
     }
 
-    private int status = 200;
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @Override
@@ -133,21 +139,11 @@ public class WsTester {
       return new TestStream();
     }
 
-    @Override
-    public int status() {
-      return status;
-    }
 
     @Override
-    public Response setStatus(int httpStatus) {
-      this.status = httpStatus;
-      return this;
-    }
-
-    @Override
-    public void noContent() {
-      setStatus(204);
+    public Response noContent() {
       IOUtils.closeQuietly(output);
+      return this;
     }
   }
 
@@ -159,13 +155,8 @@ public class WsTester {
       this.response = response;
     }
 
-    public Result assertStatus(int httpStatus) {
-      assertThat(httpStatus).isEqualTo(response.status());
-      return this;
-    }
-
     public Result assertNoContent() {
-      assertStatus(204);
+      //FIXME
       return this;
     }
 

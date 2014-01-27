@@ -27,7 +27,6 @@ import org.sonar.api.utils.text.XmlWriter;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,6 +43,12 @@ public class ServletResponse implements Response {
     }
 
     @Override
+    public Stream setStatus(int httpStatus) {
+      source.setStatus(httpStatus);
+      return this;
+    }
+
+    @Override
     public OutputStream output() {
       try {
         return source.getOutputStream();
@@ -54,7 +59,6 @@ public class ServletResponse implements Response {
   }
 
   private final HttpServletResponse source;
-  private int httpStatus = 200;
 
   public ServletResponse(HttpServletResponse hsr) {
     this.source = hsr;
@@ -76,22 +80,12 @@ public class ServletResponse implements Response {
   }
 
   @Override
-  public int status() {
-    return source.getStatus();
-  }
-
-  @Override
-  public Response setStatus(int httpStatus) {
-    this.httpStatus = httpStatus;
-    return this;
-  }
-
-  @Override
-  public void noContent() {
-    setStatus(204);
+  public Response noContent() {
     try {
-      this.source.flushBuffer();
-    } catch(IOException ioex) {
+      source.setStatus(204);
+      source.flushBuffer();
+      return this;
+    } catch (IOException ioex) {
       throw new IllegalStateException("Fail to send 'no content' to client");
     }
   }
@@ -107,7 +101,7 @@ public class ServletResponse implements Response {
     public void close() throws IOException {
       super.close();
 
-      source.setStatus(httpStatus);
+      source.setStatus(200);
       source.setContentType(mediaType);
       ServletOutputStream stream = null;
       try {

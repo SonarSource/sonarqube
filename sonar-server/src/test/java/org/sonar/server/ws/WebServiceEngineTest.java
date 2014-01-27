@@ -81,6 +81,7 @@ public class WebServiceEngineTest {
   private static class SimpleResponse implements Response {
     public class SimpleStream implements Response.Stream {
       private String mediaType;
+      private int status;
 
       @CheckForNull
       public String mediaType() {
@@ -93,13 +94,23 @@ public class WebServiceEngineTest {
         return this;
       }
 
+      @CheckForNull
+      public int status() {
+        return status;
+      }
+
+      @Override
+      public Response.Stream setStatus(int i) {
+        this.status = i;
+        return this;
+      }
+
       @Override
       public OutputStream output() {
         return output;
       }
     }
 
-    private int status = 200;
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @Override
@@ -113,25 +124,16 @@ public class WebServiceEngineTest {
     }
 
     @Override
-    public Stream stream() {
+    public SimpleStream stream() {
       return new SimpleStream();
     }
 
     @Override
-    public int status() {
-      return status;
-    }
-
-    @Override
-    public Response setStatus(int httpStatus) {
-      this.status = httpStatus;
-      return this;
-    }
-
-    @Override
-    public void noContent() {
-      setStatus(204);
+    public Response noContent() {
+      Stream stream = stream();
+      stream.setStatus(204);
       IOUtils.closeQuietly(output);
+      return this;
     }
 
     public String outputAsString() {
@@ -164,7 +166,6 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/system", "health");
 
     assertThat(response.outputAsString()).isEqualTo("good");
-    assertThat(response.status()).isEqualTo(200);
   }
 
   @Test
@@ -174,7 +175,6 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/system", "alive");
 
     assertThat(response.outputAsString()).isEmpty();
-    assertThat(response.status()).isEqualTo(204);
   }
 
   @Test
@@ -184,7 +184,6 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/xxx", "health");
 
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
-    assertThat(response.status()).isEqualTo(400);
   }
 
   @Test
@@ -194,7 +193,6 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/system", "xxx");
 
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
-    assertThat(response.status()).isEqualTo(400);
   }
 
   @Test
@@ -203,7 +201,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.status()).isEqualTo(405);
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
   }
 
@@ -213,7 +210,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.status()).isEqualTo(200);
     assertThat(response.outputAsString()).isEqualTo("pong");
   }
 
@@ -223,7 +219,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.status()).isEqualTo(400);
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'message' is missing\"}]}");
   }
 
@@ -233,7 +228,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.status()).isEqualTo(200);
     assertThat(response.outputAsString()).isEqualTo("Hello World by -");
   }
 
@@ -245,7 +239,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.status()).isEqualTo(200);
     assertThat(response.outputAsString()).isEqualTo("Hello World by Marcel");
   }
 
@@ -255,7 +248,6 @@ public class WebServiceEngineTest {
     SimpleResponse response = new SimpleResponse();
     engine.execute(request, response, "api/system", "fail");
 
-    assertThat(response.status()).isEqualTo(500);
     assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
   }
 

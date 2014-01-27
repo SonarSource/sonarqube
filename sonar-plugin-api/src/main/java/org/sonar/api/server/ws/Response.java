@@ -33,19 +33,16 @@ public interface Response {
 
   interface Stream {
     Stream setMediaType(String s);
+    Stream setStatus(int httpStatus);
     OutputStream output();
   }
-
-  int status();
-
-  Response setStatus(int httpStatus);
 
   JsonWriter newJsonWriter();
 
   XmlWriter newXmlWriter();
 
-  Stream stream();
+  Response noContent();
 
-  void noContent();
+  Stream stream();
 
 }

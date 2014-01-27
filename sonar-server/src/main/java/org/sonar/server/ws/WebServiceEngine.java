@@ -108,11 +108,10 @@ public class WebServiceEngine implements ServerComponent, Startable {
   }
 
   private void sendError(int status, String message, Response response) {
-    response.setStatus(status);
-
     // Reset response by directly using the stream. Response#newJsonWriter()
     // must not be used because it potentially contains some partial response
     Response.Stream stream = response.stream();
+    stream.setStatus(status);
     stream.setMediaType("application/json");
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
     json.beginObject();
