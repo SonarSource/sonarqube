@@ -94,8 +94,10 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private void logWarning() {
-    LOG.debug("Plugins are no more responsible for indexing physical resources like directories and files. This is now handled by the platform.", new SonarException(
-      "Plugin should not index physical resources"));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Plugins are no more responsible for indexing physical resources like directories and files. This is now handled by the platform.", new SonarException(
+        "Plugin should not index physical resources"));
+    }
   }
 
   @Override
