@@ -94,7 +94,7 @@ public interface RuleDefinitions extends ServerExtension {
     /**
      * Reads definitions of rules from the annotations provided by the library sonar-check-api.
      */
-    void loadAnnotatedClasses(Class... classes);
+    NewExtendedRepository loadAnnotatedClasses(Class... classes);
 
     /**
      * Reads definitions of rules from a XML file. Format is :
@@ -133,7 +133,7 @@ public interface RuleDefinitions extends ServerExtension {
      *
      * </pre>
      */
-    void loadXml(InputStream xmlInput, String encoding);
+    NewExtendedRepository loadXml(InputStream xmlInput, String encoding);
 
     void done();
   }
@@ -179,13 +179,15 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
-    public void loadAnnotatedClasses(Class... classes) {
+    public NewRepositoryImpl loadAnnotatedClasses(Class... classes) {
       new RuleDefinitionsFromAnnotations().loadRules(this, classes);
+      return this;
     }
 
     @Override
-    public void loadXml(InputStream xmlInput, String encoding) {
+    public NewRepositoryImpl loadXml(InputStream xmlInput, String encoding) {
       new RuleDefinitionsFromXml().loadRules(this, xmlInput, encoding);
+      return this;
     }
 
     @Override
