@@ -54,7 +54,9 @@ public class Rule {
   public Rule(Map<String, Object> ruleSource) {
     id = (Integer) ruleSource.get(RuleDocument.FIELD_ID);
     key = (String) ruleSource.get(RuleDocument.FIELD_KEY);
+    language = (String) ruleSource.get(RuleDocument.FIELD_LANGUAGE);
     repositoryKey = (String) ruleSource.get(RuleDocument.FIELD_REPOSITORY_KEY);
+    severity = (String) ruleSource.get(RuleDocument.FIELD_SEVERITY);
     name = (String) ruleSource.get(RuleDocument.FIELD_NAME);
     description = (String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION);
     status = (String) ruleSource.get(RuleDocument.FIELD_STATUS);

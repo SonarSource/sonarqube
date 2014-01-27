@@ -76,7 +76,9 @@ public class RuleRegistryTest {
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json")).build());
+    esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json"))
+      .put("http.port", "9200")
+      .build());
     esSetup.execute(EsSetup.deleteAll());
 
     ESNode node = mock(ESNode.class);
@@ -96,6 +98,7 @@ public class RuleRegistryTest {
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
       EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
     );
+    esSetup.client().admin().cluster().prepareHealth(RuleRegistry.INDEX_RULES).setWaitForGreenStatus().execute().actionGet();
   }
 
   @After
@@ -113,12 +116,15 @@ public class RuleRegistryTest {
 
   @Test
   public void should_find_rule_by_key() {
-    assertThat(registry.findByKey(RuleKey.of("unknown", "OneIssuePerLine"))).isNull();
+    assertThat(registry.findByKey(RuleKey.of("unknown", "RuleWithParameters"))).isNull();
     assertThat(registry.findByKey(RuleKey.of("xoo", "unknown"))).isNull();
-    final Rule rule = registry.findByKey(RuleKey.of("xoo", "OneIssuePerLine"));
+    final Rule rule = registry.findByKey(RuleKey.of("xoo", "RuleWithParameters"));
     assertThat(rule).isNotNull();
     assertThat(rule.repositoryKey()).isEqualTo("xoo");
-    assertThat(rule.key()).isEqualTo("OneIssuePerLine");
+    assertThat(rule.key()).isEqualTo("RuleWithParameters");
+    assertThat(rule.params()).hasSize(5);
+    assertThat(rule.adminTags()).hasSize(1);
+    assertThat(rule.systemTags()).hasSize(2);
   }
 
 

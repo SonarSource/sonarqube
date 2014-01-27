@@ -10,6 +10,14 @@
   "status": "READY",
   "createdAt": "2013-10-28T13:07:26.329Z",
   "updatedAt": "2013-11-08T10:52:53.473Z",
+  "note": {
+    "data": "<p>This rule should be kept to test params.</p>",
+    "author": "freddy.mallet",
+    "createdAt": "2013-11-14T13:07:26.329Z",
+    "updatedAt": "2013-11-14T13:10:26.329Z"
+  },
+  "systemTags": [ "has-params", "integration-tests" ],
+  "adminTags": [ "keep-enabled" ],
   "params": [
       {
         "key": "string",
