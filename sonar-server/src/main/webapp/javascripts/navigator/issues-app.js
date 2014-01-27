@@ -170,7 +170,7 @@ jQuery(function() {
         type: window.SS.ContextFilterView,
         enabled: true,
         optional: false
-      }),
+      })
     ]);
 
 
