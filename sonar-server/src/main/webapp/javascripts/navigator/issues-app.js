@@ -52,10 +52,6 @@ jQuery(function() {
       collection: this.issues
     });
     this.actionsRegion.show(this.issuesActionsView);
-
-    this.issueDetailView = new window.SS.IssueDetailView({
-      model: new window.SS.Issue()
-    });
   });
 
 
@@ -250,15 +246,14 @@ jQuery(function() {
 
 
   NavigatorApp.storeQuery = function(query, sorting) {
-    var fullQuery = query;
     if (sorting) {
-      _.extend(fullQuery, {
+      _.extend(query, {
         sort: sorting.sort,
         asc: '' + sorting.asc
       });
     }
 
-    var queryString = _.map(fullQuery, function(v, k) {
+    var queryString = _.map(query, function(v, k) {
       return [k, encodeURIComponent(v)].join('=');
     }).join('|');
     this.router.navigate(queryString);

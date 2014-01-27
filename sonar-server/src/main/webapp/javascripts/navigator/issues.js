@@ -56,17 +56,30 @@ jQuery(function() {
       this.maxResultsReached = r.maxResultsReached;
 
       return r.issues.map(function(issue) {
-        return _.extend({}, issue, {
-          component: find(r.components, issue.component),
-          project: find(r.projects, issue.project),
-          rule: find(r.rules, issue.rule),
-          author: find(r.users, issue.author, 'login'),
-          comments: (issue.comments || []).map(function(comment) {
-            return _.extend({}, comment, {
-              user: find(r.users, comment.login, 'login')
-            });
-          })
-        });
+        var component = find(r.components, issue.component),
+            project = find(r.projects, issue.project),
+            rule = find(r.rules, issue.rule);
+
+        if (component) {
+          _.extend(issue, {
+            componentLongName: component.longName,
+            componentQualifier: component.qualifier
+          });
+        }
+
+        if (project) {
+          _.extend(issue, {
+            projectLongName: project.longName
+          });
+        }
+
+        if (rule) {
+          _.extend(issue, {
+            ruleName: rule.name
+          });
+        }
+
+        return issue;
       });
 
     }
@@ -120,8 +133,15 @@ jQuery(function() {
   var IssueView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-template').html() || ''),
     tagName: 'li',
+
+
     events: {
       'click': 'showDetails'
+    },
+
+
+    modelEvents: {
+      'change': 'render'
     },
 
 
@@ -130,11 +150,14 @@ jQuery(function() {
       this.$el.addClass('active');
 
       var app = this.options.app,
-          detailView = this.options.app.issueDetailView;
+          detailView = new window.SS.IssueDetailView({
+            model: this.model
+          });
 
-      detailView.model.set({ key: this.model.get('key') }, { silent: true});
-      jQuery.when(detailView.model.fetch()).done(function() {
-        app.detailsRegion.show(detailView);
+      detailView.model.fetch({
+        success: function() {
+          app.detailsRegion.show(detailView);
+        }
       });
     }
   });
@@ -509,7 +532,9 @@ jQuery(function() {
 
 
     onClose: function() {
-      this.ruleRegion.close();
+      if (this.ruleRegion) {
+        this.ruleRegion.reset();
+      }
     },
 
 
