@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,7 +36,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 import java.util.HashMap;

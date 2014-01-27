@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.WildcardPattern;
 
 abstract class PathPattern {

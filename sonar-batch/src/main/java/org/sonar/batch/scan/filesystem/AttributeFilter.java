@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 import java.util.Collection;

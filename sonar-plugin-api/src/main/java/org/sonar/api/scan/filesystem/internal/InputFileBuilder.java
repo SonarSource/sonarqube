@@ -19,6 +19,8 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.Nullable;
@@ -66,7 +68,7 @@ public class InputFileBuilder {
   }
 
   public InputFileBuilder hash(@Nullable String hash) {
-    return attribute(InputFile.ATTRIBUTE_HASH, hash);
+    return attribute(DefaultInputFile.ATTRIBUTE_HASH, hash);
   }
 
   public InputFileBuilder status(@Nullable String status) {
@@ -74,11 +76,11 @@ public class InputFileBuilder {
   }
 
   public InputFileBuilder sourceDir(File dir) {
-    return attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(dir));
+    return attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(dir));
   }
 
   public InputFileBuilder sourceDir(@Nullable String path) {
-    return attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.sanitize(path));
+    return attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.sanitize(path));
   }
 
   public DefaultInputFile build() {

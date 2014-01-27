@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.batch.bootstrap.AnalysisMode;
 

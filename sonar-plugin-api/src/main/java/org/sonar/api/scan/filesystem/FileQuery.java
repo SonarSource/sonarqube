@@ -25,7 +25,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import javax.annotation.Nullable;
 
@@ -44,6 +43,10 @@ public class FileQuery {
   private final Set<String> inclusions = Sets.newHashSet();
   private final Set<String> exclusions = Sets.newHashSet();
 
+  /**
+   * @deprecated since 4.2 use {@link #onMain()} or {@link #onTest()}
+   */
+  @Deprecated
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
     for (FileType type : types) {
@@ -59,12 +62,25 @@ public class FileQuery {
     return on();
   }
 
+  /**
+   * @deprecated since 4.2 use {@link #onMain()}
+   */
+  @Deprecated
   public static FileQuery onSource() {
-    return on(FileType.SOURCE);
+    return onMain();
+  }
+
+  /**
+   * @since 4.2
+   */
+  public static FileQuery onMain() {
+    FileQuery query = new FileQuery();
+    return query.on(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN);
   }
 
   public static FileQuery onTest() {
-    return on(FileType.TEST);
+    FileQuery query = new FileQuery();
+    return query.on(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST);
   }
 
   private FileQuery() {
@@ -81,6 +97,10 @@ public class FileQuery {
     return attributes.asMap();
   }
 
+  /**
+   * @deprecated since 4.2 use {@link #typeAttributes()}
+   */
+  @Deprecated
   public Collection<FileType> types() {
     return Collections2.transform(attributes.get(InputFile.ATTRIBUTE_TYPE), new Function<String, FileType>() {
       @Override
@@ -88,6 +108,10 @@ public class FileQuery {
         return input != null ? FileType.valueOf(input) : null;
       }
     });
+  }
+
+  public Collection<String> typeAttributes() {
+    return attributes.get(InputFile.ATTRIBUTE_TYPE);
   }
 
   public Collection<String> languages() {

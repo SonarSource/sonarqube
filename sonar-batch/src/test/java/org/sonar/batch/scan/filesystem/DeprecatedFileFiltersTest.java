@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -30,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.io.File;
 
@@ -63,8 +64,8 @@ public class DeprecatedFileFiltersTest {
     File basedir = temp.newFolder();
     File file = temp.newFile();
     InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_SOURCEDIR_PATH, new File(basedir, "src/main/java").getAbsolutePath(),
-      InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java",
+      DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, new File(basedir, "src/main/java").getAbsolutePath(),
+      DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java",
       InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST
 
       ));

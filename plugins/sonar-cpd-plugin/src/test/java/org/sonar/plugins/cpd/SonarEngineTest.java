@@ -19,12 +19,13 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.duplications.index.CloneGroup;

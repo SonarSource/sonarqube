@@ -32,8 +32,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
 import java.io.File;
@@ -162,11 +162,12 @@ public class DefaultModuleFileSystemTest {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(new Project("foo"), settings, fileIndex, initializer, mode, componentIndexer);
 
     File mainFile = temp.newFile();
-    InputFile mainInput = DefaultInputFile.create(mainFile, Charsets.UTF_8, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_SOURCE));
+    InputFile mainInput = DefaultInputFile.create(mainFile, Charsets.UTF_8, "Main.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN));
     InputFile testInput = DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "Test.java", ImmutableMap.of(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
 
     when(fileIndex.inputFiles("foo")).thenReturn(Lists.newArrayList(mainInput, testInput));
 
+    fs.index();
     Iterable<InputFile> inputFiles = fs.inputFiles(FileQuery.onSource());
     assertThat(inputFiles).containsOnly(mainInput);
 

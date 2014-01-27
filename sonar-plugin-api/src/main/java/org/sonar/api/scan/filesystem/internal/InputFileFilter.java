@@ -19,8 +19,9 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.sonar.api.BatchExtension;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 /**
  * TODO document lifecycle -> executed when initializing project

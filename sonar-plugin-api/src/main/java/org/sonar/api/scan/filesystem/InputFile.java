@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
+package org.sonar.api.scan.filesystem;
 
 import javax.annotation.CheckForNull;
 
@@ -29,39 +29,21 @@ import java.util.Map;
 public interface InputFile extends Serializable {
 
   /**
-   * Canonical path of source directory.
-   * Example: <code>/path/to/module/src/main/java</code> or <code>C:\path\to\module\src\main\java</code>
-   * @deprecated since 4.2 No more sonar.sources
-   */
-  @Deprecated
-  String ATTRIBUTE_SOURCEDIR_PATH = "SRC_DIR_PATH";
-
-  /**
-   * Relative path from source directory. File separator is the forward slash ('/'),
-   * even on MSWindows.
-   * @deprecated since 4.2 No more sonar.sources
-   */
-  @Deprecated
-  String ATTRIBUTE_SOURCE_RELATIVE_PATH = "SRC_REL_PATH";
-
-  /**
    * Detected language
    */
   String ATTRIBUTE_LANGUAGE = "LANG";
 
   /**
-   *
+   * Type of source file. For now only possible values are {@link #TYPE_MAIN} or {@link #TYPE_TEST}
    */
   String ATTRIBUTE_TYPE = "TYPE";
-  String TYPE_SOURCE = "SOURCE";
+  String TYPE_MAIN = "MAIN";
   String TYPE_TEST = "TEST";
 
   String ATTRIBUTE_STATUS = "STATUS";
   String STATUS_SAME = "SAME";
   String STATUS_CHANGED = "CHANGED";
   String STATUS_ADDED = "ADDED";
-
-  String ATTRIBUTE_HASH = "HASH";
 
   /**
    * Path is relative from module base directory. Path is unique and identifies file
@@ -91,8 +73,8 @@ public interface InputFile extends Serializable {
   String name();
 
   /**
-   * Not-null type (is it a source file or a unit test file?).
-   * See constant values prefixed by <code>TYPE_</code>, for example {@link #TYPE_SOURCE}.
+   * Not-null type (is it a main file or a unit test file?).
+   * See constant values prefixed by <code>TYPE_</code>, for example {@link #TYPE_MAIN}.
    */
   String type();
 

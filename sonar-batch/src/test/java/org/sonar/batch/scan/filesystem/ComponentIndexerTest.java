@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
@@ -40,7 +42,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
@@ -153,9 +154,9 @@ public class ComponentIndexerTest {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
     return new InputFileBuilder(file, Charsets.UTF_8, path)
-      .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath)
+      .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath)
       .attribute(InputFile.ATTRIBUTE_LANGUAGE, languageKey)
-      .attribute(InputFile.ATTRIBUTE_TYPE, unitTest ? InputFile.TYPE_TEST : InputFile.TYPE_SOURCE)
+      .attribute(InputFile.ATTRIBUTE_TYPE, unitTest ? InputFile.TYPE_TEST : InputFile.TYPE_MAIN)
       .build();
   }
 
@@ -188,7 +189,7 @@ public class ComponentIndexerTest {
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
     when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
       new InputFileBuilder(javaFile1, Charset.forName("UTF-8"), "src/main/java/foo/bar/Foo.java")
-        .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
+        .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
         .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
         .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);
@@ -217,7 +218,7 @@ public class ComponentIndexerTest {
       .thenReturn(
         (Iterable) Arrays.asList(
           new InputFileBuilder(javaFile1, Charset.forName(encoding), "src/main/java/foo/bar/Foo.java")
-            .attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
+            .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
             .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
             .build()));
     when(project.getLanguageKey()).thenReturn(Java.KEY);

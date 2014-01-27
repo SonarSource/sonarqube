@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import org.junit.After;
@@ -27,10 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class InputFileCacheTest {

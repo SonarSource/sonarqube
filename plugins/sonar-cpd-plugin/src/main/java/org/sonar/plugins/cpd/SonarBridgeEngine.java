@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -32,7 +34,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.duplications.DuplicationPredicates;
@@ -43,6 +44,7 @@ import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;

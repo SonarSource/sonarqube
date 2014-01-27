@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
@@ -29,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -94,7 +95,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     return new InputFileBuilder(file, Charsets.UTF_8, path)
       .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, effectiveKey)
       .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, deprecatedEffectiveKey)
-      .attribute(InputFile.ATTRIBUTE_TYPE, isTest ? InputFile.TYPE_TEST : InputFile.TYPE_SOURCE).build();
+      .attribute(InputFile.ATTRIBUTE_TYPE, isTest ? InputFile.TYPE_TEST : InputFile.TYPE_MAIN).build();
   }
 
   @Test

@@ -20,13 +20,14 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;

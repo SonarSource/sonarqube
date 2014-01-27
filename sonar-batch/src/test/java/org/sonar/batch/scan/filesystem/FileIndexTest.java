@@ -17,32 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
+package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.InputDir;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class InputFilesTest {
+public class FileIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void test_toFiles() throws Exception {
-    File file1 = temp.newFile();
-    File file2 = temp.newFile();
-    InputFile input1 = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").build();
-    InputFile input2 = new InputFileBuilder(file2, Charsets.UTF_8, "src/main/java/Bar.java").build();
+  public void should_return_inputDir() throws Exception {
+    FileIndex index = new FileIndex(null, null, null, null, new PathResolver(), new Project("myProject"));
+    File baseDir = temp.newFolder();
+    DefaultModuleFileSystem fileSystem = mock(DefaultModuleFileSystem.class);
+    when(fileSystem.baseDir()).thenReturn(baseDir);
+    File ioFile = new File(baseDir, "src/main/java/com/foo");
+    InputDir inputDir = index.inputDir(fileSystem, ioFile);
 
-    assertThat(InputFiles.toFiles(Lists.newArrayList(input1, input2))).containsOnly(file1, file2);
+    assertThat(inputDir.name()).isEqualTo("src/main/java/com/foo");
+    assertThat(inputDir.file()).isEqualTo(ioFile);
+    assertThat(inputDir.attribute(DefaultInputDir.ATTRIBUTE_COMPONENT_KEY)).isEqualTo("myProject:src/main/java/com/foo");
   }
 }

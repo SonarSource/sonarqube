@@ -21,7 +21,9 @@ package org.sonar.api.scan.filesystem;
 
 /**
  * @since 3.5
+ * @deprecated since 4.2 use {@link InputFile#TYPE_MAIN} or {@link InputFile#TYPE_TEST}
  */
+@Deprecated
 public enum FileType {
   SOURCE, TEST
 }

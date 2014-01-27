@@ -19,70 +19,44 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputDir;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
  * PLUGINS MUST NOT USE THIS CLASS, EVEN FOR UNIT TESTING.
  *
- * @since 4.0
+ * @since 4.2
  */
-public class DefaultInputFile implements InputFile {
+public class DefaultInputDir implements InputDir {
 
   /**
    * We're not sure that this is the correct way, so not in API yet.
    */
   public static final String ATTRIBUTE_COMPONENT_KEY = "CMP_KEY";
 
-  public static final String ATTRIBUTE_COMPONENT_DEPRECATED_KEY = "CMP_DEPRECATED_KEY";
-
-  public static final String ATTRIBUTE_HASH = "HASH";
-
-  /**
-   * Relative path from source directory. File separator is the forward slash ('/'),
-   * even on MSWindows.
-   * @deprecated since 4.2 No more sonar.sources
-   */
-  @Deprecated
-  public static final String ATTRIBUTE_SOURCE_RELATIVE_PATH = "SRC_REL_PATH";
-
-  /**
-   * Canonical path of source directory.
-   * Example: <code>/path/to/module/src/main/java</code> or <code>C:\path\to\module\src\main\java</code>
-   * @deprecated since 4.2 No more sonar.sources
-   */
-  @Deprecated
-  public static final String ATTRIBUTE_SOURCEDIR_PATH = "SRC_DIR_PATH";
-
   private final String absolutePath;
   private final String path;
   private final Map<String, String> attributes;
-  private final String encoding;
 
-  private DefaultInputFile(File file, Charset encoding, String path, Map<String, String> attributes) {
-    this.encoding = encoding.name();
+  private DefaultInputDir(File file, String path, Map<String, String> attributes) {
     this.absolutePath = PathUtils.canonicalPath(file);
     this.path = FilenameUtils.separatorsToUnix(path);
     this.attributes = attributes;
   }
 
   /**
-   * Plugins must not build their own instances of {@link InputFile}.
-   * {@link org.sonar.api.scan.filesystem.ModuleFileSystem} must be used to search for files to scan.
-   * <p/>
-   * Usage: <code>InputFile.create(file, "src/main/java/com/Foo.java", attributes)</code>
+   * Plugins must not build their own instances of {@link InputDir}.
+   * {@link org.sonar.api.scan.filesystem.ModuleFileSystem} must be used to search for inputDir.
    */
-  public static DefaultInputFile create(File file, Charset encoding, String path, Map<String, String> attributes) {
-    return new DefaultInputFile(file, encoding, path, attributes);
+  public static DefaultInputDir create(File file, String path, Map<String, String> attributes) {
+    return new DefaultInputDir(file, path, attributes);
   }
 
   @Override
@@ -101,18 +75,8 @@ public class DefaultInputFile implements InputFile {
   }
 
   @Override
-  public Charset encoding() {
-    return Charsets.toCharset(encoding);
-  }
-
-  @Override
   public String name() {
-    return file().getName();
-  }
-
-  @Override
-  public String type() {
-    return attribute(ATTRIBUTE_TYPE);
+    return path();
   }
 
   @Override
@@ -139,7 +103,7 @@ public class DefaultInputFile implements InputFile {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DefaultInputFile other = (DefaultInputFile) o;
+    DefaultInputDir other = (DefaultInputDir) o;
     return absolutePath.equals(other.absolutePath);
   }
 
@@ -150,6 +114,6 @@ public class DefaultInputFile implements InputFile {
 
   @Override
   public String toString() {
-    return String.format("[%s,%s]", path, type());
+    return String.format("[%s]", path);
   }
 }

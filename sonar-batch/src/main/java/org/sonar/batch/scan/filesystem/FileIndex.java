@@ -31,10 +31,12 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.InputDir;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.api.utils.PathUtils;
 
@@ -73,7 +75,7 @@ public class FileIndex implements BatchComponent {
   private final PathResolver pathResolver;
   private final List<InputFileFilter> filters;
   private final LanguageRecognizer languageRecognizer;
-  private final InputFileCache cache;
+  private final InputFileCache fileCache;
   private final FileHashes fileHashes;
   private final Project project;
 
@@ -81,7 +83,7 @@ public class FileIndex implements BatchComponent {
     InputFileCache cache, FileHashes fileHashes, PathResolver pathResolver, Project project) {
     this.filters = filters;
     this.languageRecognizer = languageRecognizer;
-    this.cache = cache;
+    this.fileCache = cache;
     this.fileHashes = fileHashes;
     this.pathResolver = pathResolver;
     this.project = project;
@@ -92,16 +94,16 @@ public class FileIndex implements BatchComponent {
     logger.info("Index files");
     // TODO log configuration too (replace FileSystemLogger)
 
-    Progress progress = new Progress(cache.fileRelativePaths(fileSystem.moduleKey()));
+    Progress progress = new Progress(fileCache.fileRelativePaths(fileSystem.moduleKey()));
 
     if (fileSystem.sourceFiles().isEmpty()) {
       // index directories
       for (File sourceDir : fileSystem.sourceDirs()) {
-        indexDirectory(fileSystem, progress, sourceDir, InputFile.TYPE_SOURCE);
+        indexDirectory(fileSystem, progress, sourceDir, InputFile.TYPE_MAIN);
       }
     } else {
       // index only given files
-      indexFiles(fileSystem, progress, fileSystem.sourceDirs(), fileSystem.sourceFiles(), InputFile.TYPE_SOURCE);
+      indexFiles(fileSystem, progress, fileSystem.sourceDirs(), fileSystem.sourceFiles(), InputFile.TYPE_MAIN);
     }
 
     if (fileSystem.testFiles().isEmpty()) {
@@ -116,7 +118,7 @@ public class FileIndex implements BatchComponent {
 
     // Remove files that have been removed since previous indexation
     for (String path : progress.removedPaths) {
-      cache.remove(fileSystem.moduleKey(), path);
+      fileCache.remove(fileSystem.moduleKey(), path);
     }
 
     logger.info(String.format("%d files indexed", progress.count));
@@ -137,7 +139,22 @@ public class FileIndex implements BatchComponent {
   }
 
   Iterable<InputFile> inputFiles(String moduleKey) {
-    return cache.byModule(moduleKey);
+    return fileCache.byModule(moduleKey);
+  }
+
+  InputFile inputFile(DefaultModuleFileSystem fileSystem, File ioFile) {
+    String path = computeFilePath(fileSystem, ioFile);
+    return fileCache.byPath(fileSystem.moduleKey(), path);
+  }
+
+  InputDir inputDir(DefaultModuleFileSystem fileSystem, File ioFile) {
+    String path = computeFilePath(fileSystem, ioFile);
+    // TODO no cache for InputDir
+    Map<String, String> attributes = Maps.newHashMap();
+    // paths
+    String resourceKey = PathUtils.sanitize(path);
+    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
+    return DefaultInputDir.create(ioFile, path, attributes);
   }
 
   private void indexDirectory(DefaultModuleFileSystem fileSystem, Progress status, File sourceDir, String type) {
@@ -148,16 +165,21 @@ public class FileIndex implements BatchComponent {
   }
 
   private void indexFile(DefaultModuleFileSystem fileSystem, Progress status, File sourceDir, File file, String type) {
-    String path = pathResolver.relativePath(fileSystem.baseDir(), file);
+    String path = computeFilePath(fileSystem, file);
     if (path == null) {
       LoggerFactory.getLogger(getClass()).warn(String.format("File '%s' is not in basedir '%s'", file.getAbsolutePath(), fileSystem.baseDir()));
     } else {
       InputFile input = newInputFile(fileSystem, sourceDir, type, file, path);
       if (input != null && accept(input)) {
-        cache.put(fileSystem.moduleKey(), input);
+        fileCache.put(fileSystem.moduleKey(), input);
         status.markAsIndexed(path);
       }
     }
+  }
+
+  private String computeFilePath(DefaultModuleFileSystem fileSystem, File file) {
+    String path = pathResolver.relativePath(fileSystem.baseDir(), file);
+    return path;
   }
 
   @CheckForNull
@@ -167,9 +189,9 @@ public class FileIndex implements BatchComponent {
     set(attributes, InputFile.ATTRIBUTE_TYPE, type);
 
     // paths
-    set(attributes, InputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(sourceDir));
+    set(attributes, DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(sourceDir));
     String sourceRelativePath = pathResolver.relativePath(sourceDir, file);
-    set(attributes, InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
+    set(attributes, DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
 
     String resourceKey = PathUtils.sanitize(path);
     set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
@@ -193,7 +215,7 @@ public class FileIndex implements BatchComponent {
 
   private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {
     String hash = fileHashes.hash(file, charset);
-    set(attributes, InputFile.ATTRIBUTE_HASH, hash);
+    set(attributes, DefaultInputFile.ATTRIBUTE_HASH, hash);
 
     String remoteHash = fileHashes.remoteHash(baseRelativePath);
     // currently no need to store this remote hash in attributes

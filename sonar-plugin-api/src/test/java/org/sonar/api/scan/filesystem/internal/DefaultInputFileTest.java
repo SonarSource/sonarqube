@@ -19,6 +19,8 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
@@ -51,7 +53,7 @@ public class DefaultInputFileTest {
     assertThat(input.attribute("unknown")).isNull();
     assertThat(input.attribute("foo")).isEqualTo("bar");
     assertThat(input.attribute(InputFile.ATTRIBUTE_TYPE)).isEqualTo(InputFile.TYPE_TEST);
-    assertThat(input.attribute(InputFile.ATTRIBUTE_HASH)).isEqualTo("ABC");
+    assertThat(input.attribute(DefaultInputFile.ATTRIBUTE_HASH)).isEqualTo("ABC");
     assertThat(input.attribute(InputFile.ATTRIBUTE_LANGUAGE)).isEqualTo("java");
     assertThat(input.attribute(InputFile.ATTRIBUTE_STATUS)).isEqualTo(InputFile.STATUS_ADDED);
 
@@ -70,7 +72,7 @@ public class DefaultInputFileTest {
 
     assertThat(input.name()).isEqualTo("Foo.java");
     assertThat(input.file()).isEqualTo(file);
-    assertThat(input.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(FilenameUtils.separatorsToUnix(sourceDir.getAbsolutePath()));
+    assertThat(input.attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(FilenameUtils.separatorsToUnix(sourceDir.getAbsolutePath()));
     assertThat(input.path()).isEqualTo("src/main/java/Foo.java");
     assertThat(input.absolutePath()).isEqualTo(PathUtils.canonicalPath(file));
   }

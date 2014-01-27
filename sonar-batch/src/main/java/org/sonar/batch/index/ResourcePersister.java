@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 public interface ResourcePersister {
 

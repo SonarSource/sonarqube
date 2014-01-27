@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.batch.bootstrap.AnalysisMode;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +48,7 @@ public class FileQueryFilterTest {
     InputFileFilter typeFilter = filter.filters().get(0);
     assertThat(typeFilter).isInstanceOf(AttributeFilter.class);
     assertThat(((AttributeFilter) typeFilter).key()).isEqualTo(InputFile.ATTRIBUTE_TYPE);
-    assertThat(((AttributeFilter) typeFilter).values()).containsOnly(InputFile.TYPE_SOURCE);
+    assertThat(((AttributeFilter) typeFilter).values()).containsOnly(InputFile.TYPE_MAIN);
   }
 
   @Test

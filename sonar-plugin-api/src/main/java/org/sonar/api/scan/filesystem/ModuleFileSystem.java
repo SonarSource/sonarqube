@@ -22,6 +22,7 @@ package org.sonar.api.scan.filesystem;
 import org.sonar.api.BatchComponent;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -46,13 +47,17 @@ public interface ModuleFileSystem extends BatchComponent {
   /**
    * Source directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/main/java
+   * @deprecated since 4.2 will always return {@link #baseDir()}
    */
+  @Deprecated
   List<File> sourceDirs();
 
   /**
    * Test directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/test/java
+   * @deprecated since 4.2 will always return {@link #baseDir()}
    */
+  @Deprecated
   List<File> testDirs();
 
   /**
@@ -63,17 +68,42 @@ public interface ModuleFileSystem extends BatchComponent {
    * <li>Binary directories can be empty</li>
    * <li>Test binary directories are not supported yet.</li>
    * </ul>
+   * @deprecated since 4.2 sonar.binaries should be converted to language specific property
    */
+  @Deprecated
   List<File> binaryDirs();
 
   /**
    * Search for files. Never return null.
+   * @deprecated since 4.2 use {@link #inputFiles(FileQuery)}
    */
+  @Deprecated
   List<File> files(FileQuery query);
 
   /**
-   * Charset of source and test files. If it's not defined, then
-   * return the platform default charset.
+   * Search for input files. Never return null.
+   * @since 4.2
+   */
+  Iterable<InputFile> inputFiles(FileQuery query);
+
+  /**
+   * Search for input file corresponding to the given java.io.File.
+   * @since 4.2
+   */
+  @CheckForNull
+  InputFile inputFile(File ioFile);
+
+  /**
+   * Search for input directory corresponding to the given java.io.File.
+   * @since 4.2
+   */
+  @CheckForNull
+  InputDir inputDir(File ioFile);
+
+  /**
+   * Default charset for files of the module. If it's not defined, then
+   * return the platform default charset. When trying to read an input file it is better to rely on
+   * {@link InputFile#encoding()} as encoding may be different for each file.
    */
   Charset sourceCharset();
 

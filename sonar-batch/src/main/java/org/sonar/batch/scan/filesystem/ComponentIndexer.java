@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+
+import org.sonar.api.scan.filesystem.InputFile;
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +37,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
@@ -76,9 +78,9 @@ public class ComponentIndexer implements BatchComponent {
       boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
       Resource sonarFile;
       if (Java.KEY.equals(languageKey)) {
-        sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
+        sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
       } else {
-        sonarFile = File.create(inputFile.path(), inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
+        sonarFile = File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
       }
       if (sonarFile != null) {
         moduleLanguages.addLanguage(languageKey);

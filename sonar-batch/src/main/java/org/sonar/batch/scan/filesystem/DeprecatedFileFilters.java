@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+
 import org.sonar.api.scan.filesystem.*;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 import java.io.File;
@@ -69,13 +70,13 @@ public class DeprecatedFileFilters implements InputFileFilter {
 
     @Override
     public File relativeDir() {
-      String path = inputFile.attribute(InputFile.ATTRIBUTE_SOURCEDIR_PATH);
+      String path = inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH);
       return path != null ? new File(path) : null;
     }
 
     @Override
     public String relativePath() {
-      return inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      return inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
     }
 
     @Override

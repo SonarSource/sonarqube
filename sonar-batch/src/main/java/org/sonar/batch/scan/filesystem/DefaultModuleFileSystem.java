@@ -27,8 +27,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.InputDir;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFiles;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -58,7 +59,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private List<File> testFiles = Lists.newArrayList();
   private AnalysisMode analysisMode;
   private ComponentIndexer componentIndexer;
-  private boolean indexed;
+  private boolean initialized;
 
   public DefaultModuleFileSystem(Project module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode,
     ComponentIndexer componentIndexer) {
@@ -75,6 +76,10 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     this.binaryDirs = initializer.binaryDirs();
     this.sourceFiles = initializer.additionalSourceFiles();
     this.testFiles = initializer.additionalTestFiles();
+  }
+
+  public boolean isInitialized() {
+    return initialized;
   }
 
   public String moduleKey() {
@@ -157,7 +162,11 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   /**
    * @since 4.0
    */
+  @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
+    if (!initialized) {
+      throw new SonarException("Module filesystem is not initialized");
+    }
     List<InputFile> result = Lists.newArrayList();
     FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
     for (InputFile input : index.inputFiles(moduleKey)) {
@@ -169,11 +178,30 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   @Override
+  public InputFile inputFile(File ioFile) {
+    if (!ioFile.isFile()) {
+      throw new SonarException(ioFile.getAbsolutePath() + "is not a file");
+    }
+    return index.inputFile(this, ioFile);
+  }
+
+  @Override
+  public InputDir inputDir(File ioFile) {
+    if (!ioFile.isDirectory()) {
+      throw new SonarException(ioFile.getAbsolutePath() + "is not a directory");
+    }
+    return index.inputDir(this, ioFile);
+  }
+
+  @Override
   public List<File> files(FileQuery query) {
     return InputFiles.toFiles(inputFiles(query));
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
+    if (initialized) {
+      throw new SonarException("Module filesystem is locked");
+    }
     Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
     this.buildDir = buildDir;
@@ -183,10 +211,10 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   public void index() {
-    if (indexed) {
+    if (initialized) {
       throw new SonarException("Module filesystem can only be indexed once");
     }
-    indexed = true;
+    initialized = true;
     index.index(this);
     componentIndexer.execute(this);
   }

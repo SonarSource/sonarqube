@@ -20,9 +20,11 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.scan.filesystem.internal.InputFile;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Set;
 
@@ -41,6 +43,11 @@ public class InputFileCache implements BatchComponent {
 
   public Iterable<InputFile> byModule(String moduleKey) {
     return cache.values(moduleKey);
+  }
+
+  @CheckForNull
+  public InputFile byPath(String moduleKey, String path) {
+    return cache.get(moduleKey, path);
   }
 
   public InputFileCache removeModule(String moduleKey) {

@@ -186,10 +186,10 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> mainFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    Iterable<org.sonar.api.scan.filesystem.internal.InputFile> files = target.inputFiles(FileQuery.onSource().onLanguage(langs));
-    for (org.sonar.api.scan.filesystem.internal.InputFile file : files) {
-      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.InputFile.ATTRIBUTE_SOURCEDIR_PATH);
-      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onSource().onLanguage(langs));
+    for (org.sonar.api.scan.filesystem.InputFile file : files) {
+      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH);
+      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
       if (sourceDir != null && sourceRelativePath != null) {
         result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
       }
@@ -199,10 +199,10 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> testFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    Iterable<org.sonar.api.scan.filesystem.internal.InputFile> files = target.inputFiles(FileQuery.onTest().onLanguage(langs));
-    for (org.sonar.api.scan.filesystem.internal.InputFile file : files) {
-      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.InputFile.ATTRIBUTE_SOURCEDIR_PATH);
-      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onTest().onLanguage(langs));
+    for (org.sonar.api.scan.filesystem.InputFile file : files) {
+      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH);
+      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
       if (sourceDir != null && sourceRelativePath != null) {
         result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
       }

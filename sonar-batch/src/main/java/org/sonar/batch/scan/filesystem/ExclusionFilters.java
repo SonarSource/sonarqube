@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -26,7 +28,6 @@ import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 
 public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchComponent {
@@ -58,7 +59,7 @@ public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchC
     String type = inputFile.attribute(InputFile.ATTRIBUTE_TYPE);
     PathPattern[] inclusionPatterns = null;
     PathPattern[] exclusionPatterns = null;
-    if (InputFile.TYPE_SOURCE.equals(type)) {
+    if (InputFile.TYPE_MAIN.equals(type)) {
       inclusionPatterns = sourceInclusions();
       exclusionPatterns = sourceExclusions();
     } else if (InputFile.TYPE_TEST.equals(type)) {

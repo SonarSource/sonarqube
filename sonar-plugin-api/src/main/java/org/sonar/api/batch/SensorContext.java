@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -26,7 +28,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.util.Collection;
 import java.util.Date;

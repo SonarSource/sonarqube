@@ -19,11 +19,12 @@
  */
 package org.sonar.plugins.cpd.index;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.duplication.DuplicationUnitDto;

@@ -19,8 +19,9 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import org.sonar.api.scan.filesystem.InputFile;
+
 import com.google.common.collect.Lists;
-import org.sonar.api.scan.filesystem.internal.InputFile;
 
 import java.io.File;
 import java.util.List;
