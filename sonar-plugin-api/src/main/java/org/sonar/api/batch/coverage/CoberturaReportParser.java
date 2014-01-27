@@ -34,6 +34,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.api.utils.XmlParserException;
 
+import javax.annotation.CheckForNull;
 import javax.xml.stream.XMLStreamException;
 
 import java.io.File;
@@ -51,7 +52,7 @@ import static org.sonar.api.utils.ParsingUtils.parseNumber;
  */
 public class CoberturaReportParser implements BatchComponent {
 
-  private ModuleFileSystem fs;
+  private final ModuleFileSystem fs;
 
   public CoberturaReportParser(ModuleFileSystem fs) {
     this.fs = fs;
@@ -78,7 +79,7 @@ public class CoberturaReportParser implements BatchComponent {
       });
       parser.parse(xmlFile);
     } catch (XMLStreamException e) {
-      throw new XmlParserException(e);
+      throw new XmlParserException("Fail to parse " + xmlFile.getAbsolutePath(), e);
     }
   }
 
@@ -113,6 +114,7 @@ public class CoberturaReportParser implements BatchComponent {
     }
   }
 
+  @CheckForNull
   private InputFile findInputFile(String filename, List<File> sourceDirs) {
     for (File srcDir : sourceDirs) {
       File possibleFile = new File(srcDir, filename);
