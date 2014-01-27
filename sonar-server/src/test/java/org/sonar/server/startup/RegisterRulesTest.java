@@ -78,6 +78,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void save_rule_param_description_from_bundle() {
+    setupData("empty");
     when(ruleI18nManager.getParamDescription("fake", "rule2", "param")).thenReturn("Param description of rule2");
     task.start();
 
