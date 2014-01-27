@@ -184,7 +184,7 @@ public class Rule {
     return adminTags;
   }
 
-  public List<? extends RuleParam> params() {
+  public List<RuleParam> params() {
     return params;
   }
 
