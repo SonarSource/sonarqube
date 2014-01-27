@@ -30,7 +30,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.rule.RulesProfileWrapper;
 
 import java.util.List;
 

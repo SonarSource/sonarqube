@@ -45,12 +45,12 @@ public class RulesProfileWrapper extends RulesProfile {
   private final Collection<RulesProfile> profiles;
   private final RulesProfile singleLanguageProfile;
 
-  RulesProfileWrapper(Collection<RulesProfile> profiles) {
+  public RulesProfileWrapper(Collection<RulesProfile> profiles) {
     this.profiles = profiles;
     this.singleLanguageProfile = null;
   }
 
-  RulesProfileWrapper(RulesProfile profile) {
+  public RulesProfileWrapper(RulesProfile profile) {
     this.profiles = Lists.newArrayList(profile);
     this.singleLanguageProfile = profile;
   }
@@ -69,7 +69,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public String getName() {
-    return getSingleProfileOrFail().getName();
+    return singleLanguageProfile!= null ? singleLanguageProfile.getName() : "SonarQube";
   }
 
   @Override
@@ -82,6 +82,15 @@ public class RulesProfileWrapper extends RulesProfile {
     }
     return singleLanguageProfile.getName();
   }
+
+  public RulesProfile getProfileByLanguage(String languageKey) {
+    for (RulesProfile profile : profiles) {
+      if (languageKey.equals(profile.getLanguage())) {
+        return profile;
+      }
+    }
+      return null;
+    }
 
   @Override
   public List<Alert> getAlerts() {

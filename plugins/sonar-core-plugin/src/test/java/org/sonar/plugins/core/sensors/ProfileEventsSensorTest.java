@@ -32,31 +32,26 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.RulesProfileWrapper;
+import org.sonar.batch.rule.RulesProfileWrapper;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProfileEventsSensorTest {
 
-  private Project project;
-  private SensorContext context;
-  private DefaultModuleLanguages moduleLanguages;
-  private RulesProfileWrapper wrapper;
-  private RulesProfile profile;
+  Project project;
+  SensorContext context;
+  DefaultModuleLanguages moduleLanguages;
+  RulesProfileWrapper wrapper;
+  RulesProfile profile;
 
   @Before
   public void prepare() {
@@ -65,10 +60,9 @@ public class ProfileEventsSensorTest {
 
     moduleLanguages = new DefaultModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
     moduleLanguages.addLanguage("java");
-    Map<String, RulesProfile> ruleProfilesPerLanguages = new HashMap<String, RulesProfile>();
     profile = mock(RulesProfile.class);
-    ruleProfilesPerLanguages.put("java", profile);
-    wrapper = new RulesProfileWrapper(moduleLanguages, ruleProfilesPerLanguages);
+    when(profile.getLanguage()).thenReturn("java");
+    wrapper = new RulesProfileWrapper(profile);
   }
 
   @Test
@@ -110,9 +104,9 @@ public class ProfileEventsSensorTest {
     sensor.analyse(project, context);
 
     verify(context).createEvent(same(project),
-      eq("Foo version 1"),
-      eq("Foo version 1 is used instead of Bar version 1"),
-      same(Event.CATEGORY_PROFILE), any(Date.class));
+        eq("Foo version 1"),
+        eq("Foo version 1 is used instead of Bar version 1"),
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   @Test
@@ -124,9 +118,9 @@ public class ProfileEventsSensorTest {
     sensor.analyse(project, context);
 
     verify(context).createEvent(same(project),
-      eq("Foo version 2"),
-      eq("Foo version 2 is used instead of Foo version 1"),
-      same(Event.CATEGORY_PROFILE), any(Date.class));
+        eq("Foo version 2"),
+        eq("Foo version 2 is used instead of Foo version 1"),
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   @Test
@@ -149,9 +143,9 @@ public class ProfileEventsSensorTest {
     sensor.analyse(project, context);
 
     verify(context).createEvent(same(project),
-      eq("Foo version 2"),
-      eq("Foo version 2 is used instead of Foo version 1"),
-      same(Event.CATEGORY_PROFILE), any(Date.class));
+        eq("Foo version 2"),
+        eq("Foo version 2 is used instead of Foo version 1"),
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   private void mockProfileWithVersion(int version) {
@@ -168,8 +162,8 @@ public class ProfileEventsSensorTest {
     TimeMachine timeMachine = mock(TimeMachine.class);
 
     when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
-      .thenReturn(result1 == null ? Collections.<Measure>emptyList() : Arrays.asList(result1))
-      .thenReturn(result2 == null ? Collections.<Measure>emptyList() : Arrays.asList(result2));
+        .thenReturn(result1 == null ? Collections.<Measure>emptyList() : Arrays.asList(result1))
+        .thenReturn(result2 == null ? Collections.<Measure>emptyList() : Arrays.asList(result2));
 
     return timeMachine;
   }

@@ -74,6 +74,9 @@ public class ModuleQProfiles implements BatchComponent {
 
   private final Map<String, QProfile> byLanguage;
 
+  public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao) {
+    this(settings, languages, dao, new ProfileLoader[0]);
+  }
 
   public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao, ProfileLoader[] loaders) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();

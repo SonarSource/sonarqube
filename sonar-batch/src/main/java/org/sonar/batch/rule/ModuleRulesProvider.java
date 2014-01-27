@@ -33,7 +33,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 
 /**
  * Loads the rules that are activated on the Quality profiles
- * used by the current module.
+ * used by the current module and build {@link org.sonar.api.batch.rule.ModuleRules}.
  */
 public class ModuleRulesProvider extends ProviderAdapter {
 
