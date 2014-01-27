@@ -48,6 +48,7 @@
           <tr class="even">
             <td>
               <table class="width100 spaced">
+              <tbody style="vertical-align: top">
                 <tr>
                   <td class="thin nowrap"><b>Date: </b></td>
                   <td class="sep"></td>
@@ -93,17 +94,18 @@
                         <% end %>
                         <li>Stop Sonar</li>
                         <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                          SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading">upgrade guide</a>.
+                          SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading" class="external">upgrade guide</a>.
                         </li>
                         <li>Start Sonar</li>
                       </ol>
 
                     <% else %>
                       <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                      SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading">upgrade guide</a>.
+                      SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading" class="external">upgrade guide</a>.
                     <% end %>
                   </td>
                 </tr>
+              </tbody>
               </table>
             </td>
           </tr>
