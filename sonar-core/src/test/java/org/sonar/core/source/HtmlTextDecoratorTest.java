@@ -325,7 +325,7 @@ public class HtmlTextDecoratorTest {
     List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData, 4, null);
     assertThat(htmlOutput).hasSize(9);
 
-    // Begin since line 4
+    // Begin from line 4
     assertThat(htmlOutput).containsExactly(
       "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
       "<span class=\"cppd\"> * &lt;ul&gt;</span>",
@@ -392,7 +392,7 @@ public class HtmlTextDecoratorTest {
     List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData, 4, 8);
     assertThat(htmlOutput).hasSize(5);
 
-    // Begin at line 4 and finish at line 8
+    // Begin from line 4 and finish at line 8
     assertThat(htmlOutput).containsExactly(
       "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
       "<span class=\"cppd\"> * &lt;ul&gt;</span>",
