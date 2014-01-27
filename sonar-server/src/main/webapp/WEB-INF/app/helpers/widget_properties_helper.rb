@@ -32,6 +32,7 @@ module WidgetPropertiesHelper
     # Boolean type should always have a default value, if no one is provided it's force to false
     defaultValue = property_def.type.name == PropertyType::TYPE_BOOLEAN ? 'false' : property_def.defaultValue if defaultValue.blank?
     defaultValue = '********' if property_def.type.name == PropertyType::TYPE_PASSWORD
+    defaultValue = Metric::name_for(defaultValue) if property_def.type.name == PropertyType::TYPE_METRIC
     defaultValue
   end
 
