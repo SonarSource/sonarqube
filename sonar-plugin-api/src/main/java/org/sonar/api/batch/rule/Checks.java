@@ -1,0 +1,189 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.api.batch.rule;
+
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.FieldUtils2;
+import org.sonar.api.utils.SonarException;
+import org.sonar.check.RuleProperty;
+
+import javax.annotation.CheckForNull;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @since 4.2
+ */
+public class Checks<C> {
+  private final ModuleRules moduleRules;
+  private final String repository;
+  private final Map<RuleKey, C> checkByRule = Maps.newHashMap();
+  private final Map<C, RuleKey> ruleByCheck = Maps.newIdentityHashMap();
+
+  Checks(ModuleRules moduleRules, String repository) {
+    this.moduleRules = moduleRules;
+    this.repository = repository;
+  }
+
+  @CheckForNull
+  public C of(RuleKey ruleKey) {
+    return checkByRule.get(ruleKey);
+  }
+
+  public Collection<C> all() {
+    return checkByRule.values();
+  }
+
+  @CheckForNull
+  public RuleKey ruleKey(C check) {
+    return ruleByCheck.get(check);
+  }
+
+  private void add(RuleKey ruleKey, C obj) {
+    checkByRule.put(ruleKey, obj);
+    ruleByCheck.put(obj, ruleKey);
+  }
+
+  public Checks<C> addAnnotatedChecks(Object... checkClassesOrObjects) {
+    return addAnnotatedChecks(Arrays.asList(checkClassesOrObjects));
+  }
+
+  public Checks<C> addAnnotatedChecks(Collection checkClassesOrObjects) {
+    Map<String, Object> checksByEngineKey = Maps.newHashMap();
+    for (Object checkClassesOrObject : checkClassesOrObjects) {
+      String engineKey = annotatedEngineKey(checkClassesOrObject);
+      if (engineKey != null) {
+        checksByEngineKey.put(engineKey, checkClassesOrObject);
+      }
+    }
+
+    for (ModuleRule moduleRule : moduleRules.findByRepository(repository)) {
+      String engineKey = StringUtils.defaultIfBlank(moduleRule.engineKey(), moduleRule.ruleKey().rule());
+      Object checkClassesOrObject = checksByEngineKey.get(engineKey);
+      Object obj = instantiate(moduleRule, checkClassesOrObject);
+      add(moduleRule.ruleKey(), (C) obj);
+    }
+    return this;
+  }
+
+  private String annotatedEngineKey(Object annotatedClassOrObject) {
+    String key = null;
+    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, org.sonar.check.Rule.class);
+    if (ruleAnnotation != null) {
+      key = ruleAnnotation.key();
+    }
+    Class clazz = annotatedClassOrObject.getClass();
+    if (annotatedClassOrObject instanceof Class) {
+      clazz = (Class) annotatedClassOrObject;
+    }
+    return StringUtils.defaultIfEmpty(key, clazz.getCanonicalName());
+  }
+
+  private Object instantiate(ModuleRule moduleRule, Object checkClassOrInstance) {
+    try {
+      Object check = checkClassOrInstance;
+      if (check instanceof Class) {
+        check = ((Class) checkClassOrInstance).newInstance();
+      }
+      configureFields(moduleRule, check);
+      return check;
+
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, moduleRule.ruleKey()), e);
+    }
+  }
+
+  private void configureFields(ModuleRule moduleRule, Object check) {
+    for (Map.Entry<String, String> param : moduleRule.params().entrySet()) {
+      Field field = getField(check, param.getKey());
+      if (field == null) {
+        throw new IllegalStateException(
+          String.format("The field '%s' does not exist or is not annotated with @RuleProperty in the class %s", param.getKey(), check.getClass().getName())
+        );
+      }
+      if (StringUtils.isNotBlank(param.getValue())) {
+        configureField(check, field, param.getValue());
+      }
+    }
+  }
+
+  @CheckForNull
+  private Field getField(Object check, String key) {
+    List<Field> fields = FieldUtils2.getFields(check.getClass(), true);
+    for (Field field : fields) {
+      RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
+      if (propertyAnnotation != null && (StringUtils.equals(key, field.getName()) || StringUtils.equals(key, propertyAnnotation.key()))) {
+        return field;
+      }
+    }
+    return null;
+  }
+
+  private void configureField(Object check, Field field, String value) {
+    try {
+      field.setAccessible(true);
+
+      if (field.getType().equals(String.class)) {
+        field.set(check, value);
+
+      } else if ("int".equals(field.getType().getSimpleName())) {
+        field.setInt(check, Integer.parseInt(value));
+
+      } else if ("short".equals(field.getType().getSimpleName())) {
+        field.setShort(check, Short.parseShort(value));
+
+      } else if ("long".equals(field.getType().getSimpleName())) {
+        field.setLong(check, Long.parseLong(value));
+
+      } else if ("double".equals(field.getType().getSimpleName())) {
+        field.setDouble(check, Double.parseDouble(value));
+
+      } else if ("boolean".equals(field.getType().getSimpleName())) {
+        field.setBoolean(check, Boolean.parseBoolean(value));
+
+      } else if ("byte".equals(field.getType().getSimpleName())) {
+        field.setByte(check, Byte.parseByte(value));
+
+      } else if (field.getType().equals(Integer.class)) {
+        field.set(check, Integer.parseInt(value));
+
+      } else if (field.getType().equals(Long.class)) {
+        field.set(check, Long.parseLong(value));
+
+      } else if (field.getType().equals(Double.class)) {
+        field.set(check, Double.parseDouble(value));
+
+      } else if (field.getType().equals(Boolean.class)) {
+        field.set(check, Boolean.parseBoolean(value));
+
+      } else {
+        throw new SonarException("The type of the field " + field + " is not supported: " + field.getType());
+      }
+    } catch (IllegalAccessException e) {
+      throw new SonarException("Can not set the value of the field " + field + " in the class: " + check.getClass().getName(), e);
+    }
+  }
+}

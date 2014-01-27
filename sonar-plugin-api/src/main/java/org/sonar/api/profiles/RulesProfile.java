@@ -36,9 +36,11 @@ import java.util.List;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
+ * @deprecated since 4.2. Replaced by {@link org.sonar.api.batch.rule.ModuleRules} for batch extensions.
  */
 @Entity
 @Table(name = "rules_profiles")
+@Deprecated
 public class RulesProfile implements Cloneable {
 
   /**

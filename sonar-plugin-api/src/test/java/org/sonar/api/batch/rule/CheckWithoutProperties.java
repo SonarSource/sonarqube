@@ -19,24 +19,11 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.rule.RuleKey;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
 
-import javax.annotation.CheckForNull;
-import java.util.Map;
+@Rule(priority = Priority.CRITICAL)
+public class CheckWithoutProperties {
 
-/**
- * @since 4.2
- */
-public interface ModuleRule {
-
-  RuleKey ruleKey();
-
-  String severity();
-
-  @CheckForNull
-  String param(String key);
-
-  Map<String, String> params();
-
-  String engineKey();
 }
+

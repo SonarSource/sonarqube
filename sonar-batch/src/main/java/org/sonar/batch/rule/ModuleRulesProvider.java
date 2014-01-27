@@ -59,6 +59,11 @@ public class ModuleRulesProvider extends ProviderAdapter {
         if (rule != null) {
           NewModuleRule newModuleRule = builder.activate(rule.ruleKey());
           newModuleRule.setSeverity(activeDto.getSeverityString());
+          if (rule.getParent() != null) {
+            newModuleRule.setEngineKey(rule.getParent().getConfigKey());
+          } else {
+            newModuleRule.setEngineKey(rule.getConfigKey());
+          }
           for (ActiveRuleParamDto paramDto : paramDtosByActiveRuleId.get(activeDto.getId())) {
             newModuleRule.setParam(paramDto.getKey(), paramDto.getValue());
           }

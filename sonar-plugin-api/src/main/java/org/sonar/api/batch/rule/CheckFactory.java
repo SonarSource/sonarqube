@@ -19,24 +19,20 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
-import java.util.Map;
+import org.sonar.api.BatchComponent;
 
 /**
  * @since 4.2
  */
-public interface ModuleRule {
+public class CheckFactory implements BatchComponent {
 
-  RuleKey ruleKey();
+  private final ModuleRules moduleRules;
 
-  String severity();
+  public CheckFactory(ModuleRules moduleRules) {
+    this.moduleRules = moduleRules;
+  }
 
-  @CheckForNull
-  String param(String key);
-
-  Map<String, String> params();
-
-  String engineKey();
+  public Checks create(String repository) {
+    return new Checks(moduleRules, repository);
+  }
 }

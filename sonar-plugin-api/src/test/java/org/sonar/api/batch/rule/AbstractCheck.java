@@ -19,24 +19,14 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.rule.RuleKey;
+import org.sonar.check.RuleProperty;
 
-import javax.annotation.CheckForNull;
-import java.util.Map;
+public abstract class AbstractCheck {
 
-/**
- * @since 4.2
- */
-public interface ModuleRule {
+  @RuleProperty
+  private Integer max;
 
-  RuleKey ruleKey();
-
-  String severity();
-
-  @CheckForNull
-  String param(String key);
-
-  Map<String, String> params();
-
-  String engineKey();
+  public Integer getMax() {
+    return max;
+  }
 }

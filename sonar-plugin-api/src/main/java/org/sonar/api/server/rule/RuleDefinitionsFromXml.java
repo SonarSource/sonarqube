@@ -80,7 +80,7 @@ class RuleDefinitionsFromXml {
   }
 
   private void processRule(RuleDefinitions.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, metadata = null, severity = Severity.defaultSeverity(), status = null;
+    String key = null, name = null, description = null, engineKey = null, severity = Severity.defaultSeverity(), status = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<ParamStruct>();
 
@@ -108,7 +108,7 @@ class RuleDefinitionsFromXml {
         key = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
-        metadata = StringUtils.trim(cursor.collectDescendantText(false));
+        engineKey = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
         // deprecated field, replaced by severity
@@ -131,7 +131,7 @@ class RuleDefinitionsFromXml {
       .setHtmlDescription(description)
       .setSeverity(severity)
       .setName(name)
-      .setMetadata(metadata)
+      .setEngineKey(engineKey)
       .setTemplate(cardinality == Cardinality.MULTIPLE);
     if (status != null) {
       rule.setStatus(RuleStatus.valueOf(status));

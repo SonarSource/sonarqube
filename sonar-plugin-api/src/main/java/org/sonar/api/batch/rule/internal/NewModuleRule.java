@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -30,13 +31,19 @@ public class NewModuleRule {
   final RuleKey ruleKey;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
+  String engineKey;
 
   NewModuleRule(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
   }
 
-  public NewModuleRule setSeverity(String severity) {
-    this.severity = severity;
+  public NewModuleRule setSeverity(@Nullable String severity) {
+    this.severity = StringUtils.defaultIfBlank(severity, Severity.defaultSeverity());
+    return this;
+  }
+
+  public NewModuleRule setEngineKey(@Nullable String engineKey) {
+    this.engineKey = engineKey;
     return this;
   }
 

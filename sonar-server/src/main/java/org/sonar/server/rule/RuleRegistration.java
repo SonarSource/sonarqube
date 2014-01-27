@@ -149,7 +149,7 @@ public class RuleRegistration implements Startable {
   private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef) {
     RuleDto ruleDto = new RuleDto()
         .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
-        .setConfigKey(ruleDef.metadata())
+        .setConfigKey(ruleDef.engineKey())
         .setDescription(ruleDef.htmlDescription())
         .setLanguage(ruleDef.repository().language())
         .setName(ruleDef.name())
@@ -195,8 +195,8 @@ public class RuleRegistration implements Startable {
       dto.setDescription(def.htmlDescription());
       changed = true;
     }
-    if (!StringUtils.equals(dto.getConfigKey(), def.metadata())) {
-      dto.setConfigKey(def.metadata());
+    if (!StringUtils.equals(dto.getConfigKey(), def.engineKey())) {
+      dto.setConfigKey(def.engineKey());
       changed = true;
     }
     String severity = RulePriority.valueOf(def.severity()).name();

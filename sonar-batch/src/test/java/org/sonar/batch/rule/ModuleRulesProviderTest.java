@@ -68,6 +68,7 @@ public class ModuleRulesProviderTest extends AbstractDaoTestCase {
     assertThat(moduleRules.findByRepository("unknown")).isEmpty();
     ModuleRule squidRule = moduleRules.find(RuleKey.of("squid", "S0001"));
     assertThat(squidRule.severity()).isEqualTo(Severity.INFO);
+    assertThat(squidRule.engineKey()).isNull();
     assertThat(squidRule.params()).hasSize(2);
     assertThat(squidRule.param("max")).isEqualTo("20");
     assertThat(squidRule.param("format")).isEqualTo("html");

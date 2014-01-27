@@ -67,7 +67,7 @@ public class RuleDefinitionsTest {
       .setHtmlDescription("Detect <code>NPE</code>")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
-      .setMetadata("/something")
+      .setEngineKey("/something")
       .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
       .addTags("two", "three", "four");
@@ -84,7 +84,7 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
     assertThat(npeRule.params()).isEmpty();
-    assertThat(npeRule.metadata()).isEqualTo("/something");
+    assertThat(npeRule.engineKey()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
@@ -106,7 +106,7 @@ public class RuleDefinitionsTest {
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.params()).isEmpty();
-    assertThat(rule.metadata()).isNull();
+    assertThat(rule.engineKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
   }

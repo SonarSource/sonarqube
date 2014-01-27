@@ -36,6 +36,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "active_rules")
+@Deprecated
 public class ActiveRule implements Cloneable {
 
   public static final String INHERITED = "INHERITED";

@@ -75,7 +75,7 @@ public class DeprecatedRuleDefinitionsTest {
     assertThat(rule.name()).isEqualTo("Constant Name");
     assertThat(rule.htmlDescription()).isEqualTo("Checks that constant names conform to the specified format");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(rule.metadata()).isEqualTo("Checker/TreeWalker/ConstantName");
+    assertThat(rule.engineKey()).isEqualTo("Checker/TreeWalker/ConstantName");
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.params()).hasSize(1);

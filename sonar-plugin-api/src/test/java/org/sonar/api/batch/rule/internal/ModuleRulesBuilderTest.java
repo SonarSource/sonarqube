@@ -22,8 +22,6 @@ package org.sonar.api.batch.rule.internal;
 import org.junit.Test;
 import org.sonar.api.batch.rule.ModuleRule;
 import org.sonar.api.batch.rule.ModuleRules;
-import org.sonar.api.batch.rule.Rule;
-import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -43,10 +41,11 @@ public class ModuleRulesBuilderTest {
     ModuleRulesBuilder builder = new ModuleRulesBuilder();
     NewModuleRule newSquid1 = builder.activate(RuleKey.of("squid", "S0001"));
     newSquid1.setSeverity(Severity.CRITICAL);
+    newSquid1.setEngineKey("__S0001__");
     newSquid1.setParam("min", "20");
     // most simple rule
     builder.activate(RuleKey.of("squid", "S0002"));
-    builder.activate(RuleKey.of("findbugs", "NPE"));
+    builder.activate(RuleKey.of("findbugs", "NPE")).setEngineKey(null).setSeverity(null).setParam("foo", null);
 
     ModuleRules moduleRules = builder.build();
 
@@ -59,6 +58,7 @@ public class ModuleRulesBuilderTest {
     assertThat(squid1.ruleKey().repository()).isEqualTo("squid");
     assertThat(squid1.ruleKey().rule()).isEqualTo("S0001");
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(squid1.engineKey()).isEqualTo("__S0001__");
     assertThat(squid1.params()).hasSize(1);
     assertThat(squid1.param("min")).isEqualTo("20");
 
@@ -67,6 +67,11 @@ public class ModuleRulesBuilderTest {
     assertThat(squid2.ruleKey().rule()).isEqualTo("S0002");
     assertThat(squid2.severity()).isEqualTo(Severity.defaultSeverity());
     assertThat(squid2.params()).isEmpty();
+
+    ModuleRule findbugsRule = moduleRules.find(RuleKey.of("findbugs", "NPE"));
+    assertThat(findbugsRule.severity()).isEqualTo(Severity.defaultSeverity());
+    assertThat(findbugsRule.engineKey()).isNull();
+    assertThat(findbugsRule.params()).isEmpty();
   }
 
   @Test

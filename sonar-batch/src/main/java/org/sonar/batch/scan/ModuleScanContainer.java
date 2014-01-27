@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
@@ -124,6 +125,7 @@ public class ModuleScanContainer extends ComponentContainer {
       new ModuleRulesProvider(),
       new RulesProfileProvider(),
       QProfileSensor.class,
+      CheckFactory.class,
 
       // report
       JsonReport.class,

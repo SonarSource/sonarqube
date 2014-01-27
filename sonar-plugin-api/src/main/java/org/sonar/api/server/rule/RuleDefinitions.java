@@ -23,8 +23,8 @@ import com.google.common.collect.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -282,7 +282,7 @@ public interface RuleDefinitions extends ServerExtension {
 
   class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, metadata, severity = Severity.MAJOR;
+    private String name, htmlDescription, engineKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private final Set<String> tags = Sets.newTreeSet();
@@ -355,12 +355,12 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     /**
-     * Optional metadata that can be used by the rule engine. Not displayed
+     * Optional key that can be used by the rule engine. Not displayed
      * in webapp. For example the Java Checkstyle plugin feeds this field
      * with the internal path ("Checker/TreeWalker/AnnotationUseStyle").
      */
-    public NewRule setMetadata(@Nullable String s) {
-      this.metadata = s;
+    public NewRule setEngineKey(@Nullable String s) {
+      this.engineKey = s;
       return this;
     }
 
@@ -382,7 +382,7 @@ public interface RuleDefinitions extends ServerExtension {
   @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, metadata, severity;
+    private final String repoKey, key, name, htmlDescription, engineKey, severity;
     private final boolean template;
     private final Set<String> tags;
     private final Map<String, Param> params;
@@ -394,7 +394,7 @@ public interface RuleDefinitions extends ServerExtension {
       this.key = newRule.key;
       this.name = newRule.name;
       this.htmlDescription = newRule.htmlDescription;
-      this.metadata = newRule.metadata;
+      this.engineKey = newRule.engineKey;
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
@@ -449,11 +449,11 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     /**
-     * @see RuleDefinitions.NewRule#setMetadata(String)
+     * @see RuleDefinitions.NewRule#setEngineKey(String)
      */
     @CheckForNull
-    public String metadata() {
-      return metadata;
+    public String engineKey() {
+      return engineKey;
     }
 
     @Override

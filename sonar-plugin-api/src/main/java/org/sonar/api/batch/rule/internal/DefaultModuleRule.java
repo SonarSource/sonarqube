@@ -29,11 +29,12 @@ import java.util.Map;
 @Immutable
 class DefaultModuleRule implements ModuleRule {
   private final RuleKey ruleKey;
-  private final String severity;
+  private final String severity, engineKey;
   private final Map<String, String> params;
 
   DefaultModuleRule(NewModuleRule newModuleRule) {
     this.severity = newModuleRule.severity;
+    this.engineKey = newModuleRule.engineKey;
     this.ruleKey = newModuleRule.ruleKey;
     this.params = ImmutableMap.copyOf(newModuleRule.params);
   }
@@ -57,5 +58,10 @@ class DefaultModuleRule implements ModuleRule {
   public Map<String, String> params() {
     // immutable
     return params;
+  }
+
+  @Override
+  public String engineKey() {
+    return engineKey;
   }
 }

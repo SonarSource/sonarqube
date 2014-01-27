@@ -58,7 +58,7 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.template()).isTrue();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.metadata()).isEqualTo("Checker/TreeWalker/LocalVariableName");
+    assertThat(rule.engineKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
 
     assertThat(rule.params()).hasSize(2);
     RuleDefinitions.Param ignore = rule.param("ignore");
