@@ -25,6 +25,8 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 /**
+ * Lists all the rules that are activated on the current module. Quality profiles are
+ * merged, so rules can relate to different repositories and languages.
  * @since 4.2
  */
 public interface ModuleRules {
