@@ -489,6 +489,104 @@ jQuery(function() {
 
 
 
+  var IssueDetailAssignFormView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-assign-form-template').html() || ''),
+
+
+    ui: {
+      select: '#issue-assignee-select'
+    },
+
+
+    events: {
+      'click #issue-assign-cancel': 'cancel',
+      'click #issue-assign-submit': 'submit'
+    },
+
+
+    onRender: function() {
+      var currentUser = window.SS.currentUser,
+          assignee = this.options.issue.get('assignee'),
+          additionalChoices = [];
+
+      if (!assignee || currentUser !== assignee) {
+        additionalChoices.push({
+          id: currentUser,
+          text: window.SS.phrases.assignedToMe
+        });
+      }
+
+      if (!!assignee) {
+        additionalChoices.push({
+          id: '',
+          text: window.SS.phrases.unassigned
+        });
+      }
+
+      var select2Options = {
+        allowClear: false,
+        width: '250px',
+        formatNoMatches: function() { return window.SS.phrases.select2.noMatches; },
+        formatSearching: function() { return window.SS.phrases.select2.searching; },
+        formatInputTooShort: function() { return window.SS.phrases.select2.tooShort; }
+      };
+
+      if (additionalChoices.length > 0) {
+        select2Options.minimumInputLength = 0;
+        select2Options.query = function(query) {
+          if (query.term.length == 0) {
+            query.callback({ results: additionalChoices });
+          } else if (query.term.length >= 2) {
+            jQuery.ajax({
+              url: baseUrl + '/api/users/search?f=s2',
+              data: { s: query.term },
+              dataType: 'jsonp'
+            }).done(function(data) {
+                  query.callback(data);
+                });
+          }
+        }
+      } else {
+        select2Options.minimumInputLength = 2;
+        select2Options.ajax = {
+          quietMillis: 300,
+          url: baseUrl + '/api/users/search?f=s2',
+          data: function (term, page) {
+            return {s: term, p: page}
+          },
+          results: function (data) {
+            return { more: data.more, results: data.results }
+          }
+        };
+      }
+
+      this.ui.select.select2(select2Options).select2('open');
+    },
+
+
+    cancel: function() {
+      this.options.detailView.updateAfterAction(false);
+    },
+
+
+    submit: function() {
+      var that = this;
+
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/assign',
+        data: {
+          issue: this.options.issue.get('key'),
+          assignee: this.ui.select.val()
+        }
+      }).done(function() {
+            that.options.detailView.updateAfterAction(true);
+          });
+    }
+  });
+
+
+
   var IssueDetailRuleView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-detail-rule-template').html() || ''),
     className: 'rule-desc',
@@ -514,7 +612,9 @@ jQuery(function() {
       'click .issue-comment-edit': 'editComment',
       'click .issue-comment-delete': 'deleteComment',
       'click .issue-transition': 'transition',
-      'click #issue-set-severity': 'setSeverity'
+      'click #issue-set-severity': 'setSeverity',
+      'click #issue-assign': 'assign',
+      'click #issue-assign-to-me': 'assignToMe'
     },
 
 
@@ -538,6 +638,14 @@ jQuery(function() {
     },
 
 
+    resetIssue: function(options) {
+      var key = this.model.get('key');
+      this.model.clear({ silent: true });
+      this.model.set({ key: key }, { silent: true });
+      return this.model.fetch(options);
+    },
+
+
     fetchRule: function() {
       this.rule.fetch();
     },
@@ -554,7 +662,7 @@ jQuery(function() {
       var that = this;
 
       if (fetch) {
-        jQuery.when(this.model.fetch()).done(function() {
+        jQuery.when(this.resetIssue()).done(function() {
           that.formRegion.reset();
           that.$('.code-issue-actions').show();
           that.$('.code-issue-form').hide();
@@ -620,7 +728,7 @@ jQuery(function() {
           transition: jQuery(e.target).data('transition')
         }
       }).done(function() {
-            that.model.fetch();
+            that.resetIssue();
           });
     },
 
@@ -631,6 +739,30 @@ jQuery(function() {
         detailView: this
       });
       this.showActionView(setSeverityFormView);
+    },
+
+
+    assign: function() {
+      var assignFormView = new IssueDetailAssignFormView({
+        issue: this.model,
+        detailView: this
+      });
+      this.showActionView(assignFormView);
+    },
+
+
+    assignToMe: function() {
+      var that = this;
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/assign',
+        data: {
+          issue: this.model.get('key'),
+          assignee: window.SS.currentUser
+        }
+      }).done(function() {
+            that.resetIssue();
+          });
     }
 
   });

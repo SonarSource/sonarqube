@@ -21,6 +21,7 @@
 <%= render :partial => '/issues/templates/issue_detail_comment_form.hbs' -%>
 <%= render :partial => '/issues/templates/issue_detail_rule.hbs' -%>
 <%= render :partial => '/issues/templates/issue_detail_set_severity_form.hbs' -%>
+<%= render :partial => '/issues/templates/issue_detail_assign_form.hbs' -%>
 
 <script>
   _.templateSettings = {
@@ -30,6 +31,7 @@
   };
 
   _.extend(window.SS, {
+    currentUser: '<%= current_user.login if current_user -%>',
     severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
     statuses: <%= @options_for_statuses.to_json.html_safe -%>,
     resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,
@@ -91,8 +93,15 @@
 
       moreCriteria:    '<%= escape_javascript message('issue_filter.more_criteria') -%>',
       unassigned:      '<%= escape_javascript message('unassigned') -%>',
+      assignedToMe:    '<%= escape_javascript message('assigned_to_me') -%>',
       filtersList:     '<%= escape_javascript message('issue_filter.filter_list') -%>',
       commentConfirmDelete:     '<%= escape_javascript message('issue.comment.delete_confirm_message') -%>',
+
+      select2: {
+        noMatches: '<%= escape_javascript message('select2.noMatches') -%>',
+        searching: '<%= escape_javascript message('select2.searching') -%>',
+        tooShort: '<%= escape_javascript message('select2.tooShort', :params => [2]) -%>'
+      }
     }
   });
 
