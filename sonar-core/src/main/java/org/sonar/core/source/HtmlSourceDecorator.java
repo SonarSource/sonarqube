@@ -48,13 +48,13 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   @CheckForNull
-  public List<String> getDecoratedSourceAsHtml(String componentKey) {
+  public List<String> getDecoratedSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
     SqlSession session = mybatis.openSession();
     try {
       Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
       if (!snapshotDataEntries.isEmpty()) {
         String snapshotSource = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
-        return decorate(snapshotSource, snapshotDataEntries);
+        return decorate(snapshotSource, snapshotDataEntries, from, to);
       }
       return null;
     } finally {
@@ -68,14 +68,14 @@ public class HtmlSourceDecorator implements ServerComponent {
     if (!snapshotDataEntries.isEmpty()) {
       String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
       if (snapshotSource != null) {
-        return decorate(snapshotSource, snapshotDataEntries);
+        return decorate(snapshotSource, snapshotDataEntries, null, null);
       }
     }
     return null;
   }
 
   @CheckForNull
-  private List<String> decorate(@Nullable String snapshotSource, Collection<SnapshotDataDto> snapshotDataEntries) {
+  private List<String> decorate(@Nullable String snapshotSource, Collection<SnapshotDataDto> snapshotDataEntries, @Nullable Integer from, @Nullable Integer to) {
     if (snapshotSource != null) {
       DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
       for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
@@ -83,7 +83,7 @@ public class HtmlSourceDecorator implements ServerComponent {
       }
 
       HtmlTextDecorator textDecorator = new HtmlTextDecorator();
-      return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
+      return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder, from, to);
     }
     return null;
   }

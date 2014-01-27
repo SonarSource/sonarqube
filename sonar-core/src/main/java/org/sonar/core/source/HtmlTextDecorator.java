@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -46,12 +48,16 @@ class HtmlTextDecorator {
   static final String ENCODED_AMPERSAND = "&amp;";
 
   List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder) {
+    return decorateTextWithHtml(text, decorationDataHolder, null, null);
+  }
+
+  List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder, @Nullable Integer from, @Nullable Integer to) {
 
     StringBuilder currentHtmlLine = new StringBuilder();
     List<String> decoratedHtmlLines = Lists.newArrayList();
+    int currentLine = 1;
 
     BufferedReader stringBuffer = null;
-
     try {
       stringBuffer = new BufferedReader(new StringReader(text));
 
@@ -60,7 +66,8 @@ class HtmlTextDecorator {
       while (charsReader.readNextChar()) {
 
         if (shouldStartNewLine(charsReader)) {
-          decoratedHtmlLines.add(currentHtmlLine.toString());
+          addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
+          currentLine++;
           currentHtmlLine = new StringBuilder();
           if (shouldReopenPendingTags(charsReader)) {
             reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
@@ -86,10 +93,13 @@ class HtmlTextDecorator {
       closeCurrentSyntaxTags(charsReader, currentHtmlLine);
 
       if (shouldStartNewLine(charsReader)) {
-        decoratedHtmlLines.add(currentHtmlLine.toString());
-        decoratedHtmlLines.add("");
+        addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
+        currentLine++;
+        addLine(decoratedHtmlLines, "", currentLine, from, to);
+        currentLine++;
       } else if (currentHtmlLine.length() > 0) {
-        decoratedHtmlLines.add(currentHtmlLine.toString());
+        addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
+        currentLine++;
       }
 
     } catch (IOException exception) {
@@ -103,6 +113,13 @@ class HtmlTextDecorator {
     return decoratedHtmlLines;
   }
 
+  private void addLine(List<String> decoratedHtmlLines, String line, int currentLine, @Nullable Integer from, @Nullable Integer to) {
+    if ((from == null || currentLine >= from)
+      && (to == null || to >= currentLine)) {
+      decoratedHtmlLines.add(line);
+    }
+  }
+
   private char[] normalize(char currentChar) {
     char[] normalizedChars;
     if (currentChar == HTML_OPENING) {
@@ -112,7 +129,7 @@ class HtmlTextDecorator {
     } else if (currentChar == AMPERSAND) {
       normalizedChars = ENCODED_AMPERSAND.toCharArray();
     } else {
-      normalizedChars = new char[] {currentChar};
+      normalizedChars = new char[]{currentChar};
     }
     return normalizedChars;
   }
@@ -158,7 +175,7 @@ class HtmlTextDecorator {
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
-      StringBuilder decoratedText) {
+                                  StringBuilder decoratedText) {
     for (int i = 0; i < numberOfTagsToClose; i++) {
       injectClosingHtml(decoratedText);
       charactersReader.removeLastOpenTag();
@@ -166,7 +183,7 @@ class HtmlTextDecorator {
   }
 
   private void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
-      StringBuilder decoratedText) {
+                           StringBuilder decoratedText) {
     for (String tagToOpen : tagsToOpen) {
       injectOpeningHtmlForRule(tagToOpen, decoratedText);
       charactersReader.registerOpenTag(tagToOpen);

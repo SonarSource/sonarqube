@@ -64,7 +64,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void highlight_syntax_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher");
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", null, null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -74,6 +74,13 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
       "<span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {",
       "}"
     );
+  }
+
+  @Test
+  public void highlight_syntax_with_html_from_component_on_given_lines() throws Exception {
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", null, 2)).hasSize(2);
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", 2, null)).hasSize(5);
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:Dispatcher", 1, 2)).hasSize(2);
   }
 
   @Test
@@ -92,7 +99,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void mark_symbols_with_html_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager");
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:VelocityManager", null, null);
 
     assertThat(decoratedSource).containsExactly(
       "/*",
@@ -125,7 +132,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void decorate_source_with_multiple_decoration_strategies_from_component() throws Exception {
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor");
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
 
     assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
@@ -162,7 +169,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
     HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(mock(MyBatis.class), snapshotSourceDao, snapshotDataDao);
 
-    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor");
+    sourceDecorator.getDecoratedSourceAsHtml("org.apache.struts:struts:DebuggingInterceptor", null, null);
 
     verify(snapshotDataDao, times(1)).selectSnapshotDataByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"), eq(Lists.newArrayList("highlight_syntax", "symbol")),
       any(SqlSession.class));

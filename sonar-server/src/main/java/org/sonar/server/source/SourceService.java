@@ -25,7 +25,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -39,9 +42,16 @@ public class SourceService implements ServerComponent {
     this.resourceDao = resourceDao;
   }
 
-  public List<String> sourcesFromComponent(String componentKey){
+  public List<String> sourcesFromComponent(String componentKey) {
+    return sourcesFromComponent(componentKey, null, null);
+  }
+
+  public List<String> sourcesFromComponent(String componentKey, @Nullable Integer from, @Nullable Integer to) {
     ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
+    if (project == null) {
+      throw new NotFoundException("This component does not exists.");
+    }
     UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
-    return sourceDecorator.getDecoratedSourceAsHtml(componentKey);
+    return sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
   }
 }

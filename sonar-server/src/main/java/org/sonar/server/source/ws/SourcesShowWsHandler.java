@@ -40,15 +40,20 @@ public class SourcesShowWsHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String componentKey = request.requiredParam("key");
-    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey);
+    Integer from = request.intParam("from");
+    Integer to = request.intParam("to");
+
+    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey, from , to);
     if (sourceHtml == null) {
-      throw new NotFoundException("Source code not found for : " + componentKey);
+      throw new NotFoundException("Component : " + componentKey + " has no source.");
     }
+
+    from = from != null ? from : 1;
     JsonWriter json = response.newJsonWriter();
     json.beginObject().name("source").beginObject();
     for (int i = 0; i < sourceHtml.size(); i++) {
       String line = sourceHtml.get(i);
-      json.prop(Integer.toString(i + 1), line);
+      json.prop(Integer.toString(i + from), line);
     }
     json.endObject().endObject().close();
   }

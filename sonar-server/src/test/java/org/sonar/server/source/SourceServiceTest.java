@@ -29,10 +29,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceServiceTest {
@@ -59,6 +61,35 @@ public class SourceServiceTest {
 
     service.sourcesFromComponent(componentKey);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, null, null);
+  }
+
+  @Test
+  public void fail_to_get_sources_from_component_if_component_not_found() throws Exception {
+    String projectKey = "org.sonar.sample";
+    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(null);
+
+    try {
+      service.sourcesFromComponent(componentKey);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+
+    verifyZeroInteractions(sourceDecorator);
+  }
+
+  @Test
+  public void sources_from_component_with_only_given_lines() throws Exception {
+    String projectKey = "org.sonar.sample";
+    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+
+    service.sourcesFromComponent(componentKey, 1, 2);
+
+    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, 1, 2);
   }
 }
