@@ -163,7 +163,14 @@ jQuery(function() {
         type: window.SS.ContextFilterView,
         enabled: true,
         optional: false
-      })
+      }),
+
+      new window.SS.Filter({
+        property: 'createdAt',
+        type: window.SS.ContextFilterView,
+        enabled: true,
+        optional: false
+      }),
     ]);
 
 
