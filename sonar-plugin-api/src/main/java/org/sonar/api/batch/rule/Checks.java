@@ -28,6 +28,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.check.RuleProperty;
 
 import javax.annotation.CheckForNull;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,8 +122,7 @@ public class Checks<C> {
       Field field = getField(check, param.getKey());
       if (field == null) {
         throw new IllegalStateException(
-          String.format("The field '%s' does not exist or is not annotated with @RuleProperty in the class %s", param.getKey(), check.getClass().getName())
-        );
+          String.format("The field '%s' does not exist or is not annotated with @RuleProperty in the class %s", param.getKey(), check.getClass().getName()));
       }
       if (StringUtils.isNotBlank(param.getValue())) {
         configureField(check, field, param.getValue());

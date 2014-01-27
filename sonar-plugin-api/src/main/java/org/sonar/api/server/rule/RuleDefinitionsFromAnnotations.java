@@ -31,6 +31,8 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.check.Cardinality;
 
+import javax.annotation.CheckForNull;
+
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -52,16 +54,18 @@ class RuleDefinitionsFromAnnotations {
     }
   }
 
-  private void loadRule(RuleDefinitions.NewRepository repo, Class clazz) {
+  @CheckForNull
+  RuleDefinitions.NewRule loadRule(RuleDefinitions.NewRepository repo, Class clazz) {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(clazz, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
-      loadRule(repo, clazz, ruleAnnotation);
+      return loadRule(repo, clazz, ruleAnnotation);
     } else {
       LOG.warn("The class " + clazz.getCanonicalName() + " should be annotated with " + org.sonar.check.Rule.class);
+      return null;
     }
   }
 
-  private void loadRule(RuleDefinitions.NewRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+  private RuleDefinitions.NewRule loadRule(RuleDefinitions.NewRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);
@@ -76,6 +80,8 @@ class RuleDefinitionsFromAnnotations {
     for (Field field : fields) {
       loadParameters(rule, field);
     }
+
+    return rule;
   }
 
   private void loadParameters(RuleDefinitions.NewRule rule, Field field) {

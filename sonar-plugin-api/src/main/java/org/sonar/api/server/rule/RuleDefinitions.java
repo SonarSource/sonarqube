@@ -19,7 +19,13 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
@@ -29,6 +35,7 @@ import org.sonar.api.rule.Severity;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +99,11 @@ public interface RuleDefinitions extends ServerExtension {
     NewRule newRule(String ruleKey);
 
     /**
+     * Reads definition of rule from the annotations provided by the library sonar-check-api.
+     */
+    NewRule loadAnnotatedClass(Class clazz);
+
+    /**
      * Reads definitions of rules from the annotations provided by the library sonar-check-api.
      */
     NewExtendedRepository loadAnnotatedClasses(Class... classes);
@@ -140,6 +152,9 @@ public interface RuleDefinitions extends ServerExtension {
 
   interface NewRepository extends NewExtendedRepository {
     NewRepository setName(String s);
+
+    @CheckForNull
+    NewRule rule(String ruleKey);
   }
 
   class NewRepositoryImpl implements NewRepository {
@@ -178,10 +193,21 @@ public interface RuleDefinitions extends ServerExtension {
       return newRule;
     }
 
+    @CheckForNull
+    @Override
+    public NewRule rule(String ruleKey) {
+      return newRules.get(ruleKey);
+    }
+
     @Override
     public NewRepositoryImpl loadAnnotatedClasses(Class... classes) {
       new RuleDefinitionsFromAnnotations().loadRules(this, classes);
       return this;
+    }
+
+    @Override
+    public RuleDefinitions.NewRule loadAnnotatedClass(Class clazz) {
+      return new RuleDefinitionsFromAnnotations().loadRule(this, clazz);
     }
 
     @Override
@@ -279,7 +305,6 @@ public interface RuleDefinitions extends ServerExtension {
     }
   }
 
-
   class NewRule {
     private final String repoKey, key;
     private String name, htmlDescription, engineKey, severity = Severity.MAJOR;
@@ -291,6 +316,10 @@ public interface RuleDefinitions extends ServerExtension {
     private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
       this.key = key;
+    }
+
+    public String key() {
+      return this.key;
     }
 
     public NewRule setName(String s) {
@@ -332,6 +361,11 @@ public interface RuleDefinitions extends ServerExtension {
       NewParam param = new NewParam(paramKey);
       paramsByKey.put(paramKey, param);
       return param;
+    }
+
+    @CheckForNull
+    public NewParam param(String paramKey) {
+      return paramsByKey.get(paramKey);
     }
 
     /**
@@ -480,7 +514,6 @@ public interface RuleDefinitions extends ServerExtension {
       return String.format("[repository=%s, key=%s]", repoKey, key);
     }
   }
-
 
   class NewParam {
     private final String key;
