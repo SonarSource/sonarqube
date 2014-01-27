@@ -110,6 +110,7 @@ public final class RegisterRules {
     for (Rule rule : repository.createRules()) {
       updateRuleFromRepositoryInfo(rule, repository);
       validateRule(rule, repository.getKey());
+      updateRuleParamsDescription(rule);
       ruleByKey.put(rule.getKey(), rule);
       registeredRules.add(rule);
     }
@@ -157,6 +158,16 @@ public final class RegisterRules {
   private void validateRule(Rule rule, String repositoryKey) {
     validateRuleRepositoryName(rule, repositoryKey);
     validateRuleDescription(rule, repositoryKey);
+  }
+
+  private void updateRuleParamsDescription(Rule rule) {
+    for (RuleParam param : rule.getParams()) {
+      String desc = StringUtils.defaultIfEmpty(
+        ruleI18nManager.getParamDescription(rule.getRepositoryKey(), rule.getKey(), param.getKey()),
+        param.getDescription()
+      );
+      param.setDescription(desc);
+    }
   }
 
   private void validateRuleRepositoryName(Rule rule, String repositoryKey) {
