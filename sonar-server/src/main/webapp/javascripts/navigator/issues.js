@@ -421,6 +421,51 @@ jQuery(function() {
 
 
 
+  var IssueDetailSetSeverityFormView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-set-severity-form-template').html() || ''),
+
+
+    ui: {
+      select: '#issue-set-severity-select'
+    },
+
+
+    events: {
+      'click #issue-set-severity-cancel': 'cancel',
+      'click #issue-set-severity-submit': 'submit'
+    },
+
+
+    onRender: function() {
+      this.ui.select.select2({
+        minimumResultsForSearch: 100
+      });
+    },
+
+
+    cancel: function() {
+      this.options.detailView.updateAfterAction(false);
+    },
+
+
+    submit: function() {
+      var that = this;
+
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/set_severity',
+        data: {
+          issue: this.options.issue.get('key'),
+          severity: this.ui.select.val()
+        }
+      }).done(function() {
+            that.options.detailView.updateAfterAction(true);
+          });
+    }
+  });
+
+
+
   var IssueDetailRuleView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-detail-rule-template').html() || ''),
     className: 'rule-desc',
@@ -445,7 +490,8 @@ jQuery(function() {
       'click #issue-comment': 'comment',
       'click .issue-comment-edit': 'editComment',
       'click .issue-comment-delete': 'deleteComment',
-      'click .issue-transition': 'transition'
+      'click .issue-transition': 'transition',
+      'click #issue-set-severity': 'setSeverity'
     },
 
 
@@ -551,6 +597,15 @@ jQuery(function() {
       }).done(function() {
             that.model.fetch();
           });
+    },
+
+
+    setSeverity: function() {
+      var setSeverityFormView = new IssueDetailSetSeverityFormView({
+        issue: this.model,
+        detailView: this
+      });
+      this.showActionView(setSeverityFormView);
     }
 
   });

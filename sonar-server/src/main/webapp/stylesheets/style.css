@@ -828,6 +828,10 @@ th.operations, td.operations {
   padding: 5px 10px;
 }
 
+.code-issue-form input[type=submit] {
+  vertical-align: middle;
+}
+
 .code-issue-comment h4 {
   font-size: 11px;
   margin-bottom: 2px;

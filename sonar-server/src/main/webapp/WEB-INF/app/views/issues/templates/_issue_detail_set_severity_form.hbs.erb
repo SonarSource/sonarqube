@@ -1,0 +1,16 @@
+<script id="issue-detail-set-severity-form-template" type="text/x-handlebars-template">
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <select id="issue-set-severity-select" autofocus>
+          <% Severity::KEYS.each do |severity| %>
+          <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+          <% end %>
+        </select>
+
+        <input id="issue-set-severity-submit" type="submit" value="<%= message('issue.set_severity.submit') -%>">
+        <a id="issue-set-severity-cancel" class="link-action"><%= message('cancel') -%></a>
+      </td>
+    </tr>
+  </table>
+</script>
