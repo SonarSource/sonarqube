@@ -19,31 +19,34 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.elasticsearch.common.io.BytesStream;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.sonar.server.rule.RuleDocument;
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import org.sonar.server.es.SearchQuery;
-import org.sonar.server.es.ESIndex;
-import org.sonar.server.rule.RuleRegistry;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.Profiling.Level;
+import org.sonar.core.profiling.StopWatch;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.SearchQuery;
+import org.sonar.server.rule.RuleDocument;
+import org.sonar.server.rule.RuleRegistry;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 
 public class ESActiveRule {
 
@@ -51,11 +54,13 @@ public class ESActiveRule {
   private final ESIndex esIndex;
   private final ActiveRuleDao activeRuleDao;
   private final MyBatis myBatis;
+  private final Profiling profiling;
 
-  public ESActiveRule(ESIndex esIndex, ActiveRuleDao activeRuleDao, MyBatis myBatis) {
+  public ESActiveRule(ESIndex esIndex, ActiveRuleDao activeRuleDao, MyBatis myBatis, Profiling profiling) {
     this.esIndex = esIndex;
     this.activeRuleDao = activeRuleDao;
     this.myBatis = myBatis;
+    this.profiling = profiling;
   }
 
   public void start() {
@@ -65,12 +70,11 @@ public class ESActiveRule {
   public void bulkRegisterActiveRules() {
     SqlSession session = myBatis.openSession();
     try {
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Rebuilding active rules index - query");
 
+      StopWatch bulkWatch = startWatch();
       List<ActiveRuleDto> activeRules = activeRuleDao.selectAll(session);
       List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectAllParams(session);
-      profiler.stop();
+      bulkWatch.stop(String.format("Loaded %d active rules from DB", activeRules.size()));
 
       Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule = ArrayListMultimap.create();
       for (ActiveRuleParamDto param : activeRuleParams) {
@@ -109,6 +113,7 @@ public class ESActiveRule {
   }
 
   public String[] bulkIndexActiveRules(List<ActiveRuleDto> activeRules, Multimap<Integer, ActiveRuleParamDto> paramsByActiveRule) {
+    StopWatch bulkWatch = startWatch();
     try {
       int size = activeRules.size();
       String[] ids = new String[size];
@@ -116,24 +121,22 @@ public class ESActiveRule {
       String[] parentIds = new String[size];
       int index = 0;
 
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Build active rules documents");
       for (ActiveRuleDto activeRule : activeRules) {
         ids[index] = activeRule.getId().toString();
         docs[index] = activeRuleDocument(activeRule, paramsByActiveRule.get(activeRule.getId()));
         parentIds[index] = activeRule.getRulId().toString();
         index++;
       }
-      profiler.stop();
 
       if (!activeRules.isEmpty()) {
-        profiler.start("Index active rules");
         esIndex.bulkIndex(RuleRegistry.INDEX_RULES, ESActiveRule.TYPE_ACTIVE_RULE, ids, docs, parentIds);
-        profiler.stop();
       }
+      bulkWatch.stop(String.format("Indexed %d active rules", size));
       return ids;
     } catch (IOException e) {
+      bulkWatch.stop("Failed to indes active rules");
       throw new IllegalStateException("Unable to index active rules", e);
+    } finally {
     }
   }
 
@@ -153,7 +156,7 @@ public class ESActiveRule {
     bulkDeleteActiveRules(indexIds);
   }
 
-  protected void bulkDeleteActiveRules(List<String> indexIds) {
+  private void bulkDeleteActiveRules(List<String> indexIds) {
     if (!indexIds.isEmpty()) {
       esIndex.bulkDelete(RuleRegistry.INDEX_RULES, ESActiveRule.TYPE_ACTIVE_RULE, indexIds.toArray(new String[0]));
     }
@@ -212,4 +215,7 @@ public class ESActiveRule {
     return document;
   }
 
+  private StopWatch startWatch() {
+    return profiling.start("qprofile", Level.BASIC);
+  }
 }

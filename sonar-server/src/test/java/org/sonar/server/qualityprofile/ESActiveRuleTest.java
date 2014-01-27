@@ -93,7 +93,7 @@ public class ESActiveRuleTest {
 
     RuleRegistry esRule = new RuleRegistry(searchIndex, null);
     esRule.start();
-    esActiveRule = new ESActiveRule(searchIndex, activeRuleDao, myBatis);
+    esActiveRule = new ESActiveRule(searchIndex, activeRuleDao, myBatis, profiling);
     esActiveRule.start();
 
     esSetup.execute(

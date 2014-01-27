@@ -62,7 +62,7 @@ public class QProfileRuleLookupTest {
     index.start();
     RuleRegistry registry = new RuleRegistry(index, null);
     registry.start();
-    ESActiveRule esActiveRule = new ESActiveRule(index, null, null);
+    ESActiveRule esActiveRule = new ESActiveRule(index, null, null, null);
     esActiveRule.start();
     profileRules = new QProfileRuleLookup(index);
 
