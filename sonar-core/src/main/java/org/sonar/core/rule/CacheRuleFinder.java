@@ -24,7 +24,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.Map;
