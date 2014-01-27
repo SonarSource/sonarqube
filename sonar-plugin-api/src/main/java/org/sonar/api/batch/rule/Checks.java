@@ -28,7 +28,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.check.RuleProperty;
 
 import javax.annotation.CheckForNull;
-
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,6 +76,7 @@ import java.util.Map;
  * </pre>
  * <p/>
  * It replaces org.sonar.api.checks.AnnotationCheckFactory
+ *
  * @since 4.2
  */
 public class Checks<C> {
@@ -152,10 +152,15 @@ public class Checks<C> {
       }
       configureFields(moduleRule, check);
       return check;
-
-    } catch (ReflectiveOperationException e) {
-      throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, moduleRule.ruleKey()), e);
+    } catch (InstantiationException e) {
+      throw failToInstantiateCheck(moduleRule, checkClassOrInstance, e);
+    } catch (IllegalAccessException e) {
+      throw failToInstantiateCheck(moduleRule, checkClassOrInstance, e);
     }
+  }
+
+  private RuntimeException failToInstantiateCheck(ModuleRule moduleRule, Object checkClassOrInstance, Exception e) {
+    throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, moduleRule.ruleKey()), e);
   }
 
   private void configureFields(ModuleRule moduleRule, Object check) {
