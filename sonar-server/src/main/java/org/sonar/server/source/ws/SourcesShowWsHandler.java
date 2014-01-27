@@ -25,6 +25,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
@@ -76,13 +77,19 @@ public class SourcesShowWsHandler implements RequestHandler {
     if (authorData != null) {
       json.name("scm").beginObject();
       List<String> authors = splitLine(authorData);
+      List<String> dates = splitLine(scmDateData);
       for (int i = 0; i < authors.size(); i++) {
         String[] authorWithLine = splitColumn(authors.get(i));
         Integer line = Integer.parseInt(authorWithLine[0]);
         String author = authorWithLine[1];
+
+        String[] dateWithLine = splitColumn(dates.get(i));
+        String date = dateWithLine[1];
+        String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
         if (line >= from && line <= to) {
           json.name(Integer.toString(line)).beginArray();
           json.value(author);
+          json.value(formattedDate);
           json.endArray();
         }
       }
@@ -91,7 +98,7 @@ public class SourcesShowWsHandler implements RequestHandler {
   }
 
   private List<String> splitLine(String line){
-    return newArrayList(Splitter.on(";").split(line));
+    return newArrayList(Splitter.on(";").omitEmptyStrings().split(line));
   }
 
   private String[] splitColumn(String column){

@@ -5,9 +5,9 @@
     "5": "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
   },
   "scm": {
-    "3": ["julien"],
-    "4": ["simon"],
-    "5": ["simon"]
+    "3": ["julien", "2013-03-13"],
+    "4": ["simon", "2013-03-14"],
+    "5": ["simon", "2013-03-14"]
   }
 }
 
