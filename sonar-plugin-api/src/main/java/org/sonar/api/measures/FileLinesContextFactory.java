@@ -22,6 +22,7 @@ package org.sonar.api.measures;
 import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.InputFile;
 
 /**
  * <p>This interface is not intended to be implemented by clients.</p>
@@ -32,5 +33,7 @@ import org.sonar.api.resources.Resource;
 public interface FileLinesContextFactory extends BatchComponent {
 
   FileLinesContext createFor(Resource resource);
+
+  FileLinesContext createFor(InputFile inputFile);
 
 }

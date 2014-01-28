@@ -118,8 +118,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
       if (shouldSave(lines)) {
         String data = KeyValueFormat.format(lines);
         Measure measure = new Measure(metricKey)
-            .setPersistenceMode(PersistenceMode.DATABASE)
-            .setData(data);
+          .setPersistenceMode(PersistenceMode.DATABASE)
+          .setData(data);
         index.addMeasure(resource, measure);
         entry.setValue(ImmutableMap.copyOf(lines));
       }
@@ -149,8 +149,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("map", map)
-        .toString();
+      .add("map", map)
+      .toString();
   }
 
 }

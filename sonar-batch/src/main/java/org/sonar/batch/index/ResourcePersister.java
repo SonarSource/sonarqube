@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.InputFile;
 
 public interface ResourcePersister {
 
@@ -46,7 +45,7 @@ public interface ResourcePersister {
   Snapshot getSnapshotOrFail(InputFile resource);
 
   /**
-   * The current snapshot which is flagged as "last", different then the current analysis.
+   * The current snapshot which is flagged as "last", different than the current analysis.
    * @param onlyOlder true if the result must be anterior to the snapshot parameter
    */
   Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder);

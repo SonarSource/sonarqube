@@ -28,24 +28,24 @@ import org.sonar.api.resources.Project;
  * generally used to add measure at the lowest level of the resource tree. A sensor can access and save measures on the whole tree of
  * resources.
  * </p>
- * 
+ *
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on resources.
  * </p>
- * 
+ *
  * <p>
  * A particular attention should be given to resource exclusion. Sonar already manages exclusions at file level : if you try to save a
  * measure on a resource that is excluded in the settings, then Sonar will not save the measure. When handling a plugin or an external tool,
  * you should make sure that exclusions are passed if you are going to get back consolidated data.
  * </p>
- * 
+ *
  * @since 1.10
  */
 public interface Sensor extends BatchExtension, CheckProject {
 
   /**
    * Sensors that depend upon Squid must declare the following method :
-   * 
+   *
    * <pre>
    * &#064;DependsUpon
    * public String dependsUponSquidAnalysis() {
@@ -57,10 +57,10 @@ public interface Sensor extends BatchExtension, CheckProject {
 
   /**
    * The method that is going to be run when the sensor is called
-   * 
-   * @param project the project the sensor runs on
+   *
+   * @param module the module the sensor runs on
    * @param context the context
    */
-  void analyse(Project project, SensorContext context);
+  void analyse(Project module, SensorContext context);
 
 }
