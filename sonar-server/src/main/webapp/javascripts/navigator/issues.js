@@ -130,6 +130,21 @@ jQuery(function() {
 
 
 
+  var ActionPlans = Backbone.Collection.extend({
+
+    url: function() {
+      return baseUrl + '/api/action_plans/search';
+    },
+
+
+    parse: function(r) {
+      return r.actionPlans;
+    }
+
+  });
+
+
+
   var IssueView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-template').html() || ''),
     tagName: 'li',
@@ -587,6 +602,68 @@ jQuery(function() {
 
 
 
+  var IssueDetailPlanFormView = Backbone.Marionette.ItemView.extend({
+    template: Handlebars.compile(jQuery('#issue-detail-plan-form-template').html() || ''),
+
+
+    collectionEvents: {
+      'reset': 'render'
+    },
+
+
+    ui: {
+      select: '#issue-detail-plan-select'
+    },
+
+
+    events: {
+      'click #issue-plan-cancel': 'cancel',
+      'click #issue-plan-submit': 'submit'
+    },
+
+
+    onRender: function() {
+      this.ui.select.select2({
+        width: '250px',
+        minimumResultsForSearch: 100
+      });
+
+      this.$('.error a')
+          .prop('href', baseUrl + '/action_plans/index/' + this.options.issue.get('project'));
+    },
+
+
+    cancel: function() {
+      this.options.detailView.updateAfterAction(false);
+    },
+
+
+    submit: function() {
+      var that = this;
+
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/plan',
+        data: {
+          issue: this.options.issue.get('key'),
+          plan: this.ui.select.val()
+        }
+      }).done(function() {
+            that.options.detailView.updateAfterAction(true);
+          });
+    },
+
+
+    serializeData: function() {
+      return {
+        items: this.collection.toJSON(),
+        issue: this.options.issue.toJSON()
+      }
+    }
+  });
+
+
+
   var IssueDetailRuleView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-detail-rule-template').html() || ''),
     className: 'rule-desc',
@@ -614,7 +691,8 @@ jQuery(function() {
       'click .issue-transition': 'transition',
       'click #issue-set-severity': 'setSeverity',
       'click #issue-assign': 'assign',
-      'click #issue-assign-to-me': 'assignToMe'
+      'click #issue-assign-to-me': 'assignToMe',
+      'click #issue-plan': 'plan'
     },
 
 
@@ -763,6 +841,25 @@ jQuery(function() {
       }).done(function() {
             that.resetIssue();
           });
+    },
+
+
+    plan: function() {
+      var that = this,
+          actionPlans = new ActionPlans(),
+          planFormView = new IssueDetailPlanFormView({
+            collection: actionPlans,
+            issue: this.model,
+            detailView: this
+          });
+
+      actionPlans.fetch({
+        reset: true,
+        data: { project: this.model.get('project') },
+        success: function() {
+          that.showActionView(planFormView);
+        }
+      });
     }
 
   });

@@ -1,0 +1,20 @@
+<script id="issue-detail-plan-form-template" type="text/x-handlebars-template">
+  {{#if items}}
+    <select id="issue-detail-plan-select">
+      {{#if issue.actionPlan}}
+        <option value=""><%= message('issue.unplan.submit') -%></option>
+      {{/if}}
+      {{#each items}}
+        <option value="{{this.key}}">{{this.name}} {{#if this.deadLine}}({{this.deadLine}}){{/if}}</option>
+      {{/each}}
+    </select>
+    <input id="issue-plan-submit" type="submit" value="<%= message('issue.plan.submit') -%>">
+  {{else}}
+    <% if is_admin? %>
+      <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_admin') -%></span>
+    <% else %>
+      <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_other') -%></span>
+    <% end %>
+  {{/if}}
+    <a id="issue-plan-cancel" class="link-action"><%= message('cancel') -%></a>
+</script>
