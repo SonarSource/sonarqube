@@ -29,6 +29,7 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -141,8 +142,9 @@ public class QProfiles implements ServerComponent {
   /**
    * Used in /project/profile
    */
-  public List<QProfile> profiles(int projectId) {
-    return projectLookup.profiles(projectId);
+  @CheckForNull
+  public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
+    return projectLookup.findProfileByProjectAndLanguage(projectId, language);
   }
 
   public void addProject(int profileId, long projectId) {

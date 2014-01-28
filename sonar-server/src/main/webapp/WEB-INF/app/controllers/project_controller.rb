@@ -84,7 +84,6 @@ class ProjectController < ApplicationController
     @project = Project.by_key(@project_id)
 
     call_backend do
-      @project_quality_profiles = Internal.quality_profiles.profiles(@project_id.to_i).to_a
       @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
     end
   end

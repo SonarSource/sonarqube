@@ -121,12 +121,15 @@
     </where>
   </select>
 
-  <select id="selectByProject" parameterType="map" resultType="QualityProfile">
-    SELECT DISTINCT <include refid="profilesColumns"/>
+  <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
     INNER JOIN properties prop ON prop.resource_id=#{projectId}
       AND prop.prop_key LIKE #{key}
       AND prop.text_value LIKE p.name
+    <where>
+      AND p.language=#{language}
+    </where>
   </select>
 
   <update id="updatedUsedColumn" parameterType="map">

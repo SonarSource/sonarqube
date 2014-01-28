@@ -33,8 +33,6 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -94,10 +92,18 @@ public class QProfileProjectLookupTest {
   @Test
   public void search_profiles_from_project() throws Exception {
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
-    when(qualityProfileDao.selectByProject(1L, "sonar.profile.%")).thenReturn(newArrayList(qualityProfile));
+    when(qualityProfileDao.selectByProjectAndLanguage(1L, "java", "sonar.profile.java")).thenReturn(qualityProfile);
 
-    List<QProfile> result = lookup.profiles(1L);
-    assertThat(result).hasSize(1);
+    QProfile result = lookup.findProfileByProjectAndLanguage(1L, "java");
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  public void return_null_when_no_profile_when_searching_for_profiles_from_project() throws Exception {
+    when(qualityProfileDao.selectByProjectAndLanguage(1L, "java", "sonar.profile.java")).thenReturn(null);
+
+    QProfile result = lookup.findProfileByProjectAndLanguage(1L, "java");
+    assertThat(result).isNull();
   }
 
 }

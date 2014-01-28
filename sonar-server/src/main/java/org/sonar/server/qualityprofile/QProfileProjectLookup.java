@@ -20,8 +20,6 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -31,9 +29,9 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
-import java.util.List;
+import javax.annotation.CheckForNull;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
 public class QProfileProjectLookup implements ServerComponent {
 
@@ -62,14 +60,13 @@ public class QProfileProjectLookup implements ServerComponent {
     return qualityProfileDao.countProjects(profile.name(), QProfileOperations.PROFILE_PROPERTY_PREFIX + profile.language());
   }
 
-  public List<QProfile> profiles(long projectId) {
-    List<QualityProfileDto> dtos = qualityProfileDao.selectByProject(projectId, QProfileOperations.PROFILE_PROPERTY_PREFIX + "%");
-    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
-      @Override
-      public QProfile apply(QualityProfileDto dto) {
-        return QProfile.from(dto);
-      }
-    }));
+  @CheckForNull
+  public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
+    QualityProfileDto dto = qualityProfileDao.selectByProjectAndLanguage(projectId, language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
+    if (dto != null) {
+      return QProfile.from(dto);
+    }
+    return null;
   }
 
 }

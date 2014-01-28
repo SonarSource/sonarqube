@@ -217,10 +217,11 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_project() {
+  public void select_by_project_and_language() {
     setupData("projects");
 
-    assertThat(dao.selectByProject(1L, "sonar.profile.%")).hasSize(2);
+    QualityProfileDto dto = dao.selectByProjectAndLanguage(1L, "java", "sonar.profile.java");
+    assertThat(dto.getId()).isEqualTo(1);
   }
 
   @Test

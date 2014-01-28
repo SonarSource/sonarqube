@@ -11,7 +11,7 @@
   <tbody>
   <%
      Api::Utils.languages.each do |language|
-       selected_profile = @project_quality_profiles.find {|profile| profile.language == language.getKey()}
+       selected_profile = Internal.quality_profiles.findProfileByProjectAndLanguage(@project_id, language.getKey())
   %>
     <tr class="<%= cycle 'even', 'odd' -%>">
       <td class="thin" nowrap><%= h language.getName() -%></td>

@@ -186,9 +186,9 @@ public class QProfilesTest {
   }
 
   @Test
-  public void get_profiles_from_project_id() throws Exception {
-    qProfiles.profiles(1);
-    verify(projectLookup).profiles(1);
+  public void get_profiles_from_project_and_language() throws Exception {
+    qProfiles.findProfileByProjectAndLanguage(1, "java");
+    verify(projectLookup).findProfileByProjectAndLanguage(1, "java");
   }
 
   @Test

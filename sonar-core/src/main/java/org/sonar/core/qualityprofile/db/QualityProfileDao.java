@@ -27,6 +27,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class QualityProfileDao implements ServerComponent {
@@ -101,10 +102,11 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-  public List<QualityProfileDto> selectByProject(long projectId, String propKeyPrefix) {
+
+  public QualityProfileDto selectByProjectAndLanguage(long projectId, String language, String key) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByProject(projectId, propKeyPrefix);
+      return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectId, language, key);
     } finally {
       MyBatis.closeQuietly(session);
     }

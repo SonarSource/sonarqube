@@ -63,7 +63,7 @@ public interface QualityProfileMapper {
 
   int countProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
 
-  List<QualityProfileDto> selectByProject(@Param("projectId") Long projectId, @Param("key") String propertyKeyPrefix);
+  QualityProfileDto selectByProjectAndLanguage(@Param("projectId") Long projectId, @Param("language") String language, @Param("key") String propertyKeyPrefix);
 
   void updatedUsedColumn(@Param("id") int profileId, @Param("used") boolean used);
 }
