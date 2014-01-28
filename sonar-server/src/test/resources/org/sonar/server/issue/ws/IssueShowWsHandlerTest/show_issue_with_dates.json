@@ -18,6 +18,12 @@
     "transitions": [],
     "actions": [],
     "comments": [],
-    "changelog": []
+    "changelog": [
+      {
+        "creationDate": "2014-01-22T19:10:03+0100",
+        "fCreationDate": "Jan 22, 2014 10:03 AM",
+        "diffs": ["Created"]
+      }
+    ]
   }
 }

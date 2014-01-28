@@ -186,7 +186,15 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeChangelog(Issue issue, JsonWriter json) {
-    json.name("changelog").beginArray();
+    json.name("changelog").beginArray()
+      .beginObject()
+      .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
+      .prop("fCreationDate", formatDate(issue.creationDate()))
+      .name("diffs").beginArray()
+      .value(i18n.message(UserSession.get().locale(), "created", null))
+      .endArray()
+      .endObject();
+
     IssueChangelog changelog = issueChangelogService.changelog(issue);
     for (FieldDiffs diffs : changelog.changes()) {
       String userLogin = diffs.userLogin();
@@ -195,7 +203,6 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("userName", userLogin != null ? changelog.user(diffs).name() : null)
         .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()))
         .prop("fCreationDate", formatDate(diffs.creationDate()));
-
       json.name("diffs").beginArray();
       List<String> diffsFormatted = issueChangelogService.formatDiffs(diffs);
       for (String diff : diffsFormatted) {
