@@ -26,6 +26,7 @@ class ActionPlan
     hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
     hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
     hash[:deadLine] = Api::Utils.format_datetime(action_plan.deadLine()) if action_plan.deadLine()
+    hash[:fDeadLine] = Api::Utils.format_localized_date(action_plan.deadLine()) if action_plan.deadLine()
     hash[:totalIssues] = action_plan.totalIssues() if action_plan.respond_to?('totalIssues')
     hash[:unresolvedIssues] = action_plan.unresolvedIssues() if action_plan.respond_to?('unresolvedIssues')
     hash[:createdAt] = Api::Utils.format_datetime(action_plan.createdAt()) if action_plan.createdAt()
