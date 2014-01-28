@@ -169,11 +169,32 @@ jQuery(function() {
             model: this.model
           });
 
-      detailView.model.fetch({
-        success: function() {
+      if (this.model.get('line')) {
+        jQuery.when(detailView.model.fetch(), this.fetchSource(detailView)).done(function() {
           app.detailsRegion.show(detailView);
+        });
+      } else {
+        jQuery.when(detailView.model.fetch()).done(function() {
+          app.detailsRegion.show(detailView);
+        });
+      }
+    },
+
+
+    fetchSource: function(view) {
+      return jQuery.ajax({
+        type: 'GET',
+        url: baseUrl + '/api/sources/show',
+        data: {
+          key: this.model.get('component'),
+          from: this.model.get('line') - 10,
+          to: this.model.get('line') + 10,
+          format: 'json'
         }
-      });
+      }).done(function(r) {
+            view.source = r.source;
+            view.scm = r.scm;
+          });
     }
   });
 
@@ -860,6 +881,14 @@ jQuery(function() {
           that.showActionView(planFormView);
         }
       });
+    },
+
+
+    serializeData: function() {
+      return _.extend({
+        source: this.source,
+        scm: this.scm
+      }, this.model.toJSON());
     }
 
   });

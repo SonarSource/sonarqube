@@ -6,186 +6,25 @@
     </span>
   </div>
 
-  <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
-    <div class="code-issue-name">
-      {{severityIcon severity}}&nbsp;<span class="rulename">{{ruleName}}</span>
-    </div>
-
-    <div class="code-issue-msg">{{{message}}}</div>
-
-    <div class="code-issue-details">
-      <ul class="tabs">
-        <li>
-          <a href="#tab-issue-details"><%= message('issue.details') -%></a>
-        </li>
-        <li>
-          <a href="#tab-issue-rule"><%= message('rule') -%></a>
-        </li>
-        <li>
-          <a href="#tab-issue-changelog"><%= message('changelog') -%></a>
-        </li>
-      </ul>
-
-      <div id="tab-issue-details">
-        <ul class="code-issue-details-list">
-          <li>
-            <div class="code-issue-details-term"><%= message('severity') -%></div>
-            <div class="code-issue-details-value">
-              {{severityIcon severity}}{{capitalize severity}}
-            </div>
-          </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('status') -%></div>
-            <div class="code-issue-details-value">
-              {{statusIcon status}}{{capitalize status}}
-            </div>
-          </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('resolution') -%></div>
-            <div class="code-issue-details-value">
-              {{#if resolution}}
-                {{resolutionIcon resolution}}{{capitalize resolution}}
-              {{else}}
-                <%= message('unresolved') -%>
-              {{/if}}
-            </div>
-          </li>
-          {{#if actionPlanName}}
-            <li>
-              <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
-              <div class="code-issue-details-value">{{actionPlanName}}</div>
-            </li>
-          {{/if}}
-          {{#if debt}}
-            <li>
-              <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
-              <div class="code-issue-details-value">{{debt}}</div>
-            </li>
-          {{/if}}
-          {{# if reporter}}
-            <li>
-              <div class="code-issue-details-term"><%= message('reporter') -%></div>
-              <div class="code-issue-details-value">{{reporter}}</div>
-            </li>
-          {{/if}}
-          {{#if author}}
-            <li>
-              <div class="code-issue-details-term"><%= message('author') -%></div>
-              <div class="code-issue-details-value">{{author}}</div>
-            </li>
-          {{/if}}
-          {{# if assigneeName}}
-            <li>
-              <div class="code-issue-details-term"><%= message('assignee') -%></div>
-              <div class="code-issue-details-value">{{assigneeName}}</div>
-            </li>
-          {{/if}}
-          <li>
-            <div class="code-issue-details-term"><%= message('created') -%></div>
-            <div class="code-issue-details-value">{{fCreationDate}}</div>
-          </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('updated') -%></div>
-            <div class="code-issue-details-value">{{fUpdateDate}}</div>
-          </li>
-        </ul>
-      </div>
-
-      <div id="tab-issue-rule">
-        <div class="rule-desc">
-
-        </div>
-      </div>
-
-      <div id="tab-issue-changelog">
-        <table class="spaced">
-          <tbody>
-          {{#each changelog}}
+  {{#if source}}
+    <div class="bordered">
+      <table id="sources_60" class="sources2 code" cellpadding="0" cellspacing="0">
+        {{#sources source scm}}
+          <tr class="row">
+            <td class="lid L{{lineNumber}}"><a name="L{{lineNumber}}" href="#L{{lineNumber}}">{{lineNumber}}</a></td>
+            <td class="line {{#eq ../line lineNumber}}ko{{/eq}}"><pre>{{{code}}}</pre></td>
+          </tr>
+          {{#eq ../line lineNumber}}
             <tr>
-              <td class="thin left top" nowrap>{{fCreationDate}}</td>
-              <td class="thin left top" nowrap>{{userName}}</td>
-              <td class="left top">
-                {{#each diffs}}
-                  {{this}}<br>
-                {{/each}}
-              </td>
+              <td class="lid"></td>
+              <td class="code-issues">{{> detailInnerTemplate ../..}}</td>
             </tr>
-          {{/each}}
-          </tbody>
-        </table>
-      </div>
+          {{/eq}}
+        {{/sources}}
+      </table>
     </div>
+  {{else}}
+    {{> detailInnerTemplate}}
+  {{/if}}
 
-    <div class="code-issue-comments">
-      {{#each comments}}
-        <div class="code-issue-comment" data-comment-key="{{key}}">
-          <h4>
-            <%= image_tag('reviews/comment.png') -%>
-            <b>{{userName}}</b>
-            ({{fCreatedAge}})
-
-            {{#if updatable}}
-              &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-              <a class="link-action issue-comment-edit"><%= message('edit') -%></a>
-              <a class="link-action spacer-right issue-comment-delete"
-                 data-confirm-msg="<%= h message('issue.comment.delete_confirm_message') -%>"><%= message('delete') -%></a>
-            {{/if}}
-          </h4>
-          {{{html}}}
-        </div>
-      {{/each}}
-    </div>
-
-    {{#ifNotEmpty actions transitions}}
-      <ul class="code-issue-actions">
-        {{#inArray actions "comment"}}
-          <li>
-            <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
-          </li>
-        {{/inArray}}
-
-        {{#inArray actions "assign"}}
-          <li>
-            <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
-            {{#inArray actions "assign_to_me"}}
-              [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
-            {{/inArray}}
-          </li>
-        {{/inArray}}
-
-        {{#inArray actions "plan"}}
-          <li>
-            <a id="issue-plan" class="link-action">{{translate "actions.plan" }}</a>
-          </li>
-        {{/inArray}}
-
-        {{#ifHasExtraActions actions transitions}}
-          <li>
-            <div class="dropdown">
-              <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
-              <ul style="display: none" class="dropdown-menu">
-                {{#inArray actions "set_severity"}}
-                  <li>
-                    <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
-                  </li>
-                {{/inArray}}
-                {{#pluginActions actions}}
-                  <li>
-                    <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
-                  </li>
-                {{/pluginActions}}
-                {{#each transitions}}
-                  <li>
-                    <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
-                  </li>
-                {{/each}}
-              </ul>
-            </div>
-          </li>
-        {{/ifHasExtraActions}}
-      </ul>
-    {{/ifNotEmpty}}
-
-    <div class="code-issue-form"></div>
-  </div>
 </script>

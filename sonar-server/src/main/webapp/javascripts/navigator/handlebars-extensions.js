@@ -24,6 +24,10 @@
     );
   });
 
+  Handlebars.registerHelper('eq', function(v1, v2, options) {
+    return v1 == v2 ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('inArray', function(array, element, options) {
     if (array.indexOf(element) !== -1) {
       return options.fn(this);
@@ -75,6 +79,20 @@
     } else {
       return '';
     }
+  });
+
+  Handlebars.registerHelper('sources', function(source, scm, options) {
+    var sources = _.map(source, function(code, line) {
+      return {
+        lineNumber: line,
+        code: code,
+        scm: scm[line] ? { author: scm[line][0], date: scm[line][1] } : undefined
+      }
+    });
+
+    return sources.reduce(function(prev, current) {
+      return prev + options.fn(current);
+    }, '');
   });
 
 })();
