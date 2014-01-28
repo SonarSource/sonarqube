@@ -235,6 +235,7 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
@@ -260,7 +261,16 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
+  /**
+   * @deprecated since 4.2 - see SONAR-4990
+   */
+  @Deprecated
   public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
+
+  /**
+   * @deprecated since 4.2 - see SONAR-4990
+   */
+  @Deprecated
   public static final Metric COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented-out LOC", Metric.ValueType.INT)
     .setDescription("Commented lines of code")
     .setDirection(Metric.DIRECTION_WORST)
@@ -269,6 +279,7 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------
