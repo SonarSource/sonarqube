@@ -53,6 +53,34 @@ class Api::Utils
     Time.parse(datetime_string)
   end
 
+  # Format date to localized format
+  #
+  # Added in 4.2
+  # java.util.Date is supported
+  #
+  # == Options
+  # * :format - values are :short, :default, :long. See Ruby on Rails localization for more details.
+  # * :time_if_today - true to only display the time when the date is today.
+  #
+  def self.format_localized_date(object, options={})
+    return nil unless object
+
+    dt = object
+    date = object
+    if object.is_a?(Java::JavaUtil::Date)
+      dt = java_to_ruby_datetime(object)
+      date = dt.to_date
+    elsif object.is_a?(DateTime)
+      dt = object
+      date = object.to_date
+    end
+    if options[:time_if_today] && (Date.today - date.to_date == 0)
+      dt.strftime('%H:%M')
+    else
+      ActionController::Base.helpers.localize(date, options)
+    end
+  end
+
   # Convert java.util.Date to ruby Time
   #
   # -- Revisions
@@ -237,9 +265,9 @@ class Api::Utils
   # Mostly used for Selenium test as it send a project key instead of a project id
   def self.project_id(project_id_or_key)
     begin
-      project_id = Integer(project_id_or_key)
+      Integer(project_id_or_key)
     rescue
-      project_id = Project.first(:conditions => {:kee => project_id_or_key.to_s}).id
+      Project.first(:conditions => {:kee => project_id_or_key.to_s}).id
     end
   end
 end

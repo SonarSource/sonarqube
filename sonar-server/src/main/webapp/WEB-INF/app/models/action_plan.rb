@@ -29,7 +29,9 @@ class ActionPlan
     hash[:totalIssues] = action_plan.totalIssues() if action_plan.respond_to?('totalIssues')
     hash[:unresolvedIssues] = action_plan.unresolvedIssues() if action_plan.respond_to?('unresolvedIssues')
     hash[:createdAt] = Api::Utils.format_datetime(action_plan.createdAt()) if action_plan.createdAt()
+    hash[:fCreatedAt] = Api::Utils.format_localized_date(action_plan.createdAt()) if action_plan.createdAt()
     hash[:updatedAt] = Api::Utils.format_datetime(action_plan.updatedAt()) if action_plan.updatedAt()
+    hash[:fUpdatedAt] = Api::Utils.format_localized_date(action_plan.updatedAt()) if action_plan.updatedAt()
     hash
   end
 
