@@ -111,6 +111,9 @@ public final class PhaseExecutor {
 
     executeInitializersPhase();
 
+    // Index and lock the filesystem
+    fs.index();
+
     persistenceManager.setDelayedMode(true);
 
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
@@ -170,9 +173,8 @@ public final class PhaseExecutor {
   private void executeMavenPhase(Project module) {
     if (phases.isEnabled(Phases.Phase.MAVEN)) {
       eventBus.fireEvent(new MavenPhaseEvent(true));
-      mavenPhaseExecutor.execute(module);
-      fs.index();
       mavenPluginsConfigurator.execute(module);
+      mavenPhaseExecutor.execute(module);
       eventBus.fireEvent(new MavenPhaseEvent(false));
     }
   }

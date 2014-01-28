@@ -23,6 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -46,6 +48,8 @@ import java.util.List;
  * @since 3.5
  */
 public class DefaultModuleFileSystem implements ModuleFileSystem {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleFileSystem.class);
 
   private final String moduleKey;
   private final FileIndex index;
@@ -165,7 +169,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FileQuery query) {
     if (!initialized) {
-      throw new SonarException("Module filesystem is not initialized");
+      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
+      index.index(this);
     }
     List<InputFile> result = Lists.newArrayList();
     FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
@@ -200,7 +205,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     if (initialized) {
-      throw new SonarException("Module filesystem is locked");
+      throw new SonarException("Module filesystem is already initialized. Modification of the filesystem are only allowed during Initializer phase.");
     }
     Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
