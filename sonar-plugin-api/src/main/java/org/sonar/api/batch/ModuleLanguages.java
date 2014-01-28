@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Language;
 
 import java.util.Collection;
@@ -29,7 +29,7 @@ import java.util.Collection;
  *
  * @since 4.2
  */
-public interface ModuleLanguages extends BatchExtension {
+public interface ModuleLanguages extends BatchComponent {
 
   Collection<String> keys();
 
