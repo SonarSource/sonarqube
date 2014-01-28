@@ -5,7 +5,7 @@
         <option value=""><%= message('issue.unplan.submit') -%></option>
       {{/if}}
       {{#each items}}
-        <option value="{{this.key}}">{{this.name}} {{#if this.deadLine}}({{this.deadLine}}){{/if}}</option>
+        <option value="{{this.key}}">{{this.name}} {{#if this.fDeadLine}}({{this.fDeadLine}}){{/if}}</option>
       {{/each}}
     </select>
     <input id="issue-plan-submit" type="submit" value="<%= message('issue.plan.submit') -%>">
