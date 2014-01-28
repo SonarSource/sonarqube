@@ -89,27 +89,23 @@ public class IssueShowWsHandlerTest {
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
+  private Date issue_creation_date;
+
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
     issues = new ArrayList<Issue>();
     result = new DefaultIssueQueryResult(issues);
-
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
-    when(component.longName()).thenReturn("SonarQube :: Issue Client");
-    when(component.qualifier()).thenReturn("FIL");
-    result.addComponents(newArrayList(component));
-    Component project = mock(Component.class);
-    when(project.key()).thenReturn("org.sonar.Sonar");
-    when(project.longName()).thenReturn("SonarQube");
-    result.addProjects(newArrayList(project));
-
     result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
     when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
 
     when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
+
+    issue_creation_date = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
+    when(i18n.formatDateTime(any(Locale.class), eq(issue_creation_date))).thenReturn("Jan 22, 2014 10:03 AM");
+
+    when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
     tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter, i18n)));
   }
@@ -128,15 +124,50 @@ public class IssueShowWsHandlerTest {
       .setResolution("FIXED")
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
-      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
+      .setCreationDate(issue_creation_date);
     issues.add(issue);
 
-    when(i18n.formatDateTime(any(Locale.class), eq(issue.creationDate()))).thenReturn("Jan 22, 2014 10:03 AM");
-    when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
+    Component component = mock(Component.class);
+    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
+    when(component.longName()).thenReturn("SonarQube :: Issue Client");
+    when(component.qualifier()).thenReturn("FIL");
+    result.addComponents(newArrayList(component));
+
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("org.sonar.Sonar");
+    when(project.longName()).thenReturn("SonarQube");
+    result.addProjects(newArrayList(project));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue.json");
+  }
+
+  @Test
+  public void show_issue_on_removed_component() throws Exception {
+    String issueKey = "ABCD";
+    Issue issue = createIssue();
+    issues.add(issue);
+
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("org.sonar.Sonar");
+    when(project.longName()).thenReturn("SonarQube");
+    result.addProjects(newArrayList(project));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
+    request.execute().assertJson(getClass(), "show_issue_on_removed_component.json");
+  }
+
+  @Test
+  public void show_issue_on_removed_project_and_component() throws Exception {
+    String issueKey = "ABCD";
+    Issue issue = createIssue();
+    issues.add(issue);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
+    request.execute().assertJson(getClass(), "show_issue_on_removed_project_and_component.json");
   }
 
   @Test
@@ -347,14 +378,30 @@ public class IssueShowWsHandlerTest {
   }
 
   private DefaultIssue createStandardIssue() {
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue =  createIssue();
+    addComponentAndProject();
+    return issue;
+  }
+
+  private DefaultIssue createIssue() {
+    return new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setCreationDate(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"));
-    when(i18n.formatDateTime(any(Locale.class), eq(issue.creationDate()))).thenReturn("Jan 22, 2014 10:03 AM");
-    when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
-    return issue;
+      .setCreationDate(issue_creation_date);
+  }
+
+  private void addComponentAndProject(){
+    Component component = mock(Component.class);
+    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
+    when(component.longName()).thenReturn("SonarQube :: Issue Client");
+    when(component.qualifier()).thenReturn("FIL");
+    result.addComponents(newArrayList(component));
+
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("org.sonar.Sonar");
+    when(project.longName()).thenReturn("SonarQube");
+    result.addProjects(newArrayList(project));
   }
 }

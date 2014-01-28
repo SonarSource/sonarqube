@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
@@ -91,6 +92,8 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    Component component = result.component(issue);
+    Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
     WorkDayDuration technicalDebt = issue.technicalDebt();
     Date updateDate = issue.updateDate();
@@ -99,10 +102,10 @@ public class IssueShowWsHandler implements RequestHandler {
     json
       .prop("key", issue.key())
       .prop("component", issue.componentKey())
-      .prop("componentLongName", result.component(issue).longName())
-      .prop("componentQualifier", result.component(issue).qualifier())
-      .prop("project", result.project(issue).key())
-      .prop("projectLongName", result.project(issue).longName())
+      .prop("componentLongName", component != null ? component.longName() : null)
+      .prop("componentQualifier", component != null ? component.qualifier() : null)
+      .prop("project", issue.projectKey())
+      .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
