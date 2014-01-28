@@ -4,7 +4,7 @@
    color_metric = widget_properties['colorMetric']
    filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
    if filter
-     url_options = {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'treemap'}
+     url_options = {:controller => 'measures', :action => 'filter', :id => filter.id}
      filter.load_criteria_from_data
      filter.set_criteria_value(:display, 'treemap')
      if size_metric
@@ -30,7 +30,7 @@
     </div>
   <% end %>
 
-    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>
+    <%= render :partial => 'measures/display_treemap', :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>
 <%
      end
   else

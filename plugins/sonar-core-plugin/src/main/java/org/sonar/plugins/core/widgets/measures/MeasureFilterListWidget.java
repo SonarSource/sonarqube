@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.measures;
 
-import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
-import org.sonar.api.web.WidgetScope;
+import org.sonar.api.web.*;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 

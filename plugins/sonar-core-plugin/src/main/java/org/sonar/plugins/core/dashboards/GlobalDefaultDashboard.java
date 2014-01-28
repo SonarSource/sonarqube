@@ -26,9 +26,9 @@ import org.sonar.core.measure.db.MeasureFilterDao;
 import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
-import org.sonar.plugins.core.widgets.MeasureFilterListWidget;
-import org.sonar.plugins.core.widgets.MeasureFilterTreemapWidget;
 import org.sonar.plugins.core.widgets.WelcomeWidget;
+import org.sonar.plugins.core.widgets.measures.MeasureFilterListWidget;
+import org.sonar.plugins.core.widgets.measures.MeasureFilterTreemapWidget;
 
 /**
  * Projects global dashboard for Sonar

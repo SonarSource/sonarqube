@@ -3,8 +3,7 @@
 </script>
 <%
    treemap_id = widget_id.nil? ? 1 : widget_id
-   unless edit_mode
-    colspan = 1
+   colspan = 1
 %>
   <table class="spaced">
     <tr>
@@ -31,39 +30,6 @@
       </td>
     </tr>
   </table>
-<% else %>
-  <table class="spaced width100 box">
-    <tr>
-      <td valign="top" class="thin nowrap">
-        <span class="comments"><%= message('size') -%></span>
-        <br/>
-        <%= metric_select_tag 'tmSize', Metric.all.select { |m| m.treemap_size? },
-                              :html_id => 'select-tm-size',
-                              :allow_empty => false,
-                              :selected_key => filter.display.size_metric.key -%>
-      </td>
-      <td valign="top" class="thin nowrap">
-        <span class="comments"><%= message('color') -%></span>
-        <% if filter.display.color_metric %>
-        <span id="tm-gradient-<%= treemap_id -%>" class="note">
-          <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %>
-        </span>
-        <% end %>
-        <br/>
-        <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
-                              :html_id => 'select-tm-color',
-                              :allow_empty => false,
-                              :selected_key => (filter.display.color_metric && filter.display.color_metric.key) -%>
-
-        <button id="update-treemap"><%= message 'refresh' -%></button>
-      </td>
-      <td valign="bottom"><%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%></td>
-      <td class="right" valign="bottom">
-        <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
-      </td>
-    </tr>
-  </table>
-<% end %>
 
 <% unless defined? widget
      content_for :script do %>

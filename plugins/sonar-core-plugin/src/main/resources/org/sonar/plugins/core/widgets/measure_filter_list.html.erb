@@ -8,7 +8,7 @@
        filter.set_criteria_value('display', 'list')
        filter.set_criteria_value('pageSize', page_size)
        filter.execute(self, :user => current_user)
-       @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
+       @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id}
 %>
 
   <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
@@ -17,7 +17,7 @@
     </div>
   <% end %>
 
-    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :filter => filter, :widget_id => widget.id} -%>
+    <%= render :partial => 'measures/display_list', :locals => {:edit_mode => false, :filter => filter, :widget_id => widget.id} -%>
 <%
      end
    else

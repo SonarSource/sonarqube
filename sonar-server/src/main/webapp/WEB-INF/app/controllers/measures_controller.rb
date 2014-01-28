@@ -34,7 +34,10 @@ class MeasuresController < ApplicationController
       @filter = MeasureFilter.new
     end
     @filter.criteria=criteria_params
-    @filter.enable_default_display
+
+    # SONAR-4997
+    # Only list display is now managed
+    @filter.set_criteria_value(:display, 'list')
     @filter.execute(self, :user => current_user)
 
     if request.xhr?
@@ -49,10 +52,12 @@ class MeasuresController < ApplicationController
 
     @filter = find_filter(params[:id])
     @filter.load_criteria_from_data
-    @filter.enable_default_display
-
     # criteria can be overridden
     @filter.override_criteria(criteria_params)
+
+    # SONAR-4997
+    # Only list display is now managed
+    @filter.set_criteria_value(:display, 'list')
 
     @filter.execute(self, :user => current_user)
     @unchanged = true
