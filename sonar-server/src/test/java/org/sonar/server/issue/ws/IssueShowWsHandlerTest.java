@@ -195,6 +195,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.formatDateTime(any(Locale.class), eq(creationDate))).thenReturn("Jan 22, 2014 10:03 AM");
     when(i18n.formatDateTime(any(Locale.class), eq(updateDate))).thenReturn("Jan 23, 2014 10:03 AM");
+    when(i18n.ageFromNow(any(Locale.class), eq(updateDate))).thenReturn("9 days");
     when(i18n.formatDateTime(any(Locale.class), eq(closedDate))).thenReturn("Jan 24, 2014 10:03 AM");
 
     MockUserSession.set();

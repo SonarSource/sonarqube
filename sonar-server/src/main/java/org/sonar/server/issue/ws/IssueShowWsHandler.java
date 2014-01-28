@@ -118,6 +118,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
       .prop("fUpdateDate", formatDate(updateDate))
+      .prop("fUpdateAge", formatAgeDate(updateDate))
       .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
       .prop("fCloseDate", formatDate(issue.closeDate()));
 
@@ -177,7 +178,7 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("raw", comment.markdownText())
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
-        .prop("fCreatedAge", i18n.ageFromNow(UserSession.get().locale(), comment.createdAt()))
+        .prop("fCreatedAge", formatAgeDate(comment.createdAt()))
         .prop("updatable", UserSession.get().isLoggedIn() && UserSession.get().login().equals(comment.userLogin()))
         .endObject();
     }
@@ -218,6 +219,14 @@ public class IssueShowWsHandler implements RequestHandler {
   private String formatDate(@Nullable Date date) {
     if (date != null) {
       return i18n.formatDateTime(UserSession.get().locale(), date);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private String formatAgeDate(@Nullable Date date) {
+    if (date != null) {
+      return i18n.ageFromNow(UserSession.get().locale(), date);
     }
     return null;
   }
