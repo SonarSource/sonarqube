@@ -972,11 +972,7 @@ module ActionController #:nodoc:
             render_for_text(generator.to_s, options[:status])
 
           elsif options[:nothing]
-            #sonar
-            # Java web services fully handle HTTP response (status and body). See java_ws_controller.rb.
-            @performed_render = true
-            #render_for_text(nil, options[:status])
-            #/sonar
+            render_for_text(nil, options[:status])
 
           else
             render_for_file(default_template, options[:status], layout)

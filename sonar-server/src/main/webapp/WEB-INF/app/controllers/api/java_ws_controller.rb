@@ -41,6 +41,6 @@ class Api::JavaWsController < Api::ApiController
     engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction])
 
     # response is already written to HttpServletResponse
-    render :nothing => true
+    render :text => ''
   end
 end
