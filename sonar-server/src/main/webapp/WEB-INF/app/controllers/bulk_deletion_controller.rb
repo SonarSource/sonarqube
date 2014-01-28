@@ -91,7 +91,7 @@ class BulkDeletionController < ApplicationController
       # display the same page again and again
       # => implicit render "pending_deletions.html.erb"
     else
-      redirect_to :action => 'index', :resource_type => params[:resource_type]
+      redirect_to :action => 'index', :qualifiers => params[:qualifiers]
     end
   end
 
@@ -99,7 +99,7 @@ class BulkDeletionController < ApplicationController
     # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
     ResourceDeletionManager.instance.reinit
 
-    redirect_to :action => 'index', :resource_type => params[:resource_type]
+    redirect_to :action => 'index', :qualifiers => params[:qualifiers]
   end
 
 
