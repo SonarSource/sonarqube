@@ -24,7 +24,13 @@
             <th class="operations nosort" nowrap>Operations</th>
           </tr>
         </thead>
-        <tbody >
+        <tbody>
+          <tr id="group-anyone">
+            <td class="left"><%= h 'Anyone'  -%></td>
+            <td class="left" style="word-break:break-all"><%= message('user_groups.anyone.description') -%></td>
+            <td class="left">&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
         <% @groups.each do |group| %>
           <tr id="group-<%= group.name.parameterize -%>">
             <td class="left"><%= h group.name -%></td>
