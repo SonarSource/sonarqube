@@ -152,6 +152,12 @@
           </li>
         {{/inArray}}
 
+        {{#withFirst transitions}}
+          <li>
+            <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
+          </li>
+        {{/withFirst}}
+
         {{#ifHasExtraActions actions transitions}}
           <li>
             <div class="dropdown">
@@ -167,11 +173,11 @@
                     <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
                   </li>
                 {{/pluginActions}}
-                {{#each transitions}}
+                {{#withoutFirst transitions}}
                   <li>
                     <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
                   </li>
-                {{/each}}
+                {{/withoutFirst}}
               </ul>
             </div>
           </li>

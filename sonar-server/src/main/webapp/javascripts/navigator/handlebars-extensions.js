@@ -74,8 +74,26 @@
 
   Handlebars.registerHelper('ifHasExtraActions', function(actions, transitions, options) {
     var actionsLeft = _.difference(actions, _.without(defaultActions, 'set_severity'));
-    if (actionsLeft.length > 0 || transitions.length > 0) {
+    if (actionsLeft.length > 0 || transitions.length > 1) {
       return options.fn(this);
+    } else {
+      return '';
+    }
+  });
+
+  Handlebars.registerHelper('withFirst', function(list, options) {
+    if (list && list.length > 0) {
+      return options.fn(list[0]);
+    } else {
+      return '';
+    }
+  });
+
+  Handlebars.registerHelper('withoutFirst', function(list, options) {
+    if (list && list.length > 1) {
+      return list.slice(1).reduce(function(prev, current) {
+        return prev + options.fn(current);
+      }, '');
     } else {
       return '';
     }
