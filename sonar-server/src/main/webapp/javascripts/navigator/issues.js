@@ -385,7 +385,7 @@ jQuery(function() {
 
     newSearch: function() {
       this.model.clear();
-      this.options.app.router.navigate('', { trigger: true });
+      this.options.app.router.navigate('statuses=OPEN,REOPENED', { trigger: true });
     },
 
 
@@ -949,7 +949,7 @@ jQuery(function() {
   var IssuesRouter = Backbone.Router.extend({
 
     routes: {
-      '': 'index',
+      '': 'emptyQuery',
       ':query': 'index'
     },
 
@@ -967,6 +967,11 @@ jQuery(function() {
           value: decodeURIComponent(tokens[1])
         }
       });
+    },
+
+
+    emptyQuery: function() {
+      this.navigate('statuses=OPEN,REOPENED', { trigger: true });
     },
 
 
