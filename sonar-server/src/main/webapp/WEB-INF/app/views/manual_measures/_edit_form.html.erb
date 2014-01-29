@@ -5,13 +5,8 @@
         </div>
 
         <div class="modal-body">
-            <% if @errors
-                 @errors.each do |error|
-            %>
-                <p class="error"><%= h error -%></p>
-              <% end
-                 end
-              %>
+            <div class="modal-error"></div>
+
             <input type="hidden" name="id" value="<%= @resource.id -%>"/>
 
             <div class="modal-field">

@@ -50,10 +50,7 @@ class ManualMeasuresController < ApplicationController
       load_measures()
       already_defined_metrics=@measures.map {|m| m.metric}
       @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
-
-      @errors = []
-      @errors << 'Metric must be selected.'
-      render :partial => 'manual_measures/create_form', :status => 400
+      render :text => 'Metric must be selected.', :status => 400
 
     else
       @metric=Metric.by_key(params[:metric])
@@ -68,14 +65,8 @@ class ManualMeasuresController < ApplicationController
         flash[:notice] = 'Measure successfully created.'
         render :text => 'ok', :status => 200
       else
-
-        load_measures()
-        already_defined_metrics=@measures.map {|m| m.metric}
-        @manual_metrics=Metric.all.select { |m| m.user_managed? && !already_defined_metrics.include?(m)}
-
-        @errors = []
-        @measure.errors.full_messages.each{|msg| @errors<<msg}
-        render :partial => 'manual_measures/create_form', :status => 400
+        render :text => @measure.errors.full_messages.map{|msg| msg}.join('<br/>'),
+               :status => 400
       end
     end
   end
@@ -94,9 +85,8 @@ class ManualMeasuresController < ApplicationController
       flash[:notice] = 'Measure successfully edited.'
       render :text => 'ok', :status => 200
     else
-      @errors = []
-      @measure.errors.full_messages.each{|msg| @errors<<msg}
-      render :partial => 'manual_measures/edit_form', :status => 400
+      render :text => @measure.errors.full_messages.map{|msg| msg}.join('<br/>'),
+             :status => 400
     end
   end
 
