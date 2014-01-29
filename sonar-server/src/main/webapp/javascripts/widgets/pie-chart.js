@@ -173,7 +173,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
     this.radius = Math.min(this.availableWidth, this.availableHeight) / 2;
     this._legendSize = Math.floor(this.availableHeight / this._lineHeight);
-    this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right - this.legendMargin() - 2 * this.radius) / 6);
+    this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right - this.legendMargin() - 2 * this.radius) / 6.2);
 
 
     // Update plot
@@ -227,6 +227,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.legendsEnter.append('text')
         .attr('class', 'legend-text')
+        .attr('dy', '0.1em')
         .attr('transform', trans(10, 3));
 
     this.legends.selectAll('text')

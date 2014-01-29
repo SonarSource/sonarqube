@@ -211,9 +211,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoMetrics.push(infoMetric);
     });
 
-    this.infoEvent
-        .attr('transform', trans(0, 20));
-
 
     // Configure events
     this.gevents = this.gWrap.append('g')
@@ -311,8 +308,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .transition()
           .attr('transform', function() { return trans(x, metricY); });
     });
-    metricY -= 1;
 
+    if (metricY  > -1) {
+      metricY += 17;
+    }
 
     // Update available width
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom - metricY;
@@ -358,6 +357,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update events
+    this.infoEvent
+        .attr('transform', trans(0, metricY > -1 ? metricY : 18));
+
     this.gevents
         .transition()
         .attr('transform', function(d) { return trans(widget.time(d.d), widget.availableHeight + 10 + metricY); });

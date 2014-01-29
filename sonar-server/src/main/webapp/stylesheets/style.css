@@ -2590,7 +2590,7 @@ textarea.width100 {
 }
 
 .sonar-d3 .legend-text {
-  font-size: 11px;
+  font-size: 12px;
   cursor: default;
 }
 
@@ -2605,7 +2605,7 @@ textarea.width100 {
 }
 
 .sonar-d3 .details-metric {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .sonar-d3 .details-metric-main {
@@ -2625,7 +2625,7 @@ textarea.width100 {
 }
 
 .sonar-d3 .info-text-small {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .sonar-d3 .event-tick {

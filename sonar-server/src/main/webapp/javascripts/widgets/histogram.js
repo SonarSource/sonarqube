@@ -127,14 +127,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.metricLabel = this.gWrap.append('text')
         .text(this.metrics()[this.mainMetric].name)
         .attr('dy', '9px')
-        .style('font-size', '11px');
+        .style('font-size', '12px');
 
 
     // Show maxResultsReached message
     if (this.maxResultsReached()) {
       this.maxResultsReachedLabel = this.gWrap.append('text')
           .classed('max-results-reached', true)
-          .style('font-size', '11px')
+          .style('font-size', '12px')
           .style('fill', '#777')
           .text(this.options().maxItemsReachedMessage);
     }
