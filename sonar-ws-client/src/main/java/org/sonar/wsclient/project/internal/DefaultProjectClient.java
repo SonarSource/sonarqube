@@ -28,7 +28,7 @@ import org.sonar.wsclient.project.ProjectClient;
 import java.util.Map;
 
 /**
- * Do not instantiate this class, but use {@link org.sonar.wsclient.SonarClient#issueClient()}.
+ * Do not instantiate this class, but use {@link org.sonar.wsclient.SonarClient#projectClient()}.
  */
 public class DefaultProjectClient implements ProjectClient {
 
