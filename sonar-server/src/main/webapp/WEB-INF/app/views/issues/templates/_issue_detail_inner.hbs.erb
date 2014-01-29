@@ -1,5 +1,9 @@
 <script id="issue-detail-inner-template" type="text/x-handlebars-template">
   <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
+    <div class="code-issue-permalink">
+      <a target="_blank" href="<%= ApplicationController.root_context -%>/issue/show/{{key}}?layout=false"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
+    </div>
+
     <div class="code-issue-name">
       {{severityIcon severity}}&nbsp;<span class="rulename">{{ruleName}}</span>
     </div>

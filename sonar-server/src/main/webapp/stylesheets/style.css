@@ -798,6 +798,11 @@ th.operations, td.operations {
   padding: 0 0 10px 0;
 }
 
+.code-issue-permalink {
+  float: right;
+  padding: 4px 4px 0 0;
+}
+
 .code-issue-name {
   background-color: #E4ECF3;
   margin: 0;
