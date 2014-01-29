@@ -19,13 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.WildcardPattern;
 
 abstract class PathPattern {
+
+  private static final Logger LOG = LoggerFactory.getLogger(PathPattern.class);
 
   final WildcardPattern pattern;
 
@@ -42,6 +45,7 @@ abstract class PathPattern {
   static PathPattern create(String s) {
     String trimmed = StringUtils.trim(s);
     if (StringUtils.startsWithIgnoreCase(trimmed, "file:")) {
+      LOG.warn("Absolute path patterns are deprecated. Please replace {} by a path pattern relative to the basedir of the module.", trimmed);
       return new AbsolutePathPattern(StringUtils.substring(trimmed, "file:".length()));
     }
     return new RelativePathPattern(trimmed);
@@ -55,6 +59,10 @@ abstract class PathPattern {
     return result;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   private static class AbsolutePathPattern extends PathPattern {
     private AbsolutePathPattern(String pattern) {
       super(pattern);
