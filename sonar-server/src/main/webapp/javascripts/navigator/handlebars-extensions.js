@@ -86,7 +86,7 @@
       return {
         lineNumber: line,
         code: code,
-        scm: scm[line] ? { author: scm[line][0], date: scm[line][1] } : undefined
+        scm: (scm && scm[line]) ? { author: scm[line][0], date: scm[line][1] } : undefined
       }
     });
 

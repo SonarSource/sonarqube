@@ -182,13 +182,16 @@ jQuery(function() {
 
 
     fetchSource: function(view) {
+      var from = this.model.get('line') - 10,
+          to = this.model.get('line') + 10;
+
       return jQuery.ajax({
         type: 'GET',
         url: baseUrl + '/api/sources/show',
         data: {
           key: this.model.get('component'),
-          from: this.model.get('line') - 10,
-          to: this.model.get('line') + 10,
+          from: from >= 0 ? from : 0,
+          to: to,
           format: 'json'
         }
       }).done(function(r) {
