@@ -2479,9 +2479,16 @@ textarea.width100 {
 
 .rule-title {
   display: inline-block;
+  float: left;
+}
+
+.rule-desc {
+  float: none;
+  clear: both;
 }
 
 .rule-status, .rule-tags {
+  display: inline-block;
   margin-left: 10px;
   float: right;
   padding: 3px 5px 0 0;
