@@ -25,7 +25,6 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
@@ -33,11 +32,9 @@ import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
   private final SonarIndex index;
-  private Languages languages;
 
-  public DefaultFileLinesContextFactory(SonarIndex index, Languages languages) {
+  public DefaultFileLinesContextFactory(SonarIndex index) {
     this.index = index;
-    this.languages = languages;
   }
 
   @Override
@@ -56,8 +53,10 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
     if (Java.KEY.equals(languageKey)) {
       sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
     } else {
-      sonarFile = File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
+      sonarFile = File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), null, unitTest);
     }
+    // Reload resource from index
+    sonarFile = index.getResource(sonarFile);
     return new DefaultFileLinesContext(index, sonarFile);
   }
 
