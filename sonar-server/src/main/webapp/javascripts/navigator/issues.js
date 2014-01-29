@@ -886,6 +886,21 @@ jQuery(function() {
       });
     },
 
+    action: function(e) {
+      var that = this,
+          actionKey = jQuery(e.target).data('action');
+      jQuery.ajax({
+        type: 'POST',
+        url: baseUrl + '/api/issues/do_action',
+        data: {
+          issue: this.model.get('key'),
+          actionKey: actionKey
+        }
+      }).done(function() {
+            that.resetIssue();
+          });
+    },
+
 
     serializeData: function() {
       return _.extend({
