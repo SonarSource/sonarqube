@@ -34,6 +34,11 @@ public interface InputFile extends Serializable {
   String ATTRIBUTE_LANGUAGE = "LANG";
 
   /**
+   * Number of lines in the file.
+   */
+  String ATTRIBUTE_LINE_COUNT = "LINE_COUNT";
+
+  /**
    * Type of source file. For now only possible values are {@link #TYPE_MAIN} or {@link #TYPE_TEST}
    */
   String ATTRIBUTE_TYPE = "TYPE";

@@ -19,9 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-
-import org.sonar.api.scan.filesystem.InputFile;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +35,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
@@ -57,9 +57,10 @@ public class ComponentIndexer implements BatchComponent {
   private final Project module;
   private final DefaultModuleLanguages moduleLanguages;
   private final ResourceDao resourceDao;
+  private InputFileCache fileCache;
 
   public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-    DefaultModuleLanguages moduleLanguages, ResourceDao resourceDao) {
+    DefaultModuleLanguages moduleLanguages, ResourceDao resourceDao, InputFileCache fileCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
@@ -67,10 +68,11 @@ public class ComponentIndexer implements BatchComponent {
     this.migration = migration;
     this.moduleLanguages = moduleLanguages;
     this.resourceDao = resourceDao;
+    this.fileCache = fileCache;
   }
 
   public void execute(DefaultModuleFileSystem fs) {
-    boolean importSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
+    boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
     Iterable<InputFile> inputFiles = fs.inputFiles(FileQuery.all());
     migration.migrateIfNeeded(module, inputFiles);
     for (InputFile inputFile : inputFiles) {
@@ -85,21 +87,28 @@ public class ComponentIndexer implements BatchComponent {
       if (sonarFile != null) {
         moduleLanguages.addLanguage(languageKey);
         sonarIndex.index(sonarFile);
-        if (importSource) {
-          importSources(inputFile, sonarFile);
-        }
+        importSources(shouldImportSource, inputFile, sonarFile);
       }
     }
 
     updateModuleLanguage();
   }
 
-  private void importSources(InputFile inputFile, Resource sonarFile) {
+  @VisibleForTesting
+  void importSources(boolean shouldImportSource, InputFile inputFile, Resource sonarFile) {
     try {
+      // TODO this part deserve optimization.
+      // No need to read full content in memory when shouldImportSource=false
+      // We should try to remove BOM and count lines in a single pass
       String source = Files.toString(inputFile.file(), inputFile.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      sonarIndex.setSource(sonarFile, source);
+      String[] lines = source.split("(\r)?\n|\r", -1);
+      inputFile.attributes().put(InputFile.ATTRIBUTE_LINE_COUNT, String.valueOf(lines.length));
+      fileCache.put(module.getKey(), inputFile);
+      if (shouldImportSource) {
+        sonarIndex.setSource(sonarFile, source);
+      }
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
         + inputFile.encoding() + "'.", e);
