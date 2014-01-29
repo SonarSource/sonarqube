@@ -79,7 +79,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
                                     :label => resource.name(false),
                                     :title => escape_javascript(resource.name(true)),
                                     :tooltip => tooltip(resource, size_measure, color_measure),
-                                    :color => html_color(color_measure),
+                                    :color => MeasureColor.color(color_measure, {:check_alert_status => false}).html,
                                     :rid => resource.id,
                                     :leaf => resource.source_code?)
           node.add_child(child)
@@ -103,10 +103,6 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     else
       0.0
     end
-  end
-
-  def html_color(measure)
-    MeasureColor.color(measure).html
   end
 
 end
