@@ -85,8 +85,10 @@ public class DeprecatedSourceDecorator implements ServerComponent {
     List<String> splitSource = newArrayList(Splitter.onPattern("\r?\n|\r").split(htmlSource));
     List<String> result = newArrayList();
     for (int i = 0; i < splitSource.size(); i++) {
-      int currentLine = i+1;
-      if ((from == null || currentLine >= from) && (to == null || to >= currentLine)) {
+      int currentLine = i + 1;
+      if (to != null && to < currentLine) {
+        break;
+      } else if (from == null || currentLine >= from) {
         result.add(splitSource.get(currentLine - 1));
       }
     }

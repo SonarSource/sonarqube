@@ -303,7 +303,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void begin_from_given_line() throws Exception {
+  public void returned_code_begin_from_given_param() throws Exception {
 
     String javadocWithHtml =
       "/**\n" +
@@ -339,7 +339,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void end_to_given_line() throws Exception {
+  public void returned_code_end_to_given_param() throws Exception {
 
     String javadocWithHtml =
       "/**\n" +
@@ -370,7 +370,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void return_code_from_given_lint_given_end_line() throws Exception {
+  public void returned_code_is_between_from_and_to_params() throws Exception {
 
     String javadocWithHtml =
       "/**\n" +

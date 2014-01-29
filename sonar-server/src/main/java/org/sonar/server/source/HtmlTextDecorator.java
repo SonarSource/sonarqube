@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +30,7 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 
 
 /**
@@ -54,7 +54,7 @@ class HtmlTextDecorator {
   List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder, @Nullable Integer from, @Nullable Integer to) {
 
     StringBuilder currentHtmlLine = new StringBuilder();
-    List<String> decoratedHtmlLines = Lists.newArrayList();
+    List<String> decoratedHtmlLines = newArrayList();
     int currentLine = 1;
 
     BufferedReader stringBuffer = null;
@@ -64,30 +64,17 @@ class HtmlTextDecorator {
       CharactersReader charsReader = new CharactersReader(stringBuffer);
 
       while (charsReader.readNextChar()) {
-
+        if (shouldStop(currentLine, to)) {
+          break;
+        }
         if (shouldStartNewLine(charsReader)) {
-          addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
+          if (canAddLine(currentLine, from)) {
+            decoratedHtmlLines.add(currentHtmlLine.toString());
+          }
           currentLine++;
           currentHtmlLine = new StringBuilder();
-          if (shouldReopenPendingTags(charsReader)) {
-            reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
-          }
         }
-
-        int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
-        closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
-
-        if (shouldClosePendingTags(charsReader)) {
-          closeCurrentSyntaxTags(charsReader, currentHtmlLine);
-        }
-
-        Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), decorationDataHolder);
-        openNewTags(charsReader, tagsToOpen, currentHtmlLine);
-
-        if (shouldAppendCharToHtmlOutput(charsReader)) {
-          char currentChar = (char) charsReader.getCurrentValue();
-          currentHtmlLine.append(normalize(currentChar));
-        }
+        addCharToCurrentLine(charsReader, currentHtmlLine, decorationDataHolder);
       }
 
       closeCurrentSyntaxTags(charsReader, currentHtmlLine);
@@ -96,10 +83,8 @@ class HtmlTextDecorator {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
         currentLine++;
         addLine(decoratedHtmlLines, "", currentLine, from, to);
-        currentLine++;
       } else if (currentHtmlLine.length() > 0) {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
-        currentLine++;
       }
 
     } catch (IOException exception) {
@@ -113,12 +98,43 @@ class HtmlTextDecorator {
     return decoratedHtmlLines;
   }
 
+  private void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
+    if (shouldStartNewLine(charsReader)) {
+      if (shouldReopenPendingTags(charsReader)) {
+        reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
+      }
+    }
+
+    int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
+    closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
+
+    if (shouldClosePendingTags(charsReader)) {
+      closeCurrentSyntaxTags(charsReader, currentHtmlLine);
+    }
+
+    Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), decorationDataHolder);
+    openNewTags(charsReader, tagsToOpen, currentHtmlLine);
+
+    if (shouldAppendCharToHtmlOutput(charsReader)) {
+      char currentChar = (char) charsReader.getCurrentValue();
+      currentHtmlLine.append(normalize(currentChar));
+    }
+  }
+
   private void addLine(List<String> decoratedHtmlLines, String line, int currentLine, @Nullable Integer from, @Nullable Integer to) {
-    if ((from == null || currentLine >= from)
-      && (to == null || to >= currentLine)) {
+    if (canAddLine(currentLine, from) && !shouldStop(currentLine, to)) {
       decoratedHtmlLines.add(line);
     }
   }
+
+  private boolean canAddLine(int currentLine, @Nullable Integer from) {
+    return from == null || currentLine >= from;
+  }
+
+  private boolean shouldStop(int currentLine, @Nullable Integer to) {
+    return to != null && to < currentLine;
+  }
+
 
   private char[] normalize(char currentChar) {
     char[] normalizedChars;
@@ -149,7 +165,7 @@ class HtmlTextDecorator {
   }
 
   private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
-    Collection<String> tagsToOpen = Lists.newArrayList();
+    Collection<String> tagsToOpen = newArrayList();
     while (dataHolder.getCurrentOpeningTagEntry() != null && currentIndex == dataHolder.getCurrentOpeningTagEntry().getStartOffset()) {
       tagsToOpen.add(dataHolder.getCurrentOpeningTagEntry().getCssClass());
       dataHolder.nextOpeningTagEntry();
