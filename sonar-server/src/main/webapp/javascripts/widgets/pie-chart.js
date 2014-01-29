@@ -245,6 +245,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('font-size', (this.radius / 6) + 'px');
 
     var fz = Math.min(
+        12,
         this.radius / 10,
         1.5 * this.radius / this.metrics()[this.mainMetric].name.length
     );
