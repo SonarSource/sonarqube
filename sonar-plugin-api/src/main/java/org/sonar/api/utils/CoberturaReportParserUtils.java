@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.coverage.CoberturaReportParser;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Resource;
@@ -41,7 +40,7 @@ import static org.sonar.api.utils.ParsingUtils.parseNumber;
 
 /**
  * @since 3.7
- * @deprecated since 4.2 use {@link CoberturaReportParser}
+ * @deprecated since 4.2 should be handled by language plugins
  */
 @Deprecated
 public class CoberturaReportParserUtils {
