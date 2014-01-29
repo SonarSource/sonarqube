@@ -19,11 +19,16 @@
       <table id="sources_60" class="sources2 code" cellpadding="0" cellspacing="0">
         {{#sources source scm}}
           <tr class="row">
+            <td class="scm {{#if scm}}revision{{/if}}">
+              <span class="date"><a>{{scm.date}}</a></span>
+              <span class="author">{{scm.author}}</span>
+            </td>
             <td class="lid L{{lineNumber}}"><a name="L{{lineNumber}}" href="#L{{lineNumber}}">{{lineNumber}}</a></td>
             <td class="line {{#eq ../line lineNumber}}ko{{/eq}}"><pre>{{{code}}}</pre></td>
           </tr>
           {{#eq ../line lineNumber}}
             <tr>
+              <td class="scm"></td>
               <td class="lid"></td>
               <td class="code-issues">{{> detailInnerTemplate ../..}}</td>
             </tr>

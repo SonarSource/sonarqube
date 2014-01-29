@@ -183,7 +183,7 @@ jQuery(function() {
 
     fetchSource: function(view) {
       var from = this.model.get('line') - 10,
-          to = this.model.get('line') + 10;
+          to = this.model.get('line') + 30;
 
       return jQuery.ajax({
         type: 'GET',
@@ -195,8 +195,12 @@ jQuery(function() {
           format: 'json'
         }
       }).done(function(r) {
-            view.source = r.source;
-            view.scm = r.scm;
+            if (_.isObject(r) && r.source) {
+              view.source = r.source;
+            }
+            if (_.isObject(r) && r.scm) {
+              view.scm = r.scm;
+            }
           });
     }
   });
