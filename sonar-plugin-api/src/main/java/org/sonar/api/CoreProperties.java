@@ -502,7 +502,7 @@ public interface CoreProperties {
    * @since 4.0
    */
   String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
-  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "buildstability,devcockpit,pdfreport,report,scmactivity,views,jira,build-breaker";
+  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "buildstability,devcockpit,pdfreport,report,scmactivity,views,jira,buildbreaker";
 
   /**
    * @since 4.0
