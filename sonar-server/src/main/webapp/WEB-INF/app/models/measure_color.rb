@@ -34,10 +34,11 @@ class MeasureColor
   def self.color(measure, options={})
     return NONE_COLOR if measure.nil?
 
+    options = {:check_alert_status => true}.merge(options)
     max_value = options[:max] || measure.metric.best_value
     min_value = options[:min] || measure.metric.worst_value
     percent=-1.0
-    
+
     if options[:period_index]
       if min_value && max_value
         value=measure.variation(options[:period_index])
