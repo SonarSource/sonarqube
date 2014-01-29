@@ -37,5 +37,4 @@ public class JavaTest {
     assertThat(Java.isJavaFile(new java.io.File("Example.notjava"))).isFalse();
   }
 
-
 }

@@ -288,8 +288,10 @@ public abstract class Resource implements Serializable {
     if (o == null) {
       return false;
     }
-    // JavaPackage and Directory are considered equivalent since 4.2
-    if (getClass() != o.getClass() && !(this instanceof JavaPackage && o instanceof JavaPackage)) {
+    if (getClass() != o.getClass()
+      // JavaPackage and Directory are considered equivalent since 4.2
+      // JavaFile and File are considered equivalent since 4.2
+      && !isEquivalentTo(o)) {
       return false;
     }
 
@@ -299,6 +301,18 @@ public abstract class Resource implements Serializable {
     } else {
       return resource.key == null && deprecatedKey.equals(resource.deprecatedKey);
     }
+  }
+
+  private boolean isPackageOrDirectory(Object o) {
+    return o instanceof JavaPackage;
+  }
+
+  private boolean isJavaFileOrFile(Object o) {
+    return o instanceof JavaFile || o instanceof File;
+  }
+
+  private boolean isEquivalentTo(Object o) {
+    return isPackageOrDirectory(this) && isPackageOrDirectory(o) || isJavaFileOrFile(this) && isJavaFileOrFile(o);
   }
 
   @Override

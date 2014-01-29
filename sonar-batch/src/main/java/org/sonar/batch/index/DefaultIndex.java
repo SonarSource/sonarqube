@@ -384,8 +384,9 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
-    Bucket bucket = checkIndexed(resource);
+    Bucket bucket = getBucket(resource, true);
     if (bucket == null || bucket.isExcluded()) {
+      LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
       return;
     }
 

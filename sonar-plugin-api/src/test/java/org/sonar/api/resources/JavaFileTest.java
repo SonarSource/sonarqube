@@ -157,6 +157,15 @@ public class JavaFileTest {
   }
 
   @Test
+  public void javaFilesAreEquivalentToFiles() {
+    JavaFile javaFile = new JavaFile("foo");
+    javaFile.setKey("someKey");
+    org.sonar.api.resources.File file = new org.sonar.api.resources.File("bar");
+    file.setKey("someKey");
+    assertThat(javaFile).isEqualTo(file);
+  }
+
+  @Test
   public void oneLevelPackage() {
     JavaFile clazz = new JavaFile("onelevel.MyFile");
     assertEquals("onelevel.MyFile", clazz.getDeprecatedKey());

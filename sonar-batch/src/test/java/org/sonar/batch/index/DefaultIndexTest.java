@@ -30,7 +30,13 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
@@ -97,7 +103,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), mock(ModuleIssues.class));
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), mock(ModuleIssues.class));
     index.doStart(project);
   }
 
@@ -209,9 +215,22 @@ public class DefaultIndexTest {
     Violation violation = Violation.create(rule, file);
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
 
+    index.index(file);
     index.addViolation(violation);
 
     assertThat(index.getViolations(file)).hasSize(1);
+  }
+
+  @Test
+  public void should_not_save_violation_if_resource_not_indexed() {
+    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
+    File file = File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false);
+    Violation violation = Violation.create(rule, file);
+    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
+
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(file)).hasSize(0);
   }
 
   @Test
@@ -222,6 +241,7 @@ public class DefaultIndexTest {
 
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
 
+    index.index(file);
     index.addViolation(violation);
 
     assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.OFF))).hasSize(1);
@@ -235,6 +255,7 @@ public class DefaultIndexTest {
 
     when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
 
+    index.index(file);
     index.addViolation(violation);
 
     assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.ON))).hasSize(1);

@@ -21,6 +21,7 @@ package org.sonar.api.resources;
 
 import org.junit.Test;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,6 +54,15 @@ public class JavaPackageTest {
   public void shouldNotMatchFilePatterns() {
     JavaPackage pac = new JavaPackage("org.sonar.commons");
     assertFalse(pac.matchFilePattern("**"));
+  }
+
+  @Test
+  public void packagesAreEquivalentToDirectories() {
+    JavaPackage pac = new JavaPackage();
+    pac.setKey("someKey");
+    Directory dir = new Directory();
+    dir.setKey("someKey");
+    assertThat(pac).isEqualTo(dir);
   }
 
 }
