@@ -384,6 +384,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
     .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+    .setHidden(true)
     .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
@@ -662,6 +663,7 @@ public final class CoreMetrics {
   public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits", Metric.ValueType.DATA)
     .setDomain(DOMAIN_TESTS)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
@@ -1363,6 +1365,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1380,6 +1383,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_ISSUES)
+    .setHidden(true)
     .create();
 
   public static final String VIOLATIONS_KEY = "violations";
@@ -1699,6 +1703,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
     .setBestValue(1.0)
+    .setHidden(true)
     .create();
 
   /**
@@ -1716,8 +1721,8 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1736,6 +1741,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
     .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+    .setHidden(true)
     .create();
 
   /**
@@ -1753,6 +1759,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
+    .setHidden(true)
     .create();
 
   /**
@@ -1769,6 +1776,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
+    .setHidden(true)
     .create();
 
   /**
@@ -1785,6 +1793,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
+    .setHidden(true)
     .create();
 
   public static final String DEPENDENCY_MATRIX_KEY = "dsm";
