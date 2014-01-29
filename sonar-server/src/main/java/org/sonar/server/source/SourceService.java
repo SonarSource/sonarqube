@@ -21,13 +21,14 @@
 package org.sonar.server.source;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.core.measure.db.MeasureDataDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -37,12 +38,20 @@ import java.util.List;
 
 public class SourceService implements ServerComponent {
 
+
   private final HtmlSourceDecorator sourceDecorator;
+
+  /**
+   * Old service to colorize code
+   */
+  private final CodeColorizers codeColorizers;
+
   private final ResourceDao resourceDao;
   private final MeasureDataDao measureDataDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, ResourceDao resourceDao, MeasureDataDao measureDataDao) {
+  public SourceService(HtmlSourceDecorator sourceDecorator, CodeColorizers codeColorizers, ResourceDao resourceDao, MeasureDataDao measureDataDao) {
     this.sourceDecorator = sourceDecorator;
+    this.codeColorizers = codeColorizers;
     this.resourceDao = resourceDao;
     this.measureDataDao = measureDataDao;
   }
@@ -60,9 +69,18 @@ public class SourceService implements ServerComponent {
     return sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
   }
 
-  // TODO move this in another service
   @CheckForNull
-  public String findDataFromComponent(String componentKey, String metricKey){
+  public String getScmAuthorData(String componentKey) {
+    return findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+  }
+
+  @CheckForNull
+  public String getScmDateData(String componentKey) {
+    return findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+  }
+
+  @CheckForNull
+  private String findDataFromComponent(String componentKey, String metricKey) {
     MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(componentKey, metricKey);
     if (data != null) {
       return data.getText();

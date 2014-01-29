@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.source;
+package org.sonar.server.source;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
@@ -31,7 +31,7 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 
-import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
+
 
 /**
  * @since 3.6
@@ -160,7 +160,7 @@ class HtmlTextDecorator {
   private boolean shouldClosePendingTags(CharactersReader charactersReader) {
     return charactersReader.getCurrentValue() == CR_END_OF_LINE
       || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
-      || (charactersReader.getCurrentValue() == END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
+      || (charactersReader.getCurrentValue() == CharactersReader.END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
   }
 
   private boolean shouldReopenPendingTags(CharactersReader charactersReader) {

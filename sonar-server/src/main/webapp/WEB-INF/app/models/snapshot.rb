@@ -251,10 +251,6 @@ class Snapshot < ActiveRecord::Base
       end
   end
 
-  def highlighted_source_lines
-    Internal.text.highlightedSourceLines(id)
-  end
-
   def has_source
     SnapshotSource.count('id', :conditions => "snapshot_id = #{id}") > 0
   end

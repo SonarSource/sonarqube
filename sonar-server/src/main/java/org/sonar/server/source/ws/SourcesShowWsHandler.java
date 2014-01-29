@@ -21,7 +21,6 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.base.Splitter;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -52,8 +51,8 @@ public class SourcesShowWsHandler implements RequestHandler {
       throw new NotFoundException("Component : " + componentKey + " has no source.");
     }
 
-    String scmAuthorData = sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
-    String scmDataData = sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+    String scmAuthorData = sourceService.getScmAuthorData(componentKey);
+    String scmDataData = sourceService.getScmDateData(componentKey);
 
     int from = fromParam != null ? fromParam : 1;
     int to = toParam != null ? toParam : sourceHtml.size() + from;

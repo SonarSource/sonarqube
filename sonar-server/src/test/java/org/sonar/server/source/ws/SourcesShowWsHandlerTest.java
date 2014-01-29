@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
@@ -98,8 +97,8 @@ public class SourcesShowWsHandlerTest {
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
     ));
 
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY)).thenReturn("1=julien;");
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY)).thenReturn("1=2013-03-13T16:22:31+0100;");
+    when(sourceService.getScmAuthorData(componentKey)).thenReturn("1=julien;");
+    when(sourceService.getScmDateData(componentKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
 
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "show_source_with_scm.json");
@@ -113,9 +112,9 @@ public class SourcesShowWsHandlerTest {
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY))
+    when(sourceService.getScmAuthorData(componentKey))
       .thenReturn("1=julien;2=simon;3=julien;4=simon;5=jean;6=julien");
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY))
+    when(sourceService.getScmDateData(componentKey))
       .thenReturn("1=2013-03-13T16:22:31+0100;2=2013-03-14T16:22:31+0100;3=2013-03-13T16:22:31+0100;4=2013-03-14T16:22:31+0100;5=2013-03-15T16:22:31+0100;6=2013-03-13T16:22:31+0100;");
 
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
@@ -130,9 +129,9 @@ public class SourcesShowWsHandlerTest {
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY))
+    when(sourceService.getScmAuthorData(componentKey))
       .thenReturn("1=julien;2=julien;3=simon");
-    when(sourceService.findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY))
+    when(sourceService.getScmDateData(componentKey))
       .thenReturn("1=2013-03-13T16:22:31+0100;2=2013-03-13T16:22:31+0100;3=2013-03-14T16:22:31+0100;");
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "show_source_with_scm_without_repeating_same_lines.json");

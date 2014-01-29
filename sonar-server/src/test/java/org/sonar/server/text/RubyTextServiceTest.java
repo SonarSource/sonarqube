@@ -20,7 +20,7 @@
 package org.sonar.server.text;
 
 import org.junit.Test;
-import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.server.source.HtmlSourceDecorator;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;

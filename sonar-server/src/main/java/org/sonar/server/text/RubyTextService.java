@@ -21,8 +21,8 @@ package org.sonar.server.text;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.source.HtmlSourceDecorator;
 
 import java.util.List;
 
