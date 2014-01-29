@@ -47,14 +47,14 @@ import java.io.IOException;
 public final class SonarMojo extends AbstractMojo {
 
   /**
-   * @parameter expression="${session}"
+   * @parameter property="session"
    * @required
    * @readonly
    */
   private MavenSession session;
 
   /**
-   * @parameter expression="${project}"
+   * @parameter property="project"
    * @required
    * @readonly
    */
@@ -78,7 +78,7 @@ public final class SonarMojo extends AbstractMojo {
   /**
    * The artifact repository to use.
    *
-   * @parameter expression="${localRepository}"
+   * @parameter property="localRepository"
    * @required
    * @readonly
    */
