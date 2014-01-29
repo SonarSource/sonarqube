@@ -28,6 +28,8 @@ import org.sonar.wsclient.permissions.PermissionClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.project.ProjectClient;
 import org.sonar.wsclient.project.internal.DefaultProjectClient;
+import org.sonar.wsclient.rule.RuleTagClient;
+import org.sonar.wsclient.rule.internal.DefaultRuleTagClient;
 import org.sonar.wsclient.system.SystemClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.UserClient;
@@ -101,6 +103,13 @@ public class SonarClient {
    */
   public ProjectClient projectClient() {
     return new DefaultProjectClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to rule tags
+   */
+  public RuleTagClient ruleTagClient() {
+    return new DefaultRuleTagClient(requestFactory);
   }
 
   public SystemClient systemClient() {
