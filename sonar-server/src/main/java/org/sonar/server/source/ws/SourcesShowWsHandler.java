@@ -46,7 +46,8 @@ public class SourcesShowWsHandler implements RequestHandler {
     String componentKey = request.requiredParam("key");
     Integer fromParam = request.intParam("from");
     Integer toParam = request.intParam("to");
-    List<String> sourceHtml = sourceService.getSourcesByComponent(componentKey, fromParam, toParam);
+    int from = (fromParam != null && fromParam > 0) ? fromParam : 1;
+    List<String> sourceHtml = sourceService.getSourcesByComponent(componentKey, from, toParam);
     if (sourceHtml == null) {
       throw new NotFoundException("Component : " + componentKey + " has no source.");
     }
@@ -54,7 +55,6 @@ public class SourcesShowWsHandler implements RequestHandler {
     String scmAuthorData = sourceService.getScmAuthorData(componentKey);
     String scmDataData = sourceService.getScmDateData(componentKey);
 
-    int from = fromParam != null ? fromParam : 1;
     int to = toParam != null ? toParam : sourceHtml.size() + from;
     JsonWriter json = response.newJsonWriter();
     json.beginObject();

@@ -33,6 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,6 +89,14 @@ public class SourcesShowWsHandlerTest {
     ));
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
     request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
+  }
+
+  @Test
+  public void show_source_always_should_not_begin_with_from_0() throws Exception {
+    String componentKey = "org.apache.struts:struts:Dispatcher";
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "0").setParam("to", "5");
+    request.execute();
+    verify(sourceService).getSourcesByComponent(componentKey, 1, 5);
   }
 
   @Test
