@@ -25,7 +25,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.ProfileLoader;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -48,7 +47,7 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
     settings.setProperty("sonar.profile.abap", "Abap One");
     settings.setProperty("sonar.profile.php", "Php One");
 
-    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao, new ProfileLoader[0]);
+    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao);
     List<ModuleQProfiles.QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
     assertThat(qProfiles).hasSize(2);
@@ -76,7 +75,7 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
     settings.setProperty("sonar.profile", "Java Two");
     settings.setProperty("sonar.profile.php", "Php One");
 
-    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao, new ProfileLoader[0]);
+    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao);
     List<ModuleQProfiles.QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
     assertThat(qProfiles).hasSize(1);
@@ -98,7 +97,7 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
     settings.setProperty("sonar.profile.php", "Php One");
 
     try {
-      new ModuleQProfiles(settings, languages, dao, new ProfileLoader[0]);
+      new ModuleQProfiles(settings, languages, dao);
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Quality profile not found : 'Unknown' on language 'java'");

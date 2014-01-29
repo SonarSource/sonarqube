@@ -23,8 +23,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 
 /**
- * TODO Maybe it should be moved in Sonar API?
- * @author julien
+ * Implemented by Views plugin.
  *
  */
 public interface ProjectTree {

@@ -28,11 +28,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.ProfileLoader;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -75,27 +75,19 @@ public class ModuleQProfiles implements BatchComponent {
   private final Map<String, QProfile> byLanguage;
 
   public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao) {
-    this(settings, languages, dao, new ProfileLoader[0]);
-  }
-
-  public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao, ProfileLoader[] loaders) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
-    if (loaders.length == 0) {
-      // not views plugin
+    String defaultName = settings.getString("sonar.profile");
 
-      String defaultName = settings.getString("sonar.profile");
-
-      for (Language language : languages.all()) {
-        QProfile profile;
-        if (StringUtils.isNotBlank(defaultName)) {
-          profile = loadDefaultQProfile(dao, defaultName, language.getKey());
-        } else {
-          profile = loadQProfile(dao, settings, language.getKey());
-        }
-        if (profile != null) {
-          LOG.info("Quality profile for {}: {}", profile.language(), profile.name());
-          builder.put(profile.language(), profile);
-        }
+    for (Language language : languages.all()) {
+      QProfile profile;
+      if (StringUtils.isNotBlank(defaultName)) {
+        profile = loadDefaultQProfile(dao, defaultName, language.getKey());
+      } else {
+        profile = loadQProfile(dao, settings, language.getKey());
+      }
+      if (profile != null) {
+        LOG.info("Quality profile for {}: {}", profile.language(), profile.name());
+        builder.put(profile.language(), profile);
       }
     }
     byLanguage = builder.build();

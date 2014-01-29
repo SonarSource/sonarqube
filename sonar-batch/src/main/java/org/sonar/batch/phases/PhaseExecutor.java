@@ -111,12 +111,12 @@ public final class PhaseExecutor {
 
     executeInitializersPhase();
 
-    // Index and lock the filesystem
-    fs.index();
-
     persistenceManager.setDelayedMode(true);
 
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
+      // Index and lock the filesystem
+      fs.index();
+
       sensorsExecutor.execute(sensorContext);
     }
 
