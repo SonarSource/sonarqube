@@ -7,9 +7,7 @@
           <h2><%=message('action_plans.create_form_title') -%></h2>
       </div>
       <div class="modal-body">
-          <% if @errors %>
-            <p class="error"><%= @errors -%></p>
-          <% end %>
+          <div class="modal-error"></div>
 
           <div class="modal-field">
               <label for="user[login]"><%= message('action_plans.col.name') -%> <em class="mandatory">*</em></label>

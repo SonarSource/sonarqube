@@ -49,11 +49,8 @@ class ActionPlansController < ApplicationController
       flash[:notice] = 'Successfully edited.'
       render :text => 'ok', :status => 200
     else
-      @errors = []
-      @errors << action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
-      @action_plan = find_by_key(params[:plan_key])
-      load_action_plans()
-      render :partial => 'action_plans/edit_form', :status => 400
+      render :text => action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>'),
+             :status => 400
     end
   end
 
@@ -68,10 +65,8 @@ class ActionPlansController < ApplicationController
       flash[:notice] = 'Successfully created.'
       render :text => 'ok', :status => 200
     else
-      @errors = []
-      @errors << action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
-      load_action_plans()
-      render :partial => 'action_plans/create_form', :status => 400
+      render :text => action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>'),
+             :status => 400
     end
   end
 
