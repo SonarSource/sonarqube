@@ -32,8 +32,21 @@ import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
-import org.sonar.api.resources.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -46,7 +59,14 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -72,7 +92,7 @@ public class DefaultIndex extends SonarIndex {
   private ResourceKeyMigration migration;
 
   public DefaultIndex(PersistenceManager persistence, ProjectTree projectTree, MetricFinder metricFinder,
-                      ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
+    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
     this.persistence = persistence;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
@@ -547,7 +567,6 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
-
   private Bucket checkIndexed(Resource resource) {
     Bucket bucket = getBucket(resource, true);
     if (bucket == null) {
@@ -591,12 +610,8 @@ public class DefaultIndex extends SonarIndex {
    * @return
    */
   private Bucket getBucket(Resource res) {
-    if (StringUtils.isNotBlank(res.getKey()) && StringUtils.isNotBlank(res.getDeprecatedKey())) {
+    if (StringUtils.isNotBlank(res.getKey())) {
       return buckets.get(res);
-    }
-    // Squid compatibility fix (case 2)
-    if (StringUtils.isBlank(res.getDeprecatedKey())) {
-      res.setDeprecatedKey(res.getKey());
     }
     if (StringUtils.isNotBlank(res.getDeprecatedKey())) {
       // Fallback to use deprecated key

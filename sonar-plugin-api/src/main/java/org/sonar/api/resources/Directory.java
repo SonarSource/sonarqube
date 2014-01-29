@@ -21,6 +21,7 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
@@ -37,19 +38,19 @@ public class Directory extends JavaPackage {
   }
 
   /**
-   * @deprecated since 4.2 use {@link #create(String, String, Language, boolean)}
+   * @deprecated since 4.2 use {@link #create(String, String)}
    */
   @Deprecated
-  public Directory(String deprecatedKey) {
-    this(deprecatedKey, null);
+  public Directory(String relativePathFromSourceDir) {
+    this(relativePathFromSourceDir, null);
   }
 
   /**
-   * @deprecated since 4.2 use {@link #create(String, String, Language, boolean)}
+   * @deprecated since 4.2 use {@link #create(String, String)}
    */
   @Deprecated
-  public Directory(String deprecatedKey, Language language) {
-    setDeprecatedKey(parseKey(deprecatedKey));
+  public Directory(String relativePathFromSourceDir, Language language) {
+    setDeprecatedKey(parseKey(relativePathFromSourceDir));
   }
 
   @Override
@@ -105,12 +106,28 @@ public class Directory extends JavaPackage {
     return normalizedKey;
   }
 
-  public static Directory create(String path, String directoryDeprecatedKey) {
+  /**
+   * Create a Directory that is partially initialized. But that's enough to call for example
+   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
+   * Internal use only.
+   * @since 4.2
+   */
+  public static Directory create(String relativePathFromBaseDir) {
     Directory d = new Directory();
-    String normalizedPath = normalize(path);
+    String normalizedPath = normalize(relativePathFromBaseDir);
     d.setKey(normalizedPath);
-    d.setDeprecatedKey(parseKey(directoryDeprecatedKey));
     d.setPath(normalizedPath);
+    return d;
+  }
+
+  /**
+   * Create a directory that is fully initialized. Use for indexing resources.
+   * Internal use only.
+   * @since 4.2
+   */
+  public static Directory create(String relativePathFromBaseDir, String relativePathFromSourceDir) {
+    Directory d = Directory.create(relativePathFromBaseDir);
+    d.setDeprecatedKey(parseKey(relativePathFromSourceDir));
     return d;
   }
 

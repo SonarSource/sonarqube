@@ -31,6 +31,10 @@ public final class SquidUtils {
     // only static methods
   }
 
+  /**
+   * @deprecated since 4.2 JavaFile is deprecated
+   */
+  @Deprecated
   public static JavaFile convertJavaFileKeyFromSquidFormat(String key) {
     String extension = StringUtils.lowerCase(FilenameUtils.getExtension(key));
     boolean isJavaFile = "jav".equals(extension) || "java".equals(extension);
@@ -50,11 +54,10 @@ public final class SquidUtils {
   }
 
   /**
-   * @deprecated since 4.2 JavaPackage key is now the same than directory (ie path)
+   * @deprecated since 4.2 JavaPackage is deprecated
    */
   @Deprecated
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
-    String convertedKey = key.replace('/', '.');
     return new Directory(key);
   }
 

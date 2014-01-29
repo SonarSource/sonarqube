@@ -31,7 +31,9 @@ import java.util.List;
  * A class that represents a Java class. This class can either be a Test class or source class
  *
  * @since 1.10
+ * @deprecated since 4.2 use {@link org.sonar.api.resources.File}
  */
+@Deprecated
 public class JavaFile extends Resource {
 
   private static final String JAVA_SUFFIX = ".java";
@@ -49,9 +51,7 @@ public class JavaFile extends Resource {
 
   /**
    * Creates a JavaFile that is not a class of test based on package and file names
-   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
-  @Deprecated
   public JavaFile(String packageName, String className) {
     this(packageName, className, false);
   }
@@ -60,9 +60,7 @@ public class JavaFile extends Resource {
    * Creates a JavaFile that can be of any type based on package and file names
    *
    * @param unitTest whether it is a unit test file or a source file
-   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
-  @Deprecated
   public JavaFile(String packageKey, String className, boolean unitTest) {
     if (className == null) {
       throw new IllegalArgumentException("Java filename can not be null");
@@ -84,9 +82,7 @@ public class JavaFile extends Resource {
 
   /**
    * Creates a source file from its key
-   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
-  @Deprecated
   public JavaFile(String deprecatedKey) {
     this(deprecatedKey, false);
   }
@@ -95,9 +91,7 @@ public class JavaFile extends Resource {
    * Creates any JavaFile from its key
    *
    * @param unitTest whether it is a unit test file or a source file
-   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
    */
-  @Deprecated
   public JavaFile(String deprecatedKey, boolean unitTest) {
     if (deprecatedKey == null) {
       throw new IllegalArgumentException("Java filename can not be null");
@@ -194,10 +188,6 @@ public class JavaFile extends Resource {
     return matcher.match(getKey());
   }
 
-  /**
-   * @deprecated since 4.2 use {@link #create(String, String, boolean)}
-   */
-  @Deprecated
   public static JavaFile fromIOFile(File file, Project module, boolean unitTest) {
     if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), JAVA_SUFFIX)) {
       return null;
@@ -234,6 +224,9 @@ public class JavaFile extends Resource {
     return javaFile;
   }
 
+  /**
+   * For internal use only.
+   */
   public static JavaFile create(String relativePathFromBasedir, String relativePathFromSourceDir, boolean unitTest) {
     JavaFile javaFile = JavaFile.create(relativePathFromBasedir);
     if (relativePathFromSourceDir.contains(Directory.SEPARATOR)) {
