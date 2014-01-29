@@ -97,6 +97,7 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
+import org.sonar.server.source.DeprecatedSourceDecorator;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.SourcesShowWsHandler;
@@ -370,6 +371,7 @@ public final class Platform {
 
     // source
     servicesContainer.addSingleton(HtmlSourceDecorator.class);
+    servicesContainer.addSingleton(DeprecatedSourceDecorator.class);
     servicesContainer.addSingleton(SourceService.class);
     servicesContainer.addSingleton(SourcesWs.class);
     servicesContainer.addSingleton(SourcesShowWsHandler.class);

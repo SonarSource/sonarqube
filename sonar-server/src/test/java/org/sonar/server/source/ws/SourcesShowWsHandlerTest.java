@@ -51,7 +51,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
       " */",
@@ -67,7 +67,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(anyString(), anyInt(), anyInt())).thenReturn(null);
+    when(sourceService.getSourcesByComponent(anyString(), anyInt(), anyInt())).thenReturn(null);
 
     try {
       WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
@@ -81,7 +81,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+    when(sourceService.getSourcesByComponent(componentKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
@@ -93,7 +93,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source_with_scm() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
     ));
 
@@ -107,7 +107,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source_with_scm_with_from_and_to_params() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+    when(sourceService.getSourcesByComponent(componentKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
@@ -124,7 +124,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source_with_scm_without_repeating_same_lines() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.sourcesFromComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"

@@ -31,7 +31,6 @@ import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -45,7 +44,7 @@ public class SourceServiceTest {
   HtmlSourceDecorator sourceDecorator;
 
   @Mock
-  CodeColorizers codeColorizers;
+  DeprecatedSourceDecorator deprecatedSourceDecorator;;
 
   @Mock
   ResourceDao resourceDao;
@@ -57,30 +56,30 @@ public class SourceServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    service = new SourceService(sourceDecorator, codeColorizers, resourceDao, measureDataDao);
+    service = new SourceService(sourceDecorator, deprecatedSourceDecorator, resourceDao, measureDataDao);
   }
 
   @Test
-  public void sources_from_component() throws Exception {
+  public void get_sources_by_component() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
 
-    service.sourcesFromComponent(componentKey);
+    service.getSourcesForComponent(componentKey);
 
     verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, null, null);
   }
 
   @Test
-  public void fail_to_get_sources_from_component_if_component_not_found() throws Exception {
+  public void fail_to_get_sources_by_component_if_component_not_found() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(null);
 
     try {
-      service.sourcesFromComponent(componentKey);
+      service.getSourcesForComponent(componentKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -90,15 +89,28 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void sources_from_component_with_only_given_lines() throws Exception {
+  public void get_sources_by_component_with_only_given_lines() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
 
-    service.sourcesFromComponent(componentKey, 1, 2);
+    service.getSourcesByComponent(componentKey, 1, 2);
 
     verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, 1, 2);
+  }
+
+  @Test
+  public void get_sources_by_component_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
+    String projectKey = "org.sonar.sample";
+    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+    when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(null);
+
+    service.getSourcesByComponent(componentKey, 1, 2);
+
+    verify(deprecatedSourceDecorator).getSourceAsHtml(componentKey, 1, 2);
   }
 
   @Test

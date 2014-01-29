@@ -46,7 +46,7 @@ public class SourcesShowWsHandler implements RequestHandler {
     String componentKey = request.requiredParam("key");
     Integer fromParam = request.intParam("from");
     Integer toParam = request.intParam("to");
-    List<String> sourceHtml = sourceService.sourcesFromComponent(componentKey, fromParam, toParam);
+    List<String> sourceHtml = sourceService.getSourcesByComponent(componentKey, fromParam, toParam);
     if (sourceHtml == null) {
       throw new NotFoundException("Component : " + componentKey + " has no source.");
     }

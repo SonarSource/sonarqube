@@ -29,6 +29,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,12 +53,27 @@ public class ResourceDao {
     }
   }
 
+  public List<ResourceDto> getResources(ResourceQuery query, SqlSession session) {
+    return session.getMapper(ResourceMapper.class).selectResources(query);
+  }
+
   /**
    * Return a single result or null. If the request returns multiple rows, then
    * the first row is returned.
    */
+  @CheckForNull
   public ResourceDto getResource(ResourceQuery query) {
-    List<ResourceDto> resources = getResources(query);
+    SqlSession session = mybatis.openSession();
+    try {
+      return getResource(query, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public ResourceDto getResource(ResourceQuery query, SqlSession session) {
+    List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);
     }

@@ -28,7 +28,6 @@ import org.sonar.core.measure.db.MeasureDataDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -38,35 +37,40 @@ import java.util.List;
 
 public class SourceService implements ServerComponent {
 
-
   private final HtmlSourceDecorator sourceDecorator;
 
   /**
    * Old service to colorize code
    */
-  private final CodeColorizers codeColorizers;
+  private final DeprecatedSourceDecorator deprecatedSourceDecorator;
 
   private final ResourceDao resourceDao;
   private final MeasureDataDao measureDataDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, CodeColorizers codeColorizers, ResourceDao resourceDao, MeasureDataDao measureDataDao) {
+  public SourceService(HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, ResourceDao resourceDao, MeasureDataDao measureDataDao) {
     this.sourceDecorator = sourceDecorator;
-    this.codeColorizers = codeColorizers;
+    this.deprecatedSourceDecorator = deprecatedSourceDecorator;
     this.resourceDao = resourceDao;
     this.measureDataDao = measureDataDao;
   }
 
-  public List<String> sourcesFromComponent(String componentKey) {
-    return sourcesFromComponent(componentKey, null, null);
+  public List<String> getSourcesForComponent(String componentKey) {
+    return getSourcesByComponent(componentKey, null, null);
   }
 
-  public List<String> sourcesFromComponent(String componentKey, @Nullable Integer from, @Nullable Integer to) {
+  public List<String> getSourcesByComponent(String componentKey, @Nullable Integer from, @Nullable Integer to) {
     ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
     if (project == null) {
       throw new NotFoundException("This component does not exists.");
     }
     UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
-    return sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
+
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
+    if (decoratedSource != null) {
+      return decoratedSource;
+    } else {
+     return deprecatedSourceDecorator.getSourceAsHtml(componentKey, from, to);
+    }
   }
 
   @CheckForNull
