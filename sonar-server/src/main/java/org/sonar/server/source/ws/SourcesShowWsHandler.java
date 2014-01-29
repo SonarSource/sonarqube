@@ -72,7 +72,7 @@ public class SourcesShowWsHandler implements RequestHandler {
     json.endObject();
   }
 
-  private void writeScm(String authorData, String scmDateData, int from, int to , JsonWriter json) {
+  private void writeScm(String authorData, String scmDateData, int from, int to, JsonWriter json) {
     if (authorData != null) {
       json.name("scm").beginObject();
       List<String> authors = splitLine(authorData);
@@ -80,6 +80,7 @@ public class SourcesShowWsHandler implements RequestHandler {
 
       String previousAuthor = null;
       String previousDate = null;
+      boolean scmDataAdded = false;
       for (int i = 0; i < authors.size(); i++) {
         String[] authorWithLine = splitColumn(authors.get(i));
         Integer line = Integer.parseInt(authorWithLine[0]);
@@ -88,14 +89,15 @@ public class SourcesShowWsHandler implements RequestHandler {
         String[] dateWithLine = splitColumn(dates.get(i));
         String date = dateWithLine[1];
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
-        if (!author.equals(previousAuthor) && !date.equals(previousDate) &&
-          line >= from && line <= to) {
-          json.name(Integer.toString(line)).beginArray();
-          json.value(author);
-          json.value(formattedDate);
-          json.endArray();
+        if (line >= from && line <= to) {
+          if (!isSameCommit(date, previousDate, author, previousAuthor) || !scmDataAdded) {
+            json.name(Integer.toString(line)).beginArray();
+            json.value(author);
+            json.value(formattedDate);
+            json.endArray();
+            scmDataAdded = true;
+          }
         }
-
         previousAuthor = author;
         previousDate = date;
       }
@@ -103,11 +105,15 @@ public class SourcesShowWsHandler implements RequestHandler {
     }
   }
 
-  private List<String> splitLine(String line){
+  private boolean isSameCommit(String date, String previousDate, String author, String previousAuthor){
+    return author.equals(previousAuthor) && date.equals(previousDate);
+  }
+
+  private List<String> splitLine(String line) {
     return newArrayList(Splitter.on(";").omitEmptyStrings().split(line));
   }
 
-  private String[] splitColumn(String column){
+  private String[] splitColumn(String column) {
     return column.split("=");
   }
 
