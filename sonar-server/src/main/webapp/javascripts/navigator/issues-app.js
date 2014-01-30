@@ -18,6 +18,8 @@ jQuery(function() {
 
 
   NavigatorApp.addInitializer(function() {
+    jQuery('html').addClass('issues-page');
+
     this.appState = new window.SS.AppState();
     window.SS.appState = this.appState;
 
