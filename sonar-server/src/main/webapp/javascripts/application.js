@@ -21,6 +21,30 @@ function toggleFav(resourceId, elt) {
     }});
 }
 
+function dashboardParameters() {
+  var queryString = window.location.search;
+  var parameters = "";
+
+  var matchDashboard = queryString.match(/did=\d+/);
+  if (matchDashboard) {
+    parameters += (matchDashboard[0] + "&");
+  }
+
+  var matchPeriod = queryString.match(/period=\d+/);
+  if (matchPeriod) {
+    // If we have a match for period, check that it is not project-specific
+    var period = parseInt(/period=(\d+)/.exec(queryString)[1]);
+    if (period <= 3) {
+      parameters += matchPeriod[0] + "&";
+    }
+  }
+
+  if (parameters !== "") {
+    parameters = "?" + parameters;
+  }
+  return parameters;
+}
+
 function autocompleteResources() {
   $('searchInput').value = '';
   new Ajax.Autocompleter('searchInput', 'searchResourcesResults', baseUrl + '/search', {
@@ -30,7 +54,7 @@ function autocompleteResources() {
     paramName: 's',
     updateElement: function (item) {
       if (item.id) {
-        window.location = baseUrl + '/dashboard/index/' + item.id;
+        window.location = baseUrl + '/dashboard/index/' + item.id + dashboardParameters();
       }
     },
     onShow: function (element, update) { /* no update */

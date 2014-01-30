@@ -55,7 +55,7 @@ Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
         + baseUrl
         + '/dashboard/index/'
         + resource['key']
-        + window.location.search
+        + dashboardParameters()
         + '"> '
         + resource['name']
         + '</a></li>');
