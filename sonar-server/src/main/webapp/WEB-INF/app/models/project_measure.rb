@@ -264,6 +264,10 @@ class ProjectMeasure < ActiveRecord::Base
     value<=>other.value
   end
 
+  def visible?(period)
+    ! (value.nil? && variation(period).nil?)
+  end
+
   private
 
   def numerical_metric?

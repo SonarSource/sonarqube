@@ -24,16 +24,16 @@ import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties({
-  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS})
+  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC),
+  @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC)
 })
 public class CustomMeasuresWidget extends CoreWidget {
   public CustomMeasuresWidget() {
