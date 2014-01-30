@@ -2,7 +2,7 @@
   {{#if items}}
     <select id="issue-detail-plan-select">
       {{#if issue.actionPlan}}
-        <option value=""><%= message('issue.unplan.submit') -%></option>
+        <option value="#unplan"><%= message('issue.unplan.submit') -%></option>
       {{/if}}
       {{#each items}}
         <option value="{{this.key}}">{{this.name}} {{#if this.fDeadLine}}({{this.fDeadLine}}){{/if}}</option>

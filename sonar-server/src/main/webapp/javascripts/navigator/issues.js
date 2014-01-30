@@ -667,14 +667,15 @@ jQuery(function() {
 
 
     submit: function() {
-      var that = this;
+      var that = this,
+          plan = this.ui.select.val();
 
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/plan',
         data: {
           issue: this.options.issue.get('key'),
-          plan: this.ui.select.val()
+          plan: plan === '#unplan' ? '' : plan
         }
       }).done(function() {
             that.options.detailView.updateAfterAction(true);
