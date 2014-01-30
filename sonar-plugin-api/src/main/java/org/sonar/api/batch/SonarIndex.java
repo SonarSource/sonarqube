@@ -46,7 +46,6 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    */
   public abstract boolean index(Resource resource);
 
-
   /**
    * Indexes a resource. This method does nothing if the resource is already indexed.
    *
@@ -94,7 +93,9 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    *
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
+   * @deprecated since 4.2 should not be used by plugins
    */
+  @Deprecated
   public abstract void setSource(Resource reference, String source);
 
   /**

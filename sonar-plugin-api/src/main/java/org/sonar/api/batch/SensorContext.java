@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -28,6 +26,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.InputFile;
 
 import java.util.Collection;
 import java.util.Date;
@@ -144,7 +143,8 @@ public interface SensorContext {
   Measure saveMeasure(Resource resource, Metric metric, Double value);
 
   /**
-   * Add or update a measure.
+   * Experimental.
+   * Add or update a measure on an InputFile.
    * @since 4.2
    */
   Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
@@ -159,7 +159,8 @@ public interface SensorContext {
   Measure saveMeasure(Resource resource, Measure measure);
 
   /**
-   * Add or update a measure.
+   * Experimental.
+   * Add or update a measure on an InputFile.
    * @since 4.2
    */
   Measure saveMeasure(InputFile inputFile, Measure measure);

@@ -225,14 +225,20 @@ public class ComponentIndexerTest {
 
   @Test
   public void should_compute_line_count() throws IOException {
-    DefaultInputFile inputFile = newInputFile("src/main/java/foo/bar/Foo.java", "line1\nline2\nline3", "foo/bar/Foo.java", "java", false);
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(inputFile));
+    DefaultInputFile inputFile3lines = newInputFile("src/main/java/foo/bar/Foo1.java", "line1\nline2\nline3", "foo/bar/Foo1.java", "java", false);
+    DefaultInputFile inputFileEmpty = newInputFile("src/main/java/foo/bar/Foo2.java", "", "foo/bar/Foo2.java", "java", false);
+    DefaultInputFile inputFileEndsWithNewLine = newInputFile("src/main/java/foo/bar/Foo3.java", "line1\nline2\nline3\n", "foo/bar/Foo3.java", "java", false);
+    DefaultInputFile inputFileMixedLineEnds = newInputFile("src/main/java/foo/bar/Foo4.java", "line1\r\r\nline3\r\n\nline5\r", "foo/bar/Foo4.java", "java", false);
+    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(inputFile3lines, inputFileEmpty, inputFileEndsWithNewLine, inputFileMixedLineEnds));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(ResourceDao.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
-    assertThat(inputFile.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("3");
+    assertThat(inputFile3lines.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("3");
+    assertThat(inputFileEmpty.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("1");
+    assertThat(inputFileEndsWithNewLine.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("4");
+    assertThat(inputFileMixedLineEnds.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("6");
   }
 
   private File getFile(String testFile) {
