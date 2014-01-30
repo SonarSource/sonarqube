@@ -218,8 +218,9 @@
 }
 .navigator-filter-favorite {
   position: absolute;
-  top: 0;
+  top: -100%;
   left: 0;
+  border-top: none;
 }
 .navigator-filter-favorite-toggle {
   width: 16px;

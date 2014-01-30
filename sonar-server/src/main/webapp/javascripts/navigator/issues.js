@@ -352,6 +352,14 @@ jQuery(function() {
     },
 
 
+    onAfterItemAdded: function(itemView) {
+      if (itemView.model.get('type') === window.SS.FavoriteFilterView ||
+          itemView.model.get('type') === window.SS.IssuesFavoriteFilterView) {
+        jQuery('.navigator-header').addClass('navigator-header-favorite');
+      }
+    },
+
+
     search: function() {
       this.options.app.state.set({
         query: this.options.app.getQuery(),
