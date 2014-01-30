@@ -403,7 +403,7 @@ jQuery(function() {
 
     newSearch: function() {
       this.model.clear();
-      this.options.app.router.navigate('statuses=OPEN,REOPENED', { trigger: true });
+      this.options.app.router.navigate('statuses=OPEN,REOPENED', { trigger: true, replace: true });
     },
 
 
@@ -1005,7 +1005,7 @@ jQuery(function() {
 
 
     emptyQuery: function() {
-      this.navigate('statuses=OPEN,REOPENED', { trigger: true });
+      this.navigate('statuses=OPEN,REOPENED', { trigger: true, replace: true });
     },
 
 

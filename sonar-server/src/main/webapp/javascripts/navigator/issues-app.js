@@ -206,7 +206,7 @@ jQuery(function() {
       Backbone.history.start();
 
       app.favoriteFilter.on('change:query', function(model, query) {
-        app.router.navigate(query, { trigger: true });
+        app.router.navigate(query, { trigger: true, replace: true });
       });
     });
   });
@@ -256,7 +256,7 @@ jQuery(function() {
     var queryString = _.map(query, function(v, k) {
       return [k, encodeURIComponent(v)].join('=');
     }).join('|');
-    this.router.navigate(queryString);
+    this.router.navigate(queryString, { replace: true });
   };
 
 
