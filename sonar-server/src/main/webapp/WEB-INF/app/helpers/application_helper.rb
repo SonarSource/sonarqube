@@ -74,7 +74,7 @@ module ApplicationHelper
   end
 
   # Override date_helper methods to be consistent with Java age format
-  # java.util.Date and Time are supported
+  # java.util.Date and Time (ruby) are supported
   #
   def distance_of_time_in_words_to_now(date)
     Internal.i18n.ageFromNow(date)
