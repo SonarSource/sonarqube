@@ -164,14 +164,17 @@ jQuery(function() {
       this.$el.parent().children().removeClass('active');
       this.$el.addClass('active');
 
-      var app = this.options.app,
+      var that = this,
+          app = this.options.app,
           detailView = new window.SS.IssueDetailView({
             model: this.model
           });
 
       if (this.model.get('line')) {
-        jQuery.when(detailView.model.fetch(), this.fetchSource(detailView)).done(function() {
-          app.detailsRegion.show(detailView);
+        jQuery.when(detailView.model.fetch()).done(function() {
+          that.fetchSource(detailView, function() {
+            app.detailsRegion.show(detailView);
+          });
         });
       } else {
         jQuery.when(detailView.model.fetch()).done(function() {
@@ -181,27 +184,30 @@ jQuery(function() {
     },
 
 
-    fetchSource: function(view) {
+    fetchSource: function (view, callback) {
       var from = this.model.get('line') - 10,
           to = this.model.get('line') + 30;
 
-      return jQuery.ajax({
-        type: 'GET',
-        url: baseUrl + '/api/sources/show',
-        data: {
-          key: this.model.get('component'),
-          from: from >= 0 ? from : 0,
-          to: to,
-          format: 'json'
-        }
-      }).done(function(r) {
+      return jQuery
+          .ajax({
+            type: 'GET',
+            url: baseUrl + '/api/sources/show',
+            data: {
+              key: this.model.get('component'),
+              from: from >= 0 ? from : 0,
+              to: to,
+              format: 'json'
+            }
+          })
+          .done(function (r) {
             if (_.isObject(r) && r.source) {
               view.source = r.source;
             }
             if (_.isObject(r) && r.scm) {
               view.scm = r.scm;
             }
-          });
+          })
+          .always(callback);
     }
   });
 
