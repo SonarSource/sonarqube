@@ -108,8 +108,8 @@
       }
     });
 
-    return sources.reduce(function(prev, current) {
-      return prev + options.fn(current);
+    return sources.reduce(function(prev, current, index) {
+      return prev + options.fn(_.extend({ first: index === 0 }, current));
     }, '');
   });
 
