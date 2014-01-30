@@ -115,6 +115,9 @@
 .icon-settings:before {
   content: "\f015";
 }
+.icon-settings-multiple:before {
+  content: "\f085";
+}
 .icon-arrow-down:before {
   content: "\f0d7";
   position: relative;
