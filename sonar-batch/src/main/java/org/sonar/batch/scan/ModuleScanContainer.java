@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.batch.coverage.CoberturaReportParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -151,8 +149,6 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
-
-      CoberturaReportParser.class,
 
       ScanPerspectives.class);
   }
