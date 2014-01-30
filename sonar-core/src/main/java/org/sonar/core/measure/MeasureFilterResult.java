@@ -26,7 +26,7 @@ import java.util.List;
 public class MeasureFilterResult {
 
   public static enum Error {
-    UNKNOWN
+    UNKNOWN, VALUE_SHOULD_BE_A_NUMBER
   }
 
   private List<MeasureFilterRow> rows = null;
