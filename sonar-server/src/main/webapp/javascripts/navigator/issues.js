@@ -496,8 +496,12 @@ jQuery(function() {
         type: 'POST',
         url: url,
         data: data
-      }).done(function() {
+      })
+          .done(function() {
             that.options.detailView.updateAfterAction(true);
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     }
   });
@@ -541,8 +545,12 @@ jQuery(function() {
           issue: this.options.issue.get('key'),
           severity: this.ui.select.val()
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.options.detailView.updateAfterAction(true);
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     }
   });
@@ -639,8 +647,12 @@ jQuery(function() {
           issue: this.options.issue.get('key'),
           assignee: this.ui.select.val()
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.options.detailView.updateAfterAction(true);
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     }
   });
@@ -694,8 +706,12 @@ jQuery(function() {
           issue: this.options.issue.get('key'),
           plan: plan === '#unplan' ? '' : plan
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.options.detailView.updateAfterAction(true);
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     },
 
@@ -842,8 +858,12 @@ jQuery(function() {
         jQuery.ajax({
           type: "POST",
           url: baseUrl + "/issue/delete_comment?id=" + commentKey
-        }).done(function() {
+        })
+            .done(function() {
               that.updateAfterAction(true);
+            })
+            .fail(function(r) {
+              alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
             });
       }
     },
@@ -858,8 +878,12 @@ jQuery(function() {
           issue: this.model.get('key'),
           transition: jQuery(e.target).data('transition')
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.resetIssue();
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     },
 
@@ -891,8 +915,12 @@ jQuery(function() {
           issue: this.model.get('key'),
           assignee: window.SS.currentUser
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.resetIssue();
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     },
 
@@ -928,8 +956,12 @@ jQuery(function() {
           issue: this.model.get('key'),
           actionKey: actionKey
         }
-      }).done(function() {
+      })
+          .done(function() {
             that.resetIssue();
+          })
+          .fail(function(r) {
+            alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
           });
     },
 
