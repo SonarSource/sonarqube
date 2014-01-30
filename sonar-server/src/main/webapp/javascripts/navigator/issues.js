@@ -735,7 +735,8 @@ jQuery(function() {
       'click #issue-set-severity': 'setSeverity',
       'click #issue-assign': 'assign',
       'click #issue-assign-to-me': 'assignToMe',
-      'click #issue-plan': 'plan'
+      'click #issue-plan': 'plan',
+      'click .issue-action': 'action'
     },
 
 
