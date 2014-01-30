@@ -295,12 +295,12 @@ jQuery(function() {
     this.storeQuery(query, this.issues.sorting);
 
     var that = this;
-    this.issuesView.$el.addClass('fetching');
+    this.issuesView.$el.addClass('navigator-fetching');
     if (firstPage) {
       this.issues.fetch({
         data: fetchQuery,
         success: function() {
-          that.issuesView.$el.removeClass('fetching');
+          that.issuesView.$el.removeClass('navigator-fetching');
         }
       });
     } else {
@@ -308,7 +308,7 @@ jQuery(function() {
         data: fetchQuery,
         remove: false,
         success: function() {
-          that.issuesView.$el.removeClass('fetching');
+          that.issuesView.$el.removeClass('navigator-fetching');
         }
       });
     }

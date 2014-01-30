@@ -170,14 +170,17 @@ jQuery(function() {
             model: this.model
           });
 
+      jQuery('.navigator-details').addClass('navigator-fetching');
       if (this.model.get('line')) {
         jQuery.when(detailView.model.fetch()).done(function() {
           that.fetchSource(detailView, function() {
+            jQuery('.navigator-details').removeClass('navigator-fetching');
             app.detailsRegion.show(detailView);
           });
         });
       } else {
         jQuery.when(detailView.model.fetch()).done(function() {
+          jQuery('.navigator-details').removeClass('navigator-fetching');
           app.detailsRegion.show(detailView);
         });
       }
@@ -769,7 +772,13 @@ jQuery(function() {
 
 
     fetchRule: function() {
-      this.rule.fetch();
+      var that = this;
+      this.$('#tab-issue-rule').addClass('navigator-fetching');
+      this.rule.fetch({
+        success: function() {
+          that.$('#tab-issue-rule').removeClass('navigator-fetching');
+        }
+      });
     },
 
 
@@ -897,10 +906,13 @@ jQuery(function() {
             detailView: this
           });
 
+      this.$('.code-issue-actions').addClass('navigator-fetching');
+
       actionPlans.fetch({
         reset: true,
         data: { project: this.model.get('project') },
         success: function() {
+          that.$('.code-issue-actions').removeClass('navigator-fetching');
           that.showActionView(planFormView);
         }
       });
