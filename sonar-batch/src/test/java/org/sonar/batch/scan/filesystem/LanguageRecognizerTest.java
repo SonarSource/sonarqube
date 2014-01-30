@@ -63,6 +63,7 @@ public class LanguageRecognizerTest {
 
     recognizer.start();
     assertThat(recognizer.of(newInputFile("Foo.java"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("src/Foo.java"))).isEqualTo("java");
     assertThat(recognizer.of(newInputFile("Foo.JAVA"))).isEqualTo("java");
     assertThat(recognizer.of(newInputFile("Foo.jav"))).isEqualTo("java");
     assertThat(recognizer.of(newInputFile("Foo.Jav"))).isEqualTo("java");
@@ -126,6 +127,7 @@ public class LanguageRecognizerTest {
     assertThat(recognizer.of(newInputFile("abc"))).isNull();
     assertThat(recognizer.of(newInputFile("abc.php"))).isNull();
     assertThat(recognizer.of(newInputFile("abc.java"))).isEqualTo("java");
+    assertThat(recognizer.of(newInputFile("src/abc.java"))).isEqualTo("java");
     recognizer.stop();
   }
 
