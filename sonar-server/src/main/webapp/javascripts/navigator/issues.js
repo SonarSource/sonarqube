@@ -492,6 +492,8 @@ jQuery(function() {
         data.issue = this.options.issue.get('key');
       }
 
+      this.options.detailView.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: url,
@@ -502,6 +504,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.options.detailView.hideActionSpinner();
           });
     }
   });
@@ -538,6 +541,8 @@ jQuery(function() {
     submit: function() {
       var that = this;
 
+      this.options.detailView.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/set_severity',
@@ -551,6 +556,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.options.detailView.hideActionSpinner();
           });
     }
   });
@@ -640,6 +646,8 @@ jQuery(function() {
     submit: function() {
       var that = this;
 
+      this.options.detailView.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/assign',
@@ -653,6 +661,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.options.detailView.hideActionSpinner();
           });
     }
   });
@@ -699,6 +708,8 @@ jQuery(function() {
       var that = this,
           plan = this.ui.select.val();
 
+      this.options.detailView.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/plan',
@@ -712,6 +723,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.options.detailView.hideActionSpinner();
           });
     },
 
@@ -805,21 +817,28 @@ jQuery(function() {
     },
 
 
+    showActionSpinner: function() {
+      this.$('.code-issue-actions').addClass('navigator-fetching');
+    },
+
+
+    hideActionSpinner: function() {
+      this.$('.code-issue-actions').removeClass('navigator-fetching');
+    },
+
+
     updateAfterAction: function(fetch) {
       var that = this;
 
+      that.formRegion.reset();
+      that.$('.code-issue-actions').show();
+      that.$('.code-issue-form').hide();
+      that.$('[data-comment-key]').show();
+
       if (fetch) {
         jQuery.when(this.resetIssue()).done(function() {
-          that.formRegion.reset();
-          that.$('.code-issue-actions').show();
-          that.$('.code-issue-form').hide();
-          that.$('[data-comment-key]').show();
+          that.hideActionSpinner();
         });
-      } else {
-        that.formRegion.reset();
-        that.$('.code-issue-actions').show();
-        that.$('.code-issue-form').hide();
-        that.$('[data-comment-key]').show();
       }
     },
 
@@ -855,6 +874,8 @@ jQuery(function() {
           confirmMsg = jQuery(e.target).data('confirm-msg');
 
       if (confirm(confirmMsg)) {
+        this.showActionSpinner();
+
         jQuery.ajax({
           type: "POST",
           url: baseUrl + "/issue/delete_comment?id=" + commentKey
@@ -864,6 +885,7 @@ jQuery(function() {
             })
             .fail(function(r) {
               alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+              that.hideActionSpinner();
             });
       }
     },
@@ -871,6 +893,9 @@ jQuery(function() {
 
     transition: function(e) {
       var that = this;
+
+      this.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/do_transition',
@@ -884,6 +909,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.hideActionSpinner();
           });
     },
 
@@ -908,6 +934,9 @@ jQuery(function() {
 
     assignToMe: function() {
       var that = this;
+
+      this.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/assign',
@@ -921,6 +950,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.hideActionSpinner();
           });
     },
 
@@ -934,13 +964,13 @@ jQuery(function() {
             detailView: this
           });
 
-      this.$('.code-issue-actions').addClass('navigator-fetching');
+      this.showActionSpinner();
 
       actionPlans.fetch({
         reset: true,
         data: { project: this.model.get('project') },
         success: function() {
-          that.$('.code-issue-actions').removeClass('navigator-fetching');
+          that.hideActionSpinner();
           that.showActionView(planFormView);
         }
       });
@@ -949,6 +979,9 @@ jQuery(function() {
     action: function(e) {
       var that = this,
           actionKey = jQuery(e.target).data('action');
+
+      this.showActionSpinner();
+
       jQuery.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/do_action',
@@ -962,6 +995,7 @@ jQuery(function() {
           })
           .fail(function(r) {
             alert(r.responseJSON.errors ? _.pluck(r.responseJSON.errors, 'msg').join(' ') : r);
+            that.hideActionSpinner();
           });
     },
 
