@@ -78,69 +78,6 @@ public class WebServiceEngineTest {
 
   }
 
-  private static class SimpleResponse implements Response {
-    public class SimpleStream implements Response.Stream {
-      private String mediaType;
-      private int status;
-
-      @CheckForNull
-      public String mediaType() {
-        return mediaType;
-      }
-
-      @Override
-      public Response.Stream setMediaType(String s) {
-        this.mediaType = s;
-        return this;
-      }
-
-      @CheckForNull
-      public int status() {
-        return status;
-      }
-
-      @Override
-      public Response.Stream setStatus(int i) {
-        this.status = i;
-        return this;
-      }
-
-      @Override
-      public OutputStream output() {
-        return output;
-      }
-    }
-
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-    @Override
-    public JsonWriter newJsonWriter() {
-      return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
-    }
-
-    @Override
-    public XmlWriter newXmlWriter() {
-      return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
-    }
-
-    @Override
-    public SimpleStream stream() {
-      return new SimpleStream();
-    }
-
-    @Override
-    public Response noContent() {
-      Stream stream = stream();
-      stream.setStatus(204);
-      IOUtils.closeQuietly(output);
-      return this;
-    }
-
-    public String outputAsString() {
-      return new String(output.toByteArray(), Charsets.UTF_8);
-    }
-  }
-
   WebServiceEngine engine = new WebServiceEngine(new WebService[]{new SystemWebService()});
 
   @Before
@@ -162,73 +99,73 @@ public class WebServiceEngineTest {
   @Test
   public void execute_request() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "health");
 
-    assertThat(response.outputAsString()).isEqualTo("good");
+    assertThat(response.stream().outputAsString()).isEqualTo("good");
   }
 
   @Test
   public void no_content() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "alive");
 
-    assertThat(response.outputAsString()).isEmpty();
+    assertThat(response.stream().outputAsString()).isEmpty();
   }
 
   @Test
   public void bad_controller() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/xxx", "health");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
   }
 
   @Test
   public void bad_action() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "xxx");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
   }
 
   @Test
   public void method_get_not_allowed() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
   }
 
   @Test
   public void method_post_required() throws Exception {
     InternalRequest request = new SimpleRequest().setMethod("POST");
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
-    assertThat(response.outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().outputAsString()).isEqualTo("pong");
   }
 
   @Test
   public void required_parameter_is_not_set() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'message' is missing\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'message' is missing\"}]}");
   }
 
   @Test
   public void optional_parameter_is_not_set() throws Exception {
     InternalRequest request = new SimpleRequest().setParam("message", "Hello World");
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.outputAsString()).isEqualTo("Hello World by -");
+    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
   }
 
   @Test
@@ -236,19 +173,21 @@ public class WebServiceEngineTest {
     InternalRequest request = new SimpleRequest()
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.outputAsString()).isEqualTo("Hello World by Marcel");
+    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by Marcel");
   }
 
   @Test
   public void internal_error() throws Exception {
     InternalRequest request = new SimpleRequest();
-    SimpleResponse response = new SimpleResponse();
+    ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail");
 
-    assertThat(response.outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
+    assertThat(response.stream().httpStatus()).isEqualTo(500);
+    assertThat(response.stream().mediaType()).isEqualTo("application/json");
   }
 
   static class SystemWebService implements WebService {

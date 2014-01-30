@@ -19,100 +19,80 @@
  */
 package org.sonar.server.ws;
 
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import javax.annotation.CheckForNull;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.OutputStreamWriter;
 
 public class ServletResponse implements Response {
 
-  private class ServletStream implements Stream {
+  public static class ServletStream implements Stream {
+    private String mediaType;
+    private int httpStatus = 200;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    @CheckForNull
+    public String mediaType() {
+      return mediaType;
+    }
+
+    public int httpStatus() {
+      return httpStatus;
+    }
 
     @Override
-    public Stream setMediaType(String s) {
-      source.setContentType(s);
+    public ServletStream setMediaType(String s) {
+      this.mediaType = s;
       return this;
     }
 
     @Override
-    public Stream setStatus(int httpStatus) {
-      source.setStatus(httpStatus);
+    public ServletStream setStatus(int httpStatus) {
+      this.httpStatus = httpStatus;
       return this;
     }
 
     @Override
     public OutputStream output() {
-      try {
-        return source.getOutputStream();
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to get servlet output stream", e);
-      }
+      return output;
+    }
+
+    public String outputAsString() {
+      return output.toString();
+    }
+
+    public ServletStream reset() {
+      output.reset();
+      return this;
     }
   }
 
-  private final HttpServletResponse source;
-
-  public ServletResponse(HttpServletResponse hsr) {
-    this.source = hsr;
-  }
+  private final ServletStream stream = new ServletStream();
 
   @Override
   public JsonWriter newJsonWriter() {
-    return JsonWriter.of(new Buffer("application/json"));
+    stream.setMediaType("application/json");
+    return JsonWriter.of(new OutputStreamWriter(stream.output()));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    return XmlWriter.of(new Buffer("application/xml"));
+    stream.setMediaType("application/xml");
+    return XmlWriter.of(new OutputStreamWriter(stream.output()));
   }
 
   @Override
-  public Stream stream() {
-    return new ServletStream();
+  public ServletStream stream() {
+    return stream;
   }
 
   @Override
   public Response noContent() {
-    try {
-      source.setStatus(204);
-      source.flushBuffer();
-      return this;
-    } catch (IOException ioex) {
-      throw new IllegalStateException("Fail to send 'no content' to client");
-    }
-  }
-
-  private class Buffer extends StringWriter {
-    private final String mediaType;
-
-    private Buffer(String mediaType) {
-      this.mediaType = mediaType;
-    }
-
-    @Override
-    public void close() throws IOException {
-      super.close();
-
-      source.setStatus(200);
-      source.setContentType(mediaType);
-      ServletOutputStream stream = null;
-      try {
-        stream = source.getOutputStream();
-        IOUtils.copy(new ByteArrayInputStream(toString().getBytes(Charsets.UTF_8)), stream);
-        stream.flush();
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to flush buffer", e);
-      } finally {
-        IOUtils.closeQuietly(stream);
-      }
-    }
+    stream.setStatus(204);
+    return this;
   }
 }

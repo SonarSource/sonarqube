@@ -23,7 +23,6 @@ import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
@@ -65,7 +64,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     return context.controllers();
   }
 
-  public void execute(InternalRequest request, Response response,
+  public void execute(InternalRequest request, ServletResponse response,
                       String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
@@ -107,18 +106,22 @@ public class WebServiceEngine implements ServerComponent, Startable {
     }
   }
 
-  private void sendError(int status, String message, Response response) {
-    // Reset response by directly using the stream. Response#newJsonWriter()
-    // must not be used because it potentially contains some partial response
-    Response.Stream stream = response.stream();
+  private void sendError(int status, String message, ServletResponse response) {
+    ServletResponse.ServletStream stream = response.stream();
+    stream.reset();
     stream.setStatus(status);
     stream.setMediaType("application/json");
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
-    json.beginObject();
-    json.name("errors").beginArray();
-    json.beginObject().prop("msg", message).endObject();
-    json.endArray();
-    json.endObject();
-    json.close();
+    try {
+      json.beginObject();
+      json.name("errors").beginArray();
+      json.beginObject().prop("msg", message).endObject();
+      json.endArray();
+      json.endObject();
+    } finally {
+      // TODO if close() fails, the runtime exception should not hide the
+      // potential exception raised in the try block.
+      json.close();
+    }
   }
 }

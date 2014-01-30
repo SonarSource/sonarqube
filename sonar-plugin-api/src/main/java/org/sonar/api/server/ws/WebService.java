@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Defines a web service implemented in Java (no Ruby on Rails at all).
  * @since 4.2
  */
 public interface WebService extends ServerExtension {
@@ -319,7 +320,7 @@ public interface WebService extends ServerExtension {
   }
 
   /**
-   * Executed at server startup.
+   * Executed once at server startup.
    */
   void define(Context context);
 
