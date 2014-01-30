@@ -50,6 +50,14 @@
   .size(@navigatorResultsWidth, @navigatorStatusHeight);
 }
 
+.navigator-notes {
+  .navigator-element;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
+  left: 0;
+  .size(100%, @navigatorNotesHeight);
+  display: none;
+}
+
 
 .navigator-simple {
   .navigator-filters {
@@ -62,6 +70,20 @@
     left: 0;
     width: 100%;
   }
+}
+
+
+.navigator-with-notes {
+
+  .navigator-results,
+  .navigator-details {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight;
+  }
+
+  .navigator-notes {
+    display: block;
+  }
+
 }
 
 
@@ -136,6 +158,23 @@
   & > button + button {
     margin-left: -1px;
   }
+}
+
+
+
+// Notes
+.navigator-notes {
+  padding: 0 @navigatorPadding;
+  border-bottom: 1px solid @navigatorBorderColor;
+  background-color: @navigatorBarBackground;
+
+  color: #777;
+  font-size: @smallFontSize;
+  line-height: @navigatorNotesHeight;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 

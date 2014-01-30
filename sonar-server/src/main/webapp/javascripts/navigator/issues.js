@@ -250,6 +250,13 @@ jQuery(function() {
     },
 
 
+    onAfterItemAdded: function() {
+      var showLimitNotes = this.collection.maxResultsReached != null && this.collection.maxResultsReached;
+      jQuery('.navigator').toggleClass('navigator-with-notes', showLimitNotes);
+      jQuery('.navigator-notes').toggle(showLimitNotes);
+    },
+
+
     close: function() {
       var scrollEl = jQuery('.navigator-results');
       scrollEl.off('scroll');
