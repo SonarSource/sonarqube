@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MeasureFilterExecutorTest {
@@ -462,7 +463,7 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
-  public void filter_by_resource_name() throws SQLException {
+  public void filter_by_component_name() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceName("PHP Proj");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
@@ -472,7 +473,7 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
-  public void filter_by_resource_key() throws SQLException {
+  public void filter_by_component_key() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKey("Va_proje");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
@@ -492,6 +493,22 @@ public class MeasureFilterExecutorTest {
 
     assertThat(rows).hasSize(1);
     verifyJavaBigFile(rows.get(0));
+  }
+
+  /**
+   * see SONAR-4796
+   */
+  @Test
+  public void escape_percent_and_underscore_when_filter_by_component_name_or_key() throws SQLException {
+    db.prepareDbUnit(getClass(), "escape_percent_and_underscore_when_filter_by_component_name_or_key.xml");
+
+    assertThat(executor.execute(
+      new MeasureFilter().setResourceQualifiers(newArrayList("CLA")).setResourceKey("java_"),
+      new MeasureFilterContext())).hasSize(2);
+
+    assertThat(executor.execute(
+      new MeasureFilter().setResourceQualifiers(newArrayList("CLA")).setResourceName("java%"),
+      new MeasureFilterContext())).hasSize(2);
   }
 
   @Test

@@ -27,9 +27,12 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.MsSql;
+import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
+
 import java.sql.*;
 import java.util.Comparator;
 import java.util.List;
@@ -163,16 +166,18 @@ class MeasureFilterSql {
   private void appendResourceKeyCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceKey())) {
       sb.append(" AND UPPER(p.kee) LIKE '%");
-      sb.append(StringEscapeUtils.escapeSql(StringUtils.upperCase(filter.getResourceKey())));
+      sb.append(escapePercentAndUnderscrore(StringEscapeUtils.escapeSql(StringUtils.upperCase(filter.getResourceKey()))));
       sb.append("%'");
+      appendEscapeForSomeDb(sb);
     }
   }
 
   private void appendResourceNameCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceName())) {
       sb.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee LIKE '");
-      sb.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
+      sb.append(escapePercentAndUnderscrore(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName()))));
       sb.append("%'");
+      appendEscapeForSomeDb(sb);
       if (!filter.getResourceQualifiers().isEmpty()) {
         sb.append(" AND rindex.qualifier IN ");
         appendInStatement(filter.getResourceQualifiers(), sb);
@@ -212,6 +217,19 @@ class MeasureFilterSql {
       to.append("'");
     }
     to.append(") ");
+  }
+
+  /**
+   * Replace escape percent and underscore by adding a slash just before
+   */
+  private String escapePercentAndUnderscrore(String value){
+    return value.replaceAll("%", "\\\\%").replaceAll("_", "\\\\_");
+  }
+
+  private void appendEscapeForSomeDb(StringBuilder sb){
+    if (database.getDialect().getId().equals(Oracle.ID) || database.getDialect().getId().equals(MsSql.ID)) {
+      sb.append(" ESCAPE '\\'");
+    }
   }
 
   abstract static class RowProcessor {
