@@ -36,6 +36,7 @@ import org.sonar.api.utils.SonarException;
 import javax.annotation.CheckForNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public class LanguageRecognizer implements BatchComponent, Startable {
         patternByLanguage.put(language.getKey(), pathPatterns);
       } else if (language.getFileSuffixes().length > 0) {
         // If no custom language pattern is defined then fallback to suffixes declared by language
-        String[] patterns = language.getFileSuffixes();
+        String[] patterns = Arrays.copyOf(language.getFileSuffixes(), language.getFileSuffixes().length);
         for (int i = 0; i < patterns.length; i++) {
           String suffix = patterns[i];
           String extension = sanitizeExtension(suffix);
