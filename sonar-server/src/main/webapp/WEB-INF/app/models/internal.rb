@@ -86,6 +86,10 @@ class Internal
     component(Java::OrgSonarServerRule::RuleTags.java_class)
   end
 
+  def self.i18n
+    component(Java::OrgSonarServerUi::JRubyI18n.java_class)
+  end
+
   private
 
   def self.component(component_java_class)

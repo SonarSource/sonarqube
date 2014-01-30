@@ -24,9 +24,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
@@ -79,4 +81,9 @@ public class JRubyI18n implements ServerComponent {
   public String getJsDictionnary(String rubyLocale) {
     return gwtI18n.getJsDictionnary(toLocale(rubyLocale));
   }
+
+  public String ageFromNow(Date date) {
+    return i18n.ageFromNow(UserSession.get().locale(), date);
+  }
+
 }

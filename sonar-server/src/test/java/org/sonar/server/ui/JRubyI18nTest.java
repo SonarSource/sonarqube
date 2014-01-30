@@ -19,36 +19,77 @@
  */
 package org.sonar.server.ui;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
 
+import java.util.Date;
 import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public class JRubyI18nTest {
+
+  @Mock
+  I18n i18n;
+
+  @Mock
+  GwtI18n gwtI18n;
+
+  JRubyI18n jRubyI18n;
+
+
+  @Before
+  public void setUp() throws Exception {
+    jRubyI18n = new JRubyI18n(i18n, gwtI18n);
+  }
+
   @Test
-  public void shouldConvertLocales() {
+  public void convert_locales() {
     assertThat(JRubyI18n.toLocale("fr")).isEqualTo(Locale.FRENCH);
     assertThat(JRubyI18n.toLocale("fr-CH")).isEqualTo(new Locale("fr", "CH"));
   }
 
   @Test
-  public void shouldCacheLocales() {
-    JRubyI18n i18n = new JRubyI18n(mock(I18n.class), mock(GwtI18n.class));
-    assertThat(i18n.getLocalesByRubyKey()).isEmpty();
+  public void cache_locales() {
+    assertThat(jRubyI18n.getLocalesByRubyKey()).isEmpty();
 
-    i18n.getLocale("fr");
+    jRubyI18n.getLocale("fr");
 
-    assertThat(i18n.getLocalesByRubyKey()).hasSize(1);
-    assertThat(i18n.getLocalesByRubyKey().get("fr")).isNotNull();
+    assertThat(jRubyI18n.getLocalesByRubyKey()).hasSize(1);
+    assertThat(jRubyI18n.getLocalesByRubyKey().get("fr")).isNotNull();
   }
 
   @Test
   public void default_locale_should_be_english() throws Exception {
     assertThat(JRubyI18n.toLocale(null)).isEqualTo(Locale.ENGLISH);
-
   }
+
+  @Test
+  public void message() throws Exception {
+    jRubyI18n.message("en", "my.key", "default");
+    verify(i18n).message(any(Locale.class), eq("my.key"), eq("default"));
+  }
+
+  @Test
+  public void get_js_dictionnary() throws Exception {
+    jRubyI18n.getJsDictionnary("en");
+    verify(gwtI18n).getJsDictionnary(any(Locale.class));
+  }
+
+  @Test
+  public void age_from_now() throws Exception {
+    Date date = new Date();
+    jRubyI18n.ageFromNow(new Date());
+    verify(i18n).ageFromNow(any(Locale.class), eq(date));
+  }
+
 }

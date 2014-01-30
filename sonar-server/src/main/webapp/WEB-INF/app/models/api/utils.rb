@@ -89,8 +89,11 @@ class Api::Utils
     java_date && Time.at(java_date.time/1000)
   end
 
-  def self.age_from_now(java_date)
-    ActionController::Base.helpers.time_ago_in_words(java_to_ruby_datetime(java_date))
+  # Format date to age format
+  #
+  # Added in 4.2
+  def self.age_from_now(date)
+    Internal.i18n.ageFromNow(date)
   end
 
   def self.is_number?(s)
