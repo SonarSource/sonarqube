@@ -136,6 +136,8 @@ class ManualMeasure < ActiveRecord::Base
           errors.add('value', "Value must be OK, WARN or ERROR") if !['OK', 'WARN', 'ERROR'].include?(raw_value)
           write_attribute("value", Sonar::RulePriority.id(raw_value))
           write_attribute("text_value", raw_value)
+        when Metric::VALUE_TYPE_STRING
+          errors.add('value', "A text value must be provided") if value_before_type_cast.nil? || value_before_type_cast == ''
       end
     end
   end
