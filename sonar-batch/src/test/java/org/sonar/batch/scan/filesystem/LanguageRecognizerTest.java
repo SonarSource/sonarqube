@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.base.Charsets;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -32,6 +30,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.api.utils.SonarException;
 
@@ -160,9 +159,9 @@ public class LanguageRecognizerTest {
       @Override
       public boolean matches(Object arg0) {
         // Need custom matcher because order of language in the exception is not deterministic (hashmap)
-        return arg0.toString().contains("Language of file 'abc.xhtml' can not be decided as the file extension 'xhtml' is declared by several languages: ")
-          && arg0.toString().contains("web")
-          && arg0.toString().contains("xml");
+        return arg0.toString().contains("Language of file 'abc.xhtml' can not be decided as the file matches patterns of both ")
+          && arg0.toString().contains("sonar.lang.patterns.web : **/*.xhtml")
+          && arg0.toString().contains("sonar.lang.patterns.xml : **/*.xhtml");
       }
     });
     recognizer.of(newInputFile("abc.xhtml"));
@@ -174,8 +173,8 @@ public class LanguageRecognizerTest {
     Languages languages = new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml"));
 
     Settings settings = new Settings();
-    settings.setProperty("sonar.xml.filePatterns", "xml/**");
-    settings.setProperty("sonar.web.filePatterns", "web/**");
+    settings.setProperty("sonar.lang.patterns.xml", "xml/**");
+    settings.setProperty("sonar.lang.patterns.web", "web/**");
     LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
     recognizer.start();
     assertThat(recognizer.of(newInputFile("xml/abc.xhtml"))).isEqualTo("xml");
@@ -188,14 +187,26 @@ public class LanguageRecognizerTest {
     Languages languages = new Languages(new MockLanguage("abap", "abap"), new MockLanguage("cobol", "cobol"));
 
     Settings settings = new Settings();
-    settings.setProperty("sonar.abap.filePatterns", "*.abap,*.txt");
-    settings.setProperty("sonar.cobol.filePatterns", "*.cobol,*.txt");
+    settings.setProperty("sonar.lang.patterns.abap", "*.abap,*.txt");
+    settings.setProperty("sonar.lang.patterns.cobol", "*.cobol,*.txt");
     LanguageRecognizer recognizer = new LanguageRecognizer(settings, languages);
     recognizer.start();
     assertThat(recognizer.of(newInputFile("abc.abap"))).isEqualTo("abap");
     assertThat(recognizer.of(newInputFile("abc.cobol"))).isEqualTo("cobol");
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Language of file 'abc.txt' can not be decided as the file matches patterns of both sonar.abap.filePatterns and sonar.cobol.filePatterns");
+    thrown.expectMessage(new BaseMatcher<String>() {
+      @Override
+      public void describeTo(Description arg0) {
+      }
+
+      @Override
+      public boolean matches(Object arg0) {
+        // Need custom matcher because order of language in the exception is not deterministic (hashmap)
+        return arg0.toString().contains("Language of file 'abc.txt' can not be decided as the file matches patterns of both ")
+          && arg0.toString().contains("sonar.lang.patterns.abap : *.abap,*.txt")
+          && arg0.toString().contains("sonar.lang.patterns.cobol : *.cobol,*.txt");
+      }
+    });
     recognizer.of(newInputFile("abc.txt"));
     recognizer.stop();
   }

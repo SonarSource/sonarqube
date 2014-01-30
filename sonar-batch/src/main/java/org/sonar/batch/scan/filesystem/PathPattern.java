@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ abstract class PathPattern {
   abstract boolean match(Resource resource);
 
   abstract boolean match(InputFile inputFile);
+
+  abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
 
   abstract boolean supportResource();
 
@@ -70,7 +73,20 @@ abstract class PathPattern {
 
     @Override
     boolean match(InputFile inputFile) {
-      return pattern.match(inputFile.absolutePath());
+      return match(inputFile, true);
+    }
+
+    @Override
+    boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
+      String path = inputFile.absolutePath();
+      if (!caseSensitiveFileExtension) {
+        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        if (StringUtils.isNotBlank(extension)) {
+          StringUtils.removeEndIgnoreCase(path, extension);
+          path = path + extension;
+        }
+      }
+      return pattern.match(path);
     }
 
     @Override
@@ -99,7 +115,19 @@ abstract class PathPattern {
 
     @Override
     boolean match(InputFile inputFile) {
+      return match(inputFile, true);
+    }
+
+    @Override
+    boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.path();
+      if (!caseSensitiveFileExtension) {
+        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        if (StringUtils.isNotBlank(extension)) {
+          path = StringUtils.removeEndIgnoreCase(path, extension);
+          path = path + extension;
+        }
+      }
       return path != null && pattern.match(path);
     }
 
@@ -117,5 +145,9 @@ abstract class PathPattern {
     public String toString() {
       return pattern.toString();
     }
+  }
+
+  static String sanitizeExtension(String suffix) {
+    return StringUtils.lowerCase(StringUtils.removeStart(suffix, "."));
   }
 }
