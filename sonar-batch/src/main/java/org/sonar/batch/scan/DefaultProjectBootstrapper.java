@@ -35,16 +35,14 @@ import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.core.component.ComponentKeys;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 /**
  * Class that creates a Sonar project definition based on a set of properties.
@@ -134,9 +132,11 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     } else {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
+    final String projectKey = properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    checkProjectKeyValid(projectKey);
     File workDir;
     if (parent == null) {
-      validateDirectories(properties, baseDir, properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
+      validateDirectories(properties, baseDir, projectKey);
       workDir = initRootProjectWorkDir(baseDir);
     } else {
       workDir = initModuleWorkDir(properties);
@@ -146,6 +146,14 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
       .setBaseDir(baseDir)
       .setWorkDir(workDir);
     return definition;
+  }
+
+  private void checkProjectKeyValid(String projectKey) {
+    if (!ComponentKeys.isValidModuleKey(projectKey)) {
+      throw new IllegalStateException(String.format(
+        "Invalid project key '%s'.\n"
+        + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", projectKey));
+    }
   }
 
   @VisibleForTesting
