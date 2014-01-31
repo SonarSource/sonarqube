@@ -28,6 +28,10 @@
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('notEq', function(v1, v2, options) {
+    return v1 != v2 ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('inArray', function(array, element, options) {
     if (array.indexOf(element) !== -1) {
       return options.fn(this);
