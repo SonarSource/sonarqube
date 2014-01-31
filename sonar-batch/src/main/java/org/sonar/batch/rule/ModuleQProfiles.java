@@ -55,6 +55,13 @@ public class ModuleQProfiles implements BatchComponent {
       this.version = dto.getVersion();
     }
 
+    QProfile(int id, String name, String language, Integer version) {
+      this.id = id;
+      this.name = name;
+      this.language = language;
+      this.version = version;
+    }
+
     public int id() {
       return id;
     }

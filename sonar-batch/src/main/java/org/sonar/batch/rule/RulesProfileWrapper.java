@@ -61,8 +61,8 @@ public class RulesProfileWrapper extends RulesProfile {
   }
 
   private RulesProfile getSingleProfileOrFail() {
-    if (singleLanguageProfile != null) {
-      throw new SonarException("Please update your plugin to support multi-language analysis");
+    if (singleLanguageProfile == null) {
+      throw new IllegalStateException("Please update your plugin to support multi-language analysis");
     }
     return singleLanguageProfile;
   }
@@ -83,6 +83,7 @@ public class RulesProfileWrapper extends RulesProfile {
     return singleLanguageProfile.getLanguage();
   }
 
+  // TODO remove when ProfileEventsSensor is refactored
   public RulesProfile getProfileByLanguage(String languageKey) {
     for (RulesProfile profile : profiles) {
       if (languageKey.equals(profile.getLanguage())) {

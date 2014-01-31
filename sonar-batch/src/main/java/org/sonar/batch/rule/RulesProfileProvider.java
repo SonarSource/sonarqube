@@ -20,8 +20,11 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ModuleLanguages;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.jpa.dao.ProfilesDao;
@@ -35,11 +38,12 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private RulesProfile singleton = null;
 
-  public RulesProfile provide(ModuleQProfiles qProfiles, ModuleLanguages moduleLanguages, ProfilesDao dao) {
+  public RulesProfile provide(ModuleQProfiles qProfiles, Settings settings, ProfilesDao dao) {
     if (singleton == null) {
-      if (moduleLanguages.keys().size() == 1) {
+      String lang = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
+      if (StringUtils.isNotBlank(lang)) {
         // Backward-compatibility with single-language modules
-        singleton = loadSingleLanguageProfile(qProfiles, moduleLanguages.keys().iterator().next(), dao);
+        singleton = loadSingleLanguageProfile(qProfiles, lang, dao);
       } else {
         singleton = loadProfiles(qProfiles, dao);
       }
