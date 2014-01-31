@@ -428,7 +428,7 @@ class Api::ResourcesController < Api::ApiController
     if measures
       json_measures=[]
       json['msr']=json_measures
-      measures.each do |measure|
+      measures.select { |measure| !measure.metric.key.start_with?('new_') || include_trends }.each do |measure|
         json_measure={}
         json_measures<<json_measure
         json_measure[:key]=measure.metric.name
