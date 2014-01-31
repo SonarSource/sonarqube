@@ -19,12 +19,10 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetScope;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-@WidgetCategory({"Global"})
 @WidgetScope(GLOBAL)
 public class WelcomeWidget extends CoreWidget {
 

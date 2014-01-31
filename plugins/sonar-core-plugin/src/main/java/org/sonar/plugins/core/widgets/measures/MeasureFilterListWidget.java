@@ -24,7 +24,7 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-@WidgetCategory({"Filters", "Global"})
+@WidgetCategory({"Filters"})
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterListWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),

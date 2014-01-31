@@ -20,12 +20,10 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory("Global")
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "300"),

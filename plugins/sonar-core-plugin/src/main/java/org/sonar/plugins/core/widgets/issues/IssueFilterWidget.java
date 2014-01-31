@@ -24,7 +24,7 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-@WidgetCategory({"Filters", "Global", "Issues"})
+@WidgetCategory({"Filters", "Issues"})
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = IssueFilterWidget.FILTER_PROPERTY, type = WidgetPropertyType.ISSUE_FILTER, optional = false),
