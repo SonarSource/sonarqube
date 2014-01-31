@@ -25,6 +25,8 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 /**
@@ -144,6 +146,7 @@ public class File extends Resource {
    * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
    */
   @Deprecated
+  @CheckForNull
   public static File fromIOFile(java.io.File file, List<java.io.File> sourceDirs) {
     PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
     if (relativePath != null) {
@@ -153,11 +156,14 @@ public class File extends Resource {
   }
 
   /**
-   * Creates a SonarQube File from its Java IO File and a module.
-   * The returned SonarQube File is partially initialized. But that's enough to call for example
-   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already index.
+   * Creates a SonarQube File from an absolute Java IO File and a module.
+   * The returned SonarQube File can be then passed for example to
+   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)}.
+   * @param file absolute path to a file
+   * @param module
    * @return null if the file is not under module basedir.
    */
+  @CheckForNull
   public static File fromIOFile(java.io.File file, Project module) {
     String relativePathFromBasedir = new PathResolver().relativePath(module.getFileSystem().getBasedir(), file);
     if (relativePathFromBasedir != null) {
