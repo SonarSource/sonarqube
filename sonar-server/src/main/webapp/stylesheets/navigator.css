@@ -427,6 +427,7 @@
 .navigator-filter-details-inner .select2-container,
 .navigator-filter-details-inner input {
   margin: 5px 0;
+  vertical-align: middle;
 }
 .navigator-filter-select-list {
   min-width: 150px;

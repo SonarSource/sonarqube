@@ -34,11 +34,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         placeholder: window.SS.phrases.metric
       });
       this.$('[name=period]').val(value.period || 0).select2({
-        width: '100%'
+        width: '100%',
+        minimumResultsForSearch: 100
       });
       this.$('[name=op]').val(value.op || 'eq').select2({
         width: '60px',
-        placeholder: '='
+        placeholder: '=',
+        minimumResultsForSearch: 100
       });
       this.$('[name=val]').val(value.val);
       this.inputChanged();
