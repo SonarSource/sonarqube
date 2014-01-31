@@ -56,7 +56,18 @@
           {{#if debt}}
             <li>
               <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
-              <div class="code-issue-details-value">{{debt}}</div>
+              <div class="code-issue-details-value">
+                {{debt}}
+                {{#if characteristic}}
+                  {{#if subCharacteristic}}
+                    -  {{characteristic}} > {{subCharacteristic}}
+                  {{else}}
+                    <br><%= message('issue.technical_debt_deleted') -%>
+                  {{/if}}
+                {{else}}
+                  <br><%= message('issue.technical_debt_deleted') -%>
+                {{/if}}
+              </div>
             </li>
           {{/if}}
           {{# if reporter}}
