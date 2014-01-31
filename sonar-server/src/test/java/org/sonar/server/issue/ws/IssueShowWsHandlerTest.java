@@ -39,12 +39,15 @@ import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.WsTester;
+import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
@@ -84,6 +87,9 @@ public class IssueShowWsHandlerTest {
   TechnicalDebtFormatter technicalDebtFormatter;
 
   @Mock
+  DefaultTechnicalDebtManager technicalDebtManager;
+
+  @Mock
   I18n i18n;
 
   List<Issue> issues;
@@ -107,7 +113,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter, i18n)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter, technicalDebtManager, i18n)));
   }
 
   @Test
@@ -213,6 +219,25 @@ public class IssueShowWsHandlerTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_technical_debt.json");
+  }
+
+  @Test
+  public void show_issue_with_characteristics() throws Exception {
+    WorkDayDuration technicalDebt = WorkDayDuration.of(1, 2, 0);
+    Issue issue = createStandardIssue()
+      .setTechnicalDebt(technicalDebt);
+    issues.add(issue);
+
+    Characteristic requirement = new DefaultCharacteristic().setId(5).setParentId(2).setRootId(1);
+    Characteristic characteristic = new DefaultCharacteristic().setId(1).setName("Maintainability");
+    Characteristic subCharacteristic = new DefaultCharacteristic().setId(2).setName("Readability");
+    when(technicalDebtManager.findRequirementByRule(result.rule(issue))).thenReturn(requirement);
+    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(characteristic);
+    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(subCharacteristic);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
 
   @Test
@@ -378,7 +403,7 @@ public class IssueShowWsHandlerTest {
   }
 
   private DefaultIssue createStandardIssue() {
-    DefaultIssue issue =  createIssue();
+    DefaultIssue issue = createIssue();
     addComponentAndProject();
     return issue;
   }
@@ -392,7 +417,7 @@ public class IssueShowWsHandlerTest {
       .setCreationDate(issue_creation_date);
   }
 
-  private void addComponentAndProject(){
+  private void addComponentAndProject() {
     Component component = mock(Component.class);
     when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
     when(component.longName()).thenReturn("SonarQube :: Issue Client");

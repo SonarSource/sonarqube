@@ -29,10 +29,12 @@ import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
@@ -58,15 +60,17 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
   private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final DefaultTechnicalDebtManager technicalDebtManager;
   private final I18n i18n;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            TechnicalDebtFormatter technicalDebtFormatter, I18n i18n) {
+                            TechnicalDebtFormatter technicalDebtFormatter, DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
     this.technicalDebtFormatter = technicalDebtFormatter;
+    this.technicalDebtManager = technicalDebtManager;
     this.i18n = i18n;
   }
 
@@ -127,6 +131,18 @@ public class IssueShowWsHandler implements RequestHandler {
 
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
+    addCharacteristics(result, issue, json);
+  }
+
+  private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    Characteristic requirement = technicalDebtManager.findRequirementByRule(result.rule(issue));
+    // Requirement can be null if it has been disabled
+    if (requirement != null) {
+      Characteristic characteristic = technicalDebtManager.findCharacteristicById(requirement.rootId());
+      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
+      Characteristic subCharacteristic = technicalDebtManager.findCharacteristicById(requirement.parentId());
+      json.prop("subCharacteristic", subCharacteristic != null ? subCharacteristic.name() : null);
+    }
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
