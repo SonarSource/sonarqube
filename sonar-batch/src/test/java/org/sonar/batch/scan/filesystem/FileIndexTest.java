@@ -24,13 +24,18 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputDir;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FileIndexTest {
@@ -50,5 +55,17 @@ public class FileIndexTest {
     assertThat(inputDir.name()).isEqualTo("src/main/java/com/foo");
     assertThat(inputDir.file()).isEqualTo(ioFile);
     assertThat(inputDir.attribute(DefaultInputDir.ATTRIBUTE_COMPONENT_KEY)).isEqualTo("myProject:src/main/java/com/foo");
+  }
+
+  @Test
+  public void should_not_index_aggregator() throws Exception {
+    Project project = new Project("myProject");
+    new Project("moduleA").setParent(project);
+    InputFileCache fileCache = mock(InputFileCache.class);
+    FileIndex index = new FileIndex(null, null, null, fileCache, null, new PathResolver(), project);
+
+    index.index(null);
+
+    verify(fileCache, never()).put(anyString(), any(InputFile.class));
   }
 }

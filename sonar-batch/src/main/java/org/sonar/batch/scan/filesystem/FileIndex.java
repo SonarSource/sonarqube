@@ -88,7 +88,7 @@ public class FileIndex implements BatchComponent {
   private final LanguageRecognizer languageRecognizer;
   private final InputFileCache fileCache;
   private final FileHashes fileHashes;
-  private final Project project;
+  private final Project module;
   private final ExclusionFilters exclusionFilters;
 
   public FileIndex(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, LanguageRecognizer languageRecognizer,
@@ -99,11 +99,15 @@ public class FileIndex implements BatchComponent {
     this.fileCache = cache;
     this.fileHashes = fileHashes;
     this.pathResolver = pathResolver;
-    this.project = project;
+    this.module = project;
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
     Logger logger = LoggerFactory.getLogger(FileIndex.class);
+    if (!module.getModules().isEmpty()) {
+      // No indexing for an aggregator module
+      return;
+    }
     logger.info("Index files");
     exclusionFilters.logConfiguration(fileSystem);
     // TODO log configuration too (replace FileSystemLogger)
@@ -157,7 +161,7 @@ public class FileIndex implements BatchComponent {
     Map<String, String> attributes = Maps.newHashMap();
     // paths
     String resourceKey = PathUtils.sanitize(path);
-    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
+    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, module.getEffectiveKey() + ":" + resourceKey);
     return DefaultInputDir.create(ioFile, path, attributes);
   }
 
@@ -193,7 +197,7 @@ public class FileIndex implements BatchComponent {
     set(attributes, InputFile.ATTRIBUTE_TYPE, type);
 
     String resourceKey = PathUtils.sanitize(path);
-    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, project.getEffectiveKey() + ":" + resourceKey);
+    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, module.getEffectiveKey() + ":" + resourceKey);
     // hash + status
     initStatus(file, fileSystem.sourceCharset(), path, attributes);
 
@@ -217,10 +221,10 @@ public class FileIndex implements BatchComponent {
         set(attributes, DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(src));
         set(attributes, DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
         if (Java.KEY.equals(lang)) {
-          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":"
+          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, module.getEffectiveKey() + ":"
             + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
         } else {
-          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, project.getEffectiveKey() + ":" + sourceRelativePath);
+          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, module.getEffectiveKey() + ":" + sourceRelativePath);
         }
         return;
       }
