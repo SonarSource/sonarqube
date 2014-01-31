@@ -19,13 +19,33 @@
  */
 package org.sonar.api.resources;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DirectoryTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Test
+  public void createFromIoFileShouldComputeCorrectKey() throws IOException {
+    java.io.File baseDir = temp.newFolder();
+    Project project = mock(Project.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+    when(project.getFileSystem()).thenReturn(fileSystem);
+    when(fileSystem.getBasedir()).thenReturn(baseDir);
+    Resource dir = Directory.fromIOFile(new java.io.File(baseDir, "src/foo/bar/"), project);
+    assertThat(dir.getKey(), is("src/foo/bar"));
+  }
 
   @Test
   public void shouldStartBySlashAndNotEndBySlash() {

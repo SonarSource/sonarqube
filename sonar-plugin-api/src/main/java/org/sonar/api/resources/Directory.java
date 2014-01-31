@@ -22,7 +22,10 @@ package org.sonar.api.resources;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
+
+import javax.annotation.CheckForNull;
 
 /**
  * @since 1.10
@@ -38,7 +41,7 @@ public class Directory extends JavaPackage {
   }
 
   /**
-   * @deprecated since 4.2 use {@link #create(String, String)}
+   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
    */
   @Deprecated
   public Directory(String relativePathFromSourceDir) {
@@ -46,7 +49,7 @@ public class Directory extends JavaPackage {
   }
 
   /**
-   * @deprecated since 4.2 use {@link #create(String, String)}
+   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
    */
   @Deprecated
   public Directory(String relativePathFromSourceDir, Language language) {
@@ -107,12 +110,29 @@ public class Directory extends JavaPackage {
   }
 
   /**
+   * Creates a {@link Directory} from an absolute {@link java.io.File} and a module.
+   * The returned {@link Directory} can be then passed for example to
+   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)}.
+   * @param dir absolute path to a directory
+   * @param module
+   * @return null if the directory is not under module basedir.
+   * @since 4.2
+   */
+  @CheckForNull
+  public static Directory fromIOFile(java.io.File dir, Project module) {
+    String relativePathFromBasedir = new PathResolver().relativePath(module.getFileSystem().getBasedir(), dir);
+    if (relativePathFromBasedir != null) {
+      return Directory.create(relativePathFromBasedir);
+    }
+    return null;
+  }
+
+  /**
    * Create a Directory that is partially initialized. But that's enough to call for example
    * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
    * Internal use only.
-   * @since 4.2
    */
-  public static Directory create(String relativePathFromBaseDir) {
+  static Directory create(String relativePathFromBaseDir) {
     Directory d = new Directory();
     String normalizedPath = normalize(relativePathFromBaseDir);
     d.setKey(normalizedPath);

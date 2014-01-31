@@ -156,8 +156,8 @@ public class File extends Resource {
   }
 
   /**
-   * Creates a SonarQube File from an absolute Java IO File and a module.
-   * The returned SonarQube File can be then passed for example to
+   * Creates a {@link File} from an absolute {@link java.io.File} and a module.
+   * The returned {@link File} can be then passed for example to
    * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)}.
    * @param file absolute path to a file
    * @param module
@@ -243,9 +243,8 @@ public class File extends Resource {
    * Create a File that is partially initialized. But that's enough to call for example
    * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
    * Internal use only.
-   * @since 4.2
    */
-  public static File create(String relativePathFromBasedir) {
+  private static File create(String relativePathFromBasedir) {
     File file = new File();
     String normalizedPath = normalize(relativePathFromBasedir);
     file.setKey(normalizedPath);
