@@ -63,6 +63,8 @@ class UpdatecenterController < ApplicationController
 
     load_plugin_center()
     if @update_plugin_center
+      @sonar_version = org.sonar.server.platform.Platform.getServer().getVersion()
+
       installed_plugins.each do |plugin|
         @installed_plugins[plugin.getKey()]=plugin.lastRelease.getVersion()
       end

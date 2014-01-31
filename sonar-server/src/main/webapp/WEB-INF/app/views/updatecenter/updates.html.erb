@@ -42,7 +42,8 @@ function upgradePlugin(key) {
             <% if update.isIncompatible() %>
               <%= image_tag 'warning.png' -%> Incompatible
             <% elsif update.requiresSonarUpgrade %>
-              <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
+              <%= image_tag 'warning.png' -%> <%= h(plugin.getName()) -%> <%=release.getVersion()-%> is not compatible with SonarQube <%= @sonar_version -%>.
+              You need to upgrade to SonarQube <%= release.getMinimumRequiredSonarVersion() -%> to perform the plugin upgrade.
             <% elsif update.requiresSonarUpgradeForDependencies %>
               <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires SonarQube upgrade
             <% end %>
