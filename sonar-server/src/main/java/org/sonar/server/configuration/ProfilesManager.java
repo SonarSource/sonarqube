@@ -207,22 +207,24 @@ public class ProfilesManager extends BaseDao {
     ActiveRule oldActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     if (oldActiveRule != null && oldActiveRule.doesOverride()) {
       ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(oldActiveRule.getRule());
-      removeActiveRule(oldActiveRule);
-      ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
-      newActiveRule.setRulesProfile(profile);
-      newActiveRule.setInheritance(ActiveRule.INHERITED);
-      profile.addActiveRule(newActiveRule);
-      getSession().saveWithoutFlush(newActiveRule);
+      if (parentActiveRule != null) {
+        removeActiveRule(oldActiveRule);
+        ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
+        newActiveRule.setRulesProfile(profile);
+        newActiveRule.setInheritance(ActiveRule.INHERITED);
+        profile.addActiveRule(newActiveRule);
+        getSession().saveWithoutFlush(newActiveRule);
 
-      // Compute change
-      ruleChanged(profile, oldActiveRule, newActiveRule, userName);
+        // Compute change
+        ruleChanged(profile, oldActiveRule, newActiveRule, userName);
 
-      for (RulesProfile child : getChildren(profile)) {
-        activateOrChange(child, newActiveRule, userName);
+        for (RulesProfile child : getChildren(profile)) {
+          activateOrChange(child, newActiveRule, userName);
+        }
+
+        getSession().commit();
+        dryRunCache.reportGlobalModification();
       }
-
-      getSession().commit();
-      dryRunCache.reportGlobalModification();
     }
   }
 

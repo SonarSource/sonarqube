@@ -21,7 +21,6 @@
 package org.sonar.core.measure.db;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
 
 import java.io.UnsupportedEncodingException;
 
@@ -77,7 +76,7 @@ public class MeasureDataDto {
         return new String(data, Charsets.UTF_8.name());
       } catch (UnsupportedEncodingException e) {
         // how is it possible to not support UTF-8 ?
-        Throwables.propagate(e);
+        throw new RuntimeException("UTF8 is not supported", e);
       }
     }
     return null;

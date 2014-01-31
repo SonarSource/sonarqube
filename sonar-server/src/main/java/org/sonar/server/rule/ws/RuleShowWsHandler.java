@@ -31,6 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleNote;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.UserSession;
 
@@ -77,9 +78,10 @@ public class RuleShowWsHandler implements RequestHandler {
   }
 
   private void addNote(Rule rule, JsonWriter json) {
-    if (rule.ruleNote() != null && !Strings.isNullOrEmpty(rule.ruleNote().data())) {
-      json.prop("noteRaw", rule.ruleNote().data())
-        .prop("noteHtml", Markdown.convertToHtml(rule.ruleNote().data()));
+    RuleNote ruleNote = rule.ruleNote();
+    if (ruleNote != null && !Strings.isNullOrEmpty(ruleNote.data())) {
+      json.prop("noteRaw", ruleNote.data())
+        .prop("noteHtml", Markdown.convertToHtml(ruleNote.data()));
     }
   }
 

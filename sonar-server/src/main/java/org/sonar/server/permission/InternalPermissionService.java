@@ -218,7 +218,7 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private void badRequestIfNullResult(Object component, String objectType, String objectKey) {
+  private void badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {
     if (component == null) {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }

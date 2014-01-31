@@ -20,14 +20,11 @@
 package org.sonar.core.i18n;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 class DurationLabel {
 
-  private DurationLabel() {
-    // Utility class
-  }
-
-  private static String durationPreffix = "duration.";
+  private static String durationPrefix = "duration.";
   private static String seconds = "seconds";
   private static String minute = "minute";
   private static String minutes = "minutes";
@@ -40,6 +37,10 @@ class DurationLabel {
   private static String year = "year";
   private static String years = "years";
 
+  private DurationLabel() {
+    // Utility class
+  }
+
   public static Result label(long durationInMillis) {
     double nbSeconds = durationInMillis / 1000.0;
     double nbMinutes = nbSeconds / 60;
@@ -49,16 +50,6 @@ class DurationLabel {
     return getMessage(nbSeconds, nbMinutes, nbHours, nbDays, nbYears);
   }
 
-  private static Result message(String key) {
-    return message(key, null);
-  }
-
-  private static Result message(String key, Long value) {
-    StringBuilder joined = new StringBuilder();
-    joined.append(durationPreffix);
-    joined.append(key);
-    return new Result(joined.toString(), value);
-  }
 
   private static Result getMessage(double nbSeconds, double nbMinutes, double nbHours, double nbDays, double nbYears) {
     if (nbSeconds < 45) {
@@ -85,11 +76,19 @@ class DurationLabel {
     return message(DurationLabel.years, Double.valueOf(Math.floor(nbYears)).longValue());
   }
 
+  private static Result message(String key) {
+    return message(key, null);
+  }
+
+  private static Result message(String key, @Nullable Long value) {
+    return new Result(durationPrefix + key, value);
+  }
+
   static class Result {
     private String key;
     private Long value;
 
-    public Result(String key, Long value) {
+    public Result(String key, @Nullable Long value) {
       this.key = key;
       this.value = value;
     }

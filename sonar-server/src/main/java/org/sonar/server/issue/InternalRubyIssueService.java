@@ -140,7 +140,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public List<String> listPluginActions() {
     return newArrayList(Iterables.transform(actionService.listAllActions(), new Function<Action, String>() {
       @Override
-      public String apply(@Nullable Action input) {
+      public String apply(Action input) {
         return input.key();
       }
     }));

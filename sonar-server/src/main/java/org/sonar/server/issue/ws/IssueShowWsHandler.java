@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
@@ -96,6 +97,7 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    String message = issue.message();
     String ruleName = result.rule(issue).getName();
     Component component = result.component(issue);
     Component project = result.project(issue);
@@ -114,7 +116,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", ruleName)
       .prop("line", issue.line())
-      .prop("message", issue.message() != null ? issue.message() : ruleName)
+      .prop("message", message != null ? message : ruleName)
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
@@ -168,15 +170,17 @@ public class IssueShowWsHandler implements RequestHandler {
   // TODO all available actions should be returned by ActionService or another service
   private List<String> actions(DefaultIssue issue) {
     List<String> actions = newArrayList();
-    if (UserSession.get().isLoggedIn()) {
+    String login = UserSession.get().login();
+    if (login != null) {
       actions.add("comment");
       if (issue.resolution() == null) {
         actions.add("assign");
-        if (!UserSession.get().login().equals(issue.assignee())) {
+        if (!login.equals(issue.assignee())) {
           actions.add("assign_to_me");
         }
         actions.add("plan");
-        if (UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey())) {
+        String projectKey = issue.projectKey();
+        if (projectKey != null && UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey)) {
           actions.add("set_severity");
         }
         for (Action action : actionService.listAvailableActions(issue)) {
@@ -189,6 +193,7 @@ public class IssueShowWsHandler implements RequestHandler {
 
   private void writeComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
     json.name("comments").beginArray();
+    String login = UserSession.get().login();
     for (IssueComment comment : issue.comments()) {
       String userLogin = comment.userLogin();
       json
@@ -199,7 +204,7 @@ public class IssueShowWsHandler implements RequestHandler {
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
         .prop("fCreatedAge", formatAgeDate(comment.createdAt()))
-        .prop("updatable", UserSession.get().isLoggedIn() && UserSession.get().login().equals(comment.userLogin()))
+        .prop("updatable", login != null && login.equals(comment.userLogin()))
         .endObject();
     }
     json.endArray();
@@ -217,10 +222,10 @@ public class IssueShowWsHandler implements RequestHandler {
 
     IssueChangelog changelog = issueChangelogService.changelog(issue);
     for (FieldDiffs diffs : changelog.changes()) {
-      String userLogin = diffs.userLogin();
+      User user = changelog.user(diffs);
       json
         .beginObject()
-        .prop("userName", userLogin != null ? changelog.user(diffs).name() : null)
+        .prop("userName", user != null ? user.name() : null)
         .prop("creationDate", DateUtils.formatDateTime(diffs.creationDate()))
         .prop("fCreationDate", formatDate(diffs.creationDate()));
       json.name("diffs").beginArray();
@@ -234,11 +239,12 @@ public class IssueShowWsHandler implements RequestHandler {
     json.endArray();
   }
 
-  private void addUserWithLabel(IssueQueryResult result, String value, String field, JsonWriter json) {
+  private void addUserWithLabel(IssueQueryResult result, @Nullable String value, String field, JsonWriter json) {
+    User user = result.user(value);
     if (value != null) {
       json
         .prop(field, value)
-        .prop(field + "Name", result.user(value).name());
+        .prop(field + "Name", user != null ? user.name() : null);
     }
   }
 
