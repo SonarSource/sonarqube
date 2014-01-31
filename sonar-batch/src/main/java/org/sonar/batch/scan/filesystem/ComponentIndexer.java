@@ -79,10 +79,14 @@ public class ComponentIndexer implements BatchComponent {
       String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);
       boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
       Resource sonarFile;
+      String pathFromSourceDir = inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      if (pathFromSourceDir == null) {
+        pathFromSourceDir = inputFile.path();
+      }
       if (Java.KEY.equals(languageKey)) {
-        sonarFile = JavaFile.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
+        sonarFile = JavaFile.create(inputFile.path(), pathFromSourceDir, unitTest);
       } else {
-        sonarFile = File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
+        sonarFile = File.create(inputFile.path(), pathFromSourceDir, languages.get(languageKey), unitTest);
       }
       if (sonarFile != null) {
         moduleLanguages.addLanguage(languageKey);

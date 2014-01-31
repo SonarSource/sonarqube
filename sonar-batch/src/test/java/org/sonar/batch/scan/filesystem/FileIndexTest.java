@@ -40,7 +40,7 @@ public class FileIndexTest {
 
   @Test
   public void should_return_inputDir() throws Exception {
-    FileIndex index = new FileIndex(null, null, null, null, new PathResolver(), new Project("myProject"));
+    FileIndex index = new FileIndex(null, null, null, null, null, new PathResolver(), new Project("myProject"));
     File baseDir = temp.newFolder();
     DefaultModuleFileSystem fileSystem = mock(DefaultModuleFileSystem.class);
     when(fileSystem.baseDir()).thenReturn(baseDir);

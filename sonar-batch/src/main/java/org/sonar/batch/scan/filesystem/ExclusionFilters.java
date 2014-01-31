@@ -19,28 +19,29 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.ResourceFilter;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.internal.InputFileFilter;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 
-public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchComponent {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExclusionFilters implements BatchComponent {
   private final FileExclusions exclusionSettings;
 
   public ExclusionFilters(FileExclusions exclusions) {
     this.exclusionSettings = exclusions;
   }
 
-  public void start() {
-    log("Included sources: ", sourceInclusions());
+  public void logConfiguration(ModuleFileSystem fs) {
+    log("Included sources: ", sourceInclusions(fs));
     log("Excluded sources: ", sourceExclusions());
-    log("Included tests: ", testInclusions());
+    log("Included tests: ", testInclusions(fs));
     log("Excluded tests: ", testExclusions());
   }
 
@@ -54,20 +55,19 @@ public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchC
     }
   }
 
-  @Override
-  public boolean accept(InputFile inputFile) {
+  public boolean accept(InputFile inputFile, ModuleFileSystem fs) {
     String type = inputFile.attribute(InputFile.ATTRIBUTE_TYPE);
     PathPattern[] inclusionPatterns = null;
     PathPattern[] exclusionPatterns = null;
     if (InputFile.TYPE_MAIN.equals(type)) {
-      inclusionPatterns = sourceInclusions();
+      inclusionPatterns = sourceInclusions(fs);
       exclusionPatterns = sourceExclusions();
     } else if (InputFile.TYPE_TEST.equals(type)) {
-      inclusionPatterns = testInclusions();
+      inclusionPatterns = testInclusions(fs);
       exclusionPatterns = testExclusions();
     }
+    boolean matchInclusion = false;
     if (inclusionPatterns != null && inclusionPatterns.length > 0) {
-      boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
         matchInclusion |= pattern.match(inputFile);
       }
@@ -82,54 +82,35 @@ public class ExclusionFilters implements InputFileFilter, ResourceFilter, BatchC
         }
       }
     }
-    return true;
+    return matchInclusion;
   }
 
-
-  public boolean isIgnored(Resource resource) {
-    if (ResourceUtils.isFile(resource)) {
-      PathPattern[] inclusionPatterns = ResourceUtils.isUnitTestClass(resource) ? testInclusions() : sourceInclusions();
-      if (isIgnoredByInclusions(resource, inclusionPatterns)) {
-        return true;
-      }
-      PathPattern[] exclusionPatterns = ResourceUtils.isUnitTestClass(resource) ? testExclusions() : sourceExclusions();
-      return isIgnoredByExclusions(resource, exclusionPatterns);
+  PathPattern[] sourceInclusions(ModuleFileSystem fs) {
+    if (exclusionSettings.sourceInclusions().length > 0) {
+      // User defined params
+      return PathPattern.create(exclusionSettings.sourceInclusions());
     }
-    return false;
-  }
-
-  private boolean isIgnoredByInclusions(Resource resource, PathPattern[] inclusionPatterns) {
-    if (inclusionPatterns.length > 0) {
-      boolean matchInclusion = false;
-      boolean supportResource = false;
-      for (PathPattern pattern : inclusionPatterns) {
-        if (pattern.supportResource()) {
-          supportResource = true;
-          matchInclusion |= pattern.match(resource);
-        }
-      }
-      if (supportResource && !matchInclusion) {
-        return true;
-      }
+    // Convert source directories to inclusions
+    List<String> sourcePattern = new ArrayList<String>();
+    for (File src : fs.sourceDirs()) {
+      String path = new PathResolver().relativePath(fs.baseDir(), src);
+      sourcePattern.add(path + "/**/*");
     }
-    return false;
+    return PathPattern.create(sourcePattern.toArray(new String[sourcePattern.size()]));
   }
 
-  private boolean isIgnoredByExclusions(Resource resource, PathPattern[] exclusionPatterns) {
-    for (PathPattern pattern : exclusionPatterns) {
-      if (pattern.supportResource() && pattern.match(resource)) {
-        return true;
-      }
+  PathPattern[] testInclusions(ModuleFileSystem fs) {
+    if (exclusionSettings.testInclusions().length > 0) {
+      // User defined params
+      return PathPattern.create(exclusionSettings.testInclusions());
     }
-    return false;
-  }
-
-  PathPattern[] sourceInclusions() {
-    return PathPattern.create(exclusionSettings.sourceInclusions());
-  }
-
-  PathPattern[] testInclusions() {
-    return PathPattern.create(exclusionSettings.testInclusions());
+    // Convert source directories to inclusions
+    List<String> testPatterns = new ArrayList<String>();
+    for (File test : fs.testDirs()) {
+      String path = new PathResolver().relativePath(fs.baseDir(), test);
+      testPatterns.add(path + "/**/*");
+    }
+    return PathPattern.create(testPatterns.toArray(new String[testPatterns.size()]));
   }
 
   PathPattern[] sourceExclusions() {
