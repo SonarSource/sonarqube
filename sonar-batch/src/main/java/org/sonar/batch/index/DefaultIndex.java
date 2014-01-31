@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
@@ -82,6 +81,7 @@ public class DefaultIndex extends SonarIndex {
   // caches
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newHashMap();
+  private Map<String, Bucket> bucketsByDeprecatedKey = Maps.newHashMap();
   private Set<Dependency> dependencies = Sets.newHashSet();
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
@@ -110,13 +110,20 @@ public class DefaultIndex extends SonarIndex {
 
   void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
-    buckets.put(rootProject, bucket);
+    addBucket(rootProject, bucket);
     migration.checkIfMigrationNeeded(rootProject);
     persistence.saveProject(rootProject, null);
     currentProject = rootProject;
 
     for (Project module : rootProject.getModules()) {
       addModule(rootProject, module);
+    }
+  }
+
+  private void addBucket(Resource resource, Bucket bucket) {
+    buckets.put(resource, bucket);
+    if (StringUtils.isNotBlank(resource.getDeprecatedKey())) {
+      bucketsByDeprecatedKey.put(resource.getDeprecatedKey(), bucket);
     }
   }
 
@@ -554,7 +561,7 @@ public class DefaultIndex extends SonarIndex {
 
     resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
     bucket = new Bucket(resource).setParent(parentBucket);
-    buckets.put(resource, bucket);
+    addBucket(resource, bucket);
 
     boolean excluded = checkExclusion(resource, parentBucket);
     if (!excluded) {
@@ -601,30 +608,27 @@ public class DefaultIndex extends SonarIndex {
   }
 
   /**
-   * Should support 3 situations
+   * Should support 2 situations
    * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
-   * 2) key = old key and deprecatedKey = null : this is to support backard compatibility for plugins using
-   * {@link SquidUtils#convertJavaFileKeyFromSquidFormat(String)} or {@link SquidUtils#convertJavaPackageKeyFromSquidFormat(String)}
-   * 3) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of {@link JavaFile}, {@link JavaPackage}, {@link File}, {@link Directory}
+   * 2) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of
+   * {@link JavaFile}, {@link JavaPackage}, {@link File}, {@link Directory}
    *
-   * @param res
+   * @param reference
    * @return
    */
-  private Bucket getBucket(Resource res) {
-    if (StringUtils.isNotBlank(res.getKey())) {
-      return buckets.get(res);
+  private Bucket getBucket(Resource reference) {
+    if (StringUtils.isNotBlank(reference.getKey())) {
+      return buckets.get(reference);
     }
-    if (StringUtils.isNotBlank(res.getDeprecatedKey())) {
+    if (StringUtils.isNotBlank(reference.getDeprecatedKey())) {
       // Fallback to use deprecated key
-      for (Map.Entry<Resource, Bucket> entry : buckets.entrySet()) {
-        Resource indexedResource = entry.getKey();
-        if (res.getClass() == indexedResource.getClass() && res.getDeprecatedKey().equals(indexedResource.getDeprecatedKey())) {
-          LOG.debug("Resource " + res + " was found using deprecated key. Please update your plugin.");
-          // Fix resource key
-          Bucket bucket = entry.getValue();
-          res.setKey(bucket.getResource().getKey());
-          return bucket;
-        }
+      Bucket bucket = bucketsByDeprecatedKey.get(reference.getDeprecatedKey());
+      if (bucket != null) {
+        // Fix reference resource
+        reference.setKey(bucket.getResource().getKey());
+        reference.setPath(bucket.getResource().getPath());
+        LOG.debug("Resource {} was found using deprecated key. Please update your plugin.", reference);
+        return bucket;
       }
     }
     return null;
