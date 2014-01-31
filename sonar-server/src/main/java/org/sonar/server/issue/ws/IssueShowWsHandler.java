@@ -96,6 +96,7 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    String ruleName = result.rule(issue).getName();
     Component component = result.component(issue);
     Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
@@ -111,9 +112,9 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("project", issue.projectKey())
       .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
-      .prop("ruleName", result.rule(issue).getName())
+      .prop("ruleName", ruleName)
       .prop("line", issue.line())
-      .prop("message", issue.message())
+      .prop("message", issue.message() != null ? issue.message() : ruleName)
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
