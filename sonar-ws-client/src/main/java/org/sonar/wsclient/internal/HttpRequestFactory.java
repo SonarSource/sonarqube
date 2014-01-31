@@ -23,12 +23,20 @@ import com.github.kevinsawicki.http.HttpRequest;
 import org.sonar.wsclient.base.HttpException;
 
 import javax.annotation.Nullable;
+
+import java.util.Arrays;
 import java.util.Map;
+
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * Not an API. Please do not use this class, except maybe for unit tests.
  */
 public class HttpRequestFactory {
+
+  private final static int[] RESPONSE_SUCCESS = {HTTP_OK, HTTP_CREATED, HTTP_NO_CONTENT};
 
   private final String baseUrl;
   private String login, password, proxyHost, proxyLogin, proxyPassword;
@@ -128,7 +136,7 @@ public class HttpRequestFactory {
 
   private String execute(HttpRequest request) {
     try {
-      if (request.ok()) {
+      if (isSuccess(request)) {
         return request.body(HttpRequest.CHARSET_UTF8);
       }
       // TODO handle error messages
@@ -137,6 +145,10 @@ public class HttpRequestFactory {
     } catch (HttpRequest.HttpRequestException e) {
       throw new IllegalStateException("Fail to request " + request.url(), e.getCause());
     }
+  }
+
+  private boolean isSuccess(HttpRequest request) {
+    return Arrays.binarySearch(RESPONSE_SUCCESS, request.code()) >= 0;
   }
 
   private HttpRequest prepare(HttpRequest request) {

@@ -76,6 +76,28 @@ public class HttpRequestFactoryTest {
   }
 
   @Test
+  public void post_successful_if_created() {
+    httpServer.stubStatusCode(201).stubResponseBody("{}");
+
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
+    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
+
+    assertThat(json).isEqualTo("{}");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
+  }
+
+  @Test
+  public void post_successful_if_no_content() {
+    httpServer.stubStatusCode(204).stubResponseBody("");
+
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
+    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
+
+    assertThat(json).isEqualTo("");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
+  }
+
+  @Test
   public void test_authentication() {
     httpServer.stubStatusCode(200).stubResponseBody("{}");
 
