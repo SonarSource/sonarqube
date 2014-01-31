@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.issue;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import org.sonar.api.CoreProperties;
@@ -43,14 +44,14 @@ import java.util.List;
 import java.util.Map;
 
 @Properties(
-    @Property(
-        key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
-        defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
-        name = "Rules weight",
-        description = "A weight is associated to each severity to calculate the Rules Compliance Index.",
-        project = false,
-        global = true,
-        category = CoreProperties.CATEGORY_GENERAL)
+  @Property(
+    key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
+    defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
+    name = "Rules weight",
+    description = "A weight is associated to each severity to calculate the Rules Compliance Index.",
+    project = false,
+    global = true,
+    category = CoreProperties.CATEGORY_GENERAL)
 )
 public class WeightedIssuesDecorator implements Decorator {
 
@@ -64,7 +65,7 @@ public class WeightedIssuesDecorator implements Decorator {
   @DependsUpon
   public List<Metric> dependsUponIssues() {
     return Arrays.asList(CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS,
-        CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
+      CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
   }
 
   @DependedUpon
@@ -115,7 +116,9 @@ public class WeightedIssuesDecorator implements Decorator {
       }
     }
 
-    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(distribution));
+    String distributionFormatted = KeyValueFormat.format(distribution);
+    // SONAR-4987 We should store store an empty string for the distribution value
+    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, Strings.emptyToNull(distributionFormatted));
     context.saveMeasure(debtMeasure);
   }
 

@@ -65,6 +65,8 @@ public class WeightedIssuesDecoratorTest {
     decorator.decorate(context);
 
     verify(context).saveMeasure(any(Measure.class));
+    // SONAR-4987
+    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, "")));
   }
 
   @Test
