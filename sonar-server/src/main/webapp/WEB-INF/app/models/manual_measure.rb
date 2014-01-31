@@ -19,7 +19,7 @@
 #
 class ManualMeasure < ActiveRecord::Base
   include ActionView::Helpers::NumberHelper
-  
+
   belongs_to :resource, :class_name => 'Project'
   validates_uniqueness_of :metric_id, :scope => :resource_id
   validates_length_of :text_value, :maximum => 4000, :allow_nil => true, :allow_blank => true
@@ -137,7 +137,7 @@ class ManualMeasure < ActiveRecord::Base
           write_attribute("value", Sonar::RulePriority.id(raw_value))
           write_attribute("text_value", raw_value)
         when Metric::VALUE_TYPE_STRING
-          errors.add('value', "A text value must be provided") if value_before_type_cast.nil? || value_before_type_cast == ''
+          errors.add('value', "A text value must be provided") if text_value.nil? || text_value == ''
       end
     end
   end
