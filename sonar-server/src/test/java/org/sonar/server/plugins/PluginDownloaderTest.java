@@ -116,8 +116,11 @@ public class PluginDownloaderTest {
     assertThat(new File(downloadDir, "test-1.0.jar.tmp")).doesNotExist();
   }
 
+  /**
+   * SONAR-4685
+   */
   @Test
-  public void download_from_url_not_finishing_by_jar_extension() throws Exception {
+  public void download_from_redirect_url() throws Exception {
     Plugin test = new Plugin("plugin-test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
     test.addRelease(test10);
