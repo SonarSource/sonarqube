@@ -21,7 +21,10 @@ package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -35,7 +38,6 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URI;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -66,7 +68,7 @@ public class PluginDownloaderTest {
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock inv) throws Throwable {
-        File toFile = (File)inv.getArguments()[1];
+        File toFile = (File) inv.getArguments()[1];
         FileUtils.touch(toFile);
         return null;
       }
@@ -85,7 +87,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_clean_temporary_files_at_startup() throws Exception {
+  public void clean_temporary_files_at_startup() throws Exception {
     FileUtils.touch(new File(downloadDir, "sonar-php.jar"));
     FileUtils.touch(new File(downloadDir, "sonar-js.jar.tmp"));
     assertThat(downloadDir.listFiles()).hasSize(2);
@@ -97,7 +99,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_download_from_url() throws Exception {
+  public void download_from_url() throws Exception {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
@@ -115,7 +117,25 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_throw_exception_if_download_dir_is_invalid() throws Exception {
+  public void download_from_url_not_finishing_by_jar_extension() throws Exception {
+    Plugin test = new Plugin("plugin-test");
+    Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
+    test.addRelease(test10);
+
+    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+
+    pluginDownloader.start();
+    pluginDownloader.download("foo", Version.create("1.0"));
+
+    // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
+    // The JAR file is downloaded in a temp file
+    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("plugin-test-1.0.jar.tmp")));
+    assertThat(new File(downloadDir, "plugin-test-1.0.jar")).exists();
+    assertThat(new File(downloadDir, "plugin-test-1.0.jar.tmp")).doesNotExist();
+  }
+
+  @Test
+  public void throw_exception_if_download_dir_is_invalid() throws Exception {
     DefaultServerFileSystem defaultServerFileSystem = mock(DefaultServerFileSystem.class);
     // download dir is a file instead of being a directory
     File downloadDir = testFolder.newFile();
@@ -131,7 +151,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_download_from_file() throws Exception {
+  public void download_from_file() throws Exception {
     Plugin test = new Plugin("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
@@ -147,7 +167,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_throw_exception_if_could_not_download() throws Exception {
+  public void throw_exception_if_could_not_download() throws Exception {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://not_found");
     test.addRelease(test10);
@@ -164,7 +184,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_throw_exception_if_download_fail() throws Exception {
+  public void throw_exception_if_download_fail() throws Exception {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
@@ -182,7 +202,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_read_download_folder() throws Exception {
+  public void read_download_folder() throws Exception {
     pluginDownloader.start();
     assertThat(pluginDownloader.getDownloads()).hasSize(0);
 
@@ -195,7 +215,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_cancel_downloads() throws Exception {
+  public void cancel_downloads() throws Exception {
     File file1 = new File(downloadDir, "file1.jar");
     file1.createNewFile();
     File file2 = new File(downloadDir, "file2.jar");

@@ -43,6 +43,7 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";
+  private static final String PLUGIN_EXTENSION = "jar";
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final HttpDownloader downloader;
@@ -56,13 +57,14 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   /**
    * Delete the temporary files remaining from previous downloads
+   *
    * @see #downloadRelease(org.sonar.updatecenter.common.Release)
    */
   @Override
   public void start() {
     try {
       FileUtils.forceMkdir(downloadDir);
-      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[] {TMP_SUFFIX}, false);
+      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[]{TMP_SUFFIX}, false);
       for (File tempFile : tempFiles) {
         FileUtils.deleteQuietly(tempFile);
       }
@@ -93,7 +95,7 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   public List<String> getDownloads() {
     List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] {"jar"}, false);
+    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[]{PLUGIN_EXTENSION}, false);
     for (File file : files) {
       names.add(file.getName());
     }
@@ -106,8 +108,9 @@ public class PluginDownloader implements ServerComponent, Startable {
         downloadRelease(release);
 
       } catch (Exception e) {
-        String message = "Fail to download the plugin (" + release.getArtifact().getKey() + ", version " + release.getVersion().getName() + ") from " + release.getDownloadUrl();
-        LOG.warn(message, e);
+        String message = String.format("Fail to download the plugin (%s, version %s) from %s (error is : %s)",
+          release.getArtifact().getKey(), release.getVersion().getName(), release.getDownloadUrl(), e.getMessage());
+        LOG.debug(message, e);
         throw new SonarException(message, e);
       }
     }
@@ -115,6 +118,7 @@ public class PluginDownloader implements ServerComponent, Startable {
 
   private void downloadRelease(Release release) throws URISyntaxException, IOException {
     String url = release.getDownloadUrl();
+
     URI uri = new URI(url);
     if (url.startsWith("file:")) {
       // used for tests
@@ -122,6 +126,9 @@ public class PluginDownloader implements ServerComponent, Startable {
       FileUtils.copyFileToDirectory(file, downloadDir);
     } else {
       String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+      if (!filename.endsWith("." + PLUGIN_EXTENSION)) {
+        filename = release.getKey() + "-" + release.getVersion() + "." + PLUGIN_EXTENSION;
+      }
       File targetFile = new File(downloadDir, filename);
       File tempFile = new File(downloadDir, filename + "." + TMP_SUFFIX);
       downloader.download(uri, tempFile);
