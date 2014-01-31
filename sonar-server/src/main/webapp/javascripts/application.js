@@ -63,6 +63,27 @@ function autocompleteResources() {
   });
 }
 
+function resourceViewerOnBulkIssues() {
+  var issuesTab = 'tab=issues';
+  if (window.location.search.indexOf('tab=') >= 0) {
+    // If a tab is already selected
+    if (window.location.search.indexOf(issuesTab) >= 0) {
+      // If tab is issues, keep it and reload page
+      window.location.reload();
+    } else {
+      // Else, switch to issues tab
+      window.location.search = window.location.search.replace(/tab=\w+/, issuesTab);
+    }
+  } else {
+    // No tab selected, see how to add tab parameter
+    if (window.location.search.startsWith('?')) {
+      window.location.search += ('&' + issuesTab);
+    } else {
+      window.location.search += ('?' + issuesTab);
+    }
+  }
+}
+
 var SelectBox = {
   cache: new Object(),
   init: function (id) {
