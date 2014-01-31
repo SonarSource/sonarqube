@@ -26,7 +26,7 @@ function dashboardParameters() {
   var parameters = "";
 
   var matchDashboard = queryString.match(/did=\d+/);
-  if (matchDashboard) {
+  if (matchDashboard && $j('#is-project-dashboard').length === 1) {
     parameters += (matchDashboard[0] + "&");
   }
 

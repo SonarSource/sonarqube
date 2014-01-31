@@ -1,4 +1,7 @@
 <div id="dashboard">
+  <% if @resource -%>
+  <span class="hidden" id="is-project-dashboard">&nbsp;</span>
+  <% end -%>
   <%= render :partial => 'header', :locals => {:back => false} %>
   <div style="width: 100%;display: block; float: none">
     <%
