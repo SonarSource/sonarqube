@@ -36,7 +36,7 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.*;
-import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.qualityprofile.ProfilesManager;
 
 import javax.annotation.CheckForNull;
 

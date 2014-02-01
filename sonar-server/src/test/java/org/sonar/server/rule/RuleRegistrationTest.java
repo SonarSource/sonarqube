@@ -30,7 +30,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
-import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.qualityprofile.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

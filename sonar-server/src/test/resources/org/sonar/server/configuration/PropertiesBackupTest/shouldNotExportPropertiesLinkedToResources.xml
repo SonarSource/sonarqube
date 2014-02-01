@@ -1,6 +1,0 @@
-<dataset>
-  <properties id="1" prop_key="key1" text_value="value1" resource_id="[null]" user_id="[null]"/>
-  <properties id="2" prop_key="key2" text_value="value2" resource_id="[null]" user_id="[null]"/>
-  <properties id="3" prop_key="key2" text_value="value for resource 2" resource_id="2" user_id="[null]"/>
-  <properties id="4" prop_key="key3" text_value="value for resource 3" resource_id="3" user_id="[null]"/>
-</dataset>

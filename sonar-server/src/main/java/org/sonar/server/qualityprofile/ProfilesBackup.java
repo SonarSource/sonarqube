@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.configuration;
+package org.sonar.server.qualityprofile;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -34,6 +34,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.RulesDao;
+import org.sonar.server.configuration.SonarConfig;
 
 import java.util.*;
 
@@ -126,7 +127,7 @@ public class ProfilesBackup {
 
   private void importAlerts(RulesProfile profile) {
     if (profile.getAlerts() != null) {
-      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
+      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext(); ) {
         Alert alert = ia.next();
         Metric unMarshalledMetric = alert.getMetric();
         String validKey = unMarshalledMetric.getKey();
@@ -143,7 +144,7 @@ public class ProfilesBackup {
   }
 
   private void importActiveRules(RulesDao rulesDao, RulesProfile profile) {
-    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext();) {
+    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext(); ) {
       ActiveRule activeRule = iar.next();
       Rule unMarshalledRule = activeRule.getRule();
       Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getRepositoryKey(), unMarshalledRule.getKey());
@@ -155,7 +156,7 @@ public class ProfilesBackup {
         activeRule.setRule(matchingRuleInDb);
         activeRule.setRulesProfile(profile);
         activeRule.getActiveRuleParams();
-        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext();) {
+        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
           ActiveRuleParam activeRuleParam = irp.next();
           RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
           RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());

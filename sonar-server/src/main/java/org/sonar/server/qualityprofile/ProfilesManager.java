@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.configuration;
+package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
@@ -31,7 +31,6 @@ import org.sonar.jpa.dao.RulesDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 public class ProfilesManager extends BaseDao {

@@ -46,7 +46,7 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;

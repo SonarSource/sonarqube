@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.configuration;
+package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +27,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.qualityprofile.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

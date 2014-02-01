@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.configuration;
+package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.configuration.SonarConfig;
+import org.sonar.server.qualityprofile.ProfilesBackup;
 
 import java.util.Arrays;
 

@@ -74,7 +74,7 @@ import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
-import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;

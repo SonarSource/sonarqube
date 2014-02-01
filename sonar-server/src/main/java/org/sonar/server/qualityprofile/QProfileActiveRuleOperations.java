@@ -37,7 +37,6 @@ import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
