@@ -53,7 +53,7 @@ import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
+import org.sonar.server.technicaldebt.DebtFormatter;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -84,7 +84,7 @@ public class IssueShowWsHandlerTest {
   ActionService actionService;
 
   @Mock
-  TechnicalDebtFormatter technicalDebtFormatter;
+  DebtFormatter debtFormatter;
 
   @Mock
   DefaultTechnicalDebtManager technicalDebtManager;
@@ -113,7 +113,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtFormatter, technicalDebtManager, i18n)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, debtFormatter, technicalDebtManager, i18n)));
   }
 
   @Test
@@ -214,7 +214,7 @@ public class IssueShowWsHandlerTest {
       .setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
-    when(technicalDebtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
+    when(debtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());

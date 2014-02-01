@@ -60,27 +60,26 @@ public class ESIndex implements Startable {
 
   private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";
   private static final String BULK_INTERRUPTED = "Interrupted during bulk operation";
-
   private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(ESIndex.class);
 
-  private ESNode searchNode;
+  private final ESNode node;
+  private final Profiling profiling;
   private Client client;
-  private Profiling profiling;
 
-  public ESIndex(ESNode searchNode, Profiling profiling) {
-    this.searchNode = searchNode;
+  public ESIndex(ESNode node, Profiling profiling) {
+    this.node = node;
     this.profiling = profiling;
   }
 
   @Override
   public void start() {
-    this.client = searchNode.client();
+    this.client = node.client();
   }
 
   @Override
   public void stop() {
-    if(client != null) {
+    if (client != null) {
       client.close();
     }
   }
@@ -120,7 +119,7 @@ public class ESIndex implements Startable {
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources) {
     BulkRequestBuilder builder = new BulkRequestBuilder(client);
-    for (int i=0; i<ids.length; i++) {
+    for (int i = 0; i < ids.length; i++) {
       builder.add(client.prepareIndex(index, type, ids[i]).setSource(sources[i].bytes()));
     }
     StopWatch watch = createWatch();
@@ -133,7 +132,7 @@ public class ESIndex implements Startable {
 
   public void bulkIndex(String index, String type, String[] ids, BytesStream[] sources, String[] parentIds) {
     BulkRequestBuilder builder = new BulkRequestBuilder(client);
-    for (int i=0; i<ids.length; i++) {
+    for (int i = 0; i < ids.length; i++) {
       builder.add(client.prepareIndex(index, type, ids[i]).setParent(parentIds[i]).setSource(sources[i].bytes()));
     }
     StopWatch watch = createWatch();
@@ -151,7 +150,7 @@ public class ESIndex implements Startable {
         throw new IllegalArgumentException("Could not load unexisting file at " + resourcePath);
       }
       addMapping(index, type, IOUtils.toString(resource));
-    } catch(IOException ioException) {
+    } catch (IOException ioException) {
       throw new IllegalArgumentException("Problem loading file at " + resourcePath, ioException);
     }
   }
@@ -160,7 +159,7 @@ public class ESIndex implements Startable {
     IndicesAdminClient indices = client.admin().indices();
     StopWatch watch = createWatch();
     try {
-      if (! indices.exists(indices.prepareExists(index).request()).get().isExists()) {
+      if (!indices.exists(indices.prepareExists(index).request()).get().isExists()) {
         indices.prepareCreate(index)
           .execute().actionGet();
       }
@@ -173,7 +172,7 @@ public class ESIndex implements Startable {
     watch = createWatch();
     try {
       indices.putMapping(Requests.putMappingRequest(index).type(type).source(mapping)).actionGet();
-    } catch(ElasticSearchParseException parseException) {
+    } catch (ElasticSearchParseException parseException) {
       throw new IllegalArgumentException("Invalid mapping file", parseException);
     } finally {
       watch.stop("put mapping on index '%s' for type '%s'", index, type);
@@ -248,7 +247,7 @@ public class ESIndex implements Startable {
   private String builderToString(SearchRequestBuilder builder) {
     try {
       return builder.internalBuilder().toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS)
-          .humanReadable(false).string();
+        .humanReadable(false).string();
     } catch (IOException ioException) {
       LOG.warn("Could not serialize request: " + builder.internalBuilder().toString(), ioException);
       return "<IOException in serialize>";
@@ -273,7 +272,7 @@ public class ESIndex implements Startable {
       BulkResponse bulkResponse = client.bulk(builder.setRefresh(true).request()).get();
       if (bulkResponse.hasFailures()) {
         for (BulkItemResponse bulkItemResponse : bulkResponse.getItems()) {
-          if(bulkItemResponse.isFailed()) {
+          if (bulkItemResponse.isFailed()) {
             throw new IllegalStateException("Bulk operation partially executed: " + bulkItemResponse.getFailure().getMessage());
           }
         }

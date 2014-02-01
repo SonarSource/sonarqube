@@ -31,10 +31,15 @@ import java.util.Map;
  */
 public final class MimeTypes {
   private MimeTypes() {
+    // only static methods
   }
 
+  public static final String JSON = "application/json";
+  public static final String XML = "application/xml";
+  public static final String DEFAULT = "application/octet-stream";
+
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
-    .put("json", "application/json")
+    .put("json", JSON)
     .put("zip", "application/zip")
     .put("tgz", "application/tgz")
     .put("ps", "application/postscript")
@@ -43,7 +48,7 @@ public final class MimeTypes {
     .put("xls", "application/vnd.ms-excel")
     .put("ppt", "application/vnd.ms-powerpoint")
     .put("tar", "application/x-tar")
-    .put("xml", "application/xml")
+    .put("xml", XML)
     .put("dtd", "application/xml-dtd")
     .put("xslt", "application/xslt+xml")
     .put("bmp", "image/bmp")
@@ -62,8 +67,6 @@ public final class MimeTypes {
     .put("css", "text/css")
     .put("tsv", "text/tab-separated-values")
     .build();
-
-  public static final String DEFAULT = "application/octet-stream";
 
   public static String getByFilename(String filename) {
     String extension = FilenameUtils.getExtension(filename);

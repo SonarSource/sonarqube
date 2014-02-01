@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.group;
+@ParametersAreNonnullByDefault
+package org.sonar.server.charts;
 
-import org.sonar.core.user.GroupMembership;
-
-import java.util.List;
-
-public class GroupMembershipQueryResult {
-
-  private List<GroupMembership> groups;
-  private boolean hasMoreResults;
-
-  public GroupMembershipQueryResult(List<GroupMembership> groups, boolean hasMoreResults) {
-    this.groups = groups;
-    this.hasMoreResults = hasMoreResults;
-  }
-
-  public List<GroupMembership> groups() {
-    return groups;
-  }
-
-  public boolean hasMoreResults() {
-    return hasMoreResults;
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

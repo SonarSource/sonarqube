@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
 import java.io.ByteArrayOutputStream;
@@ -75,13 +76,13 @@ public class ServletResponse implements Response {
 
   @Override
   public JsonWriter newJsonWriter() {
-    stream.setMediaType("application/json");
+    stream.setMediaType(MimeTypes.JSON);
     return JsonWriter.of(new OutputStreamWriter(stream.output()));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    stream.setMediaType("application/xml");
+    stream.setMediaType(MimeTypes.XML);
     return XmlWriter.of(new OutputStreamWriter(stream.output()));
   }
 

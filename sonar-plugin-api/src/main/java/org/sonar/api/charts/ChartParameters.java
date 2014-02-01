@@ -49,7 +49,7 @@ public class ChartParameters {
   public static final int DEFAULT_HEIGHT = 200;
 
 
-  private Map<String, String> params;
+  private final Map<String, String> params;
 
   /**
    * Creates a ChartParameter based on a list of parameters

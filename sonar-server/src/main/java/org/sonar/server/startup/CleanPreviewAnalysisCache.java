@@ -17,32 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.server.startup;
 
-import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.platform.Platform;
+import org.picocontainer.Startable;
+import org.sonar.core.preview.PreviewCache;
 
-import java.io.IOException;
-import javax.servlet.*;
+/**
+ * @since 4.0
+ */
+public class CleanPreviewAnalysisCache implements Startable {
 
-public class DatabaseSessionFilter implements Filter {
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    // nothing to do
+  private final PreviewCache cache;
+
+  public CleanPreviewAnalysisCache(PreviewCache cache) {
+    this.cache = cache;
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    chain.doFilter(request, response);
-
-    DatabaseSessionFactory sessionFactory = Platform.component(DatabaseSessionFactory.class);
-    if (sessionFactory != null) {
-      sessionFactory.clear();
-    }
+  public void start() {
+    cache.cleanAll();
   }
 
   @Override
-  public void destroy() {
-    // nothing to do
+  public void stop() {
+    // nothing
   }
 }

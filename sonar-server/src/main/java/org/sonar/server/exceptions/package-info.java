@@ -17,35 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
 
-import org.sonar.api.security.LoginPasswordAuthenticator;
-import org.sonar.api.security.SecurityRealm;
+@ParametersAreNonnullByDefault
+package org.sonar.server.exceptions;
 
-/**
- * Provides backward compatibility for {@link org.sonar.api.CoreProperties#CORE_AUTHENTICATOR_CLASS}.
- *
- * @since 2.14
- */
-class CompatibilityRealm extends SecurityRealm {
-  private final LoginPasswordAuthenticator authenticator;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public CompatibilityRealm(LoginPasswordAuthenticator authenticator) {
-    this.authenticator = authenticator;
-  }
-
-  @Override
-  public void init() {
-    authenticator.init();
-  }
-
-  @Override
-  public String getName() {
-    return "CompatibilityRealm[" + authenticator.getClass().getName() + "]";
-  }
-
-  @Override
-  public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
-    return authenticator;
-  }
-}

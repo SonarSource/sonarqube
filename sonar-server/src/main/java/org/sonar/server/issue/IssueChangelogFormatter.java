@@ -24,7 +24,7 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
+import org.sonar.server.technicaldebt.DebtFormatter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -38,11 +38,11 @@ public class IssueChangelogFormatter implements ServerComponent {
   private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
 
   private final DefaultI18n defaultI18n;
-  private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final DebtFormatter debtFormatter;
 
-  public IssueChangelogFormatter(DefaultI18n defaultI18n, TechnicalDebtFormatter technicalDebtFormatter) {
+  public IssueChangelogFormatter(DefaultI18n defaultI18n, DebtFormatter debtFormatter) {
     this.defaultI18n = defaultI18n;
-    this.technicalDebtFormatter = technicalDebtFormatter;
+    this.debtFormatter = debtFormatter;
   }
 
   public List<String> format(Locale locale, FieldDiffs diffs) {
@@ -74,10 +74,10 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = technicalDebtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(newValueString)));
+        newValueString = debtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(newValueString)));
       }
       if (oldValueString != null) {
-        oldValueString = technicalDebtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(oldValueString)));
+        oldValueString = debtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(oldValueString)));
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

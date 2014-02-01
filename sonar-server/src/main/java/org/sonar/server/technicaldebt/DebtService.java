@@ -27,20 +27,21 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 
-public class InternalRubyTechnicalDebtService implements ServerComponent {
+public class DebtService implements ServerComponent {
 
-  private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final DebtFormatter debtFormatter;
   private final DefaultTechnicalDebtManager finder;
 
-  public InternalRubyTechnicalDebtService(TechnicalDebtFormatter technicalDebtFormatter, DefaultTechnicalDebtManager finder) {
-    this.technicalDebtFormatter = technicalDebtFormatter;
+  public DebtService(DebtFormatter debtFormatter, DefaultTechnicalDebtManager finder) {
+    this.debtFormatter = debtFormatter;
     this.finder = finder;
   }
 
   public String format(WorkDayDuration technicalDebt) {
-    return technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt);
+    return debtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
   public WorkDayDuration toTechnicalDebt(String technicalDebtInLong) {
@@ -55,7 +56,8 @@ public class InternalRubyTechnicalDebtService implements ServerComponent {
     return finder.findRequirementByRule(rule);
   }
 
-  public Characteristic findCharacteristic(Integer id) {
+  @CheckForNull
+  public Characteristic findCharacteristic(int id) {
     return finder.findCharacteristicById(id);
   }
 

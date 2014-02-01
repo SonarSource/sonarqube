@@ -31,7 +31,6 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;

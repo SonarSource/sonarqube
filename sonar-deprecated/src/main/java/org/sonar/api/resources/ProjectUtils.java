@@ -26,11 +26,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * TODO Actually this class incorrectly named, because provides information not about project, but about Java project.
- *       And seems that only core plugins use this class.
- * 
  * @since 1.10
+ * @deprecated see method comments
  */
+@Deprecated
 public final class ProjectUtils {
 
   private ProjectUtils() {
@@ -57,7 +56,9 @@ public final class ProjectUtils {
 
   /**
    * @since 2.7
+   * @deprecated in 4.2. Replaced by org.sonar.api.resources.InputFileUtils#toFiles()
    */
+  @Deprecated
   public static List<java.io.File> toIoFiles(Collection<InputFile> inputFiles) {
     List<java.io.File> files = Lists.newArrayList();
     for (InputFile inputFile : inputFiles) {

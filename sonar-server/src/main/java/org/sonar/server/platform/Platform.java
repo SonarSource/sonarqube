@@ -74,15 +74,12 @@ import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
-import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.group.GroupMembershipFinder;
-import org.sonar.server.group.InternalGroupMembershipService;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWs;
@@ -104,13 +101,15 @@ import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.SourcesShowWsHandler;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
-import org.sonar.server.technicaldebt.InternalRubyTechnicalDebtService;
-import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
+import org.sonar.server.technicaldebt.DebtFormatter;
+import org.sonar.server.technicaldebt.DebtService;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
-import org.sonar.server.ui.*;
-import org.sonar.server.user.DefaultUserService;
-import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.JRubyProfiling;
+import org.sonar.server.ui.PageDecorations;
+import org.sonar.server.ui.Views;
+import org.sonar.server.user.*;
 import org.sonar.server.util.*;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
@@ -299,7 +298,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultUserService.class);
 
     // groups
-    servicesContainer.addSingleton(InternalGroupMembershipService.class);
+    servicesContainer.addSingleton(GroupMembershipService.class);
     servicesContainer.addSingleton(GroupMembershipFinder.class);
 
     // permissions
@@ -362,12 +361,12 @@ public final class Platform {
     servicesContainer.addSingleton(RuleTagsWs.class);
 
     // technical debt
-    servicesContainer.addSingleton(InternalRubyTechnicalDebtService.class);
+    servicesContainer.addSingleton(DebtService.class);
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(TechnicalDebtConverter.class);
-    servicesContainer.addSingleton(TechnicalDebtFormatter.class);
+    servicesContainer.addSingleton(DebtFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
     // source
@@ -426,7 +425,7 @@ public final class Platform {
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
-    startupContainer.addSingleton(CleanDryRunCache.class);
+    startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

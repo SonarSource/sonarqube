@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.user;
 
-package org.sonar.core.technicaldebt.db;
+import org.junit.Test;
+import org.sonar.api.security.LoginPasswordAuthenticator;
 
-import java.util.List;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public interface CharacteristicMapper {
+public class CompatibilityRealmTest {
 
-  List<CharacteristicDto> selectEnabledCharacteristics();
-
-  List<CharacteristicDto> selectEnabledRootCharacteristics();
-
-  CharacteristicDto selectByKey(String key);
-
-  CharacteristicDto selectById(int id);
-
-  CharacteristicDto selectByRuleId(Integer ruleId);
-
-  void insert(CharacteristicDto characteristic);
-
-  int update(CharacteristicDto characteristic);
-
-  int disable(Integer id);
+  @Test
+  public void shouldDelegate() {
+    LoginPasswordAuthenticator authenticator = mock(LoginPasswordAuthenticator.class);
+    CompatibilityRealm realm = new CompatibilityRealm(authenticator);
+    realm.init();
+    verify(authenticator).init();
+    assertThat(realm.getLoginPasswordAuthenticator(), is(authenticator));
+    assertThat(realm.getName(), is("CompatibilityRealm[" + authenticator.getClass().getName() + "]"));
+  }
 
 }

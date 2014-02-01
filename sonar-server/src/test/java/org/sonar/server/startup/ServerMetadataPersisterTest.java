@@ -32,14 +32,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ServerMetadataPersisterTest {
 
-  private TimeZone initialTimeZone;
-  private PersistentSettings persistentSettings;
+  TimeZone initialTimeZone;
+  PersistentSettings persistentSettings;
 
   @Before
   public void fixTimeZone() {
@@ -65,9 +63,11 @@ public class ServerMetadataPersisterTest {
     persister.start();
 
     verify(persistentSettings).saveProperties(ImmutableMap.of(
-        CoreProperties.SERVER_ID, "123",
-        CoreProperties.SERVER_VERSION, "3.2",
-        CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000"));
+      CoreProperties.SERVER_ID, "123",
+      CoreProperties.SERVER_VERSION, "3.2",
+      CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000"));
+
+    persister.stop();
   }
 
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.group;
+package org.sonar.server.user;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -37,23 +37,23 @@ import static org.fest.assertions.Fail.fail;
 /**
  * Use BbUnit tests because there's no IT on this feature for the moment
  */
-public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
+public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
-  private InternalGroupMembershipService service;
+  GroupMembershipService service;
 
   @Before
   public void before() throws Exception {
-    GroupMembershipDao groupMembershipDao = new GroupMembershipDao(getMyBatis());
+    GroupMembershipDao membershipDao = new GroupMembershipDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
-    GroupMembershipFinder finder = new GroupMembershipFinder(userDao, groupMembershipDao);
-    service = new InternalGroupMembershipService(finder);
+    GroupMembershipFinder finder = new GroupMembershipFinder(userDao, membershipDao);
+    service = new GroupMembershipService(finder);
   }
 
   @Test
   public void find_all_member_groups() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all"));
     List<GroupMembership> result = queryResult.groups();
@@ -67,7 +67,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_all_member_groups_when_no_selected_parameter() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1"));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(3);
@@ -80,7 +80,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_member_groups() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "selected"));
     List<GroupMembership> result = queryResult.groups();
@@ -92,7 +92,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_not_member_groups() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "deselected"));
     List<GroupMembership> result = queryResult.groups();
@@ -105,7 +105,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_with_paging_with_more_results() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all",
       "page", 1,
@@ -120,7 +120,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_with_paging_with_no_more_results() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all",
       "page", 3,
@@ -149,7 +149,7 @@ public class InternalGroupMembershipServiceTest extends AbstractDaoTestCase {
   public void find_matched_groups_name() {
     setupData("shared");
 
-    GroupMembershipQueryResult queryResult = service.find(ImmutableMap.<String, Object>of(
+    GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all",
       "query", "user"));

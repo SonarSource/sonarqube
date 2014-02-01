@@ -42,12 +42,11 @@ import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
+import org.sonar.server.technicaldebt.DebtFormatter;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -60,17 +59,17 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
-  private final TechnicalDebtFormatter technicalDebtFormatter;
+  private final DebtFormatter debtFormatter;
   private final DefaultTechnicalDebtManager technicalDebtManager;
   private final I18n i18n;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            TechnicalDebtFormatter technicalDebtFormatter, DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
+                            DebtFormatter debtFormatter, DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
-    this.technicalDebtFormatter = technicalDebtFormatter;
+    this.debtFormatter = debtFormatter;
     this.technicalDebtManager = technicalDebtManager;
     this.i18n = i18n;
   }
@@ -122,7 +121,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("severity", issue.severity())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
-      .prop("debt", technicalDebt != null ? technicalDebtFormatter.format(UserSession.get().locale(), technicalDebt) : null)
+      .prop("debt", technicalDebt != null ? debtFormatter.format(UserSession.get().locale(), technicalDebt) : null)
       .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))

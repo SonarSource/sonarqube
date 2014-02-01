@@ -17,22 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
+package org.sonar.server.user;
 
-import org.sonar.core.preview.PreviewCache;
+import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.server.platform.Platform;
 
-/**
- * @since 4.0
- */
-public class CleanDryRunCache {
+import javax.servlet.*;
+import java.io.IOException;
 
-  private PreviewCache dryRunCache;
-
-  public CleanDryRunCache(PreviewCache dryRunCache) {
-    this.dryRunCache = dryRunCache;
+public class DatabaseSessionFilter implements Filter {
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    // nothing to do
   }
 
-  public void start() {
-    dryRunCache.cleanAll();
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    chain.doFilter(request, response);
+
+    DatabaseSessionFactory sessionFactory = Platform.component(DatabaseSessionFactory.class);
+    if (sessionFactory != null) {
+      sessionFactory.clear();
+    }
+  }
+
+  @Override
+  public void destroy() {
+    // nothing to do
   }
 }

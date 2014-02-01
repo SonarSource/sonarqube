@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.user;
 
-package org.sonar.core.technicaldebt.db;
+import org.sonar.api.security.LoginPasswordAuthenticator;
+import org.sonar.api.security.SecurityRealm;
 
-import java.util.List;
+/**
+ * Provides backward compatibility for {@link org.sonar.api.CoreProperties#CORE_AUTHENTICATOR_CLASS}.
+ *
+ * @since 2.14
+ */
+class CompatibilityRealm extends SecurityRealm {
+  private final LoginPasswordAuthenticator authenticator;
 
-public interface CharacteristicMapper {
+  public CompatibilityRealm(LoginPasswordAuthenticator authenticator) {
+    this.authenticator = authenticator;
+  }
 
-  List<CharacteristicDto> selectEnabledCharacteristics();
+  @Override
+  public void init() {
+    authenticator.init();
+  }
 
-  List<CharacteristicDto> selectEnabledRootCharacteristics();
+  @Override
+  public String getName() {
+    return "CompatibilityRealm[" + authenticator.getClass().getName() + "]";
+  }
 
-  CharacteristicDto selectByKey(String key);
-
-  CharacteristicDto selectById(int id);
-
-  CharacteristicDto selectByRuleId(Integer ruleId);
-
-  void insert(CharacteristicDto characteristic);
-
-  int update(CharacteristicDto characteristic);
-
-  int disable(Integer id);
-
+  @Override
+  public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
+    return authenticator;
+  }
 }

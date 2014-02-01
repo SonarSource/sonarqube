@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
 
@@ -187,7 +188,7 @@ public class WebServiceEngineTest {
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
     assertThat(response.stream().httpStatus()).isEqualTo(500);
-    assertThat(response.stream().mediaType()).isEqualTo("application/json");
+    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
 
   static class SystemWebService implements WebService {

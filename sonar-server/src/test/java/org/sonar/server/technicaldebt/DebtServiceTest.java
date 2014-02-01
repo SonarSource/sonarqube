@@ -19,11 +19,7 @@
  */
 package org.sonar.server.technicaldebt;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.server.Characteristic;
@@ -37,30 +33,19 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InternalRubyTechnicalDebtServiceTest {
+public class DebtServiceTest {
 
-  @Mock
-  TechnicalDebtFormatter technicalDebtFormatter;
-
-  @Mock
-  DefaultTechnicalDebtManager finder;
-
-  private InternalRubyTechnicalDebtService service;
-
-  @Before
-  public void before() {
-    service = new InternalRubyTechnicalDebtService(technicalDebtFormatter, finder);
-  }
+  DebtFormatter debtFormatter = mock(DebtFormatter.class);
+  DefaultTechnicalDebtManager finder = mock(DefaultTechnicalDebtManager.class);
+  DebtService service = new DebtService(debtFormatter, finder);
 
   @Test
   public void format() {
     WorkDayDuration technicalDebt = WorkDayDuration.of(5, 0, 0);
     service.format(technicalDebt);
-    verify(technicalDebtFormatter).format(any(Locale.class), eq(technicalDebt));
+    verify(debtFormatter).format(any(Locale.class), eq(technicalDebt));
   }
 
   @Test

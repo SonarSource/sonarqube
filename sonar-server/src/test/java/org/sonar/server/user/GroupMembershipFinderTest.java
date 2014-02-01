@@ -18,31 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.group;
+package org.sonar.server.user;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.user.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GroupMembershipFinderTest {
 
-  @Mock
-  UserDao userDao;
-
-  @Mock
-  GroupMembershipDao groupMembershipDao;
-
+  UserDao userDao = mock(UserDao.class);
+  GroupMembershipDao groupMembershipDao = mock(GroupMembershipDao.class);
   GroupMembershipFinder finder;
 
   @Before
@@ -58,7 +51,7 @@ public class GroupMembershipFinderTest {
       newArrayList(new GroupMembershipDto().setId(1L).setName("users").setUserId(100L))
     );
 
-    GroupMembershipQueryResult result = finder.find(query);
+    GroupMembershipFinder.Membership result = finder.find(query);
     assertThat(result.groups()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
 
@@ -89,7 +82,7 @@ public class GroupMembershipFinderTest {
       new GroupMembershipDto().setId(2L).setName("group2"),
       new GroupMembershipDto().setId(3L).setName("group3"))
     );
-    GroupMembershipQueryResult result = finder.find(query);
+    GroupMembershipFinder.Membership result = finder.find(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
@@ -109,7 +102,7 @@ public class GroupMembershipFinderTest {
       new GroupMembershipDto().setId(3L).setName("group3"),
       new GroupMembershipDto().setId(4L).setName("group4"))
     );
-    GroupMembershipQueryResult result = finder.find(query);
+    GroupMembershipFinder.Membership result = finder.find(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);

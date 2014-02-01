@@ -186,7 +186,7 @@ class RealmFactory
 
   def self.realm
     if @@realm.nil?
-      realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
+      realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.user.SecurityRealmFactory')
       if realm_factory
         component = realm_factory.getRealm()
         @@realm = component ? PluginRealm.new(component) : DefaultRealm.new

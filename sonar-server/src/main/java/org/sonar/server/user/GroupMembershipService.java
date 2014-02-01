@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.group;
+package org.sonar.server.user;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.core.user.GroupMembershipQuery;
@@ -29,18 +29,18 @@ import java.util.Map;
 /**
  * Used by ruby code <pre>Internal.group_membership</pre>
  */
-public class InternalGroupMembershipService implements ServerComponent {
+public class GroupMembershipService implements ServerComponent {
 
   private static final String SELECTED_MEMBERSHIP = "selected";
   private static final String DESELECTED_MEMBERSHIP = "deselected";
 
   private final GroupMembershipFinder finder;
 
-  public InternalGroupMembershipService(GroupMembershipFinder finder) {
+  public GroupMembershipService(GroupMembershipFinder finder) {
     this.finder = finder;
   }
 
-  public GroupMembershipQueryResult find(Map<String, Object> params) {
+  public GroupMembershipFinder.Membership find(Map<String, Object> params) {
     return finder.find(parseQuery(params));
   }
 

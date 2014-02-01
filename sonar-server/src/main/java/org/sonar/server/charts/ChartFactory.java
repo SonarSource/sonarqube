@@ -25,11 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.charts.Chart;
 
+import javax.annotation.CheckForNull;
 import java.util.Map;
 
 public final class ChartFactory implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ChartFactory.class);
-  private Map<String, Chart> chartsByKey = Maps.newHashMap();
+  private final Map<String, Chart> chartsByKey = Maps.newHashMap();
 
 
   public ChartFactory(Chart[] charts) {
@@ -47,6 +48,7 @@ public final class ChartFactory implements ServerComponent {
     // DO NOT SUPPRESS : used by picocontainer if no charts
   }
 
+  @CheckForNull
   public Chart getChart(String key) {
     return chartsByKey.get(key);
   }

@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.core.i18n.DefaultI18n;
-import org.sonar.server.technicaldebt.TechnicalDebtFormatter;
+import org.sonar.server.technicaldebt.DebtFormatter;
 
 import java.util.List;
 import java.util.Locale;
@@ -41,26 +41,26 @@ public class IssueChangelogFormatterTest {
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
   @Mock
-  private DefaultI18n defaultI18n;
+  private DefaultI18n i18n;
 
   @Mock
-  private TechnicalDebtFormatter technicalDebtFormatter;
+  private DebtFormatter debtFormatter;
 
   private IssueChangelogFormatter formatter;
 
   @Before
-  public void before(){
-    formatter = new IssueChangelogFormatter(defaultI18n, technicalDebtFormatter);
+  public void before() {
+    formatter = new IssueChangelogFormatter(i18n, debtFormatter);
   }
 
   @Test
-  public void format_field_diffs_with_new_and_old_value(){
+  public void format_field_diffs_with_new_and_old_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "BLOCKER", "INFO");
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Severity", "INFO")).thenReturn("Severity changed to INFO");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "BLOCKER")).thenReturn("was BLOCKER");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Severity", "INFO")).thenReturn("Severity changed to INFO");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "BLOCKER")).thenReturn("was BLOCKER");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -69,12 +69,12 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_field_diffs_with_only_new_value(){
+  public void format_field_diffs_with_only_new_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", null, "INFO");
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Severity", "INFO")).thenReturn("Severity changed to INFO");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Severity", "INFO")).thenReturn("Severity changed to INFO");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -83,13 +83,13 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_field_diffs_with_only_old_value(){
+  public void format_field_diffs_with_only_old_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "BLOCKER", null);
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "BLOCKER")).thenReturn("was BLOCKER");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "BLOCKER")).thenReturn("was BLOCKER");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -98,12 +98,12 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_field_diffs_without_value(){
+  public void format_field_diffs_without_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", null, null);
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -112,12 +112,12 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_field_diffs_with_empty_old_value(){
+  public void format_field_diffs_with_empty_old_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "", null);
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.severity", null)).thenReturn("Severity");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Severity")).thenReturn("Severity removed");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -126,16 +126,16 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_technical_debt_with_old_and_new_value(){
+  public void format_technical_debt_with_old_and_new_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "500", "10000");
 
-    when(technicalDebtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 5, 0))).thenReturn("5 hours");
-    when(technicalDebtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
+    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 5, 0))).thenReturn("5 hours");
+    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "5 hours")).thenReturn("was 5 hours");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.was", null, "5 hours")).thenReturn("was 5 hours");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -144,14 +144,14 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_technical_debt_with_new_value_only(){
+  public void format_technical_debt_with_new_value_only() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "10000");
 
-    when(technicalDebtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
+    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);
@@ -160,12 +160,12 @@ public class IssueChangelogFormatterTest {
   }
 
   @Test
-  public void format_technical_debt_without_value(){
+  public void format_technical_debt_without_value() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, null);
 
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
-    when(defaultI18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Technical Debt")).thenReturn("Technical Debt removed");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
+    when(i18n.message(DEFAULT_LOCALE, "issue.changelog.removed", null, "Technical Debt")).thenReturn("Technical Debt removed");
 
     List<String> result = formatter.format(DEFAULT_LOCALE, diffs);
     assertThat(result).hasSize(1);

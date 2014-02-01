@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.server.startup;
 
 import org.junit.Test;
-import org.sonar.api.security.LoginPasswordAuthenticator;
+import org.sonar.core.preview.PreviewCache;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class CompatibilityRealmTest {
-
+public class CleanPreviewAnalysisCacheTest {
   @Test
-  public void shouldDelegate() {
-    LoginPasswordAuthenticator authenticator = mock(LoginPasswordAuthenticator.class);
-    CompatibilityRealm realm = new CompatibilityRealm(authenticator);
-    realm.init();
-    verify(authenticator).init();
-    assertThat(realm.getLoginPasswordAuthenticator(), is(authenticator));
-    assertThat(realm.getName(), is("CompatibilityRealm[" + authenticator.getClass().getName() + "]"));
-  }
+  public void clean_cache_on_startup() throws Exception {
+    PreviewCache cache = mock(PreviewCache.class);
+    CleanPreviewAnalysisCache cleaner = new CleanPreviewAnalysisCache(cache);
 
+    cleaner.start();
+    verify(cache).cleanAll();
+    cleaner.stop();
+  }
 }

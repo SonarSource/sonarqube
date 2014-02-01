@@ -20,23 +20,15 @@
 
 package org.sonar.server.db;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class EmbeddedDatabaseFactoryTest {
 
-  private Settings settings;
-
-  @Before
-  public void initSettings() {
-    settings = new Settings();
-  }
+  Settings settings = new Settings();
 
   @Test
   public void should_start_and_stop_tcp_h2_database() throws Exception {

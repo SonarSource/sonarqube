@@ -55,7 +55,7 @@ class Internal
   end
 
   def self.technical_debt
-    component(Java::OrgSonarServerTechnicaldebt::InternalRubyTechnicalDebtService.java_class)
+    component(Java::OrgSonarServerTechnicaldebt::DebtService.java_class)
   end
 
   def self.profiling
@@ -63,7 +63,7 @@ class Internal
   end
 
   def self.group_membership
-    component(Java::OrgSonarServerGroup::InternalGroupMembershipService.java_class)
+    component(Java::OrgSonarServerUser::GroupMembershipService.java_class)
   end
 
   def self.quality_profiles

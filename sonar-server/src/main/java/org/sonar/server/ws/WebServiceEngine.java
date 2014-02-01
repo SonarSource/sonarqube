@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.plugins.MimeTypes;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStreamWriter;
@@ -110,7 +111,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     ServletResponse.ServletStream stream = response.stream();
     stream.reset();
     stream.setStatus(status);
-    stream.setMediaType("application/json");
+    stream.setMediaType(MimeTypes.JSON);
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
     try {
       json.beginObject();

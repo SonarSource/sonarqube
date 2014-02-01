@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.group;
+package org.sonar.server.user;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.core.user.*;
@@ -30,6 +30,24 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class GroupMembershipFinder implements ServerComponent {
 
+  public static class Membership {
+    private List<GroupMembership> groups;
+    private boolean hasMoreResults;
+
+    private Membership(List<GroupMembership> groups, boolean hasMoreResults) {
+      this.groups = groups;
+      this.hasMoreResults = hasMoreResults;
+    }
+
+    public List<GroupMembership> groups() {
+      return groups;
+    }
+
+    public boolean hasMoreResults() {
+      return hasMoreResults;
+    }
+  }
+
   private final UserDao userDao;
   private final GroupMembershipDao groupMembershipDao;
 
@@ -38,7 +56,7 @@ public class GroupMembershipFinder implements ServerComponent {
     this.groupMembershipDao = groupMembershipDao;
   }
 
-  public GroupMembershipQueryResult find(GroupMembershipQuery query) {
+  public Membership find(GroupMembershipQuery query) {
     Long userId = userId(query.login());
     int pageSize = query.pageSize();
     int pageIndex = query.pageIndex();
@@ -53,13 +71,13 @@ public class GroupMembershipFinder implements ServerComponent {
       // Removed last entry as it's only need to know if there more results or not
       dtos.remove(dtos.size() - 1);
     }
-    return new GroupMembershipQueryResult(toGroupMembership(dtos), hasMoreResults);
+    return new Membership(toGroupMembership(dtos), hasMoreResults);
   }
 
   private Long userId(String login) {
     UserDto userDto = userDao.selectActiveUserByLogin(login);
     if (userDto == null) {
-      throw new NotFoundException("User '"+ login +"' does not exists.");
+      throw new NotFoundException("User '" + login + "' does not exists.");
     }
     return userDto.getId();
   }

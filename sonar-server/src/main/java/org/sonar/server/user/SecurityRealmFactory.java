@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.server.user;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

@@ -1,8 +1,8 @@
 <dataset>
 
   <groups id="100" name="sonar-administrators"/>
-  <groups id="101" name="sonar-users" />
-  <groups id="102" name="sonar-reviewers" />
+  <groups id="101" name="sonar-users"/>
+  <groups id="102" name="sonar-reviewers"/>
 
   <!-- user 1 is in users group -->
   <groups_users user_id="200" group_id="101"/>

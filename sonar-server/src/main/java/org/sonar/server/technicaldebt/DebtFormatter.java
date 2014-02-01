@@ -26,11 +26,11 @@ import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
 
-public class TechnicalDebtFormatter implements ServerComponent {
+public class DebtFormatter implements ServerComponent {
 
   private final DefaultI18n defaultI18n;
 
-  public TechnicalDebtFormatter(DefaultI18n defaultI18n) {
+  public DebtFormatter(DefaultI18n defaultI18n) {
     this.defaultI18n = defaultI18n;
   }
 
