@@ -34,7 +34,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.RulesDao;
-import org.sonar.server.configuration.SonarConfig;
 
 import java.util.*;
 
@@ -52,20 +51,12 @@ public class ProfilesBackup {
   private static final String PARAMS = "params";
   private static final String VALUE = "value";
 
-  private Collection<RulesProfile> profiles;
   private DatabaseSession session;
   private PreviewCache dryRunCache;
 
   public ProfilesBackup(DatabaseSession session, PreviewCache dryRunCache) {
     this.session = session;
     this.dryRunCache = dryRunCache;
-  }
-
-  /**
-   * for unit tests
-   */
-  ProfilesBackup(Collection<RulesProfile> profiles) {
-    this.profiles = profiles;
   }
 
   public void configure(XStream xStream) {
@@ -83,31 +74,6 @@ public class ProfilesBackup {
     xStream.omitField(RulesProfile.class, "enabled");
     xStream.registerConverter(getActiveRuleConverter());
     xStream.registerConverter(getAlertsConverter());
-  }
-
-  public void exportXml(SonarConfig sonarConfig) {
-    this.profiles = (this.profiles == null ? session.getResults(RulesProfile.class) : this.profiles);
-    // the profiles objects must be cloned to avoid issues CGLib
-    List<RulesProfile> cloned = new ArrayList<RulesProfile>();
-    for (RulesProfile profile : this.profiles) {
-      cloned.add((RulesProfile) profile.clone());
-    }
-
-    sonarConfig.setProfiles(cloned);
-  }
-
-  public void importXml(SonarConfig sonarConfig) {
-    if (sonarConfig.getProfiles() != null && !sonarConfig.getProfiles().isEmpty()) {
-      LoggerFactory.getLogger(getClass()).info("Delete profiles");
-      ProfilesManager profilesManager = new ProfilesManager(session, dryRunCache);
-      profilesManager.deleteAllProfiles();
-
-      RulesDao rulesDao = new RulesDao(session);
-      for (RulesProfile profile : sonarConfig.getProfiles()) {
-        LoggerFactory.getLogger(getClass()).info("Restore profile " + profile.getName());
-        importProfile(rulesDao, profile);
-      }
-    }
   }
 
   public void importProfile(RulesDao rulesDao, RulesProfile toImport) {

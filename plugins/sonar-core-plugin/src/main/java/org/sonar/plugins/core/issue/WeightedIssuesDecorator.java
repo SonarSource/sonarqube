@@ -73,6 +73,7 @@ public class WeightedIssuesDecorator implements Decorator {
     return CoreMetrics.WEIGHTED_VIOLATIONS;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -98,7 +99,7 @@ public class WeightedIssuesDecorator implements Decorator {
     return weights;
   }
 
-
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     decorate(context);
   }

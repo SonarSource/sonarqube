@@ -32,7 +32,6 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.ui.CodeColorizers;
 
 import java.util.List;
 

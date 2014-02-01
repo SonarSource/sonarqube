@@ -31,7 +31,6 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
@@ -46,7 +45,6 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
@@ -54,13 +52,13 @@ import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RuleRepositories;
+import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
-
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -246,41 +244,12 @@ public final class JRubyFacade {
     return get(RuleRepositories.class).repositories();
   }
 
-  public RuleRepositories.Repository getRuleRepository(String repositoryKey) {
-    return get(RuleRepositories.class).repository(repositoryKey);
-  }
-
   public Collection<RuleRepositories.Repository> getRuleRepositoriesByLanguage(String languageKey) {
     return get(RuleRepositories.class).repositoriesForLang(languageKey);
   }
 
-  public void ruleActivated(int parentProfileId, int activeRuleId, String userName) {
-    getProfilesManager().activated(parentProfileId, activeRuleId, userName);
-  }
-
-  public void ruleParamChanged(int parentProfileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
-    getProfilesManager().ruleParamChanged(parentProfileId, activeRuleId, paramKey, oldValue, newValue, userName);
-  }
-
-  public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
-    getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
-  }
-
-  public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
-    getProfilesManager().deactivated(parentProfileId, deactivatedRuleId, userName);
-  }
-
-  public void revertRule(int profileId, int activeRuleId, String userName) {
-    getProfilesManager().revert(profileId, activeRuleId, userName);
-  }
-
   public List<Footer> getWebFooters() {
     return getContainer().getComponentsByType(Footer.class);
-  }
-
-  private ProfilesManager getProfilesManager() {
-    return get(ProfilesManager.class);
   }
 
   public void setGlobalProperty(String key, @Nullable String value) {

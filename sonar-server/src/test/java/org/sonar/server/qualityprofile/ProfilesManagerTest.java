@@ -42,21 +42,6 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void delete_all_profiles() {
-    RulesProfile test1 = RulesProfile.create("test1", "java");
-    test1.setDefaultProfile(true);
-    RulesProfile test2 = RulesProfile.create("test2", "java");
-
-    getSession().save(test1, test2);
-
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(2);
-
-    manager.deleteAllProfiles();
-
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(0);
-  }
-
-  @Test
   public void remove_activated_rules() {
     Rule rule1 = Rule.create("repo", "key");
 

@@ -22,12 +22,10 @@ package org.sonar.server.qualityprofile;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.api.rules.ActiveRuleParamChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.server.qualityprofile.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -58,21 +56,21 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   public void should_track_rule_activation() {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
-    checkTables("ruleActivated", new String[] {"change_date"}, "active_rule_changes");
+    checkTables("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void should_track_rule_deactivation() {
     setupData("initialData");
     profilesManager.deactivated(2, 3, "admin");
-    checkTables("ruleDeactivated", new String[] {"change_date"}, "active_rule_changes");
+    checkTables("ruleDeactivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void should_track_rule_param_change() {
     setupData("initialData");
     profilesManager.ruleParamChanged(2, 3, "param1", "20", "30", "admin");
-    checkTables("ruleParamChanged", new String[] {"change_date"}, "active_rule_changes", "active_rule_param_changes");
+    checkTables("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
 
   @Test
@@ -86,7 +84,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   public void should_track_rule_severity_change() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
-    checkTables("ruleSeverityChanged", new String[] {"change_date"}, "active_rule_changes");
+    checkTables("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
@@ -97,31 +95,10 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_track_rule_revert() {
-    setupData("ruleReverted");
-    profilesManager.revert(2, 3, "admin");
-    checkTables("ruleReverted", new String[] {"change_date"}, "active_rule_changes", "active_rule_param_changes");
-  }
-
-  @Test
-  public void should_not_track_param_change_on_rule_revert_if_no_param() {
-    setupData("should_not_track_param_change_on_rule_revert_if_no_param");
-    profilesManager.revert(2, 3, "admin");
-    assertThat(getHQLCount(ActiveRuleParamChange.class)).isEqualTo(0);
-  }
-
-  @Test
-  public void should_not_track_param_change_on_rule_revert_if_no_change() {
-    setupData("should_not_track_param_change_on_rule_revert_if_no_param");
-    profilesManager.revert(2, 3, "admin");
-    assertThat(getHQLCount(ActiveRuleParamChange.class)).isEqualTo(0);
-  }
-
-  @Test
   public void should_track_change_parent_profile() {
     setupData("changeParentProfile");
     profilesManager.profileParentChanged(2, "parent", "admin");
-    checkTables("changeParentProfile", new String[] {"change_date"}, "active_rule_changes");
+    checkTables("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
@@ -129,7 +106,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
     setupData("initialData");
     Rule rule = getSession().reattach(Rule.class, 1);
     profilesManager.removeActivatedRules(rule.getId());
-    checkTables("removeActivatedRules", new String[] {"change_date"}, "active_rule_changes", "active_rules");
+    checkTables("removeActivatedRules", new String[]{"change_date"}, "active_rule_changes", "active_rules");
   }
 
 }

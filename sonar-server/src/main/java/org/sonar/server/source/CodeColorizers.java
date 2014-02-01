@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.server.source;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
@@ -33,22 +33,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Central point for sonar-colorizer extensions
+ */
 public class CodeColorizers implements ServerExtension {
 
-  private Map<String, CodeColorizerFormat> formatPerLanguage;
+  private final Map<String, CodeColorizerFormat> byLang;
 
   public CodeColorizers(List<CodeColorizerFormat> formats) {
-    formatPerLanguage = new HashMap<String, CodeColorizerFormat>();
+    byLang = new HashMap<String, CodeColorizerFormat>();
     for (CodeColorizerFormat format : formats) {
-      formatPerLanguage.put(format.getLanguageKey(), format);
+      byLang.put(format.getLanguageKey(), format);
     }
 
-    Logs.INFO.info("Code colorizer, supported languages: " + StringUtils.join(formatPerLanguage.keySet(), ","));
+    Logs.INFO.info("Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
   }
 
   public String toHtml(String code, String language) {
+    CodeColorizerFormat format = byLang.get(language);
     List<Tokenizer> tokenizers;
-    CodeColorizerFormat format = formatPerLanguage.get(language);
     if (format == null) {
       tokenizers = Collections.emptyList();
     } else {

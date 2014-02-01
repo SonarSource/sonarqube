@@ -60,20 +60,6 @@ public class ProfilesManager extends BaseDao {
     return toImport.getId();
   }
 
-  public void deleteAllProfiles() {
-    // Remove history of rule changes
-    String hqlDeleteRc = "DELETE " + ActiveRuleChange.class.getSimpleName() + " rc";
-    getSession().createQuery(hqlDeleteRc).executeUpdate();
-
-    List profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
-    for (Object profile : profiles) {
-      getSession().removeWithoutFlush(profile);
-    }
-    getSession().commit();
-    dryRunCache.reportGlobalModification();
-  }
-
-
   // Managing inheritance of profiles
 
   public RuleInheritanceActions profileParentChanged(Integer profileId, @Nullable String parentName, String userName) {
@@ -199,32 +185,6 @@ public class ProfilesManager extends BaseDao {
     getSession().commit();
     dryRunCache.reportGlobalModification();
     return actions;
-  }
-
-  public void revert(int profileId, int activeRuleId, String userName) {
-    RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    ActiveRule oldActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
-    if (oldActiveRule != null && oldActiveRule.doesOverride()) {
-      ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(oldActiveRule.getRule());
-      if (parentActiveRule != null) {
-        removeActiveRule(oldActiveRule);
-        ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
-        newActiveRule.setRulesProfile(profile);
-        newActiveRule.setInheritance(ActiveRule.INHERITED);
-        profile.addActiveRule(newActiveRule);
-        getSession().saveWithoutFlush(newActiveRule);
-
-        // Compute change
-        ruleChanged(profile, oldActiveRule, newActiveRule, userName);
-
-        for (RulesProfile child : getChildren(profile)) {
-          activateOrChange(child, newActiveRule, userName);
-        }
-
-        getSession().commit();
-        dryRunCache.reportGlobalModification();
-      }
-    }
   }
 
   private synchronized void incrementProfileVersionIfNeeded(RulesProfile profile) {

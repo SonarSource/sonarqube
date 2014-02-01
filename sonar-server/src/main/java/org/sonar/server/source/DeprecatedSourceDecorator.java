@@ -29,11 +29,9 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.ui.CodeColorizers;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,7 +42,6 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DeprecatedSourceDecorator implements ServerComponent {
 
   private final MyBatis mybatis;
-
   private final ResourceDao resourceDao;
   private final CodeColorizers codeColorizers;
   private final SnapshotSourceDao snapshotSourceDao;

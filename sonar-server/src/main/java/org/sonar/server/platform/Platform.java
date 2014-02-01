@@ -97,6 +97,7 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
+import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
