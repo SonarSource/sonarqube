@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -32,9 +33,7 @@ import org.sonar.api.utils.SonarException;
 /**
  * @since 2.14
  */
-public class SecurityRealmFactory implements ServerComponent {
-
-  private static final Logger INFO = LoggerFactory.getLogger("org.sonar.INFO");
+public class SecurityRealmFactory implements ServerComponent, Startable {
 
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
@@ -47,14 +46,15 @@ public class SecurityRealmFactory implements ServerComponent {
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
       if (selectedRealm == null) {
-        throw new SonarException("Realm '" + realmName + "' not found. Please check the property '" + CoreProperties.CORE_AUTHENTICATOR_REALM + "' in conf/sonar.properties");
+        throw new SonarException(String.format(
+          "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, CoreProperties.CORE_AUTHENTICATOR_REALM));
       }
     }
     if (selectedRealm == null && !StringUtils.isEmpty(className)) {
       LoginPasswordAuthenticator authenticator = selectAuthenticator(authenticators, className);
       if (authenticator == null) {
-        throw new SonarException("Authenticator '" + className + "' not found. Please check the property '" + CoreProperties.CORE_AUTHENTICATOR_CLASS
-          + "' in conf/sonar.properties");
+        throw new SonarException(String.format(
+          "Authenticator '%s' not found. Please check the property '%s' in conf/sonar.properties", className, CoreProperties.CORE_AUTHENTICATOR_CLASS));
       }
       selectedRealm = new CompatibilityRealm(authenticator);
     }
@@ -62,26 +62,28 @@ public class SecurityRealmFactory implements ServerComponent {
   }
 
   public SecurityRealmFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
-    this(settings, null, authenticators);
+    this(settings, new SecurityRealm[0], authenticators);
   }
 
   public SecurityRealmFactory(Settings settings, SecurityRealm[] realms) {
-    this(settings, realms, null);
+    this(settings, realms, new LoginPasswordAuthenticator[0]);
   }
 
   public SecurityRealmFactory(Settings settings) {
-    this(settings, null, null);
+    this(settings, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
   }
 
+  @Override
   public void start() {
     if (realm != null) {
+      Logger logger = LoggerFactory.getLogger("org.sonar.INFO");
       try {
-        INFO.info("Security realm: " + realm.getName());
+        logger.info("Security realm: " + realm.getName());
         realm.init();
-        INFO.info("Security realm started");
+        logger.info("Security realm started");
       } catch (RuntimeException e) {
         if (ignoreStartupFailure) {
-          INFO.error("IGNORED - Security realm fails to start: " + e.getMessage());
+          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
         } else {
           throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }
@@ -89,27 +91,28 @@ public class SecurityRealmFactory implements ServerComponent {
     }
   }
 
+  @Override
+  public void stop() {
+    // nothing
+  }
+
   public SecurityRealm getRealm() {
     return realm;
   }
 
   private static SecurityRealm selectRealm(SecurityRealm[] realms, String realmName) {
-    if (realms != null) {
-      for (SecurityRealm realm : realms) {
-        if (StringUtils.equals(realmName, realm.getName())) {
-          return realm;
-        }
+    for (SecurityRealm realm : realms) {
+      if (StringUtils.equals(realmName, realm.getName())) {
+        return realm;
       }
     }
     return null;
   }
 
   private static LoginPasswordAuthenticator selectAuthenticator(LoginPasswordAuthenticator[] authenticators, String className) {
-    if (authenticators != null) {
-      for (LoginPasswordAuthenticator lpa : authenticators) {
-        if (lpa.getClass().getName().equals(className)) {
-          return lpa;
-        }
+    for (LoginPasswordAuthenticator lpa : authenticators) {
+      if (lpa.getClass().getName().equals(className)) {
+        return lpa;
       }
     }
     return null;

@@ -69,7 +69,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public String getName() {
-    return singleLanguageProfile!= null ? singleLanguageProfile.getName() : "SonarQube";
+    return singleLanguageProfile != null ? singleLanguageProfile.getName() : "SonarQube";
   }
 
   @Override
@@ -90,8 +90,8 @@ public class RulesProfileWrapper extends RulesProfile {
         return profile;
       }
     }
-      return null;
-    }
+    return null;
+  }
 
   @Override
   public List<Alert> getAlerts() {

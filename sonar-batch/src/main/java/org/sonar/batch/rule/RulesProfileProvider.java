@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;

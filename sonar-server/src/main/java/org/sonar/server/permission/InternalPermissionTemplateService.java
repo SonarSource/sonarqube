@@ -22,8 +22,6 @@ package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
@@ -32,7 +30,6 @@ import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;

@@ -25,7 +25,7 @@ import org.sonar.wsclient.rule.RuleTagClient;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Do not instantiate this class, but use {@link org.sonar.wsclient.SonarClient#ruleTagClient()}.
@@ -46,13 +46,12 @@ public class DefaultRuleTagClient implements RuleTagClient {
   @SuppressWarnings("unchecked")
   public Collection<String> list() {
     String json = requestFactory.get(LIST_URL, null);
-    final List<String> tagList = (List<String>) JSONValue.parse(json);
-    return tagList;
+    return (Collection<String>) JSONValue.parse(json);
   }
 
   @Override
   public void create(String tag) {
-    final HashMap<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<String, Object>();
     params.put("tag", tag);
     requestFactory.post(CREATE_URL, params);
   }

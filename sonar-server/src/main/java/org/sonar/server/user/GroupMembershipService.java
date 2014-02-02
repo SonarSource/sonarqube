@@ -58,10 +58,10 @@ public class GroupMembershipService implements ServerComponent {
     String selected = (String) params.get("selected");
     if (SELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.IN;
-    } else if (DESELECTED_MEMBERSHIP.equals(selected)) {
-      return GroupMembershipQuery.OUT;
-    } else {
-      return GroupMembershipQuery.ANY;
     }
+    if (DESELECTED_MEMBERSHIP.equals(selected)) {
+      return GroupMembershipQuery.OUT;
+    }
+    return GroupMembershipQuery.ANY;
   }
 }

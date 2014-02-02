@@ -30,9 +30,6 @@ import java.util.Map;
  * @since 3.1
  */
 public final class MimeTypes {
-  private MimeTypes() {
-    // only static methods
-  }
 
   public static final String JSON = "application/json";
   public static final String XML = "application/xml";
@@ -67,6 +64,10 @@ public final class MimeTypes {
     .put("css", "text/css")
     .put("tsv", "text/tab-separated-values")
     .build();
+
+  private MimeTypes() {
+    // only static methods
+  }
 
   public static String getByFilename(String filename) {
     String extension = FilenameUtils.getExtension(filename);

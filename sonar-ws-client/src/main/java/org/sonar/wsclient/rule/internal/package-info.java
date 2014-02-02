@@ -17,24 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch;
+@ParametersAreNonnullByDefault package org.sonar.wsclient.rule.internal;
 
-import org.sonar.api.batch.ResourceCreationLock;
-
-/**
- * This lock is used to ensure that Sonar resources (files, packages, directories) are not created by buggy plugins
- * when saving measures/violations on unknown resources.
- *
- * @since 2.3
- * @deprecated not used since 4.2
- */
-@Deprecated
-public final class DefaultResourceCreationLock implements ResourceCreationLock {
-
-  @Override
-  public void lock() {
-    // does nothing since 4.2. Creation of components (ex-resources) is
-    // the responsibility of core, not plugins
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

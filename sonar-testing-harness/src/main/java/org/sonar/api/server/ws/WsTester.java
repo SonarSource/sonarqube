@@ -26,15 +26,12 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @since 4.2
@@ -102,6 +99,10 @@ public class WsTester {
       @CheckForNull
       public String mediaType() {
         return mediaType;
+      }
+
+      public int status() {
+        return status;
       }
 
       @Override

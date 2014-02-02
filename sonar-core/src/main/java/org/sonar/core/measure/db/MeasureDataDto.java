@@ -22,7 +22,7 @@ package org.sonar.core.measure.db;
 
 import com.google.common.base.Charsets;
 
-import java.io.UnsupportedEncodingException;
+import javax.annotation.CheckForNull;
 
 public class MeasureDataDto {
 
@@ -70,14 +70,10 @@ public class MeasureDataDto {
     return this;
   }
 
+  @CheckForNull
   public String getText() {
     if (data != null) {
-      try {
-        return new String(data, Charsets.UTF_8.name());
-      } catch (UnsupportedEncodingException e) {
-        // how is it possible to not support UTF-8 ?
-        throw new RuntimeException("UTF8 is not supported", e);
-      }
+      return new String(data, Charsets.UTF_8);
     }
     return null;
   }

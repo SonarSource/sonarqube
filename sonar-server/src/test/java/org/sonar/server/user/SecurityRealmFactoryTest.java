@@ -47,6 +47,8 @@ public class SecurityRealmFactoryTest {
     factory.start();
     assertThat(factory.getRealm()).isSameAs(realm);
     verify(realm).init();
+
+    factory.stop();
   }
 
   @Test

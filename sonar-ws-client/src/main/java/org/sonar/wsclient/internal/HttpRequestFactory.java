@@ -23,20 +23,17 @@ import com.github.kevinsawicki.http.HttpRequest;
 import org.sonar.wsclient.base.HttpException;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Map;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 /**
  * Not an API. Please do not use this class, except maybe for unit tests.
  */
 public class HttpRequestFactory {
 
-  private final static int[] RESPONSE_SUCCESS = {HTTP_OK, HTTP_CREATED, HTTP_NO_CONTENT};
+  private static final int[] RESPONSE_SUCCESS = {HTTP_OK, HTTP_CREATED, HTTP_NO_CONTENT};
 
   private final String baseUrl;
   private String login, password, proxyHost, proxyLogin, proxyPassword;

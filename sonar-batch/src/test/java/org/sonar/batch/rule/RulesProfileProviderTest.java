@@ -32,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RulesProfileProviderTest {
+
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
   Settings settings = new Settings();
   ProfilesDao dao = mock(ProfilesDao.class);

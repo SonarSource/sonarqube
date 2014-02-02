@@ -23,9 +23,10 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 
 /**
-  * This interface is implemented by the views plugin!!
-  *
-  */
+ * This interface is implemented by the views plugin!!
+ *
+ * @deprecated in 4.2
+ */
 @Deprecated
 public interface ProfileLoader {
 

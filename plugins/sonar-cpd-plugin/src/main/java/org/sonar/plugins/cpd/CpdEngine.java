@@ -22,7 +22,6 @@ package org.sonar.plugins.cpd;
 import org.slf4j.Logger;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 
 public abstract class CpdEngine implements BatchExtension {

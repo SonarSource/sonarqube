@@ -38,7 +38,7 @@ public class RuleTagsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.newController("api/rule_tags")
-        .setDescription("Rule tags");
+      .setDescription("Rule tags");
 
     controller.newAction("list")
       .setDescription("List all available rule tags")
@@ -46,7 +46,7 @@ public class RuleTagsWs implements WebService {
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
-          list(request, response);
+          list(response);
         }
       });
 
@@ -65,10 +65,10 @@ public class RuleTagsWs implements WebService {
     controller.done();
   }
 
-  private void list(Request request, Response response) {
+  private void list(Response response) {
     JsonWriter writer = response.newJsonWriter();
     writer.beginArray();
-    for (String tag: ruleTags.listAllTags()) {
+    for (String tag : ruleTags.listAllTags()) {
       writer.value(tag);
     }
     writer.endArray().close();
