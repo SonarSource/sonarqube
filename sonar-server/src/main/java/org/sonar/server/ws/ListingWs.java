@@ -82,19 +82,17 @@ public class ListingWs implements WebService {
     writer.prop("path", controller.path());
     writer.prop("since", controller.since());
     writer.prop("description", controller.description());
-    if (!controller.actions().isEmpty()) {
-      // sort actions by key
-      Ordering<Action> ordering = Ordering.natural().onResultOf(new Function<Action, String>() {
-        public String apply(Action action) {
-          return action.key();
-        }
-      });
-      writer.name("actions").beginArray();
-      for (Action action : ordering.sortedCopy(controller.actions())) {
-        write(writer, action);
+    // sort actions by key
+    Ordering<Action> ordering = Ordering.natural().onResultOf(new Function<Action, String>() {
+      public String apply(Action action) {
+        return action.key();
       }
-      writer.endArray();
+    });
+    writer.name("actions").beginArray();
+    for (Action action : ordering.sortedCopy(controller.actions())) {
+      write(writer, action);
     }
+    writer.endArray();
     writer.endObject();
   }
 

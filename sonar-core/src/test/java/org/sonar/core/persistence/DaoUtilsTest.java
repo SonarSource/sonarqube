@@ -28,8 +28,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DaoUtilsTest {
 
   @Test
-  public void should_list_all_dao_classes() {
-    List<Class<?>> daoClasses = DaoUtils.getDaoClasses();
+  public void list_all_dao_classes() {
+    List<Class> daoClasses = DaoUtils.getDaoClasses();
 
     assertThat(daoClasses).isNotEmpty();
   }

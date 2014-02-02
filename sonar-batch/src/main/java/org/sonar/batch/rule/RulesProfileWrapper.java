@@ -41,6 +41,7 @@ import java.util.List;
 public class RulesProfileWrapper extends RulesProfile {
 
   private static final Logger LOG = LoggerFactory.getLogger(RulesProfileWrapper.class);
+  private static final String DEPRECATED_USAGE_MESSAGE = "Please update your plugin to support multi-language analysis";
 
   private final Collection<RulesProfile> profiles;
   private final RulesProfile singleLanguageProfile;
@@ -62,7 +63,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   private RulesProfile getSingleProfileOrFail() {
     if (singleLanguageProfile == null) {
-      throw new IllegalStateException("Please update your plugin to support multi-language analysis");
+      throw new IllegalStateException(DEPRECATED_USAGE_MESSAGE);
     }
     return singleLanguageProfile;
   }
@@ -76,8 +77,8 @@ public class RulesProfileWrapper extends RulesProfile {
   public String getLanguage() {
     if (singleLanguageProfile == null) {
       // Multi-languages module
-      // FIXME This is a hack for CommonChecksDecorator that call this method in its constructor
-      LOG.debug("Please update your plugin to support multi-language analysis", new SonarException("Please update your plugin to support multi-language analysis"));
+      // This is a hack for CommonChecksDecorator that call this method in its constructor
+      LOG.debug(DEPRECATED_USAGE_MESSAGE, new SonarException(DEPRECATED_USAGE_MESSAGE));
       return "";
     }
     return singleLanguageProfile.getLanguage();

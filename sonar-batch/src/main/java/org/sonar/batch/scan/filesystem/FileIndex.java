@@ -43,14 +43,9 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Index input files into {@link InputFileCache}.
@@ -186,8 +181,7 @@ public class FileIndex implements BatchComponent {
   }
 
   private String computeFilePath(DefaultModuleFileSystem fileSystem, File file) {
-    String path = pathResolver.relativePath(fileSystem.baseDir(), file);
-    return path;
+    return pathResolver.relativePath(fileSystem.baseDir(), file);
   }
 
   @CheckForNull

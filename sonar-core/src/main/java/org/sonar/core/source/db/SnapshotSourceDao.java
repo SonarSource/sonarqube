@@ -52,11 +52,11 @@ public class SnapshotSourceDao implements ServerComponent {
 
   @CheckForNull
   public String selectSnapshotSourceByComponentKey(String componentKey, SqlSession session) {
-      SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
-      return mapper.selectSnapshotSourceByComponentKey(componentKey);
+    SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
+    return mapper.selectSnapshotSourceByComponentKey(componentKey);
   }
 
-    @CheckForNull
+  @CheckForNull
   public String selectSnapshotSourceByComponentKey(String componentKey) {
     SqlSession session = mybatis.openSession();
     try {

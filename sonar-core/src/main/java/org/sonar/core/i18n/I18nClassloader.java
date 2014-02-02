@@ -60,7 +60,7 @@ class I18nClassloader extends URLClassLoader {
   }
 
   @Override
-  protected synchronized Class<?> loadClass(String s, boolean b) throws ClassNotFoundException {
+  protected synchronized Class loadClass(String s, boolean b) throws ClassNotFoundException {
     throw new UnsupportedOperationException("I18n classloader does support only resources, but not classes");
   }
 

@@ -78,9 +78,10 @@ public abstract class IssueStorage {
         if (issue.isNew()) {
           insert(issueMapper, now, issue);
           insertChanges(issueChangeMapper, issue);
-          if (count++ > BatchSession.MAX_BATCH_SIZE) {
+          if (count > BatchSession.MAX_BATCH_SIZE) {
             batchSession.commit();
           }
+          count++;
         } else if (issue.isChanged()) {
           toBeUpdated.add(issue);
         }
