@@ -2477,14 +2477,15 @@ textarea.width100 {
   line-height: 16px;
 }
 
-.rule-title {
+div.rule-title {
   display: inline-block;
   float: left;
+  clear: right;
 }
 
 .rule-desc {
-  float: none;
-  clear: both;
+  float: left;
+  clear: right;
 }
 
 .rule-status, .rule-tags {
