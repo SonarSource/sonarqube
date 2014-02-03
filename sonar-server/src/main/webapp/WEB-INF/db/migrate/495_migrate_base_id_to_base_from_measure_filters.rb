@@ -22,7 +22,7 @@
 # Sonar 4.2
 # SONAR-4921
 #
-class DeleteBaseIdFromMeasureFilters < ActiveRecord::Migration
+class MigrateBaseIdToBaseFromMeasureFilters < ActiveRecord::Migration
 
   class MeasureFilter < ActiveRecord::Base
   end
@@ -30,9 +30,14 @@ class DeleteBaseIdFromMeasureFilters < ActiveRecord::Migration
   def self.up
     filters = MeasureFilter.all(:conditions => "data LIKE '%baseId=%'")
     filters.each do |filter|
-      filter.data = filter.data.sub(/baseId=\d+/, '')
-      filter.save
+      matchBaseId = filter.data.match(/baseId=(\d+)/)
+      if matchBaseId
+        projectId = matchBaseId[1]
+        project = Project.find_by_id(projectId)
+        # If project exists, we replace the condition using project id by the condition using project key, otherwise we removed the condition
+        filter.data = filter.data.sub(/baseId=\d+/, project ? "base=#{project.kee}" : '')
+        filter.save
+      end
     end
   end
 end
-
