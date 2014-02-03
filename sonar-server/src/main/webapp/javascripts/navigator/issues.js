@@ -211,6 +211,16 @@ jQuery(function() {
             }
           })
           .always(callback);
+    },
+
+
+    serializeData: function() {
+      var projectFilter = this.options.app.filters.findWhere({ property: 'componentRoots' }),
+          singleProject = _.isArray(projectFilter.get('value')) && projectFilter.get('value').length === 1;
+
+      return _.extend({
+        singleProject: singleProject
+      }, this.model.toJSON());
     }
   });
 

@@ -16,7 +16,9 @@
     </div>
 
     <div class="line">
-      <div class="subtitle">{{projectLongName}}</div>
-      {{componentLongName}}
+      {{#unless singleProject}}
+        <div class="subtitle">{{projectLongName}}</div>
+      {{/unless}}
+      <div class="subtitle">{{componentLongName}}</div>
     </div>
 </script>
