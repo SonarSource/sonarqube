@@ -80,12 +80,18 @@
   left: 0;
   width: 100%;
 }
-.navigator-with-notes .navigator-results,
+.navigator-with-notes .navigator-actions,
 .navigator-with-notes .navigator-details {
   top: 124px;
 }
+.navigator-with-notes .navigator-results {
+  top: 154px;
+}
 .navigator-with-notes .navigator-notes {
   display: block;
+}
+.navigator-with-notes .navigator-details .source_title {
+  top: 124px;
 }
 .navigator-fetching:before {
   content: " ";

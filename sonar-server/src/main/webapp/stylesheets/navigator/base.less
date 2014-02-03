@@ -75,13 +75,21 @@
 
 .navigator-with-notes {
 
-  .navigator-results,
+  .navigator-actions,
   .navigator-details {
     top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight;
   }
 
+  .navigator-results {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight + @navigatorStatusHeight;
+  }
+
   .navigator-notes {
     display: block;
+  }
+
+  .navigator-details .source_title {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight;
   }
 
 }
