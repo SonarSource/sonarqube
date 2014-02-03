@@ -28,8 +28,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleNote;
 import org.sonar.server.rule.Rules;
@@ -38,6 +40,8 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Date;
 import java.util.Locale;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -50,13 +54,16 @@ public class RuleShowWsHandlerTest {
   Rules rules;
 
   @Mock
+  RuleFinder ruleFinder;
+
+  @Mock
   I18n i18n;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWs(new RuleShowWsHandler(rules, i18n), mock(AddTagsWsHandler.class), mock(RemoveTagsWsHandler.class)));
+    tester = new WsTester(new RulesWs(new RuleShowWsHandler(rules, ruleFinder, i18n), mock(AddTagsWsHandler.class), mock(RemoveTagsWsHandler.class)));
   }
 
   @Test
@@ -69,6 +76,23 @@ public class RuleShowWsHandlerTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
     request.execute().assertJson(getClass(), "show_rule.json");
+  }
+
+  @Test
+  public void return_not_found_on_unkwown_rule() throws Exception {
+    String ruleKey = "squid:AvoidCycle";
+
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+
+    try {
+      request.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   @Test
@@ -113,6 +137,34 @@ public class RuleShowWsHandlerTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
     request.execute().assertJson(getClass(), "show_rule_with_tags.json");
+  }
+
+  @Test
+  public void show_manuel_rule() throws Exception {
+    String ruleKey = "manual:api";
+    when(ruleFinder.findByKey(RuleKey.of("manual", "api"))).thenReturn(org.sonar.api.rules.Rule.create("manual", "api", "API").setDescription("API rule description"));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    request.execute();
+    request.execute().assertJson(getClass(), "show_manuel_rule.json");
+  }
+
+  @Test
+  public void return_not_found_on_unkwown_manual_rule() throws Exception {
+    String ruleKey = "manual:api";
+
+    when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+
+    try {
+      request.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
   }
 
   private Rule create(String repoKey, String key, String name, String description) {

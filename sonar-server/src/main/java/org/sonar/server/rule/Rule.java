@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class Rule {
 
   private int id;
@@ -50,6 +52,23 @@ public class Rule {
   private List<String> adminTags;
   private RuleNote ruleNote;
   private List<RuleParam> params;
+
+  /**
+   * Used to create manual rule
+   */
+  public Rule(String key, String name, String description, String repositoryKey, String severity, String status, Date createdAt, Date updatedAt) {
+    this.key = key;
+    this.name = name;
+    this.description = description;
+    this.repositoryKey = repositoryKey;
+    this.severity = severity;
+    this.status = status;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.systemTags = newArrayList();
+    this.adminTags = newArrayList();
+
+  }
 
   public Rule(Map<String, Object> ruleSource) {
     id = (Integer) ruleSource.get(RuleDocument.FIELD_ID);

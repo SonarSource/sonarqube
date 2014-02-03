@@ -1,0 +1,9 @@
+{
+  "rule": {
+    "key": "manual:api",
+    "name": "API",
+    "description": "API rule description",
+    "tags": [],
+    "sysTags": []
+  }
+}
