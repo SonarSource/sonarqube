@@ -297,7 +297,7 @@ jQuery(function() {
     this.storeQuery(query, this.issues.sorting);
 
     var that = this;
-    this.issuesView.$el.addClass('navigator-fetching');
+    this.issuesView.$el.empty().addClass('navigator-fetching');
     if (firstPage) {
       this.issues.fetch({
         data: fetchQuery,
