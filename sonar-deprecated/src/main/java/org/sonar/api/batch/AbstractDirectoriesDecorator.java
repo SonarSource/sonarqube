@@ -36,7 +36,7 @@ public abstract class AbstractDirectoriesDecorator implements Decorator {
   /**
    * @param language this will be use to defined whether the decorator should be executed on a project
    */
-  public AbstractDirectoriesDecorator(Language language) {//NOSONAR this unused parameter is kept for backward-compatibility of API
+  public AbstractDirectoriesDecorator(Language language) {
   }
 
   /**

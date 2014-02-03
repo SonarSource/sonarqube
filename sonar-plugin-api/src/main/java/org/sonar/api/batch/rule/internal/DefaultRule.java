@@ -34,7 +34,7 @@ import java.util.Map;
 public class DefaultRule implements Rule {
 
   private final RuleKey key;
-  private Integer id;
+  private final Integer id;
   private final String name, severity, description, metadata;
   private final RuleStatus status;
   private final Map<String, RuleParam> params;
