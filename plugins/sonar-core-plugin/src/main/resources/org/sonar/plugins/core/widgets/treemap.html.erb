@@ -3,7 +3,7 @@
    color_metric = widget_properties['colorMetric']
 
    filter = MeasureFilter.new
-   filter.set_criteria_value(:baseId, @resource.id)
+   filter.set_criteria_value(:base, @resource.key)
    filter.set_criteria_value(:display, 'treemap')
    filter.set_criteria_value(:tmSize, size_metric.key) if size_metric
    filter.set_criteria_value(:tmColor, color_metric.key) if color_metric

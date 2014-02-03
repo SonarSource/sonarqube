@@ -41,7 +41,7 @@ class TreemapController < ApplicationController
     resource = resource.permanent_resource
 
     filter = MeasureFilter.new
-    filter.set_criteria_value(:baseId, resource.id)
+    filter.set_criteria_value(:base, resource.key)
     filter.set_criteria_value(:onBaseComponents, 'true')
     filter.set_criteria_value(:display, 'treemap')
     filter.set_criteria_value(:tmSize, size_metric.key) if size_metric

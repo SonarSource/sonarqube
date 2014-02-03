@@ -26,7 +26,7 @@
        filter = MeasureFilter.new
        # Test files should not be returned
        qualifiers = Api::Utils.java_facade.getResourceLeavesQualifiers(@project.qualifier).to_a.reject {|q| q == 'UTS'}
-       filter.criteria = {:qualifiers => qualifiers, :baseId => @project.id}
+       filter.criteria = {:qualifiers => qualifiers, :base => @project.key}
        filter.metrics = [xMetric.name, yMetric.name, sizeMetric.name]
        filter.execute(self, :user => current_user)
     %>
