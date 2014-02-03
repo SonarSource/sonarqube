@@ -22,6 +22,7 @@ package org.sonar.core.timemachine;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
@@ -31,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Periods implements BatchExtension {
+public class Periods implements BatchExtension, ServerComponent {
 
   private final Settings settings;
   private final I18n i18n;
@@ -76,7 +77,7 @@ public class Periods implements BatchExtension {
   private String label(String mode, String param, String date, boolean shortLabel) {
     String label;
     if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
-      label = label("over_x_days", shortLabel, param);
+      label = label("over_x_days", shortLabel, param, date);
     } else if (CoreProperties.TIMEMACHINE_MODE_VERSION.equals(mode)) {
       label = label("since_version", shortLabel, param);
       if (date != null) {
@@ -91,6 +92,9 @@ public class Periods implements BatchExtension {
       label = label("since_previous_version", shortLabel);
       if (param != null) {
         label = label("since_previous_version_detailed", shortLabel, param);
+        if (date != null) {
+          label = label("since_previous_version_detailed", shortLabel, param, date);
+        }
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_DATE.equals(mode)) {
       label = label("since_x", shortLabel, date);

@@ -22,7 +22,7 @@
           <% if period_options %>
             <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
               <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
-              <%= dropdown_tag "period", period_options, {:width => '230px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
+              <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
             </form>
           <% end %>
         <% end %>

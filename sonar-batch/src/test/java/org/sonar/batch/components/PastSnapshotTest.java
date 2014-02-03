@@ -57,7 +57,7 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForVersion() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date()).setModeParameter("2.3");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(), new Snapshot().setCreatedAt(new Date())).setModeParameter("2.3");
     assertThat(pastSnapshot.toString()).startsWith("Compare to version 2.3");
   }
 

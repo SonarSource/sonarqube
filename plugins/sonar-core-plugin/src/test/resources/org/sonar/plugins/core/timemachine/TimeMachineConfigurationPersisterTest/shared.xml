@@ -1,15 +1,41 @@
 <dataset>
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+  <snapshots purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="100" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+  <snapshots purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="200" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2008-12-15 13:58:00.00" build_date="2008-12-15 13:58:00.00" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+  <!-- Snapshot of previous version -->
+  <snapshots purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             id="300" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2008-12-13 13:58:00.00" build_date="2008-12-13 13:58:00.00" version="1.2.3" path=""
+             status="P" islast="false" depth="0" />
+
+  <snapshots purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2009-02-25 13:58:00.00" build_date="2009-02-25 13:58:00.00" version="[null]" path=""
              status="P" islast="false" depth="0" />

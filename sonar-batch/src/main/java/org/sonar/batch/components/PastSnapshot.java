@@ -112,7 +112,7 @@ public class PastSnapshot {
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_VERSION)) {
       String label = String.format("Compare to version %s", modeParameter);
       if (getTargetDate() != null) {
-        label += String.format(" (%s)", DateUtils.formatDate(getTargetDate()));
+        label += String.format(" (%s)", DateUtils.formatDate(getDate()));
       }
       return label;
     }

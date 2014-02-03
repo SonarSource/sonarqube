@@ -71,6 +71,6 @@ public final class TimeMachineConfigurationPersister implements Decorator {
     int periodIndex = pastSnapshot.getIndex();
     snapshot.setPeriodMode(periodIndex, pastSnapshot.getMode());
     snapshot.setPeriodModeParameter(periodIndex, pastSnapshot.getModeParameter());
-    snapshot.setPeriodDate(periodIndex, pastSnapshot.getTargetDate());
+    snapshot.setPeriodDate(periodIndex, pastSnapshot.getDate());
   }
 }

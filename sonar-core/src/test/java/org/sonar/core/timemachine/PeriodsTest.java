@@ -21,7 +21,6 @@ package org.sonar.core.timemachine;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
@@ -30,9 +29,11 @@ import org.sonar.api.i18n.I18n;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.*;
 
 public class PeriodsTest {
 
@@ -61,12 +62,13 @@ public class PeriodsTest {
 
   @Test
   public void label_of_duration_in_days() {
+    Date date = new Date();
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(date);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("over_x_days"), Mockito.isNull(String.class), Mockito.eq(param));
+    verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -76,7 +78,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("over_x_days.short"), Mockito.isNull(String.class), Mockito.eq(param));
+    verify(i18n).message(any(Locale.class), eq("over_x_days.short"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -86,7 +88,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_version_detailed"), Mockito.isNull(String.class), Mockito.eq(param), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_version_detailed"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -96,7 +98,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_version_detailed.short"), Mockito.isNull(String.class), Mockito.eq(param), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_version_detailed.short"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -105,7 +107,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis_detailed"), Mockito.isNull(String.class), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed"), isNull(String.class), anyString());
   }
 
   @Test
@@ -115,7 +117,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
   }
 
   @Test
@@ -124,7 +126,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
 
     periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis_detailed.short"), Mockito.isNull(String.class), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed.short"), isNull(String.class), anyString());
   }
 
   @Test
@@ -134,7 +136,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis.short"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_analysis.short"), isNull(String.class));
   }
 
   @Test
@@ -143,7 +145,17 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version_detailed"), Mockito.isNull(String.class), Mockito.eq(param));
+    verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(param));
+  }
+
+  @Test
+  public void label_of_previous_version_with_param_and_date() {
+    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
+
+    periods.label(snapshot, periodIndex);
+    verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -152,7 +164,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(null);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_version"), isNull(String.class));
   }
 
   @Test
@@ -162,7 +174,7 @@ public class PeriodsTest {
 
     periods.label(snapshot, periodIndex);
 
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_x"), Mockito.isNull(String.class), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_x"), isNull(String.class), anyString());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -179,7 +191,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, days);
 
     periods.label(periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("over_x_days"), Mockito.isNull(String.class), Mockito.eq(days));
+    verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(days), anyString());
   }
 
   @Test
@@ -189,7 +201,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, version);
 
     periods.label(periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_version"), Mockito.isNull(String.class), Mockito.eq(version));
+    verify(i18n).message(any(Locale.class), eq("since_version"), isNull(String.class), eq(version));
   }
 
   @Test
@@ -198,7 +210,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
 
     periods.label(periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
   }
 
   @Test
@@ -207,7 +219,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
 
     periods.label(periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_version"), isNull(String.class));
   }
 
   @Test
@@ -216,7 +228,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
 
     periods.abbreviation(periodIndex);
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version.short"), Mockito.isNull(String.class));
+    verify(i18n).message(any(Locale.class), eq("since_previous_version.short"), isNull(String.class));
   }
 
   @Test
@@ -226,7 +238,7 @@ public class PeriodsTest {
 
     periods.label(periodIndex);
 
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_x"), Mockito.isNull(String.class), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_x"), isNull(String.class), anyString());
   }
 
   @Test
@@ -236,7 +248,7 @@ public class PeriodsTest {
 
     periods.abbreviation(periodIndex);
 
-    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_x.short"), Mockito.isNull(String.class), Mockito.anyString());
+    verify(i18n).message(any(Locale.class), eq("since_x.short"), isNull(String.class), anyString());
   }
 
   @Test(expected = IllegalArgumentException.class)
