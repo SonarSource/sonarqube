@@ -19,24 +19,15 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-
-import org.sonar.api.scan.filesystem.InputFile;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
@@ -141,7 +132,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   @Override
   public Snapshot getSnapshotOrFail(InputFile inputFile) {
     return getSnapshotOrFail(fromInputFile(inputFile));
-  };
+  }
 
   private Resource fromInputFile(InputFile inputFile) {
     String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);

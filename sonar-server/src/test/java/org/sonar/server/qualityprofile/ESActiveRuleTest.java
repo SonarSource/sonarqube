@@ -21,6 +21,8 @@ package org.sonar.server.qualityprofile;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -47,6 +49,7 @@ import org.sonar.test.TestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -200,6 +203,47 @@ public class ESActiveRuleTest {
     assertThat(!esSetup.exists("rules", "active_rule", "25"));
     assertThat(!esSetup.exists("rules", "active_rule", "2702"));
     assertThat(esSetup.exists("rules", "active_rule", "523"));
+  }
+
+  @Test
+  public void should_delete_from_integer_ids() throws Exception {
+    esSetup.client().prepareBulk()
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("1").source(testFileAsString("delete_from_profile/active_rule25.json")))
+      .add(Requests.indexRequest().index("rules").type("active_rule").parent("3").source(testFileAsString("delete_from_profile/active_rule2702.json")))
+      .setRefresh(true)
+      .execute().actionGet();
+    esActiveRule.deleteActiveRules(ImmutableList.of(25, 2702));
+  }
+
+  @Test
+  public void should_not_fail_on_empty_delete_list() {
+    esActiveRule.deleteActiveRules(ImmutableList.<Integer> of());
+  }
+
+  @Test
+  public void bulk_index_active_rules_checking_into_db() throws IOException {
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(Severity.MAJOR).setParentId(5)
+      .setNoteData("polop").setNoteCreatedAt(new Date()).setNoteUserLogin("godin"));
+
+    SqlSession session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
+    when(activeRuleDao.selectAll(session)).thenReturn(activeRules);
+    when(activeRuleDao.selectAllParams(session)).thenReturn(Lists.<ActiveRuleParamDto> newArrayList());
+
+    esActiveRule.bulkRegisterActiveRules();
+    assertThat(esSetup.exists("rules", "active_rule", "1"));
+
+    SearchHit[] parentHit = esSetup.client().prepareSearch("rules").setPostFilter(
+      hasChildFilter("active_rule", termFilter("profileId", 10))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(parentHit).hasSize(1);
+    assertThat(parentHit[0].getId()).isEqualTo("1");
+
+    SearchHit[] childHit = esSetup.client().prepareSearch("rules").setPostFilter(
+      hasParentFilter("rule", termFilter("key", "RuleWithParameters"))
+    ).execute().actionGet().getHits().getHits();
+    assertThat(childHit).hasSize(1);
+    assertThat(childHit[0].getId()).isEqualTo("1");
   }
 
   private String testFileAsString(String testFile) throws Exception {
