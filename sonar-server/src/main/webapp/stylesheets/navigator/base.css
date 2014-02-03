@@ -179,7 +179,7 @@
 }
 .navigator-results-list > li .line {
   padding: 5px 10px;
-  line-height: 1;
+  line-height: 1.2;
 }
 .navigator-results-list > li .line-small {
   font-size: 11px;
