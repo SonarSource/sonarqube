@@ -24,6 +24,7 @@ import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.rule.RuleTagClient;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class DefaultRuleTagClient implements RuleTagClient {
   @Override
   @SuppressWarnings("unchecked")
   public Collection<String> list() {
-    String json = requestFactory.get(LIST_URL, null);
+    String json = requestFactory.get(LIST_URL, Collections.<String, Object> emptyMap());
     return (Collection<String>) JSONValue.parse(json);
   }
 
