@@ -99,6 +99,7 @@
 
       data[this.settings.selectParameter] = this.model.get(this.settings.selectParameterValue);
 
+      that.$el.addClass('progress');
       $.ajax({
           url: url,
           type: 'POST',
@@ -107,7 +108,10 @@
           .done(function() {
             that.model.set('selected', !selected);
           })
-          .fail(showError);
+          .fail(showError)
+          .always(function() {
+            that.$el.removeClass('progress');
+          });
     }
   });
 
