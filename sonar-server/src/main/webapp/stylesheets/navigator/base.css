@@ -206,6 +206,18 @@
 .navigator-results-list > li.active + li {
   border-top-color: #4B9FD5;
 }
+.navigator-results-list.navigator-fetching > li .line-nowrap {
+  text-overflow: clip;
+  /* thanks to FF */
+
+}
+.navigator-results-list.navigator-fetching:before {
+  position: fixed;
+  top: 134px;
+  bottom: 0;
+  left: 0;
+  width: 319px;
+}
 .navigator-results-no-issues {
   padding-top: 20%;
   color: #999;
@@ -224,6 +236,7 @@
   top: 104px;
   left: 320px;
   right: 0;
+  padding: 10px;
   border-bottom: 1px solid #e1e1e1;
   background-color: #fff;
 }
@@ -247,6 +260,9 @@
 .navigator-details .code-issue-actions > li:last-child {
   padding-right: 0;
   border-right: 0;
+}
+.navigator-details .rule-desc {
+  float: none;
 }
 .navigator-actions {
   padding: 0 10px 0 0;

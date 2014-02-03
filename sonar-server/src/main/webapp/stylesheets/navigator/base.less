@@ -239,6 +239,21 @@
   & > li.active + li {
     border-top-color: #4B9FD5;
   }
+
+  &.navigator-fetching {
+
+    & > li .line-nowrap {
+      text-overflow: clip; /* thanks to FF */
+    }
+
+    &:before {
+      position: fixed;
+      top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
+      bottom: 0;
+      left: 0;
+      width: @navigatorResultsWidth - 1px;
+    }
+  }
 }
 
 .navigator-results-no-issues {
@@ -264,6 +279,7 @@
     top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
     left: @navigatorResultsWidth;
     right: 0;
+    padding: @navigatorPadding;
     border-bottom: 1px solid @navigatorBorderLightColor;
     background-color: #fff;
   }
@@ -291,6 +307,10 @@
         border-right: 0;
       }
     }
+  }
+
+  .rule-desc {
+    float: none;
   }
 }
 

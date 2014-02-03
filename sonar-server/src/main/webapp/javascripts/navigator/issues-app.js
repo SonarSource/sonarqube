@@ -297,7 +297,7 @@ jQuery(function() {
     this.storeQuery(query, this.issues.sorting);
 
     var that = this;
-    this.issuesView.$el.empty().addClass('navigator-fetching');
+    this.issuesView.$el.addClass('navigator-fetching');
     if (firstPage) {
       this.issues.fetch({
         data: fetchQuery,
@@ -305,6 +305,7 @@ jQuery(function() {
           that.issuesView.$el.removeClass('navigator-fetching');
         }
       });
+      this.detailsRegion.reset();
     } else {
       this.issues.fetch({
         data: fetchQuery,
@@ -314,8 +315,6 @@ jQuery(function() {
         }
       });
     }
-
-    this.detailsRegion.reset();
   };
 
 
@@ -326,8 +325,10 @@ jQuery(function() {
 
 
   NavigatorApp.fetchNextPage = function() {
-    this.issuesPage++;
-    this.fetchIssues(false);
+    if (this.issuesPage < this.issues.paging.pages) {
+      this.issuesPage++;
+      this.fetchIssues(false);
+    }
   };
 
 });
