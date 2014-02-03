@@ -1045,6 +1045,7 @@ jQuery(function() {
       filter.fetch({
         success: function() {
           app.state.set('search', false);
+          app.favoriteFilter.clear({ silent: true });
           app.favoriteFilter.set(filter.toJSON());
         }
       });
