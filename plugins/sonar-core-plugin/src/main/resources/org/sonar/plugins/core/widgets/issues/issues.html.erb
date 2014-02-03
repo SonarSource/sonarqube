@@ -93,7 +93,7 @@
       <table class="clear width100">
         <tr>
           <td><%= image_tag 'priority/BLOCKER.png' %></td>
-          <td> &nbsp;<%= link_to message('blocker'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink' -%></td>
+          <td> &nbsp;<%= message('blocker') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink' -%>
           </td>
@@ -114,7 +114,7 @@
         </tr>
         <tr>
           <td><%= image_tag 'priority/CRITICAL.png' %></td>
-          <td> &nbsp;<%= link_to message('critical'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink' -%></td>
+          <td> &nbsp;<%= message('critical') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink' -%>
           </td>
@@ -135,7 +135,7 @@
         </tr>
         <tr>
           <td><%= image_tag 'priority/MAJOR.png' %></td>
-          <td> &nbsp;<%= link_to message('major'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink' -%></td>
+          <td> &nbsp;<%= message('major') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink' -%>
           </td>
@@ -156,7 +156,7 @@
         </tr>
         <tr>
           <td><%= image_tag 'priority/MINOR.png' %></td>
-          <td> &nbsp;<%= link_to message('minor'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink' -%></td>
+          <td> &nbsp;<%= message('minor') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink' -%>
           </td>
@@ -177,7 +177,7 @@
         </tr>
         <tr>
           <td><%= image_tag 'priority/INFO.png' %></td>
-          <td> &nbsp;<%= link_to message('info'), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink' -%></td>
+          <td> &nbsp;<%= message('info') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink' -%>
           </td>
