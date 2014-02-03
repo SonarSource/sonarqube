@@ -186,8 +186,6 @@ class MeasureFilter < ActiveRecord::Base
   def base_resource
     if criteria('base')
       Project.first(:conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
-    elsif criteria('baseId')
-      Project.find(criteria('baseId'))
     end
   end
 
@@ -233,8 +231,16 @@ class MeasureFilter < ActiveRecord::Base
 
   def filter_authorized_snapshot_ids(rows, controller)
     project_ids = rows.map { |row| row.getResourceRootId() }.compact.uniq
+
+    puts "#### project_ids : " + project_ids.inspect
+
     authorized_project_ids = controller.select_authorized(:user, project_ids)
     snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_ids.include?(row.getResourceRootId()) }.compact
+
+
+    puts "#### snapshot_ids : " + snapshot_ids.inspect
+
+
     @security_exclusions = (snapshot_ids.size<rows.size)
     @pagination = Api::Pagination.new
     @pagination.per_page=(criteria(:pageSize)||999999).to_i
