@@ -95,7 +95,7 @@
           <td><%= image_tag 'priority/BLOCKER.png' %></td>
           <td> &nbsp;<%= message('blocker') -%></td>
           <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink' -%>
+            <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink drilldown_BLOCKER' -%>
           </td>
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(blocker_issues) : trend_icon(blocker_issues, :empty => true) -%>
@@ -116,7 +116,7 @@
           <td><%= image_tag 'priority/CRITICAL.png' %></td>
           <td> &nbsp;<%= message('critical') -%></td>
           <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink' -%>
+            <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink drilldown_CRITICAL' -%>
           </td>
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(critical_issues) : trend_icon(critical_issues, :empty => true) -%>
@@ -137,7 +137,7 @@
           <td><%= image_tag 'priority/MAJOR.png' %></td>
           <td> &nbsp;<%= message('major') -%></td>
           <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink' -%>
+            <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink drilldown_MAJOR' -%>
           </td>
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(major_issues) : trend_icon(major_issues, :empty => true) -%>
@@ -158,7 +158,7 @@
           <td><%= image_tag 'priority/MINOR.png' %></td>
           <td> &nbsp;<%= message('minor') -%></td>
           <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink' -%>
+            <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink drilldown_MINOR' -%>
           </td>
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(minor_issues) : trend_icon(minor_issues, :empty => true) -%>
@@ -179,7 +179,7 @@
           <td><%= image_tag 'priority/INFO.png' %></td>
           <td> &nbsp;<%= message('info') -%></td>
           <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink' -%>
+            <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink drilldown_INFO' -%>
           </td>
           <td>
             <%= dashboard_configuration.selected_period? ? format_variation(info_issues) : trend_icon(info_issues, :empty => true) -%>
