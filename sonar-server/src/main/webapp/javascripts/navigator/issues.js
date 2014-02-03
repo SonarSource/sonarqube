@@ -333,12 +333,15 @@ jQuery(function() {
       var el = jQuery(e.target),
           sort = el.data('sort'),
           asc = el.data('asc');
-      this.collection.sorting = {
-        sort: sort,
-        sortText: el.text(),
-        asc: asc
-      };
-      this.options.app.fetchFirstPage();
+
+      if (sort != null && asc != null) {
+        this.collection.sorting = {
+          sort: sort,
+          sortText: el.text(),
+          asc: asc
+        };
+        this.options.app.fetchFirstPage();
+      }
     },
 
 
