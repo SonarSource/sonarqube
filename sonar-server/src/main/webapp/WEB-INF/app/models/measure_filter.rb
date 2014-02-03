@@ -205,7 +205,8 @@ class MeasureFilter < ActiveRecord::Base
     else
       rows = result.getRows()
       snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
-      load_results(snapshot_ids)
+      base_project = filter_authorized_base_project(base_resource, controller)
+      load_results(snapshot_ids, base_project)
     end
     self
   end
@@ -229,6 +230,12 @@ class MeasureFilter < ActiveRecord::Base
     @display = MeasureFilterDisplay.create(self, options)
   end
 
+  def filter_authorized_base_project(base_resource, controller)
+    # SONAR-4793
+    # Verify that user has browse permission on base project
+    controller.has_role?(:user, base_resource) ? base_resource : nil
+  end
+
   def filter_authorized_snapshot_ids(rows, controller)
     project_ids = rows.map { |row| row.getResourceRootId() }.compact.uniq
     authorized_project_ids = controller.select_authorized(:user, project_ids)
@@ -241,7 +248,7 @@ class MeasureFilter < ActiveRecord::Base
     snapshot_ids[@pagination.offset ... (@pagination.offset+@pagination.limit)] || []
   end
 
-  def load_results(snapshot_ids)
+  def load_results(snapshot_ids, base_resource)
     @rows = []
     metric_ids = metrics.map(&:id)
 
