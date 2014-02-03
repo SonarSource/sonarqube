@@ -27,6 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
@@ -170,6 +171,7 @@ public class ProjectScanContainer extends ComponentContainer {
       GraphPersister.class,
 
       // lang
+      Languages.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 

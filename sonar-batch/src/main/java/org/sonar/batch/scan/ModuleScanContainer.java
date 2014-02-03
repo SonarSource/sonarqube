@@ -26,7 +26,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.DefaultProjectClasspath;
@@ -103,9 +102,6 @@ public class ModuleScanContainer extends ComponentContainer {
       UnsupportedProperties.class,
       PhaseExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
-
-      // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
-      Languages.class,
 
       // file system
       FileExclusions.class,
