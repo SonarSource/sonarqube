@@ -34,6 +34,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
+import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
@@ -121,9 +122,13 @@ public class RuleRegistry {
    */
   public void saveOrUpdate(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
-    Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
-    Collection<RuleRuleTagDto> tags = ruleDao.selectTags(rule.getId());
-    save(rule, params, tags);
+    if (rule == null) {
+      throw new NotFoundException("Impossible to find rule with ID " + ruleId);
+    } else {
+      Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
+      Collection<RuleRuleTagDto> tags = ruleDao.selectTags(rule.getId());
+      save(rule, params, tags);
+    }
   }
 
   public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
