@@ -24,7 +24,9 @@ import org.sonar.api.resources.*;
 
 /**
  * @since 2.6
+ * @deprecated in 4.2. Only file system is handled by SonarQube, not logical components.
  */
+@Deprecated
 public final class JavaMethod extends Method {
 
   public static final String QUALIFIER = Qualifiers.METHOD;
