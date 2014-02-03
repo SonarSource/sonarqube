@@ -65,15 +65,6 @@ public class MeasureFilter {
     return this;
   }
 
-  public Long getBaseResourceId() {
-    return baseResourceId;
-  }
-
-  public MeasureFilter setBaseResourceId(Long i) {
-    this.baseResourceId = i;
-    return this;
-  }
-
   public MeasureFilter setOnBaseResourceChildren(boolean b) {
     this.onBaseResourceChildren = b;
     return this;

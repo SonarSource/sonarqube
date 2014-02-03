@@ -61,6 +61,5 @@ public class MeasureFilterTest {
   public void filter_is_not_empty_if_at_least_condition_on_root_resource() {
     assertThat(new MeasureFilter().isEmpty()).isTrue();
     assertThat(new MeasureFilter().setBaseResourceKey("foo").isEmpty()).isFalse();
-    assertThat(new MeasureFilter().setBaseResourceId(123L).isEmpty()).isFalse();
   }
 }

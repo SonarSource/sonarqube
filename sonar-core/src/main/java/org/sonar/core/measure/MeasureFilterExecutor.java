@@ -76,14 +76,11 @@ public class MeasureFilterExecutor implements ServerComponent {
   private void prepareContext(MeasureFilterContext context, MeasureFilter filter, SqlSession session) {
     if (filter.getBaseResourceKey() != null) {
       context.setBaseSnapshot(resourceDao.getLastSnapshot(filter.getBaseResourceKey(), session));
-    } else if (filter.getBaseResourceId() != null) {
-      context.setBaseSnapshot(resourceDao.getLastSnapshotByResourceId(filter.getBaseResourceId(), session));
     }
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
     boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot()!=null;
-    valid &= filter.getBaseResourceId()==null || context.getBaseSnapshot()!=null;
     valid &= !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
     valid &= !(filter.isOnFavourites() && context.getUserId() == null);
     valid &= validateMeasureConditions(filter);

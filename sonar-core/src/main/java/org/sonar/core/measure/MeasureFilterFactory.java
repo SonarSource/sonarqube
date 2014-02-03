@@ -46,10 +46,6 @@ public class MeasureFilterFactory implements ServerComponent {
 
     MeasureFilter filter = new MeasureFilter();
     filter.setBaseResourceKey((String) properties.get("base"));
-    String baseId = "baseId";
-    if (properties.containsKey(baseId)) {
-      filter.setBaseResourceId(Long.valueOf((String) properties.get(baseId)));
-    }
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
     filter.setResourceLanguages(toList(properties.get("languages")));
