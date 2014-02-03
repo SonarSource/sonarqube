@@ -86,7 +86,7 @@
         </label>
         <% transitions_by_issues.keys.sort.each do |transition| %>
           <input type="radio" id="transition-<%= transition -%>" name="do_transition.transition" value="<%= transition -%>"
-                 onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
+                 onClick="addTransitionAction();">&nbsp;<label for="transition-<%= transition -%>" style="float: none; display: inline; left: 0; cursor: pointer;"><%= message("issue.transition.#{transition}") -%></label>
           <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => transitions_by_issues[transition].to_s) %>)</span><br/>
       <% end %>
       </div>
