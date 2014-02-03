@@ -23,6 +23,7 @@ package org.sonar.server.rule.ws;
 import com.google.common.base.Strings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -35,6 +36,7 @@ import org.sonar.server.rule.RuleNote;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
@@ -42,17 +44,22 @@ import java.util.Date;
 public class RuleShowWsHandler implements RequestHandler {
 
   private final Rules rules;
+
+  // Only used to get manual rules
+  private final RuleFinder ruleFinder;
   private final I18n i18n;
 
-  public RuleShowWsHandler(Rules rules, I18n i18n) {
+  public RuleShowWsHandler(Rules rules, RuleFinder ruleFinder, I18n i18n) {
     this.rules = rules;
+    this.ruleFinder = ruleFinder;
     this.i18n = i18n;
   }
 
   @Override
   public void handle(Request request, Response response) {
-    final String ruleKey = request.requiredParam("key");
-    Rule rule = rules.findByKey(RuleKey.parse(ruleKey));
+    final String ruleKeyParam = request.requiredParam("key");
+    RuleKey ruleKey = RuleKey.parse(ruleKeyParam);
+    Rule rule = findRule(ruleKey);
     if (rule == null) {
       throw new NotFoundException("Rule not found: " + ruleKey);
     }
@@ -62,6 +69,20 @@ public class RuleShowWsHandler implements RequestHandler {
     writeRule(rule, json);
     writeTags(rule, json);
     json.endObject().endObject().close();
+  }
+
+  @CheckForNull
+  private Rule findRule(RuleKey ruleKey) {
+    if (ruleKey.repository().equals("manual")) {
+      org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
+      if (rule != null) {
+        return new Rule(rule.getKey(), rule.getName(), rule.getDescription(), rule.getRepositoryKey(), rule.getSeverity().name(), rule.getStatus(),
+          rule.getCreatedAt(), rule.getUpdatedAt());
+      }
+      return null;
+    } else {
+      return rules.findByKey(ruleKey);
+    }
   }
 
   private void writeRule(Rule rule, JsonWriter json) {
@@ -87,13 +108,13 @@ public class RuleShowWsHandler implements RequestHandler {
 
   private void writeTags(Rule rule, JsonWriter json) {
     json.name("tags").beginArray();
-    for (String adminTag: rule.adminTags()) {
+    for (String adminTag : rule.adminTags()) {
       json.value(adminTag);
     }
     json.endArray();
 
     json.name("sysTags").beginArray();
-    for (String systemTag: rule.systemTags()) {
+    for (String systemTag : rule.systemTags()) {
       json.value(systemTag);
     }
     json.endArray();
@@ -110,5 +131,6 @@ public class RuleShowWsHandler implements RequestHandler {
       json.prop(dateKey, i18n.formatDateTime(UserSession.get().locale(), date));
     }
   }
+
 
 }
