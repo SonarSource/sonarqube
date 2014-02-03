@@ -19,11 +19,10 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.rule.RuleKey;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -113,7 +112,7 @@ public class Rules implements ServerExtension {
       messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Severity"));
     }
     if (!messages.isEmpty()) {
-      throw new BadRequestException(null, messages);
+      throw BadRequestException.of(messages);
     }
   }
 
