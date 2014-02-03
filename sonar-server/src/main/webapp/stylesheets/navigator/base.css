@@ -212,7 +212,7 @@
   text-align: center;
 }
 .navigator-details {
-  padding: 10px;
+  padding: 62px 10px 10px;
   background-color: #ffffff;
   overflow: auto;
 }
@@ -220,7 +220,12 @@
   background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
 }
 .navigator-details .source_title {
-  padding: 0 0 10px;
+  position: fixed;
+  top: 104px;
+  left: 320px;
+  right: 0;
+  border-bottom: 1px solid #e1e1e1;
+  background-color: #fff;
 }
 .navigator-details .code-issue-actions {
   font-size: 0;

@@ -251,7 +251,7 @@
 
 // Details
 .navigator-details {
-  padding: @navigatorPadding;
+  padding: 62px @navigatorPadding @navigatorPadding;
   background-color: @white;
   overflow: auto;
 
@@ -260,7 +260,12 @@
   }
 
   .source_title {
-    padding: 0 0 10px;
+    position: fixed;
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
+    left: @navigatorResultsWidth;
+    right: 0;
+    border-bottom: 1px solid @navigatorBorderLightColor;
+    background-color: #fff;
   }
 
   .code-issue-actions {

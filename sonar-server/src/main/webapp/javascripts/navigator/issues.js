@@ -175,7 +175,7 @@ jQuery(function() {
             model: this.model
           });
 
-      jQuery('.navigator-details').addClass('navigator-fetching');
+      jQuery('.navigator-details').empty().addClass('navigator-fetching');
       if (this.model.get('line')) {
         jQuery.when(detailView.model.fetch()).done(function() {
           that.fetchSource(detailView, function() {
