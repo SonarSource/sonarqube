@@ -2483,13 +2483,10 @@ div.rule-title {
   clear: right;
 }
 
-.rule-desc {
+#result_table .rule-desc {
+  width: 100%;
   float: left;
   clear: right;
-}
-
-.code-issue .rule-desc {
-  float: none;
 }
 
 .rule-status, .rule-tags {
