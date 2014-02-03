@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * @since 1.10
- * @deprecated since 4.2 Resource indexing/source import is done by the core and this extension will not be used.
+ * @deprecated since 4.2 Component indexing and source import are done by core and this extension is not used.
  */
 @Deprecated
 @Phase(name = Phase.Name.PRE)
