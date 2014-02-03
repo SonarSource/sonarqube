@@ -150,6 +150,11 @@ jQuery(function() {
     tagName: 'li',
 
 
+    ui: {
+      component: '.component'
+    },
+
+
     events: {
       'click': 'showDetails'
     },

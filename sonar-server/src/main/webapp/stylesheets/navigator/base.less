@@ -29,8 +29,8 @@
 
 .navigator-results {
   .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  bottom: @navigatorStatusHeight;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
+  bottom: 0;
   left: 0;
   width: @navigatorResultsWidth;
 }
@@ -45,7 +45,7 @@
 
 .navigator-actions {
   .navigator-element;
-  bottom: 0;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
   left: 0;
   .size(@navigatorResultsWidth, @navigatorStatusHeight);
 }
@@ -190,30 +190,21 @@
 .navigator-results-list {
 
   & > li {
-    padding-top: @navigatorPadding;
+    padding: @navigatorPadding / 2 0;
     cursor: pointer;
+    .trans;
 
     &:first-child {
-      padding-top: 0;
+      border-top: 1px solid transparent;
 
-      &:hover .line:first-child {
-        border-top-color: transparent;
+      &.active {
+        border-top-color: #4B9FD5;
       }
     }
 
     .line {
       padding: @navigatorPadding / 2 @navigatorPadding;
       line-height: 1;
-      .trans;
-
-      &:first-child {
-        border-top: 1px solid transparent;
-        background-color: @navigatorBarBackground;
-      }
-
-      &:last-child {
-        border-bottom: 1px solid transparent;
-      }
     }
 
     .line-small {
@@ -231,21 +222,22 @@
       white-space: nowrap;
     }
 
-    &:hover,
-    &.active {
-      .line {
-        background-color: @navigatorBarBackground;
-
-        &:first-child {
-          border-top-color: @navigatorBorderLightColor;
-        }
-
-        &:last-child {
-          border-bottom-color: @navigatorBorderLightColor;
-        }
-      }
+    &:hover {
+      background-color: @navigatorBarBackground;
     }
 
+    &.active {
+      background-color: #CAE3F2;
+      border-color: #4B9FD5;
+    }
+  }
+
+  & > li + li {
+    border-top: 1px solid @navigatorBorderLightColor;
+  }
+
+  & > li.active + li {
+    border-top-color: #4B9FD5;
   }
 }
 
@@ -302,15 +294,19 @@
 // Status
 .navigator-actions {
   padding: 0 @navigatorPadding 0 0;
-  line-height: @navigatorStatusHeight;
+
   border-right: 1px solid @navigatorBorderLightColor;
-  border-top: 1px solid @navigatorBorderLightColor;
+  border-bottom: 1px solid @navigatorBorderLightColor;
   background-color: @white;
+  font-size: @smallFontSize;
+
+  strong { font-weight: bold; }
 }
 
 .navigator-actions-order {
   float: left;
   padding: 0 @navigatorPadding;
+  line-height: @navigatorStatusHeight;
   cursor: pointer;
   .trans;
 
@@ -321,11 +317,11 @@
 
 .navigator-actions-order-choices {
   .navigator-element;
-  bottom: @navigatorStatusHeight;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
   left: 0;
   min-width: @navigatorResultsWidth / 2;
   background-color: #fff;
-  border-top: 1px solid @navigatorBorderLightColor;
+  border-bottom: 1px solid @navigatorBorderLightColor;
   border-right: 1px solid @navigatorBorderLightColor;
   overflow: scroll;
   display: none;
@@ -349,6 +345,7 @@
 
 .navigator-actions-total {
   float: right;
+  line-height: @navigatorStatusHeight - 4px;
 }
 
 .navigator-actions-bulk {
