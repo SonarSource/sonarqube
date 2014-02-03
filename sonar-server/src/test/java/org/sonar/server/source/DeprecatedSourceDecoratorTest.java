@@ -82,12 +82,12 @@ public class DeprecatedSourceDecoratorTest {
   }
 
   @Test
-  public void return_null_if_no_source_code_on_component() throws Exception {
+  public void return_empty_list_if_no_source_code_on_component() throws Exception {
     String componentKey = "org.sonar.sample:Sample";
     when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(new ResourceDto().setKey(componentKey).setLanguage("java"));
     when(snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session)).thenReturn(null);
 
-    assertThat(sourceDecorator.getSourceAsHtml(componentKey)).isNull();
+    assertThat(sourceDecorator.getSourceAsHtml(componentKey)).isEmpty();
   }
 
   @Test

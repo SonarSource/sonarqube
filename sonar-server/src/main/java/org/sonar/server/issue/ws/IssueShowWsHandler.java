@@ -47,6 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -239,8 +240,8 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void addUserWithLabel(IssueQueryResult result, @Nullable String value, String field, JsonWriter json) {
-    User user = result.user(value);
     if (value != null) {
+      User user = result.user(value);
       json
         .prop(field, value)
         .prop(field + "Name", user != null ? user.name() : null);

@@ -29,6 +29,8 @@ import org.sonar.api.server.ws.WsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
+import java.util.Collections;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -68,7 +70,7 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(anyString(), anyInt(), anyInt())).thenReturn(null);
+    when(sourceService.getSourcesByComponent(anyString(), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
     try {
       WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
@@ -94,6 +96,11 @@ public class SourcesShowWsHandlerTest {
   @Test
   public void show_source_always_should_not_begin_with_from_0() throws Exception {
     String componentKey = "org.apache.struts:struts:Dispatcher";
+    when(sourceService.getSourcesByComponent(componentKey, 1, 5)).thenReturn(newArrayList(
+      " */",
+      "",
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
+    ));
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "0").setParam("to", "5");
     request.execute();
     verify(sourceService).getSourcesByComponent(componentKey, 1, 5);

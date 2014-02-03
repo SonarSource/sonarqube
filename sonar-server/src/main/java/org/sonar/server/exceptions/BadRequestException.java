@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class BadRequestException extends ServerException {
     super(BAD_REQUEST, message);
   }
 
-  public BadRequestException(String message, List<Message> errors) {
+  public BadRequestException(@Nullable String message, List<Message> errors) {
     super(BAD_REQUEST, message);
     this.errors = errors;
   }

@@ -48,7 +48,7 @@ public class SourcesShowWsHandler implements RequestHandler {
     Integer toParam = request.intParam("to");
     int from = (fromParam != null && fromParam > 0) ? fromParam : 1;
     List<String> sourceHtml = sourceService.getSourcesByComponent(componentKey, from, toParam);
-    if (sourceHtml == null) {
+    if (sourceHtml.isEmpty()) {
       throw new NotFoundException("Component : " + componentKey + " has no source.");
     }
 
@@ -89,14 +89,12 @@ public class SourcesShowWsHandler implements RequestHandler {
         String[] dateWithLine = splitColumn(dates.get(i));
         String date = dateWithLine[1];
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
-        if (line >= from && line <= to) {
-          if (!isSameCommit(date, previousDate, author, previousAuthor) || !scmDataAdded) {
-            json.name(Integer.toString(line)).beginArray();
-            json.value(author);
-            json.value(formattedDate);
-            json.endArray();
-            scmDataAdded = true;
-          }
+        if (line >= from && line <= to && (!isSameCommit(date, previousDate, author, previousAuthor) || !scmDataAdded)) {
+          json.name(Integer.toString(line)).beginArray();
+          json.value(author);
+          json.value(formattedDate);
+          json.endArray();
+          scmDataAdded = true;
         }
         previousAuthor = author;
         previousDate = date;
@@ -105,7 +103,7 @@ public class SourcesShowWsHandler implements RequestHandler {
     }
   }
 
-  private boolean isSameCommit(String date, String previousDate, String author, String previousAuthor){
+  private boolean isSameCommit(String date, String previousDate, String author, String previousAuthor) {
     return author.equals(previousAuthor) && date.equals(previousDate);
   }
 

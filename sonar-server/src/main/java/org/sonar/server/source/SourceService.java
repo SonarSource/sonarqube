@@ -69,7 +69,7 @@ public class SourceService implements ServerComponent {
     if (decoratedSource != null) {
       return decoratedSource;
     } else {
-     return deprecatedSourceDecorator.getSourceAsHtml(componentKey, from, to);
+      return deprecatedSourceDecorator.getSourceAsHtml(componentKey, from, to);
     }
   }
 

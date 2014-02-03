@@ -32,6 +32,8 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -70,7 +72,7 @@ public class DeprecatedSourceDecorator implements ServerComponent {
       if (source != null) {
         return splitSourceByLine(source, component.getLanguage(), from, to);
       } else {
-        return null;
+        return Collections.emptyList();
       }
     } finally {
       MyBatis.closeQuietly(session);
