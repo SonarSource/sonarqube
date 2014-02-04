@@ -74,11 +74,11 @@ jQuery(function() {
         enabled: true,
         optional: false,
         choices: {
-          'BLOCKER': window.SS.phrases.severities.blocker,
-          'CRITICAL': window.SS.phrases.severities.critical,
-          'MAJOR': window.SS.phrases.severities.major,
-          'MINOR': window.SS.phrases.severities.minor,
-          'INFO': window.SS.phrases.severities.info
+          'BLOCKER': window.SS.phrases.severities.BLOCKER,
+          'CRITICAL': window.SS.phrases.severities.CRITICAL,
+          'MAJOR': window.SS.phrases.severities.MAJOR,
+          'MINOR': window.SS.phrases.severities.MINOR,
+          'INFO': window.SS.phrases.severities.INFO
         },
         choiceIcons: {
           'BLOCKER': 'severity-blocker',
@@ -96,11 +96,11 @@ jQuery(function() {
         enabled: true,
         optional: false,
         choices: {
-          'OPEN': window.SS.phrases.statuses.open,
-          'CONFIRMED': window.SS.phrases.statuses.confirmed,
-          'REOPENED': window.SS.phrases.statuses.reopened,
-          'RESOLVED': window.SS.phrases.statuses.resolved,
-          'CLOSED': window.SS.phrases.statuses.closed
+          'OPEN': window.SS.phrases.statuses.OPEN,
+          'CONFIRMED': window.SS.phrases.statuses.CONFIRMED,
+          'REOPENED': window.SS.phrases.statuses.REOPENED,
+          'RESOLVED': window.SS.phrases.statuses.RESOLVED,
+          'CLOSED': window.SS.phrases.statuses.CLOSED
         },
         choiceIcons: {
           'OPEN': 'status-open',
@@ -126,9 +126,9 @@ jQuery(function() {
         enabled: false,
         optional: true,
         choices: {
-          'FALSE-POSITIVE': window.SS.phrases.resolutions.falsePositive,
-          'FIXED': window.SS.phrases.resolutions.fixed,
-          'REMOVED': window.SS.phrases.resolutions.removed
+          'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
+          'FIXED': window.SS.phrases.resolutions.FIXED,
+          'REMOVED': window.SS.phrases.resolutions.REMOVED
         }
       }),
 

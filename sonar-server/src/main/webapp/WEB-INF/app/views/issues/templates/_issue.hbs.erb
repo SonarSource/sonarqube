@@ -2,9 +2,7 @@
   <div class="line line-small">
       {{severityIcon severity}}{{translate "severities" severity}}&nbsp;
       {{statusIcon status}}{{translate "statuses" status}}
-      {{#if resolution}}
-        &nbsp;{{resolutionIcon resolution}}{{translate "resolutions" resolution}}
-      {{/if}}
+      {{#if resolution}}({{translate "resolutions" resolution}}){{/if}}
 
       <div class="line-right">
         {{fUpdateAge}}
