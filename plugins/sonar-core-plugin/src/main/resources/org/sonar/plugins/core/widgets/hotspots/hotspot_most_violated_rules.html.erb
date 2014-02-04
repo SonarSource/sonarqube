@@ -97,12 +97,12 @@
                 <%= image_tag('priority/' + m.severity + '.png') -%>
               </td>
               <td>
-                <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>">
-                  <%= h rule.name -%>
-                </a>
+                <%= h rule.name -%>
               </td>
               <td class="right nowrap">
-                <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
+                <a class="nolink" href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>">
+                  <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
+                </a>
               </td>
               <td class="barchart">
                 <div class="barchart" style="width: <%= (value*100/max_value).round.to_i -%>%">
