@@ -76,9 +76,17 @@
     }, '');
   });
 
-  Handlebars.registerHelper('ifHasExtraActions', function(actions, transitions, options) {
+  Handlebars.registerHelper('ifHasExtraTransitions', function(transitions, options) {
+    if (transitions && transitions.length > 1) {
+      return options.fn(this);
+    } else {
+      return '';
+    }
+  });
+
+  Handlebars.registerHelper('ifHasExtraActions', function(actions, options) {
     var actionsLeft = _.difference(actions, _.without(defaultActions, 'set_severity'));
-    if (actionsLeft.length > 0 || transitions.length > 1) {
+    if (actionsLeft.length > 0) {
       return options.fn(this);
     } else {
       return '';

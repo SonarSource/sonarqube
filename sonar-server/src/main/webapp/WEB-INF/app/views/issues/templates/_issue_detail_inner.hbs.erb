@@ -1,14 +1,16 @@
 <script id="issue-detail-inner-template" type="text/x-handlebars-template">
-  <div class="code-issue" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
+  <div class="code-issue code-issue-collapsed" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
     <div class="code-issue-permalink">
       <a target="_blank" href="<%= ApplicationController.root_context -%>/issue/show/{{key}}?layout=false"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
 
     <div class="code-issue-name">
-      {{severityIcon severity}}&nbsp;<span class="rulename">{{ruleName}}</span>
-    </div>
+        {{severityIcon severity}}&nbsp;<a class="code-issue-toggle rulename">{{message}}</a>
 
-    <div class="code-issue-msg">{{{message}}}</div>
+        {{#if debt}}
+          <div class="code-issue-name-extra"><%= message('issue.technical_debt') -%> {{debt}}</div>
+        {{/if}}
+    </div>
 
     <div class="code-issue-details">
       <ul class="tabs">
@@ -25,34 +27,6 @@
 
       <div id="tab-issue-details">
         <ul class="code-issue-details-list">
-          <li>
-            <div class="code-issue-details-term"><%= message('severity') -%></div>
-            <div class="code-issue-details-value">
-              {{severityIcon severity}}{{capitalize severity}}
-            </div>
-          </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('status') -%></div>
-            <div class="code-issue-details-value">
-              {{statusIcon status}}{{capitalize status}}
-            </div>
-          </li>
-          <li>
-            <div class="code-issue-details-term"><%= message('resolution') -%></div>
-            <div class="code-issue-details-value">
-              {{#if resolution}}
-                {{resolutionIcon resolution}}{{capitalize resolution}}
-              {{else}}
-                <%= message('unresolved') -%>
-              {{/if}}
-            </div>
-          </li>
-          {{#if actionPlanName}}
-            <li>
-              <div class="code-issue-details-term"><%= message('issue_filter.header.action_plan') -%></div>
-              <div class="code-issue-details-value">{{actionPlanName}}</div>
-            </li>
-          {{/if}}
           {{#if debt}}
             <li>
               <div class="code-issue-details-term"><%= message('issue.technical_debt_clear') -%></div>
@@ -80,12 +54,6 @@
             <li>
               <div class="code-issue-details-term"><%= message('author') -%></div>
               <div class="code-issue-details-value">{{author}}</div>
-            </li>
-          {{/if}}
-          {{# if assigneeName}}
-            <li>
-              <div class="code-issue-details-term"><%= message('assignee') -%></div>
-              <div class="code-issue-details-value">{{assigneeName}}</div>
             </li>
           {{/if}}
           <li>
@@ -144,61 +112,97 @@
       {{/each}}
     </div>
 
-    {{#ifNotEmpty actions transitions}}
-      <ul class="code-issue-actions">
-        {{#inArray actions "comment"}}
-          <li>
-            <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
-          </li>
-        {{/inArray}}
+    <ul class="code-issue-actions">
+      {{#inArray actions "comment"}}
+        <li>
+          <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
+        </li>
+      {{/inArray}}
 
-        {{#inArray actions "assign"}}
-          <li>
+
+      <li>{{statusIcon status}}{{capitalize status}}</li>
+
+      {{#if resolution}}
+        <li>{{resolutionIcon resolution}}{{capitalize resolution}}</li>
+      {{/if}}
+
+
+      {{#ifNotEmpty transitions}}
+        <li>
+          {{#withFirst transitions}}
+            <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
+          {{/withFirst}}
+
+          {{#ifHasExtraTransitions transitions}}
+              <div class="dropdown">
+                <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"></a>
+                <ul style="display: none" class="dropdown-menu">
+                  {{#withoutFirst transitions}}
+                    <li>
+                      <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
+                    </li>
+                  {{/withoutFirst}}
+                </ul>
+              </div>
+
+          {{/ifHasExtraTransitions}}
+        </li>
+      {{/ifNotEmpty}}
+
+
+      {{#inArray actions "assign"}}
+        <li>
+          {{#if assigneeName}}
+            <a id="issue-assign" class="link-action"><%= message('assigned_to') -%></a> {{assigneeName}}</li>
+          {{else}}
             <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
             {{#inArray actions "assign_to_me"}}
               [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
             {{/inArray}}
-          </li>
-        {{/inArray}}
+          {{/if}}
+        </li>
+      {{else}}
+        {{#if assigneeName}}
+          <li><%= message('assigned_to') -%> <strong>{{assigneeName}}</strong></li>
+        {{/if}}
+      {{/inArray}}
 
+
+      <li>
         {{#inArray actions "plan"}}
-          <li>
-            <a id="issue-plan" class="link-action">{{translate "actions.plan" }}</a>
-          </li>
+          {{#if actionPlanName}}
+            <a id="issue-plan" class="link-action"><%= message('issue.planned_for') -%></a> {{actionPlanName}}
+          {{else}}
+            <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
+          {{/if}}
+        {{else}}
+          {{#if actionPlanName}}
+            <%= message('issue.planned_for') -%> <strong>{{actionPlanName}}</strong>
+          {{/if}}
         {{/inArray}}
+      </li>
 
-        {{#withFirst transitions}}
-          <li>
-            <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
-          </li>
-        {{/withFirst}}
 
-        {{#ifHasExtraActions actions transitions}}
-          <li>
-            <div class="dropdown">
-              <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
-              <ul style="display: none" class="dropdown-menu">
-                {{#inArray actions "set_severity"}}
-                  <li>
-                    <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
-                  </li>
-                {{/inArray}}
-                {{#pluginActions actions}}
-                  <li>
-                    <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
-                  </li>
-                {{/pluginActions}}
-                {{#withoutFirst transitions}}
-                  <li>
-                    <a class="link-action spacer-right issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
-                  </li>
-                {{/withoutFirst}}
-              </ul>
-            </div>
-          </li>
-        {{/ifHasExtraActions}}
-      </ul>
-    {{/ifNotEmpty}}
+      {{#ifHasExtraActions actions}}
+        <li>
+          <div class="dropdown">
+            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
+            <ul style="display: none" class="dropdown-menu">
+              {{#inArray actions "set_severity"}}
+                <li>
+                  <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
+                </li>
+              {{/inArray}}
+              {{#pluginActions actions}}
+                <li>
+                  <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
+                </li>
+              {{/pluginActions}}
+            </ul>
+          </div>
+        </li>
+      {{/ifHasExtraActions}}
+    </ul>
 
     <div class="code-issue-form"></div>
   </div>

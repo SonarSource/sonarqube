@@ -782,6 +782,8 @@ jQuery(function() {
 
 
     events: {
+      'click .code-issue-toggle': 'toggleCollapsed',
+
       'click [href=#tab-issue-rule]': 'fetchRule',
 
       'click #issue-comment': 'comment',
@@ -821,6 +823,11 @@ jQuery(function() {
       this.model.clear({ silent: true });
       this.model.set({ key: key }, { silent: true });
       return this.model.fetch(options);
+    },
+
+
+    toggleCollapsed: function() {
+      this.$('.code-issue').toggleClass('code-issue-collapsed');
     },
 
 

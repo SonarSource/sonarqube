@@ -798,9 +798,23 @@ th.operations, td.operations {
   padding: 0 0 10px 0;
 }
 
+.code-issue strong {
+  font-weight: bold;
+}
+
 .code-issue-permalink {
   float: right;
   padding: 4px 4px 0 0;
+}
+
+.code-issue-name-extra {
+  float: right;
+  padding-right: 10px;
+}
+
+.code-issue-toggle {
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .code-issue-name {
@@ -874,7 +888,6 @@ th.operations, td.operations {
   height: auto;
   padding: 5px 10px;
   border-bottom: 1px solid #DDD;
-  background: #E4ECF3;
 }
 
 .code-issue-details .tabs li + li {
