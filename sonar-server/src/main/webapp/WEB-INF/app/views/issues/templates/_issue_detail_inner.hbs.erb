@@ -44,10 +44,10 @@
               </div>
             </li>
           {{/if}}
-          {{# if reporter}}
+          {{#if reporterName}}
             <li>
               <div class="code-issue-details-term"><%= message('reporter') -%></div>
-              <div class="code-issue-details-value">{{reporter}}</div>
+              <div class="code-issue-details-value">{{reporterName}}</div>
             </li>
           {{/if}}
           {{#if author}}
