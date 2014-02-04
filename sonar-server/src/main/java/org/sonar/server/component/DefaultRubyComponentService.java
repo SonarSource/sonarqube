@@ -131,7 +131,8 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   private void checkKeyFormat(String qualifier, String kee) {
     if (!ComponentKeys.isValidModuleKey(kee)) {
-      throw new BadRequestException(formatMessage("Malformed key for %s: %s", qualifier, kee));
+      throw new BadRequestException(formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
+        qualifier, kee));
     }
   }
 
