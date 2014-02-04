@@ -37,7 +37,6 @@ public class MeasureFilter {
 
   // conditions on resources
   private String baseResourceKey;
-  private Long baseResourceId;
 
   // only if baseResourceKey or baseResourceId are set
   private boolean onBaseResourceChildren = false;
@@ -187,7 +186,7 @@ public class MeasureFilter {
   }
 
   public boolean isEmpty() {
-    return resourceQualifiers.isEmpty() && resourceScopes.isEmpty() && StringUtils.isEmpty(baseResourceKey) && baseResourceId == null && !userFavourites;
+    return resourceQualifiers.isEmpty() && resourceScopes.isEmpty() && StringUtils.isEmpty(baseResourceKey) && !userFavourites;
   }
 
   @VisibleForTesting

@@ -79,8 +79,12 @@ public class ModuleIssues {
     RuleKey ruleKey = issue.ruleKey();
     Rule rule = ruleFinder.findByKey(ruleKey);
     if (rule == null) {
-      throw MessageException.of(String.format("The rule '%s' does not exists.", ruleKey));
+      throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
     }
+    if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(issue.message())) {
+      throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
+    }
+
     ActiveRule activeRule = qProfile.getActiveRule(ruleKey.repository(), ruleKey.rule());
     if (activeRule == null || activeRule.getRule() == null) {
       // rule does not exist or is not enabled -> ignore the issue

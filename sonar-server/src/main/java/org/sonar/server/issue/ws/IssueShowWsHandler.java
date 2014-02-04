@@ -100,6 +100,7 @@ public class IssueShowWsHandler implements RequestHandler {
     Component component = result.component(issue);
     Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
+    ActionPlan actionPlan = result.actionPlan(issue);
     WorkDayDuration technicalDebt = issue.technicalDebt();
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
@@ -120,8 +121,8 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("severity", issue.severity())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
+      .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
       .prop("debt", technicalDebt != null ? debtFormatter.format(UserSession.get().locale(), technicalDebt) : null)
-      .prop("actionPlanName", actionPlanKey != null ? result.actionPlan(issue).name() : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
@@ -138,7 +139,7 @@ public class IssueShowWsHandler implements RequestHandler {
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
     Characteristic requirement = technicalDebtManager.findRequirementByRule(result.rule(issue));
     // Requirement can be null if it has been disabled
-    if (requirement != null) {
+    if (requirement != null && requirement.rootId() != null && requirement.parentId() != null) {
       Characteristic characteristic = technicalDebtManager.findCharacteristicById(requirement.rootId());
       json.prop("characteristic", characteristic != null ? characteristic.name() : null);
       Characteristic subCharacteristic = technicalDebtManager.findCharacteristicById(requirement.parentId());
@@ -194,15 +195,16 @@ public class IssueShowWsHandler implements RequestHandler {
     String login = UserSession.get().login();
     for (IssueComment comment : issue.comments()) {
       String userLogin = comment.userLogin();
+      User user = userLogin != null ? queryResult.user(userLogin) : null;
       json
         .beginObject()
         .prop("key", comment.key())
-        .prop("userName", userLogin != null ? queryResult.user(userLogin).name() : null)
+        .prop("userName", user != null ? user.name() : null)
         .prop("raw", comment.markdownText())
         .prop("html", Markdown.convertToHtml(comment.markdownText()))
         .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
         .prop("fCreatedAge", formatAgeDate(comment.createdAt()))
-        .prop("updatable", login != null && login.equals(comment.userLogin()))
+        .prop("updatable", login != null && login.equals(userLogin))
         .endObject();
     }
     json.endArray();
