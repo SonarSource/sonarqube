@@ -19,6 +19,10 @@
  */
 package org.sonar.api.resources;
 
+/**
+ * @deprecated in 4.2. Only file system components are managed by SQ core (files/directories).
+ */
+@Deprecated
 public class Method extends Resource {
 
   public static final String SCOPE = Scopes.BLOCK_UNIT;
