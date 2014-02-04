@@ -338,9 +338,10 @@ public class RuleRegistration implements Startable {
     for (Integer unprocessedRuleId : buffer.unprocessedRuleIds) {
       RuleDto ruleDto = buffer.rulesById.get(unprocessedRuleId);
       boolean toBeRemoved = true;
-      if (ruleDto.getParentId() != null && !ruleDto.getStatus().equals(Rule.STATUS_REMOVED)) {
+      // Update copy of template rules from template
+      if (ruleDto.getParentId() != null) {
         RuleDto parent = buffer.rulesById.get(ruleDto.getParentId());
-        if (parent != null) {
+        if (parent != null && !parent.getStatus().equals(Rule.STATUS_REMOVED)) {
           // TODO merge params and tags ?
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
@@ -371,22 +372,22 @@ public class RuleRegistration implements Startable {
 
   /**
    * SONAR-4642
-   *
+   * <p/>
    * Remove active rules on repositories that still exists.
-   *
+   * <p/>
    * For instance, if the javascript repository do not provide anymore some rules, active rules related to this rules will be removed.
    * But if the javascript repository do not exists anymore, then related active rules will not be removed.
-   *
+   * <p/>
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
   private void removeActiveRulesOnStillExistingRepositories(List<RuleDto> removedRules, RuleDefinitions.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RuleDefinitions.Repository, String>() {
-        @Override
-        public String apply(RuleDefinitions.Repository input) {
-          return input.key();
-        }
+      @Override
+      public String apply(RuleDefinitions.Repository input) {
+        return input.key();
       }
+    }
     ));
 
     for (RuleDto rule : removedRules) {

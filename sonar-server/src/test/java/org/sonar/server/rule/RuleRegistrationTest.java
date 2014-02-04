@@ -110,11 +110,11 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_not_reactivate_disabled_template_rules() {
-    setupData("should_not_reactivate_disabled_template_rules");
+  public void reactivate_disabled_template_rules() {
+    setupData("reactivate_disabled_template_rules");
     task.start();
 
-    checkTables("should_not_reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
