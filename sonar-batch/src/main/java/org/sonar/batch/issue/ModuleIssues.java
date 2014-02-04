@@ -19,12 +19,16 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
@@ -40,13 +44,15 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
   private final TechnicalDebtCalculator technicalDebtCalculator;
+  private final RuleFinder ruleFinder;
 
-  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, TechnicalDebtCalculator technicalDebtCalculator) {
+  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, TechnicalDebtCalculator technicalDebtCalculator, RuleFinder ruleFinder) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
     this.filters = filters;
     this.technicalDebtCalculator = technicalDebtCalculator;
+    this.ruleFinder = ruleFinder;
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
@@ -70,12 +76,19 @@ public class ModuleIssues {
   }
 
   private boolean initAndAddIssue(DefaultIssue issue, @Nullable Violation violation) {
-    // TODO fail fast : if rule does not exist
-
-    ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
+    RuleKey ruleKey = issue.ruleKey();
+    Rule rule = ruleFinder.findByKey(ruleKey);
+    if (rule == null) {
+      throw MessageException.of(String.format("The rule '%s' does not exists.", ruleKey));
+    }
+    ActiveRule activeRule = qProfile.getActiveRule(ruleKey.repository(), ruleKey.rule());
     if (activeRule == null || activeRule.getRule() == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
+    }
+
+    if (Strings.isNullOrEmpty(issue.message())) {
+      issue.setMessage(rule.getName());
     }
     issue.setCreationDate(project.getAnalysisDate());
     issue.setUpdateDate(project.getAnalysisDate());
@@ -90,4 +103,5 @@ public class ModuleIssues {
     }
     return false;
   }
+
 }

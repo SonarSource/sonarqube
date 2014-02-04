@@ -22,7 +22,10 @@ package org.sonar.batch.issue;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.profiles.RulesProfile;
@@ -31,41 +34,72 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.rules.*;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ModuleIssuesTest {
 
   static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
 
-  IssueCache cache = mock(IssueCache.class);
-  RulesProfile qProfile = mock(RulesProfile.class);
-  Project project = mock(Project.class);
-  IssueFilters filters = mock(IssueFilters.class);
-  TechnicalDebtCalculator technicalDebtCalculator = mock(TechnicalDebtCalculator.class);
-  ModuleIssues moduleIssues = new ModuleIssues(qProfile, cache, project, filters, technicalDebtCalculator);
+  @Mock
+  IssueCache cache;
+
+  @Mock
+  RulesProfile qProfile;
+
+  @Mock
+  Project project;
+
+  @Mock
+  IssueFilters filters;
+
+  @Mock
+  TechnicalDebtCalculator technicalDebtCalculator;
+
+  @Mock
+  RuleFinder ruleFinder;
+
+  ModuleIssues moduleIssues;
 
   @Before
   public void setUp() {
     when(project.getAnalysisDate()).thenReturn(new Date());
     when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
+
+    moduleIssues = new ModuleIssues(qProfile, cache, project, filters, technicalDebtCalculator, ruleFinder);
+  }
+
+  @Test
+  public void fail_on_unknown_rule() throws Exception {
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(null);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
+
+    try {
+      moduleIssues.initAndAddIssue(issue);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class);
+    }
+
+    verifyZeroInteractions(cache);
   }
 
   @Test
   public void ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -79,6 +113,7 @@ public class ModuleIssuesTest {
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(null);
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -94,6 +129,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -120,6 +156,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -135,6 +172,33 @@ public class ModuleIssuesTest {
   }
 
   @Test
+  public void use_rule_name_if_no_message() throws Exception {
+    Rule rule = Rule.create("squid", "AvoidCycle");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle").setName("Avoid Cycle"));
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.CRITICAL)
+      .setMessage("");
+    when(filters.accept(issue, null)).thenReturn(true);
+
+    boolean added = moduleIssues.initAndAddIssue(issue);
+
+    assertThat(added).isTrue();
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(cache).put(argument.capture());
+    assertThat(argument.getValue().message()).isEqualTo("Avoid Cycle");
+  }
+
+  @Test
   public void add_deprecated_violation() throws Exception {
     Rule rule = Rule.create("squid", "AvoidCycle");
     Resource resource = new JavaFile("org.struts.Action").setEffectiveKey("struts:org.struts.Action");
@@ -147,6 +211,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
     when(filters.accept(any(DefaultIssue.class), eq(violation))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddViolation(violation);
@@ -170,6 +235,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -191,6 +257,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
