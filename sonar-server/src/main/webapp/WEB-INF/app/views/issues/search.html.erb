@@ -60,11 +60,11 @@
       },
       'status':        '<%= escape_javascript message('issue_filter.criteria.status') -%>',
       'statuses': {
-        open:          '<%= escape_javascript message('issue.status.OPEN') -%>',
-        confirmed:     '<%= escape_javascript message('issue.status.CONFIRMED') -%>',
-        reopened:      '<%= escape_javascript message('issue.status.REOPENED') -%>',
-        resolved:      '<%= escape_javascript message('issue.status.RESOLVED') -%>',
-        closed:        '<%= escape_javascript message('issue.status.CLOSED') -%>'
+        OPEN:          '<%= escape_javascript message('issue.status.OPEN') -%>',
+        CONFIRMED:     '<%= escape_javascript message('issue.status.CONFIRMED') -%>',
+        REOPENED:      '<%= escape_javascript message('issue.status.REOPENED') -%>',
+        RESOLVED:      '<%= escape_javascript message('issue.status.RESOLVED') -%>',
+        CLOSED:        '<%= escape_javascript message('issue.status.CLOSED') -%>'
       },
       'actions': {
         comment:        '<%= escape_javascript message('issue.comment.formlink') -%>',
@@ -89,9 +89,9 @@
       assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
       resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
       resolutions: {
-        falsePositive: '<%= escape_javascript message('issue.resolution.FALSE-POSITIVE') -%>',
-        fixed:         '<%= escape_javascript message('issue.resolution.FIXED') -%>',
-        removed:       '<%= escape_javascript message('issue.resolution.REMOVED') -%>'
+        'FALSE-POSITIVE': '<%= escape_javascript message('issue.resolution.FALSE-POSITIVE') -%>',
+        'FIXED':       '<%= escape_javascript message('issue.resolution.FIXED') -%>',
+        'REMOVED':     '<%= escape_javascript message('issue.resolution.REMOVED') -%>'
       },
       reporter:        '<%= escape_javascript message('issue_filter.criteria.reporter') -%>',
       created:         '<%= escape_javascript message('issue_filter.criteria.created') -%>',
