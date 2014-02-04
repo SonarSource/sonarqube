@@ -1669,22 +1669,42 @@ public final class CoreMetrics {
     .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 4.2. See SONAR-5042
+   */
+  @Deprecated
   public static final String RFC_KEY = "rfc";
+
+  /**
+   * @deprecated since 4.2. See SONAR-5042
+   */
+  @Deprecated
   public static final Metric RFC = new Metric.Builder(RFC_KEY, "RFC", Metric.ValueType.INT)
     .setDescription("Response for Class")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
     .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
+    .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 4.2. See SONAR-5042
+   */
+  @Deprecated
   public static final String RFC_DISTRIBUTION_KEY = "rfc_distribution";
+
+  /**
+   * @deprecated since 4.2. See SONAR-5042
+   */
+  @Deprecated
   public static final Metric RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", Metric.ValueType.DISTRIB)
     .setDescription("Class distribution /RFC")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
     .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+    .setHidden(true)
     .create();
 
   /**
