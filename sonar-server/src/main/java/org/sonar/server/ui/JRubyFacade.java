@@ -58,6 +58,7 @@ import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.sql.Connection;
@@ -240,6 +241,13 @@ public final class JRubyFacade {
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
+
+  @Deprecated
+  @CheckForNull
+  public RuleRepositories.Repository getRuleRepository(String repositoryKey) {
+    return get(RuleRepositories.class).repository(repositoryKey);
+  }
+
   public Collection<RuleRepositories.Repository> getRuleRepositories() {
     return get(RuleRepositories.class).repositories();
   }
