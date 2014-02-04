@@ -22,8 +22,8 @@ package org.sonar.server.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -33,8 +33,7 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class RuleRegistrationTest extends AbstractDaoTestCase {
 
@@ -78,12 +77,26 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     checkTables("should_update_template_rule_language", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
+  /**
+   * SONAR-4642
+   */
   @Test
-  public void should_notify_for_removed_rules() {
-    setupData("shared");
+  public void notify_for_removed_rules_when_repository_is_still_existing() {
+    setupData("notify_for_removed_rules_when_repository_is_still_existing");
     task.start();
 
     verify(profilesManager).removeActivatedRules(1);
+  }
+
+  /**
+   * SONAR-4642
+   */
+  @Test
+  public void not_notify_for_removed_rules_when_repository_do_not_exists_anymore() {
+    setupData("shared");
+    task.start();
+
+    verifyZeroInteractions(profilesManager);
   }
 
   @Test

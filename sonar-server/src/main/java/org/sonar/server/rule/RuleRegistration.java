@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
 import com.google.common.collect.*;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,8 +43,11 @@ import javax.annotation.CheckForNull;
 
 import java.util.*;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Register rules at server startup
+ *
  * @since 4.2
  */
 public class RuleRegistration implements Startable {
@@ -79,10 +83,12 @@ public class RuleRegistration implements Startable {
     TimeProfiler profiler = new TimeProfiler().start("Register rules");
     SqlSession sqlSession = myBatis.openSession();
     try {
+      RuleDefinitions.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
       selectRulesFromDb(buffer, sqlSession);
-      enableRuleDefinitions(buffer, sqlSession);
-      processRemainingDbRules(buffer, sqlSession);
+      enableRuleDefinitions(context, buffer, sqlSession);
+      List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
+      removeActiveRulesOnStillExistingRepositories(removedRules, context);
       index(buffer);
       ruleTagOperations.deleteUnusedTags(sqlSession);
       sqlSession.commit();
@@ -114,13 +120,12 @@ public class RuleRegistration implements Startable {
     }
   }
 
-  private void enableRuleDefinitions(Buffer buffer, SqlSession sqlSession) {
-    RuleDefinitions.Context context = defLoader.load();
+  private void enableRuleDefinitions(RuleDefinitions.Context context, Buffer buffer, SqlSession sqlSession) {
     for (RuleDefinitions.Repository repoDef : context.repositories()) {
       enableRepository(buffer, sqlSession, repoDef);
     }
     for (RuleDefinitions.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
-      if (context.repository(extendedRepoDef.key())==null) {
+      if (context.repository(extendedRepoDef.key()) == null) {
         LOG.warn(String.format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
       } else {
         enableRepository(buffer, sqlSession, extendedRepoDef);
@@ -148,27 +153,27 @@ public class RuleRegistration implements Startable {
 
   private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef) {
     RuleDto ruleDto = new RuleDto()
-        .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
-        .setConfigKey(ruleDef.engineKey())
-        .setDescription(ruleDef.htmlDescription())
-        .setLanguage(ruleDef.repository().language())
-        .setName(ruleDef.name())
-        .setRepositoryKey(ruleDef.repository().key())
-        .setRuleKey(ruleDef.key())
-        .setSeverity(RulePriority.valueOf(ruleDef.severity()).name())
-        .setCreatedAt(buffer.now())
-        .setUpdatedAt(buffer.now())
-        .setStatus(ruleDef.status().name());
+      .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
+      .setConfigKey(ruleDef.engineKey())
+      .setDescription(ruleDef.htmlDescription())
+      .setLanguage(ruleDef.repository().language())
+      .setName(ruleDef.name())
+      .setRepositoryKey(ruleDef.repository().key())
+      .setRuleKey(ruleDef.key())
+      .setSeverity(RulePriority.valueOf(ruleDef.severity()).name())
+      .setCreatedAt(buffer.now())
+      .setUpdatedAt(buffer.now())
+      .setStatus(ruleDef.status().name());
     ruleDao.insert(ruleDto, sqlSession);
     buffer.add(ruleDto);
 
     for (RuleDefinitions.Param param : ruleDef.params()) {
       RuleParamDto paramDto = new RuleParamDto()
-          .setRuleId(ruleDto.getId())
-          .setDefaultValue(param.defaultValue())
-          .setDescription(param.description())
-          .setName(param.name())
-          .setType(param.type().toString());
+        .setRuleId(ruleDto.getId())
+        .setDefaultValue(param.defaultValue())
+        .setDescription(param.description())
+        .setName(param.name())
+        .setType(param.type().toString());
       ruleDao.insert(paramDto, sqlSession);
       buffer.add(paramDto);
     }
@@ -244,11 +249,11 @@ public class RuleRegistration implements Startable {
     for (RuleDefinitions.Param param : ruleDef.params()) {
       if (!persistedParamKeys.contains(param.key())) {
         RuleParamDto paramDto = new RuleParamDto()
-            .setRuleId(dto.getId())
-            .setName(param.key())
-            .setDescription(param.description())
-            .setDefaultValue(param.defaultValue())
-            .setType(param.type().toString());
+          .setRuleId(dto.getId())
+          .setName(param.key())
+          .setDescription(param.description())
+          .setDefaultValue(param.defaultValue())
+          .setType(param.type().toString());
         ruleDao.insert(paramDto, sqlSession);
         buffer.add(paramDto);
       }
@@ -328,8 +333,8 @@ public class RuleRegistration implements Startable {
     return tagId;
   }
 
-  private void processRemainingDbRules(Buffer buffer, SqlSession sqlSession) {
-    List<Integer> removedIds = Lists.newArrayList();
+  private List<RuleDto> processRemainingDbRules(Buffer buffer, SqlSession sqlSession) {
+    List<RuleDto> removedRules = newArrayList();
     for (Integer unprocessedRuleId : buffer.unprocessedRuleIds) {
       RuleDto ruleDto = buffer.rulesById.get(unprocessedRuleId);
       boolean toBeRemoved = true;
@@ -349,21 +354,46 @@ public class RuleRegistration implements Startable {
         LOG.info("Disable rule " + ruleDto.getRuleKey());
         ruleDto.setStatus(Rule.STATUS_REMOVED);
         ruleDto.setUpdatedAt(buffer.now());
-        for (RuleRuleTagDto removed: buffer.tagsByRuleId.removeAll(ruleDto.getId())) {
+        for (RuleRuleTagDto removed : buffer.tagsByRuleId.removeAll(ruleDto.getId())) {
           ruleDao.deleteTag(removed, sqlSession);
         }
         ruleDao.update(ruleDto, sqlSession);
-        removedIds.add(ruleDto.getId());
-        if (removedIds.size() % 100 == 0) {
+        removedRules.add(ruleDto);
+        if (removedRules.size() % 100 == 0) {
           sqlSession.commit();
         }
       }
     }
     sqlSession.commit();
 
-    // call to ProfileManager requires session to be committed
-    for (Integer removedId : removedIds) {
-      profilesManager.removeActivatedRules(removedId);
+    return removedRules;
+  }
+
+  /**
+   * SONAR-4642
+   *
+   * Remove active rules on repositories that still exists.
+   *
+   * For instance, if the javascript repository do not provide anymore some rules, active rules related to this rules will be removed.
+   * But if the javascript repository do not exists anymore, then related active rules will not be removed.
+   *
+   * The side effect of this approach is that extended repositories will not be managed the same way.
+   * If an extended repository do not exists anymore, then related active rules will be removed.
+   */
+  private void removeActiveRulesOnStillExistingRepositories(List<RuleDto> removedRules, RuleDefinitions.Context context) {
+    List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RuleDefinitions.Repository, String>() {
+        @Override
+        public String apply(RuleDefinitions.Repository input) {
+          return input.key();
+        }
+      }
+    ));
+
+    for (RuleDto rule : removedRules) {
+      // SONAR-4642 Remove active rules only when repository still exists
+      if (repositoryKeys.contains(rule.getRepositoryKey())) {
+        profilesManager.removeActivatedRules(rule.getId());
+      }
     }
   }
 
@@ -374,7 +404,7 @@ public class RuleRegistration implements Startable {
 
   static class Buffer {
     private Date now;
-    private List<Integer> unprocessedRuleIds = Lists.newArrayList();
+    private List<Integer> unprocessedRuleIds = newArrayList();
     private Map<RuleKey, RuleDto> rulesByKey = Maps.newHashMap();
     private Map<Integer, RuleDto> rulesById = Maps.newHashMap();
     private Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
