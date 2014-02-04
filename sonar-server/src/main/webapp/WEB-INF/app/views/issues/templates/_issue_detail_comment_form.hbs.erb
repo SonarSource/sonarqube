@@ -9,7 +9,7 @@
     <tr>
       <td style="padding-top: 5px">
         <input id="issue-comment-submit" type="submit" value="{{#if id}}<%= message('save') -%>{{else}}<%= message('issue.comment.submit') -%>{{/if}}" disabled>
-        <a id="issue-comment-cancel" class="link-action"><%= message('cancel') -%></a>
+        <a id="issue-comment-cancel" class="action"><%= message('cancel') -%></a>
       </td>
       <td align="right">
         <%= render :partial => 'markdown/tips' -%>

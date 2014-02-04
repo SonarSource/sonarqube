@@ -2129,6 +2129,11 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
   background: #FFFBCC;
 }
 
+.action {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Used on links which are located inside a dense text place or in tables */
 /* in order to rapidly identify them                                      */
 .link-action {
