@@ -515,7 +515,7 @@ class Api::ResourcesController < Api::ApiController
       end
 
       if measures
-        measures.each do |measure|
+        measures.select { |measure| !measure.metric.key.start_with?('new_') || include_trends }.each do |measure|
           xml.msr do
             xml.key(measure.metric.name)
             xml.name(measure.metric.short_name) if verbose
