@@ -62,7 +62,7 @@ public class MeasureFilterEngine implements ServerComponent {
 
     } catch (NumberFormatException e) {
       result.setError(MeasureFilterResult.Error.VALUE_SHOULD_BE_A_NUMBER);
-      LOG.error("Value selected for the metric should be a number: " + context);
+      LOG.debug("Value selected for the metric should be a number: " + context);
     } catch (Exception e) {
       result.setError(MeasureFilterResult.Error.UNKNOWN);
       LOG.error("Fail to execute measure filter: " + context, e);
