@@ -38,8 +38,7 @@
         <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity() -%>.png" title="<%= message('severity.' + issue.severity()) -%>"/></td>
         <td>
           <a class="rule-modal" href="#" onclick="return openModalWindow('<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>', {'width': 800})">
-            <!-- SONAR-4785 Display rule name if issue has no message -->
-            <%= h truncate(issue.message ? issue.message : results.rule(issue).name, :length => 100) -%></a>
+            <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment %>
             <div class="comment-excerpt">
               <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>

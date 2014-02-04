@@ -20,7 +20,7 @@
 
 class Issue
 
-  def self.to_hash(issue, rule_name=nil)
+  def self.to_hash(issue)
     hash = {
         :key => issue.key,
         :component => issue.componentKey,
@@ -30,7 +30,7 @@ class Issue
     }
     hash[:resolution] = issue.resolution if issue.resolution
     hash[:severity] = issue.severity if issue.severity
-    hash[:message] = issue.message ? issue.message : rule_name
+    hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     hash[:technicalDebt] = technical_debt_to_hash(issue.technicalDebt) if issue.technicalDebt

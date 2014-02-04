@@ -8,7 +8,6 @@
     "projectLongName": "SonarQube",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
-    "message": "Fix it",
     "actionPlan" : "AP-ABCD",
     "actionPlanName" : "Version 4.2",
     "creationDate": "2014-01-22T19:10:03+0100",

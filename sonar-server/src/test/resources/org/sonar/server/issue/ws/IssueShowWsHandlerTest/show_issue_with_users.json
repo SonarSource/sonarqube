@@ -8,7 +8,6 @@
     "projectLongName": "SonarQube",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
-    "message": "Fix it",
     "assignee": "john",
     "assigneeName": "John",
     "reporter": "steven",
