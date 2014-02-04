@@ -176,25 +176,19 @@ jQuery(function() {
           });
 
       jQuery('.navigator-details').empty().addClass('navigator-fetching');
-      if (this.model.get('line')) {
-        jQuery.when(detailView.model.fetch()).done(function() {
-          that.fetchSource(detailView, function() {
-            jQuery('.navigator-details').removeClass('navigator-fetching');
-            app.detailsRegion.show(detailView);
-          });
-        });
-      } else {
-        jQuery.when(detailView.model.fetch()).done(function() {
+      jQuery.when(detailView.model.fetch()).done(function() {
+        that.fetchSource(detailView, function() {
           jQuery('.navigator-details').removeClass('navigator-fetching');
           app.detailsRegion.show(detailView);
         });
-      }
+      });
     },
 
 
     fetchSource: function (view, callback) {
-      var from = this.model.get('line') - 10,
-          to = this.model.get('line') + 30;
+      var line = this.model.get('line') || 0,
+          from = line >= 10 ? line - 10 : 0,
+          to = line + 30;
 
       return jQuery
           .ajax({
@@ -202,7 +196,7 @@ jQuery(function() {
             url: baseUrl + '/api/sources/show',
             data: {
               key: this.model.get('component'),
-              from: from >= 0 ? from : 0,
+              from: from,
               to: to,
               format: 'json'
             }
