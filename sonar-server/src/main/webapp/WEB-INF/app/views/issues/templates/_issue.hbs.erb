@@ -1,9 +1,9 @@
 <script id="issue-template" type="text/x-handlebars-template">
   <div class="line line-small">
-      {{severityIcon severity}}{{capitalize severity}}&nbsp;
-      {{statusIcon status}}{{capitalize status}}
+      {{severityIcon severity}}{{translate "severities" severity}}&nbsp;
+      {{statusIcon status}}{{translate "statuses" status}}
       {{#if resolution}}
-        &nbsp;{{resolutionIcon resolution}}{{capitalize resolution}}
+        &nbsp;{{resolutionIcon resolution}}{{translate "resolutions" resolution}}
       {{/if}}
 
       <div class="line-right">
