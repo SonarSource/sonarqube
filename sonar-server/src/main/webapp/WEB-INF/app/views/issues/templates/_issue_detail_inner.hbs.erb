@@ -186,7 +186,7 @@
       {{#ifHasExtraActions actions}}
         <li>
           <div class="dropdown">
-            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">More actions</a>
+            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
             <ul style="display: none" class="dropdown-menu">
               {{#inArray actions "set_severity"}}
                 <li>
