@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.base.Charsets;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
@@ -30,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -51,11 +50,9 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
   public TemporaryFolder temp = new TemporaryFolder();
 
   Project multiModuleProject, phpModule, javaModule;
-  SnapshotCache snapshotCache = mock(SnapshotCache.class);
-  ResourceCache resourceCache = mock(ResourceCache.class);
-  private Iterable<InputFile> javaInputFiles;
-  private Iterable<InputFile> phpInputFiles;
-  private File baseDir;
+  Iterable<InputFile> javaInputFiles;
+  Iterable<InputFile> phpInputFiles;
+  File baseDir;
 
   @Before
   public void before() throws ParseException, IOException {
