@@ -36,19 +36,21 @@ public class BadRequestException extends ServerException {
 
   private static final int BAD_REQUEST = 400;
 
-  private List<Message> errors = newArrayList();
+  private final List<Message> errors;
 
   public BadRequestException(String message) {
     super(BAD_REQUEST, message);
+    this.errors = newArrayList();
   }
 
-  public BadRequestException(@Nullable String message, List<Message> errors) {
+  public BadRequestException(String message, List<Message> errors) {
     super(BAD_REQUEST, message);
     this.errors = errors;
   }
 
   public BadRequestException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
     super(BAD_REQUEST, message, l10nKey, l10nParams);
+    this.errors = newArrayList();
   }
 
   public BadRequestException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams, List<Message> errors) {

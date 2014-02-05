@@ -36,6 +36,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,8 @@ public class QProfileOperations implements ServerComponent {
   private final ProfilesManager profilesManager;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, ESActiveRule esActiveRule, QProfileLookup profileLookup, ProfilesManager profilesManager) {
+                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, ESActiveRule esActiveRule, QProfileLookup profileLookup,
+                            ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;

@@ -66,7 +66,7 @@ public class SourceService implements ServerComponent {
     UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
 
     List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
-    if (decoratedSource != null) {
+    if (!decoratedSource.isEmpty()) {
       return decoratedSource;
     } else {
       return deprecatedSourceDecorator.getSourceAsHtml(componentKey, from, to);

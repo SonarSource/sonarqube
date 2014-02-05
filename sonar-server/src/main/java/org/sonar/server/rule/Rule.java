@@ -77,6 +77,7 @@ public class Rule {
     return language;
   }
 
+  @CheckForNull
   public String name() {
     return name;
   }
@@ -175,7 +176,7 @@ public class Rule {
       return this;
     }
 
-    public Builder setName(String name) {
+    public Builder setName(@Nullable String name) {
       this.name = name;
       return this;
     }

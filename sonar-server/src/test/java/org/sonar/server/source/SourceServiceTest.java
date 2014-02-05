@@ -33,6 +33,8 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Collections;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.*;
@@ -106,7 +108,7 @@ public class SourceServiceTest {
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
-    when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(null);
+    when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
     service.getSourcesByComponent(componentKey, 1, 2);
 

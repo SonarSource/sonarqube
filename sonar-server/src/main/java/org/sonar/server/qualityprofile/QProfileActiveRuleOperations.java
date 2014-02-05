@@ -43,6 +43,7 @@ import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -325,7 +326,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
         activeRuleDao.insert(activeRuleParam, session);
         session.commit();
         newParams.add(activeRuleParam);
-        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(), getLoggedName(userSession)));
+        actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(),
+          getLoggedName(userSession)));
       }
     }
     return newParams;

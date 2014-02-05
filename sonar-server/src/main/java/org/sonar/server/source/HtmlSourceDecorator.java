@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class HtmlSourceDecorator implements ServerComponent {
@@ -48,7 +49,6 @@ public class HtmlSourceDecorator implements ServerComponent {
     this.snapshotDataDao = snapshotDataDao;
   }
 
-  @CheckForNull
   public List<String> getDecoratedSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
     SqlSession session = mybatis.openSession();
     try {
@@ -57,7 +57,7 @@ public class HtmlSourceDecorator implements ServerComponent {
         String snapshotSource = snapshotSourceDao.selectSnapshotSourceByComponentKey(componentKey, session);
         return decorate(snapshotSource, snapshotDataEntries, from, to);
       }
-      return null;
+      return Collections.emptyList();
     } finally {
       MyBatis.closeQuietly(session);
     }

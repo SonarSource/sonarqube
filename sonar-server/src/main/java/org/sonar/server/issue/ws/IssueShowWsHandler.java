@@ -139,12 +139,20 @@ public class IssueShowWsHandler implements RequestHandler {
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
     Characteristic requirement = technicalDebtManager.findRequirementByRule(result.rule(issue));
     // Requirement can be null if it has been disabled
-    if (requirement != null && requirement.rootId() != null && requirement.parentId() != null) {
-      Characteristic characteristic = technicalDebtManager.findCharacteristicById(requirement.rootId());
+    if (requirement != null) {
+      Characteristic characteristic = findCharacteristicById(requirement.rootId());
       json.prop("characteristic", characteristic != null ? characteristic.name() : null);
-      Characteristic subCharacteristic = technicalDebtManager.findCharacteristicById(requirement.parentId());
+      Characteristic subCharacteristic = findCharacteristicById(requirement.parentId());
       json.prop("subCharacteristic", subCharacteristic != null ? subCharacteristic.name() : null);
     }
+  }
+
+  @CheckForNull
+  private Characteristic findCharacteristicById(@Nullable Integer id){
+    if (id != null) {
+      return technicalDebtManager.findCharacteristicById(id);
+    }
+    return null;
   }
 
   private void writeTransitions(Issue issue, JsonWriter json) {
