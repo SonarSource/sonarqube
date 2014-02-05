@@ -162,7 +162,7 @@ public class DefaultDatabase implements Database {
       props.put(StringUtils.removeStart(hibernateKey, "sonar."), settings.getString(hibernateKey));
     }
     props.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
-    props.put("hibernate.generate_statistics", settings.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
+    props.put("hibernate.generate_statistics", "false");
     props.put("hibernate.hbm2ddl.auto", VALIDATE);
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
 
@@ -210,7 +210,7 @@ public class DefaultDatabase implements Database {
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
-    completeDefaultProperty(props, DatabaseProperties.PROP_HIBERNATE_HBM2DLL, VALIDATE);
+    completeDefaultProperty(props, "sonar.jdbc.hibernate.hbm2ddl", VALIDATE);
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {

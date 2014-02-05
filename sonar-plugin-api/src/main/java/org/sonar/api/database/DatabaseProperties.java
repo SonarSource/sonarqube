@@ -31,8 +31,6 @@ public interface DatabaseProperties {
   String PROP_USER_DEFAULT_VALUE = "sonar";
   String PROP_PASSWORD = "sonar.jdbc.password";
   String PROP_PASSWORD_DEFAULT_VALUE = "sonar";
-  String PROP_HIBERNATE_HBM2DLL = "sonar.jdbc.hibernate.hbm2ddl";
-  String PROP_HIBERNATE_GENERATE_STATISTICS = "sonar.jdbc.hibernate.generate_statistics";
   String PROP_DIALECT = "sonar.jdbc.dialect";
 
   /**
