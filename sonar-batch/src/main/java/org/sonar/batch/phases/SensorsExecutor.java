@@ -50,9 +50,10 @@ public class SensorsExecutor implements BatchComponent {
   private BatchExtensionDictionnary selector;
   private final DatabaseSession session;
   private final SensorMatcher sensorMatcher;
+  private final DefaultModuleLanguages moduleLanguages;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-    DatabaseSession session, SensorMatcher sensorMatcher) {
+                         DatabaseSession session, SensorMatcher sensorMatcher, DefaultModuleLanguages moduleLanguages) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
@@ -60,6 +61,7 @@ public class SensorsExecutor implements BatchComponent {
     this.fs = fs;
     this.session = session;
     this.sensorMatcher = sensorMatcher;
+    this.moduleLanguages = moduleLanguages;
   }
 
   public void execute(SensorContext context) {
@@ -72,6 +74,22 @@ public class SensorsExecutor implements BatchComponent {
 
       if (sensor.shouldExecuteOnProject(module)) {
         executeSensor(context, sensor);
+      } else {
+        // For backward compatibility try to execute Sensor for each language until it is executed once (or never)
+        String oldLanguageKey = module.getLanguageKey();
+        Language oldLanguage = module.getLanguage();
+        for (Language language : moduleLanguages.languages()) {
+          module.setLanguage(language);
+          module.getConfiguration().setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language.getKey());
+          if (sensor.shouldExecuteOnProject(module)) {
+            LOG.warn("Sensor {} should be updated to not depends on deprecated Project::getLanguage or Project::getLanguageKey", sensor);
+            executeSensor(context, sensor);
+            break;
+          }
+        }
+        // Restore module language
+        module.setLanguage(oldLanguage);
+        module.getConfiguration().setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, oldLanguageKey);
       }
     }
 
