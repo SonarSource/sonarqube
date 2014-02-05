@@ -113,7 +113,7 @@ public class FileIndex implements BatchComponent {
       // Index only provided files
       indexFiles(fileSystem, progress, fileSystem.sourceFiles(), InputFile.TYPE_MAIN);
       indexFiles(fileSystem, progress, fileSystem.testFiles(), InputFile.TYPE_TEST);
-    } else {
+    } else if (fileSystem.baseDir() != null) {
       // index from basedir
       indexDirectory(fileSystem, progress, fileSystem.baseDir(), InputFile.TYPE_MAIN);
       indexDirectory(fileSystem, progress, fileSystem.baseDir(), InputFile.TYPE_TEST);
