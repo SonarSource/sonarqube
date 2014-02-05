@@ -709,7 +709,6 @@ public class Metric implements ServerExtension, BatchExtension {
      * @see SumChildValuesFormula
      * @see MeanAggregationFormula
      * @see WeightedMeanAggregationFormula
-     * @see AverageComplexityFormula
      *
      * @param f the formula
      * @return the builder
