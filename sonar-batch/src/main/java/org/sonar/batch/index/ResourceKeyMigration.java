@@ -19,30 +19,23 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.PathUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class ResourceKeyMigration {
+public class ResourceKeyMigration implements BatchComponent {
 
   private final Logger logger;
   private final DatabaseSession session;
@@ -70,9 +63,9 @@ public class ResourceKeyMigration {
   public void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
     if (migrationNeeded) {
       logger.info("Starting migration of resource keys");
-      Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
-      Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
-      Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
+      Map<String, InputFile> deprecatedFileKeyMapper = new TreeMap<String, InputFile>();
+      Map<String, InputFile> deprecatedTestKeyMapper = new TreeMap<String, InputFile>();
+      Map<String, String> deprecatedDirectoryKeyMapper = new TreeMap<String, String>();
       for (InputFile inputFile : inputFiles) {
         String deprecatedKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY);
         if (deprecatedKey != null) {
