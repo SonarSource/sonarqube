@@ -168,9 +168,10 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldCheckWhitelist() {
+  public void check_white_list_with_black_list() {
     Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura");
     BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
     assertThat(filter.accepts("checkstyle")).isTrue();
     assertThat(filter.accepts("pmd")).isTrue();
@@ -178,7 +179,18 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldCheckBlackListIfNoWhiteList() {
+  public void check_white_list_when_plugin_is_in_both_list() {
+    Settings settings = new Settings()
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "cobertura,checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
+    assertThat(filter.accepts("checkstyle")).isTrue();
+    assertThat(filter.accepts("pmd")).isTrue();
+    assertThat(filter.accepts("cobertura")).isTrue();
+  }
+
+  @Test
+  public void check_black_list_if_no_white_list() {
     Settings settings = new Settings()
       .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);

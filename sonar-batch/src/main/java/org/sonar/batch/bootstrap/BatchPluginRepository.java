@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +34,10 @@ import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class BatchPluginRepository implements PluginRepository {
 
@@ -56,7 +54,7 @@ public class BatchPluginRepository implements PluginRepository {
   private final BatchPluginInstaller pluginInstaller;
 
   public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings, AnalysisMode analysisMode,
-    BatchPluginInstaller pluginInstaller) {
+                               BatchPluginInstaller pluginInstaller) {
     this.pluginDownloader = pluginDownloader;
     this.settings = settings;
     this.analysisMode = analysisMode;
@@ -117,7 +115,7 @@ public class BatchPluginRepository implements PluginRepository {
 
   static class PluginFilter {
     private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
-    Set<String> whites = Sets.newHashSet(), blacks = Sets.newHashSet();
+    Set<String> whites = newHashSet(), blacks = newHashSet();
 
     PluginFilter(Settings settings, AnalysisMode mode) {
       if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
@@ -163,10 +161,10 @@ public class BatchPluginRepository implements PluginRepository {
       if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
         return true;
       }
-      if (!whites.isEmpty()) {
-        return whites.contains(pluginKey);
-      }
-      return blacks.isEmpty() || !blacks.contains(pluginKey);
+
+      List<String> mergeList = newArrayList(blacks);
+      mergeList.removeAll(whites);
+      return mergeList.isEmpty() || !mergeList.contains(pluginKey);
     }
   }
 }
