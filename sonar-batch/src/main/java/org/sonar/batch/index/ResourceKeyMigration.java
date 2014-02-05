@@ -31,9 +31,9 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.PathUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class ResourceKeyMigration implements BatchComponent {
 
@@ -63,9 +63,9 @@ public class ResourceKeyMigration implements BatchComponent {
   public void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
     if (migrationNeeded) {
       logger.info("Starting migration of resource keys");
-      Map<String, InputFile> deprecatedFileKeyMapper = new TreeMap<String, InputFile>();
-      Map<String, InputFile> deprecatedTestKeyMapper = new TreeMap<String, InputFile>();
-      Map<String, String> deprecatedDirectoryKeyMapper = new TreeMap<String, String>();
+      Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
+      Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
+      Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
       for (InputFile inputFile : inputFiles) {
         String deprecatedKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY);
         if (deprecatedKey != null) {
@@ -93,7 +93,7 @@ public class ResourceKeyMigration implements BatchComponent {
       .append(ResourceModel.class.getSimpleName())
       .append(" where enabled = true ")
       .append(" and rootId = :rootId ")
-      .append(" and scope = '").append(Scopes.FILE).append("'");
+      .append(" and scope = '").append(Scopes.FILE).append("' order by key");
     List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
     for (ResourceModel resourceModel : resources) {
       String oldEffectiveKey = resourceModel.getKey();

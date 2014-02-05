@@ -25,15 +25,9 @@ import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
@@ -47,7 +41,6 @@ import org.sonar.core.resource.ResourceDto;
  * Index all files/directories of the module in SQ database and importing source code.
  * @since 4.2
  */
-@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
 public class ComponentIndexer implements BatchComponent {
 
   private final Languages languages;
