@@ -76,8 +76,15 @@ public class RuleShowWsHandler implements RequestHandler {
     if (ruleKey.repository().equals("manual")) {
       org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
       if (rule != null) {
-        return new Rule(rule.getKey(), rule.getName(), rule.getDescription(), rule.getRepositoryKey(), rule.getSeverity().name(), rule.getStatus(),
-          rule.getCreatedAt(), rule.getUpdatedAt());
+        return new Rule.Builder()
+          .setKey(rule.getKey())
+          .setRepositoryKey(rule.getRepositoryKey())
+          .setName(rule.getName())
+          .setDescription(rule.getDescription())
+          .setSeverity(rule.getSeverity().name())
+          .setStatus(rule.getStatus())
+          .setCreatedAt(rule.getCreatedAt())
+          .setUpdatedAt(rule.getUpdatedAt()).build();
       }
       return null;
     } else {

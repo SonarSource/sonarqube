@@ -113,20 +113,18 @@ public class RuleRegistryTest {
     assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule").execute().actionGet().isExists()).isTrue();
   }
 
-
   @Test
   public void should_find_rule_by_key() {
     assertThat(registry.findByKey(RuleKey.of("unknown", "RuleWithParameters"))).isNull();
     assertThat(registry.findByKey(RuleKey.of("xoo", "unknown"))).isNull();
     final Rule rule = registry.findByKey(RuleKey.of("xoo", "RuleWithParameters"));
     assertThat(rule).isNotNull();
-    assertThat(rule.repositoryKey()).isEqualTo("xoo");
-    assertThat(rule.key()).isEqualTo("RuleWithParameters");
+    assertThat(rule.ruleKey().repository()).isEqualTo("xoo");
+    assertThat(rule.ruleKey().rule()).isEqualTo("RuleWithParameters");
     assertThat(rule.params()).hasSize(5);
     assertThat(rule.adminTags()).hasSize(1);
     assertThat(rule.systemTags()).hasSize(2);
   }
-
 
   @Test
   public void should_filter_removed_rules() {

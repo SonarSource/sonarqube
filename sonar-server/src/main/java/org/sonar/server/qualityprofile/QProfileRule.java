@@ -24,11 +24,13 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleDocumentParser;
 import org.sonar.server.rule.RuleNote;
 import org.sonar.server.rule.RuleParam;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +49,9 @@ public class QProfileRule {
   private final RuleNote activeRuleNote;
   private final List<QProfileRuleParam> params;
 
+  // TODO move this in a parser class
   public QProfileRule(Map<String, Object> ruleSource, Map<String, Object> activeRuleSource) {
-
-    rule = new Rule(ruleSource);
-
+    rule = RuleDocumentParser.parse(ruleSource);
     if (activeRuleSource.isEmpty()) {
       activeRuleId = null;
       severity = (String) ruleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
@@ -68,8 +69,8 @@ public class QProfileRule {
         activeRuleNote = new RuleNote(
           (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
           (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
-          Rule.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
-          Rule.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
+          RuleDocumentParser.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
+          RuleDocumentParser.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
         );
       } else {
         activeRuleNote = null;
@@ -97,11 +98,11 @@ public class QProfileRule {
   }
 
   public String key() {
-    return rule.key();
+    return rule.ruleKey().rule();
   }
 
   public String repositoryKey() {
-    return rule.repositoryKey();
+    return rule.ruleKey().repository();
   }
 
   public String language() {
@@ -156,11 +157,11 @@ public class QProfileRule {
     return rule.ruleNote();
   }
 
-  public List<String> systemTags() {
+  public Collection<String> systemTags() {
     return rule.systemTags();
   }
 
-  public List<String> adminTags() {
+  public Collection<String> adminTags() {
     return rule.adminTags();
   }
 

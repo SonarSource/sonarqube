@@ -59,6 +59,12 @@ public class RuleShowWsHandlerTest {
   @Mock
   I18n i18n;
 
+  Rule.Builder ruleBuilder = new Rule.Builder()
+    .setKey("AvoidCycle")
+    .setRepositoryKey("squid")
+    .setName("Avoid cycle")
+    .setDescription("Avoid cycle between packages");
+
   WsTester tester;
 
   @Before
@@ -69,7 +75,7 @@ public class RuleShowWsHandlerTest {
   @Test
   public void show_rule() throws Exception {
     String ruleKey = "squid:AvoidCycle";
-    Rule rule = createStandardRule();
+    Rule rule = ruleBuilder.build();
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
@@ -79,7 +85,7 @@ public class RuleShowWsHandlerTest {
   }
 
   @Test
-  public void return_not_found_on_unkwown_rule() throws Exception {
+  public void return_not_found_on_unknown_rule() throws Exception {
     String ruleKey = "squid:AvoidCycle";
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);
@@ -99,9 +105,10 @@ public class RuleShowWsHandlerTest {
   public void show_rule_with_dates() throws Exception {
     Date date1 = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
-    Rule rule = createStandardRule();
-    when(rule.createdAt()).thenReturn(date1);
-    when(rule.updatedAt()).thenReturn(date2);
+    Rule rule = ruleBuilder
+      .setCreatedAt(date1)
+      .setUpdatedAt(date2)
+      .build();
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
     when(i18n.formatDateTime(any(Locale.class), eq(date1))).thenReturn("Jan 22, 2014 10:03 AM");
@@ -114,10 +121,11 @@ public class RuleShowWsHandlerTest {
 
   @Test
   public void show_rule_with_note() throws Exception {
-    Rule rule = createStandardRule();
     RuleNote note = mock(RuleNote.class);
     when(note.data()).thenReturn("*Extended rule description*");
-    when(rule.ruleNote()).thenReturn(note);
+    Rule rule = ruleBuilder
+      .setRuleNote(note)
+      .build();
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
@@ -128,9 +136,10 @@ public class RuleShowWsHandlerTest {
 
   @Test
   public void show_rule_with_tags() throws Exception {
-    Rule rule = createStandardRule();
-    when(rule.adminTags()).thenReturn(ImmutableList.of("complexity"));
-    when(rule.systemTags()).thenReturn(ImmutableList.of("security"));
+    Rule rule = ruleBuilder
+      .setAdminTags(ImmutableList.of("complexity"))
+      .setSystemTags(ImmutableList.of("security"))
+      .build();
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
@@ -167,17 +176,4 @@ public class RuleShowWsHandlerTest {
     }
   }
 
-  private Rule create(String repoKey, String key, String name, String description) {
-    Rule mockRule = mock(Rule.class);
-    when(mockRule.repositoryKey()).thenReturn(repoKey);
-    when(mockRule.key()).thenReturn(key);
-    when(mockRule.ruleKey()).thenReturn(RuleKey.of(repoKey, key));
-    when(mockRule.name()).thenReturn(name);
-    when(mockRule.description()).thenReturn(description);
-    return mockRule;
-  }
-
-  private Rule createStandardRule() {
-    return create("squid", "AvoidCycle", "Avoid cycle", "Avoid cycle between packages");
-  }
 }

@@ -19,124 +19,58 @@
  */
 package org.sonar.server.rule;
 
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class Rule {
 
   private int id;
-  private String key;
+  private RuleKey ruleKey;
   private String language;
   private String name;
   private String description;
-  private Integer templateId;
-  private String repositoryKey;
   private String severity;
   private String status;
   private String cardinality;
+  private Integer templateId;
+  private RuleNote ruleNote;
+  private Collection<String> systemTags;
+  private Collection<String> adminTags;
+  private Collection<RuleParam> params;
   private Date createdAt;
   private Date updatedAt;
-  private List<String> systemTags;
-  private List<String> adminTags;
-  private RuleNote ruleNote;
-  private List<RuleParam> params;
 
-  /**
-   * Used to create manual rule
-   */
-  public Rule(String key, String name, String description, String repositoryKey, String severity, String status, Date createdAt, Date updatedAt) {
-    this.key = key;
-    this.name = name;
-    this.description = description;
-    this.repositoryKey = repositoryKey;
-    this.severity = severity;
-    this.status = status;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.systemTags = newArrayList();
-    this.adminTags = newArrayList();
-
-  }
-
-  public Rule(Map<String, Object> ruleSource) {
-    id = (Integer) ruleSource.get(RuleDocument.FIELD_ID);
-    key = (String) ruleSource.get(RuleDocument.FIELD_KEY);
-    language = (String) ruleSource.get(RuleDocument.FIELD_LANGUAGE);
-    repositoryKey = (String) ruleSource.get(RuleDocument.FIELD_REPOSITORY_KEY);
-    severity = (String) ruleSource.get(RuleDocument.FIELD_SEVERITY);
-    name = (String) ruleSource.get(RuleDocument.FIELD_NAME);
-    description = (String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION);
-    status = (String) ruleSource.get(RuleDocument.FIELD_STATUS);
-    cardinality = (String) ruleSource.get("cardinality");
-    templateId = (Integer) ruleSource.get(RuleDocument.FIELD_TEMPLATE_ID);
-    createdAt = parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource);
-    updatedAt = parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource);
-
-    if (ruleSource.containsKey(RuleDocument.FIELD_NOTE)) {
-      Map<String, Object> ruleNoteDocument = (Map<String, Object>) ruleSource.get(RuleDocument.FIELD_NOTE);
-      ruleNote = new RuleNote(
-        (String) ruleNoteDocument.get(RuleDocument.FIELD_NOTE_DATA),
-        (String) ruleNoteDocument.get(RuleDocument.FIELD_NOTE_USER_LOGIN),
-        parseOptionalDate(RuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
-        parseOptionalDate(RuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
-      );
-    } else {
-      ruleNote = null;
-    }
-
-    params = Lists.newArrayList();
-    if (ruleSource.containsKey(RuleDocument.FIELD_PARAMS)) {
-      Map<String, Map<String, Object>> ruleParams = Maps.newHashMap();
-      for (Map<String, Object> ruleParam: (List<Map<String, Object>>) ruleSource.get(RuleDocument.FIELD_PARAMS)) {
-        ruleParams.put((String) ruleParam.get(RuleDocument.FIELD_PARAM_KEY), ruleParam);
-      }
-      for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
-        RuleParamType type = RuleParamType.parse((String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE));
-        params.add(new RuleParam(
-          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
-          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DESCRIPTION),
-          (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_DEFAULT_VALUE),
-          type
-        ));
-      }
-    }
-
-    systemTags = Lists.newArrayList();
-    if (ruleSource.containsKey(RuleDocument.FIELD_SYSTEM_TAGS)) {
-      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_SYSTEM_TAGS)) {
-        systemTags.add(tag);
-      }
-    }
-    adminTags = Lists.newArrayList();
-    if (ruleSource.containsKey(RuleDocument.FIELD_ADMIN_TAGS)) {
-      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_ADMIN_TAGS)) {
-        adminTags.add(tag);
-      }
-    }
+  private Rule(Builder builder) {
+    this.id = builder.id;
+    this.ruleKey = RuleKey.of(builder.repositoryKey, builder.key);
+    this.language = builder.language;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.severity = builder.severity;
+    this.status = builder.status;
+    this.cardinality = builder.cardinality;
+    this.templateId = builder.templateId;
+    this.ruleNote = builder.ruleNote;
+    this.systemTags = defaultCollection(builder.systemTags);
+    this.adminTags = defaultCollection(builder.adminTags);
+    this.params = defaultCollection(builder.params);
+    this.createdAt = builder.createdAt;
+    this.updatedAt = builder.updatedAt;
   }
 
   public int id() {
     return id;
   }
 
-  public String key() {
-    return key;
-  }
-
-  public String repositoryKey() {
-    return repositoryKey;
+  public RuleKey ruleKey() {
+    return ruleKey;
   }
 
   public String language() {
@@ -151,22 +85,42 @@ public class Rule {
     return description;
   }
 
+  public String severity() {
+    return severity;
+  }
+
   public String status() {
     return status;
   }
 
-  public Date createdAt() {
-    return createdAt;
-  }
-
-  @CheckForNull
-  public Date updatedAt() {
-    return updatedAt;
+  public String cardinality() {
+    return cardinality;
   }
 
   @CheckForNull
   public Integer templateId() {
     return templateId;
+  }
+
+  @CheckForNull
+  public RuleNote ruleNote() {
+    return ruleNote;
+  }
+
+  public Collection<String> systemTags() {
+    return systemTags;
+  }
+
+  public Collection<String> adminTags() {
+    return adminTags;
+  }
+
+  public Collection<RuleParam> params() {
+    return params;
+  }
+
+  public Date createdAt() {
+    return createdAt;
   }
 
   public boolean isTemplate() {
@@ -177,37 +131,117 @@ public class Rule {
     return templateId != null;
   }
 
-  public String severity() {
-    return severity;
+  @CheckForNull
+  public Date updatedAt() {
+    return updatedAt;
   }
 
-  public static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {
-    String dateValue = (String) ruleSource.get(field);
-    if (dateValue == null) {
-      return null;
-    } else {
-      return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(dateValue).toDate();
+  public static class Builder {
+
+    private int id;
+    private String key;
+    private String repositoryKey;
+    private String language;
+    private String name;
+    private String description;
+    private String severity;
+    private String status;
+    private String cardinality;
+    private Integer templateId;
+    private RuleNote ruleNote;
+    private Collection<String> systemTags;
+    private Collection<String> adminTags;
+    private Collection<RuleParam> params;
+    private Date createdAt;
+    private Date updatedAt;
+
+    public Builder setId(int id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public Builder setRepositoryKey(String repositoryKey) {
+      this.repositoryKey = repositoryKey;
+      return this;
+    }
+
+    public Builder setLanguage(String language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setSeverity(String severity) {
+      this.severity = severity;
+      return this;
+    }
+
+    public Builder setStatus(String status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder setCardinality(String cardinality) {
+      this.cardinality = cardinality;
+      return this;
+    }
+
+    public Builder setTemplateId(@Nullable Integer templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    public Builder setRuleNote(@Nullable RuleNote ruleNote) {
+      this.ruleNote = ruleNote;
+      return this;
+    }
+
+    public Builder setSystemTags(Collection<String> systemTags) {
+      this.systemTags = systemTags;
+      return this;
+    }
+
+    public Builder setAdminTags(Collection<String> adminTags) {
+      this.adminTags = adminTags;
+      return this;
+    }
+
+    public Builder setParams(Collection<RuleParam> params) {
+      this.params = params;
+      return this;
+    }
+
+    public Builder setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+      return this;
+    }
+
+    public Builder setUpdatedAt(@Nullable Date updatedAt) {
+      this.updatedAt = updatedAt;
+      return this;
+    }
+
+    public Rule build() {
+      // TODO Add validation on mandatory key, repokey, ...
+      return new Rule(this);
     }
   }
 
-  @CheckForNull
-  public RuleNote ruleNote() {
-    return ruleNote;
-  }
-
-  public List<String> systemTags() {
-    return systemTags;
-  }
-
-  public List<String> adminTags() {
-    return adminTags;
-  }
-
-  public List<RuleParam> params() {
-    return params;
-  }
-
-  public RuleKey ruleKey() {
-    return RuleKey.of(repositoryKey, key);
+  private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
+    return c == null ? Collections.<T>emptyList() : Collections.unmodifiableCollection(c);
   }
 }

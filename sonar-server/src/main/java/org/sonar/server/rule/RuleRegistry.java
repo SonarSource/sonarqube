@@ -150,7 +150,7 @@ public class RuleRegistry {
     if (hits.totalHits() == 0) {
       return null;
     } else {
-      return new Rule(hits.hits()[0].sourceAsMap());
+      return RuleDocumentParser.parse(hits.hits()[0].sourceAsMap());
     }
   }
 
