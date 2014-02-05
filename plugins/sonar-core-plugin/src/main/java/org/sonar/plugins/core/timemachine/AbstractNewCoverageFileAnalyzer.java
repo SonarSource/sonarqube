@@ -52,7 +52,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
   public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
     structs = Lists.newArrayList();
     for (Period period : timeMachineConfiguration.periods()) {
-      structs.add(new PeriodStruct(period.getIndex(), period.getTargetDate()));
+      structs.add(new PeriodStruct(period.getIndex(), period.getDate()));
     }
   }
 

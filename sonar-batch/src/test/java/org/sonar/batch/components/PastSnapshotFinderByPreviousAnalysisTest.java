@@ -50,6 +50,6 @@ public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTest
     PastSnapshot pastSnapshot = finder.findByPreviousAnalysis(projectSnapshot);
     assertThat(pastSnapshot.isRelatedToSnapshot(), is(false));
     assertThat(pastSnapshot.getProjectSnapshot(), nullValue());
-    assertThat(pastSnapshot.getTargetDate(), nullValue());
+    assertThat(pastSnapshot.getDate(), nullValue());
   }
 }

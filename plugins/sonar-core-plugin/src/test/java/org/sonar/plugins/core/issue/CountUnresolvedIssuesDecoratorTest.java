@@ -95,7 +95,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     sameSecond = DateUtils.truncate(rightNow, Calendar.SECOND);
 
     timeMachineConfiguration = mock(TimeMachineConfiguration.class);
-    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo, afterFiveDaysAgo), new Period(2, tenDaysAgo, afterTenDaysAgo)));
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, afterFiveDaysAgo), new Period(2, afterTenDaysAgo)));
 
     project = mock(Project.class);
     resource = mock(Resource.class);

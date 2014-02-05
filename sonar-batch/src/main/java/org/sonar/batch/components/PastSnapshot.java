@@ -103,8 +103,15 @@ public class PastSnapshot {
     return projectSnapshot != null ? projectSnapshot.getQualifier() : null;
   }
 
-  public Date getTargetDate() {
+  private Date getTargetDate() {
     return targetDate;
+  }
+
+  public PastSnapshot clone(){
+    PastSnapshot clone = new PastSnapshot(mode, targetDate, projectSnapshot);
+    clone.setIndex(index);
+    clone.setModeParameter(modeParameter);
+    return clone;
   }
 
   @Override

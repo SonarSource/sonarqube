@@ -97,7 +97,7 @@ public class NewTechnicalDebtDecoratorTest {
     fiveDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -5);
     fourDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -4);
 
-    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo, fiveDaysAgo), new Period(2, tenDaysAgo, tenDaysAgo)));
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
     decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, technicalDebtConverter);
   }
@@ -179,7 +179,7 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_with_changelog_and_periods_have_no_dates() {
-    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null), new Period(2, null)));
 
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(fiveDaysDebt).setChanges(
       newArrayList(
@@ -262,7 +262,7 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_without_changelog_and_periods_have_no_dates() {
-    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null, null), new Period(2, null, null)));
+    when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, null), new Period(2, null)));
 
     when(issuable.issues()).thenReturn(newArrayList(
       (Issue) new DefaultIssue().setKey("A").setCreationDate(nineDaysAgo).setTechnicalDebt(fiveDaysDebt))

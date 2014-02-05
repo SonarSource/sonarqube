@@ -28,21 +28,15 @@ import java.util.Date;
 public class Period {
 
   private int index;
-  private Date targetDate;
   private Date date;
 
-  public Period(int index, Date targetDate, @Nullable Date date) {
+  public Period(int index, @Nullable Date date) {
     this.index = index;
-    this.targetDate = targetDate;
     this.date = date;
   }
 
   public int getIndex() {
     return index;
-  }
-
-  public Date getTargetDate() {
-    return targetDate;
   }
 
   @CheckForNull
