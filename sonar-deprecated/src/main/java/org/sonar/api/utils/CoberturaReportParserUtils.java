@@ -40,7 +40,7 @@ import static org.sonar.api.utils.ParsingUtils.parseNumber;
 
 /**
  * @since 3.7
- * @deprecated since 4.2 should be handled by language plugins
+ * @deprecated in 4.2. This class should be handled internally by plugins
  */
 @Deprecated
 public class CoberturaReportParserUtils {
