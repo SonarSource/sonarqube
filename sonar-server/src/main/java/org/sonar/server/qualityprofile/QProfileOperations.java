@@ -198,8 +198,9 @@ public class QProfileOperations implements ServerComponent {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
       int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
-      session.commit();
-      esActiveRule.bulkIndexProfile(copyProfileId, session);
+
+      // Cannot reuse same session as hibernate as create active rules in another session
+      esActiveRule.bulkIndexProfile(copyProfileId);
     } finally {
       MyBatis.closeQuietly(session);
     }

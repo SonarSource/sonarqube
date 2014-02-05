@@ -88,6 +88,15 @@ public class ESActiveRule {
     }
   }
 
+  public void bulkIndexProfile(int profileId) {
+    SqlSession session = myBatis.openSession();
+    try {
+      bulkIndexProfile(profileId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void bulkIndexProfile(int profileId, SqlSession session) {
     bulkIndexActiveRules(activeRuleDao.selectByProfileId(profileId, session), session);
   }

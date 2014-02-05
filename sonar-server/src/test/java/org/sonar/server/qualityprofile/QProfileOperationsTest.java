@@ -390,8 +390,7 @@ public class QProfileOperationsTest {
     operations.copyProfile(1, "Copy Default", authorizedUserSession);
 
     verify(profilesManager).copyProfile(1, "Copy Default");
-    verify(session).commit();
-    verify(esActiveRule).bulkIndexProfile(2, session);
+    verify(esActiveRule).bulkIndexProfile(2);
   }
 
   @Test
