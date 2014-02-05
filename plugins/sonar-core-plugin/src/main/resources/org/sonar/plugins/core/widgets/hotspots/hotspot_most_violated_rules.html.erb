@@ -100,7 +100,7 @@
                 <%= h rule.name -%>
               </td>
               <td class="right nowrap">
-                <a class="nolink" href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>">
+                <a class="nolink <%= widget.key %>_<%= rule.key.parameterize %>" href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>">
                   <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
                 </a>
               </td>
