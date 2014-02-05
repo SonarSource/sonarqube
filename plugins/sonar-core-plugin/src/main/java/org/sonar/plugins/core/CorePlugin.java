@@ -109,13 +109,6 @@ import java.util.List;
     global = false,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
-    key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,
-    name = "Default language",
-    description = "[Deprecated] Default language of the source code to analyse. Keep it blank to allow multi-language analysis.",
-    project = false,
-    global = true,
-    category = CoreProperties.CATEGORY_GENERAL),
-  @Property(
     key = CoreProperties.ANALYSIS_MODE,
     defaultValue = CoreProperties.ANALYSIS_MODE_ANALYSIS,
     name = "Analysis mode",
