@@ -19,7 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import ch.qos.logback.classic.Level;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.core.Is;
@@ -33,7 +32,6 @@ import org.sonar.core.rule.RuleMapper;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class MyBatisTest {
   private static H2Database database;
@@ -73,16 +71,5 @@ public class MyBatisTest {
     } finally {
       session.close();
     }
-  }
-
-  @Test
-  public void log_sql_requests_and_responses() {
-    Settings settings = new Settings()
-        .setProperty("sonar.log.profilingLevel", "FULL");
-
-    MyBatis myBatis = new MyBatis(database, settings, logback);
-    myBatis.start();
-
-    verify(logback).setLoggerLevel("org.sonar.core.resource.ResourceIndexerMapper", Level.TRACE);
   }
 }

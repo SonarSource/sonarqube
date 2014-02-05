@@ -32,8 +32,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.DialectUtils;
 import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.Oracle;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.core.persistence.profiling.PersistenceProfiling;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -125,6 +124,7 @@ public class DefaultDatabase implements Database {
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
+    datasource = PersistenceProfiling.addProfilingIfNeeded(datasource, settings);
   }
 
   private void checkConnection() {

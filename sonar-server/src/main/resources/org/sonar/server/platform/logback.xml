@@ -42,7 +42,7 @@
 
   <!-- Display Rails warnings and errors  -->
   <logger name="rails">
-    <level value="${RAILS_LOGGER_LEVEL}"/>
+    <level value="WARN"/>
   </logger>
 
   <logger name="org.hibernate.cache.ReadWriteCache">

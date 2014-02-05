@@ -22,7 +22,6 @@ package org.sonar.core.persistence;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.persistence.dialect.PostgreSql;
 
 import java.util.Properties;

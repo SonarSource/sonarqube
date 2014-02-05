@@ -52,7 +52,6 @@ import org.sonar.core.measure.db.MeasureFilterMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.*;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -202,13 +201,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
    * See http://www.mybatis.org/core/logging.html :
    */
   private void configureLogback(Class<?>... mapperClasses) {
-    Level level = Level.INFO;
-    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(settings.getString(Profiling.CONFIG_PROFILING_LEVEL));
-    if (profilingLevel == Profiling.Level.FULL) {
-      level = Level.TRACE;
-    }
     for (Class mapperClass : mapperClasses) {
-      logback.setLoggerLevel(mapperClass.getName(), level);
+      logback.setLoggerLevel(mapperClass.getName(), Level.INFO);
     }
   }
 
