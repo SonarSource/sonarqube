@@ -804,7 +804,6 @@ th.operations, td.operations {
 
 .code-issue-toggle {
   cursor: pointer;
-  text-decoration: underline;
 }
 
 .code-issue-name {

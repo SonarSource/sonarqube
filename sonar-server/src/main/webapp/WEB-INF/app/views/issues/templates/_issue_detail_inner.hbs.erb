@@ -1,8 +1,8 @@
 <script id="issue-detail-inner-template" type="text/x-handlebars-template">
   <div class="code-issue code-issue-collapsed" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
-    <div class="code-issue-name">
+    <div class="code-issue-name code-issue-toggle">
       <div class="code-issue-name-rule">
-        {{severityIcon severity}}&nbsp;<a class="code-issue-toggle rulename">{{message}}</a>
+        {{severityIcon severity}}&nbsp;<span class="rulename">{{message}}</span>
       </div>
 
       {{#if debt}}
