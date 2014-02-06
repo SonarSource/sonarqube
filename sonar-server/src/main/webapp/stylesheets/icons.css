@@ -39,26 +39,31 @@
   content: "\f000";
   color: #d4333f;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-severity-critical:before {
   content: "\f001";
   color: #d4333f;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-severity-major:before {
   content: "\f002";
   color: #d4333f;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-severity-minor:before {
   content: "\f003";
   color: #85bb43;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-severity-info:before {
   content: "\f004";
   color: #85bb43;
   font-size: 14px;
+  line-height: 12px;
 }
 /*
  * Status
@@ -67,26 +72,31 @@
   content: "\f010";
   color: #85bb43;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-status-confirmed:before {
   content: "\f011";
   color: #d4333f;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-status-reopened:before {
   content: "\f012";
   color: #85bb43;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-status-resolved:before {
   content: "\f013";
   color: #4b9fd5;
   font-size: 14px;
+  line-height: 12px;
 }
 .icon-status-closed:before {
   content: "\f014";
   color: #444444;
   font-size: 14px;
+  line-height: 12px;
 }
 /*
  * Resolution

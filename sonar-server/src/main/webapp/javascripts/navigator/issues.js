@@ -822,6 +822,7 @@ jQuery(function() {
 
     toggleCollapsed: function() {
       this.$('.code-issue').toggleClass('code-issue-collapsed');
+      this.fetchRule();
     },
 
 

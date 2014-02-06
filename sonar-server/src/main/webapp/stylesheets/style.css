@@ -802,22 +802,13 @@ th.operations, td.operations {
   font-weight: bold;
 }
 
-.code-issue-permalink {
-  float: right;
-  padding: 4px 4px 0 0;
-}
-
-.code-issue-name-extra {
-  float: right;
-  padding-right: 10px;
-}
-
 .code-issue-toggle {
   cursor: pointer;
   text-decoration: underline;
 }
 
 .code-issue-name {
+  position: relative;
   background-color: #E4ECF3;
   margin: 0;
   padding: 5px 10px;
@@ -836,6 +827,32 @@ th.operations, td.operations {
 
 .code-issue-name img {
   vertical-align: text-bottom;
+}
+
+.code-issue-name-rule {
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.code-issue-permalink {
+  position: absolute;
+  top: 4px; right: 4px;
+}
+
+.code-issue-name-extra {
+  margin-top: 6px;
+  line-height: 12px;
+}
+
+.code-issue-name-extra li {
+  font-size: 11px !important;
+}
+
+.code-issue-name-right {
+  position: absolute;
+  top: 5px; right: 26px;
 }
 
 .code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
@@ -925,9 +942,53 @@ th.operations, td.operations {
   content: ":";
 }
 
+.code-issue-list {
+  font-size: 0;
+}
+
+.code-issue-list > li {
+  display: inline-block;
+  vertical-align: middle;
+  height: 14px;
+  line-height: 14px;
+  padding: 0 8px;
+  border-left: 1px solid #fff;
+  border-right: 1px solid #bfbfbf;
+  font-size: 12px;
+}
+
+.code-issue-list > li:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.code-issue-list > li:last-child {
+  padding-right: 0;
+  border-right: none;
+}
+
 .code-issue-collapsed .code-issue-msg,
 .code-issue-collapsed .code-issue-details {
   display: none;
+}
+
+.code-issue-active .code-issue-name,
+.code-issue-active .code-issue-details,
+.code-issue-active .code-issue-actions,
+.code-issue-active .code-issue-form,
+.code-issue-active .code-issue-comments,
+.code-issue-active .code-issue-comment {
+  background-color: #CAE3F2;
+  border-color: #4B9FD5;
+}
+
+.code-issue-active .code-issue-name,
+.code-issue-active .code-issue-details {
+  border-bottom: none;
+}
+
+.code-issue-active .code-issue-details .tabs {
+  border-color: #4B9FD5;
 }
 
 .tab_header {

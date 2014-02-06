@@ -108,7 +108,7 @@
 }
 .navigator-fetching.code-issue-actions:before,
 .navigator-fetching#tab-issue-rule:before {
-  background-color: #EFEFEF;
+  background-color: #CAE3F2;
 }
 .navigator-header {
   padding: 0 10px;
@@ -245,6 +245,7 @@
 }
 .navigator-details .source_title {
   position: fixed;
+  z-index: 3;
   top: 104px;
   left: 320px;
   right: 0;
