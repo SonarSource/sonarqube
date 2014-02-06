@@ -76,17 +76,17 @@
 
 
       {{#inArray actions "plan"}}
-      <li>
-        {{#if actionPlanName}}
-          <a id="issue-plan" class="link-action"><%= message('issue.planned_for') -%></a> {{actionPlanName}}
-        {{else}}
-          <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
-        {{/if}}
+        <li>
+          {{#if actionPlanName}}
+            <a id="issue-plan" class="link-action"><%= message('issue.planned_for') -%></a> {{actionPlanName}}
+          {{else}}
+            <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
+          {{/if}}
+        </li>
       {{else}}
         {{#if actionPlanName}}
-          <%= message('issue.planned_for') -%> <strong>{{actionPlanName}}</strong>
+          <li><%= message('issue.planned_for') -%> <strong>{{actionPlanName}}</strong></li>
         {{/if}}
-      </li>
       {{/inArray}}
 
 
