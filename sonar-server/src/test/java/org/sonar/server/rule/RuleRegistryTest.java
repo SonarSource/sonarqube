@@ -77,7 +77,6 @@ public class RuleRegistryTest {
     when(myBatis.openSession()).thenReturn(session);
 
     esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json"))
-      .put("http.port", "9200")
       .build());
     esSetup.execute(EsSetup.deleteAll());
 
