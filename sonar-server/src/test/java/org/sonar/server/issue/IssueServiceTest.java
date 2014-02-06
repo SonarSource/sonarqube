@@ -59,11 +59,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueServiceTest {
 
@@ -365,14 +361,32 @@ public class IssueServiceTest {
   }
 
   @Test
-  public void should_create_manual_issue() {
+  public void create_manual_issue() {
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
-    DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample");
+    DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample").setMessage("Fix it");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
 
     Issue result = issueService.createManualIssue(manualIssue, userSession);
     assertThat(result).isNotNull();
+    assertThat(result.message()).isEqualTo("Fix it");
+    assertThat(result.creationDate()).isNotNull();
+    assertThat(result.updateDate()).isNotNull();
+
+    verify(issueStorage).save(manualIssue);
+    verify(authorizationDao).isAuthorizedComponentKey(anyString(), anyInt(), eq(UserRole.USER));
+  }
+
+  @Test
+  public void create_manual_issue_use_rule_name_if_no_message() {
+    RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
+    DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample").setMessage("");
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey").setName("Manual Rule"));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
+
+    Issue result = issueService.createManualIssue(manualIssue, userSession);
+    assertThat(result).isNotNull();
+    assertThat(result.message()).isEqualTo("Manual Rule");
     assertThat(result.creationDate()).isNotNull();
     assertThat(result.updateDate()).isNotNull();
 

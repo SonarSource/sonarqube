@@ -47,11 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @since 3.6
@@ -218,13 +214,16 @@ public class IssueService implements ServerComponent {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");
     }
-    if (!"manual".equals(issue.ruleKey().repository())) {
+    if (!org.sonar.server.rule.Rule.MANUAL_REPOSITORY_KEY.equals(issue.ruleKey().repository())) {
       throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + issue.ruleKey());
     }
 
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
     if (rule == null) {
       throw new IllegalArgumentException("Unknown rule: " + issue.ruleKey());
+    }
+    if (Strings.isNullOrEmpty(issue.message())) {
+      issue.setMessage(rule.getName());
     }
 
     Date now = new Date();
