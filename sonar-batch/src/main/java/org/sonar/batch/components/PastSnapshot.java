@@ -103,7 +103,11 @@ public class PastSnapshot {
     return projectSnapshot != null ? projectSnapshot.getQualifier() : null;
   }
 
-  private Date getTargetDate() {
+  /**
+   * @deprecated in 4.2. Target date should only be used in labels.
+   */
+  @Deprecated
+  public Date getTargetDate() {
     return targetDate;
   }
 
@@ -118,13 +122,13 @@ public class PastSnapshot {
   public String toString() {
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_VERSION)) {
       String label = String.format("Compare to version %s", modeParameter);
-      if (getTargetDate() != null) {
+      if (targetDate != null) {
         label += String.format(" (%s)", DateUtils.formatDate(getDate()));
       }
       return label;
     }
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_DAYS)) {
-      String label = String.format("Compare over %s days (%s", modeParameter, DateUtils.formatDate(getTargetDate()));
+      String label = String.format("Compare over %s days (%s", modeParameter, DateUtils.formatDate(targetDate));
       if (isRelatedToSnapshot()) {
         label += ", analysis of " + getDate();
       }
@@ -146,7 +150,7 @@ public class PastSnapshot {
       return label;
     }
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_DATE)) {
-      String label = "Compare to date " + DateUtils.formatDate(getTargetDate());
+      String label = "Compare to date " + DateUtils.formatDate(targetDate);
       if (isRelatedToSnapshot()) {
         label += String.format(" (analysis of %s)", DateUtils.formatDate(getDate()));
       }
