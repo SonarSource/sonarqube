@@ -107,7 +107,7 @@ public class PastSnapshot {
     return targetDate;
   }
 
-  public PastSnapshot clone(){
+  public PastSnapshot clonePastSnapshot(){
     PastSnapshot clone = new PastSnapshot(mode, targetDate, projectSnapshot);
     clone.setIndex(index);
     clone.setModeParameter(modeParameter);
