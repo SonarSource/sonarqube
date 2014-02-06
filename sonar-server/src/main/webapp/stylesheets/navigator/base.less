@@ -210,6 +210,14 @@
       }
     }
 
+    &:last-child {
+      border-bottom: 1px solid transparent;
+
+      &.active {
+        border-bottom-color: #4B9FD5;
+      }
+    }
+
     .line {
       padding: @navigatorPadding / 2 @navigatorPadding;
       line-height: 1.2;

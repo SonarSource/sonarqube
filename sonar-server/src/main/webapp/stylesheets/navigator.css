@@ -183,6 +183,12 @@
 .navigator-results-list > li:first-child.active {
   border-top-color: #4B9FD5;
 }
+.navigator-results-list > li:last-child {
+  border-bottom: 1px solid transparent;
+}
+.navigator-results-list > li:last-child.active {
+  border-bottom-color: #4B9FD5;
+}
 .navigator-results-list > li .line {
   padding: 5px 10px;
   line-height: 1.2;
