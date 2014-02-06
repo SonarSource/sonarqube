@@ -38,7 +38,6 @@ import java.util.Map;
 public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
-  public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
   public static final String PROPERTY_SQL_RESULTS_LOGGER_LEVEL = "SQL_RESULTS_LOGGER_LEVEL";
   public static final String PROPERTY_FORMAT = "FORMAT";
 
@@ -58,7 +57,6 @@ public final class LoggingConfiguration {
 
   private LoggingConfiguration(@Nullable EnvironmentInformation environment) {
     setVerbose(false);
-    setShowSql(false);
     if (environment != null && "maven".equalsIgnoreCase(environment.getKey())) {
       setFormat(FORMAT_MAVEN);
     } else {
@@ -72,7 +70,6 @@ public final class LoggingConfiguration {
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(properties.get("sonar.log.profilingLevel"));
-    setShowSql(profilingLevel == Level.FULL);
     setShowSqlResults(profilingLevel == Level.FULL);
     setVerbose("true".equals(properties.get("sonar.verbose")));
     return this;
@@ -82,20 +79,12 @@ public final class LoggingConfiguration {
     return setRootLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT);
   }
 
-  public LoggingConfiguration setShowSql(boolean showSql) {
-    return setSqlLevel(showSql ? LEVEL_SQL_VERBOSE : LEVEL_SQL_DEFAULT);
-  }
-
   public LoggingConfiguration setShowSqlResults(boolean showSqlResults) {
     return setSqlResultsLevel(showSqlResults ? LEVEL_SQL_RESULTS_VERBOSE : LEVEL_SQL_RESULTS_DEFAULT);
   }
 
   public LoggingConfiguration setRootLevel(String level) {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
-  }
-
-  public LoggingConfiguration setSqlLevel(String level) {
-    return addSubstitutionVariable(PROPERTY_SQL_LOGGER_LEVEL, level);
   }
 
   public LoggingConfiguration setSqlResultsLevel(String level) {

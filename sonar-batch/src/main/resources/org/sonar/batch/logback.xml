@@ -30,16 +30,16 @@
   <!-- sonar.showSql -->
   <!-- see also org.sonar.core.persistence.MyBatis#configureLogback() -->
   <logger name="org.hibernate.SQL">
-    <level value="${SQL_LOGGER_LEVEL:-ERROR}"/>
+    <level value="ERROR"/>
   </logger>
   <logger name="org.apache.ibatis">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+    <level value="WARN"/>
   </logger>
   <logger name="org.mybatis">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+    <level value="WARN"/>
   </logger>
   <logger name="java.sql">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+    <level value="WARN"/>
   </logger>
   <logger name="java.sql.ResultSet">
     <level value="${SQL_RESULTS_LOGGER_LEVEL:-WARN}"/>
