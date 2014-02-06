@@ -42,6 +42,17 @@ public class TypeValidationsTest {
   }
 
   @Test
+  public void validate__multiple_values() throws Exception {
+    TypeValidation fakeTypeValidation = mock(TypeValidation.class);
+    when(fakeTypeValidation.key()).thenReturn("Fake");
+
+    TypeValidations typeValidations = new TypeValidations(newArrayList(fakeTypeValidation));
+    typeValidations.validate(newArrayList("10", "11", "12"), "Fake", newArrayList("11"));
+
+    verify(fakeTypeValidation).validate("10", newArrayList("11"));
+  }
+
+  @Test
   public void fail_on_unknown_type() throws Exception {
     TypeValidation fakeTypeValidation = mock(TypeValidation.class);
     when(fakeTypeValidation.key()).thenReturn("Fake");

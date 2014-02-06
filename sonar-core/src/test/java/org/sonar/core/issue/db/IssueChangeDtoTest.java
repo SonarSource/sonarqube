@@ -27,6 +27,7 @@ import org.sonar.api.utils.DateUtils;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueChangeDtoTest {
+
   @Test
   public void create_from_comment() throws Exception {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -57,5 +58,30 @@ public class IssueChangeDtoTest {
     assertThat(dto.getIssueChangeCreationDate()).isEqualTo(DateUtils.parseDate("2014-01-03"));
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+  }
+
+  @Test
+  public void create_from_diff_without_date() throws Exception {
+    FieldDiffs diffs = new FieldDiffs();
+    diffs.setDiff("severity", "INFO", "BLOCKER");
+    diffs.setUserLogin("emmerik");
+    diffs.setCreationDate(null);
+
+    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
+
+    assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
+    assertThat(dto.getChangeType()).isEqualTo("diff");
+    assertThat(dto.getCreatedAt()).isNotNull();
+    assertThat(dto.getUpdatedAt()).isNotNull();
+    assertThat(dto.getIssueChangeCreationDate()).isNull();
+    assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
+    assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+  }
+
+  @Test
+  public void to_string() throws Exception {
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    IssueChangeDto dto = IssueChangeDto.of(comment);
+    assertThat(dto.toString()).contains("ABCDE");
   }
 }

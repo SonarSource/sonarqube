@@ -73,7 +73,7 @@ public class RuleShowWsHandler implements RequestHandler {
 
   @CheckForNull
   private Rule findRule(RuleKey ruleKey) {
-    if (ruleKey.repository().equals("manual")) {
+    if (ruleKey.repository().equals(Rule.MANUAL_REPOSITORY_KEY)) {
       org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
       if (rule != null) {
         return new Rule.Builder()

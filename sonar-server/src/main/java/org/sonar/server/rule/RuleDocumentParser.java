@@ -33,21 +33,24 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleDocumentParser {
 
-  public static Rule parse(Map<String, Object> ruleSource) {
-    Rule.Builder ruleBuilder = new Rule.Builder();
+  private void RuleDocumentParser() {
+    // Utility class
+  }
 
-    ruleBuilder.setId((Integer) ruleSource.get(RuleDocument.FIELD_ID));
-    ruleBuilder.setKey((String) ruleSource.get(RuleDocument.FIELD_KEY));
-    ruleBuilder.setLanguage((String) ruleSource.get(RuleDocument.FIELD_LANGUAGE));
-    ruleBuilder.setRepositoryKey((String) ruleSource.get(RuleDocument.FIELD_REPOSITORY_KEY));
-    ruleBuilder.setSeverity((String) ruleSource.get(RuleDocument.FIELD_SEVERITY));
-    ruleBuilder.setName((String) ruleSource.get(RuleDocument.FIELD_NAME));
-    ruleBuilder.setDescription((String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION));
-    ruleBuilder.setStatus((String) ruleSource.get(RuleDocument.FIELD_STATUS));
-    ruleBuilder.setCardinality((String) ruleSource.get("cardinality"));
-    ruleBuilder.setTemplateId((Integer) ruleSource.get(RuleDocument.FIELD_TEMPLATE_ID));
-    ruleBuilder.setCreatedAt(parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource));
-    ruleBuilder.setUpdatedAt(parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource));
+  public static Rule parse(Map<String, Object> ruleSource) {
+    Rule.Builder ruleBuilder = new Rule.Builder()
+      .setId((Integer) ruleSource.get(RuleDocument.FIELD_ID))
+      .setKey((String) ruleSource.get(RuleDocument.FIELD_KEY))
+      .setLanguage((String) ruleSource.get(RuleDocument.FIELD_LANGUAGE))
+      .setRepositoryKey((String) ruleSource.get(RuleDocument.FIELD_REPOSITORY_KEY))
+      .setSeverity((String) ruleSource.get(RuleDocument.FIELD_SEVERITY))
+      .setName((String) ruleSource.get(RuleDocument.FIELD_NAME))
+      .setDescription((String) ruleSource.get(RuleDocument.FIELD_DESCRIPTION))
+      .setStatus((String) ruleSource.get(RuleDocument.FIELD_STATUS))
+      .setCardinality((String) ruleSource.get("cardinality"))
+      .setTemplateId((Integer) ruleSource.get(RuleDocument.FIELD_TEMPLATE_ID))
+      .setCreatedAt(parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource))
+      .setUpdatedAt(parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource));
 
     if (ruleSource.containsKey(RuleDocument.FIELD_NOTE)) {
       Map<String, Object> ruleNoteDocument = (Map<String, Object>) ruleSource.get(RuleDocument.FIELD_NOTE);
@@ -62,10 +65,10 @@ public class RuleDocumentParser {
     List<RuleParam> params = Lists.newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_PARAMS)) {
       Map<String, Map<String, Object>> ruleParams = Maps.newHashMap();
-      for (Map<String, Object> ruleParam: (List<Map<String, Object>>) ruleSource.get(RuleDocument.FIELD_PARAMS)) {
+      for (Map<String, Object> ruleParam : (List<Map<String, Object>>) ruleSource.get(RuleDocument.FIELD_PARAMS)) {
         ruleParams.put((String) ruleParam.get(RuleDocument.FIELD_PARAM_KEY), ruleParam);
       }
-      for(Map.Entry<String, Map<String, Object>> ruleParam: ruleParams.entrySet()) {
+      for (Map.Entry<String, Map<String, Object>> ruleParam : ruleParams.entrySet()) {
         RuleParamType type = RuleParamType.parse((String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_TYPE));
         params.add(new RuleParam(
           (String) ruleParam.getValue().get(RuleDocument.FIELD_PARAM_KEY),
@@ -79,7 +82,7 @@ public class RuleDocumentParser {
 
     List<String> systemTags = newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_SYSTEM_TAGS)) {
-      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_SYSTEM_TAGS)) {
+      for (String tag : (List<String>) ruleSource.get(RuleDocument.FIELD_SYSTEM_TAGS)) {
         systemTags.add(tag);
       }
     }
@@ -87,7 +90,7 @@ public class RuleDocumentParser {
 
     List<String> adminTags = newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_ADMIN_TAGS)) {
-      for (String tag: (List<String>) ruleSource.get(RuleDocument.FIELD_ADMIN_TAGS)) {
+      for (String tag : (List<String>) ruleSource.get(RuleDocument.FIELD_ADMIN_TAGS)) {
         adminTags.add(tag);
       }
     }

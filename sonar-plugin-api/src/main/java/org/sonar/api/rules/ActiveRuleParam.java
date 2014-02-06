@@ -67,11 +67,11 @@ public class ActiveRuleParam implements Cloneable {
    * @deprecated visibility should be decreased to protected or package
    */
   @Deprecated
-  public ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String paramKey, String value) {
+  public ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String value) {
     this.activeRule = activeRule;
     this.ruleParam = ruleParam;
     this.value = value;
-    this.paramKey = paramKey;
+    this.paramKey = ruleParam.getKey();
   }
 
   public ActiveRule getActiveRule() {
@@ -138,7 +138,7 @@ public class ActiveRuleParam implements Cloneable {
 
   @Override
   public Object clone() {
-    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getParamKey(), getValue());
+    return new ActiveRuleParam(getActiveRule(), getRuleParam(), getValue());
   }
 
 }

@@ -78,19 +78,31 @@ public class ModuleIssues {
   private boolean initAndAddIssue(DefaultIssue issue, @Nullable Violation violation) {
     RuleKey ruleKey = issue.ruleKey();
     Rule rule = ruleFinder.findByKey(ruleKey);
+    validateRule(issue, rule);
+    ActiveRule activeRule = qProfile.getActiveRule(ruleKey.repository(), ruleKey.rule());
+    if (activeRule == null || activeRule.getRule() == null) {
+      // rule does not exist or is not enabled -> ignore the issue
+      return false;
+    }
+    updateIssue(issue, rule, activeRule);
+    if (filters.accept(issue, violation)) {
+      cache.put(issue);
+      return true;
+    }
+    return false;
+  }
+
+  private void validateRule(DefaultIssue issue, Rule rule){
+    RuleKey ruleKey = issue.ruleKey();
     if (rule == null) {
       throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
     }
     if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(issue.message())) {
       throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
     }
+  }
 
-    ActiveRule activeRule = qProfile.getActiveRule(ruleKey.repository(), ruleKey.rule());
-    if (activeRule == null || activeRule.getRule() == null) {
-      // rule does not exist or is not enabled -> ignore the issue
-      return false;
-    }
-
+  private void updateIssue(DefaultIssue issue, Rule rule, ActiveRule activeRule ){
     if (Strings.isNullOrEmpty(issue.message())) {
       issue.setMessage(rule.getName());
     }
@@ -100,12 +112,6 @@ public class ModuleIssues {
       issue.setSeverity(activeRule.getSeverity().name());
     }
     issue.setTechnicalDebt(technicalDebtCalculator.calculTechnicalDebt(issue));
-
-    if (filters.accept(issue, violation)) {
-      cache.put(issue);
-      return true;
-    }
-    return false;
   }
 
 }

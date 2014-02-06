@@ -201,8 +201,7 @@ public class ProfilesBackup {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
-              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get(KEY), null, null), valuesParam.get(KEY),
-                valuesParam.get(VALUE));
+              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get(KEY), null, null), valuesParam.get(VALUE));
               params.add(activeRuleParam);
               reader.moveUp();
             }

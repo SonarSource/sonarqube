@@ -44,8 +44,21 @@ public class MeasureDataDaoTest extends AbstractDaoTestCase {
     assertThat(result.getMeasureId()).isEqualTo(1);
     assertThat(result.getSnapshotId()).isEqualTo(1);
     assertThat(result.getText()).isNotNull();
+    assertThat(result.getData()).isNotNull();
 
     // FIXME failing because data is returned in wrong format
 //    assertThat(result.getText()).isEqualTo("test");
+  }
+
+  @Test
+  public void find_by_component_key_and_metric_key_without_text() throws Exception {
+    setupData("find_by_component_key_and_metric_key_without_text");
+
+    MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getMeasureId()).isEqualTo(1);
+    assertThat(result.getSnapshotId()).isEqualTo(1);
+    assertThat(result.getText()).isNull();
+    assertThat(result.getData()).isNull();
   }
 }

@@ -1,0 +1,10 @@
+<dataset>
+
+  <snapshots id="1" project_id="1" islast="[true]" />
+  <project_measures id="1" snapshot_id="1" metric_id="1"/>
+  <metrics id="1" name="authors_by_line"/>
+  <projects id="1" kee="org.sonar.core.measure.db.MeasureData" enabled="[true]"/>
+
+  <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
+
+</dataset>

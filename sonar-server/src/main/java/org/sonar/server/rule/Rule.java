@@ -31,6 +31,8 @@ import java.util.Date;
 
 public class Rule {
 
+  public static final String MANUAL_REPOSITORY_KEY = "manual";
+
   private int id;
   private RuleKey ruleKey;
   private String language;
