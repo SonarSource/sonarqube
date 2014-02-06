@@ -829,7 +829,7 @@ th.operations, td.operations {
 }
 
 .code-issue-name-rule {
-  max-width: 70%;
+  max-width: 90%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -5,18 +5,6 @@
         {{severityIcon severity}}&nbsp;<span class="rulename">{{message}}</span>
       </div>
 
-      {{#if debt}}
-        <div class="code-issue-name-right"
-             title="{{#all characteristic subCharacteristic}}{{characteristic}} > {{subCharacteristic}}{{else}}<%= message('issue.technical_debt_deleted') -%>{{/all}}"><%= message('issue.technical_debt') -%> {{debt}}</div>
-      {{/if}}
-
-      {{#any reporterName author}}
-        <ul class="code-issue-name-extra code-issue-list">
-          {{#if reporterName}}<li><%= message('reporter') -%>: {{reporterName}}</li>{{/if}}
-          {{#if author}}<li><%= message('author') -%>: {{author}}</li>{{/if}}
-        </ul>
-      {{/any}}
-
       <div class="code-issue-permalink">
         <a target="_blank" href="<%= ApplicationController.root_context -%>/issue/show/{{key}}?layout=false"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
       </div>
@@ -109,6 +97,13 @@
           </div>
         </li>
       {{/ifHasExtraActions}}
+
+      {{#if debt}}
+        <li title="{{#all characteristic subCharacteristic}}{{characteristic}} > {{subCharacteristic}}{{else}}<%= message('issue.technical_debt_deleted') -%>{{/all}}"><%= message('issue.technical_debt_short') -%>: {{debt}}</li>
+      {{/if}}
+
+      {{#if reporterName}}<li><%= message('reporter') -%>: {{reporterName}}</li>{{/if}}
+      {{#if author}}<li><%= message('author') -%>: {{author}}</li>{{/if}}
     </ul>
 
     <div class="code-issue-form"></div>
