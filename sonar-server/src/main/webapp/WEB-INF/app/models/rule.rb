@@ -260,20 +260,22 @@ class Rule < ActiveRecord::Base
   # 'unused' parameter used to be available to inject java_facade, kept for compatibility w/ plugins (e.g sqale)
   # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
   def self.search(unused, options={})
-    conditions = []
-    values = {}
-
     # First, perform search with rule-specific criteria
     java_hash = {}
     options.each do |key, value|
       java_hash[key.to_s] = Array(value).join("|")
     end
     params = java.util.HashMap.new(java_hash)
-    conditions << "id IN (:ids)"
-    values[:ids] = Array(Internal.rrules.findIds(params))
+
+    # SONAR-5048 Group results by 1000 due to fix issue on Oracle db
+    ids_grouped = Array(Internal.rrules.findIds(params)).each_slice(1000).to_a
+    ids_condition = []
+    ids_grouped.each do |group|
+      ids_condition << 'id in (' + group.join(',') + ')'
+    end
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
-    rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
+    rules = Rule.all(:include => includes, :conditions => [ids_condition.join(' or ')])
     rules = Rule.sort_by(rules, options[:sort_by])
     filter(rules, options)
   end
