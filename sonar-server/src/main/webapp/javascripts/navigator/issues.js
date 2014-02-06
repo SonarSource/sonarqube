@@ -813,6 +813,13 @@ jQuery(function() {
       this.$('.code-issue-form').hide();
       this.rule = new Rule({ key: this.model.get('rule') });
       this.ruleRegion.show(new IssueDetailRuleView({ model: this.rule }));
+      this.initReferenceLinks();
+    },
+
+
+    initReferenceLinks: function() {
+      var sourcesId = 'sources_' + this.model.get('key');
+      this.$('#' + sourcesId).on('click', 'span.sym', { id: sourcesId }, highlight_usages);
     },
 
 
