@@ -301,33 +301,12 @@
     background-color: #fff;
   }
 
-  .code-issue-actions {
-    font-size: 0;
-
-    & > li {
-      display: inline-block;
-      vertical-align: middle;
-      height: 14px;
-      line-height: 14px;
-      padding: 0 8px;
-      border-left: 1px solid #fff;
-      border-right: 1px solid #bfbfbf;
-      font-size: 12px;
-
-      &:first-child {
-        padding-left: 0;
-        border-left: 0;
-      }
-
-      &:last-child {
-        padding-right: 0;
-        border-right: 0;
-      }
-    }
-  }
-
-  .rule-desc {
-    float: none;
+  .scm .author {
+    display: inline-block;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
