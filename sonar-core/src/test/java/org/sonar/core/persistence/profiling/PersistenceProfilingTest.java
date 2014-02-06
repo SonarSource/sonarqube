@@ -30,9 +30,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 
+import java.io.ByteArrayInputStream;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,9 +63,15 @@ public class PersistenceProfilingTest {
     when(originDataSource.getConnection()).thenReturn(connection);
 
     String sql = "select 'polop' from dual;";
+    String sqlWithParams = "insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?);";
+    int param1 = 42;
+    String param2 = "plouf";
+    Date param3 = new Date(System.currentTimeMillis());
+    Timestamp param4 = new Timestamp(System.currentTimeMillis());
+    byte[] param5 = "blob".getBytes("UTF-8");
 
     PreparedStatement preparedStatement = mock(PreparedStatement.class);
-    when(connection.prepareStatement(sql)).thenReturn(preparedStatement);
+    when(connection.prepareStatement(sqlWithParams)).thenReturn(preparedStatement);
     when(preparedStatement.execute()).thenReturn(true);
 
     Statement statement = mock(Statement.class);
@@ -77,7 +86,12 @@ public class PersistenceProfilingTest {
     assertThat(resultDataSource).isInstanceOf(ProfilingDataSource.class);
     assertThat(resultDataSource.getUrl()).isNull();
     assertThat(resultDataSource.getConnection().getClientInfo()).isNull();
-    PreparedStatement preparedStatementProxy = resultDataSource.getConnection().prepareStatement(sql);
+    PreparedStatement preparedStatementProxy = resultDataSource.getConnection().prepareStatement(sqlWithParams);
+    preparedStatementProxy.setInt(1, param1);
+    preparedStatementProxy.setString(2, param2);
+    preparedStatementProxy.setDate(3, param3);
+    preparedStatementProxy.setTimestamp(4, param4);
+    preparedStatementProxy.setBlob(5, new ByteArrayInputStream(param5));
     assertThat(preparedStatementProxy.getConnection()).isNull();
     assertThat(preparedStatementProxy.execute()).isTrue();
     final Statement statementProxy = resultDataSource.getConnection().createStatement();
@@ -85,9 +99,9 @@ public class PersistenceProfilingTest {
     assertThat(statementProxy.execute(sql)).isTrue();
 
     assertThat(appender.list).hasSize(2);
-    for (ILoggingEvent event: appender.list) {
-      assertThat(event.getLevel()).isEqualTo(Level.INFO);
-      assertThat(event.getFormattedMessage()).contains(sql);
-    }
+    assertThat(appender.list.get(0).getLevel()).isEqualTo(Level.INFO);
+    assertThat(appender.list.get(0).getFormattedMessage()).contains(sqlWithParams).contains(" - parameters are: ").contains(Integer.toString(param1)).contains(param2);
+    assertThat(appender.list.get(1).getLevel()).isEqualTo(Level.INFO);
+    assertThat(appender.list.get(1).getFormattedMessage()).contains(sql);
   }
 }

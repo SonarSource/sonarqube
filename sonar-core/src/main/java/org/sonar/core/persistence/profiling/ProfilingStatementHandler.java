@@ -28,6 +28,7 @@ import java.sql.Statement;
 class ProfilingStatementHandler implements InvocationHandler {
 
   private static final SqlProfiling PROFILING = new SqlProfiling();
+
   private final Statement statement;
 
   ProfilingStatementHandler(Statement statement) {

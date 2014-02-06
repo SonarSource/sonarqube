@@ -19,21 +19,33 @@
  */
 package org.sonar.core.persistence.profiling;
 
+import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.Lists;
 import org.sonar.core.profiling.StopWatch;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 class ProfilingPreparedStatementHandler implements InvocationHandler {
 
+  private static final String PARAM_PREFIX = "<";
+  private static final String PARAM_SUFFIX = ">";
+  private static final String PARAM_SEPARATOR = ", ";
   private static final SqlProfiling PROFILING = new SqlProfiling();
+
   private final PreparedStatement statement;
+  private final List<Object> arguments;
   private final String sql;
 
   ProfilingPreparedStatementHandler(PreparedStatement statement, String sql) {
     this.statement = statement;
     this.sql = sql;
+    this.arguments = Lists.newArrayList();
+    for (int argCount = 0; argCount < StringUtils.countMatches(sql, "?"); argCount ++) {
+      arguments.add("!");
+    }
   }
 
   @Override
@@ -41,8 +53,18 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
     if (method.getName().startsWith("execute")) {
       StopWatch watch = PROFILING.start();
       Object result = method.invoke(statement, args);
-      PROFILING.stop(watch, sql);
+      StringBuilder sqlBuilder = new StringBuilder().append(sql);
+      if (!arguments.isEmpty()) {
+        sqlBuilder.append(" - parameters are: ");
+        for (Object arg: arguments) {
+          sqlBuilder.append(PARAM_PREFIX).append(arg).append(PARAM_SUFFIX).append(PARAM_SEPARATOR);
+        }
+      }
+      PROFILING.stop(watch, StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
       return result;
+    } else if (method.getName().startsWith("set") && args.length > 1) {
+      arguments.set((Integer) args[0] - 1, args[1]);
+      return method.invoke(statement, args);
     } else {
       return method.invoke(statement, args);
     }
