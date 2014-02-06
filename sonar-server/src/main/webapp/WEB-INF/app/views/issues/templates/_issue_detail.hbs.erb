@@ -29,7 +29,7 @@
           <tr class="row">
             <td class="scm {{#if scm}}revision{{/if}}" {{#if first}}style="border-top:none;"{{/if}}>
               <span class="date"><a>{{scm.date}}</a></span>
-              <span class="author">{{scm.author}}</span>
+              <span class="author" title="{{scm.author}}">{{scm.author}}</span>
             </td>
             <td class="lid L{{lineNumber}}"><a>{{lineNumber}}</a></td>
             <td class="line {{#eq ../line lineNumber}}ko{{/eq}}"><pre>{{{code}}}</pre></td>
