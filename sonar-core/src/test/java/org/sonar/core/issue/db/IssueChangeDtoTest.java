@@ -61,21 +61,15 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_diff_without_date() throws Exception {
+  public void to_comment() throws Exception {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
     diffs.setCreationDate(null);
 
-    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
+    DefaultIssueComment comment = IssueChangeDto.of("ABCDE", diffs).toComment();
 
-    assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
-    assertThat(dto.getChangeType()).isEqualTo("diff");
-    assertThat(dto.getCreatedAt()).isNotNull();
-    assertThat(dto.getUpdatedAt()).isNotNull();
-    assertThat(dto.getIssueChangeCreationDate()).isNull();
-    assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
-    assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+
   }
 
   @Test

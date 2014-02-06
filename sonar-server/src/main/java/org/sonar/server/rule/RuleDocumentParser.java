@@ -33,7 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleDocumentParser {
 
-  private void RuleDocumentParser() {
+  private RuleDocumentParser() {
     // Utility class
   }
 
