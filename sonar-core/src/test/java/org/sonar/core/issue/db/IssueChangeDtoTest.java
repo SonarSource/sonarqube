@@ -24,6 +24,8 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.DateUtils;
 
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueChangeDtoTest {
@@ -62,14 +64,51 @@ public class IssueChangeDtoTest {
 
   @Test
   public void to_comment() throws Exception {
-    FieldDiffs diffs = new FieldDiffs();
-    diffs.setDiff("severity", "INFO", "BLOCKER");
-    diffs.setUserLogin("emmerik");
-    diffs.setCreationDate(null);
+    IssueChangeDto changeDto = new IssueChangeDto()
+      .setKey("EFGH")
+      .setUserLogin("emmerik")
+      .setChangeData("Some text")
+      .setIssueKey("ABCDE")
+      .setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
 
-    DefaultIssueComment comment = IssueChangeDto.of("ABCDE", diffs).toComment();
+    DefaultIssueComment comment = changeDto.toComment();
+    assertThat(comment.key()).isEqualTo("EFGH");
+    assertThat(comment.markdownText()).isEqualTo("Some text");
+    assertThat(comment.createdAt()).isNotNull();
+    assertThat(comment.updatedAt()).isNotNull();
+    assertThat(comment.userLogin()).isEqualTo("emmerik");
+    assertThat(comment.issueKey()).isEqualTo("ABCDE");
+  }
 
+  @Test
+  public void to_field_diffs_with_issue_creation_date() throws Exception {
+    IssueChangeDto changeDto = new IssueChangeDto()
+      .setKey("EFGH")
+      .setUserLogin("emmerik")
+      .setChangeData("Some text")
+      .setIssueKey("ABCDE")
+      .setIssueChangeCreationDate(new Date());
 
+    FieldDiffs diffs = changeDto.toFieldDiffs();
+    assertThat(diffs.userLogin()).isEqualTo("emmerik");
+    assertThat(diffs.issueKey()).isEqualTo("ABCDE");
+    assertThat(diffs.creationDate()).isNotNull();
+  }
+
+  @Test
+  public void to_field_diffs_with_create_at() throws Exception {
+    IssueChangeDto changeDto = new IssueChangeDto()
+      .setKey("EFGH")
+      .setUserLogin("emmerik")
+      .setChangeData("Some text")
+      .setIssueKey("ABCDE")
+      .setCreatedAt(new Date());
+
+    FieldDiffs diffs = changeDto.toFieldDiffs();
+    assertThat(diffs.userLogin()).isEqualTo("emmerik");
+    assertThat(diffs.issueKey()).isEqualTo("ABCDE");
+    assertThat(diffs.creationDate()).isNotNull();
   }
 
   @Test
