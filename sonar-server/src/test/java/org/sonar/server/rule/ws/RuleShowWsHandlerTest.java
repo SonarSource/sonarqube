@@ -149,9 +149,10 @@ public class RuleShowWsHandlerTest {
   }
 
   @Test
-  public void show_manuel_rule() throws Exception {
+  public void show_manual_rule() throws Exception {
     String ruleKey = "manual:api";
-    when(ruleFinder.findByKey(RuleKey.of("manual", "api"))).thenReturn(org.sonar.api.rules.Rule.create("manual", "api", "API").setDescription("API rule description"));
+    when(ruleFinder.findByKey(RuleKey.of("manual", "api"))).thenReturn(
+      org.sonar.api.rules.Rule.create("manual", "api", "API").setDescription("API rule description"));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
@@ -160,7 +161,24 @@ public class RuleShowWsHandlerTest {
   }
 
   @Test
-  public void return_not_found_on_unkwown_manual_rule() throws Exception {
+  public void show_manual_rule_without_severity() throws Exception {
+    String ruleKey = "manual:api";
+    org.sonar.api.rules.Rule rule = mock(org.sonar.api.rules.Rule.class);
+    when(rule.getKey()).thenReturn("api");
+    when(rule.getRepositoryKey()).thenReturn("manual");
+    when(rule.getName()).thenReturn("API");
+    when(rule.getDescription()).thenReturn("API rule description");
+    when(rule.getSeverity()).thenReturn(null);
+    when(ruleFinder.findByKey(RuleKey.of("manual", "api"))).thenReturn(rule);
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    request.execute();
+    request.execute().assertJson(getClass(), "show_manuel_rule.json");
+  }
+
+  @Test
+  public void return_not_found_on_unknown_manual_rule() throws Exception {
     String ruleKey = "manual:api";
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);

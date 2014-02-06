@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -76,12 +77,13 @@ public class RuleShowWsHandler implements RequestHandler {
     if (ruleKey.repository().equals(Rule.MANUAL_REPOSITORY_KEY)) {
       org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
       if (rule != null) {
+        RulePriority severity = rule.getSeverity();
         return new Rule.Builder()
           .setKey(rule.getKey())
           .setRepositoryKey(rule.getRepositoryKey())
           .setName(rule.getName())
           .setDescription(rule.getDescription())
-          .setSeverity(rule.getSeverity().name())
+          .setSeverity(severity != null ? severity.name() : null)
           .setStatus(rule.getStatus())
           .setCreatedAt(rule.getCreatedAt())
           .setUpdatedAt(rule.getUpdatedAt()).build();

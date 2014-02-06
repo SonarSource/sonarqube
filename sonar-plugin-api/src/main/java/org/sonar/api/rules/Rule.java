@@ -35,6 +35,7 @@ import org.sonar.check.Cardinality;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "rules")
-public final class Rule {
+public class Rule {
 
   /**
    * @since 3.6
