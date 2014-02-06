@@ -173,14 +173,20 @@ jQuery(function() {
           app = this.options.app,
           detailView = new window.SS.IssueDetailView({
             model: this.model
-          });
+          }),
+          showCallback = function() {
+            jQuery('.navigator-details').removeClass('navigator-fetching');
+            app.detailsRegion.show(detailView);
+          };
 
       jQuery('.navigator-details').empty().addClass('navigator-fetching');
       jQuery.when(detailView.model.fetch()).done(function() {
-        that.fetchSource(detailView, function() {
-          jQuery('.navigator-details').removeClass('navigator-fetching');
-          app.detailsRegion.show(detailView);
-        });
+        if (that.model.get('status') !== 'CLOSED') {
+          that.fetchSource(detailView, showCallback);
+        } else {
+          showCallback();
+        }
+
       });
     },
 
@@ -807,7 +813,7 @@ jQuery(function() {
 
     onDomRefresh: function() {
       var sourceTitleHeight = this.$('.source_title').outerHeight();
-      jQuery('.navigator-details').css('padding-top', (sourceTitleHeight + 10) + 'px');
+      jQuery('.navigator-details').css('padding-top', (sourceTitleHeight + 10) + 'px');sho
     },
 
 
