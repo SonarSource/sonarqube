@@ -67,7 +67,9 @@ public class HtmlDecorator extends Tokenizer {
   }
 
   public String getTagBefore() {
-    return "<tr id=\"" + lineId++ + "\"><td><pre>";
+    String tag = "<tr id=\"" + lineId + "\"><td><pre>";
+    lineId++;
+    return tag;
   }
 
   public String getTagAfter() {

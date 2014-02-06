@@ -26,6 +26,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -83,7 +84,7 @@ public class WsTester {
       return params.get(key);
     }
 
-    public Result execute() throws Exception {
+    public Result execute() {
       TestResponse response = new TestResponse();
       action.handler().handle(this, response);
       return new Result(response);

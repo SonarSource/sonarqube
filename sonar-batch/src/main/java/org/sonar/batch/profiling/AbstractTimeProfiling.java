@@ -24,13 +24,7 @@ import org.sonar.api.utils.TimeUtils;
 
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractTimeProfiling {
 
@@ -94,9 +88,10 @@ public abstract class AbstractTimeProfiling {
     List<G> result = new ArrayList<G>(maxSize);
     int i = 0;
     for (G item : sortedList) {
-      if (i++ >= maxSize || item.totalTime() == 0) {
+      if (i >= maxSize || item.totalTime() == 0) {
         return result;
       }
+      i++;
       result.add(item);
     }
     return result;
