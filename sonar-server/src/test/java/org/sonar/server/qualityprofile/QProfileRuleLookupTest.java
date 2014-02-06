@@ -153,6 +153,7 @@ public class QProfileRuleLookupTest {
 
     // Match on name
     assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("unus"), paging).rules()).hasSize(1);
 
     // Match on repositoryKey
     assertThat(profileRules.search(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);

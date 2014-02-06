@@ -20,7 +20,8 @@
         "type": "multi_field",
         "fields": {
           "name": { "type": "string", "index": "analyzed" },
-          "raw": { "type": "string", "index": "analyzed", "analyzer": "sortable" }
+          "raw": { "type": "string", "index": "analyzed", "analyzer": "sortable" },
+          "search": { "type": "string", "index": "analyzed", "analyzer": "rule_name" }
         }
       },
       "description": {

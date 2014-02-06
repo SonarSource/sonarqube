@@ -26,6 +26,19 @@
           "type": "custom",
           "tokenizer": "keyword",
           "filter": "lowercase"
+        },
+        "rule_name": {
+          "type": "custom",
+          "tokenizer": "rule_name_ngram",
+          "filter": "lowercase"
+        }
+      },
+      "tokenizer": {
+        "rule_name_ngram": {
+          "type": "nGram",
+          "min_gram": 3,
+          "max_gram": 5,
+          "token_chars": [ "letter", "digit" ]
         }
       }
     }
