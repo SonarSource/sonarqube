@@ -818,7 +818,7 @@ jQuery(function() {
 
     onDomRefresh: function() {
       var sourceTitleHeight = this.$('.source_title').outerHeight();
-      jQuery('.navigator-details').css('padding-top', (sourceTitleHeight + 10) + 'px');sho
+      jQuery('.navigator-details').css('padding-top', (sourceTitleHeight + 10) + 'px');
     },
 
 

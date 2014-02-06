@@ -103,12 +103,19 @@
     background: #fff url(../images/loading.gif) no-repeat 4px 4px;
   }
 
-  &.code-issue-actions,
   &#tab-issue-rule {
     position: relative;
 
     &:before {
       background-color: #EFEFEF;
+    }
+  }
+
+  &.code-issue-actions {
+    position: relative;
+
+    &:before {
+      background-color: #E4ECF3;
     }
   }
 }
@@ -288,6 +295,14 @@
 
   &.loading {
     background: @white url("../images/loading.gif") no-repeat 4px 2px;
+  }
+
+  .code-issue-name {
+    border-bottom: none;
+  }
+
+  .code-issue-actions {
+    background-color: #E4ECF3;
   }
 
   .source_title {

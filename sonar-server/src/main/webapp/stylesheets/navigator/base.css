@@ -102,13 +102,17 @@
   right: 0;
   background: #ffffff url(../images/loading.gif) no-repeat 4px 4px;
 }
-.navigator-fetching.code-issue-actions,
 .navigator-fetching#tab-issue-rule {
   position: relative;
 }
-.navigator-fetching.code-issue-actions:before,
 .navigator-fetching#tab-issue-rule:before {
   background-color: #EFEFEF;
+}
+.navigator-fetching.code-issue-actions {
+  position: relative;
+}
+.navigator-fetching.code-issue-actions:before {
+  background-color: #E4ECF3;
 }
 .navigator-header {
   padding: 0 10px;
@@ -242,6 +246,12 @@
 }
 .navigator-details.loading {
   background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
+}
+.navigator-details .code-issue-name {
+  border-bottom: none;
+}
+.navigator-details .code-issue-actions {
+  background-color: #E4ECF3;
 }
 .navigator-details .source_title {
   position: fixed;

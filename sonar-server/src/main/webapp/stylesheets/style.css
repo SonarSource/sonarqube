@@ -943,6 +943,7 @@ th.operations, td.operations {
 
 .code-issue-list {
   font-size: 0;
+  white-space: nowrap;
 }
 
 .code-issue-list > li {
