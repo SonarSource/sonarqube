@@ -27,7 +27,7 @@ import java.sql.Statement;
 
 class ProfilingStatementHandler implements InvocationHandler {
 
-  private static final SqlProfiling profiling = new SqlProfiling();
+  private static final SqlProfiling PROFILING = new SqlProfiling();
   private final Statement statement;
 
   ProfilingStatementHandler(Statement statement) {
@@ -37,9 +37,9 @@ class ProfilingStatementHandler implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      StopWatch watch = profiling.start();
+      StopWatch watch = PROFILING.start();
       Object result = method.invoke(statement, args);
-      profiling.stop(watch, (String) args[0]);
+      PROFILING.stop(watch, (String) args[0]);
       return result;
     } else {
       return method.invoke(statement, args);

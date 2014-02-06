@@ -307,12 +307,14 @@ class ProfilingDataSource extends BasicDataSource {
 
   @Override
   public Connection getConnection() throws SQLException {
-    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { Connection.class }, new ProfilingConnectionHandler(delegate.getConnection()));
+    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { Connection.class },
+        new ProfilingConnectionHandler(delegate.getConnection()));
   }
 
   @Override
   public Connection getConnection(String user, String pass) throws SQLException {
-    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { Connection.class }, new ProfilingConnectionHandler(delegate.getConnection(user, pass)));
+    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { Connection.class },
+        new ProfilingConnectionHandler(delegate.getConnection(user, pass)));
   }
 
   @Override
