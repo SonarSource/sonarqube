@@ -108,7 +108,7 @@
 }
 .navigator-fetching.code-issue-actions:before,
 .navigator-fetching#tab-issue-rule:before {
-  background-color: #CAE3F2;
+  background-color: #EFEFEF;
 }
 .navigator-header {
   padding: 0 10px;

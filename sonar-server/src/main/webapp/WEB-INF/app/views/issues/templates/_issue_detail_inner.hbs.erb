@@ -1,5 +1,5 @@
 <script id="issue-detail-inner-template" type="text/x-handlebars-template">
-  <div class="code-issue code-issue-collapsed code-issue-active" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
+  <div class="code-issue code-issue-collapsed" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
     <div class="code-issue-name">
       <div class="code-issue-name-rule">
         {{severityIcon severity}}&nbsp;<a class="code-issue-toggle rulename">{{message}}</a>
@@ -21,6 +21,98 @@
         <a target="_blank" href="<%= ApplicationController.root_context -%>/issue/show/{{key}}?layout=false"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
       </div>
     </div>
+
+
+    <ul class="code-issue-actions code-issue-list">
+      {{#inArray actions "comment"}}
+        <li>
+          <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
+        </li>
+      {{/inArray}}
+
+
+      <li>
+        {{statusIcon status}}{{translate "statuses" status}}
+        {{#if resolution}}({{translate "resolutions" resolution}}){{/if}}
+
+        {{#ifNotEmpty transitions}}
+          {{#withFirst transitions}}
+            <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{translate "transitions" this}}</a>
+          {{/withFirst}}
+
+          {{#ifHasExtraTransitions transitions}}
+            <div class="dropdown">
+              <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"></a>
+              <ul style="display: none" class="dropdown-menu">
+                {{#withoutFirst transitions}}
+                  <li>
+                    <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
+                  </li>
+                {{/withoutFirst}}
+              </ul>
+            </div>
+
+          {{/ifHasExtraTransitions}}
+        {{/ifNotEmpty}}
+      </li>
+
+
+      {{#inArray actions "assign"}}
+      <li>
+        {{#if assigneeName}}
+          <a id="issue-assign" class="link-action"><%= message('assigned_to') -%></a> {{assigneeName}}</li>
+        {{else}}
+          <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
+          {{#inArray actions "assign_to_me"}}
+            [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
+          {{/inArray}}
+        {{/if}}
+        </li>
+      {{else}}
+        {{#if assigneeName}}
+          <li><%= message('assigned_to') -%> <strong>{{assigneeName}}</strong></li>
+        {{/if}}
+      {{/inArray}}
+
+
+      {{#inArray actions "plan"}}
+      <li>
+        {{#if actionPlanName}}
+          <a id="issue-plan" class="link-action"><%= message('issue.planned_for') -%></a> {{actionPlanName}}
+        {{else}}
+          <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
+        {{/if}}
+      {{else}}
+        {{#if actionPlanName}}
+          <%= message('issue.planned_for') -%> <strong>{{actionPlanName}}</strong>
+        {{/if}}
+      </li>
+      {{/inArray}}
+
+
+      {{#ifHasExtraActions actions}}
+        <li>
+          <div class="dropdown">
+            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
+            <ul style="display: none" class="dropdown-menu">
+              {{#inArray actions "set_severity"}}
+                <li>
+                  <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
+                </li>
+              {{/inArray}}
+              {{#pluginActions actions}}
+                <li>
+                  <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
+                </li>
+              {{/pluginActions}}
+            </ul>
+          </div>
+        </li>
+      {{/ifHasExtraActions}}
+    </ul>
+
+    <div class="code-issue-form"></div>
+
 
     <div class="code-issue-details">
       <ul class="tabs">
@@ -54,97 +146,6 @@
         </table>
       </div>
     </div>
-
-
-    <ul class="code-issue-actions code-issue-list">
-      {{#inArray actions "comment"}}
-        <li>
-          <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
-        </li>
-      {{/inArray}}
-
-
-      <li>
-        {{statusIcon status}}{{translate "statuses" status}}
-        {{#if resolution}}({{translate "resolutions" resolution}}){{/if}}
-
-        {{#ifNotEmpty transitions}}
-            {{#withFirst transitions}}
-              <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{translate "transitions" this}}</a>
-            {{/withFirst}}
-
-            {{#ifHasExtraTransitions transitions}}
-              <div class="dropdown">
-                <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"></a>
-                <ul style="display: none" class="dropdown-menu">
-                  {{#withoutFirst transitions}}
-                    <li>
-                      <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
-                    </li>
-                  {{/withoutFirst}}
-                </ul>
-              </div>
-
-            {{/ifHasExtraTransitions}}
-        {{/ifNotEmpty}}
-      </li>
-
-
-      {{#inArray actions "assign"}}
-        <li>
-          {{#if assigneeName}}
-            <a id="issue-assign" class="link-action"><%= message('assigned_to') -%></a> {{assigneeName}}</li>
-          {{else}}
-            <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
-            {{#inArray actions "assign_to_me"}}
-              [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
-            {{/inArray}}
-          {{/if}}
-        </li>
-      {{else}}
-        {{#if assigneeName}}
-          <li><%= message('assigned_to') -%> <strong>{{assigneeName}}</strong></li>
-        {{/if}}
-      {{/inArray}}
-
-
-      {{#inArray actions "plan"}}
-        <li>
-          {{#if actionPlanName}}
-            <a id="issue-plan" class="link-action"><%= message('issue.planned_for') -%></a> {{actionPlanName}}
-          {{else}}
-            <a id="issue-plan" class="link-action"><%= message('issue.do_plan') -%></a>
-          {{/if}}
-        {{else}}
-          {{#if actionPlanName}}
-            <%= message('issue.planned_for') -%> <strong>{{actionPlanName}}</strong>
-          {{/if}}
-        </li>
-      {{/inArray}}
-
-
-      {{#ifHasExtraActions actions}}
-        <li>
-          <div class="dropdown">
-            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
-            <ul style="display: none" class="dropdown-menu">
-              {{#inArray actions "set_severity"}}
-                <li>
-                  <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
-                </li>
-              {{/inArray}}
-              {{#pluginActions actions}}
-                <li>
-                  <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
-                </li>
-              {{/pluginActions}}
-            </ul>
-          </div>
-        </li>
-      {{/ifHasExtraActions}}
-    </ul>
-
-    <div class="code-issue-form"></div>
 
 
     <div class="code-issue-comments">

@@ -972,25 +972,6 @@ th.operations, td.operations {
   display: none;
 }
 
-.code-issue-active .code-issue-name,
-.code-issue-active .code-issue-details,
-.code-issue-active .code-issue-actions,
-.code-issue-active .code-issue-form,
-.code-issue-active .code-issue-comments,
-.code-issue-active .code-issue-comment {
-  background-color: #CAE3F2;
-  border-color: #4B9FD5;
-}
-
-.code-issue-active .code-issue-name,
-.code-issue-active .code-issue-details {
-  border-bottom: none;
-}
-
-.code-issue-active .code-issue-details .tabs {
-  border-color: #4B9FD5;
-}
-
 .tab_header {
   border-bottom: 1px solid #DDD;
   background-color: #EFEFEF;
