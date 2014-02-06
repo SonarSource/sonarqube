@@ -494,6 +494,11 @@ jQuery(function() {
     },
 
 
+    onDomRefresh: function() {
+      this.ui.textarea.focus();
+    },
+
+
     toggleSubmit: function() {
       this.ui.submitButton.prop('disabled', this.ui.textarea.val().length === 0);
     },
