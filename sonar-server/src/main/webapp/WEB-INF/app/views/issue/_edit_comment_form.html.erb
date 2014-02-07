@@ -8,7 +8,7 @@
           name="text"
           style="width: 100%"
           autofocus="autofocus"
-          onkeyup="if (this.value == null || this.value=='') $j('#submit-comment').attr('disabled', 'true'); else $j('#submit-comment').attr('disabled', null);">werwer <%= @comment.markdownText -%></textarea>
+          onkeyup="if (this.value == null || this.value=='') $j('#submit-comment').attr('disabled', 'true'); else $j('#submit-comment').attr('disabled', null);"><%= @comment.markdownText -%></textarea>
       </td>
     </tr>
     <tr>
