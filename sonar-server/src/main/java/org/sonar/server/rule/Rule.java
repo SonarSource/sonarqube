@@ -88,6 +88,7 @@ public class Rule {
     return description;
   }
 
+  @CheckForNull
   public String severity() {
     return severity;
   }
@@ -188,7 +189,10 @@ public class Rule {
       return this;
     }
 
-    public Builder setSeverity(String severity) {
+    /**
+     * Should only be null for manual rule
+     */
+    public Builder setSeverity(@Nullable String severity) {
       this.severity = severity;
       return this;
     }
