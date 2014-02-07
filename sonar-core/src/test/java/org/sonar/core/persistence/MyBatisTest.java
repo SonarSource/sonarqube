@@ -25,7 +25,6 @@ import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.core.config.Logback;
 import org.sonar.core.rule.RuleMapper;
 
@@ -50,7 +49,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldConfigureMyBatis() {
-    MyBatis myBatis = new MyBatis(database, new Settings(), logback);
+    MyBatis myBatis = new MyBatis(database, logback);
     myBatis.start();
 
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
@@ -61,7 +60,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
-    MyBatis myBatis = new MyBatis(database, new Settings(), logback);
+    MyBatis myBatis = new MyBatis(database, logback);
     myBatis.start();
 
     SqlSession session = myBatis.openBatchSession();

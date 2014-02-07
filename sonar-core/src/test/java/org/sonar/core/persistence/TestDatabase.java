@@ -107,7 +107,7 @@ public class TestDatabase extends ExternalResource {
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource());
 
-      myBatis = new MyBatis(db, settings, new Logback());
+      myBatis = new MyBatis(db, new Logback());
       myBatis.start();
     }
     commands.truncateDatabase(db.getDataSource());

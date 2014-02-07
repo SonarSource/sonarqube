@@ -30,11 +30,7 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
@@ -88,7 +84,7 @@ public abstract class AbstractDaoTestCase {
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
       databaseTester = new DataSourceDatabaseTester(database.getDataSource());
 
-      myBatis = new MyBatis(database, settings, new Logback());
+      myBatis = new MyBatis(database, new Logback());
       myBatis.start();
     }
 

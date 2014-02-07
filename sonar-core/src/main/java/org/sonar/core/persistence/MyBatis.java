@@ -30,7 +30,6 @@ import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.component.ComponentDto;
@@ -73,13 +72,11 @@ import java.io.InputStream;
 public class MyBatis implements BatchComponent, ServerComponent {
 
   private final Database database;
-  private final Settings settings;
   private final Logback logback;
   private SqlSessionFactory sessionFactory;
 
-  public MyBatis(Database database, Settings settings, Logback logback) {
+  public MyBatis(Database database, Logback logback) {
     this.database = database;
-    this.settings = settings;
     this.logback = logback;
   }
 
