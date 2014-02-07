@@ -309,7 +309,6 @@ jQuery(function() {
         return;
       }
 
-      this.$el.toggle(this.collection.length > 0);
       this.$('.open-modal').modal();
     },
 
