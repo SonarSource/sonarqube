@@ -13,16 +13,18 @@
 
   <ul class="code-issue-actions code-issue-list">
     <% if current_user %>
-      <li><a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus><%= message('issue.comment.formlink') -%></a></li>
+      <li><a href='#' onclick="return issueForm('comment', this)" class="link-action" autofocus><%= message('issue.comment.formlink') -%></a></li>
     <% end %>
+    <% unless current_user %>
     <li>
       <i class="icon-status-<%= issue.status.downcase -%>"></i><%= message("issue.status.#{issue.status}") -%> <%= '(' + message("issue.resolution.#{issue.resolution}")  + ')' if issue.resolution -%>
     </li>
-    <% if current_user %>
+    <% else %>
       <% transitions = Internal.issues.listTransitions(issue).to_a
          if !transitions.empty? && transitions.first
            first_transition = transitions.first %>
           <li>
+            <i class="icon-status-<%= issue.status.downcase -%>"></i><%= message("issue.status.#{issue.status}") -%> <%= '(' + message("issue.resolution.#{issue.resolution}")  + ')' if issue.resolution -%>
              <!-- Display only the first transition -->
             <a href="#" onclick="return doIssueTransition(this, '<%= first_transition.key -%>')" class="link-action issue-transition spacer-left">
               <%= message("issue.transition.#{first_transition.key}") -%></a>
@@ -43,31 +45,27 @@
       <% end %>
     <% end %>
     <% unless issue.resolution %>
-      <li>
-        <% if issue.assignee %>
-          <% if current_user %>
-            <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%>
-          <% else %>
-            <%= message('assigned_to') -%> <strong><%= h @issue_results.user(issue.assignee).name -%></strong>
-          <% end %>
-        <% elsif current_user %>
-          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
-            <% if issue.assignee != current_user.login %>
-            [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
-            <% end %>
-        <% end %>
-      </li>
-      <li>
-      <% if issue.actionPlanKey %>
+      <% if issue.assignee %>
         <% if current_user %>
-          <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%>
+          <li><a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%></li>
         <% else %>
-          <%= message('issue.planned_for') -%> <strong><%= h(@issue_results.actionPlan(issue).name()) -%></strong>
+          <li><%= message('assigned_to') -%> <strong><%= h @issue_results.user(issue.assignee).name -%></strong></li>
         <% end %>
       <% elsif current_user %>
-        <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
+        <li><a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a></li>
+        <% if issue.assignee != current_user.login %>
+          <li>[<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]</li>
+        <% end %>
       <% end %>
-      </li>
+      <% if issue.actionPlanKey %>
+        <% if current_user %>
+          <li><a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%></li>
+        <% else %>
+          <li><%= message('issue.planned_for') -%> <strong><%= h(@issue_results.actionPlan(issue).name()) -%></strong></li>
+        <% end %>
+      <% elsif current_user %>
+        <li><a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a></li>
+      <% end %>
     <% end %>
     <% if current_user %>
       <% plugin_actions = Internal.issues.listActions(issue)
@@ -140,7 +138,7 @@
             &nbsp;
             <%= image_tag 'sep12.png' -%>
             &nbsp;
-            <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
+            <a class="link-action" href="#" onclick="return formEditIssueComment(this)" ><%= message('edit') -%></a>
             <a class="link-action spacer-right" href="#" onclick="return deleteIssueComment(this, '<%= escape_javascript(message('issue.comment.delete_confirm_message')) -%>')"><%= message('delete') -%></a>
           <% end %>
         </h4>
