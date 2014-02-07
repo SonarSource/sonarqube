@@ -17,37 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.persistence.profiling;
 
-import org.sonar.core.profiling.StopWatch;
-
-import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Statement;
 
-class ProfilingStatementHandler implements InvocationHandler {
+class InvocationUtils {
 
-  private static final SqlProfiling PROFILING = new SqlProfiling();
-
-  private final Statement statement;
-
-  ProfilingStatementHandler(Statement statement) {
-    this.statement = statement;
+  private InvocationUtils() {
+    // Only private stuff
   }
 
-  @Override
-  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    if (method.getName().startsWith("execute")) {
-      StopWatch watch = PROFILING.start();
-      Object result = null;
-      try {
-        result = InvocationUtils.invokeQuietly(statement, method, args);
-      } finally {
-        PROFILING.stop(watch, (String) args[0]);
+  static Object invokeQuietly(Object target, Method method, Object[] params) throws Throwable {
+    Object result = null;
+    try {
+      result = method.invoke(target, params);
+    } catch(InvocationTargetException invocationException) {
+      for (Class<?> exceptionClass: method.getExceptionTypes()) {
+        if (exceptionClass.isInstance(invocationException.getCause())) {
+          throw invocationException.getCause();
+        }
+        throw new IllegalStateException(invocationException.getCause());
       }
-      return result;
-    } else {
-      return InvocationUtils.invokeQuietly(statement, method, args);
     }
+    return result;
   }
 }

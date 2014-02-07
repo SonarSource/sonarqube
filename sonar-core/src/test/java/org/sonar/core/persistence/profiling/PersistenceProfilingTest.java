@@ -31,11 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

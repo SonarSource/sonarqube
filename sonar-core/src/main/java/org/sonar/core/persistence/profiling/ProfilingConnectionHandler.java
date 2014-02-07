@@ -36,7 +36,7 @@ class ProfilingConnectionHandler implements InvocationHandler {
 
   @Override
   public Object invoke(Object target, Method method, Object[] args) throws Throwable {
-    Object result = method.invoke(connection, args);
+    Object result = InvocationUtils.invokeQuietly(connection, method, args);
     if ("prepareStatement".equals(method.getName())) {
       PreparedStatement statement = (PreparedStatement) result;
       String sql = (String) args[0];

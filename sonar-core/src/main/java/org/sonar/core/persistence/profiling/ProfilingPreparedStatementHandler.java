@@ -19,8 +19,8 @@
  */
 package org.sonar.core.persistence.profiling;
 
-import org.apache.commons.lang.StringUtils;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.profiling.StopWatch;
 
 import java.lang.reflect.InvocationHandler;
@@ -52,21 +52,25 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
       StopWatch watch = PROFILING.start();
-      Object result = method.invoke(statement, args);
-      StringBuilder sqlBuilder = new StringBuilder().append(sql);
-      if (!arguments.isEmpty()) {
-        sqlBuilder.append(" - parameters are: ");
-        for (Object arg: arguments) {
-          sqlBuilder.append(PARAM_PREFIX).append(arg).append(PARAM_SUFFIX).append(PARAM_SEPARATOR);
+      Object result = null;
+      try {
+        result = InvocationUtils.invokeQuietly(statement, method, args);
+      } finally {
+        StringBuilder sqlBuilder = new StringBuilder().append(sql);
+        if (!arguments.isEmpty()) {
+          sqlBuilder.append(" - parameters are: ");
+          for (Object arg: arguments) {
+            sqlBuilder.append(PARAM_PREFIX).append(arg).append(PARAM_SUFFIX).append(PARAM_SEPARATOR);
+          }
         }
+        PROFILING.stop(watch, StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
       }
-      PROFILING.stop(watch, StringUtils.removeEnd(sqlBuilder.toString(), PARAM_SEPARATOR));
       return result;
     } else if (method.getName().startsWith("set") && args.length > 1) {
       arguments.set((Integer) args[0] - 1, args[1]);
-      return method.invoke(statement, args);
+      return InvocationUtils.invokeQuietly(statement, method, args);
     } else {
-      return method.invoke(statement, args);
+      return InvocationUtils.invokeQuietly(statement, method, args);
     }
   }
 
