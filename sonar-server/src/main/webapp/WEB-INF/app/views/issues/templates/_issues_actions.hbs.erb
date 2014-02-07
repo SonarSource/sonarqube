@@ -2,7 +2,7 @@
   {{#unless maxResultsReached}}
     <div class="navigator-actions-order">
       {{#if sorting}}
-        Ordered by <strong>{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-arrow-up"></i>{{else}}<i class="icon-arrow-down"></i>{{/if}}
+        <%= message('issues.ordered_by') -%> <strong>{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-arrow-up"></i>{{else}}<i class="icon-arrow-down"></i>{{/if}}
       {{else}}
         Order
       {{/if}}
@@ -17,7 +17,7 @@
     </ul>
   {{/unless}}
   <div class="navigator-actions-total">
-    Found: <strong>{{paging.total}}</strong>
+    <%= message('issues.found') -%>: <strong>{{paging.total}}</strong>
     {{#if appState.canBulkChange}}
       <a href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>?{{query}}"
          class="navigator-actions-bulk open-modal"
