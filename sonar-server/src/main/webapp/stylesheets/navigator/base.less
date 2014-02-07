@@ -29,10 +29,11 @@
 
 .navigator-results {
   .navigator-element;
+  .box-sizing(content-box);
   top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
   bottom: 0;
   left: 0;
-  width: @navigatorResultsWidth;
+  width: @navigatorResultsWidth - 1px;
 }
 
 .navigator-details {
