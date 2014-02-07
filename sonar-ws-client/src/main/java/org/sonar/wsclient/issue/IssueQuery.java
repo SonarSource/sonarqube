@@ -102,6 +102,14 @@ public class IssueQuery {
   }
 
   /**
+   * @since 4.2
+   */
+  public IssueQuery hideRules(Boolean hideRules) {
+    params.put("hideRules", hideRules);
+    return this;
+  }
+
+  /**
    * Require second precision.
    * @since 3.7
    */

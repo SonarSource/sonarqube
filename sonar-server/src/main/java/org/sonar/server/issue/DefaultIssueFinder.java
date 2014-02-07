@@ -25,11 +25,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFinder;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.issue.*;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.rules.Rule;
@@ -45,10 +41,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -144,9 +137,10 @@ public class DefaultIssueFinder implements IssueFinder {
         }
       }
 
+
       return new DefaultIssueQueryResult(issues)
         .setMaxResultsReached(authorizedIssues.size() == query.maxResults())
-        .addRules(findRules(ruleIds))
+        .addRules(hideRules(query) ? Collections.<Rule>emptyList() : findRules(ruleIds))
         .addComponents(findComponents(componentIds))
         .addProjects(findComponents(projectIds))
         .addActionPlans(findActionPlans(actionPlanKeys))
@@ -156,6 +150,11 @@ public class DefaultIssueFinder implements IssueFinder {
       MyBatis.closeQuietly(sqlSession);
       LOG.debug("IssueQuery execution time : {} ms", System.currentTimeMillis() - start);
     }
+  }
+
+  private boolean hideRules(IssueQuery query){
+    Boolean hideRules = query.hideRules();
+    return hideRules != null ? hideRules : false;
   }
 
   private List<IssueDto> sort(List<IssueDto> issues, IssueQuery query, int allIssuesSize) {

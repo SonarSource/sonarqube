@@ -53,9 +53,7 @@ import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultIssueFinderTest {
 
@@ -69,7 +67,7 @@ public class DefaultIssueFinderTest {
   DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService);
 
   @Test
-  public void should_find_issues() {
+  public void find_issues() {
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
@@ -96,7 +94,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_find_paginate_result() {
+  public void find_paginate_result() {
     IssueQuery query = IssueQuery.builder().pageSize(1).pageIndex(1).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
@@ -123,7 +121,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_find_by_key() {
+  public void find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setComponentId(1l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
@@ -138,7 +136,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_rule_from_result() {
+  public void get_rule_from_result() {
     Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
     when(ruleFinder.findByIds(anyCollection())).thenReturn(newArrayList(rule));
 
@@ -166,7 +164,27 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_component_from_result() {
+  public void get_no_rule_from_result_with_hide_rules_param() {
+    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
+    when(ruleFinder.findByIds(anyCollection())).thenReturn(newArrayList(rule));
+
+    IssueQuery query = IssueQuery.builder().hideRules(true).build();
+
+    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRootComponentKey_unit_test_only("struts")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue));
+
+    IssueQueryResult results = finder.find(query);
+    Issue result = results.issues().iterator().next();
+    assertThat(results.rule(result)).isNull();
+    assertThat(results.rules()).isEmpty();
+  }
+
+  @Test
+  public void get_component_from_result() {
     Component component = new ComponentDto().setKey("Action.java");
     when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(component));
 
@@ -193,7 +211,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_project_from_result() {
+  public void get_project_from_result() {
     Component project = new ComponentDto().setKey("struts");
     when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(project));
 
@@ -220,7 +238,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_action_plans_from_result() {
+  public void get_action_plans_from_result() {
     ActionPlan actionPlan1 = DefaultActionPlan.create("Short term").setKey("A");
     ActionPlan actionPlan2 = DefaultActionPlan.create("Long term").setKey("B");
 
@@ -248,7 +266,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_user_from_result() {
+  public void get_user_from_result() {
     when(userFinder.findByLogins(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(
       new DefaultUser().setLogin("perceval").setName("Perceval"),
       new DefaultUser().setLogin("arthur").setName("Roi Arthur")
@@ -274,7 +292,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_get_empty_result_when_no_issue() {
+  public void get_empty_result_when_no_issue() {
     IssueQuery query = IssueQuery.builder().build();
     when(issueDao.selectIssueIds(eq(query), anyInt(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
@@ -287,7 +305,7 @@ public class DefaultIssueFinderTest {
   }
 
   @Test
-  public void should_find_issue_with_technical_debt() {
+  public void find_issue_with_technical_debt() {
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)

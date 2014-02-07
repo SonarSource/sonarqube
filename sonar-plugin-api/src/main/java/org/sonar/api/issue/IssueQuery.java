@@ -70,6 +70,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Boolean planned;
   private final Boolean resolved;
+  private final Boolean hideRules;
   private final Date createdAt;
   private final Date createdAfter;
   private final Date createdBefore;
@@ -97,6 +98,7 @@ public class IssueQuery {
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
+    this.hideRules = builder.hideRules;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
@@ -160,6 +162,14 @@ public class IssueQuery {
   @CheckForNull
   public Boolean resolved() {
     return resolved;
+  }
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  public Boolean hideRules() {
+    return hideRules;
   }
 
   @CheckForNull
@@ -226,6 +236,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Boolean planned = null;
     private Boolean resolved = null;
+    private Boolean hideRules = false;
     private Date createdAt;
     private Date createdAfter;
     private Date createdBefore;
@@ -312,6 +323,18 @@ public class IssueQuery {
      */
     public Builder resolved(@Nullable Boolean resolved) {
       this.resolved = resolved;
+      return this;
+    }
+
+    /**
+     * If true, rules will not be loaded
+     * If false, rules will be loaded
+     *
+     * @since 4.2
+     *
+     */
+    public Builder hideRules(@Nullable Boolean b) {
+      this.hideRules = b;
       return this;
     }
 

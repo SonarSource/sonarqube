@@ -32,7 +32,7 @@ class Api::IssuesController < Api::ApiController
     hash = {
       :maxResultsReached => results.maxResultsReached,
       :paging => paging_to_hash(results.paging),
-      :issues => results.issues.map { |issue| Issue.to_hash(issue, results.rule(issue).name) },
+      :issues => results.issues.map { |issue| Issue.to_hash(issue, results.rule(issue) ? results.rule(issue).name : nil) },
       :components => results.components.map { |component| component_to_hash(component) },
       :projects => results.projects.map { |project| component_to_hash(project) },
       :rules => results.rules.map { |rule| Rule.to_hash(rule) },

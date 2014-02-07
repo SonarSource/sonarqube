@@ -35,7 +35,7 @@ import static org.fest.assertions.Fail.fail;
 public class IssueQueryTest {
 
   @Test
-  public void should_build_query() throws Exception {
+  public void build_query() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
@@ -48,6 +48,7 @@ public class IssueQueryTest {
       .reporters(newArrayList("crunky"))
       .assignees(newArrayList("gargantua"))
       .assigned(true)
+      .hideRules(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
       .createdAt(new Date())
@@ -68,6 +69,7 @@ public class IssueQueryTest {
     assertThat(query.reporters()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.assigned()).isTrue();
+    assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
@@ -83,7 +85,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_build_query_without_dates() throws Exception {
+  public void build_query_without_dates() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .createdAfter(null)
@@ -98,7 +100,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_throw_exception_if_sort_is_not_valid() throws Exception {
+  public void throw_exception_if_sort_is_not_valid() throws Exception {
     try {
       IssueQuery.builder()
         .sort("UNKNOWN")
@@ -161,7 +163,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_use_max_page_size_if_negative() throws Exception {
+  public void use_max_page_size_if_negative() throws Exception {
     IssueQuery query = IssueQuery.builder().pageSize(0).build();
     assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
 
@@ -177,7 +179,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_reset_to_max_page_size() throws Exception {
+  public void reset_to_max_page_size() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .pageSize(IssueQuery.MAX_PAGE_SIZE + 100)
       .build();

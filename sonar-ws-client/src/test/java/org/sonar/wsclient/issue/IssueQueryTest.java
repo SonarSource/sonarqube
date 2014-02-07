@@ -46,6 +46,7 @@ public class IssueQueryTest {
       .componentRoots("struts")
       .resolutions("FIXED", "FALSE-POSITIVE")
       .resolved(true)
+      .hideRules(true)
       .rules("squid:AvoidCycle")
       .actionPlans("ABC")
       .statuses("OPEN", "CLOSED")
@@ -59,7 +60,7 @@ public class IssueQueryTest {
       .pageSize(5)
       .pageIndex(4);
 
-    assertThat(query.urlParams()).hasSize(20);
+    assertThat(query.urlParams()).hasSize(21);
     assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
     assertThat(query.urlParams()).includes(entry("assigned", true));
@@ -70,6 +71,7 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("actionPlans", "ABC"));
     assertThat(query.urlParams()).includes(entry("resolutions", "FIXED,FALSE-POSITIVE"));
     assertThat(query.urlParams()).includes(entry("resolved", true));
+    assertThat(query.urlParams()).includes(entry("hideRules", true));
     assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
     assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
     assertThat(query.urlParams()).includes(entry("reporters", "login1,login2"));
