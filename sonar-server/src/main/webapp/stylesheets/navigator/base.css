@@ -240,7 +240,7 @@
   text-align: center;
 }
 .navigator-details {
-  padding: 62px 10px 10px;
+  padding: 62px 0 10px 10px;
   background-color: #ffffff;
   overflow: auto;
 }
@@ -262,6 +262,10 @@
   padding: 10px;
   border-bottom: 1px solid #e1e1e1;
   background-color: #fff;
+}
+.navigator-details .source {
+  display: inline-block;
+  margin-right: 10px;
 }
 .navigator-details .scm .author {
   display: inline-block;
