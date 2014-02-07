@@ -229,6 +229,7 @@
 }
 .navigator-results-list.navigator-fetching:before {
   position: fixed;
+  z-index: 3;
   top: 134px;
   bottom: 0;
   left: 0;
