@@ -77,7 +77,6 @@ public class Logback implements BatchComponent, ServerComponent {
       if (isConsoleEnabled(substitutionVariables)) {
         Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.setAdditive(false);
-        rootLogger.detachAppender("LOGFILE");
         rootLogger.addAppender(consoleAppender(lc, substitutionVariables));
       }
     } catch (JoranException e) {
@@ -102,7 +101,7 @@ public class Logback implements BatchComponent, ServerComponent {
 
   private static Appender<ILoggingEvent> consoleAppender(LoggerContext context, Map<String, String> substitutionVariables) {
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setPattern(substitutionVariables.get("LOGFILE_LOGGING_FORMAT"));
+    encoder.setPattern(substitutionVariables.get("CONSOLE_LOGGING_FORMAT"));
     encoder.setContext(context);
     encoder.start();
     ConsoleAppender<ILoggingEvent> console = new ConsoleAppender<ILoggingEvent>();
