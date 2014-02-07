@@ -38,7 +38,7 @@
 .navigator-details {
   .navigator-element;
   top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  bottom: 0;
+  bottom: @navigatorBottomOffset;
   left: @navigatorResultsWidth;
   right: 0;
 }
@@ -390,4 +390,20 @@
   margin-left: 8px;
   font-size: 16px;
   text-decoration: none;
+}
+
+
+
+// Footer
+.issues-page #footer {
+  .navigator-element;
+  bottom: 0;
+  left: @navigatorResultsWidth;
+  right: 0;
+  margin: 0;
+  border-top: 1px solid @navigatorBorderLightColor;
+}
+
+.issues-page #ftlinks {
+  margin-top: 0;
 }

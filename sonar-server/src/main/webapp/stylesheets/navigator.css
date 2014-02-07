@@ -46,7 +46,7 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   top: 104px;
-  bottom: 0;
+  bottom: 35px;
   left: 320px;
   right: 0;
 }
@@ -327,6 +327,20 @@
   margin-left: 8px;
   font-size: 16px;
   text-decoration: none;
+}
+.issues-page #footer {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0;
+  left: 320px;
+  right: 0;
+  margin: 0;
+  border-top: 1px solid #e1e1e1;
+}
+.issues-page #ftlinks {
+  margin-top: 0;
 }
 .navigator-filters {
   border-bottom: 1px solid #cdcdcd;
