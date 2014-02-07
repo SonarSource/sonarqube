@@ -92,8 +92,7 @@
       %>
       <table class="clear width100">
         <tr>
-          <td><%= image_tag 'priority/BLOCKER.png' %></td>
-          <td> &nbsp;<%= message('blocker') -%></td>
+          <td><i class="icon-severity-blocker"></i> <%= message('blocker') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink drilldown_BLOCKER' -%>
           </td>
@@ -113,8 +112,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/CRITICAL.png' %></td>
-          <td> &nbsp;<%= message('critical') -%></td>
+          <td><i class="icon-severity-critical"></i> <%= message('critical') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink drilldown_CRITICAL' -%>
           </td>
@@ -134,8 +132,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/MAJOR.png' %></td>
-          <td> &nbsp;<%= message('major') -%></td>
+          <td><i class="icon-severity-major"></i> <%= message('major') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink drilldown_MAJOR' -%>
           </td>
@@ -155,8 +152,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/MINOR.png' %></td>
-          <td> &nbsp;<%= message('minor') -%></td>
+          <td><i class="icon-severity-minor"></i> <%= message('minor') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink drilldown_MINOR' -%>
           </td>
@@ -176,8 +172,7 @@
           </td>
         </tr>
         <tr>
-          <td><%= image_tag 'priority/INFO.png' %></td>
-          <td> &nbsp;<%= message('info') -%></td>
+          <td><i class="icon-severity-info"></i> <%= message('info') -%></td>
           <td style="padding: 0 5px;" align="right">
             <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink drilldown_INFO' -%>
           </td>

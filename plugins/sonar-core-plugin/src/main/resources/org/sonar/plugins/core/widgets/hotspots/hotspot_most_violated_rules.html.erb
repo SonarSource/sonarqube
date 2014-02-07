@@ -94,7 +94,7 @@
           %>
             <tr class="<%= cycle 'even', 'odd', :name => ("hotspot_most_violated_rules-#{widget.id}-#{severity}") -%>">
               <td class="thin">
-                <%= image_tag('priority/' + m.severity + '.png') -%>
+                <i class="icon-severity-<%= m.severity.downcase -%>"></i>
               </td>
               <td>
                 <%= h rule.name -%>

@@ -4,7 +4,7 @@
       <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
 
-    <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
+    <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
     &nbsp;
     <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h @issue_results.rule(issue).getName() -%></a>
     &nbsp;

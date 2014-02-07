@@ -31,41 +31,51 @@
  * Severity
  */
 
-.icon-severity-blocker:before {
+[class^="icon-severity-"], [class*=" icon-severity"] {
+  position: relative;
+  top: -1px;
+}
+
+.icon-severity-blocker:before,
+.icon-severity-4:before {
   content: "\f000";
   color: @severityBlockerColor;
   font-size: @iconFontSize;
-  line-height: @iconLineHeight;
 }
-.icon-severity-critical:before {
+.icon-severity-critical:before,
+.icon-severity-3:before {
   content: "\f001";
   color: @severityCriticalColor;
   font-size: @iconFontSize;
-  line-height: @iconLineHeight;
 }
-.icon-severity-major:before {
+.icon-severity-major:before,
+.icon-severity-2:before {
   content: "\f002";
   color: @severityMajorColor;
   font-size: @iconFontSize;
-  line-height: @iconLineHeight;
 }
-.icon-severity-minor:before {
+.icon-severity-minor:before,
+.icon-severity-1:before {
   content: "\f003";
   color: @severityMinorColor;
   font-size: @iconFontSize;
-  line-height: @iconLineHeight;
 }
-.icon-severity-info:before {
+.icon-severity-info:before,
+.icon-severity-0:before {
   content: "\f004";
   color: @severityInfoColor;
   font-size: @iconFontSize;
-  line-height: @iconLineHeight;
 }
 
 
 /*
  * Status
  */
+
+[class^="icon-status-"], [class*=" icon-status"] {
+  position: relative;
+  top: -1px;
+}
 
 .icon-status-open:before {
   content: "\f010";

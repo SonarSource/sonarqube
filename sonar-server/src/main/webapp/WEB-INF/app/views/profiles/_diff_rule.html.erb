@@ -1,4 +1,4 @@
-<%= image_tag "priority/#{arule.priority}.png" %>
+<i class="icon-severity-<%= arule.priority -%>"></i>
 
 <span class="rulename"><a onclick="window.open(this.href,'rule','height=700,width=500,scrollbars=1,resizable=1');return false;"
                           href="<%= url_for :controller => 'rules', :action => 'show', :id => arule.rule.key, :layout => 'false' -%>"><%= h(arule.rule.name) -%></a>

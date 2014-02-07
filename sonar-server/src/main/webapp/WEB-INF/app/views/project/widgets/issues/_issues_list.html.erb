@@ -35,7 +35,7 @@
          last_comment = issue.comments.get(issue.comments.size - 1) if !issue.comments.isEmpty()
     %>
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
-        <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity() -%>.png" title="<%= message('severity.' + issue.severity()) -%>"/></td>
+        <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
         <td>
           <a class="rule-modal" href="#" onclick="return openModalWindow('<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>', {'width': 800})">
             <!-- SONAR-4785 Display rule name if issue has no message -->

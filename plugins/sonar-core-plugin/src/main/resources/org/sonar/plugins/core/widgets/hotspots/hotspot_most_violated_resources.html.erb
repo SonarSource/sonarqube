@@ -66,31 +66,31 @@
         <%= link_to_resource(resource, h(resource.name), {:tab => :violations}) -%>
       </td>
       <td class="small right">
-        <%= image_tag('priority/BLOCKER.png') -%>
+        <i class="icon-severity-blocker"></i>
       </td>
       <td class="small left">
         <%= violations_per_severity["BLOCKER"] ? violations_per_severity["BLOCKER"].to_s : "0" -%>
       </td>
       <td class="small right">
-        <%= image_tag('priority/CRITICAL.png') -%>
+        <i class="icon-severity-critical"></i>
       </td>
       <td class="small left">
         <%= violations_per_severity["CRITICAL"] ? violations_per_severity["CRITICAL"].to_s : "0" -%>
       </td>
       <td class="small right">
-        <%= image_tag('priority/MAJOR.png') -%>
+        <i class="icon-severity-major"></i>
       </td>
       <td class="small left">
         <%= violations_per_severity["MAJOR"] ? violations_per_severity["MAJOR"].to_s : "0" -%>
       </td>
       <td class="small right">
-        <%= image_tag('priority/MINOR.png') -%>
+        <i class="icon-severity-minor"></i>
       </td>
       <td class="small left">
         <%= violations_per_severity["MINOR"] ? violations_per_severity["MINOR"].to_s : "0" -%>
       </td>
       <td class="small right">
-        <%= image_tag('priority/INFO.png') -%>
+        <i class="icon-severity-info"></i>
       </td>
       <td class="small left">
         <%= violations_per_severity["INFO"] ? violations_per_severity["INFO"].to_s : "0" -%>

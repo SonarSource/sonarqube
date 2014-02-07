@@ -89,7 +89,7 @@
           %>
             <tr class="<%= clazz -%>">
               <td width="1%" nowrap>
-                <img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"/>
+                <i class="icon-severity-<%= rule_measure.rule_priority -%>"></i>
               </td>
               <td>
                 <%= link_to(h(rule.name),

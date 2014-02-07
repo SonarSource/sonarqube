@@ -5,27 +5,27 @@
         <td><span class="big"><%= format_variation('new_violations', :default => 0, :period => @period, :style => 'none') -%></span>&nbsp;<%= message('new_issues').downcase -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/BLOCKER.png' -%></td>
+        <td><i class="icon-severity-blocker"></i></td>
         <td class="name"><%= message('blocker') -%>:</td>
         <td class="value"><%= format_variation('new_blocker_violations', :default => 0, :period => @period, :style => 'none') -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/CRITICAL.png' -%></td>
+        <td><i class="icon-severity-critical"></i></td>
         <td class="name"><%= message('critical') -%>:</td>
         <td class="value"><%= format_variation('new_critical_violations', :default => 0, :period => @period, :style => 'none') -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/MAJOR.png' -%></td>
+        <td><i class="icon-severity-major"></i></td>
         <td class="name"><%= message('major') -%>:</td>
         <td class="value"><%= format_variation('new_major_violations', :default => 0, :period => @period, :style => 'none') -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/MINOR.png' -%></td>
+        <td><i class="icon-severity-minor"></i></td>
         <td class="name"><%= message('minor') -%>:</td>
         <td class="value"><%= format_variation('new_minor_violations', :default => 0, :period => @period, :style => 'none') -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/INFO.png' -%></td>
+        <td><i class="icon-severity-info"></i></td>
         <td class="name"><%= message('info') -%>:</td>
         <td class="value"><%= format_variation('new_info_violations', :default => 0, :period => @period, :style => 'none') -%></td>
       </tr>
@@ -37,27 +37,26 @@
         <td nowrap><span class="big"><%= format_measure('violations', :default => 0) -%></span>&nbsp;<%= message('issues').downcase -%></td>
 
         <td class="sep"> </td>
-        <td nowrap><%= image_tag 'priority/BLOCKER.png' -%></td>
-        <td class="name"><%= message('blocker') -%>:</td>
+        <td class="name"><i class="icon-severity-blocker"></i> <%= message('blocker') -%>:</td>
         <td class="value"><%= format_measure('blocker_violations', :default => 0) -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/CRITICAL.png' -%></td>
+        <td><i class="icon-severity-critical"></i></td>
         <td class="name"><%= message('critical') -%>:</td>
         <td class="value"><%= format_measure('critical_violations', :default => 0) -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/MAJOR.png' -%></td>
+        <td><i class="icon-severity-major"></i></td>
         <td class="name"><%= message('major') -%>:</td>
         <td class="value"><%= format_measure('major_violations', :default => 0) -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/MINOR.png' -%></td>
+        <td><i class="icon-severity-minor"></i></td>
         <td class="name"><%= message('minor') -%>:</td>
         <td class="value"><%= format_measure('minor_violations', :default => 0) -%></td>
 
         <td class="sep"> </td>
-        <td><%= image_tag 'priority/INFO.png' -%></td>
+        <td><i class="icon-severity-info"></i></td>
         <td class="name"><%= message('info') -%>:</td>
         <td class="value"><%= format_measure('info_violations', :default => 0) -%></td>
 

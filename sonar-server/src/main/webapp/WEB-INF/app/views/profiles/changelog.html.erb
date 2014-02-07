@@ -42,16 +42,16 @@
       <td valign="top">
         <% if change.old_severity
              if change.new_severity %>
-            <%= message('quality_profiles.severity_changed_from_x_to', :params => [image_tag("priority/#{change.old_severity_text}.png"), change.old_severity_text]) -%>
+            <%= message('quality_profiles.severity_changed_from_x_to', :params => ["<i></i>", change.old_severity_text]) -%>
           <% else %>
-            <%= message('quality_profiles.severity_was_x', :params => [image_tag("priority/#{change.old_severity_text}.png"), change.old_severity_text]) -%>
+            <%= message('quality_profiles.severity_was_x', :params => ["<i class=\"icon-severity-#{change.old_severity_text.downcase}\"></i>", change.old_severity_text]) -%>
           <% end
            end %>
         <% if change.new_severity
              if change.old_severity %>
-           <%= image_tag "priority/#{change.new_severity_text}.png" %><b><%= change.new_severity_text %></b>
+           <i class="icon-severity-#{change.new_severity_text.downcase}"></i><b><%= change.new_severity_text %></b>
           <% else %>
-           <%= message('quality_profiles.severity_set_to_x', :params => [image_tag("priority/#{change.new_severity_text}.png"), change.new_severity_text]) -%>
+           <%= message('quality_profiles.severity_set_to_x', :params => ["<i class=\"icon-severity-#{change.new_severity_text.downcase}\"></i>", change.new_severity_text]) -%>
           <% end
            end %>
         <% if (change.old_severity or change.new_severity) and change.parameters.size > 0 %>

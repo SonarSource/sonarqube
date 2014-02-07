@@ -35,7 +35,7 @@
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <td width="1%" nowrap>
-            <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
+            <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
           </td>
           <td>
             <%= message("issue.status.#{issue.status}") -%>
