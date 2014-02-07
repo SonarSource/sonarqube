@@ -851,12 +851,14 @@ jQuery(function() {
 
     fetchRule: function() {
       var that = this;
-      this.$('#tab-issue-rule').addClass('navigator-fetching');
-      this.rule.fetch({
-        success: function() {
-          that.$('#tab-issue-rule').removeClass('navigator-fetching');
-        }
-      });
+      if (!this.rule.has('name')) {
+        this.$('#tab-issue-rule').addClass('navigator-fetching');
+        this.rule.fetch({
+          success: function() {
+            that.$('#tab-issue-rule').removeClass('navigator-fetching');
+          }
+        });
+      }
     },
 
 
