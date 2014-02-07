@@ -22,6 +22,7 @@ package org.sonar.core.technicaldebt;
 
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.TechnicalDebtManager;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
@@ -31,6 +32,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -41,9 +43,11 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
 
   private final CharacteristicDao dao;
+  private final RuleFinder ruleFinder;
 
-  public DefaultTechnicalDebtManager(CharacteristicDao dao) {
+  public DefaultTechnicalDebtManager(CharacteristicDao dao, RuleFinder ruleFinder) {
     this.dao = dao;
+    this.ruleFinder = ruleFinder;
   }
 
   public List<Characteristic> findRootCharacteristics() {
@@ -60,6 +64,16 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     CharacteristicDto dto = dao.selectById(id);
     if (dto != null) {
       return toCharacteristic(dto, null);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public Characteristic findRequirementByRuleId(int ruleId) {
+    CharacteristicDto requirementDto = dao.selectByRuleId(ruleId);
+    if (requirementDto != null) {
+      Rule rule = ruleFinder.findById(ruleId);
+      return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
     }
     return null;
   }

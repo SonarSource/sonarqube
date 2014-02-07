@@ -74,6 +74,7 @@ public class RuleShowWsHandler implements RequestHandler {
 
   @CheckForNull
   private Rule findRule(RuleKey ruleKey) {
+    // TODO remove this when manual rules when be indexed in E/S
     if (ruleKey.repository().equals(Rule.MANUAL_REPOSITORY_KEY)) {
       org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
       if (rule != null) {

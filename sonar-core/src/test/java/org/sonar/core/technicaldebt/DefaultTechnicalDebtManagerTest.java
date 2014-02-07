@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -44,11 +45,14 @@ public class DefaultTechnicalDebtManagerTest {
   @Mock
   CharacteristicDao dao;
 
+  @Mock
+  RuleFinder ruleFinder;
+
   DefaultTechnicalDebtManager finder;
 
   @Before
   public void setUp() throws Exception {
-    finder = new DefaultTechnicalDebtManager(dao);
+    finder = new DefaultTechnicalDebtManager(dao, ruleFinder);
   }
 
   @Test
@@ -125,5 +129,38 @@ public class DefaultTechnicalDebtManagerTest {
 
     Characteristic result = finder.findCharacteristicById(2);
     assertThat(result).isNull();
+  }
+
+  @Test
+  public void find_requirement_by_rule_id() throws Exception {
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(1);
+
+    when(ruleFinder.findById(1)).thenReturn(rule);
+
+    when(dao.selectByRuleId(rule.getId())).thenReturn(
+      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
+
+    Characteristic result = finder.findRequirementByRuleId(1);
+
+    assertThat(result.id()).isEqualTo(3);
+    assertThat(result.parentId()).isEqualTo(2);
+    assertThat(result.rootId()).isEqualTo(1);
+    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
+    assertThat(result.function()).isEqualTo("linear");
+    assertThat(result.factor()).isEqualTo(WorkUnit.create(30.0, WorkUnit.MINUTES));
+    assertThat(result.offset()).isEqualTo(WorkUnit.create());
+  }
+
+  @Test
+  public void not_find_requirement_by_rule_id_on_unknown_requirement() throws Exception {
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(1);
+
+    when(ruleFinder.findById(1)).thenReturn(rule);
+
+    when(dao.selectByRuleId(rule.getId())).thenReturn(null);
+
+    assertThat(finder.findRequirementByRuleId(1)).isNull();
   }
 }

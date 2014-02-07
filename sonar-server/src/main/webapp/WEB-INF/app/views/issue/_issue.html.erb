@@ -1,166 +1,158 @@
-<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
-  <div class="code-issue-name">
-    <div style="float: right">
+<div id="issue-<%= u issue.key -%>" class="code-issue code-issue-collapsed" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
+  <div class="code-issue-name code-issue-toggle">
+    <div class="code-issue-name-rule">
+      <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
+      <span class="rulename">
+        <%= h !issue.message.blank? ? Api::Utils.split_newlines(issue.message).join('<br/>') : @issue_results.rule(issue).getName() -%>
+      </span>
+    </div>
+    <div class="code-issue-permalink">
       <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
-
-    <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
-    &nbsp;
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h @issue_results.rule(issue).getName() -%></a>
-    &nbsp;
-    <% if issue.resolution %>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-      &nbsp;
-      <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
-      &nbsp;
-    <% else %>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-      &nbsp;
-      <span><%= message("issue.status.#{issue.status}") -%></span>
-      &nbsp;
-    <% end %>
-    <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-    &nbsp;
-    <%= message('issue.updated') -%>&nbsp;<a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
-       id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%></a>
-    &nbsp;
-    <% if issue.reporter %>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-      &nbsp;
-      <span><%= message('issue.reported_by') -%> <%= @issue_results.user(issue.reporter).name -%></span>
-      &nbsp;
-    <% end %>
-    <% if issue.authorLogin %>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-      &nbsp;
-     <span><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></span>
-      &nbsp;
-    <% end %>
-    <% if issue.technicalDebt %>
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-      &nbsp;
-      <%= message('issue.technical_debt') -%>&nbsp;<a href="#" onclick="return toggleTechnicalDebt(this)" class="gray issue-technicaldebt-link"
-           id="toggle-issue-technicaldebt"><%= Internal.technical_debt.format(issue.technicalDebt) -%></a>
-        &nbsp;
-    <% end %>
   </div>
 
-  <div class="issue-rule rule-desc" style="display: none"></div>
-  <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
-  <div class="issue-technicaldebt" id="issue-technicaldebt" style="display: none"></div>
-
-  <% unless issue.message.blank? %>
-    <div class="code-issue-msg">
-      <%= Api::Utils.split_newlines(h(issue.message)).join('<br/>') -%>
-    </div>
-  <% end %>
-
-  <%
-     issue.comments.each do |comment|
-       comment_html_id = "comment-#{comment.key}-#{rand(100)}"
-  %>
-    <div class="code-issue-comment" id="<%= comment_html_id -%>" data-comment-key="<%= comment.key -%>">
-      <h4>
-        <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
-        (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
-        <% if current_user && current_user.login==comment.userLogin %>
-          &nbsp;
-          <%= image_tag 'sep12.png' -%>
-          &nbsp;
-          <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
-          <a class="link-action spacer-right" href="#" onclick="return deleteIssueComment(this, '<%= escape_javascript(message('issue.comment.delete_confirm_message')) -%>')"><%= message('delete') -%></a>
-        <% end %>
-      </h4>
-      <%= Internal.text.markdownToHtml(comment.markdownText) -%>
-    </div>
-  <% end %>
-
-  <% if current_user %>
-
-    <div class="code-issue-actions">
-      <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus><%= message('issue.comment.formlink') -%></a>
-      <% unless issue.resolution %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-        &nbsp;
-        <span class="spacer-right">
+  <ul class="code-issue-actions code-issue-list">
+    <% if current_user %>
+      <li><a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus><%= message('issue.comment.formlink') -%></a></li>
+    <% end %>
+    <li>
+      <i class="icon-status-<%= issue.status.downcase -%>"></i><%= message("issue.status.#{issue.status}") -%> <%= '(' + message("issue.resolution.#{issue.resolution}")  + ')' if issue.resolution -%>
+    </li>
+    <% if current_user %>
+      <% transitions = Internal.issues.listTransitions(issue).to_a
+         if !transitions.empty? && transitions.first
+           first_transition = transitions.first %>
+          <li>
+             <!-- Display only the first transition -->
+            <a href="#" onclick="return doIssueTransition(this, '<%= first_transition.key -%>')" class="link-action issue-transition spacer-left">
+              <%= message("issue.transition.#{first_transition.key}") -%></a>
+            <!-- Display remaining transitions -->
+            <% if transitions.size > 1 %>
+              <div class="dropdown">
+                <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"/></a>
+                <ul style="display: none" class="dropdown-menu">
+                  <% transitions[1..-1].each do |transition| %>
+                    <li>
+                      <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </li>
+      <% end %>
+    <% end %>
+    <% unless issue.resolution %>
+      <li>
         <% if issue.assignee %>
-          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%>
-        <% else %>
+          <% if current_user %>
+            <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%>
+          <% else %>
+            <%= message('assigned_to') -%> <strong><%= h @issue_results.user(issue.assignee).name -%></strong>
+          <% end %>
+        <% elsif current_user %>
           <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
             <% if issue.assignee != current_user.login %>
             [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
             <% end %>
         <% end %>
-        </span>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-        &nbsp;
-        <span class="spacer-right">
-          <% if issue.actionPlanKey %>
-            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%>
-          <% else %>
-            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
-          <% end %>
-        </span>
+      </li>
+      <li>
+      <% if issue.actionPlanKey %>
+        <% if current_user %>
+          <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%>
+        <% else %>
+          <%= message('issue.planned_for') -%> <strong><%= h(@issue_results.actionPlan(issue).name()) -%></strong>
+        <% end %>
+      <% elsif current_user %>
+        <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
       <% end %>
+      </li>
+    <% end %>
+    <% if current_user %>
+      <% plugin_actions = Internal.issues.listActions(issue)
+        if !issue.resolution || !plugin_actions.empty? %>
+        <li>
+          <div class="dropdown">
+            <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
+            <ul style="display: none" class="dropdown-menu">
+              <% if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey) %>
+                <% unless issue.resolution %>
+                  <li>
+                    <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
+                  </li>
+                <% end %>
+              <% end %>
 
-      <%
-         transitions = Internal.issues.listTransitions(issue).to_a
-
-         # Display only the first transition
-         if !transitions.empty? && transitions.first
-           first_transition = transitions.first
-      %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
-        &nbsp;
-        <a href="#" onclick="return doIssueTransition(this, '<%= first_transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{first_transition.key}") -%></a>
-      <% end %>
-
-      <%
-         plugin_actions = Internal.issues.listActions(issue)
-         shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
-         if shouldDisplayDropDown
-      %>
-        <div class="dropdown">
-          <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
-          <ul style="display: none" class="dropdown-menu">
-            <% if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey) %>
-              <% unless issue.resolution %>
+              <% # Display actions defined by plugins
+                 plugin_actions.each do |action| %>
                 <li>
-                  <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
+                  <a href="#" onclick="return doPluginIssueAction(this, '<%= action.key -%>')" class="link-action spacer-right"><%= message("issue.action.#{action.key}.formlink") -%></a>
                 </li>
               <% end %>
-            <% end %>
+            </ul>
+          </div>
+        </li>
+      <% end %>
+    <% end %>
+    <% if issue.technicalDebt %>
+      <li><%= message('issue.debt') -%>&nbsp;<%= Internal.technical_debt.format(issue.technicalDebt) -%></li>
+    <% end %>
+    <% if issue.authorLogin %>
+      <li><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></li>
+    <% end %>
+    <% if issue.reporter %>
+      <li><%= message('issue.reported_by') -%>&nbsp;<%= @issue_results.user(issue.reporter).name -%></li>
+    <% end %>
+  </ul>
+  <div class="code-issue-form hidden"></div>
 
-            <% # Display remaining transitions
-               if transitions.size > 1
-                 transitions[1..-1].each do |transition| %>
-              <li>
-                <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
-              </li>
-            <%  end
-               end %>
+  <div class="code-issue-details">
+    <ul class="tabs">
+      <li>
+        <a href="#tab-issue-rule"><%= message('rule') -%></a>
+      </li>
+      <li>
+        <a href="#tab-issue-changelog"><%= message('changelog') -%></a>
+      </li>
+    </ul>
 
-            <% # Display actions defined by plugins
-               plugin_actions.each do |action| %>
-              <li>
-                <a href="#" onclick="return doPluginIssueAction(this, '<%= action.key -%>')" class="link-action spacer-right"><%= message("issue.action.#{action.key}.formlink") -%></a>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+    <div id="tab-issue-rule">
+      <%= image_tag 'loading.gif', :class => 'rule-loading hidden' -%>
+      <div class="issue-rule rule-desc"></div>
     </div>
-    <div class="code-issue-form hidden"></div>
-  <% elsif issue.assignee || issue.actionPlanKey %>
-    <div class="code-issue-actions">
-      <% if issue.assignee %>
-        <span class="gray"><%= message('assigned_to') -%> <%= h @issue_results.user(issue.assignee).name -%></span>
-        &nbsp;
-      <% end %>
-      <% if issue.actionPlanKey %>
-        <% if issue.assignee %><img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>&nbsp;<% end %>
-        <span class="gray"><%= message('issue.planned_for') -%> <%= h(@issue_results.actionPlan(issue).name()) -%></span>
-      <% end %>
+
+    <div id="tab-issue-changelog">
+      <%= image_tag 'loading.gif', :class => 'changelog-loading hidden' -%>
+      <table class="issue-changelog spaced">
+      </table>
     </div>
-  <% end %>
+  </div>
+
+  <div class="code-issue-comments">
+    <% issue.comments.each do |comment|
+         comment_html_id = "comment-#{comment.key}-#{rand(100)}" %>
+      <div class="code-issue-comment" id="<%= comment_html_id -%>" data-comment-key="<%= comment.key -%>">
+        <h4>
+          <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
+          (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
+          <% if current_user && current_user.login==comment.userLogin %>
+            &nbsp;
+            <%= image_tag 'sep12.png' -%>
+            &nbsp;
+            <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
+            <a class="link-action spacer-right" href="#" onclick="return deleteIssueComment(this, '<%= escape_javascript(message('issue.comment.delete_confirm_message')) -%>')"><%= message('delete') -%></a>
+          <% end %>
+        </h4>
+        <%= Internal.text.markdownToHtml(comment.markdownText) -%>
+      </div>
+    <% end %>
+  </div>
 </div>
+
+<script>
+  $j('#issue-<%= u issue.key -%> .code-issue-details').tabs();
+  $j('#issue-<%= u issue.key -%> .code-issue-toggle').click(function() {
+    toggleIssueCollapsed(this);
+  });
+</script>

@@ -187,6 +187,12 @@ class IssueController < ApplicationController
     require_parameters :id
     rule_key = params[:id].split(':')
     @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]])
+    @requirement = Internal.technical_debt.findRequirementByRuleId(@rule.id)
+    # Requirement can be null if it's disabled or if there's no requirement on this rule
+    if @requirement
+      @characteristic = Internal.technical_debt.findCharacteristic(@requirement.parentId)
+      @root_characteristic = Internal.technical_debt.findCharacteristic(@requirement.rootId)
+    end
     render :partial => 'issue/rule'
   end
 
@@ -198,21 +204,6 @@ class IssueController < ApplicationController
     @issue = @issue_results.first()
     @changelog = Internal.issues.changelog(@issue)
     render :partial => 'issue/changelog'
-  end
-
-  # Display the technical debt detail in the issue panel
-  def technicaldebt
-    verify_ajax_request
-    require_parameters :id
-    @issue_results = Api.issues.find(params[:id])
-    @issue = @issue_results.first()
-
-    rule = @issue_results.rule(@issue)
-    @requirement = Internal.technical_debt.findRequirement(rule)
-    # Requirement can be null if it's disabled
-    @characteristic = Internal.technical_debt.findCharacteristic(@requirement.parentId) if @requirement
-    @root_characteristic = Internal.technical_debt.findCharacteristic(@requirement.rootId) if @requirement
-    render :partial => 'issue/technicaldebt'
   end
 
 

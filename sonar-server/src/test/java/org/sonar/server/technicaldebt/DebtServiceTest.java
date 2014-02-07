@@ -21,7 +21,6 @@ package org.sonar.server.technicaldebt;
 
 import org.junit.Test;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
@@ -61,11 +60,9 @@ public class DebtServiceTest {
   }
 
   @Test
-  public void find_requirement() {
-    Rule rule = Rule.create("repo", "key");
-    Characteristic requirement = new DefaultCharacteristic();
-    when(finder.findRequirementByRule(rule)).thenReturn(requirement);
-    assertThat(service.findRequirement(rule)).isEqualTo(requirement);
+  public void find_requirement_by_rule_id() {
+    service.findRequirementByRuleId(1);
+    verify(finder).findRequirementByRuleId(1);
   }
 
   @Test

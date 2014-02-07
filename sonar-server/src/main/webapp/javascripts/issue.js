@@ -203,64 +203,42 @@ function submitCreateIssueForm(elt) {
   return false;
 }
 
-function toggleIssueRule(elt) {
+function toggleIssueCollapsed(elt) {
   var issueElt = $j(elt).closest('[data-issue-rule]');
-  var ruleElt = issueElt.find('.issue-rule');
-  if (ruleElt.is(':visible')) {
-    ruleElt.slideUp('fast');
-  } else {
-    issueElt.find('.issue-changelog').slideUp('fast');
-    issueElt.find('.issue-technicaldebt').slideUp('fast');
+  issueElt.toggleClass('code-issue-collapsed');
+
+  if (!issueElt.hasClass('code-issue-collapsed')) {
+
+    // Load rule desc
+    // Display loading images and hide existing content
+    var ruleLoading = issueElt.find('.rule-loading');
+    ruleLoading.removeClass('hidden');
+    var ruleElt = issueElt.find('.issue-rule');
+    ruleElt.addClass('hidden');
     var ruleKey = issueElt.attr('data-issue-rule');
     $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
       ruleElt.html(html);
-      ruleElt.slideDown('fast');
-
       // re-enable the links opening modal popups
       ruleElt.find('.open-modal').modal();
+    }).always(function () {
+      ruleLoading.addClass('hidden');
+      ruleElt.removeClass('hidden');
     });
-  }
-  return false;
-}
 
-function toggleIssueChangelog(elt) {
-  var issueElt = $j(elt).closest('[data-issue-key]');
-  var changelogElt = issueElt.find('.issue-changelog');
-  if (changelogElt.is(':visible')) {
-    changelogElt.slideUp('fast');
-  } else {
-    issueElt.find('.issue-rule').slideUp('fast');
-    issueElt.find('.issue-technicaldebt').slideUp('fast');
+    // Load changelog
+    // Display loading images and hide existing content
+    var cangelogLoading = issueElt.find('.changelog-loading');
+    cangelogLoading.removeClass('hidden');
+    var changelogElt = issueElt.find('.issue-changelog');
+    changelogElt.addClass('hidden');
     var issueKey = issueElt.attr('data-issue-key');
     $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
       changelogElt.html(html);
-      changelogElt.slideDown('fast');
+    }).always(function () {
+      cangelogLoading.addClass('hidden');
+      changelogElt.removeClass('hidden');
     });
   }
-  return false;
-}
-
-function toggleTechnicalDebt(elt) {
-  var issueElt = $j(elt).closest('[data-issue-key]');
-  var debtElt = issueElt.find('.issue-technicaldebt');
-  if (debtElt.is(':visible')) {
-    debtElt.slideUp('fast');
-  } else {
-    issueElt.find('.issue-changelog').slideUp('fast');
-    issueElt.find('.issue-rule').slideUp('fast');
-    var issueKey = issueElt.attr('data-issue-key');
-    $j.get(baseUrl + "/issue/technicaldebt/" + issueKey, function (html) {
-      debtElt.html(html);
-      debtElt.slideDown('fast');
-    });
-  }
-  return false;
-}
-
-function openIssueRulePopup(elt) {
-  var issueElt = $j(elt).closest('[data-issue-rule]');
-  var ruleKey = issueElt.attr('data-issue-rule');
-  openPopup(baseUrl + "/rules/show/" + ruleKey + "?layout=false", 'rule');
   return false;
 }
 

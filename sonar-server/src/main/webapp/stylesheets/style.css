@@ -814,6 +814,7 @@ th.operations, td.operations {
   line-height: 16px;
   color: #777;
   border: 1px solid #DDD;
+  border-bottom: medium none;
 }
 
 .code-issue-msg {
@@ -854,7 +855,7 @@ th.operations, td.operations {
   top: 5px; right: 26px;
 }
 
-.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog, .issue-technicaldebt {
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;
@@ -944,6 +945,7 @@ th.operations, td.operations {
 .code-issue-list {
   font-size: 0;
   white-space: nowrap;
+  background-color: #E4ECF3;
 }
 
 .code-issue-list > li {

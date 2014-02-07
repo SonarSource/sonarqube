@@ -1,3 +1,5 @@
+<h1 class="marginbottom10"><%= h @rule.name %></h1>
+
 <div class="marginbottom10">
   <% if @rule.description.strip.start_with?('<p>') %>
     <%= Internal.text.interpretMacros(@rule.description) %>
@@ -12,8 +14,12 @@
   </div>
 <% end %>
 
-<div class="note">
-  <%= h @rule.plugin_name -%>
+<p class="note">
+  <%= h @rule.plugin_name -%>:<%= h @rule.plugin_rule_key -%>
   &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-  <a href="#" onclick="return openIssueRulePopup(this)"><%= h @rule.plugin_rule_key -%></a>
-</div>
+  <% if @requirement %>
+    <%= @root_characteristic.name -%>&nbsp;&gt;&nbsp;<%= @characteristic.name -%>
+  <% else %>
+    <%= message 'issue.technical_debt_deleted' %>
+  <% end %>
+</p>

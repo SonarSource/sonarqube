@@ -22,12 +22,12 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.WorkDayDuration;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class DebtService implements ServerComponent {
@@ -52,8 +52,8 @@ public class DebtService implements ServerComponent {
     return finder.findRootCharacteristics();
   }
 
-  public Characteristic findRequirement(Rule rule) {
-    return finder.findRequirementByRule(rule);
+  public Characteristic findRequirementByRuleId(int ruleId) {
+    return finder.findRequirementByRuleId(ruleId);
   }
 
   @CheckForNull
