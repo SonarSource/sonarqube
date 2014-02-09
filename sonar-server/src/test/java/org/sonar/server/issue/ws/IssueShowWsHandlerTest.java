@@ -402,19 +402,6 @@ public class IssueShowWsHandlerTest {
     request.execute().assertJson(getClass(), "show_issue_with_changelog.json");
   }
 
-  /**
-   * SONAR-4785
-   */
-  @Test
-  public void show_issue_display_name_when_no_message() throws Exception {
-    Issue issue = createStandardIssue().setMessage(null);
-    issues.add(issue);
-
-    MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_display_name_when_no_message.json");
-  }
-
   private DefaultIssue createStandardIssue() {
     DefaultIssue issue = createIssue();
     addComponentAndProject();
@@ -424,7 +411,6 @@ public class IssueShowWsHandlerTest {
   private DefaultIssue createIssue() {
     return new DefaultIssue()
       .setKey("ABCD")
-      .setMessage("Fix it")
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))

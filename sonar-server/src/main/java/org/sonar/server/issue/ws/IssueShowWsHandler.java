@@ -47,7 +47,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -97,8 +96,6 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    String message = issue.message();
-    String ruleName = result.rule(issue).getName();
     Component component = result.component(issue);
     Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
@@ -115,9 +112,9 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("project", issue.projectKey())
       .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
-      .prop("ruleName", ruleName)
+      .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
-      .prop("message", message != null ? message : ruleName)
+      .prop("message",issue.message())
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
