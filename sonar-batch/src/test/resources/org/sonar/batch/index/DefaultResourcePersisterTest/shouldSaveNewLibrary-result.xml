@@ -13,7 +13,7 @@
   <!-- new project -->
   <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]"
             name="Foo" long_name="Foo" description="some description"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="foo" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="foo" />
 
   <projects id="1002" scope="PRJ" qualifier="LIB" kee="junit:junit" root_id="[null]"
             name="junit:junit" long_name="junit:junit" description="[null]"

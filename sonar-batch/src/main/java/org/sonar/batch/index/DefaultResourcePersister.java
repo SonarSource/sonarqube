@@ -89,8 +89,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
     ResourceModel model = findOrCreateModel(project);
     // Used by ResourceKeyMigration in order to know that a project has already being migrated
     model.setDeprecatedKey(project.getKey());
-    // ugly, only for projects
-    model.setLanguageKey(project.getLanguageKey());
+    // language is null for project since multi-language support
+    model.setLanguageKey(null);
 
     // For views
     if (project instanceof ResourceCopy) {

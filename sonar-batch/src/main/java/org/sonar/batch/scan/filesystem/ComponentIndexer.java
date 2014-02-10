@@ -22,7 +22,6 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
@@ -40,7 +39,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -92,8 +90,6 @@ public class ComponentIndexer implements BatchComponent {
         importSources(shouldImportSource, inputFile, sonarFile);
       }
     }
-
-    updateModuleLanguage();
   }
 
   @VisibleForTesting
@@ -114,20 +110,6 @@ public class ComponentIndexer implements BatchComponent {
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
         + inputFile.encoding() + "'.", e);
-    }
-  }
-
-  private void updateModuleLanguage() {
-    if (module.getId() != null) {
-      ResourceDto dto = resourceDao.getResource(module.getId());
-      if (moduleLanguages.keys().size() == 1) {
-        dto.setLanguage(moduleLanguages.keys().iterator().next());
-      } else if (moduleLanguages.keys().size() > 1) {
-        dto.setLanguage(StringUtils.join(moduleLanguages.keys(), ","));
-      } else {
-        dto.setLanguage(Project.NONE_LANGUAGE.getKey());
-      }
-      resourceDao.insertOrUpdate(dto);
     }
   }
 }

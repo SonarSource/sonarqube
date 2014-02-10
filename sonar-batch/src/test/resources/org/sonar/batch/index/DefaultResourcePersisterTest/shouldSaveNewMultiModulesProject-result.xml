@@ -13,19 +13,19 @@
   <!-- new project -->
   <projects id="1001" scope="PRJ" qualifier="TRK" kee="root" root_id="[null]"
             name="Root" long_name="Root" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="root" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="root" />
 
   <projects id="1002" scope="PRJ" qualifier="BRC" kee="a" root_id="1001"
             name="A" long_name="A" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="moduleA" deprecated_kee="a" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="moduleA" deprecated_kee="a" />
 
   <projects id="1003" scope="PRJ" qualifier="BRC" kee="b" root_id="1001"
             name="B" long_name="B" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="moduleB" deprecated_kee="b" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="moduleB" deprecated_kee="b" />
 
   <projects id="1004" scope="PRJ" qualifier="BRC" kee="b1" root_id="1001"
             name="B1" long_name="B1" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="moduleB1" deprecated_kee="b1" />
+            enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="moduleB1" deprecated_kee="b1" />
 
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3001" project_id="1001" root_project_id="1001" parent_snapshot_id="[null]"  root_snapshot_id="[null]"
