@@ -35,6 +35,7 @@ import java.util.Map;
 public class DefaultIssueClient implements IssueClient {
 
   private static final String SEARCH_URL = "/api/issues/search";
+  private static final String ASSIGN_URL = "/api/issues/assign";
 
   private final HttpRequestFactory requestFactory;
   private final IssueJsonParser parser;
@@ -72,7 +73,7 @@ public class DefaultIssueClient implements IssueClient {
   @Override
   public Issue assignToMe(String issueKey) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "me", "true");
-    String json = requestFactory.post("/api/issues/assign", params);
+    String json = requestFactory.post(ASSIGN_URL, params);
     return jsonToIssue(json);
   }
 
