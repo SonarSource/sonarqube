@@ -39,9 +39,17 @@ public class Resource extends Model {
   public static final String QUALIFIER_LIB = "LIB";
   public static final String QUALIFIER_PROJECT = "TRK";
   public static final String QUALIFIER_MODULE = "BRC";
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public static final String QUALIFIER_PACKAGE = "PAC";
   public static final String QUALIFIER_DIRECTORY = "DIR";
   public static final String QUALIFIER_FILE = "FIL";
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public static final String QUALIFIER_CLASS = "CLA";
   public static final String QUALIFIER_UNIT_TEST_CLASS = "UTS";
 
@@ -482,11 +490,11 @@ public class Resource extends Model {
   @Override
   public String toString() {
     return new StringBuilder()
-        .append("[id=")
-        .append(id)
-        .append(",key=")
-        .append(key)
-        .append("]")
-        .toString();
+      .append("[id=")
+      .append(id)
+      .append(",key=")
+      .append(key)
+      .append("]")
+      .toString();
   }
 }
