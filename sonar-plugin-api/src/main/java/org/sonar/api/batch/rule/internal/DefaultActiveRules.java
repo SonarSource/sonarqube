@@ -22,8 +22,8 @@ package org.sonar.api.batch.rule.internal;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.rule.ModuleRule;
-import org.sonar.api.batch.rule.ModuleRules;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.concurrent.Immutable;
@@ -31,25 +31,24 @@ import java.util.Collection;
 import java.util.List;
 
 @Immutable
-class DefaultModuleRules implements ModuleRules {
+class DefaultActiveRules implements ActiveRules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
-  private final ListMultimap<String, ModuleRule> moduleRulesByRepository;
+  private final ListMultimap<String, ActiveRule> activeRulesByRepository;
 
-  public DefaultModuleRules(Collection<NewModuleRule> newModuleRules) {
-    ImmutableListMultimap.Builder<String, ModuleRule> builder = ImmutableListMultimap.builder();
-    for (NewModuleRule newMr : newModuleRules) {
-      DefaultModuleRule mr = new DefaultModuleRule(newMr);
-      builder.put(mr.ruleKey().repository(), mr);
+  public DefaultActiveRules(Collection<NewActiveRule> newActiveRules) {
+    ImmutableListMultimap.Builder<String, ActiveRule> builder = ImmutableListMultimap.builder();
+    for (NewActiveRule newAR : newActiveRules) {
+      DefaultActiveRule ar = new DefaultActiveRule(newAR);
+      builder.put(ar.ruleKey().repository(), ar);
     }
-    moduleRulesByRepository = builder.build();
+    activeRulesByRepository = builder.build();
   }
 
-
   @Override
-  public ModuleRule find(RuleKey ruleKey) {
-    List<ModuleRule> rules = moduleRulesByRepository.get(ruleKey.repository());
-    for (ModuleRule rule : rules) {
+  public ActiveRule find(RuleKey ruleKey) {
+    List<ActiveRule> rules = activeRulesByRepository.get(ruleKey.repository());
+    for (ActiveRule rule : rules) {
       if (StringUtils.equals(rule.ruleKey().rule(), ruleKey.rule())) {
         return rule;
       }
@@ -58,12 +57,12 @@ class DefaultModuleRules implements ModuleRules {
   }
 
   @Override
-  public Collection<ModuleRule> findAll() {
-    return moduleRulesByRepository.values();
+  public Collection<ActiveRule> findAll() {
+    return activeRulesByRepository.values();
   }
 
   @Override
-  public Collection<ModuleRule> findByRepository(String repository) {
-    return moduleRulesByRepository.get(repository);
+  public Collection<ActiveRule> findByRepository(String repository) {
+    return activeRulesByRepository.get(repository);
   }
 }

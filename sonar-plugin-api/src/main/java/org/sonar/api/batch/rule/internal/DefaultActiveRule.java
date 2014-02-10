@@ -20,23 +20,23 @@
 package org.sonar.api.batch.rule.internal;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.batch.rule.ModuleRule;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 
 @Immutable
-class DefaultModuleRule implements ModuleRule {
+class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
-  private final String severity, engineKey;
+  private final String severity, internalKey;
   private final Map<String, String> params;
 
-  DefaultModuleRule(NewModuleRule newModuleRule) {
-    this.severity = newModuleRule.severity;
-    this.engineKey = newModuleRule.engineKey;
-    this.ruleKey = newModuleRule.ruleKey;
-    this.params = ImmutableMap.copyOf(newModuleRule.params);
+  DefaultActiveRule(NewActiveRule newActiveRule) {
+    this.severity = newActiveRule.severity;
+    this.internalKey = newActiveRule.internalKey;
+    this.ruleKey = newActiveRule.ruleKey;
+    this.params = ImmutableMap.copyOf(newActiveRule.params);
   }
 
   @Override
@@ -56,12 +56,12 @@ class DefaultModuleRule implements ModuleRule {
 
   @Override
   public Map<String, String> params() {
-    // immutable
+    // already immutable
     return params;
   }
 
   @Override
-  public String engineKey() {
-    return engineKey;
+  public String internalKey() {
+    return internalKey;
   }
 }

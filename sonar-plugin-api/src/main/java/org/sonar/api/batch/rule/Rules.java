@@ -26,7 +26,7 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 /**
- * Not used
+ * Not used yet
  * @since 4.2
  */
 @Beta

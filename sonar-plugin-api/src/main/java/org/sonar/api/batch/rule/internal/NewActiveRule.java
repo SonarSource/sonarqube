@@ -27,27 +27,30 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NewModuleRule {
+/**
+ * @since 4.2
+ */
+public class NewActiveRule {
   final RuleKey ruleKey;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
-  String engineKey;
+  String internalKey;
 
-  NewModuleRule(RuleKey ruleKey) {
+  NewActiveRule(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
   }
 
-  public NewModuleRule setSeverity(@Nullable String severity) {
+  public NewActiveRule setSeverity(@Nullable String severity) {
     this.severity = StringUtils.defaultIfBlank(severity, Severity.defaultSeverity());
     return this;
   }
 
-  public NewModuleRule setEngineKey(@Nullable String engineKey) {
-    this.engineKey = engineKey;
+  public NewActiveRule setInternalKey(@Nullable String internalKey) {
+    this.internalKey = internalKey;
     return this;
   }
 
-  public NewModuleRule setParam(String key, @Nullable String value) {
+  public NewActiveRule setParam(String key, @Nullable String value) {
     // possible improvement : check that the param key exists in rule definition
     if (value == null) {
       params.remove(key);
@@ -55,5 +58,9 @@ public class NewModuleRule {
       params.put(key, value);
     }
     return this;
+  }
+
+  public Map<String, String> params() {
+    return params;
   }
 }

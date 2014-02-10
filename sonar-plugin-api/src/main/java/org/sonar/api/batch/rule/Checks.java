@@ -80,13 +80,13 @@ import java.util.Map;
  * @since 4.2
  */
 public class Checks<C> {
-  private final ModuleRules moduleRules;
+  private final ActiveRules activeRules;
   private final String repository;
   private final Map<RuleKey, C> checkByRule = Maps.newHashMap();
   private final Map<C, RuleKey> ruleByCheck = Maps.newIdentityHashMap();
 
-  Checks(ModuleRules moduleRules, String repository) {
-    this.moduleRules = moduleRules;
+  Checks(ActiveRules activeRules, String repository) {
+    this.activeRules = activeRules;
     this.repository = repository;
   }
 
@@ -122,11 +122,11 @@ public class Checks<C> {
       }
     }
 
-    for (ModuleRule moduleRule : moduleRules.findByRepository(repository)) {
-      String engineKey = StringUtils.defaultIfBlank(moduleRule.engineKey(), moduleRule.ruleKey().rule());
+    for (ActiveRule activeRule : activeRules.findByRepository(repository)) {
+      String engineKey = StringUtils.defaultIfBlank(activeRule.internalKey(), activeRule.ruleKey().rule());
       Object checkClassesOrObject = checksByEngineKey.get(engineKey);
-      Object obj = instantiate(moduleRule, checkClassesOrObject);
-      add(moduleRule.ruleKey(), (C) obj);
+      Object obj = instantiate(activeRule, checkClassesOrObject);
+      add(activeRule.ruleKey(), (C) obj);
     }
     return this;
   }
@@ -144,27 +144,27 @@ public class Checks<C> {
     return StringUtils.defaultIfEmpty(key, clazz.getCanonicalName());
   }
 
-  private Object instantiate(ModuleRule moduleRule, Object checkClassOrInstance) {
+  private Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
     try {
       Object check = checkClassOrInstance;
       if (check instanceof Class) {
         check = ((Class) checkClassOrInstance).newInstance();
       }
-      configureFields(moduleRule, check);
+      configureFields(activeRule, check);
       return check;
     } catch (InstantiationException e) {
-      throw failToInstantiateCheck(moduleRule, checkClassOrInstance, e);
+      throw failToInstantiateCheck(activeRule, checkClassOrInstance, e);
     } catch (IllegalAccessException e) {
-      throw failToInstantiateCheck(moduleRule, checkClassOrInstance, e);
+      throw failToInstantiateCheck(activeRule, checkClassOrInstance, e);
     }
   }
 
-  private RuntimeException failToInstantiateCheck(ModuleRule moduleRule, Object checkClassOrInstance, Exception e) {
-    throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, moduleRule.ruleKey()), e);
+  private RuntimeException failToInstantiateCheck(ActiveRule activeRule, Object checkClassOrInstance, Exception e) {
+    throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, activeRule.ruleKey()), e);
   }
 
-  private void configureFields(ModuleRule moduleRule, Object check) {
-    for (Map.Entry<String, String> param : moduleRule.params().entrySet()) {
+  private void configureFields(ActiveRule activeRule, Object check) {
+    for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
       Field field = getField(check, param.getKey());
       if (field == null) {
         throw new IllegalStateException(

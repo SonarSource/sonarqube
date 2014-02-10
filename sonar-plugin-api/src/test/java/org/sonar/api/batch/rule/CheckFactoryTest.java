@@ -21,7 +21,7 @@ package org.sonar.api.batch.rule;
 
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.rule.internal.ModuleRulesBuilder;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 
@@ -32,7 +32,7 @@ public class CheckFactoryTest {
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ModuleRulesBuilder builder = new ModuleRulesBuilder();
+  ActiveRulesBuilder builder = new ActiveRulesBuilder();
 
   @Test
   public void no_checks_are_enabled() {
@@ -116,7 +116,7 @@ public class CheckFactoryTest {
   @Test
   public void use_engine_key() {
     RuleKey ruleKey = RuleKey.of("squid", "One");
-    builder.activate(ruleKey).setEngineKey("S0001");
+    builder.activate(ruleKey).setInternalKey("S0001");
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithKey.class);

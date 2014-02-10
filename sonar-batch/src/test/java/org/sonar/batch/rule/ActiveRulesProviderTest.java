@@ -21,8 +21,8 @@ package org.sonar.batch.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.rule.ModuleRule;
-import org.sonar.api.batch.rule.ModuleRules;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -37,18 +37,21 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ModuleRulesProviderTest extends AbstractDaoTestCase {
+public class ActiveRulesProviderTest extends AbstractDaoTestCase {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
 
   @Before
   public void init_rules() {
-    when(ruleFinder.findById(10)).thenReturn(new Rule().setRepositoryKey("squid").setKey("S0001"));
+    Rule squidRule = new Rule().setRepositoryKey("squid").setKey("S0001");
+    squidRule.createParameter("min").setDefaultValue("12");
+    when(ruleFinder.findById(10)).thenReturn(squidRule);
     when(ruleFinder.findById(100)).thenReturn(new Rule().setRepositoryKey("phpunit").setKey("P1"));
   }
+
   @Test
-  public void build_module_rules() throws Exception {
+  public void build_active_rules() throws Exception {
     setupData("shared");
     QualityProfileDao profileDao = new QualityProfileDao(getMyBatis());
     when(qProfiles.findAll()).thenReturn(Arrays.asList(
@@ -58,23 +61,25 @@ public class ModuleRulesProviderTest extends AbstractDaoTestCase {
       new ModuleQProfiles.QProfile(profileDao.selectById(3))
     ));
 
-    ModuleRulesProvider provider = new ModuleRulesProvider();
+    ActiveRulesProvider provider = new ActiveRulesProvider();
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(getMyBatis());
-    ModuleRules moduleRules = provider.provide(qProfiles, activeRuleDao, ruleFinder);
+    ActiveRules activeRules = provider.provide(qProfiles, activeRuleDao, ruleFinder);
 
-    assertThat(moduleRules.findAll()).hasSize(2);
-    assertThat(moduleRules.findByRepository("squid")).hasSize(1);
-    assertThat(moduleRules.findByRepository("phpunit")).hasSize(1);
-    assertThat(moduleRules.findByRepository("unknown")).isEmpty();
-    ModuleRule squidRule = moduleRules.find(RuleKey.of("squid", "S0001"));
+    assertThat(activeRules.findAll()).hasSize(2);
+    assertThat(activeRules.findByRepository("squid")).hasSize(1);
+    assertThat(activeRules.findByRepository("phpunit")).hasSize(1);
+    assertThat(activeRules.findByRepository("unknown")).isEmpty();
+    ActiveRule squidRule = activeRules.find(RuleKey.of("squid", "S0001"));
     assertThat(squidRule.severity()).isEqualTo(Severity.INFO);
-    assertThat(squidRule.engineKey()).isNull();
-    assertThat(squidRule.params()).hasSize(2);
+    assertThat(squidRule.internalKey()).isNull();
+    // "max" and "format" parameters are set in db, "min" is not set but has a default value
+    assertThat(squidRule.params()).hasSize(3);
+    assertThat(squidRule.param("min")).isEqualTo("12");
     assertThat(squidRule.param("max")).isEqualTo("20");
     assertThat(squidRule.param("format")).isEqualTo("html");
-    ModuleRule phpRule = moduleRules.find(RuleKey.of("phpunit", "P1"));
+
+    ActiveRule phpRule = activeRules.find(RuleKey.of("phpunit", "P1"));
     assertThat(phpRule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(phpRule.params()).isEmpty();
   }
-
 }

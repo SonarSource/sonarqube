@@ -17,28 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule;
+package org.sonar.api.batch.rule.internal;
 
+import com.google.common.collect.Maps;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
-import javax.annotation.CheckForNull;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Lists all the rules that are activated on the current module. Quality profiles are
- * merged, so rules can relate to different repositories and languages.
+ * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
+ * <b>For unit testing and internal use only</b>.
  * @since 4.2
  */
-public interface ModuleRules {
+public class ActiveRulesBuilder {
 
-  @CheckForNull
-  ModuleRule find(RuleKey ruleKey);
+  private final Map<RuleKey, NewActiveRule> map = Maps.newHashMap();
 
-  /**
-   * All the rules that are enabled, whatever their repository and related language.
-   */
-  Collection<ModuleRule> findAll();
+  public NewActiveRule activate(RuleKey ruleKey) {
+    if (map.containsKey(ruleKey)) {
+      throw new IllegalStateException(String.format("Rule '%s' is already activated", ruleKey));
+    }
+    NewActiveRule newActiveRule = new NewActiveRule(ruleKey);
+    map.put(ruleKey, newActiveRule);
+    return newActiveRule;
+  }
 
-  Collection<ModuleRule> findByRepository(String repository);
-
+  public ActiveRules build() {
+    return new DefaultActiveRules(map.values());
+  }
 }

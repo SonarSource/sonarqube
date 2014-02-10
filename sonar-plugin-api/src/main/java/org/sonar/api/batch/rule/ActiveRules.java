@@ -19,24 +19,38 @@
  */
 package org.sonar.api.batch.rule;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
-import java.util.Map;
+import java.util.Collection;
 
 /**
+ * The rules that are activated on the current module. Quality profiles are
+ * merged, so rules can relate to different repositories and languages.
+ * <p/>
+ * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
+ * this component in unit tests.
  * @since 4.2
  */
-public interface ModuleRule {
+public interface ActiveRules extends BatchComponent {
 
-  RuleKey ruleKey();
-
-  String severity();
-
+  /**
+   * Find a {@link ActiveRule} by the associated rule key. <code>null</code>
+   * is returned if the rule does not exist or if the rule is not activated
+   * on any Quality profile associated with the module.
+   */
   @CheckForNull
-  String param(String key);
+  ActiveRule find(RuleKey ruleKey);
 
-  Map<String, String> params();
+  /**
+   * All the active rules, whatever their repository and related language.
+   */
+  Collection<ActiveRule> findAll();
 
-  String engineKey();
+  /**
+   * The active rules for a given repository, like Findbugs
+   */
+  Collection<ActiveRule> findByRepository(String repository);
+
 }

@@ -17,33 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.api.batch.rule;
 
-import org.sonar.api.batch.rule.ModuleRules;
 import org.sonar.api.rule.RuleKey;
 
-import java.util.HashMap;
+import javax.annotation.CheckForNull;
 import java.util.Map;
 
 /**
- * For unit testing and internal use only.
- *
+ * Configuration of a rule activated on a Quality profile
  * @since 4.2
  */
-public class ModuleRulesBuilder {
+public interface ActiveRule {
 
-  private final Map<RuleKey, NewModuleRule> map = new HashMap<RuleKey, NewModuleRule>();
+  RuleKey ruleKey();
 
-  public NewModuleRule activate(RuleKey ruleKey) {
-    if (map.containsKey(ruleKey)) {
-      throw new IllegalStateException(String.format("Rule '%s' is already activated", ruleKey));
-    }
-    NewModuleRule newModuleRule = new NewModuleRule(ruleKey);
-    map.put(ruleKey, newModuleRule);
-    return newModuleRule;
-  }
+  /**
+   * Non-null severity.
+   * @see org.sonar.api.rule.Severity
+   */
+  String severity();
 
-  public ModuleRules build() {
-    return new DefaultModuleRules(map.values());
-  }
+  /**
+   * Value of given parameter. Returns <code>null</code> if the parameter key does not
+   * exist on the rule or if the parameter has no value nor default value.
+   */
+  @CheckForNull
+  String param(String key);
+
+  /**
+   * Immutable parameter values. Returns an empty map if no parameters are defined.
+   */
+  Map<String, String> params();
+
+  /**
+   * Optional key declared and used by the underlying rule engine. As an example
+   * the key of a Checkstyle rule looks like <code>com.puppycrawl.tools.checkstyle.checks.FooCheck</code>
+   * whereas its internal key can be <code>Checker/TreeWalker/Foo</code>.
+   */
+  @CheckForNull
+  String internalKey();
 }

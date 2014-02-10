@@ -42,8 +42,8 @@ import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.ModuleRulesProvider;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
 import org.sonar.batch.scan.filesystem.*;
@@ -119,7 +119,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // rules
       ModuleQProfiles.class,
-      new ModuleRulesProvider(),
+      new ActiveRulesProvider(),
       new RulesProfileProvider(),
       QProfileSensor.class,
       CheckFactory.class,

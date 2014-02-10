@@ -29,13 +29,13 @@ import org.sonar.api.BatchComponent;
  */
 public class CheckFactory implements BatchComponent {
 
-  private final ModuleRules moduleRules;
+  private final ActiveRules activeRules;
 
-  public CheckFactory(ModuleRules moduleRules) {
-    this.moduleRules = moduleRules;
+  public CheckFactory(ActiveRules activeRules) {
+    this.activeRules = activeRules;
   }
 
   public <C> Checks<C> create(String repository) {
-    return new Checks<C>(moduleRules, repository);
+    return new Checks<C>(activeRules, repository);
   }
 }
