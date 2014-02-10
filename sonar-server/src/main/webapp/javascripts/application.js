@@ -45,24 +45,6 @@ function dashboardParameters() {
   return parameters;
 }
 
-function autocompleteResources() {
-  $('searchInput').value = '';
-  new Ajax.Autocompleter('searchInput', 'searchResourcesResults', baseUrl + '/search', {
-    method: 'post',
-    minChars: 2,
-    indicator: 'searchingResources',
-    paramName: 's',
-    updateElement: function (item) {
-      if (item.id) {
-        window.location = baseUrl + '/dashboard/index/' + item.id + dashboardParameters();
-      }
-    },
-    onShow: function (element, update) { /* no update */
-      update.show();
-    }
-  });
-}
-
 function resourceViewerOnBulkIssues() {
   var issuesTab = 'tab=issues';
   if (window.location.search.indexOf('tab=') >= 0) {
@@ -548,3 +530,16 @@ function openPopup(url, popupId) {
   window.open(url,popupId,'height=800,width=900,scrollbars=1,resizable=1');
   return false;
 }
+
+
+jQuery(function() {
+  jQuery('#searchInput').autocomplete({
+    minLength: 2,
+
+    searchUrl: baseUrl + '/search',
+    searchTerm: 's',
+
+    results: '#searchResourcesResults',
+    spinner: '#searchingResources'
+  });
+});

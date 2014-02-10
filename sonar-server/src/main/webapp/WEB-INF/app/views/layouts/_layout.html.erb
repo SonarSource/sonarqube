@@ -29,7 +29,7 @@
     <div id="nav">
       <ul>
         <li>
-          <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
+          <input type="text" size="15" name="search" id="searchInput" value="<%= message('search_verb') -%>">
           <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
         </li>
         <% if logged_in? %>

@@ -38,6 +38,7 @@
     <js>/javascripts/widgets/histogram.js</js>
     
     <js>/javascripts/select-list.js</js>
+    <js>/javascripts/jquery.autocomplete.js</js>
 
     <js>/javascripts/navigator/handlebars-extensions.js</js>
 
