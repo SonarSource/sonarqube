@@ -34,15 +34,24 @@ import java.util.List;
 public class ExclusionFilters implements BatchComponent {
   private final FileExclusions exclusionSettings;
 
+  private PathPattern[] sourceInclusions;
+  private PathPattern[] sourceExclusions;
+  private PathPattern[] testInclusions;
+  private PathPattern[] testExclusions;
+
   public ExclusionFilters(FileExclusions exclusions) {
     this.exclusionSettings = exclusions;
   }
 
-  public void logConfiguration(ModuleFileSystem fs) {
-    log("Included sources: ", sourceInclusions(fs));
-    log("Excluded sources: ", sourceExclusions());
-    log("Included tests: ", testInclusions(fs));
-    log("Excluded tests: ", testExclusions());
+  public void prepare(ModuleFileSystem fs) {
+    sourceInclusions = computeSourceInclusions(fs);
+    sourceExclusions = computeSourceExclusions();
+    testInclusions = computeTestInclusions(fs);
+    testExclusions = computeTestExclusions();
+    log("Included sources: ", sourceInclusions);
+    log("Excluded sources: ", sourceExclusions);
+    log("Included tests: ", testInclusions);
+    log("Excluded tests: ", testExclusions);
   }
 
   private void log(String title, PathPattern[] patterns) {
@@ -55,21 +64,20 @@ public class ExclusionFilters implements BatchComponent {
     }
   }
 
-  public boolean accept(InputFile inputFile, ModuleFileSystem fs) {
-    String type = inputFile.attribute(InputFile.ATTRIBUTE_TYPE);
+  public boolean accept(File ioFile, String relativePathFromBasedir, String type) {
     PathPattern[] inclusionPatterns = null;
     PathPattern[] exclusionPatterns = null;
     if (InputFile.TYPE_MAIN.equals(type)) {
-      inclusionPatterns = sourceInclusions(fs);
-      exclusionPatterns = sourceExclusions();
+      inclusionPatterns = sourceInclusions;
+      exclusionPatterns = sourceExclusions;
     } else if (InputFile.TYPE_TEST.equals(type)) {
-      inclusionPatterns = testInclusions(fs);
-      exclusionPatterns = testExclusions();
+      inclusionPatterns = testInclusions;
+      exclusionPatterns = testExclusions;
     }
     boolean matchInclusion = false;
     if (inclusionPatterns != null && inclusionPatterns.length > 0) {
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(inputFile);
+        matchInclusion |= pattern.match(ioFile, relativePathFromBasedir);
       }
       if (!matchInclusion) {
         return false;
@@ -77,7 +85,7 @@ public class ExclusionFilters implements BatchComponent {
     }
     if (exclusionPatterns != null && exclusionPatterns.length > 0) {
       for (PathPattern pattern : exclusionPatterns) {
-        if (pattern.match(inputFile)) {
+        if (pattern.match(ioFile, relativePathFromBasedir)) {
           return false;
         }
       }
@@ -85,7 +93,7 @@ public class ExclusionFilters implements BatchComponent {
     return matchInclusion;
   }
 
-  PathPattern[] sourceInclusions(ModuleFileSystem fs) {
+  PathPattern[] computeSourceInclusions(ModuleFileSystem fs) {
     if (exclusionSettings.sourceInclusions().length > 0) {
       // User defined params
       return PathPattern.create(exclusionSettings.sourceInclusions());
@@ -99,7 +107,7 @@ public class ExclusionFilters implements BatchComponent {
     return PathPattern.create(sourcePattern.toArray(new String[sourcePattern.size()]));
   }
 
-  PathPattern[] testInclusions(ModuleFileSystem fs) {
+  PathPattern[] computeTestInclusions(ModuleFileSystem fs) {
     if (exclusionSettings.testInclusions().length > 0) {
       // User defined params
       return PathPattern.create(exclusionSettings.testInclusions());
@@ -113,11 +121,11 @@ public class ExclusionFilters implements BatchComponent {
     return PathPattern.create(testPatterns.toArray(new String[testPatterns.size()]));
   }
 
-  PathPattern[] sourceExclusions() {
+  PathPattern[] computeSourceExclusions() {
     return PathPattern.create(exclusionSettings.sourceExclusions());
   }
 
-  PathPattern[] testExclusions() {
+  PathPattern[] computeTestExclusions() {
     return PathPattern.create(exclusionSettings.testExclusions());
   }
 }

@@ -43,9 +43,14 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Index input files into {@link InputFileCache}.
@@ -104,7 +109,7 @@ public class FileIndex implements BatchComponent {
       return;
     }
     logger.info("Index files");
-    exclusionFilters.logConfiguration(fileSystem);
+    exclusionFilters.prepare(fileSystem);
     // TODO log configuration too (replace FileSystemLogger)
 
     Progress progress = new Progress(fileCache.fileRelativePaths(fileSystem.moduleKey()));
@@ -115,8 +120,7 @@ public class FileIndex implements BatchComponent {
       indexFiles(fileSystem, progress, fileSystem.testFiles(), InputFile.TYPE_TEST);
     } else if (fileSystem.baseDir() != null) {
       // index from basedir
-      indexDirectory(fileSystem, progress, fileSystem.baseDir(), InputFile.TYPE_MAIN);
-      indexDirectory(fileSystem, progress, fileSystem.baseDir(), InputFile.TYPE_TEST);
+      indexDirectory(fileSystem, progress, fileSystem.baseDir());
     }
 
     // Remove files that have been removed since previous indexation
@@ -136,7 +140,9 @@ public class FileIndex implements BatchComponent {
           "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
           ));
       } else {
-        indexFile(fileSystem, progress, sourceFile, type);
+        if (exclusionFilters.accept(sourceFile, path, type)) {
+          indexFile(fileSystem, progress, sourceFile, path, type);
+        }
       }
     }
   }
@@ -160,23 +166,30 @@ public class FileIndex implements BatchComponent {
     return DefaultInputDir.create(ioFile, path, attributes);
   }
 
-  private void indexDirectory(DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, String type) {
+  private void indexDirectory(DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
-    for (File file : files) {
-      indexFile(fileSystem, status, file, type);
+    for (File sourceFile : files) {
+      String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
+      if (path == null) {
+        LoggerFactory.getLogger(getClass()).warn(String.format(
+          "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
+          ));
+      } else {
+        if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_MAIN)) {
+          indexFile(fileSystem, status, sourceFile, path, InputFile.TYPE_MAIN);
+        }
+        if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_TEST)) {
+          indexFile(fileSystem, status, sourceFile, path, InputFile.TYPE_TEST);
+        }
+      }
     }
   }
 
-  private void indexFile(DefaultModuleFileSystem fileSystem, Progress status, File file, String type) {
-    String path = computeFilePath(fileSystem, file);
-    if (path == null) {
-      LoggerFactory.getLogger(getClass()).warn(String.format("File '%s' is not in basedir '%s'", file.getAbsolutePath(), fileSystem.baseDir()));
-    } else {
-      InputFile input = newInputFile(fileSystem, type, file, path);
-      if (input != null && accept(input, fileSystem)) {
-        fileCache.put(fileSystem.moduleKey(), input);
-        status.markAsIndexed(path);
-      }
+  private void indexFile(DefaultModuleFileSystem fileSystem, Progress status, File file, String path, String type) {
+    InputFile input = newInputFile(fileSystem, type, file, path);
+    if (input != null && accept(input)) {
+      fileCache.put(fileSystem.moduleKey(), input);
+      status.markAsIndexed(path);
     }
   }
 
@@ -246,11 +259,8 @@ public class FileIndex implements BatchComponent {
     }
   }
 
-  private boolean accept(InputFile inputFile, ModuleFileSystem fs) {
-    if (!exclusionFilters.accept(inputFile, fs)) {
-      return false;
-    }
-    // Other InputFileFilter extensions
+  private boolean accept(InputFile inputFile) {
+    // InputFileFilter extensions
     for (InputFileFilter filter : filters) {
       if (!filter.accept(inputFile)) {
         return false;

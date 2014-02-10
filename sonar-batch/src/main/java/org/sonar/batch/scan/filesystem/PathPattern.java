@@ -27,6 +27,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.WildcardPattern;
 
+import java.io.File;
+
 abstract class PathPattern {
 
   private static final Logger LOG = LoggerFactory.getLogger(PathPattern.class);
@@ -40,6 +42,8 @@ abstract class PathPattern {
   abstract boolean match(Resource resource);
 
   abstract boolean match(InputFile inputFile);
+
+  abstract boolean match(File ioFile, String relativePathFromBasedir);
 
   abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
 
@@ -69,6 +73,12 @@ abstract class PathPattern {
   private static class AbsolutePathPattern extends PathPattern {
     private AbsolutePathPattern(String pattern) {
       super(pattern);
+    }
+
+    @Override
+    boolean match(File ioFile, String relativePathFromBasedir) {
+      String path = ioFile.getAbsolutePath();
+      return pattern.match(path);
     }
 
     @Override
@@ -111,6 +121,11 @@ abstract class PathPattern {
   private static class RelativePathPattern extends PathPattern {
     private RelativePathPattern(String pattern) {
       super(pattern);
+    }
+
+    @Override
+    boolean match(File ioFile, String relativePathFromBasedir) {
+      return relativePathFromBasedir != null && pattern.match(relativePathFromBasedir);
     }
 
     @Override

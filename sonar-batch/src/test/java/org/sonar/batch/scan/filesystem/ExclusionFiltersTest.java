@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +28,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,22 +56,16 @@ public class ExclusionFiltersTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
+    filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/FooDao.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isTrue();
 
     // test are excluded by default if no sonar.tests nor sonar.test.inclusions
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
   }
 
   @Test
@@ -83,23 +74,16 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
     when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
-    filter.logConfiguration(fs);
+    filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java2/com/mycompany/FooDao.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isFalse();
 
     // source inclusions do not apply to tests
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
   }
 
   @Test
@@ -109,22 +93,15 @@ public class ExclusionFiltersTest {
     when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
     when(fs.testDirs()).thenReturn(Arrays.asList(new File(basedir, "src/test/java")));
 
-    filter.logConfiguration(fs);
+    filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/test/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isTrue();
   }
 
   @Test
@@ -134,23 +111,16 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
     when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
-    filter.logConfiguration(fs);
+    filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java2/com/mycompany/FooDao.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isTrue();
 
     // source inclusions do not apply to tests
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
   }
 
   @Test
@@ -159,23 +129,16 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
     when(fs.testDirs()).thenReturn(Arrays.asList(new File(basedir, "src/test/java")));
 
-    filter.logConfiguration(fs);
+    filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/test/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
     // test inclusions do not apply to main code
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/test2/java/com/mycompany/FooTest.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/test2/java/com/mycompany/FooTest.java", InputFile.TYPE_TEST)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/test/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isTrue();
   }
 
   @Test
@@ -184,17 +147,13 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java,**/*Dto.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
+    filter.prepare(fs);
+
     java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
 
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/FooDto.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDto.java", InputFile.TYPE_MAIN)).isTrue();
   }
 
   @Test
@@ -205,20 +164,15 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    java.io.File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/FooDao.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
-    assertThat(filter.accept(inputFile, fs)).isFalse();
+    filter.prepare(fs);
 
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/com/mycompany/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    java.io.File file = temp.newFile();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isFalse();
+
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/test/java/com/mycompany/FooDao.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST));
-    assertThat(filter.accept(inputFile, fs)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/FooDao.java", InputFile.TYPE_TEST)).isTrue();
   }
 
   @Test
@@ -231,15 +185,11 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getCanonicalPath());
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    InputFile includedInput = DefaultInputFile.create(includedFile, Charsets.UTF_8, "src/main/java/org/bar/Foo.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
-    assertThat(filter.accept(includedInput, fs)).isTrue();
+    filter.prepare(fs);
 
-    InputFile excludedInput = DefaultInputFile.create(excludedFile, Charsets.UTF_8, "src/main/java/org/bar/Bar.java", ImmutableMap.of(
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN
-      ));
-    assertThat(filter.accept(excludedInput, fs)).isFalse();
+    assertThat(filter.accept(includedFile, "src/main/java/org/bar/Foo.java", InputFile.TYPE_MAIN)).isTrue();
+
+    assertThat(filter.accept(excludedFile, "src/main/java/org/bar/Bar.java", InputFile.TYPE_MAIN)).isFalse();
   }
 
   @Test
@@ -248,7 +198,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "   **/*Dao.java   ");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.sourceExclusions()[0].toString()).isEqualTo("**/*Dao.java");
+    assertThat(filter.computeSourceExclusions()[0].toString()).isEqualTo("**/*Dao.java");
   }
 
 }
