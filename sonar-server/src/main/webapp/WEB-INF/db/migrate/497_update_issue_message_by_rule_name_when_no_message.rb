@@ -37,8 +37,10 @@ class UpdateIssueMessageByRuleNameWhenNoMessage < ActiveRecord::Migration
         :conditions => 'message IS NULL'
     )
     issuesWithoutMessage.each do |issue|
-      issue.message = issue.rule.name
-      issue.save!
+      if issue.rule
+        issue.message = issue.rule.name
+        issue.save!
+      end
     end
   end
 end
