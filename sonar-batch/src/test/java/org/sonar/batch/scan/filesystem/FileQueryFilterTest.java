@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 
+import org.sonar.api.scan.filesystem.InputFile;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -243,8 +243,9 @@ public class File extends Resource {
    * Create a File that is partially initialized. But that's enough to call for example
    * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
    * Internal use only.
+   * @since 4.2
    */
-  private static File create(String relativePathFromBasedir) {
+  public static File create(String relativePathFromBasedir) {
     File file = new File();
     String normalizedPath = normalize(relativePathFromBasedir);
     file.setKey(normalizedPath);

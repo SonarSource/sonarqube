@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
-
-import org.sonar.api.scan.filesystem.InputFile;
+package org.sonar.api.scan.filesystem;
 
 import org.sonar.api.BatchExtension;
 
 /**
- * TODO document lifecycle -> executed when initializing project
+ * Implement this extension to limit the set of files to be analyzed. Global file inclusion/exclusion patterns
+ * are already applied.
  *
- * @since 4.0
+ * @since 4.2
  */
 public interface InputFileFilter extends BatchExtension {
 

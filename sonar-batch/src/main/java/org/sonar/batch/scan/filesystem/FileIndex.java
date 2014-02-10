@@ -33,11 +33,11 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputDir;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileFilter;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.SonarException;
 

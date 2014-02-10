@@ -19,9 +19,6 @@
  */
 package org.sonar.batch;
 
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-
-import org.sonar.api.scan.filesystem.InputFile;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +30,13 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.measure.MeasurementFilters;
 
@@ -259,12 +255,6 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private Resource fromInputFile(InputFile inputFile) {
-    String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);
-    boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
-    if (Java.KEY.equals(languageKey)) {
-      return JavaFile.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
-    } else {
-      return File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), languages.get(languageKey), unitTest);
-    }
+    return File.create(inputFile.path());
   }
 }

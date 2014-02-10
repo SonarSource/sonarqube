@@ -40,6 +40,16 @@ import java.util.List;
  */
 public class Project extends Resource implements Component {
 
+  /**
+   * Internal use
+   */
+  public static final Language NONE_LANGUAGE = new AbstractLanguage("none", "None") {
+    @Override
+    public String[] getFileSuffixes() {
+      return null;
+    }
+  };
+
   private static final String MAVEN_KEY_FORMAT = "%s:%s";
   private static final String BRANCH_KEY_FORMAT = "%s:%s";
 
@@ -239,6 +249,9 @@ public class Project extends Resource implements Component {
     return language;
   }
 
+  /**
+   * Internal use
+   */
   public Project setLanguage(Language language) {
     this.language = language;
     return this;

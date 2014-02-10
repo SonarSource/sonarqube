@@ -25,9 +25,14 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
@@ -135,13 +140,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Resource fromInputFile(InputFile inputFile) {
-    String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);
-    boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
-    if (Java.KEY.equals(languageKey)) {
-      return JavaFile.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), unitTest);
-    } else {
-      return File.create(inputFile.path(), inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH), null, unitTest);
-    }
+    return File.create(inputFile.path());
   }
 
   /**

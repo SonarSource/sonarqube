@@ -31,7 +31,9 @@ import java.io.File;
  * </ul>
  *
  * @since 3.5
+ * @deprecated since 4.2 use {@link InputFileFilter}
  */
+@Deprecated
 public interface FileSystemFilter extends BatchExtension {
 
   /**

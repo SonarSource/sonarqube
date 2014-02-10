@@ -27,7 +27,12 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
@@ -120,7 +125,7 @@ public class ComponentIndexer implements BatchComponent {
       } else if (moduleLanguages.keys().size() > 1) {
         dto.setLanguage(StringUtils.join(moduleLanguages.keys(), ","));
       } else {
-        dto.setLanguage("none");
+        dto.setLanguage(Project.NONE_LANGUAGE.getKey());
       }
       resourceDao.insertOrUpdate(dto);
     }

@@ -54,6 +54,8 @@ public class ProjectInitializer implements BatchComponent {
         throw new SonarException("Language with key '" + languageKey + "' not found");
       }
       project.setLanguage(language);
+    } else {
+      project.setLanguage(Project.NONE_LANGUAGE);
     }
   }
 }
