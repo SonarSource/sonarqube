@@ -368,7 +368,7 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
-    Bucket bucket = getBucket(resource, true);
+    Bucket bucket = getBucket(resource);
     if (bucket == null) {
       LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
       return;
@@ -469,7 +469,7 @@ public class DefaultIndex extends SonarIndex {
 
   public List<Resource> getChildren(Resource resource, boolean acceptExcluded) {
     List<Resource> children = Lists.newLinkedList();
-    Bucket bucket = getBucket(resource, acceptExcluded);
+    Bucket bucket = getBucket(resource);
     if (bucket != null) {
       for (Bucket childBucket : bucket.getChildren()) {
         children.add(childBucket.getResource());
@@ -480,7 +480,7 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public Resource getParent(Resource resource) {
-    Bucket bucket = getBucket(resource, false);
+    Bucket bucket = getBucket(resource);
     if (bucket != null && bucket.getParent() != null) {
       return bucket.getParent().getResource();
     }
@@ -523,7 +523,7 @@ public class DefaultIndex extends SonarIndex {
       parent = (Resource) ObjectUtils.defaultIfNull(parentReference, currentProject);
     }
 
-    Bucket parentBucket = getBucket(parent, true);
+    Bucket parentBucket = getBucket(parent);
     if (parentBucket == null && parent != null) {
       LOG.warn("Resource ignored, parent is not indexed: " + resource);
       return null;
@@ -542,8 +542,8 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
-  private Bucket checkIndexed(Resource resource) {
-    Bucket bucket = getBucket(resource, true);
+  private Bucket checkIndexed(@Nullable Resource resource) {
+    Bucket bucket = getBucket(resource);
     if (bucket == null) {
       if (Scopes.isDirectory(resource) || Scopes.isFile(resource)) {
         bucket = doIndex(resource);
@@ -553,21 +553,13 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @Override
-  public boolean isExcluded(Resource reference) {
+  public boolean isExcluded(@Nullable Resource reference) {
     return false;
   }
 
   @Override
-  public boolean isIndexed(Resource reference, boolean acceptExcluded) {
-    return getBucket(reference, acceptExcluded) != null;
-  }
-
-  private Bucket getBucket(@Nullable Resource resource, boolean acceptExcluded) {
-    Bucket bucket = null;
-    if (resource != null) {
-      bucket = getBucket(resource);
-    }
-    return bucket;
+  public boolean isIndexed(@Nullable Resource reference, boolean acceptExcluded) {
+    return getBucket(reference) != null;
   }
 
   /**
@@ -579,7 +571,10 @@ public class DefaultIndex extends SonarIndex {
    * @param reference
    * @return
    */
-  private Bucket getBucket(Resource reference) {
+  private Bucket getBucket(@Nullable Resource reference) {
+    if (reference == null) {
+      return null;
+    }
     if (StringUtils.isNotBlank(reference.getKey())) {
       return buckets.get(reference);
     }
