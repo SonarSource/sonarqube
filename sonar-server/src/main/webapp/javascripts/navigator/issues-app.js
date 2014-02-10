@@ -289,6 +289,10 @@ jQuery(function() {
       });
     }
 
+    _.extend(fetchQuery, {
+      hideRules: true
+    });
+
     if (this.favoriteFilter.id) {
       query['id'] = this.favoriteFilter.id;
       fetchQuery['id'] = this.favoriteFilter.id;
