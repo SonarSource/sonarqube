@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -162,5 +163,18 @@ public class DefaultTechnicalDebtManagerTest {
     when(dao.selectByRuleId(rule.getId())).thenReturn(null);
 
     assertThat(finder.findRequirementByRuleId(1)).isNull();
+  }
+
+  @Test
+  public void fail_to_find_requirement_by_rule_id_if_unknown_rule_id() throws Exception {
+    when(dao.selectByRuleId(1)).thenReturn(
+      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
+    when(ruleFinder.findById(1)).thenReturn(null);
+    try {
+      finder.findRequirementByRuleId(1);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
   }
 }

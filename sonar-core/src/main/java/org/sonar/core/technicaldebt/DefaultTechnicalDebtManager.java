@@ -20,6 +20,7 @@
 
 package org.sonar.core.technicaldebt;
 
+
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -73,6 +74,9 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     CharacteristicDto requirementDto = dao.selectByRuleId(ruleId);
     if (requirementDto != null) {
       Rule rule = ruleFinder.findById(ruleId);
+      if (rule == null) {
+        throw new IllegalArgumentException(String.format("Rule with id '%s' do not exists.", ruleId));
+      }
       return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
     }
     return null;
