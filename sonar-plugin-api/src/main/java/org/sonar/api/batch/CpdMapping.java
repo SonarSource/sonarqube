@@ -37,7 +37,7 @@ public interface CpdMapping extends BatchExtension {
   Language getLanguage();
 
   /**
-   * @deprecated since 4.2
+   * @deprecated since 4.2 not used anymore
    */
   @Deprecated
   Resource createResource(File file, List<File> sourceDirs);

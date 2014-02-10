@@ -28,7 +28,7 @@ public abstract class CpdEngine implements BatchExtension {
 
   abstract boolean isLanguageSupported(String language);
 
-  abstract void analyse(Project project, SensorContext context);
+  abstract void analyse(Project project, String language, SensorContext context);
 
   protected void logExclusions(String[] exclusions, Logger logger) {
     if (exclusions.length > 0) {

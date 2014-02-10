@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -34,9 +32,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
@@ -98,10 +96,10 @@ public class SonarEngine extends CpdEngine {
   }
 
   @Override
-  public void analyse(Project project, SensorContext context) {
+  public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    Iterable<InputFile> sourceFiles = fileSystem.inputFiles(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
+    Iterable<InputFile> sourceFiles = fileSystem.inputFiles(FileQuery.onMain().onLanguage(languageKey).withExclusions(cpdExclusions));
     if (!sourceFiles.iterator().hasNext()) {
       return;
     }

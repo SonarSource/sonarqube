@@ -79,7 +79,7 @@ public class CpdSensor implements Sensor {
         continue;
       }
       LOG.info("{} is used for {}", engine, language);
-      engine.analyse(project, context);
+      engine.analyse(project, language, context);
     }
   }
 
