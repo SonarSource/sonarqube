@@ -36,23 +36,23 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-public class RemoteFileHashes implements BatchComponent, Startable {
+public class PreviousFileHashLoader implements BatchComponent {
 
   private final SnapshotDataDao dao;
   private final PastSnapshotFinder pastSnapshotFinder;
   private final Snapshot snapshot;
 
-  private Map<String, String> pathToHash = Maps.newHashMap();
-
-  public RemoteFileHashes(Snapshot snapshot, SnapshotDataDao dao, PastSnapshotFinder pastSnapshotFinder) {
+  public PreviousFileHashLoader(Snapshot snapshot, SnapshotDataDao dao, PastSnapshotFinder pastSnapshotFinder) {
     this.snapshot = snapshot;
     this.dao = dao;
     this.pastSnapshotFinder = pastSnapshotFinder;
   }
 
-  @Override
-  public void start() {
-    // Extract previous checksum of all files of this module and store them in a map
+  /**
+   * Extract hash of the files parsed during the previous analysis
+   */
+  Map<String, String> hashByRelativePath() {
+    Map<String, String> map = Maps.newHashMap();
     PastSnapshot pastSnapshot = pastSnapshotFinder.findPreviousAnalysis(snapshot);
     if (pastSnapshot.isRelatedToSnapshot()) {
       Collection<SnapshotDataDto> selectSnapshotData = dao.selectSnapshotData(
@@ -62,18 +62,10 @@ public class RemoteFileHashes implements BatchComponent, Startable {
       if (!selectSnapshotData.isEmpty()) {
         SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
         String data = snapshotDataDto.getData();
-        pathToHash = KeyValueFormat.parse(data);
+        map = KeyValueFormat.parse(data);
       }
     }
+    return map;
   }
 
-  @CheckForNull
-  public String remoteHash(String baseRelativePath) {
-    return pathToHash.get(baseRelativePath);
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
-  }
 }

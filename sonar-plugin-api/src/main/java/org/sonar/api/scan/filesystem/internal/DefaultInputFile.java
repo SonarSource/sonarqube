@@ -26,7 +26,6 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -67,6 +66,7 @@ public class DefaultInputFile implements InputFile {
   private final String path;
   private final Map<String, String> attributes;
   private final String encoding;
+  private long lines = 0L;
 
   private DefaultInputFile(File file, Charset encoding, String path, Map<String, String> attributes) {
     this.encoding = encoding.name();
@@ -146,6 +146,69 @@ public class DefaultInputFile implements InputFile {
   @Override
   public int hashCode() {
     return absolutePath.hashCode();
+  }
+
+  public DefaultInputFile setLines(long l) {
+    this.lines = l;
+    return this;
+  }
+
+  public String language() {
+    return attributes.get(ATTRIBUTE_LANGUAGE);
+  }
+
+  public DefaultInputFile setLanguage(String s) {
+    attributes.put(ATTRIBUTE_LANGUAGE, s);
+    return this;
+  }
+
+  public DefaultInputFile setHash(String s) {
+    attributes.put(ATTRIBUTE_HASH, s);
+    return this;
+  }
+
+  public DefaultInputFile setStatus(String s) {
+    attributes.put(ATTRIBUTE_STATUS, s);
+    return this;
+  }
+
+  public DefaultInputFile setKey(String s) {
+    attributes.put(ATTRIBUTE_COMPONENT_KEY, s);
+    return this;
+  }
+
+  public DefaultInputFile setDeprecatedKey(String s) {
+    attributes.put(ATTRIBUTE_COMPONENT_DEPRECATED_KEY, s);
+    return this;
+  }
+
+  public DefaultInputFile setType(String s) {
+    attributes.put(ATTRIBUTE_TYPE, s);
+    return this;
+  }
+
+  /**
+   * Used only for backward-compatibility. Meaningless since version 4.2.
+   */
+  public String sourceDirAbsolutePath() {
+    return attributes.get(ATTRIBUTE_SOURCEDIR_PATH);
+  }
+
+  public DefaultInputFile setSourceDirAbsolutePath(String s) {
+    attributes.put(ATTRIBUTE_SOURCEDIR_PATH, FilenameUtils.normalize(s, true));
+    return this;
+  }
+
+  /**
+   * Used only for backward-compatibility. Meaningless since version 4.2.
+   */
+  public String pathRelativeToSourceDir() {
+    return attributes.get(ATTRIBUTE_SOURCE_RELATIVE_PATH);
+  }
+
+  public DefaultInputFile setPathRelativeToSourceDir(String s) {
+    attributes.put(ATTRIBUTE_SOURCE_RELATIVE_PATH, FilenameUtils.normalize(s, true));
+    return this;
   }
 
   @Override

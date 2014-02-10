@@ -31,47 +31,60 @@ import java.security.MessageDigest;
  * Computes hash of files. Ends of Lines are ignored, so files with
  * same content but different EOL encoding have the same hash.
  */
-class FileHashDigest {
+class FileMetadata {
+
+  private static final char LINE_FEED = '\n';
+  private static final char CARRIAGE_RETURN = '\r';
 
   // This singleton aims only to increase the coverage by allowing
   // to test the private method !
-  static final FileHashDigest INSTANCE = new FileHashDigest();
+  static final FileMetadata INSTANCE = new FileMetadata();
 
-  private FileHashDigest() {
+  private FileMetadata() {
   }
 
   /**
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
-  String hash(File file, Charset charset) {
+  Metadata read(File file, Charset encoding) {
     Reader reader = null;
+    long lines = 0L;
+    char c = (char)-1;
     try {
       MessageDigest md5Digest = DigestUtils.getMd5Digest();
       md5Digest.reset();
-      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
       boolean afterCR = true;
       while (i != -1) {
-        char c = (char) i;
+        c = (char) i;
         if (afterCR) {
           afterCR = false;
-          if (c == '\n') {
+          if (c == LINE_FEED) {
             // Ignore
             i = reader.read();
+            lines++;
             continue;
           }
         }
-        if (c == '\r') {
+        if (c == CARRIAGE_RETURN) {
           afterCR = true;
-          c = '\n';
+          c = LINE_FEED;
+        } else if (c == LINE_FEED) {
+          lines++;
         }
         md5Digest.update(charToBytesUTF(c));
         i = reader.read();
       }
-      return Hex.encodeHexString(md5Digest.digest());
+      if (c != LINE_FEED) {
+        lines++;
+      }
+      String hash = Hex.encodeHexString(md5Digest.digest());
+      return new Metadata(lines, hash);
+
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to compute hash of file %s with charset %s", file.getAbsolutePath(), charset), e);
+      throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
     } finally {
       IOUtils.closeQuietly(reader);
     }
@@ -86,5 +99,15 @@ class FileHashDigest {
       b[bpos + 1] = (byte) (buffer[i] & 0x00FF);
     }
     return b;
+  }
+
+  static class Metadata {
+    long lines;
+    String hash;
+
+    private Metadata(long lines, String hash) {
+      this.lines = lines;
+      this.hash = hash;
+    }
   }
 }

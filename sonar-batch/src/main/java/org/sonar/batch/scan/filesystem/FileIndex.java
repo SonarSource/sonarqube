@@ -19,37 +19,27 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.InputDir;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.SonarException;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -85,19 +75,17 @@ public class FileIndex implements BatchComponent {
 
   private final PathResolver pathResolver;
   private final List<InputFileFilter> filters;
-  private final LanguageRecognizer languageRecognizer;
   private final InputFileCache fileCache;
-  private final FileHashes fileHashes;
   private final Project module;
   private final ExclusionFilters exclusionFilters;
+  private final InputFileBuilderFactory inputFileBuilderFactory;
 
-  public FileIndex(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, LanguageRecognizer languageRecognizer,
-    InputFileCache cache, FileHashes fileHashes, PathResolver pathResolver, Project project) {
+  public FileIndex(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
+                   InputFileCache cache, PathResolver pathResolver, Project project) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
-    this.languageRecognizer = languageRecognizer;
+    this.inputFileBuilderFactory = inputFileBuilderFactory;
     this.fileCache = cache;
-    this.fileHashes = fileHashes;
     this.pathResolver = pathResolver;
     this.module = project;
   }
@@ -114,13 +102,14 @@ public class FileIndex implements BatchComponent {
 
     Progress progress = new Progress(fileCache.fileRelativePaths(fileSystem.moduleKey()));
 
+    InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     if (!fileSystem.sourceFiles().isEmpty() || !fileSystem.testFiles().isEmpty()) {
       // Index only provided files
-      indexFiles(fileSystem, progress, fileSystem.sourceFiles(), InputFile.TYPE_MAIN);
-      indexFiles(fileSystem, progress, fileSystem.testFiles(), InputFile.TYPE_TEST);
+      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.TYPE_MAIN);
+      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.TYPE_TEST);
     } else if (fileSystem.baseDir() != null) {
       // index from basedir
-      indexDirectory(fileSystem, progress, fileSystem.baseDir());
+      indexDirectory(inputFileBuilder, fileSystem, progress, fileSystem.baseDir());
     }
 
     // Remove files that have been removed since previous indexation
@@ -132,16 +121,16 @@ public class FileIndex implements BatchComponent {
 
   }
 
-  private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, String type) {
+  private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, String type) {
     for (File sourceFile : sourceFiles) {
       String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
           "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-          ));
+        ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, type)) {
-          indexFile(fileSystem, progress, sourceFile, path, type);
+          indexFile(inputFileBuilder, fileSystem, progress, sourceFile, path, type);
         }
       }
     }
@@ -158,37 +147,35 @@ public class FileIndex implements BatchComponent {
 
   InputDir inputDir(DefaultModuleFileSystem fileSystem, File ioFile) {
     String path = computeFilePath(fileSystem, ioFile);
-    // TODO no cache for InputDir
-    Map<String, String> attributes = Maps.newHashMap();
-    // paths
+    DefaultInputDir inputDir = new DefaultInputDir(FilenameUtils.normalize(ioFile.getAbsolutePath(), true), path);
     String resourceKey = PathUtils.sanitize(path);
-    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, module.getEffectiveKey() + ":" + resourceKey);
-    return DefaultInputDir.create(ioFile, path, attributes);
+    inputDir.setKey(module.getEffectiveKey() + ":" + resourceKey);
+    return inputDir;
   }
 
-  private void indexDirectory(DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
+  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File sourceFile : files) {
       String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
           "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-          ));
+        ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_MAIN)) {
-          indexFile(fileSystem, status, sourceFile, path, InputFile.TYPE_MAIN);
+          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.TYPE_MAIN);
         }
         if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_TEST)) {
-          indexFile(fileSystem, status, sourceFile, path, InputFile.TYPE_TEST);
+          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.TYPE_TEST);
         }
       }
     }
   }
 
-  private void indexFile(DefaultModuleFileSystem fileSystem, Progress status, File file, String path, String type) {
-    InputFile input = newInputFile(fileSystem, type, file, path);
-    if (input != null && accept(input)) {
-      fileCache.put(fileSystem.moduleKey(), input);
+  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs, Progress status, File file, String path, String type) {
+    InputFile inputFile = inputFileBuilder.create(file, type);
+    if (inputFile != null && accept(inputFile)) {
+      fileCache.put(fs.moduleKey(), inputFile);
       status.markAsIndexed(path);
     }
   }
@@ -197,67 +184,6 @@ public class FileIndex implements BatchComponent {
     return pathResolver.relativePath(fileSystem.baseDir(), file);
   }
 
-  @CheckForNull
-  private InputFile newInputFile(ModuleFileSystem fileSystem, String type, File file, String path) {
-
-    Map<String, String> attributes = Maps.newHashMap();
-    set(attributes, InputFile.ATTRIBUTE_TYPE, type);
-
-    String resourceKey = PathUtils.sanitize(path);
-    set(attributes, DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, module.getEffectiveKey() + ":" + resourceKey);
-    // hash + status
-    initStatus(file, fileSystem.sourceCharset(), path, attributes);
-
-    DefaultInputFile inputFile = DefaultInputFile.create(file, fileSystem.sourceCharset(), path, attributes);
-    String lang = languageRecognizer.of(inputFile);
-    if (lang == null) {
-      return null;
-    }
-    set(inputFile.attributes(), InputFile.ATTRIBUTE_LANGUAGE, lang);
-
-    setDeprecatedAttributes(fileSystem, type, file, attributes, inputFile, lang);
-
-    return inputFile;
-  }
-
-  private void setDeprecatedAttributes(ModuleFileSystem fileSystem, String type, File file, Map<String, String> attributes, DefaultInputFile inputFile, String lang) {
-    List<File> sourceDirs = InputFile.TYPE_MAIN.equals(type) ? fileSystem.sourceDirs() : fileSystem.testDirs();
-    for (File src : sourceDirs) {
-      String sourceRelativePath = pathResolver.relativePath(src, file);
-      if (sourceRelativePath != null) {
-        set(attributes, DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, PathUtils.canonicalPath(src));
-        set(attributes, DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath);
-        if (Java.KEY.equals(lang)) {
-          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, module.getEffectiveKey() + ":"
-            + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
-        } else {
-          set(inputFile.attributes(), DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, module.getEffectiveKey() + ":" + sourceRelativePath);
-        }
-        return;
-      }
-    }
-  }
-
-  private void initStatus(File file, Charset charset, String baseRelativePath, Map<String, String> attributes) {
-    String hash = fileHashes.hash(file, charset);
-    set(attributes, DefaultInputFile.ATTRIBUTE_HASH, hash);
-
-    String remoteHash = fileHashes.remoteHash(baseRelativePath);
-    // currently no need to store this remote hash in attributes
-    if (StringUtils.equals(hash, remoteHash)) {
-      set(attributes, InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME);
-    } else if (StringUtils.isEmpty(remoteHash)) {
-      set(attributes, InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_ADDED);
-    } else {
-      set(attributes, InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_CHANGED);
-    }
-  }
-
-  private void set(Map<String, String> attributes, String key, @Nullable String value) {
-    if (value != null) {
-      attributes.put(key, value);
-    }
-  }
 
   private boolean accept(InputFile inputFile) {
     // InputFileFilter extensions

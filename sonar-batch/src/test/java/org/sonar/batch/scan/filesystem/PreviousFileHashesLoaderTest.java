@@ -32,12 +32,13 @@ import org.sonar.core.source.db.SnapshotDataDto;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RemoteFileHashesTest {
+public class PreviousFileHashesLoaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -48,15 +49,14 @@ public class RemoteFileHashesTest {
   PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
   Snapshot snapshot = mock(Snapshot.class);
   SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
-  RemoteFileHashes hashes = new RemoteFileHashes(snapshot, snapshotDataDao, pastSnapshotFinder);
+  PreviousFileHashLoader loader = new PreviousFileHashLoader(snapshot, snapshotDataDao, pastSnapshotFinder);
 
   @Test
-  public void should_return_null_if_no_remote_snapshot() throws Exception {
+  public void should_return_null_if_no_previous_snapshot() throws Exception {
     when(pastSnapshotFinder.findPreviousAnalysis(snapshot)).thenReturn(new PastSnapshot("foo"));
 
-    hashes.start();
-    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isNull();
-    hashes.stop();
+    Map<String, String> hashByRelativePath = loader.hashByRelativePath();
+    assertThat(hashByRelativePath.get("src/main/java/foo/Bar.java")).isNull();
   }
 
   @Test
@@ -65,9 +65,8 @@ public class RemoteFileHashesTest {
     PastSnapshot pastSnapshot = new PastSnapshot("foo", new Date(), previousSnapshot);
     when(pastSnapshotFinder.findPreviousAnalysis(snapshot)).thenReturn(pastSnapshot);
 
-    hashes.start();
-    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isNull();
-    hashes.stop();
+    Map<String, String> hashByRelativePath = loader.hashByRelativePath();
+    assertThat(hashByRelativePath.get("src/main/java/foo/Bar.java")).isNull();
   }
 
   @Test
@@ -82,8 +81,7 @@ public class RemoteFileHashesTest {
     when(snapshotDataDao.selectSnapshotData(123, Arrays.asList(SnapshotDataTypes.FILE_HASHES)))
       .thenReturn(Arrays.asList(snapshotDataDto));
 
-    hashes.start();
-    assertThat(hashes.remoteHash("src/main/java/foo/Bar.java")).isEqualTo("abcd1234");
-    hashes.stop();
+    Map<String, String> hashByRelativePath = loader.hashByRelativePath();
+    assertThat(hashByRelativePath.get("src/main/java/foo/Bar.java")).isEqualTo("abcd1234");
   }
 }

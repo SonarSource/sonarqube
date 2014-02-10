@@ -21,28 +21,15 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 
-import javax.annotation.CheckForNull;
-import java.io.File;
-import java.nio.charset.Charset;
+public class StatusDetectionFactory implements BatchComponent {
 
-/**
- * Facade for local and remote file hashes
- */
-public class FileHashes implements BatchComponent {
+  private final PreviousFileHashLoader previousFileHashLoader;
 
-  private final RemoteFileHashes remoteFileHashes;
-
-  public FileHashes(RemoteFileHashes remoteFileHashes) {
-    this.remoteFileHashes = remoteFileHashes;
+  public StatusDetectionFactory(PreviousFileHashLoader l) {
+    this.previousFileHashLoader = l;
   }
 
-  @CheckForNull
-  public String hash(File file, Charset charset) {
-    return FileHashDigest.INSTANCE.hash(file, charset);
-  }
-
-  @CheckForNull
-  public String remoteHash(String baseRelativePath) {
-    return remoteFileHashes.remoteHash(baseRelativePath);
+  StatusDetection create() {
+    return new StatusDetection(previousFileHashLoader.hashByRelativePath());
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.scan.filesystem.internal;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.scan.filesystem.InputDir;
@@ -49,6 +50,12 @@ public class DefaultInputDir implements InputDir {
     this.absolutePath = PathUtils.canonicalPath(file);
     this.path = FilenameUtils.separatorsToUnix(path);
     this.attributes = attributes;
+  }
+
+  public DefaultInputDir(String absolutePath, String path) {
+    this.absolutePath = absolutePath;
+    this.path = path;
+    this.attributes = Maps.newHashMap();
   }
 
   /**
@@ -115,5 +122,10 @@ public class DefaultInputDir implements InputDir {
   @Override
   public String toString() {
     return String.format("[%s]", path);
+  }
+
+  public DefaultInputDir setKey(String s) {
+    attributes.put(ATTRIBUTE_COMPONENT_KEY, s);
+    return this;
   }
 }

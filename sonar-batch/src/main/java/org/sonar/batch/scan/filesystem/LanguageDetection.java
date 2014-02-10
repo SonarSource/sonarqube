@@ -20,55 +20,45 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Detect language of source files.
+ * Detect language of a source file based on its suffix and configured patterns.
  */
-public class LanguageRecognizer implements BatchComponent, Startable {
+class LanguageDetection {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LanguageRecognizer.class);
-
-  private final Languages languages;
+  private static final Logger LOG = LoggerFactory.getLogger(LanguageDetection.class);
 
   /**
    * Lower-case extension -> languages
    */
-  private Map<String, PathPattern[]> patternByLanguage = Maps.newLinkedHashMap();
+  private final Map<String, PathPattern[]> patternByLanguage = Maps.newLinkedHashMap();
+  private final List<String> languagesToConsider = Lists.newArrayList();
+  private final String forcedLanguage;
 
-  private Settings settings;
-
-  public LanguageRecognizer(Settings settings, Languages languages) {
-    this.settings = settings;
-    this.languages = languages;
-  }
-
-  @Override
-  public void start() {
+  LanguageDetection(Settings settings, Languages languages) {
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.getKey()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
       if (pathPatterns.length > 0) {
         patternByLanguage.put(language.getKey(), pathPatterns);
-      } else if (language.getFileSuffixes().length > 0) {
+      } else {
         // If no custom language pattern is defined then fallback to suffixes declared by language
         String[] patterns = Arrays.copyOf(language.getFileSuffixes(), language.getFileSuffixes().length);
         for (int i = 0; i < patterns.length; i++) {
@@ -81,28 +71,21 @@ public class LanguageRecognizer implements BatchComponent, Startable {
         LOG.debug("Declared extensions of language " + language + " were converted to " + getDetails(language.getKey()));
       }
     }
-  }
 
-  private String getFileLangPatternPropKey(String languageKey) {
-    return "sonar.lang.patterns." + languageKey;
-  }
-
-  @Override
-  public void stop() {
-    // do nothing
-  }
-
-  @CheckForNull
-  String of(InputFile inputFile) {
-    String deprecatedLanguageParam = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
-
+    forcedLanguage = StringUtils.defaultIfBlank(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), null);
     // First try with lang patterns
-    List<String> languagesToConsider = new ArrayList<String>();
-    if (!StringUtils.isBlank(deprecatedLanguageParam)) {
-      languagesToConsider.add(deprecatedLanguageParam);
+    if (forcedLanguage != null) {
+      if (!patternByLanguage.containsKey(forcedLanguage)) {
+        throw MessageException.of("No language is installed with key '" + forcedLanguage + "'. Please update property '" + CoreProperties.PROJECT_LANGUAGE_PROPERTY + "'");
+      }
+      languagesToConsider.add(forcedLanguage);
     } else {
       languagesToConsider.addAll(patternByLanguage.keySet());
     }
+  }
+
+  @CheckForNull
+  String language(InputFile inputFile) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
       PathPattern[] patterns = patternByLanguage.get(languageKey);
@@ -114,7 +97,7 @@ public class LanguageRecognizer implements BatchComponent, Startable {
               break;
             } else {
               // Language was already forced by another pattern
-              throw new SonarException("Language of file '" + inputFile.path() + "' can not be decided as the file matches patterns of both " + getDetails(detectedLanguage)
+              throw MessageException.of("Language of file '" + inputFile.path() + "' can not be decided as the file matches patterns of both " + getDetails(detectedLanguage)
                 + " and " + getDetails(languageKey));
             }
           }
@@ -127,20 +110,17 @@ public class LanguageRecognizer implements BatchComponent, Startable {
     }
 
     // Check if deprecated sonar.language is used and we are on a language without declared extensions
-    if (StringUtils.isNotBlank(deprecatedLanguageParam)) {
-      Language language = languages.get(deprecatedLanguageParam);
-      if (language == null) {
-        throw new SonarException("No language is installed with key '" + deprecatedLanguageParam + "'. Please update property '" + CoreProperties.PROJECT_LANGUAGE_PROPERTY + "'");
-      }
+    if (forcedLanguage != null) {
       // Languages without declared suffixes match everything
-      String[] fileSuffixes = language.getFileSuffixes();
-      if (fileSuffixes.length == 0) {
-        return deprecatedLanguageParam;
+      if (patternByLanguage.get(forcedLanguage).length == 0) {
+        return forcedLanguage;
       }
-      return null;
     }
-
     return null;
+  }
+
+  private String getFileLangPatternPropKey(String languageKey) {
+    return "sonar.lang.patterns." + languageKey;
   }
 
   private String getDetails(String detectedLanguage) {
