@@ -99,7 +99,7 @@
       {{/ifHasExtraActions}}
 
       {{#if debt}}
-        <li title="{{#all characteristic subCharacteristic}}{{characteristic}} > {{subCharacteristic}}{{else}}<%= message('issue.technical_debt_deleted') -%>{{/all}}"><%= message('issue.technical_debt_short') -%>: {{debt}}</li>
+        <li><%= message('issue.technical_debt_short') -%>: {{debt}}</li>
       {{/if}}
 
       {{#if reporterName}}<li><%= message('reporter') -%>: {{reporterName}}</li>{{/if}}

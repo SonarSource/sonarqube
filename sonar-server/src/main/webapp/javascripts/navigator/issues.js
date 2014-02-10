@@ -770,7 +770,15 @@ jQuery(function() {
   var IssueDetailRuleView = Backbone.Marionette.ItemView.extend({
     template: Handlebars.compile(jQuery('#issue-detail-rule-template').html() || ''),
     className: 'rule-desc',
-    modelEvents: { 'change': 'render' }
+    modelEvents: { 'change': 'render' },
+
+
+    serializeData: function() {
+      return _.extend({
+        characteristic: this.options.issue.get('characteristic'),
+        subCharacteristic: this.options.issue.get('subCharacteristic')
+      }, this.model.toJSON());
+    }
   });
 
 
@@ -811,7 +819,10 @@ jQuery(function() {
       this.$('.code-issue-details').tabs();
       this.$('.code-issue-form').hide();
       this.rule = new Rule({ key: this.model.get('rule') });
-      this.ruleRegion.show(new IssueDetailRuleView({ model: this.rule }));
+      this.ruleRegion.show(new IssueDetailRuleView({
+        model: this.rule,
+        issue: this.model
+      }));
       this.initReferenceLinks();
     },
 
