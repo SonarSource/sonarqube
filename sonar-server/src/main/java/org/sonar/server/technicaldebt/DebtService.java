@@ -21,8 +21,8 @@
 package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.technicaldebt.server.Characteristic;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.server.user.UserSession;
 
@@ -40,12 +40,12 @@ public class DebtService implements ServerComponent {
     this.finder = finder;
   }
 
-  public String format(WorkDayDuration technicalDebt) {
+  public String format(WorkUnit technicalDebt) {
     return debtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
-  public WorkDayDuration toTechnicalDebt(String technicalDebtInLong) {
-    return WorkDayDuration.fromLong(Long.parseLong(technicalDebtInLong));
+  public WorkUnit toTechnicalDebt(String technicalDebtInLong) {
+    return WorkUnit.fromLong(Long.parseLong(technicalDebtInLong));
   }
 
   public List<Characteristic> findRootCharacteristics() {

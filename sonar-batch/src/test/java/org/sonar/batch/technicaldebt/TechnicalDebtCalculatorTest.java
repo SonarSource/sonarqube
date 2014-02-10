@@ -25,16 +25,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkUnit;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TechnicalDebtCalculatorTest {
@@ -42,20 +44,17 @@ public class TechnicalDebtCalculatorTest {
   @Mock
   TechnicalDebtModel model;
 
-  @Mock
-  TechnicalDebtConverter converter;
-
-  WorkUnit tenMinutes = WorkUnit.create(10d, WorkUnit.MINUTES);
-  WorkUnit fiveMinutes = WorkUnit.create(5d, WorkUnit.MINUTES);
+  WorkUnit tenMinutes = new WorkUnit.Builder().setMinutes(10).build();
+  WorkUnit fiveMinutes = new WorkUnit.Builder().setMinutes(5).build();
 
   TechnicalDebtCalculator remediationCostCalculator;
 
   @Before
   public void before() {
-    when(converter.toMinutes(tenMinutes)).thenReturn(10l);
-    when(converter.toMinutes(fiveMinutes)).thenReturn(5l);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
 
-    remediationCostCalculator = new TechnicalDebtCalculator(model, converter);
+    remediationCostCalculator = new TechnicalDebtCalculator(model, settings);
   }
 
   @Test
@@ -69,9 +68,7 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    remediationCostCalculator.calculTechnicalDebt(issue);
-
-    verify(converter).fromMinutes(10l + 5l);
+    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(15).build());
   }
 
   @Test
@@ -85,9 +82,7 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    remediationCostCalculator.calculTechnicalDebt(issue);
-
-    verify(converter).fromMinutes(10l * 2 + 5l);
+    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes((10 * 2) + 5).build());
   }
 
   @Test
@@ -101,9 +96,7 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(null);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    remediationCostCalculator.calculTechnicalDebt(issue);
-
-    verify(converter).fromMinutes(10l * 2 + 0l);
+    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(10 * 2).build());
   }
 
   @Test
@@ -117,9 +110,7 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    remediationCostCalculator.calculTechnicalDebt(issue);
-
-    verify(converter).fromMinutes(0l + 5l);
+    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(5).build());
   }
 
   @Test
@@ -129,7 +120,6 @@ public class TechnicalDebtCalculatorTest {
     when(model.requirementsByRule(ruleKey)).thenReturn(null);
 
     assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
-    verify(converter, never()).fromMinutes(anyLong());
   }
 
   @Test
@@ -144,13 +134,12 @@ public class TechnicalDebtCalculatorTest {
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     try {
-      remediationCostCalculator.calculTechnicalDebt(issue);
+      assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(15).build());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Requirement for 'squid:AvoidCycle' can not use 'Constant/issue' remediation function because this rule does not have a fixed remediation cost.");
     }
-    verifyZeroInteractions(converter);
   }
 
 }

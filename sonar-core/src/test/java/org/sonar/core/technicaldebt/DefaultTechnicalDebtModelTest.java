@@ -92,8 +92,8 @@ public class DefaultTechnicalDebtModelTest {
       .setCharacteristic(characteristic)
       .setRuleKey(ruleKey)
       .setFunction("linear")
-      .setFactor(WorkUnit.create(2d, WorkUnit.HOURS))
-      .setOffset(WorkUnit.create(0d, WorkUnit.HOURS));
+      .setFactor(new WorkUnit.Builder().setHours(2).build())
+      .setOffset(new WorkUnit.Builder().setHours(0).build());
 
     sqaleModel.addRootCharacteristic(rootCharacteristic);
 

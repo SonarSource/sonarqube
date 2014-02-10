@@ -21,7 +21,7 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.technicaldebt.DebtFormatter;
@@ -74,10 +74,10 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = debtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(newValueString)));
+        newValueString = debtFormatter.format(locale, WorkUnit.fromLong(Long.parseLong(newValueString)));
       }
       if (oldValueString != null) {
-        oldValueString = debtFormatter.format(locale, WorkDayDuration.fromLong(Long.parseLong(oldValueString)));
+        oldValueString = debtFormatter.format(locale, WorkUnit.fromLong(Long.parseLong(oldValueString)));
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

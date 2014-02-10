@@ -24,23 +24,24 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import javax.annotation.Nullable;
 
@@ -56,12 +57,13 @@ public final class NewTechnicalDebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TimeMachineConfiguration timeMachineConfiguration;
-  private final TechnicalDebtConverter technicalDebtConverter;
 
-  public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration, TechnicalDebtConverter technicalDebtConverter) {
+  private final int hoursInDay;
+
+  public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration, Settings settings) {
     this.perspectives = perspectives;
     this.timeMachineConfiguration = timeMachineConfiguration;
-    this.technicalDebtConverter = technicalDebtConverter;
+    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -98,32 +100,34 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, @Nullable Date periodDate) {
     double value = 0;
     for (Issue issue : issues) {
-      WorkDayDuration currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
+      double currentTechnicalDebtValue = 0d;
+      WorkUnit currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
+      if (currentTechnicalDebt != null) {
+        currentTechnicalDebtValue = currentTechnicalDebt.toDays(hoursInDay);
+      }
 
       Date periodDatePlusOneSecond = periodDate != null ? DateUtils.addSeconds(periodDate, 1) : null;
       if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
-        value += technicalDebtConverter.toDays(currentTechnicalDebt);
+        value += currentTechnicalDebtValue;
       } else {
-        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, issue, periodDate);
+        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebtValue, issue, periodDate);
       }
     }
     return value;
   }
 
-  private double calculateNewTechnicalDebtValueFromChangelog(WorkDayDuration currentTechnicalDebt, Issue issue, Date periodDate) {
-    double currentTechnicalDebtValue = technicalDebtConverter.toDays(currentTechnicalDebt);
-
+  private double calculateNewTechnicalDebtValueFromChangelog(double currentTechnicalDebtValue, Issue issue, Date periodDate) {
     List<FieldDiffs> changelog = technicalDebtHistory(issue);
     for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
       FieldDiffs diff = iterator.next();
       Date date = diff.creationDate();
       if (isLesserOrEqual(date, periodDate)) {
         // return new value from the change that is just before the period date
-        return currentTechnicalDebtValue - technicalDebtConverter.toDays(newValue(diff));
+        return currentTechnicalDebtValue - newValue(diff).toDays(hoursInDay);
       }
       if (!iterator.hasNext()) {
         // return old value from the change that is just after the period date when there's no more element in changelog
-        return currentTechnicalDebtValue - technicalDebtConverter.toDays(oldValue(diff));
+        return currentTechnicalDebtValue - oldValue(diff).toDays(hoursInDay);
       }
     }
     // Return 0 when no changelog
@@ -155,24 +159,24 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     return diffs;
   }
 
-  private WorkDayDuration newValue(FieldDiffs fieldDiffs) {
+  private WorkUnit newValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long newValue = entry.getValue().newValueLong();
-        return newValue != null ? WorkDayDuration.fromLong(newValue) : null;
+        return newValue != null ? WorkUnit.fromLong(newValue) : WorkUnit.fromLong(0);
       }
     }
-    return null;
+    return WorkUnit.fromLong(0);
   }
 
-  private WorkDayDuration oldValue(FieldDiffs fieldDiffs) {
+  private WorkUnit oldValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long value = entry.getValue().oldValueLong();
-        return value != null ? WorkDayDuration.fromLong(value) : null;
+        return value != null ? WorkUnit.fromLong(value) : WorkUnit.fromLong(0);
       }
     }
-    return null;
+    return WorkUnit.fromLong(0);
   }
 
   private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {

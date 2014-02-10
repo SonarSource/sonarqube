@@ -543,4 +543,9 @@ public interface CoreProperties {
    * @since 4.2
    */
   String CORE_AUTHENTICATOR_LOCAL_USERS = "sonar.security.localUsers";
+
+  /**
+   * @since 4.0
+   */
+  String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
 }

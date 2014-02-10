@@ -108,8 +108,8 @@ public class TechnicalDebtModelLoaderTest {
     DefaultRequirement requirement = result.requirementsByRule(ruleKey);
     assertThat(requirement.ruleKey()).isEqualTo(ruleKey);
     assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
-    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT));
+    assertThat(requirement.factor()).isEqualTo(new WorkUnit.Builder().setDays(2).build());
+    assertThat(requirement.offset()).isEqualTo(new WorkUnit.Builder().setDays(0).build());
   }
 
 }

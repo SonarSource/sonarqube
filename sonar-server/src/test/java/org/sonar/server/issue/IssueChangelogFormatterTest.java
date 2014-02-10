@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.server.technicaldebt.DebtFormatter;
 
@@ -130,8 +130,8 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "500", "10000");
 
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 5, 0))).thenReturn("5 hours");
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
+    when(debtFormatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setHours(5).build())).thenReturn("5 hours");
+    when(debtFormatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setDays(1).build())).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
@@ -148,7 +148,7 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "10000");
 
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 1))).thenReturn("1 days");
+    when(debtFormatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setDays(1).build())).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");

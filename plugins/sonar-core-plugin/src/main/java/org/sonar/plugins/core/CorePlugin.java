@@ -25,7 +25,6 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
@@ -290,7 +289,6 @@ public final class CorePlugin extends SonarPlugin {
       NewFalsePositiveNotificationDispatcher.newMetadata(),
 
       // technical debt
-      TechnicalDebtConverter.class,
       TechnicalDebtDecorator.class,
       NewTechnicalDebtDecorator.class,
 

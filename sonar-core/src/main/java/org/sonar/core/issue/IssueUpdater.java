@@ -28,8 +28,8 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.Nullable;
 
@@ -85,7 +85,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean assign(DefaultIssue issue, @Nullable User user, IssueChangeContext context) {
     String sanitizedAssignee = null;
-    if(user != null) {
+    if (user != null) {
       sanitizedAssignee = StringUtils.defaultIfBlank(user.login(), null);
     }
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
@@ -200,8 +200,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return setEffortToFix(issue, currentEffort, context);
   }
 
-  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable WorkDayDuration value, IssueChangeContext context) {
-    WorkDayDuration oldValue = issue.technicalDebt();
+  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable WorkUnit value, IssueChangeContext context) {
+    WorkUnit oldValue = issue.technicalDebt();
     if (!Objects.equal(value, oldValue)) {
       issue.setTechnicalDebt(value);
       issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toLong() : null, value != null ? value.toLong() : null);
@@ -212,8 +212,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable WorkDayDuration previousTechnicalDebt, IssueChangeContext context) {
-    WorkDayDuration currentTechnicalDebt = issue.technicalDebt();
+  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable WorkUnit previousTechnicalDebt, IssueChangeContext context) {
+    WorkUnit currentTechnicalDebt = issue.technicalDebt();
     issue.setTechnicalDebt(previousTechnicalDebt);
     return setTechnicalDebt(issue, currentTechnicalDebt, context);
   }
@@ -232,7 +232,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean plan(DefaultIssue issue, @Nullable ActionPlan actionPlan, IssueChangeContext context) {
     String sanitizedActionPlanKey = null;
-    if(actionPlan != null) {
+    if (actionPlan != null) {
       sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlan.key(), null);
     }
     if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {

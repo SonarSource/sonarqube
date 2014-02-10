@@ -27,7 +27,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
@@ -36,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.*;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
 
 import java.util.Calendar;
@@ -284,14 +284,14 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
-    when(technicalDebtCalculator.calculTechnicalDebt(issue)).thenReturn(WorkDayDuration.of(10, 0, 0));
+    when(technicalDebtCalculator.calculTechnicalDebt(issue)).thenReturn(new WorkUnit.Builder().setDays(10).build());
     when(filters.accept(issue, null)).thenReturn(true);
 
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().technicalDebt()).isEqualTo(WorkDayDuration.of(10, 0, 0));
+    assertThat(argument.getValue().technicalDebt()).isEqualTo(new WorkUnit.Builder().setDays(10).build());
   }
 
 }

@@ -21,7 +21,7 @@
 package org.sonar.server.technicaldebt;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
@@ -43,14 +43,13 @@ public class DebtFormatterTest {
     when(i18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_hours", null, 2)).thenReturn("2 hours");
     when(i18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_minutes", null, 1)).thenReturn("1 minutes");
 
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 0, 5))).isEqualTo("5 days");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 2, 0))).isEqualTo("2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 0, 0))).isEqualTo("1 minutes");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setDays(5).build())).isEqualTo("5 days");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setHours(2).build())).isEqualTo("2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setMinutes(1).build())).isEqualTo("1 minutes");
 
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(0, 2, 5))).isEqualTo("5 days 2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 2, 0))).isEqualTo("2 hours 1 minutes");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDayDuration.of(1, 2, 5))).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setDays(5).setHours(2).build())).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setHours(2).setMinutes(1).build())).isEqualTo("2 hours 1 minutes");
+    assertThat(formatter.format(DEFAULT_LOCALE, new WorkUnit.Builder().setDays(5).setHours(2).setMinutes(10).build())).isEqualTo("5 days 2 hours");
   }
-
 
 }

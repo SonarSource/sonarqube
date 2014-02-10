@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.WorkDayDuration;
+import org.sonar.api.utils.WorkUnit;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -56,28 +56,28 @@ public class IssueDtoTest {
     Date closedAt = DateUtils.addDays(new Date(), -1);
 
     IssueDto dto = new IssueDto()
-        .setKee("100")
-        .setRuleId(1)
-        .setRuleKey_unit_test_only("squid", "AvoidCycle")
-        .setComponentKey_unit_test_only("org.sonar.sample:Sample")
-        .setRootComponentKey_unit_test_only("org.sonar.sample")
-        .setComponentId(1l)
-        .setRootComponentId(1l)
-        .setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-        .setEffortToFix(15.0)
-        .setTechnicalDebt(101010L)
-        .setLine(6)
-        .setSeverity("BLOCKER")
-        .setMessage("message")
-        .setManualSeverity(true)
-        .setReporter("arthur")
-        .setAssignee("perceval")
-        .setIssueAttributes("key=value")
-        .setAuthorLogin("pierre")
-        .setIssueCreationDate(createdAt)
-        .setIssueUpdateDate(updatedAt)
-        .setIssueCloseDate(closedAt);
+      .setKee("100")
+      .setRuleId(1)
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey_unit_test_only("org.sonar.sample:Sample")
+      .setRootComponentKey_unit_test_only("org.sonar.sample")
+      .setComponentId(1l)
+      .setRootComponentId(1l)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+      .setEffortToFix(15.0)
+      .setTechnicalDebt(101010L)
+      .setLine(6)
+      .setSeverity("BLOCKER")
+      .setMessage("message")
+      .setManualSeverity(true)
+      .setReporter("arthur")
+      .setAssignee("perceval")
+      .setIssueAttributes("key=value")
+      .setAuthorLogin("pierre")
+      .setIssueCreationDate(createdAt)
+      .setIssueUpdateDate(updatedAt)
+      .setIssueCloseDate(closedAt);
 
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
@@ -87,7 +87,7 @@ public class IssueDtoTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.effortToFix()).isEqualTo(15.0);
-    assertThat(issue.technicalDebt()).isEqualTo(WorkDayDuration.of(10, 10, 10));
+    assertThat(issue.technicalDebt()).isEqualTo(new WorkUnit.Builder().setDays(10).setHours(10).setMinutes(10).build());
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");

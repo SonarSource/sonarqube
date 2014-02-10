@@ -25,13 +25,13 @@ import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
@@ -47,6 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -100,7 +101,7 @@ public class IssueShowWsHandler implements RequestHandler {
     Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
-    WorkDayDuration technicalDebt = issue.technicalDebt();
+    WorkUnit technicalDebt = issue.technicalDebt();
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
 
@@ -114,7 +115,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
-      .prop("message",issue.message())
+      .prop("message", issue.message())
       .prop("resolution", issue.resolution())
       .prop("status", issue.status())
       .prop("severity", issue.severity())
@@ -147,7 +148,7 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   @CheckForNull
-  private Characteristic findCharacteristicById(@Nullable Integer id){
+  private Characteristic findCharacteristicById(@Nullable Integer id) {
     if (id != null) {
       return technicalDebtManager.findCharacteristicById(id);
     }

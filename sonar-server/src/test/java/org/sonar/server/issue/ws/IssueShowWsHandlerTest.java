@@ -35,7 +35,6 @@ import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.WsTester;
@@ -43,6 +42,7 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
@@ -209,9 +209,8 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_technical_debt() throws Exception {
-    WorkDayDuration technicalDebt = WorkDayDuration.of(1, 2, 0);
-    Issue issue = createStandardIssue()
-      .setTechnicalDebt(technicalDebt);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setHours(2).setMinutes(1).build();
+    Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
     when(debtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
@@ -223,9 +222,9 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_characteristics() throws Exception {
-    WorkDayDuration technicalDebt = WorkDayDuration.of(1, 2, 0);
-    Issue issue = createStandardIssue()
-      .setTechnicalDebt(technicalDebt);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setHours(2).setMinutes(1).build();
+    ;
+    Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
     Characteristic requirement = new DefaultCharacteristic().setId(5).setParentId(2).setRootId(1);

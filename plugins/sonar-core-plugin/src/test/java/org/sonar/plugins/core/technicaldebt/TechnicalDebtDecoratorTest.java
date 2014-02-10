@@ -28,12 +28,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -48,7 +49,7 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
+import org.sonar.api.utils.WorkUnit;
 
 import java.util.List;
 
@@ -67,9 +68,6 @@ public class TechnicalDebtDecoratorTest {
   Resource resource;
 
   @Mock
-  TechnicalDebtConverter converter;
-
-  @Mock
   TechnicalDebtModel defaultTechnicalDebtModel;
 
   @Mock
@@ -82,7 +80,10 @@ public class TechnicalDebtDecoratorTest {
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
 
-    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, converter);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, "8");
+
+    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, settings);
   }
 
   @Test
@@ -128,8 +129,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_no_parent() throws Exception {
-    WorkDayDuration technicalDebt = mock(WorkDayDuration.class);
-    when(converter.toDays(technicalDebt)).thenReturn(1.0);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
 
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -145,9 +145,22 @@ public class TechnicalDebtDecoratorTest {
   }
 
   @Test
+  public void add_technical_debt_from_one_issue_without_debt() throws Exception {
+    Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(null);
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    Requirement requirement = mock(Requirement.class);
+    when(defaultTechnicalDebtModel.requirementsByRule(RuleKey.of("repo1", "rule1"))).thenReturn(requirement);
+    doReturn(newArrayList(requirement)).when(defaultTechnicalDebtModel).requirements();
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, 0.0)));
+  }
+
+  @Test
   public void add_technical_debt_from_one_issue_and_propagate_to_parents() throws Exception {
-    WorkDayDuration technicalDebt = mock(WorkDayDuration.class);
-    when(converter.toDays(technicalDebt)).thenReturn(1.0);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
 
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -170,11 +183,8 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_issues() throws Exception {
-    WorkDayDuration technicalDebt1 = mock(WorkDayDuration.class);
-    when(converter.toDays(technicalDebt1)).thenReturn(1.0);
-
-    WorkDayDuration technicalDebt2 = mock(WorkDayDuration.class);
-    when(converter.toDays(technicalDebt2)).thenReturn(2.0);
+    WorkUnit technicalDebt1 = new WorkUnit.Builder().setDays(1).build();
+    WorkUnit technicalDebt2 = new WorkUnit.Builder().setDays(2).build();
 
     Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
     Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
@@ -202,11 +212,10 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_children_measures() throws Exception {
-    WorkDayDuration technicalDebt1 = mock(WorkDayDuration.class);
-    when(converter.toDays(technicalDebt1)).thenReturn(1.0);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
 
-    Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
-    Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
+    Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
+    Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
 
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("rootCharacteristic");

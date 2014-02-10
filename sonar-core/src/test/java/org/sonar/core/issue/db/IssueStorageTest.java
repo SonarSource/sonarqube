@@ -23,12 +23,12 @@ import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
@@ -54,7 +54,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
-      .setTechnicalDebt(WorkDayDuration.of(10, 0, 0))
+      .setTechnicalDebt(new WorkUnit.Builder().setMinutes(10).build())
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -88,7 +88,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
         // updated fields
       .setLine(5000)
-      .setTechnicalDebt(WorkDayDuration.of(10, 0, 0))
+      .setTechnicalDebt(new WorkUnit.Builder().setMinutes(10).build())
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")

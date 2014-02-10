@@ -189,7 +189,7 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, ValidationMessages messages) {
-    checkXmlCorrectlyImported(sqale, WorkUnit.create(), messages);
+    checkXmlCorrectlyImported(sqale, new WorkUnit.Builder().setDays(0).build(), messages);
   }
 
   private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, WorkUnit offset, ValidationMessages messages) {

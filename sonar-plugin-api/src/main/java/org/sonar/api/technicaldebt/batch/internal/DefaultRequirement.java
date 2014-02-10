@@ -47,8 +47,8 @@ public class DefaultRequirement implements Requirement {
   private Date updatedAt;
 
   public DefaultRequirement() {
-    this.factor = WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT);
-    this.offset = WorkUnit.create(0d, WorkUnit.DEFAULT_UNIT);
+    this.factor = new WorkUnit.Builder().setDays(0).build();
+    this.offset = new WorkUnit.Builder().setDays(0).build();
   }
 
   public Integer id() {

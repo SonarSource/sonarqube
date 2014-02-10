@@ -20,9 +20,9 @@
 package org.sonar.server.technicaldebt;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
 import java.util.List;
@@ -42,14 +42,14 @@ public class DebtServiceTest {
 
   @Test
   public void format() {
-    WorkDayDuration technicalDebt = WorkDayDuration.of(5, 0, 0);
+    WorkUnit technicalDebt = new WorkUnit.Builder().setMinutes(5).build();
     service.format(technicalDebt);
     verify(debtFormatter).format(any(Locale.class), eq(technicalDebt));
   }
 
   @Test
   public void to_technical_debt() {
-    assertThat(service.toTechnicalDebt("500")).isEqualTo(WorkDayDuration.of(0, 5, 0));
+    assertThat(service.toTechnicalDebt("500")).isEqualTo(new WorkUnit.Builder().setHours(5).build());
   }
 
   @Test

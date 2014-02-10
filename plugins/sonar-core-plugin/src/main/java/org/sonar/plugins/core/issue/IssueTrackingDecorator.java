@@ -31,7 +31,6 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -40,6 +39,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -178,7 +178,7 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
       Long technicalDebt = ref.getTechnicalDebt();
-      WorkDayDuration previousTechnicalDebt = technicalDebt != null ? WorkDayDuration.fromLong(technicalDebt) : null;
+      WorkUnit previousTechnicalDebt = technicalDebt != null ? WorkUnit.fromLong(technicalDebt) : null;
       updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
     }
   }

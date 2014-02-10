@@ -89,8 +89,8 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
     assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factor()).isEqualTo(WorkUnit.create(30.0, WorkUnit.MINUTES));
-    assertThat(result.offset()).isEqualTo(WorkUnit.create());
+    assertThat(result.factor()).isEqualTo(new WorkUnit.Builder().setMinutes(30).build());
+    assertThat(result.offset()).isEqualTo(new WorkUnit.Builder().setDays(0).build());
   }
 
   @Test
@@ -149,8 +149,8 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
     assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factor()).isEqualTo(WorkUnit.create(30.0, WorkUnit.MINUTES));
-    assertThat(result.offset()).isEqualTo(WorkUnit.create());
+    assertThat(result.factor()).isEqualTo(new WorkUnit.Builder().setMinutes(30).build());
+    assertThat(result.offset()).isEqualTo(new WorkUnit.Builder().setDays(0).build());
   }
 
   @Test

@@ -58,7 +58,10 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.technicaldebt.*;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
+import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
+import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -365,7 +368,6 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
-    servicesContainer.addSingleton(TechnicalDebtConverter.class);
     servicesContainer.addSingleton(DebtFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 

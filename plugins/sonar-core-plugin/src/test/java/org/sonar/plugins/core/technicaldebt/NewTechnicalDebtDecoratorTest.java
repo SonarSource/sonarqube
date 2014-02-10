@@ -27,21 +27,22 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.issue.internal.WorkDayDuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.api.utils.WorkUnit;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.technicaldebt.TechnicalDebtConverter;
 
 import java.util.Date;
 
@@ -67,9 +68,6 @@ public class NewTechnicalDebtDecoratorTest {
   @Mock
   DecoratorContext context;
 
-  @Mock
-  TechnicalDebtConverter technicalDebtConverter;
-
   Date rightNow;
   Date elevenDaysAgo;
   Date tenDaysAgo;
@@ -77,15 +75,14 @@ public class NewTechnicalDebtDecoratorTest {
   Date fiveDaysAgo;
   Date fourDaysAgo;
 
-  WorkDayDuration oneDaysDebt = WorkDayDuration.of(0, 0, 1);
-  WorkDayDuration twoDaysDebt = WorkDayDuration.of(0, 0, 2);
-  WorkDayDuration fiveDaysDebt = WorkDayDuration.of(0, 0, 5);
+  WorkUnit oneDaysDebt = new WorkUnit.Builder().setDays(1).build();
+  WorkUnit twoDaysDebt = new WorkUnit.Builder().setDays(2).build();
+  WorkUnit fiveDaysDebt = new WorkUnit.Builder().setDays(5).build();
 
   @Before
   public void setup() {
-    when(technicalDebtConverter.toDays(oneDaysDebt)).thenReturn(1d);
-    when(technicalDebtConverter.toDays(twoDaysDebt)).thenReturn(2d);
-    when(technicalDebtConverter.toDays(fiveDaysDebt)).thenReturn(5d);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, "8");
 
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
@@ -99,7 +96,7 @@ public class NewTechnicalDebtDecoratorTest {
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, technicalDebtConverter);
+    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, settings);
   }
 
   @Test
@@ -328,7 +325,7 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.NEW_TECHNICAL_DEBT)));
   }
 
-  private Long fromWorkDayDuration(WorkDayDuration workDayDuration){
+  private Long fromWorkDayDuration(WorkUnit workDayDuration) {
     return workDayDuration.toLong();
   }
 
