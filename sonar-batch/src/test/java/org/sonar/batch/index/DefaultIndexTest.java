@@ -19,30 +19,21 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ScanGraph;
@@ -60,18 +51,14 @@ public class DefaultIndexTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private DefaultIndex index = null;
-  private DeprecatedViolations deprecatedViolations;
-  private Rule rule;
-  private RuleFinder ruleFinder;
-
-  private Project project;
-
-  private Project moduleA;
-
-  private Project moduleB;
-
-  private Project moduleB1;
+  DefaultIndex index = null;
+  DeprecatedViolations deprecatedViolations;
+  Rule rule;
+  RuleFinder ruleFinder;
+  Project project;
+  Project moduleA;
+  Project moduleB;
+  Project moduleB1;
 
   @Before
   public void createIndex() throws IOException {
@@ -93,17 +80,11 @@ public class DefaultIndexTest {
     moduleB1 = new Project("moduleB1").setParent(moduleB);
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
-    ResourceFilter filter = new ResourceFilter() {
-
-      public boolean isIgnored(Resource resource) {
-        return StringUtils.containsIgnoreCase(resource.getKey(), "excluded");
-      }
-    };
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), mock(ModuleIssues.class));
+    index.setCurrentProject(project, mock(ModuleIssues.class));
     index.doStart(project);
   }
 
@@ -162,15 +143,6 @@ public class DefaultIndexTest {
     assertThat(index.isExcluded(fileRef)).isFalse();
     assertThat(index.getChildren(fileRef)).isEmpty();
     assertThat(index.getParent(fileRef)).isNull();
-  }
-
-  @Test
-  public void shouldBeExcluded() {
-    File file = File.create("src/org/foo/ExcludedBar.java", "org/foo/ExcludedBar.java", null, false);
-    assertThat(index.index(file)).isFalse();
-    assertThat(index.isIndexed(file, true)).isTrue();
-    assertThat(index.isIndexed(file, false)).isFalse();
-    assertThat(index.isExcluded(file)).isTrue();
   }
 
   @Test

@@ -154,7 +154,6 @@ public class ModuleScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
-      getComponentByType(ResourceFilters.class),
       getComponentByType(ModuleIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);

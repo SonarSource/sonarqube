@@ -116,10 +116,6 @@ public final class Bucket {
     return filter.filter(unfiltered);
   }
 
-  public boolean isExcluded() {
-    return resource.isExcluded();
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

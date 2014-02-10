@@ -132,8 +132,6 @@ public abstract class Resource implements Serializable {
 
   private String effectiveKey = null;
 
-  private boolean isExcluded = false;
-
   /**
    * @return the resource key
    */
@@ -263,11 +261,11 @@ public abstract class Resource implements Serializable {
   }
 
   /**
-   * @deprecated since 2.6 should use SensorContext#isExcluded(resource). It will make inheritance of Resource easier.
+   * @deprecated since 2.6.
    */
   @Deprecated
   public final boolean isExcluded() {
-    return isExcluded;
+    return false;
   }
 
   /**
@@ -276,7 +274,6 @@ public abstract class Resource implements Serializable {
    */
   @Deprecated
   public final Resource setExcluded(boolean b) {
-    isExcluded = b;
     return this;
   }
 

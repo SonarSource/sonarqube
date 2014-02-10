@@ -31,41 +31,20 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.measures.*;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -74,9 +53,6 @@ public class DefaultIndex extends SonarIndex {
   private PersistenceManager persistence;
   private MetricFinder metricFinder;
   private final ScanGraph graph;
-
-  // filters
-  private ResourceFilters resourceFilters;
 
   // caches
   private Project currentProject;
@@ -144,11 +120,10 @@ public class DefaultIndex extends SonarIndex {
     return currentProject;
   }
 
-  public void setCurrentProject(Project project, ResourceFilters resourceFilters, ModuleIssues moduleIssues) {
+  public void setCurrentProject(Project project, ModuleIssues moduleIssues) {
     this.currentProject = project;
 
     // the following components depend on the current module, so they need to be reloaded.
-    this.resourceFilters = resourceFilters;
     this.moduleIssues = moduleIssues;
   }
 
@@ -204,7 +179,7 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = checkIndexed(resource);
-    if (bucket != null && !bucket.isExcluded()) {
+    if (bucket != null) {
       Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
@@ -249,7 +224,7 @@ public class DefaultIndex extends SonarIndex {
     Bucket fromBucket = doIndex(dependency.getFrom());
     Bucket toBucket = doIndex(dependency.getTo());
 
-    if (fromBucket != null && !fromBucket.isExcluded() && toBucket != null && !toBucket.isExcluded()) {
+    if (fromBucket != null && toBucket != null) {
       dependencies.add(dependency);
       registerOutgoingDependency(dependency);
       registerIncomingDependency(dependency);
@@ -392,7 +367,7 @@ public class DefaultIndex extends SonarIndex {
     }
 
     Bucket bucket = getBucket(resource, true);
-    if (bucket == null || bucket.isExcluded()) {
+    if (bucket == null) {
       LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
       return;
     }
@@ -456,7 +431,7 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public void setSource(Resource reference, String source) {
     Bucket bucket = checkIndexed(reference);
-    if (bucket != null && !bucket.isExcluded()) {
+    if (bucket != null) {
       persistence.setSource(reference, source);
     }
   }
@@ -484,12 +459,6 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
-  private boolean checkExclusion(Resource resource, Bucket parent) {
-    boolean excluded = (parent != null && parent.isExcluded()) || (resourceFilters != null && resourceFilters.isExcluded(resource));
-    resource.setExcluded(excluded);
-    return excluded;
-  }
-
   @Override
   public List<Resource> getChildren(Resource resource) {
     return getChildren(resource, false);
@@ -500,9 +469,7 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = getBucket(resource, acceptExcluded);
     if (bucket != null) {
       for (Bucket childBucket : bucket.getChildren()) {
-        if (acceptExcluded || !childBucket.isExcluded()) {
-          children.add(childBucket.getResource());
-        }
+        children.add(childBucket.getResource());
       }
     }
     return children;
@@ -520,7 +487,7 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public boolean index(Resource resource) {
     Bucket bucket = doIndex(resource);
-    return bucket != null && !bucket.isExcluded();
+    return bucket != null;
   }
 
   private Bucket doIndex(Resource resource) {
@@ -533,7 +500,7 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public boolean index(Resource resource, Resource parentReference) {
     Bucket bucket = doIndex(resource, parentReference);
-    return bucket != null && !bucket.isExcluded();
+    return bucket != null;
   }
 
   private Bucket doIndex(Resource resource, Resource parentReference) {
@@ -563,13 +530,10 @@ public class DefaultIndex extends SonarIndex {
     bucket = new Bucket(resource).setParent(parentBucket);
     addBucket(resource, bucket);
 
-    boolean excluded = checkExclusion(resource, parentBucket);
-    if (!excluded) {
-      Resource parentSnapshot = parentBucket != null ? parentBucket.getResource() : null;
-      Snapshot snapshot = persistence.saveResource(currentProject, resource, parentSnapshot);
-      if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
-        graph.addComponent(resource, snapshot);
-      }
+    Resource parentSnapshot = parentBucket != null ? parentBucket.getResource() : null;
+    Snapshot snapshot = persistence.saveResource(currentProject, resource, parentSnapshot);
+    if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
+      graph.addComponent(resource, snapshot);
     }
 
     return bucket;
@@ -587,8 +551,7 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public boolean isExcluded(Resource reference) {
-    Bucket bucket = getBucket(reference, true);
-    return bucket != null && bucket.isExcluded();
+    return false;
   }
 
   @Override
@@ -600,9 +563,6 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = null;
     if (resource != null) {
       bucket = getBucket(resource);
-      if (!acceptExcluded && bucket != null && bucket.isExcluded()) {
-        bucket = null;
-      }
     }
     return bucket;
   }

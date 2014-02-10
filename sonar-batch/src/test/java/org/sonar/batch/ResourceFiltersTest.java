@@ -19,31 +19,29 @@
  */
 package org.sonar.batch;
 
-import com.google.common.base.Joiner;
+import org.junit.Test;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ResourceFilter;
 
-/**
- * @since 1.12
- */
-public class ResourceFilters {
+import static org.mockito.Matchers.startsWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  public ResourceFilters(ResourceFilter[] filters) {
-    this(LoggerFactory.getLogger(ResourceFilters.class), filters);
+public class ResourceFiltersTest {
+  @Test
+  public void warn_on_resource_filters() throws Exception {
+    Logger logger = mock(Logger.class);
+    ResourceFilter[] filters = {mock(ResourceFilter.class)};
+    new ResourceFilters(logger, filters);
+    verify(logger).warn(startsWith("ResourceFilters are not supported since version 4.2"));
+
+    // verify that the standard constructor does not fail
+    new ResourceFilters(filters);
   }
 
-  public ResourceFilters() {
-    // perfect
-  }
-
-  ResourceFilters(Logger logger, ResourceFilter[] filters) {
-    check(logger, filters);
-  }
-
-  private void check(Logger logger, ResourceFilter[] filters) {
-    if (filters.length > 0) {
-      logger.warn("ResourceFilters are not supported since version 4.2: " + Joiner.on(", ").join(filters));
-    }
+  @Test
+  public void ok_if_no_resource_filters() throws Exception {
+    // just for verify that it does not fail. Should check that no warning is logged.
+    new ResourceFilters();
   }
 }
