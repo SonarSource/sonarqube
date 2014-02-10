@@ -44,6 +44,8 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class DefaultIndex extends SonarIndex {
@@ -178,7 +180,7 @@ public class DefaultIndex extends SonarIndex {
    */
   @Override
   public Measure addMeasure(Resource resource, Measure measure) {
-    Bucket bucket = checkIndexed(resource);
+    Bucket bucket = getBucket(resource);
     if (bucket != null) {
       Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
@@ -430,7 +432,7 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public void setSource(Resource reference, String source) {
-    Bucket bucket = checkIndexed(reference);
+    Bucket bucket = getBucket(reference);
     if (bucket != null) {
       persistence.setSource(reference, source);
     }
@@ -451,7 +453,8 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @Override
-  public <R extends Resource> R getResource(R reference) {
+  @CheckForNull
+  public <R extends Resource> R getResource(@Nullable R reference) {
     Bucket bucket = getBucket(reference);
     if (bucket != null) {
       return (R) bucket.getResource();
@@ -559,7 +562,7 @@ public class DefaultIndex extends SonarIndex {
     return getBucket(reference, acceptExcluded) != null;
   }
 
-  private Bucket getBucket(Resource resource, boolean acceptExcluded) {
+  private Bucket getBucket(@Nullable Resource resource, boolean acceptExcluded) {
     Bucket bucket = null;
     if (resource != null) {
       bucket = getBucket(resource);

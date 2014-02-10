@@ -146,12 +146,12 @@ public class DefaultIndexTest {
   }
 
   @Test
-  public void shouldIndexResourceWhenAddingMeasure() {
+  public void shouldNotIndexResourceWhenAddingMeasure() {
     Resource dir = Directory.create("src/org/foo", "org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
-    assertThat(index.isIndexed(dir, true)).isTrue();
-    assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue()).isEqualTo(50);
+    assertThat(index.isIndexed(dir, true)).isFalse();
+    assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc"))).isNull();
   }
 
   /**
