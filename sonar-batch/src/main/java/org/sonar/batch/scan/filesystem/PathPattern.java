@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
@@ -77,7 +78,7 @@ abstract class PathPattern {
 
     @Override
     boolean match(File ioFile, String relativePathFromBasedir) {
-      String path = ioFile.getAbsolutePath();
+      String path = PathUtils.canonicalPath(ioFile);
       return pattern.match(path);
     }
 
