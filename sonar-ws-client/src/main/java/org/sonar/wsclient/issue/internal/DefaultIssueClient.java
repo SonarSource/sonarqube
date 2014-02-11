@@ -66,7 +66,7 @@ public class DefaultIssueClient implements IssueClient {
   @Override
   public Issue assign(String issueKey, @Nullable String assignee) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "assignee", assignee);
-    String json = requestFactory.post("/api/issues/assign", params);
+    String json = requestFactory.post(ASSIGN_URL, params);
     return jsonToIssue(json);
   }
 
