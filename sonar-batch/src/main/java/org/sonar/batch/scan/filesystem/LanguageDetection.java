@@ -33,7 +33,6 @@ import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ class LanguageDetection {
   /**
    * Lower-case extension -> languages
    */
-  private final Map<String, PathPattern[]> patternByLanguage = Maps.newLinkedHashMap();
+  private final Map<String, PathPattern[]> patternsByLanguage = Maps.newLinkedHashMap();
   private final List<String> languagesToConsider = Lists.newArrayList();
   private final String forcedLanguage;
 
@@ -57,7 +56,7 @@ class LanguageDetection {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.getKey()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
       if (pathPatterns.length > 0) {
-        patternByLanguage.put(language.getKey(), pathPatterns);
+        patternsByLanguage.put(language.getKey(), pathPatterns);
       } else {
         // If no custom language pattern is defined then fallback to suffixes declared by language
         String[] patterns = Arrays.copyOf(language.getFileSuffixes(), language.getFileSuffixes().length);
@@ -67,7 +66,7 @@ class LanguageDetection {
           patterns[i] = "**/*." + extension;
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
-        patternByLanguage.put(language.getKey(), defaultLanguagePatterns);
+        patternsByLanguage.put(language.getKey(), defaultLanguagePatterns);
         LOG.debug("Declared extensions of language " + language + " were converted to " + getDetails(language.getKey()));
       }
     }
@@ -75,20 +74,24 @@ class LanguageDetection {
     forcedLanguage = StringUtils.defaultIfBlank(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), null);
     // First try with lang patterns
     if (forcedLanguage != null) {
-      if (!patternByLanguage.containsKey(forcedLanguage)) {
+      if (!patternsByLanguage.containsKey(forcedLanguage)) {
         throw MessageException.of("No language is installed with key '" + forcedLanguage + "'. Please update property '" + CoreProperties.PROJECT_LANGUAGE_PROPERTY + "'");
       }
       languagesToConsider.add(forcedLanguage);
     } else {
-      languagesToConsider.addAll(patternByLanguage.keySet());
+      languagesToConsider.addAll(patternsByLanguage.keySet());
     }
+  }
+
+  Map<String, PathPattern[]> patternsByLanguage() {
+    return patternsByLanguage;
   }
 
   @CheckForNull
   String language(InputFile inputFile) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
-      PathPattern[] patterns = patternByLanguage.get(languageKey);
+      PathPattern[] patterns = patternsByLanguage.get(languageKey);
       if (patterns != null) {
         for (PathPattern pathPattern : patterns) {
           if (pathPattern.match(inputFile, false)) {
@@ -112,7 +115,7 @@ class LanguageDetection {
     // Check if deprecated sonar.language is used and we are on a language without declared extensions
     if (forcedLanguage != null) {
       // Languages without declared suffixes match everything
-      if (patternByLanguage.get(forcedLanguage).length == 0) {
+      if (patternsByLanguage.get(forcedLanguage).length == 0) {
         return forcedLanguage;
       }
     }
@@ -124,7 +127,7 @@ class LanguageDetection {
   }
 
   private String getDetails(String detectedLanguage) {
-    return getFileLangPatternPropKey(detectedLanguage) + " : " + Joiner.on(",").join(patternByLanguage.get(detectedLanguage));
+    return getFileLangPatternPropKey(detectedLanguage) + " : " + Joiner.on(",").join(patternsByLanguage.get(detectedLanguage));
   }
 
   static String sanitizeExtension(String suffix) {

@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.scan.filesystem.InputFile;
@@ -49,11 +50,33 @@ class InputFileBuilder {
     this.fs = fs;
   }
 
+  String moduleKey() {
+    return moduleKey;
+  }
+
+  PathResolver pathResolver() {
+    return pathResolver;
+  }
+
+  LanguageDetection langDetection() {
+    return langDetection;
+  }
+
+  StatusDetection statusDetection() {
+    return statusDetection;
+  }
+
+  DefaultModuleFileSystem fs() {
+    return fs;
+  }
+
   @CheckForNull
   DefaultInputFile create(File file, String type) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
-      throw MessageException.of(String.format("File '%s' is ignored. It is not in module basedir '%s'.", file.getAbsolutePath(), fs.baseDir()));
+      LoggerFactory.getLogger(getClass()).warn(
+        "File '%s' is ignored. It is not in module basedir '%s'.", file.getAbsolutePath(), fs.baseDir());
+      return null;
     }
     DefaultInputFile inputFile = DefaultInputFile.create(file, fs.sourceCharset(), relativePath, Maps.<String, String>newHashMap());
     inputFile.setType(type);

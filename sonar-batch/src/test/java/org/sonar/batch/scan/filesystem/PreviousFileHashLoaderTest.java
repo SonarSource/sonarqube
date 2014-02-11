@@ -38,7 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PreviousFileHashesLoaderTest {
+public class PreviousFileHashLoaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

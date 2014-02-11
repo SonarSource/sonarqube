@@ -66,7 +66,6 @@ public class DefaultInputFile implements InputFile {
   private final String path;
   private final Map<String, String> attributes;
   private final String encoding;
-  private long lines = 0L;
 
   private DefaultInputFile(File file, Charset encoding, String path, Map<String, String> attributes) {
     this.encoding = encoding.name();
@@ -149,7 +148,7 @@ public class DefaultInputFile implements InputFile {
   }
 
   public DefaultInputFile setLines(long l) {
-    this.lines = l;
+    attributes.put(ATTRIBUTE_LINE_COUNT, String.valueOf(l));
     return this;
   }
 
