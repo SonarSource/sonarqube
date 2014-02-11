@@ -25,6 +25,7 @@ import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -67,13 +68,13 @@ public class DefaultDatabase implements Database {
     this.settings = settings;
   }
 
-  public final DefaultDatabase start() {
+  @Override
+  public void start() {
     try {
       initSettings();
       initDatasource();
       checkConnection();
       doAfterStart();
-      return this;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
@@ -139,7 +140,8 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  public final DefaultDatabase stop() {
+  @Override
+  public void stop() {
     if (datasource != null) {
       try {
         datasource.close();
@@ -147,7 +149,6 @@ public class DefaultDatabase implements Database {
         throw new IllegalStateException("Fail to stop JDBC connection pool", e);
       }
     }
-    return this;
   }
 
   public final Dialect getDialect() {

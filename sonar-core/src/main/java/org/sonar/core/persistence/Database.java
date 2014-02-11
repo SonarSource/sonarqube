@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import org.picocontainer.Startable;
 import org.sonar.core.persistence.dialect.Dialect;
 
 import javax.sql.DataSource;
@@ -27,11 +28,7 @@ import java.util.Properties;
 /**
  * @since 2.12
  */
-public interface Database {
-  Database start();
-
-  Database stop();
-
+public interface Database extends Startable {
   /**
    * Returns the configured datasource. Null as long as start() is not executed.
    */

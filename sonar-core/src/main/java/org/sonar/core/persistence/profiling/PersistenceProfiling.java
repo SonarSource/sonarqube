@@ -33,11 +33,10 @@ public final class PersistenceProfiling {
   }
 
   public static BasicDataSource addProfilingIfNeeded(BasicDataSource datasource, Settings settings) {
-    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(settings.getString(Profiling.CONFIG_PROFILING_LEVEL));
-    if (profilingLevel == Profiling.Level.FULL) {
+    Profiling.Level level = Profiling.Level.fromConfigString(settings.getString(Profiling.CONFIG_PROFILING_LEVEL));
+    if (level == Profiling.Level.FULL) {
       return new ProfilingDataSource(datasource);
-    } else {
-      return datasource;
     }
+    return datasource;
   }
 }

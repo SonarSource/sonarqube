@@ -50,12 +50,12 @@ public class H2Database implements Database {
     this.createSchema = createSchema;
   }
 
-  public H2Database start() {
+  @Override
+  public void start() {
     startDatabase();
     if (createSchema) {
       createSchema();
     }
-    return this;
   }
 
   private void startDatabase() {
@@ -96,13 +96,13 @@ public class H2Database implements Database {
     }
   }
 
-  public H2Database stop() {
+  @Override
+  public void stop() {
     try {
       datasource.close();
     } catch (SQLException e) {
       // Ignore error
     }
-    return this;
   }
 
   public DataSource getDataSource() {
