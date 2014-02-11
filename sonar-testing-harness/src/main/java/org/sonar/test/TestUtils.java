@@ -19,6 +19,7 @@
  */
 package org.sonar.test;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -121,14 +122,18 @@ public final class TestUtils {
     return dir;
   }
 
-  public static void assertSimilarXml(String expectedXml, String xml) throws Exception {
+  public static void assertSimilarXml(String expectedXml, String xml) {
     Diff diff = isSimilarXml(expectedXml, xml);
     String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
     assertTrue(message, diff.similar());
   }
 
-  static Diff isSimilarXml(String expectedXml, String xml) throws Exception {
+  static Diff isSimilarXml(String expectedXml, String xml) {
     XMLUnit.setIgnoreWhitespace(true);
-    return XMLUnit.compareXML(xml, expectedXml);
+    try {
+      return XMLUnit.compareXML(xml, expectedXml);
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
   }
 }
