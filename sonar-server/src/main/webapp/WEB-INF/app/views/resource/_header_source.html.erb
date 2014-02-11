@@ -109,24 +109,6 @@
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
-        <% if m=measure('noc') %>
-          <tr>
-            <td class="name"><%= message('metric.noc.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
-        <% if m=measure('dit') %>
-          <tr>
-            <td class="name"><%= message('metric.dit.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
-        <% if m=measure('rfc') %>
-          <tr>
-            <td class="name"><%= message('metric.rfc.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
       </table>
       </td>
     </tr>
