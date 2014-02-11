@@ -16,7 +16,9 @@
     <css>/stylesheets/select-list.css</css>
     <css>/stylesheets/navigator.css</css>
 
+    <js>/javascripts/third-party/prototype.js</js>
     <js>/javascripts/third-party/scriptaculous.js</js>
+    <js>/javascripts/third-party/tablekit.js</js>
     <js>/javascripts/third-party/jquery.min.js</js>
     <js>/javascripts/third-party/jquery-ui.min.js</js>
     <js>/javascripts/third-party/jquery-ui.tabs.js</js>
