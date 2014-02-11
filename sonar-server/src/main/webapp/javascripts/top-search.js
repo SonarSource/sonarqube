@@ -74,22 +74,29 @@
             });
           });
 
-          resultsEl.show();
-          items = resultsEl.find('li');
-          index = -1;
-          total = items.length;
-          selectNext();
+          resultsEl.append('<div class="autocompleteNote">' + r.total + ' ' + resultsEl.data('results') + '</div>');
 
-          items
-              .on('mouseover', function() {
-                index = items.index($(this));
-                select();
-              })
-              .on('click', function() {
-                index = items.index($(this));
-                select();
-                choose();
-              });
+          resultsEl.show();
+
+          if (r.total === 0) {
+            ul.append('<li>' + resultsEl.data('no-results') + '</li>');
+          } else {
+            items = resultsEl.find('li');
+            index = -1;
+            total = items.length;
+            selectNext();
+
+            items
+                .on('mouseover', function() {
+                  index = items.index($(this));
+                  select();
+                })
+                .on('click', function() {
+                  index = items.index($(this));
+                  select();
+                  choose();
+                });
+          }
         },
 
         hide = function() {

@@ -42,7 +42,9 @@
         <% end %>
       </ul>
     </div>
-    <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
+    <div id="searchResourcesResults" class="autocomplete" style="display:none"
+         data-results="<%= message('search.results') -%>"
+         data-no-results="<%= message('no_results') -%>"></div>
   </div>
   <%= render 'layouts/breadcrumb' if @breadcrumbs || selected_section==Navigation::SECTION_RESOURCE -%>
   <div id="body">
