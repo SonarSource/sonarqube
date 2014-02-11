@@ -45,20 +45,16 @@
 <script type="text/javascript">
   <!--
   var options = {
-    editorEnabled:true,
-    portal:'dashboard',
-    column:'dashboard-column',
-    columnhandle:'column-handle',
-    block:'block',
-    hoverclass:'block-hover',
-    handleClass:'widget-handle',
-    dashboardstate:'dashboardstate',
-    toggle:'block-toggle',
-    blocklist:'widget_defs',
-    highlight_duration:2,
-    highlight_startcolor:'#cae3f2',
-    highlight_endcolor:'#ffffff',
-    saveurl:'<%= url_for dashboard_action(:set_dashboard) -%>'
+    editorEnabled: true,
+    column: 'dashboard-column',
+    columnHandle: 'column-handle',
+    block: 'block',
+    hoverClass: 'block-hover',
+    dashboardState: 'dashboardstate',
+    highlightDuration: 2000,
+    highlightStartColor: '#cae3f2',
+    highlightEndColor: '#ffffff',
+    saveUrl: '<%= url_for dashboard_action(:set_dashboard) -%>'
   };
   var portal;
   function init_dashboard() {

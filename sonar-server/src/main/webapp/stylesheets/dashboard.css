@@ -211,7 +211,7 @@
 #dashboard .column-handle {
   height: 100px;
   width: 100%;
-  margin: 10px 0 10px 0;
+  margin: 0;
   padding: 0;
   display: inline-block;
   line-height: 100px;
@@ -254,7 +254,7 @@
 }
 
 #dashboard .block-hover {
-  border: 2px dashed #ddd;
+  outline: 2px dashed #ddd;
 }
 
 #dashboard .shadow-block {
