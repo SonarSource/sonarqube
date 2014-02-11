@@ -36,7 +36,8 @@
 
       blocks
           .prop('draggable', true)
-          .on('dragstart', function() {
+          .on('dragstart', function(e) {
+            e.originalEvent.dataTransfer.setData('text/plain', 'drag');
             draggable = $(this);
           })
           .on('dragover', function(e) {
@@ -99,6 +100,26 @@
           data: postBody
         });
       }
+    },
+
+
+    editWidget: function(widgetId) {
+      $('#widget_title_' + widgetId).hide();
+      $('#widget_' + widgetId).hide();
+      $('#widget_props_' + widgetId).show();
+    },
+
+
+    cancelEditWidget: function(widgetId) {
+      $('widget_title_' + widgetId).show();
+      $('#widget_' + widgetId).show();
+      $('#widget_props_' + widgetId).hide();
+    },
+
+
+    deleteWidget: function(element) {
+      $(element).closest('.' + this.options.block).remove();
+      this.saveDashboardsState();
     }
   };
 
