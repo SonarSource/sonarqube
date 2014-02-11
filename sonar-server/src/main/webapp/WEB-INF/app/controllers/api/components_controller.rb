@@ -62,7 +62,6 @@ class Api::ComponentsController < Api::ApiController
       qualifier_results['icon']=resource_type.getIconPath()
       qualifier_results['name']=Api::Utils.message("qualifiers.#{qualifier}")
       resource_indexes=resource_indexes_by_qualifier[qualifier]||[]
-      qualifier_results['total']=resource_indexes.size
       qualifier_results['items']=resource_indexes.map do |resource_index|
         resource=resources_by_id[resource_index.resource_id]
         {
