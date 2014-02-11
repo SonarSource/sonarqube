@@ -29,12 +29,7 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.SonarException;
@@ -52,13 +47,11 @@ public class DefaultSensorContext implements SensorContext {
   private SonarIndex index;
   private Project project;
   private MeasurementFilters filters;
-  private Languages languages;
 
-  public DefaultSensorContext(SonarIndex index, Project project, MeasurementFilters filters, Languages languages) {
+  public DefaultSensorContext(SonarIndex index, Project project, MeasurementFilters filters) {
     this.index = index;
     this.project = project;
     this.filters = filters;
-    this.languages = languages;
   }
 
   public Project getProject() {
@@ -75,8 +68,8 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private boolean indexedByCore(Resource resource) {
-    return StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) ||
-      StringUtils.equals(Scopes.FILE, resource.getScope());
+    return StringUtils.equals(Qualifiers.DIRECTORY, resource.getQualifier()) ||
+      StringUtils.equals(Qualifiers.FILE, resource.getQualifier());
   }
 
   @Override
