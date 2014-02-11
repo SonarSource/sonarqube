@@ -503,6 +503,11 @@ public class Project extends Resource implements Component {
   }
 
   @Override
+  public String path() {
+    return getPath();
+  }
+
+  @Override
   public String longName() {
     return getLongName();
   }

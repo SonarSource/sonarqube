@@ -25,6 +25,7 @@ public class ComponentDto implements Component {
 
   private Long id;
   private String kee;
+  private String path;
   private String name;
   private String longName;
   private String qualifier;
@@ -49,6 +50,16 @@ public class ComponentDto implements Component {
   }
 
   @Override
+  public String path() {
+    return path;
+  }
+
+  public ComponentDto setPath(String path) {
+    this.path = path;
+    return this;
+  }
+
+  @Override
   public String name() {
     return name;
   }
@@ -62,7 +73,6 @@ public class ComponentDto implements Component {
   public String longName() {
     return longName;
   }
-
 
   public ComponentDto setLongName(String longName) {
     this.longName = longName;

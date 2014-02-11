@@ -35,13 +35,15 @@ public class ComponentVertexTest {
   public void should_copy() {
     BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
     ComponentVertex vertex = beanGraph.createVertex(ComponentVertex.class);
-    Component file = MockSourceFile.createMain("myproject:org/Foo.java").setName("Foo.java").setQualifier(Qualifiers.FILE);
+    Component file = MockSourceFile.createMain("myproject:org/Foo.java").setName("Foo.java").setQualifier(Qualifiers.FILE)
+      .setPath("src/org/Foo.java");
 
     vertex.copyFrom(file);
 
     assertThat(vertex.key()).isEqualTo("myproject:org/Foo.java");
     assertThat(vertex.name()).isEqualTo("Foo.java");
     assertThat(vertex.qualifier()).isEqualTo(Qualifiers.FILE);
+    assertThat(vertex.path()).isEqualTo("src/org/Foo.java");
   }
 
   @Test

@@ -22,6 +22,11 @@ package org.sonar.api.component;
 public interface Component<C extends Component> {
   String key();
 
+  /**
+   * @since 4.2
+   */
+  String path();
+
   String name();
 
   String longName();

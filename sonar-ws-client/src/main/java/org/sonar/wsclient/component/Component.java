@@ -22,6 +22,7 @@ package org.sonar.wsclient.component;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 public class Component {
@@ -37,6 +38,14 @@ public class Component {
 
   public String key() {
     return JsonUtils.getString(json, "key");
+  }
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  public String path() {
+    return JsonUtils.getString(json, "path");
   }
 
   public String name() {

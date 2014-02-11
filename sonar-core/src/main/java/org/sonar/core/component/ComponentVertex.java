@@ -28,6 +28,10 @@ public class ComponentVertex extends BeanVertex implements Component {
     return (String) getProperty("key");
   }
 
+  public String path() {
+    return (String) getProperty("path");
+  }
+
   public String name() {
     return (String) getProperty("name");
   }
@@ -42,6 +46,7 @@ public class ComponentVertex extends BeanVertex implements Component {
 
   void copyFrom(Component component) {
     setProperty("key", component.key());
+    setProperty("path", component.path());
     setProperty("name", component.name());
     setProperty("longName", component.longName());
     setProperty("qualifier", component.qualifier());

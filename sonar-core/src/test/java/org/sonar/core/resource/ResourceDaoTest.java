@@ -72,6 +72,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     ResourceDto resource = dao.getResource(1L);
 
+    assertThat(resource.getPath()).isNull();
     assertThat(resource.getName()).isEqualTo("Struts");
     assertThat(resource.getLongName()).isEqualTo("Apache Struts");
     assertThat(resource.getScope()).isEqualTo("PRJ");
@@ -316,7 +317,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     assertThat(dao.findByKey("org.struts:struts")).isNotNull();
-    assertThat(dao.findByKey("org.struts:struts:org.struts.RequestContext")).isNotNull();
+    Component<?> component = dao.findByKey("org.struts:struts:org.struts.RequestContext");
+    assertThat(component).isNotNull();
+    assertThat(component.path()).isEqualTo("src/main/java/RequestContext.java");
     assertThat(dao.findByKey("unknown")).isNull();
   }
 

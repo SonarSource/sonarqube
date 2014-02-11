@@ -23,6 +23,7 @@ import org.sonar.api.component.SourceFile;
 
 public class MockSourceFile implements SourceFile {
   private String key;
+  private String path;
   private String qualifier;
   private String language;
   private String name;
@@ -37,6 +38,16 @@ public class MockSourceFile implements SourceFile {
 
   public MockSourceFile setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  @Override
+  public String path() {
+    return path;
+  }
+
+  public MockSourceFile setPath(String path) {
+    this.path = path;
     return this;
   }
 

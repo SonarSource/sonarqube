@@ -6,6 +6,7 @@
   <sql id="resourceColumns">
     p.id,
     p.kee as key,
+    p.path as path,
     p.deprecated_kee as deprecatedKey,
     p.name as name,
     p.long_name as longName,

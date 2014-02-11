@@ -7,7 +7,7 @@
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"/>
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -57,10 +57,10 @@
                version="[null]" path="1.2."/>
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="CLA" kee="org.struts:struts:org.struts.RequestContext"
+  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.RequestContext"
             name="RequestContext" root_id="1"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/main/java/RequestContext.java"/>
 
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"

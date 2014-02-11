@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 
 public class ResourceComponent implements Component {
   private String key;
+  private String path;
   private String name;
   private String longName;
   private String qualifier;
@@ -37,6 +38,7 @@ public class ResourceComponent implements Component {
 
   public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
+    this.path = resource.getPath();
     if (Strings.isNullOrEmpty(key)) {
       throw new IllegalArgumentException("Missing component key");
     }
@@ -58,6 +60,11 @@ public class ResourceComponent implements Component {
     return key;
   }
 
+  @Override
+  public String path() {
+    return path;
+  }
+
   public String name() {
     return name;
   }
@@ -65,7 +72,6 @@ public class ResourceComponent implements Component {
   public String longName() {
     return longName;
   }
-
 
   public String qualifier() {
     return qualifier;
