@@ -209,7 +209,7 @@
 }
 
 #dashboard .column-handle {
-  height: 100px;
+  height: 30px;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -218,7 +218,7 @@
   text-align: center;
   font-size: x-large;
   vertical-align: middle;
-  color: #555;
+  background-color: #eee;
 }
 
 #dashboard .block {

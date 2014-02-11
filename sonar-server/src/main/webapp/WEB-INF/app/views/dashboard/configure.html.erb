@@ -26,8 +26,6 @@
   %>
     <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>;margin: 0 -1px 0 0;">
       <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0 <%= index<columns.size() ? "5px" : "0px" -%> 0 <%= index>1 ? "5px" : "0px" -%>;">
-        <div class="column-handle" style="display: none"></div>
-
         <%
            @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition }.sort_by { |widget| widget.row_index }.each do |widget|
         %>
@@ -37,6 +35,7 @@
         <%
            end
         %>
+        <div class="column-handle" style="display: none"></div>
       </div>
     </div>
   <% end %>

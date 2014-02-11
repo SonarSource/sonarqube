@@ -39,6 +39,7 @@
           .on('dragstart', function(e) {
             e.originalEvent.dataTransfer.setData('text/plain', 'drag');
             draggable = $(this);
+            columnHandle.show();
           })
           .on('dragover', function(e) {
             if (draggable.prop('id') !== $(this).prop('id')) {
