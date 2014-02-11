@@ -65,7 +65,12 @@ public class BatchExtensionDictionnary {
   }
 
   public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
-    Collection<DependsUponMavenPlugin> selectedExtensions = select(DependsUponMavenPlugin.class, project, true);
+    List<DependsUponMavenPlugin> selectedExtensions = Lists.newArrayList();
+    for (BatchExtension extension : getExtensions()) {
+      if (ClassUtils.isAssignable(extension.getClass(), DependsUponMavenPlugin.class)) {
+        selectedExtensions.add((DependsUponMavenPlugin) extension);
+      }
+    }
     List<MavenPluginHandler> handlers = Lists.newArrayList();
     for (DependsUponMavenPlugin extension : selectedExtensions) {
       MavenPluginHandler handler = extension.getMavenPluginHandler(project);
