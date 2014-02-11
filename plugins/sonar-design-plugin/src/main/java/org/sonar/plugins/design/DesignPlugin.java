@@ -30,7 +30,6 @@ import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 import org.sonar.plugins.design.ui.page.GwtDesignPage;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
-import org.sonar.plugins.design.ui.widgets.ResponseForClassWidget;
 
 import java.util.List;
 
@@ -48,7 +47,6 @@ public class DesignPlugin extends SonarPlugin {
       GwtLibrariesPage.class,
       GwtDesignPage.class,
       FileDesignWidget.class,
-      PackageDesignWidget.class,
-      ResponseForClassWidget.class);
+      PackageDesignWidget.class);
   }
 }
