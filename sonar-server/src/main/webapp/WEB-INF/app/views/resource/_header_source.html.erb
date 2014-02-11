@@ -1,7 +1,7 @@
 <div id="source_header" class="tab_header">
   <table width="100%">
     <tr>
-      <td class="col">
+      <td class="col top">
       <table class="metrics">
         <% if m=measure('lines') %>
           <tr>
@@ -29,8 +29,14 @@
         <% end %>
       </table>
       </td>
-      <td class="col">
+      <td class="col top">
       <table class="metrics">
+        <% if m=measure('classes') %>
+          <tr>
+            <td class="name"><%= message('metric.classes.name') -%>:</td>
+            <td class="value"><%= format_measure(m) -%></td>
+          </tr>
+        <% end %>
         <% if m=measure('statements') %>
           <tr>
             <td class="name"><%= message('metric.statements.name') -%>:</td>
@@ -51,7 +57,7 @@
         <% end %>
       </table>
     </td>
-      <td class="col">
+      <td class="col top">
       <table class="metrics">
         <% if m=measure('comment_lines_density') %>
           <tr>
@@ -79,7 +85,7 @@
         <% end %>
       </table>
     </td>
-      <td class="col">
+      <td class="col top">
       <table class="metrics">
         <% if m=measure('public_documented_api_density') %>
           <tr>
@@ -101,16 +107,6 @@
         <% end %>
       </table>
     </td>
-      <td class="col">
-      <table class="metrics">
-        <% if m=measure('classes') %>
-          <tr>
-            <td class="name"><%= message('metric.classes.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
-      </table>
-      </td>
     </tr>
   </table>
   <%= render :partial => 'options' -%>
