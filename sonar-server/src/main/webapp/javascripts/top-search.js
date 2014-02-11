@@ -1,12 +1,12 @@
 (function($) {
 
-  var autocomplete = function(options) {
+  $.fn.topSearch = function(options) {
 
     var el = $(this),
         resultsEl = $(options.results),
         spinnerEl = $(options.spinner);
 
-    var index, total, selected, items, symbol = false;
+    var index, total, selected, items, term, symbol = false;
 
 
     var select = function() {
@@ -34,13 +34,47 @@
 
         choose = function() {
           if (selected) {
-            var id = selected.prop('id');
-            window.location = baseUrl + '/dashboard/index/' + id;
+            var key = selected.data('key');
+            window.location = baseUrl + '/dashboard/index/' + key;
           }
         },
 
-        show = function(content) {
-          resultsEl.html(content).show();
+        show = function(r) {
+          resultsEl.empty();
+
+          var ul = $('<ul></ul>').appendTo(resultsEl);
+
+          r.results.forEach(function(qualifier) {
+            qualifier.items.forEach(function(item, index) {
+              var el = $('<li></li>')
+                  .data('key', item.id),
+
+                  q = $('<div></div>')
+                      .addClass('q')
+                      .appendTo(el),
+
+                  highlightRegexp = new RegExp(term, 'gi'),
+                  highlightedName = item.name.replace(highlightRegexp, '<strong>$&</strong>'),
+
+                  label = $('<span></span>')
+                      .html(' ' + highlightedName)
+                      .appendTo(el);
+
+              $('<img>')
+                  .prop('src', baseUrl + qualifier.icon)
+                  .prop('width', 16)
+                  .prop('height', 16)
+                  .prependTo(label);
+
+              if (index === 0) {
+                q.text(qualifier.name);
+              }
+
+              el.appendTo(ul);
+            });
+          });
+
+          resultsEl.show();
           items = resultsEl.find('li');
           index = -1;
           total = items.length;
@@ -60,7 +94,32 @@
 
         hide = function() {
           resultsEl.fadeOut();
-        };
+        },
+
+        onKeyup = function() {
+          if (symbol) {
+            if (el.val().length >= options.minLength) {
+              term = el.val();
+
+              spinnerEl.show();
+              $.ajax({
+                url: baseUrl + '/api/components/suggestions',
+                data: { s: term }
+              })
+                  .done(function(r) {
+                    show(r);
+                  })
+                  .fail(hide)
+                  .always(function() {
+                    spinnerEl.hide();
+                  });
+            } else {
+              hide();
+            }
+          }
+        },
+
+        debouncedKeyup = _.debounce(onKeyup, 250);
 
 
     el
@@ -69,7 +128,6 @@
             e.preventDefault();
             symbol = false;
           }
-
 
           switch (e.keyCode) {
             case 13: // return
@@ -92,29 +150,7 @@
               symbol = true;
           }
         })
-        .on('keyup', function() {
-          if (symbol) {
-            if (el.val().length >= options.minLength) {
-              var data = {};
-              data[options.searchTerm] = el.val();
-
-              spinnerEl.show();
-              $.ajax({
-                    url: options.searchUrl,
-                    data: data
-                  })
-                  .done(function(r) {
-                    show(r);
-                  })
-                  .fail(hide)
-                  .always(function() {
-                    spinnerEl.hide();
-                  });
-            } else {
-              hide();
-            }
-          }
-        })
+        .on('keyup', debouncedKeyup)
         .on('focus', function() {
           el.data('placeholder', el.val());
           el.val('');
@@ -130,9 +166,5 @@
       hide();
     });
   };
-
-  $.extend($.fn, {
-    autocomplete: autocomplete
-  });
 
 })(jQuery);

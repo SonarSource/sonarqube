@@ -533,12 +533,8 @@ function openPopup(url, popupId) {
 
 
 jQuery(function() {
-  jQuery('#searchInput').autocomplete({
+  jQuery('#searchInput').topSearch({
     minLength: 2,
-
-    searchUrl: baseUrl + '/search',
-    searchTerm: 's',
-
     results: '#searchResourcesResults',
     spinner: '#searchingResources'
   });
