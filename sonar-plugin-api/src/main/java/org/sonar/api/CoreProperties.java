@@ -176,7 +176,10 @@ public interface CoreProperties {
   String PROJECT_TEST_EXCLUSIONS_PROPERTY = "sonar.test.exclusions";
   String GLOBAL_EXCLUSIONS_PROPERTY = "sonar.global.exclusions";
   String GLOBAL_TEST_EXCLUSIONS_PROPERTY = "sonar.global.test.exclusions";
-  String GLOBAL_TEST_EXCLUSIONS_DEFAULT = "**/package-info.java";
+  /**
+   * @deprecated since 4.2. See http://jira.codehaus.org/browse/SONAR-5058
+   */
+  String GLOBAL_TEST_EXCLUSIONS_DEFAULT = "";
 
   /**
    * @deprecated since 2.5. See discussion from http://jira.codehaus.org/browse/SONAR-1873

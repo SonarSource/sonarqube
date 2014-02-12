@@ -62,7 +62,6 @@ class ExclusionProperties {
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .defaultValue(CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT)
         .index(1)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY)

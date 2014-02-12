@@ -72,7 +72,7 @@ public class ProjectTest {
     Project project = new Project("key").setConfiguration(conf);
 
     assertThat(project.getExclusionPatterns()).isEmpty();
-    assertThat(project.getTestExclusionPatterns()).containsOnly("**/package-info.java");
+    assertThat(project.getTestExclusionPatterns()).isEmpty();
   }
 
   @Test

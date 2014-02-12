@@ -380,14 +380,9 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public String[] getTestExclusionPatterns() {
-    String[] globalTestExclusions = configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY);
-    if (globalTestExclusions.length == 0) {
-      globalTestExclusions = new String[] {CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT};
-    }
-
     return trimExclusions(ImmutableList.<String>builder()
       .add(configuration.getStringArray(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY))
-      .add(globalTestExclusions).build());
+      .add(configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY)).build());
   }
 
   // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
