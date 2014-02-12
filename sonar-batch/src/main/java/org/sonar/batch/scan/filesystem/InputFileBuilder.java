@@ -27,9 +27,9 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.List;
 
