@@ -29,7 +29,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputDir;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.internal.InputFiles;
@@ -188,14 +187,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
       throw new SonarException(ioFile.getAbsolutePath() + "is not a file");
     }
     return index.inputFile(this, ioFile);
-  }
-
-  @Override
-  public InputDir inputDir(File ioFile) {
-    if (!ioFile.isDirectory()) {
-      throw new SonarException(ioFile.getAbsolutePath() + "is not a directory");
-    }
-    return index.inputDir(this, ioFile);
   }
 
   @Override

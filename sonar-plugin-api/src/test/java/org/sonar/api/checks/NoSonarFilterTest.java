@@ -22,7 +22,7 @@ package org.sonar.api.checks;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.File;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
@@ -37,11 +37,11 @@ public class NoSonarFilterTest {
 
   private SensorContext sensorContext = mock(SensorContext.class);
   NoSonarFilter filter = new NoSonarFilter(sensorContext);
-  private JavaFile javaFile;
+  private File javaFile;
 
   @Before
   public void prepare() {
-    javaFile = new JavaFile("org.foo.Bar");
+    javaFile = new File("org.foo.Bar");
     when(sensorContext.getResource(javaFile)).thenReturn(javaFile);
   }
 

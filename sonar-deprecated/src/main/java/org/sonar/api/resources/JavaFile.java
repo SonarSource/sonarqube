@@ -211,7 +211,7 @@ public class JavaFile extends Resource {
     String normalizedPath = normalize(relativePathFromBasedir);
     javaFile.setKey(normalizedPath);
     javaFile.setPath(normalizedPath);
-    javaFile.parent = new Directory();
+    javaFile.parent = new JavaPackage();
     String directoryPath;
     if (normalizedPath.contains(Directory.SEPARATOR)) {
       directoryPath = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);

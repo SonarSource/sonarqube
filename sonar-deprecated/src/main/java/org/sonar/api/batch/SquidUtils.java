@@ -21,7 +21,6 @@ package org.sonar.api.batch;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
@@ -58,7 +57,7 @@ public final class SquidUtils {
    */
   @Deprecated
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
-    return new Directory(key);
+    return new JavaPackage(key);
   }
 
   public static String convertToSquidKeyFormat(JavaFile file) {

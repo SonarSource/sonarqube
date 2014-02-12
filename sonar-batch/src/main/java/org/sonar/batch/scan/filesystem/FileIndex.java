@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -28,12 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.InputDir;
 import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.scan.filesystem.internal.DefaultInputDir;
 import org.sonar.api.scan.filesystem.InputFileFilter;
-import org.sonar.api.utils.PathUtils;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -81,7 +77,7 @@ public class FileIndex implements BatchComponent {
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndex(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-                   InputFileCache cache, PathResolver pathResolver, Project project) {
+    InputFileCache cache, PathResolver pathResolver, Project project) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
@@ -127,7 +123,7 @@ public class FileIndex implements BatchComponent {
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
           "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-        ));
+          ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, type)) {
           indexFile(inputFileBuilder, fileSystem, progress, sourceFile, path, type);
@@ -145,14 +141,6 @@ public class FileIndex implements BatchComponent {
     return fileCache.byPath(fileSystem.moduleKey(), path);
   }
 
-  InputDir inputDir(DefaultModuleFileSystem fileSystem, File ioFile) {
-    String path = computeFilePath(fileSystem, ioFile);
-    DefaultInputDir inputDir = new DefaultInputDir(FilenameUtils.normalize(ioFile.getAbsolutePath(), true), path);
-    String resourceKey = PathUtils.sanitize(path);
-    inputDir.setKey(module.getEffectiveKey() + ":" + resourceKey);
-    return inputDir;
-  }
-
   private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File sourceFile : files) {
@@ -160,7 +148,7 @@ public class FileIndex implements BatchComponent {
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
           "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-        ));
+          ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_MAIN)) {
           indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.TYPE_MAIN);
@@ -183,7 +171,6 @@ public class FileIndex implements BatchComponent {
   private String computeFilePath(DefaultModuleFileSystem fileSystem, File file) {
     return pathResolver.relativePath(fileSystem.baseDir(), file);
   }
-
 
   private boolean accept(InputFile inputFile) {
     // InputFileFilter extensions

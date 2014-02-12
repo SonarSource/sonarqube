@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
-import org.sonar.api.batch.Sensor;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 
@@ -59,9 +58,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
 
   private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
     boolean keep = ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
-    // For Sensors we no longer filter on shouldExecuteOnProject
-    if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)
-      && !ClassUtils.isAssignable(extension.getClass(), Sensor.class)) {
+    if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
     }
     return keep;

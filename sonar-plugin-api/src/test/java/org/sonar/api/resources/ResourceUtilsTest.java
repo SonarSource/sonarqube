@@ -29,42 +29,43 @@ import static org.mockito.Mockito.when;
 public class ResourceUtilsTest {
 
   @Test
-  public void checkJavaClass() {
-    JavaFile clazz = new JavaFile("hello.Foo");
-    assertThat(ResourceUtils.isClass(clazz), is(true));
-    assertThat(ResourceUtils.isPackage(clazz), is(false));
-    assertThat(ResourceUtils.isModuleProject(clazz), is(false));
-    assertThat(ResourceUtils.isSpace(clazz), is(false));
-    assertThat(ResourceUtils.isEntity(clazz), is(true));
-    assertThat(ResourceUtils.isSet(clazz), is(false));
-    assertThat(ResourceUtils.isRootProject(clazz), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(clazz), is(false));
+  public void checkFile() {
+    File file = new File("hello.Foo");
+    assertThat(ResourceUtils.isClass(file), is(true));
+    assertThat(ResourceUtils.isPackage(file), is(false));
+    assertThat(ResourceUtils.isModuleProject(file), is(false));
+    assertThat(ResourceUtils.isSpace(file), is(false));
+    assertThat(ResourceUtils.isEntity(file), is(true));
+    assertThat(ResourceUtils.isSet(file), is(false));
+    assertThat(ResourceUtils.isRootProject(file), is(false));
+    assertThat(ResourceUtils.isUnitTestClass(file), is(false));
   }
 
   @Test
-  public void checkJavaUnitTest() {
-    JavaFile clazz = new JavaFile("hello.Foo", true);
-    assertThat(ResourceUtils.isClass(clazz), is(false));
-    assertThat(ResourceUtils.isPackage(clazz), is(false));
-    assertThat(ResourceUtils.isModuleProject(clazz), is(false));
-    assertThat(ResourceUtils.isSpace(clazz), is(false));
-    assertThat(ResourceUtils.isEntity(clazz), is(true));
-    assertThat(ResourceUtils.isSet(clazz), is(false));
-    assertThat(ResourceUtils.isRootProject(clazz), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(clazz), is(true));
+  public void checkUnitTest() {
+    File utFile = new File("hello.Foo");
+    utFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
+    assertThat(ResourceUtils.isClass(utFile), is(false));
+    assertThat(ResourceUtils.isPackage(utFile), is(false));
+    assertThat(ResourceUtils.isModuleProject(utFile), is(false));
+    assertThat(ResourceUtils.isSpace(utFile), is(false));
+    assertThat(ResourceUtils.isEntity(utFile), is(true));
+    assertThat(ResourceUtils.isSet(utFile), is(false));
+    assertThat(ResourceUtils.isRootProject(utFile), is(false));
+    assertThat(ResourceUtils.isUnitTestClass(utFile), is(true));
   }
 
   @Test
-  public void checkJavaPackage() {
-    JavaPackage pack = new JavaPackage("hello");
-    assertThat(ResourceUtils.isClass(pack), is(false));
-    assertThat(ResourceUtils.isPackage(pack), is(true));
-    assertThat(ResourceUtils.isModuleProject(pack), is(false));
-    assertThat(ResourceUtils.isSpace(pack), is(true));
-    assertThat(ResourceUtils.isEntity(pack), is(false));
-    assertThat(ResourceUtils.isSet(pack), is(false));
-    assertThat(ResourceUtils.isRootProject(pack), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(pack), is(false));
+  public void checkDirectory() {
+    Directory dir = new Directory("hello");
+    assertThat(ResourceUtils.isClass(dir), is(false));
+    assertThat(ResourceUtils.isPackage(dir), is(true));
+    assertThat(ResourceUtils.isModuleProject(dir), is(false));
+    assertThat(ResourceUtils.isSpace(dir), is(true));
+    assertThat(ResourceUtils.isEntity(dir), is(false));
+    assertThat(ResourceUtils.isSet(dir), is(false));
+    assertThat(ResourceUtils.isRootProject(dir), is(false));
+    assertThat(ResourceUtils.isUnitTestClass(dir), is(false));
   }
 
   @Test

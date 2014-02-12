@@ -22,9 +22,8 @@ package org.sonar.api.measures;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Scopes;
 
 import java.util.Collections;
@@ -60,7 +59,7 @@ public class SumChildDistributionFormulaTest {
   @Test
   public void testWhenGetChildrenReturnsEmpty() {
     when(context.getTargetMetric()).thenReturn(new Metric("foo"));
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(Collections.<Measure> emptyList());
+    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(Collections.<Measure>emptyList());
     assertNull(formula.calculate(data, context));
   }
 
@@ -72,7 +71,7 @@ public class SumChildDistributionFormulaTest {
     List<Measure> list = Lists.newArrayList(
       new Measure(m, "1=0;2=2;5=0;10=10;20=2"),
       new Measure(m, "1=0;2=2;5=0;10=10;30=3")
-    );
+      );
     when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
     assertThat(formula.calculate(data, context), nullValue());
   }
@@ -85,7 +84,7 @@ public class SumChildDistributionFormulaTest {
     List<Measure> list = Lists.newArrayList(
       new Measure(m, "1=0;2=2;5=0;10=10;20=2"),
       new Measure(m, "1=3;2=2;5=3;10=12;20=0")
-    );
+      );
     when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
     assertThat(formula.calculate(data, context).getData(), is("1=3;2=4;5=3;10=22;20=2"));
   }
@@ -98,7 +97,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldNotPersistWhenScopeLowerThanMinimun() throws Exception {
-    when(context.getResource()).thenReturn(JavaFile.fromRelativePath("org/Foo.java", false));
+    when(context.getResource()).thenReturn(new File("org/Foo.java"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.DIRECTORY);
@@ -109,7 +108,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldPersistWhenScopeEqualsMinimun() throws Exception {
-    when(context.getResource()).thenReturn(JavaFile.fromRelativePath("org/Foo.java", false));
+    when(context.getResource()).thenReturn(new File("org/Foo.java"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.FILE);
@@ -120,7 +119,7 @@ public class SumChildDistributionFormulaTest {
 
   @Test
   public void shouldPersistWhenScopeHigherThanMinimun() throws Exception {
-    when(context.getResource()).thenReturn(new JavaPackage("org.foo"));
+    when(context.getResource()).thenReturn(new Directory("org/foo"));
 
     initContextWithChildren();
     formula.setMinimumScopeToPersist(Scopes.FILE);
@@ -133,9 +132,9 @@ public class SumChildDistributionFormulaTest {
     Metric m = new Metric("foo", Metric.ValueType.DATA);
     when(context.getTargetMetric()).thenReturn(m);
     List<Measure> list = Lists.newArrayList(
-        new Measure(m, "0.5=0;2.5=2"),
-        new Measure(m, "0.5=3;2.5=4")
-    );
+      new Measure(m, "0.5=0;2.5=2"),
+      new Measure(m, "0.5=3;2.5=4")
+      );
     when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
   }
 }

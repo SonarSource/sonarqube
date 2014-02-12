@@ -21,7 +21,7 @@ package org.sonar.api.measures;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.File;
 
 import java.util.List;
 
@@ -139,7 +139,7 @@ public class AverageFormulaTest {
   public void test_calculation_for_file() {
     when(data.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 60.0));
     when(data.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 20.0));
-    when(context.getResource()).thenReturn(new JavaFile("foo"));
+    when(context.getResource()).thenReturn(new File("foo"));
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
     assertThat(measure.getValue()).isEqualTo(3.0);
@@ -150,11 +150,11 @@ public class AverageFormulaTest {
     when(data.getMeasure(CoreMetrics.COMPLEXITY_IN_FUNCTIONS)).thenReturn(null);
     when(data.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 60.0));
     when(data.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 20.0));
-    when(context.getResource()).thenReturn(new JavaFile("foo"));
+    when(context.getResource()).thenReturn(new File("foo"));
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS)
-        .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
-        .calculate(data, context);
+      .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
+      .calculate(data, context);
     assertThat(measure.getValue()).isEqualTo(3.0);
   }
 
@@ -163,11 +163,11 @@ public class AverageFormulaTest {
     when(data.getMeasure(CoreMetrics.COMPLEXITY_IN_FUNCTIONS)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 60.0));
     when(data.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 42.0));
     when(data.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 20.0));
-    when(context.getResource()).thenReturn(new JavaFile("foo"));
+    when(context.getResource()).thenReturn(new File("foo"));
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS)
-        .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
-        .calculate(data, context);
+      .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
+      .calculate(data, context);
     assertThat(measure.getValue()).isEqualTo(3.0);
   }
 
@@ -183,8 +183,8 @@ public class AverageFormulaTest {
     when(data.getChildren()).thenReturn(childrenData);
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS)
-        .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
-        .calculate(data, context);
+      .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
+      .calculate(data, context);
 
     assertThat(measure.getValue()).isEqualTo(2.5);
   }

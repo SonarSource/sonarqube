@@ -94,13 +94,6 @@ public interface ModuleFileSystem extends BatchComponent {
   InputFile inputFile(File ioFile);
 
   /**
-   * Search for input directory corresponding to the given java.io.File.
-   * @since 4.2
-   */
-  @CheckForNull
-  InputDir inputDir(File ioFile);
-
-  /**
    * Default charset for files of the module. If it's not defined, then
    * return the platform default charset. When trying to read an input file it is better to rely on
    * {@link InputFile#encoding()} as encoding may be different for each file.

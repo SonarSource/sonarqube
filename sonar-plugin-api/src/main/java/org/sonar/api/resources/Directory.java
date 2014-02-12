@@ -29,9 +29,8 @@ import javax.annotation.CheckForNull;
 
 /**
  * @since 1.10
- * Extends JavaPackage to allow smooth migration from JavaPackage to Directory
  */
-public class Directory extends JavaPackage {
+public class Directory extends Resource {
 
   public static final String SEPARATOR = "/";
   public static final String ROOT = "[root]";

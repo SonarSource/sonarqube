@@ -23,19 +23,16 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collection;
@@ -50,10 +47,9 @@ public class SensorsExecutor implements BatchComponent {
   private BatchExtensionDictionnary selector;
   private final DatabaseSession session;
   private final SensorMatcher sensorMatcher;
-  private final DefaultModuleLanguages moduleLanguages;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-                         DatabaseSession session, SensorMatcher sensorMatcher, DefaultModuleLanguages moduleLanguages) {
+    DatabaseSession session, SensorMatcher sensorMatcher) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
@@ -61,7 +57,6 @@ public class SensorsExecutor implements BatchComponent {
     this.fs = fs;
     this.session = session;
     this.sensorMatcher = sensorMatcher;
-    this.moduleLanguages = moduleLanguages;
   }
 
   public void execute(SensorContext context) {
@@ -72,25 +67,7 @@ public class SensorsExecutor implements BatchComponent {
       // SONAR-2965 In case the sensor takes too much time we close the session to not face a timeout
       session.commitAndClose();
 
-      if (sensor.shouldExecuteOnProject(module)) {
-        executeSensor(context, sensor);
-      } else {
-        // For backward compatibility try to execute Sensor for each language until it is executed once (or never)
-        String oldLanguageKey = module.getLanguageKey();
-        Language oldLanguage = module.getLanguage();
-        for (Language language : moduleLanguages.languages()) {
-          module.setLanguage(language);
-          module.getConfiguration().setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language.getKey());
-          if (sensor.shouldExecuteOnProject(module)) {
-            LOG.warn("Sensor {} should be updated to not depends on deprecated Project::getLanguage or Project::getLanguageKey", sensor);
-            executeSensor(context, sensor);
-            break;
-          }
-        }
-        // Restore module language
-        module.setLanguage(oldLanguage);
-        module.getConfiguration().setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, oldLanguageKey);
-      }
+      executeSensor(context, sensor);
     }
 
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), false));

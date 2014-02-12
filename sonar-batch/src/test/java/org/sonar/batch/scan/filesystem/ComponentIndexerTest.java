@@ -33,7 +33,6 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
@@ -101,13 +100,13 @@ public class ComponentIndexerTest {
       mock(ResourceDao.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
-    verify(sonarIndex).index(JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false));
-    verify(sonarIndex).index(JavaFile.create("src/main/java2/foo/bar/Foo.java", "foo/bar/Foo.java", false));
-    verify(sonarIndex).index(argThat(new ArgumentMatcher<JavaFile>() {
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java2/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
+    verify(sonarIndex).index(argThat(new ArgumentMatcher<org.sonar.api.resources.File>() {
       @Override
       public boolean matches(Object arg0) {
-        JavaFile javaFile = (JavaFile) arg0;
-        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
+        org.sonar.api.resources.File javaFile = (org.sonar.api.resources.File) arg0;
+        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getPath().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getQualifier().equals(Qualifiers.UNIT_TEST_FILE);
       }
@@ -142,7 +141,7 @@ public class ComponentIndexerTest {
       mock(ResourceDao.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
-    Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
+    Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
     verify(sonarIndex).index(sonarFile);
     verify(sonarIndex).setSource(sonarFile, "sample code");
   }
@@ -184,7 +183,7 @@ public class ComponentIndexerTest {
       mock(ResourceDao.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
-    Resource sonarFile = JavaFile.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
+    Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
 
     verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override
@@ -212,7 +211,7 @@ public class ComponentIndexerTest {
       mock(ResourceDao.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
-    Resource sonarFile = JavaFile.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", false);
+    Resource sonarFile = org.sonar.api.resources.File.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
 
     verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override
