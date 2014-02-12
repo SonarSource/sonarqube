@@ -27,6 +27,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -77,9 +79,10 @@ public class ComponentIndexer implements BatchComponent {
         pathFromSourceDir = inputFile.path();
       }
       Resource sonarFile = File.create(inputFile.path(), pathFromSourceDir, languages.get(languageKey), unitTest);
-      String deprecatedKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY);
-      if (deprecatedKey != null) {
-        sonarFile.setDeprecatedKey(deprecatedKey);
+      if (Java.KEY.equals(languageKey)) {
+        sonarFile.setDeprecatedKey(JavaFile.fromRelativePath(pathFromSourceDir, false).getDeprecatedKey());
+      } else {
+        sonarFile.setDeprecatedKey(pathFromSourceDir);
       }
       if (sonarFile != null) {
         moduleLanguages.addLanguage(languageKey);
