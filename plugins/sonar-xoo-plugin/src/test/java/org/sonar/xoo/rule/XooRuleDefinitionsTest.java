@@ -37,6 +37,10 @@ public class XooRuleDefinitionsTest {
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
     assertThat(repo.rules()).hasSize(1);
-    assertThat(repo.rules().get(0).key()).isEqualTo("x1");
+
+    RuleDefinitions.Rule x1 = repo.rule("x1");
+    assertThat(x1.key()).isEqualTo("x1");
+    assertThat(x1.tags()).containsOnly("style", "security");
+    assertThat(x1.htmlDescription()).isNotEmpty();
   }
 }

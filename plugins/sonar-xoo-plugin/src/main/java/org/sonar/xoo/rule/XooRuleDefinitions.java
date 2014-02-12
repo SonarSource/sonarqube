@@ -43,7 +43,7 @@ public class XooRuleDefinitions implements RuleDefinitions {
       .setHtmlDescription("Generate an issue on empty lines of Xoo source files")
 
         // optional tags
-      .addTags("style")
+      .setTags("style", "security")
 
         // optional status. Default value is READY.
       .setStatus(RuleStatus.BETA)
