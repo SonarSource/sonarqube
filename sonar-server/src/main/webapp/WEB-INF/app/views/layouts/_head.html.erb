@@ -36,6 +36,9 @@
     <%= stylesheet_link_tag 'select-list', :media => 'all' %>
     <%= stylesheet_link_tag 'navigator', :media => 'all' %>
     <%= yield :style -%>
+    <%= javascript_include_tag 'third-party/prototype' %>
+    <%= javascript_include_tag 'third-party/scriptaculous' %>
+    <%= javascript_include_tag 'third-party/tablekit' %>
     <%= javascript_include_tag 'third-party/jquery.min' %>
     <%= javascript_include_tag 'third-party/jquery-ui.min' %>
     <%= javascript_include_tag 'third-party/jquery-ui.tabs' %>
