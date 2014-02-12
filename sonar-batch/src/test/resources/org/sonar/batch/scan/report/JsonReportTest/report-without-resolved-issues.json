@@ -1,6 +1,22 @@
 {
   "version": "3.6",
   "issues": [],
-  "components": [],
+  "components": [
+  {
+    "key": "struts"
+  },
+  {
+    "key": "struts-core",
+    "path": "core"
+  },
+  {
+    "key": "struts-ui",
+    "path": "ui"
+  },
+  {
+    "key": "struts:src/main/java/org/apache/struts/Action.java",
+    "path": "src/main/java/org/apache/struts/Action.java"
+  }
+],
   "rules": []
 }

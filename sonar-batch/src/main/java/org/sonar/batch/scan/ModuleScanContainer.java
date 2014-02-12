@@ -28,7 +28,12 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -46,9 +51,19 @@ import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.scan.filesystem.ComponentIndexer;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileIndex;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
+import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
+import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
+import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
-import org.sonar.batch.scan.report.ComponentSelectorFactory;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
@@ -126,7 +141,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // report
       JsonReport.class,
-      ComponentSelectorFactory.class,
 
       // issues
       IssuableFactory.class,

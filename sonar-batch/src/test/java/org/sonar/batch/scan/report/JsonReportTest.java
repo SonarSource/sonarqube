@@ -29,16 +29,20 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.test.TestUtils;
 
@@ -82,14 +86,26 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class), new DefaultComponentSelector(), mode, userFinder);
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.path()).thenReturn("src/main/java/org/apache/struts/Action.java");
+    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY)).thenReturn("struts:src/main/java/org/apache/struts/Action.java");
+    when(inputFile.attribute(InputFile.ATTRIBUTE_STATUS)).thenReturn(InputFile.STATUS_CHANGED);
+    InputFileCache fileCache = mock(InputFileCache.class);
+    when(fileCache.all()).thenReturn(Arrays.asList(inputFile));
+    Project rootModule = new Project("struts");
+    Project moduleA = new Project("struts-core");
+    moduleA.setParent(rootModule).setPath("core");
+    Project moduleB = new Project("struts-ui");
+    moduleB.setParent(rootModule).setPath("ui");
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class),
+      mode, userFinder, rootModule, fileCache);
   }
 
   @Test
   public void should_write_json() throws Exception {
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
-      .setComponentKey("struts:/src/main/java/org/apache/struts/Action.java")
+      .setComponentKey("struts:src/main/java/org/apache/struts/Action.java")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setMessage("There are 2 cycles")
       .setSeverity("MINOR")
@@ -120,7 +136,7 @@ public class JsonReportTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
-      .setComponentKey("struts:/src/main/java/org/apache/struts/Action.java")
+      .setComponentKey("struts:src/main/java/org/apache/struts/Action.java")
       .setRuleKey(ruleKey)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)

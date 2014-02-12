@@ -21,16 +21,20 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
@@ -39,8 +43,13 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -60,27 +69,23 @@ public class JsonReport implements BatchComponent {
   private final RuleFinder ruleFinder;
   private final IssueCache issueCache;
   private final EventBus eventBus;
-  private final ComponentSelector componentSelector;
-  private AnalysisMode analysisMode;
-  private UserFinder userFinder;
+  private final AnalysisMode analysisMode;
+  private final UserFinder userFinder;
+  private final InputFileCache fileCache;
+  private final Project rootModule;
 
   public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-                    EventBus eventBus, ComponentSelectorFactory componentSelectorFactory, AnalysisMode mode, UserFinder userFinder) {
-    this(settings, fileSystem, server, ruleFinder, issueCache, eventBus, componentSelectorFactory.create(), mode, userFinder);
-  }
-
-  @VisibleForTesting
-  JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-             EventBus eventBus, ComponentSelector componentSelector, AnalysisMode analysisMode, UserFinder userFinder) {
+    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputFileCache fileCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.ruleFinder = ruleFinder;
     this.issueCache = issueCache;
     this.eventBus = eventBus;
-    this.componentSelector = componentSelector;
     this.analysisMode = analysisMode;
     this.userFinder = userFinder;
+    this.rootModule = rootModule;
+    this.fileCache = fileCache;
   }
 
   public void execute() {
@@ -116,7 +121,6 @@ public class JsonReport implements BatchComponent {
 
       Set<RuleKey> ruleKeys = newHashSet();
       Set<String> userLogins = newHashSet();
-      componentSelector.init();
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
@@ -132,7 +136,7 @@ public class JsonReport implements BatchComponent {
   private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> logins) throws IOException {
     json.name("issues").beginArray();
     for (DefaultIssue issue : getIssues()) {
-      if (issue.resolution() == null && componentSelector.register(issue)) {
+      if (issue.resolution() == null) {
         json
           .beginObject()
           .prop("key", issue.key())
@@ -165,13 +169,30 @@ public class JsonReport implements BatchComponent {
 
   private void writeJsonComponents(JsonWriter json) throws IOException {
     json.name("components").beginArray();
-    for (String componentKey : componentSelector.componentKeys()) {
+    // Dump modules
+    writeJsonModuleComponents(json, rootModule);
+    // TODO we need to dump directories
+    for (InputFile inputFile : fileCache.all()) {
       json
         .beginObject()
-        .prop("key", componentKey)
+        .prop("key", inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY))
+        .prop("path", inputFile.path())
+        .prop("moduleKey", StringUtils.substringBeforeLast(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY), ":"))
+        .prop("status", inputFile.attribute(InputFile.ATTRIBUTE_STATUS))
         .endObject();
     }
     json.endArray();
+  }
+
+  private void writeJsonModuleComponents(JsonWriter json, Project module) {
+    json
+      .beginObject()
+      .prop("key", module.getEffectiveKey())
+      .prop("path", module.getPath())
+      .endObject();
+    for (Project subModule : module.getModules()) {
+      writeJsonModuleComponents(json, subModule);
+    }
   }
 
   private void writeJsonRules(JsonWriter json, Set<RuleKey> ruleKeys) throws IOException {

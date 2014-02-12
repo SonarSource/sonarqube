@@ -20,10 +20,22 @@
 package org.sonar.batch.scan.report;
 
 import org.sonar.api.issue.Issue;
+import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 
 import java.util.Set;
 
 abstract class ComponentSelector {
+
+  private final InputFileCache cache;
+
+  ComponentSelector(InputFileCache cache) {
+    this.cache = cache;
+  }
+
+  public InputFileCache getCache() {
+    return cache;
+  }
 
   abstract void init();
 
@@ -31,4 +43,9 @@ abstract class ComponentSelector {
 
   abstract Set<String> componentKeys();
 
+  InputFile component(String componentKey) {
+    String moduleKey = org.apache.commons.lang.StringUtils.substringBeforeLast(componentKey, ":");
+    String path = org.apache.commons.lang.StringUtils.substringAfterLast(componentKey, ":");
+    return cache.byPath(moduleKey, path);
+  }
 }
