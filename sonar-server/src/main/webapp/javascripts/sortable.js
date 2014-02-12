@@ -14,20 +14,28 @@
 
 
   function _sort(container, rows, cellIndex, order) {
-    Array.prototype.sort.call(rows, function(a, b) {
-      var aCell = $(a).find('td').eq(cellIndex),
-          bCell = $(b).find('td').eq(cellIndex),
-          aValue = _getValue(aCell),
-          bValue = _getValue(bCell);
+    var sortArray = rows.map(function(index) {
+      var cell = $(this).find('td').eq(cellIndex);
+      return { index: index, value: _getValue(cell) };
+    }).get();
 
-      if (isNaN(aValue) || isNaN(bValue)) {
-        return order * (aValue > bValue ? 1 : -1);
+    Array.prototype.sort.call(sortArray, function(a, b) {
+      if (isNaN(a.value) || isNaN(a.value)) {
+        return order * (a.value > b.value ? 1 : -1);
       } else {
-        return order * (aValue - bValue);
+        return order * (a.value - b.value);
       }
     });
-    container.html(rows);
-    _stripe(rows);
+
+    rows.detach();
+    var newRows = jQuery();
+    sortArray.forEach(function(a) {
+      var row = rows.eq(a.index);
+      row.appendTo(container);
+      newRows = newRows.add(row);
+    });
+
+    _stripe(newRows);
   }
 
 
