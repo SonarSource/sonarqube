@@ -63,7 +63,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         NewRule newRule = newRepository.newRule(rule.getKey());
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
-        newRule.setEngineKey(rule.getConfigKey());
+        newRule.setInternalKey(rule.getConfigKey());
         newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
         newRule.setSeverity(rule.getSeverity().toString());
         newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));

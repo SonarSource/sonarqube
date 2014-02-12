@@ -75,6 +75,7 @@ class RuleDefinitionsFromAnnotations {
     rule.setSeverity(ruleAnnotation.priority().name());
     rule.setTemplate(ruleAnnotation.cardinality() == Cardinality.MULTIPLE);
     rule.setStatus(RuleStatus.valueOf(ruleAnnotation.status()));
+    rule.setTags(ruleAnnotation.tags());
 
     List<Field> fields = FieldUtils2.getFields(clazz, true);
     for (Field field : fields) {

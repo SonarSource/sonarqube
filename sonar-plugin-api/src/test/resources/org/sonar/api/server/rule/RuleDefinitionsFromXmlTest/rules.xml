@@ -6,10 +6,12 @@
     <description>
       <![CDATA[Description of Complete]]>
     </description>
-    <configKey>Checker/TreeWalker/LocalVariableName</configKey>
+    <internalKey>Checker/TreeWalker/LocalVariableName</internalKey>
     <severity>BLOCKER</severity>
     <cardinality>MULTIPLE</cardinality>
     <status>BETA</status>
+    <tag>style</tag>
+    <tag>security</tag>
     <param>
       <key>tokens</key>
       <description>

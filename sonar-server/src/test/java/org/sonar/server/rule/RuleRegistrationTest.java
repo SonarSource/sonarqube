@@ -217,7 +217,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
           .setName("One")
           .setHtmlDescription("Description of One")
           .setSeverity(Severity.BLOCKER)
-          .setEngineKey("config1")
+          .setInternalKey("config1")
           .setTags("tag1", "tag3", "tag5");
       rule1.newParam("param1").setDescription("parameter one").setDefaultValue("default value one");
       rule1.newParam("param2").setDescription("parameter two").setDefaultValue("default value two");
@@ -242,7 +242,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
             .setName("name of " + i)
             .setHtmlDescription("description of " + i)
             .setSeverity(Severity.BLOCKER)
-            .setEngineKey("config1")
+            .setInternalKey("config1")
             .setTags("tag1", "tag3", "tag5");
         for (int j = 0; j < 20; j++) {
           rule.newParam("param" + j);

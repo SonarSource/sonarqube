@@ -19,13 +19,8 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
@@ -35,8 +30,9 @@ import org.sonar.api.rule.Severity;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +53,7 @@ public interface RuleDefinitions extends ServerExtension {
   class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
+
 
     public NewRepository newRepository(String key, String language) {
       return new NewRepositoryImpl(this, key, language, false);
@@ -121,12 +118,14 @@ public interface RuleDefinitions extends ServerExtension {
      * &lt;/description&gt;
      *
      * &lt;!-- optional fields --&gt;
-     * &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
+     * &lt;internalKey&gt;Checker/TreeWalker/LocalVariableName&lt;/internalKey&gt;
      * &lt;severity&gt;BLOCKER&lt;/severity&gt;
      * &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
      * &lt;status&gt;BETA&lt;/status&gt;
      * &lt;param&gt;
      * &lt;key&gt;the-param-key&lt;/key&gt;
+     * &lt;tag&gt;style&lt;/tag&gt;
+     * &lt;tag&gt;security&lt;/tag&gt;
      * &lt;description&gt;
      * &lt;![CDATA[
      * the param-description
@@ -139,6 +138,7 @@ public interface RuleDefinitions extends ServerExtension {
      * &lt;/param&gt;
      *
      * &lt;!-- deprecated fields --&gt;
+     * &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
      * &lt;priority&gt;BLOCKER&lt;/priority&gt;
      * &lt;/rule&gt;
      * &lt;/rules&gt;
@@ -307,7 +307,7 @@ public interface RuleDefinitions extends ServerExtension {
 
   class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, engineKey, severity = Severity.MAJOR;
+    private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private final Set<String> tags = Sets.newTreeSet();
@@ -323,8 +323,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewRule setName(String s) {
-      // TODO remove newlines
-      this.name = s;
+      this.name = StringUtils.trim(s);
       return this;
     }
 
@@ -342,7 +341,23 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewRule setHtmlDescription(String s) {
-      this.htmlDescription = s;
+      this.htmlDescription = StringUtils.trim(s);
+      return this;
+    }
+
+    /**
+     * Load description from a file available in classpath. Example : <code>setHtmlDescription(getClass().getResource("/myrepo/Rule1234.html")</code>
+     */
+    public NewRule setHtmlDescription(@Nullable URL classpathUrl) {
+      if (classpathUrl != null) {
+        try {
+          setHtmlDescription(IOUtils.toString(classpathUrl));
+        } catch (IOException e) {
+          throw new IllegalStateException("Fail to read: " + classpathUrl);
+        }
+      } else {
+        this.htmlDescription = null;
+      }
       return this;
     }
 
@@ -393,8 +408,8 @@ public interface RuleDefinitions extends ServerExtension {
      * in webapp. For example the Java Checkstyle plugin feeds this field
      * with the internal path ("Checker/TreeWalker/AnnotationUseStyle").
      */
-    public NewRule setEngineKey(@Nullable String s) {
-      this.engineKey = s;
+    public NewRule setInternalKey(@Nullable String s) {
+      this.internalKey = s;
       return this;
     }
 
@@ -416,7 +431,7 @@ public interface RuleDefinitions extends ServerExtension {
   @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, engineKey, severity;
+    private final String repoKey, key, name, htmlDescription, internalKey, severity;
     private final boolean template;
     private final Set<String> tags;
     private final Map<String, Param> params;
@@ -428,7 +443,7 @@ public interface RuleDefinitions extends ServerExtension {
       this.key = newRule.key;
       this.name = newRule.name;
       this.htmlDescription = newRule.htmlDescription;
-      this.engineKey = newRule.engineKey;
+      this.internalKey = newRule.internalKey;
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
@@ -483,11 +498,11 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     /**
-     * @see RuleDefinitions.NewRule#setEngineKey(String)
+     * @see RuleDefinitions.NewRule#setInternalKey(String)
      */
     @CheckForNull
-    public String engineKey() {
-      return engineKey;
+    public String internalKey() {
+      return internalKey;
     }
 
     @Override

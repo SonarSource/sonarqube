@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
 
+import java.net.URL;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -67,7 +69,7 @@ public class RuleDefinitionsTest {
       .setHtmlDescription("Detect <code>NPE</code>")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
-      .setEngineKey("/something")
+      .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
       .addTags("two", "three", "four");
@@ -84,7 +86,7 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
     assertThat(npeRule.params()).isEmpty();
-    assertThat(npeRule.engineKey()).isEqualTo("/something");
+    assertThat(npeRule.internalKey()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
@@ -106,7 +108,7 @@ public class RuleDefinitionsTest {
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.params()).isEmpty();
-    assertThat(rule.engineKey()).isNull();
+    assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
   }
@@ -138,6 +140,16 @@ public class RuleDefinitionsTest {
     // test equals() and hashCode()
     assertThat(level).isEqualTo(level).isNotEqualTo(effort).isNotEqualTo("level").isNotEqualTo(null);
     assertThat(level.hashCode()).isEqualTo(level.hashCode());
+  }
+
+  @Test
+  public void sanitize_rule_name() {
+    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
+    newFindbugs.newRule("NPE").setName("   \n  NullPointer   \n   ").setHtmlDescription("NPE");
+    newFindbugs.done();
+
+    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.name()).isEqualTo("NullPointer");
   }
 
   @Test
@@ -221,9 +233,31 @@ public class RuleDefinitionsTest {
   }
 
   @Test
+  public void load_rule_description_from_file() {
+    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
+    newRepository.newRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RuleDefinitionsTest/sample.html"));
+    newRepository.done();
+
+    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.htmlDescription()).isEqualTo("description of rule loaded from file");
+  }
+
+  @Test
+  public void fail_to_load_rule_description_from_file() {
+    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
+    newRepository.newRule("NPE").setName("NPE").setHtmlDescription((URL)null);
+    try {
+      newRepository.done();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("HTML description of rule [repository=findbugs, key=NPE] is empty");
+    }
+  }
+
+  @Test
   public void fail_if_blank_rule_html_description() {
     RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
-    newRepository.newRule("NPE").setName("NPE").setHtmlDescription(null);
+    newRepository.newRule("NPE").setName("NPE").setHtmlDescription((String)null);
     try {
       newRepository.done();
       fail();

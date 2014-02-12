@@ -45,6 +45,7 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(rule.htmlDescription()).isEqualTo("Foo Bar");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.params()).hasSize(1);
+    assertThat(rule.tags()).isEmpty();
 
     RuleDefinitions.Param prop = rule.param("property");
     assertThat(prop.key()).isEqualTo("property");
@@ -101,15 +102,6 @@ public class RuleDefinitionsFromAnnotationsTest {
   }
 
   @Test
-  @Ignore("TODO list supported types in RuleParamType")
-  public void should_reject_invalid_property_types() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Invalid property type [INVALID]");
-
-    load(RuleWithInvalidPropertyType.class);
-  }
-
-  @Test
   public void should_recognize_type() {
     assertThat(RuleDefinitionsFromAnnotations.guessType(Integer.class)).isEqualTo(RuleParamType.INTEGER);
     assertThat(RuleDefinitionsFromAnnotations.guessType(int.class)).isEqualTo(RuleParamType.INTEGER);
@@ -128,6 +120,14 @@ public class RuleDefinitionsFromAnnotationsTest {
     RuleDefinitions.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo(RuleWithoutKey.class.getCanonicalName());
     assertThat(rule.name()).isEqualTo("foo");
+  }
+
+  @Test
+  public void rule_with_tags() {
+    RuleDefinitions.Repository repository = load(RuleWithTags.class);
+    assertThat(repository.rules()).hasSize(1);
+    RuleDefinitions.Rule rule = repository.rules().get(0);
+    assertThat(rule.tags()).containsOnly("style", "security");
   }
 
   @Test
@@ -152,10 +152,6 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   @org.sonar.check.Rule(name = "foo", description = "Foo")
   static class RuleWithoutKey {
-  }
-
-  @org.sonar.check.Rule(key = "foo")
-  static class RuleWithoutNameNorDescription {
   }
 
   @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER, status = "BETA")
@@ -186,5 +182,9 @@ public class RuleDefinitionsFromAnnotationsTest {
   static class RuleWithInvalidPropertyType {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "INVALID")
     public String property;
+  }
+
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Bar", tags = {"style", "security"})
+  static class RuleWithTags {
   }
 }

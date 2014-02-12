@@ -42,12 +42,12 @@ public @interface Rule {
   String name() default "";
 
   /**
-   * The description, optional.
+   * HTML description
    */
   String description() default "";
 
   /**
-   * Default priority.
+   * Default severity used when activating the rule in a Quality profile.
    */
   Priority priority() default Priority.MAJOR;
 
@@ -58,4 +58,10 @@ public @interface Rule {
    * @since 3.6
    */
   String status() default "READY";
+
+  /**
+   * Rule tags
+   * @since 4.2
+   */
+  String[] tags() default {};
 }

@@ -80,9 +80,10 @@ class RuleDefinitionsFromXml {
   }
 
   private void processRule(RuleDefinitions.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, engineKey = null, severity = Severity.defaultSeverity(), status = null;
+    String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<ParamStruct>();
+    List<String> tags = new ArrayList<String>();
 
     /* BACKWARD COMPATIBILITY WITH VERY OLD FORMAT */
     String keyAttribute = ruleC.getAttrValue("key");
@@ -108,7 +109,11 @@ class RuleDefinitionsFromXml {
         key = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
-        engineKey = StringUtils.trim(cursor.collectDescendantText(false));
+        // deprecated field, replaced by internalKey
+        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("internalKey", nodeName)) {
+        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
         // deprecated field, replaced by severity
@@ -125,13 +130,17 @@ class RuleDefinitionsFromXml {
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         params.add(processParameter(cursor));
+
+      } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
+        tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
     RuleDefinitions.NewRule rule = repo.newRule(key)
       .setHtmlDescription(description)
       .setSeverity(severity)
       .setName(name)
-      .setEngineKey(engineKey)
+      .setInternalKey(internalKey)
+      .setTags(tags.toArray(new String[tags.size()]))
       .setTemplate(cardinality == Cardinality.MULTIPLE);
     if (status != null) {
       rule.setStatus(RuleStatus.valueOf(status));

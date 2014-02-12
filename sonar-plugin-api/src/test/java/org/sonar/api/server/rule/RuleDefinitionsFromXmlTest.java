@@ -58,7 +58,8 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.template()).isTrue();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.engineKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
+    assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
+    assertThat(rule.tags()).containsOnly("style", "security");
 
     assertThat(rule.params()).hasSize(2);
     RuleDefinitions.Param ignore = rule.param("ignore");
@@ -116,6 +117,7 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(repository.rules()).hasSize(1);
     RuleDefinitions.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("org.sonar.it.checkstyle.MethodsCountCheck");
+    assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/org.sonar.it.checkstyle.MethodsCountCheck");
     assertThat(rule.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(rule.htmlDescription()).isEqualTo("Count methods");
     assertThat(rule.param("minMethodsCount")).isNotNull();
