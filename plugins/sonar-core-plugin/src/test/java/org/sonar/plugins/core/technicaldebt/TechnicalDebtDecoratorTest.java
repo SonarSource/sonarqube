@@ -49,7 +49,8 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class TechnicalDebtDecoratorTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, "8");
 
-    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, settings);
+    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, new WorkDurationFactory(settings));
   }
 
   @Test
@@ -129,7 +130,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_no_parent() throws Exception {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
+    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
 
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -160,7 +161,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_propagate_to_parents() throws Exception {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
+    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
 
     Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -183,8 +184,8 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_issues() throws Exception {
-    WorkUnit technicalDebt1 = new WorkUnit.Builder().setDays(1).build();
-    WorkUnit technicalDebt2 = new WorkUnit.Builder().setDays(2).build();
+    WorkDuration technicalDebt1 = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
+    WorkDuration technicalDebt2 = WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, 8);
 
     Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
     Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
@@ -212,7 +213,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_children_measures() throws Exception {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setDays(1).build();
+    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
 
     Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
     Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);

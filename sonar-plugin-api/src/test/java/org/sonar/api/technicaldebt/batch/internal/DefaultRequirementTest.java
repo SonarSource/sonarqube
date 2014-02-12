@@ -47,8 +47,8 @@ public class DefaultRequirementTest {
       .setCharacteristic(characteristic)
       .setRootCharacteristic(root)
       .setFunction("linear_offset")
-      .setFactor(new WorkUnit.Builder().setMinutes(2).build())
-      .setOffset(new WorkUnit.Builder().setHours(1).build())
+      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
+      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
       .setCreatedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
       .setUpdatedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
 
@@ -57,8 +57,8 @@ public class DefaultRequirementTest {
     assertThat(requirement.characteristic()).isEqualTo(characteristic);
     assertThat(requirement.rootCharacteristic()).isEqualTo(root);
     assertThat(requirement.function()).isEqualTo("linear_offset");
-    assertThat(requirement.factor()).isEqualTo(new WorkUnit.Builder().setMinutes(2).build());
-    assertThat(requirement.offset()).isEqualTo(new WorkUnit.Builder().setHours(1).build());
+    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
     assertThat(requirement.createdAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
     assertThat(requirement.updatedAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.technicaldebt;
+package org.sonar.batch.debt;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +31,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.utils.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -39,26 +41,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtCalculatorTest {
+public class RuleDebtCalculatorTest {
 
+  private static final int HOURS_IN_DAY = 8;
   @Mock
   TechnicalDebtModel model;
 
-  WorkUnit tenMinutes = new WorkUnit.Builder().setMinutes(10).build();
-  WorkUnit fiveMinutes = new WorkUnit.Builder().setMinutes(5).build();
+  WorkUnit tenMinutes = WorkUnit.create(10d, WorkUnit.MINUTES);
+  WorkUnit fiveMinutes = WorkUnit.create(5d, WorkUnit.MINUTES);
 
-  TechnicalDebtCalculator remediationCostCalculator;
+  RuleDebtCalculator calculator;
 
   @Before
   public void before() {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
-
-    remediationCostCalculator = new TechnicalDebtCalculator(model, settings);
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
+    calculator = new RuleDebtCalculator(model, new WorkDurationFactory(settings));
   }
 
   @Test
-  public void calcul_technical_debt() throws Exception {
+  public void calculate_technical_debt() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
@@ -68,11 +70,12 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(15).build());
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
+      WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
   }
 
   @Test
-  public void calcul_technical_debt_with_effort_to_fix() throws Exception {
+  public void calculate_technical_debt_with_effort_to_fix() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
@@ -82,11 +85,12 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes((10 * 2) + 5).build());
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
+      WorkDuration.createFromValueAndUnit((10 * 2) + 5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
   }
 
   @Test
-  public void calcul_technical_debt_with_no_offset() throws Exception {
+  public void calculate_technical_debt_with_no_offset() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
@@ -96,11 +100,12 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(null);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(10 * 2).build());
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
+      WorkDuration.createFromValueAndUnit((10 * 2), WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
   }
 
   @Test
-  public void calcul_technical_debt_with_no_factor() throws Exception {
+  public void calculate_technical_debt_with_no_factor() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
@@ -110,7 +115,8 @@ public class TechnicalDebtCalculatorTest {
     Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(5).build());
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
+      WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
   }
 
   @Test
@@ -119,11 +125,11 @@ public class TechnicalDebtCalculatorTest {
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
     when(model.requirementsByRule(ruleKey)).thenReturn(null);
 
-    assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isNull();
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isNull();
   }
 
   @Test
-  public void fail_to_calcul_technical_debt_on_constant_issue_function_with_effort_to_fix() throws Exception {
+  public void fail_to_calculate_technical_debt_on_constant_issue_function_with_effort_to_fix() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
@@ -134,7 +140,8 @@ public class TechnicalDebtCalculatorTest {
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     try {
-      assertThat(remediationCostCalculator.calculTechnicalDebt(issue)).isEqualTo(new WorkUnit.Builder().setMinutes(15).build());
+      assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
+        WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)

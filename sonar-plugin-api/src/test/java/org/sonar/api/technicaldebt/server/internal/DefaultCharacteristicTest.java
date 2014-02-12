@@ -56,8 +56,8 @@ public class DefaultCharacteristicTest {
       .setId(1)
       .setRuleKey(RuleKey.of("repo", "rule"))
       .setFunction("linear_offset")
-      .setFactor(new WorkUnit.Builder().setMinutes(2).build())
-      .setOffset(new WorkUnit.Builder().setHours(1).build())
+      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
+      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
       .setRootId(3)
       .setParentId(2);
 
@@ -67,8 +67,8 @@ public class DefaultCharacteristicTest {
     assertThat(requirement.order()).isNull();
     assertThat(requirement.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(requirement.function()).isEqualTo("linear_offset");
-    assertThat(requirement.factor()).isEqualTo(new WorkUnit.Builder().setMinutes(2).build());
-    assertThat(requirement.offset()).isEqualTo(new WorkUnit.Builder().setHours(1).build());
+    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
     assertThat(requirement.parentId()).isEqualTo(2);
     assertThat(requirement.rootId()).isEqualTo(3);
   }
@@ -92,8 +92,8 @@ public class DefaultCharacteristicTest {
       .setId(1)
       .setRuleKey(RuleKey.of("repo", "rule"))
       .setFunction("linear_offset")
-      .setFactor(new WorkUnit.Builder().setMinutes(2).build())
-      .setOffset(new WorkUnit.Builder().setHours(1).build())
+      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
+      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
       .setRootId(3)
       .setParentId(2);
 

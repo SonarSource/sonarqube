@@ -142,7 +142,7 @@ public class TechnicalDebtModelSynchronizerTest {
     RuleKey ruleKey = RuleKey.of("checkstyle", "import");
     when(ruleCache.getByRuleKey(ruleKey)).thenReturn(rule);
     new DefaultRequirement().setRuleKey(ruleKey)
-      .setFunction("linear").setFactor(new WorkUnit.Builder().setMinutes(30).build()).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
+      .setFunction("linear").setFactor(WorkUnit.create(30d, WorkUnit.MINUTES)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
@@ -195,7 +195,7 @@ public class TechnicalDebtModelSynchronizerTest {
 
     // New requirement
     new DefaultRequirement().setRuleKey(ruleKey2)
-      .setFunction("linear").setFactor(new WorkUnit.Builder().setHours(1).build()).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
+      .setFunction("linear").setFactor(WorkUnit.create(1d, WorkUnit.HOURS)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);

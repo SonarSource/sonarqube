@@ -19,10 +19,14 @@
  */
 package org.sonar.server.technicaldebt;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
 import java.util.List;
@@ -36,20 +40,29 @@ import static org.mockito.Mockito.*;
 
 public class DebtServiceTest {
 
+  private static final int HOURS_IN_DAY = 8;
   DebtFormatter debtFormatter = mock(DebtFormatter.class);
   DefaultTechnicalDebtManager finder = mock(DefaultTechnicalDebtManager.class);
-  DebtService service = new DebtService(debtFormatter, finder);
+
+  DebtService service;
+
+  @Before
+  public void setUp() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
+    service = new DebtService(debtFormatter, finder, new WorkDurationFactory(settings));
+  }
 
   @Test
   public void format() {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setMinutes(5).build();
+    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY);
     service.format(technicalDebt);
     verify(debtFormatter).format(any(Locale.class), eq(technicalDebt));
   }
 
   @Test
   public void to_technical_debt() {
-    assertThat(service.toTechnicalDebt("500")).isEqualTo(new WorkUnit.Builder().setHours(5).build());
+    assertThat(service.toTechnicalDebt("500")).isEqualTo(WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY));
   }
 
   @Test

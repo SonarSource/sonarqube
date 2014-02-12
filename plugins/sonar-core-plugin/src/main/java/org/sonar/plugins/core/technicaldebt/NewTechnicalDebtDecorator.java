@@ -20,32 +20,28 @@
 
 package org.sonar.plugins.core.technicaldebt;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -57,13 +53,15 @@ public final class NewTechnicalDebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TimeMachineConfiguration timeMachineConfiguration;
+  private final IssueChangelogDebtCalculator issueChangelogDebtCalculator;
+  private final WorkDurationFactory workDurationFactory;
 
-  private final int hoursInDay;
-
-  public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration, Settings settings) {
+  public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration,
+                                   IssueChangelogDebtCalculator issueChangelogDebtCalculator, WorkDurationFactory workDurationFactory) {
     this.perspectives = perspectives;
     this.timeMachineConfiguration = timeMachineConfiguration;
-    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
+    this.issueChangelogDebtCalculator = issueChangelogDebtCalculator;
+    this.workDurationFactory = workDurationFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -98,93 +96,14 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   }
 
   private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, @Nullable Date periodDate) {
-    double value = 0;
+    WorkDuration duration = workDurationFactory.createFromWorkingLong(0l);
     for (Issue issue : issues) {
-      double currentTechnicalDebtValue = 0d;
-      WorkUnit currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
-      if (currentTechnicalDebt != null) {
-        currentTechnicalDebtValue = currentTechnicalDebt.toDays(hoursInDay);
-      }
-
-      Date periodDatePlusOneSecond = periodDate != null ? DateUtils.addSeconds(periodDate, 1) : null;
-      if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
-        value += currentTechnicalDebtValue;
-      } else {
-        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebtValue, issue, periodDate);
+      WorkDuration debt = issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, periodDate);
+      if (debt != null) {
+        duration = duration.add(debt);
       }
     }
-    return value;
-  }
-
-  private double calculateNewTechnicalDebtValueFromChangelog(double currentTechnicalDebtValue, Issue issue, Date periodDate) {
-    List<FieldDiffs> changelog = technicalDebtHistory(issue);
-    for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
-      FieldDiffs diff = iterator.next();
-      Date date = diff.creationDate();
-      if (isLesserOrEqual(date, periodDate)) {
-        // return new value from the change that is just before the period date
-        return currentTechnicalDebtValue - newValue(diff).toDays(hoursInDay);
-      }
-      if (!iterator.hasNext()) {
-        // return old value from the change that is just after the period date when there's no more element in changelog
-        return currentTechnicalDebtValue - oldValue(diff).toDays(hoursInDay);
-      }
-    }
-    // Return 0 when no changelog
-    return 0d;
-  }
-
-  private List<FieldDiffs> technicalDebtHistory(Issue issue) {
-    List<FieldDiffs> technicalDebtChangelog = changesOnField(((DefaultIssue) issue).changes());
-    if (!technicalDebtChangelog.isEmpty()) {
-      // Changelog have to be sorted from newest to oldest.
-      // Null date should be the latest as this happen when technical debt has changed since previous analysis.
-      Ordering<FieldDiffs> ordering = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
-        public Date apply(FieldDiffs diff) {
-          return diff.creationDate();
-        }
-      });
-      return ordering.immutableSortedCopy(technicalDebtChangelog);
-    }
-    return Collections.emptyList();
-  }
-
-  private List<FieldDiffs> changesOnField(Collection<FieldDiffs> fieldDiffs) {
-    List<FieldDiffs> diffs = newArrayList();
-    for (FieldDiffs fieldDiff : fieldDiffs) {
-      if (fieldDiff.diffs().containsKey(IssueUpdater.TECHNICAL_DEBT)) {
-        diffs.add(fieldDiff);
-      }
-    }
-    return diffs;
-  }
-
-  private WorkUnit newValue(FieldDiffs fieldDiffs) {
-    for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
-      if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
-        Long newValue = entry.getValue().newValueLong();
-        return newValue != null ? WorkUnit.fromLong(newValue) : WorkUnit.fromLong(0);
-      }
-    }
-    return WorkUnit.fromLong(0);
-  }
-
-  private WorkUnit oldValue(FieldDiffs fieldDiffs) {
-    for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
-      if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
-        Long value = entry.getValue().oldValueLong();
-        return value != null ? WorkUnit.fromLong(value) : WorkUnit.fromLong(0);
-      }
-    }
-    return WorkUnit.fromLong(0);
-  }
-
-  private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {
-    return pastDate == null || (currentDate != null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
-  }
-
-  private boolean isLesserOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
-    return (currentDate != null) && (pastDate == null || (DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) <= 0));
+    return duration.toWorkingDays();
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

@@ -35,8 +35,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.*;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.WorkUnit;
-import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.batch.debt.RuleDebtCalculator;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -67,7 +67,7 @@ public class ModuleIssuesTest {
   IssueFilters filters;
 
   @Mock
-  TechnicalDebtCalculator technicalDebtCalculator;
+  RuleDebtCalculator technicalDebtCalculator;
 
   @Mock
   RuleFinder ruleFinder;
@@ -284,14 +284,15 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
-    when(technicalDebtCalculator.calculTechnicalDebt(issue)).thenReturn(new WorkUnit.Builder().setDays(10).build());
+    WorkDuration debt = WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8);
+    when(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).thenReturn(debt);
     when(filters.accept(issue, null)).thenReturn(true);
 
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().technicalDebt()).isEqualTo(new WorkUnit.Builder().setDays(10).build());
+    assertThat(argument.getValue().technicalDebt()).isEqualTo(debt);
   }
 
 }

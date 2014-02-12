@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.technicaldebt;
+package org.sonar.batch.debt;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,14 +33,14 @@ import static org.mockito.Mockito.*;
 public class TechnicalDebtModelProviderTest {
 
   @Mock
-  TechnicalDebtModelLoader loader;
+  DebtModelLoader loader;
 
   @Test
   public void load_model() {
     TechnicalDebtModel model = mock(TechnicalDebtModel.class);
     when(loader.load()).thenReturn(model);
 
-    TechnicalDebtModelProvider provider = new TechnicalDebtModelProvider();
+    DebtModelProvider provider = new DebtModelProvider();
     TechnicalDebtModel result = provider.provide(loader);
     assertThat(result).isNotNull();
   }
@@ -50,7 +50,7 @@ public class TechnicalDebtModelProviderTest {
     TechnicalDebtModel model = mock(TechnicalDebtModel.class);
     when(loader.load()).thenReturn(model);
 
-    TechnicalDebtModelProvider provider = new TechnicalDebtModelProvider();
+    DebtModelProvider provider = new DebtModelProvider();
     provider.provide(loader);
     verify(loader).load();
 

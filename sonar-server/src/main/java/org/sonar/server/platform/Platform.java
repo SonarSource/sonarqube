@@ -35,6 +35,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
@@ -370,6 +371,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(DebtFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
+    servicesContainer.addSingleton(WorkDurationFactory.class);
 
     // source
     servicesContainer.addSingleton(HtmlSourceDecorator.class);

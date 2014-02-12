@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
@@ -101,7 +101,7 @@ public class IssueShowWsHandler implements RequestHandler {
     Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
-    WorkUnit technicalDebt = issue.technicalDebt();
+    WorkDuration technicalDebt = issue.technicalDebt();
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
 

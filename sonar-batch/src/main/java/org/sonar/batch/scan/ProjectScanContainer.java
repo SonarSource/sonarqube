@@ -31,12 +31,17 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.*;
 import org.sonar.batch.components.PeriodsDefinition;
+import org.sonar.batch.debt.DebtModelLoader;
+import org.sonar.batch.debt.DebtModelProvider;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
+import org.sonar.batch.debt.RuleDebtCalculator;
 import org.sonar.batch.index.*;
 import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
@@ -46,9 +51,6 @@ import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
-import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
-import org.sonar.batch.technicaldebt.TechnicalDebtModelLoader;
-import org.sonar.batch.technicaldebt.TechnicalDebtModelProvider;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -138,6 +140,7 @@ public class ProjectScanContainer extends ComponentContainer {
       IssuePersister.class,
       IssueNotifications.class,
       DefaultProjectIssues.class,
+      IssueChangelogDebtCalculator.class,
 
       // tests
       TestPlanPerspectiveLoader.class,
@@ -153,9 +156,10 @@ public class ProjectScanContainer extends ComponentContainer {
       SymbolizableBuilder.class,
 
       // technical debt
-      TechnicalDebtModelLoader.class,
-      TechnicalDebtCalculator.class,
-      new TechnicalDebtModelProvider(),
+      DebtModelLoader.class,
+      RuleDebtCalculator.class,
+      WorkDurationFactory.class,
+      new DebtModelProvider(),
 
       // Differential periods
       PeriodsDefinition.class,

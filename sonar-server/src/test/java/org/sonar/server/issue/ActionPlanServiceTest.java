@@ -23,22 +23,19 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanStatsDao;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -54,10 +51,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ActionPlanServiceTest {
 
@@ -78,7 +72,10 @@ public class ActionPlanServiceTest {
     when(userSession.userId()).thenReturn(10);
     when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(true);
 
-    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
+    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage,
+      new WorkDurationFactory(settings));
   }
 
   @Test

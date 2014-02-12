@@ -32,6 +32,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
@@ -59,13 +60,14 @@ public class DefaultIssueFinder implements IssueFinder {
   private final UserFinder userFinder;
   private final ResourceDao resourceDao;
   private final ActionPlanService actionPlanService;
+  private final WorkDurationFactory workDurationFactory;
 
   public DefaultIssueFinder(MyBatis myBatis,
-    IssueDao issueDao, IssueChangeDao issueChangeDao,
-    DefaultRuleFinder ruleFinder,
-    UserFinder userFinder,
-    ResourceDao resourceDao,
-    ActionPlanService actionPlanService) {
+                            IssueDao issueDao, IssueChangeDao issueChangeDao,
+                            DefaultRuleFinder ruleFinder,
+                            UserFinder userFinder,
+                            ResourceDao resourceDao,
+                            ActionPlanService actionPlanService, WorkDurationFactory workDurationFactory) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.issueChangeDao = issueChangeDao;
@@ -73,6 +75,7 @@ public class DefaultIssueFinder implements IssueFinder {
     this.userFinder = userFinder;
     this.resourceDao = resourceDao;
     this.actionPlanService = actionPlanService;
+    this.workDurationFactory = workDurationFactory;
   }
 
   DefaultIssue findByKey(String issueKey, String requiredRole) {
@@ -83,7 +86,8 @@ public class DefaultIssueFinder implements IssueFinder {
     if (!UserSession.get().hasProjectPermission(requiredRole, dto.getRootComponentKey())) {
       throw new IllegalStateException("User does not have the required role required to change the issue: " + issueKey);
     }
-    return dto.toDefaultIssue();
+
+    return dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt()));
   }
 
   @Override
@@ -114,7 +118,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedSortedIssues) {
-        DefaultIssue defaultIssue = dto.toDefaultIssue();
+        DefaultIssue defaultIssue = dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt()));
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
@@ -196,7 +200,7 @@ public class DefaultIssueFinder implements IssueFinder {
 
   public Issue findByKey(String key) {
     IssueDto dto = issueDao.selectByKey(key);
-    return dto != null ? dto.toDefaultIssue() : null;
+    return dto != null ? dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt())) : null;
   }
 
 }

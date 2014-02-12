@@ -22,7 +22,8 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.technicaldebt.server.Characteristic;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.server.user.UserSession;
 
@@ -34,18 +35,20 @@ public class DebtService implements ServerComponent {
 
   private final DebtFormatter debtFormatter;
   private final DefaultTechnicalDebtManager finder;
+  private final WorkDurationFactory workDurationFactory;
 
-  public DebtService(DebtFormatter debtFormatter, DefaultTechnicalDebtManager finder) {
+  public DebtService(DebtFormatter debtFormatter, DefaultTechnicalDebtManager finder, WorkDurationFactory workDurationFactory) {
     this.debtFormatter = debtFormatter;
     this.finder = finder;
+    this.workDurationFactory = workDurationFactory;
   }
 
-  public String format(WorkUnit technicalDebt) {
+  public String format(WorkDuration technicalDebt) {
     return debtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
-  public WorkUnit toTechnicalDebt(String technicalDebtInLong) {
-    return WorkUnit.fromLong(Long.parseLong(technicalDebtInLong));
+  public WorkDuration toTechnicalDebt(String technicalDebtInLong) {
+    return workDurationFactory.createFromWorkingLong(Long.parseLong(technicalDebtInLong));
   }
 
   public List<Characteristic> findRootCharacteristics() {

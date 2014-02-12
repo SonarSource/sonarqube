@@ -40,9 +40,11 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 
 import java.util.Date;
 
@@ -75,9 +77,9 @@ public class NewTechnicalDebtDecoratorTest {
   Date fiveDaysAgo;
   Date fourDaysAgo;
 
-  WorkUnit oneDaysDebt = new WorkUnit.Builder().setDays(1).build();
-  WorkUnit twoDaysDebt = new WorkUnit.Builder().setDays(2).build();
-  WorkUnit fiveDaysDebt = new WorkUnit.Builder().setDays(5).build();
+  WorkDuration oneDaysDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
+  WorkDuration twoDaysDebt = WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, 8);
+  WorkDuration fiveDaysDebt = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, 8);
 
   @Before
   public void setup() {
@@ -96,7 +98,8 @@ public class NewTechnicalDebtDecoratorTest {
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, settings);
+    WorkDurationFactory workDurationFactory = new WorkDurationFactory(settings);
+    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator(workDurationFactory), workDurationFactory);
   }
 
   @Test
@@ -325,7 +328,7 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.NEW_TECHNICAL_DEBT)));
   }
 
-  private Long fromWorkDayDuration(WorkUnit workDayDuration) {
+  private Long fromWorkDayDuration(WorkDuration workDayDuration) {
     return workDayDuration.toLong();
   }
 

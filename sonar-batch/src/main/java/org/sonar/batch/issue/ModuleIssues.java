@@ -29,7 +29,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.technicaldebt.TechnicalDebtCalculator;
+import org.sonar.batch.debt.RuleDebtCalculator;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import javax.annotation.Nullable;
@@ -43,10 +43,10 @@ public class ModuleIssues {
   private final IssueCache cache;
   private final Project project;
   private final IssueFilters filters;
-  private final TechnicalDebtCalculator technicalDebtCalculator;
+  private final RuleDebtCalculator technicalDebtCalculator;
   private final RuleFinder ruleFinder;
 
-  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, TechnicalDebtCalculator technicalDebtCalculator, RuleFinder ruleFinder) {
+  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, RuleDebtCalculator technicalDebtCalculator, RuleFinder ruleFinder) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
@@ -111,7 +111,7 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    issue.setTechnicalDebt(technicalDebtCalculator.calculTechnicalDebt(issue));
+    issue.setTechnicalDebt(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix()));
   }
 
 }

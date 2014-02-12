@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -79,7 +79,7 @@ public class IssueDtoTest {
       .setIssueUpdateDate(updatedAt)
       .setIssueCloseDate(closedAt);
 
-    DefaultIssue issue = dto.toDefaultIssue();
+    DefaultIssue issue = dto.toDefaultIssue(WorkDuration.create(10, 10, 10, 8));
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
@@ -87,7 +87,7 @@ public class IssueDtoTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.effortToFix()).isEqualTo(15.0);
-    assertThat(issue.technicalDebt()).isEqualTo(new WorkUnit.Builder().setDays(10).setHours(10).setMinutes(10).build());
+    assertThat(issue.technicalDebt()).isNotNull();
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");

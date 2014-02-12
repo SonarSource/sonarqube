@@ -21,8 +21,11 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.component.Component;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
@@ -31,7 +34,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -57,6 +61,8 @@ import static org.mockito.Mockito.*;
 
 public class DefaultIssueFinderTest {
 
+  private static final int HOURS_IN_DAY = 8;
+
   MyBatis mybatis = mock(MyBatis.class);
   IssueDao issueDao = mock(IssueDao.class);
   IssueChangeDao issueChangeDao = mock(IssueChangeDao.class);
@@ -64,7 +70,14 @@ public class DefaultIssueFinderTest {
   ResourceDao resourceDao = mock(ResourceDao.class);
   ActionPlanService actionPlanService = mock(ActionPlanService.class);
   UserFinder userFinder = mock(UserFinder.class);
-  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService);
+  DefaultIssueFinder finder;
+
+  @Before
+  public void setUp() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
+    finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService, new WorkDurationFactory(settings));
+  }
 
   @Test
   public void find_issues() {
@@ -322,7 +335,7 @@ public class DefaultIssueFinderTest {
 
     assertThat(results.issues()).hasSize(1);
     DefaultIssue result = (DefaultIssue) results.issues().iterator().next();
-    assertThat(result.technicalDebt()).isEqualTo(new WorkUnit.Builder().setMinutes(10).build());
+    assertThat(result.technicalDebt()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
   }
 
 }

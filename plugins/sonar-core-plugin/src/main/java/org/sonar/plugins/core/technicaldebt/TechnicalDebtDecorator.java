@@ -30,7 +30,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -41,7 +40,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,13 +61,12 @@ public final class TechnicalDebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TechnicalDebtModel model;
+  private final WorkDurationFactory workDurationFactory;
 
-  private final int hoursInDay;
-
-  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, Settings settings) {
+  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, WorkDurationFactory workDurationFactory) {
     this.perspectives = perspectives;
     this.model = model;
-    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
+    this.workDurationFactory = workDurationFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -168,18 +167,18 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private double computeTechnicalDebt(Metric metric, DecoratorContext context, Requirement requirement, Collection<Issue> issues) {
-    double value = 0.0;
+    WorkDuration debt = workDurationFactory.createFromWorkingLong(0l);
+//    double value = 0d;
     if (issues != null) {
       for (Issue issue : issues) {
-        WorkUnit debt = ((DefaultIssue) issue).technicalDebt();
-        if (debt != null) {
-          value += debt.toDays(hoursInDay);
-        } else {
-          value += 0d;
-        }
+//        if (debt != null) {
+//          value += debt.toWorkingDays();
+//        }
+        debt = debt.add(((DefaultIssue) issue).technicalDebt());
       }
     }
 
+    double value = debt.toWorkingDays();
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
       Requirement measureRequirement = measure.getRequirement();
       if (measureRequirement != null && measureRequirement.equals(requirement) && measure.getValue() != null) {

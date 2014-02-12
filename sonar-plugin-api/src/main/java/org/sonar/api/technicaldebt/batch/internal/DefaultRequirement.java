@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 
 import java.util.Date;
@@ -40,6 +41,10 @@ public class DefaultRequirement implements Requirement {
   private DefaultCharacteristic rootCharacteristic;
 
   private String function;
+  private int factorValue;
+  private WorkDuration.UNIT factorUnit;
+  private int offsetValue;
+  private WorkDuration.UNIT offsetUnit;
   private WorkUnit factor;
   private WorkUnit offset;
 
@@ -47,8 +52,8 @@ public class DefaultRequirement implements Requirement {
   private Date updatedAt;
 
   public DefaultRequirement() {
-    this.factor = new WorkUnit.Builder().setDays(0).build();
-    this.offset = new WorkUnit.Builder().setDays(0).build();
+    this.factor = WorkUnit.create(0d, WorkUnit.DAYS);
+    this.offset = WorkUnit.create(0d, WorkUnit.DAYS);
   }
 
   public Integer id() {
@@ -97,21 +102,74 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public WorkUnit factor() {
     return factor;
+//    return WorkUnit.create((double) factorValue, fromUnit(factorUnit));
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public DefaultRequirement setFactor(WorkUnit factor) {
     this.factor = factor;
     return this;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public WorkUnit offset() {
     return offset;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public DefaultRequirement setOffset(WorkUnit offset) {
     this.offset = offset;
+    return this;
+  }
+
+  public int factorValue() {
+    return factorValue;
+  }
+
+  public DefaultRequirement setFactorValue(int factorValue) {
+    this.factorValue = factorValue;
+    return this;
+  }
+
+  public WorkDuration.UNIT factorUnit() {
+    return factorUnit;
+  }
+
+  public DefaultRequirement setFactorUnit(WorkDuration.UNIT factorUnit) {
+    this.factorUnit = factorUnit;
+    return this;
+  }
+
+  public int offsetValue() {
+    return offsetValue;
+  }
+
+  public DefaultRequirement setOffsetValue(int offsetValue) {
+    this.offsetValue = offsetValue;
+    return this;
+  }
+
+  public WorkDuration.UNIT offsetUnit() {
+    return offsetUnit;
+  }
+
+  public DefaultRequirement setOffsetUnit(WorkDuration.UNIT offsetUnit) {
+    this.offsetUnit = offsetUnit;
     return this;
   }
 
@@ -133,6 +191,27 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  private static WorkDuration.UNIT toUnit(String requirementUnit){
+    if (requirementUnit.equals(WorkUnit.DAYS)) {
+      return WorkDuration.UNIT.DAYS;
+    } else if (requirementUnit.equals(WorkUnit.HOURS)) {
+      return WorkDuration.UNIT.HOURS;
+    } else if (requirementUnit.equals(WorkUnit.MINUTES)) {
+      return WorkDuration.UNIT.MINUTES;
+    }
+    throw new IllegalStateException("Invalid unit : " + requirementUnit);
+  }
+
+  private static String fromUnit(WorkDuration.UNIT unit){
+    if (unit.equals(WorkDuration.UNIT.DAYS)) {
+      return WorkUnit.DAYS;
+    } else if (unit.equals(WorkDuration.UNIT.HOURS)) {
+      return WorkUnit.HOURS;
+    } else if (unit.equals(WorkDuration.UNIT.MINUTES)) {
+      return WorkUnit.MINUTES;
+    }
+    throw new IllegalStateException("Invalid unit : " + unit);
+  }
 
   @Override
   public String toString() {

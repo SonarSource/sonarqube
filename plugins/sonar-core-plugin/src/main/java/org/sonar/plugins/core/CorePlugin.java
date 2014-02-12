@@ -24,7 +24,9 @@ import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
@@ -291,6 +293,8 @@ public final class CorePlugin extends SonarPlugin {
       // technical debt
       TechnicalDebtDecorator.class,
       NewTechnicalDebtDecorator.class,
+      IssueChangelogDebtCalculator.class,
+      WorkDurationFactory.class,
 
       // batch
       ProfileEventsSensor.class,

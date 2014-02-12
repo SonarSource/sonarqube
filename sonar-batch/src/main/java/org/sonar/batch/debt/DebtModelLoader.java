@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.technicaldebt;
+package org.sonar.batch.debt;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.rule.RuleKey;
@@ -37,12 +37,12 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class TechnicalDebtModelLoader implements BatchComponent {
+public class DebtModelLoader implements BatchComponent {
 
   private final CharacteristicDao dao;
   private final RuleFinder ruleFinder;
 
-  public TechnicalDebtModelLoader(CharacteristicDao dao, RuleFinder ruleFinder) {
+  public DebtModelLoader(CharacteristicDao dao, RuleFinder ruleFinder) {
     this.dao = dao;
     this.ruleFinder = ruleFinder;
   }

@@ -27,18 +27,13 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanStatsDao;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -47,11 +42,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -67,9 +58,10 @@ public class ActionPlanService implements ServerComponent {
   private final IssueDao issueDao;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
+  private final WorkDurationFactory workDurationFactory;
 
   public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao,
-    IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
+                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage, WorkDurationFactory workDurationFactory) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
@@ -77,6 +69,7 @@ public class ActionPlanService implements ServerComponent {
     this.issueDao = issueDao;
     this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
+    this.workDurationFactory = workDurationFactory;
   }
 
   public ActionPlan create(ActionPlan actionPlan, UserSession userSession) {
@@ -110,7 +103,7 @@ public class ActionPlanService implements ServerComponent {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     List<DefaultIssue> issues = newArrayList();
     for (IssueDto issueDto : dtos) {
-      DefaultIssue issue = issueDto.toDefaultIssue();
+      DefaultIssue issue = issueDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(issueDto.getTechnicalDebt()));
       // Unplan issue
       if (issueUpdater.plan(issue, null, context)) {
         issues.add(issue);

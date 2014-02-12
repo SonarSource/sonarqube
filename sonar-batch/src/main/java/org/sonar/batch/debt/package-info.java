@@ -17,27 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.debt;
 
-package org.sonar.batch.technicaldebt;
-
-import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.utils.TimeProfiler;
-
-public class TechnicalDebtModelProvider extends ProviderAdapter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtModelProvider.class);
-
-  private TechnicalDebtModel model;
-
-  public TechnicalDebtModel provide(TechnicalDebtModelLoader loader) {
-    if (model == null) {
-      TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
-      model = loader.load();
-      profiler.stop();
-    }
-    return model;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

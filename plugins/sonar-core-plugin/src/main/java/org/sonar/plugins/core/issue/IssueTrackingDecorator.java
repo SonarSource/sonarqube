@@ -39,7 +39,8 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -67,6 +68,7 @@ public class IssueTrackingDecorator implements Decorator {
   private final ResourcePerspectives perspectives;
   private final RulesProfile rulesProfile;
   private final RuleFinder ruleFinder;
+  private final WorkDurationFactory workDurationFactory;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 LastSnapshots lastSnapshots, SonarIndex index,
@@ -75,7 +77,7 @@ public class IssueTrackingDecorator implements Decorator {
                                 Project project,
                                 ResourcePerspectives perspectives,
                                 RulesProfile rulesProfile,
-                                RuleFinder ruleFinder) {
+                                RuleFinder ruleFinder, WorkDurationFactory workDurationFactory) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -84,6 +86,7 @@ public class IssueTrackingDecorator implements Decorator {
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
+    this.workDurationFactory = workDurationFactory;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.rulesProfile = rulesProfile;
@@ -178,14 +181,14 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
       Long technicalDebt = ref.getTechnicalDebt();
-      WorkUnit previousTechnicalDebt = technicalDebt != null ? WorkUnit.fromLong(technicalDebt) : null;
+      WorkDuration previousTechnicalDebt = technicalDebt != null ? workDurationFactory.createFromWorkingLong(technicalDebt) : null;
       updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
     }
   }
 
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
-      DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
+      DefaultIssue unmatched = unmatchedDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(unmatchedDto.getTechnicalDebt()));
       if (StringUtils.isNotBlank(unmatchedDto.getReporter()) && !Issue.STATUS_CLOSED.equals(unmatchedDto.getStatus())) {
         relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);
       }
@@ -196,7 +199,7 @@ public class IssueTrackingDecorator implements Decorator {
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
     for (IssueDto deadDto : initialOpenIssues.selectAllIssues()) {
-      DefaultIssue dead = deadDto.toDefaultIssue();
+      DefaultIssue dead = deadDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(deadDto.getTechnicalDebt()));
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
     }

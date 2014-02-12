@@ -42,7 +42,7 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
@@ -209,7 +209,7 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_technical_debt() throws Exception {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setHours(2).setMinutes(1).build();
+    WorkDuration technicalDebt = WorkDuration.create(0, 2, 1, 8);
     Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
     issues.add(issue);
 
@@ -222,8 +222,7 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_characteristics() throws Exception {
-    WorkUnit technicalDebt = new WorkUnit.Builder().setHours(2).setMinutes(1).build();
-    ;
+    WorkDuration technicalDebt = WorkDuration.create(0, 2, 1, 8);
     Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
     issues.add(issue);
 

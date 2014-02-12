@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.technicaldebt;
+package org.sonar.batch.debt;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtModelLoaderTest {
+public class DebtModelLoaderTest {
 
   @Mock
   CharacteristicDao dao;
@@ -50,11 +50,11 @@ public class TechnicalDebtModelLoaderTest {
   @Mock
   RuleFinder ruleFinder;
 
-  TechnicalDebtModelLoader loader;
+  DebtModelLoader loader;
 
   @Before
   public void before() {
-    loader = new TechnicalDebtModelLoader(dao, ruleFinder);
+    loader = new DebtModelLoader(dao, ruleFinder);
   }
 
   @Test
@@ -108,8 +108,8 @@ public class TechnicalDebtModelLoaderTest {
     DefaultRequirement requirement = result.requirementsByRule(ruleKey);
     assertThat(requirement.ruleKey()).isEqualTo(ruleKey);
     assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factor()).isEqualTo(new WorkUnit.Builder().setDays(2).build());
-    assertThat(requirement.offset()).isEqualTo(new WorkUnit.Builder().setDays(0).build());
+    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
+    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DAYS));
   }
 
 }

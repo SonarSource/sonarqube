@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -363,12 +363,13 @@ public final class IssueDto implements Serializable {
   }
 
   public static IssueDto toDtoForInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
+    WorkDuration debt = issue.technicalDebt();
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setTechnicalDebt(issue.technicalDebt() != null ? issue.technicalDebt().toLong() : null)
+      .setTechnicalDebt(debt != null ? debt.toLong() : null)
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -392,12 +393,13 @@ public final class IssueDto implements Serializable {
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, Date now) {
     // Invariant fields, like key and rule, can't be updated
+    WorkDuration debt = issue.technicalDebt();
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setTechnicalDebt(issue.technicalDebt() != null ? issue.technicalDebt().toLong() : null)
+      .setTechnicalDebt(debt != null ? debt.toLong() : null)
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -415,14 +417,14 @@ public final class IssueDto implements Serializable {
       .setUpdatedAt(now);
   }
 
-  public DefaultIssue toDefaultIssue() {
+  public DefaultIssue toDefaultIssue(@Nullable WorkDuration debt) {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(kee);
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
-    issue.setTechnicalDebt(technicalDebt != null ? WorkUnit.fromLong(technicalDebt) : null);
+    issue.setTechnicalDebt(debt);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);
