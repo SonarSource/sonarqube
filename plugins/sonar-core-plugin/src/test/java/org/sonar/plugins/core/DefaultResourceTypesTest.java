@@ -29,10 +29,10 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultResourceTypesTest {
   @Test
-  public void should_provide() {
+  public void provide_types() {
     ResourceTypeTree tree = new DefaultResourceTypes().provide();
 
-    assertThat(tree.getTypes()).hasSize(7);
+    assertThat(tree.getTypes()).hasSize(5);
     assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
   }
 

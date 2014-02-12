@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE);
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   private final ComponentDataCache cache;
 
   public HighlightableBuilder(ComponentDataCache cache) {

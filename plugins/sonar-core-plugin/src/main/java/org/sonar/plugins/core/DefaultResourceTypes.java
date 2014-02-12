@@ -31,7 +31,7 @@ import org.sonar.api.resources.ResourceTypeTree;
 public final class DefaultResourceTypes extends ExtensionProvider implements BatchExtension, ServerExtension {
 
   private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
-  private static final String CONFIGURABLE = "configurable";;
+  private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
 
   @Override
@@ -56,14 +56,9 @@ public final class DefaultResourceTypes extends ExtensionProvider implements Bat
         .addType(ResourceType.builder(Qualifiers.DIRECTORY)
             .setProperty(SUPPORTS_MEASURE_FILTERS, true)
             .build())
-        .addType(ResourceType.builder(Qualifiers.PACKAGE)
-            .build())
         .addType(ResourceType.builder(Qualifiers.FILE)
             .hasSourceCode()
             .setProperty(SUPPORTS_MEASURE_FILTERS, true)
-            .build())
-        .addType(ResourceType.builder(Qualifiers.CLASS)
-            .hasSourceCode()
             .build())
         .addType(ResourceType.builder(Qualifiers.UNIT_TEST_FILE)
             .hasSourceCode()
@@ -73,7 +68,6 @@ public final class DefaultResourceTypes extends ExtensionProvider implements Bat
         .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)
         .addRelations(Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PACKAGE)
         .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
-        .addRelations(Qualifiers.PACKAGE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE)
 
         .build();
   }
