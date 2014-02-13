@@ -32,13 +32,11 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -54,14 +52,12 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   private final ResourcePerspectives perspectives;
   private final TimeMachineConfiguration timeMachineConfiguration;
   private final IssueChangelogDebtCalculator issueChangelogDebtCalculator;
-  private final WorkDurationFactory workDurationFactory;
 
   public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration,
-                                   IssueChangelogDebtCalculator issueChangelogDebtCalculator, WorkDurationFactory workDurationFactory) {
+                                   IssueChangelogDebtCalculator issueChangelogDebtCalculator) {
     this.perspectives = perspectives;
     this.timeMachineConfiguration = timeMachineConfiguration;
     this.issueChangelogDebtCalculator = issueChangelogDebtCalculator;
-    this.workDurationFactory = workDurationFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -96,14 +92,14 @@ public final class NewTechnicalDebtDecorator implements Decorator {
   }
 
   private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, @Nullable Date periodDate) {
-    WorkDuration duration = workDurationFactory.createFromWorkingLong(0l);
+    WorkDuration duration = null;
     for (Issue issue : issues) {
       WorkDuration debt = issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, periodDate);
       if (debt != null) {
-        duration = duration.add(debt);
+        duration = duration != null ? duration.add(debt) : debt;
       }
     }
-    return duration.toWorkingDays();
+    return duration != null ? duration.toWorkingDays() : 0d;
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

@@ -20,11 +20,11 @@
 
 package org.sonar.api.utils;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 
 /**
@@ -164,7 +164,8 @@ public class WorkDuration implements Serializable {
     return minutes;
   }
 
-  public int hoursInDay() {
+  @VisibleForTesting
+  int hoursInDay() {
     return hoursInDay;
   }
 

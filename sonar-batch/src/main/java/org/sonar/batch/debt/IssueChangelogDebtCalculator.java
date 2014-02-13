@@ -33,7 +33,6 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -101,24 +100,26 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
     return diffs;
   }
 
+  @CheckForNull
   private WorkDuration newValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long newValue = entry.getValue().newValueLong();
-        return newValue != null ? workDurationFactory.createFromWorkingLong(newValue) : workDurationFactory.createFromWorkingLong(0l);
+        return workDurationFactory.createFromWorkingLong(newValue);
       }
     }
-    return workDurationFactory.createFromWorkingLong(0l);
+    return null;
   }
 
+  @CheckForNull
   private WorkDuration oldValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long value = entry.getValue().oldValueLong();
-        return value != null ? workDurationFactory.createFromWorkingLong(value) : workDurationFactory.createFromWorkingLong(0l);
+        return workDurationFactory.createFromWorkingLong(value);
       }
     }
-    return workDurationFactory.createFromWorkingLong(0l);
+    return null;
   }
 
   private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {

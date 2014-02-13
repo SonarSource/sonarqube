@@ -21,6 +21,7 @@
 package org.sonar.plugins.core.technicaldebt;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,16 +91,16 @@ public class NewTechnicalDebtDecoratorTest {
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
 
     rightNow = new Date();
-    elevenDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -11);
-    tenDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -10);
-    nineDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -9);
-    fiveDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -5);
-    fourDaysAgo = org.apache.commons.lang.time.DateUtils.addDays(rightNow, -4);
+    elevenDaysAgo = DateUtils.addDays(rightNow, -11);
+    tenDaysAgo = DateUtils.addDays(rightNow, -10);
+    nineDaysAgo = DateUtils.addDays(rightNow, -9);
+    fiveDaysAgo = DateUtils.addDays(rightNow, -5);
+    fourDaysAgo = DateUtils.addDays(rightNow, -4);
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
     WorkDurationFactory workDurationFactory = new WorkDurationFactory(settings);
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator(workDurationFactory), workDurationFactory);
+    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator(workDurationFactory));
   }
 
   @Test
