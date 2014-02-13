@@ -92,6 +92,9 @@ public class SonarBridgeEngine extends CpdEngine {
     }
 
     CpdMapping mapping = getMapping(languageKey);
+    if (mapping == null) {
+      return;
+    }
 
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);

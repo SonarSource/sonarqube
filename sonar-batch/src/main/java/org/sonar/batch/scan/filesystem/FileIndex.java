@@ -43,6 +43,8 @@ import java.util.Set;
  */
 public class FileIndex implements BatchComponent {
 
+  private static final String FILE_S_IS_NOT_DECLARED_IN_MODULE_BASEDIR_S = "File '%s' is not declared in module basedir %s";
+
   private static class Progress {
     private final Set<String> removedPaths;
     private final Set<String> indexed;
@@ -122,7 +124,7 @@ public class FileIndex implements BatchComponent {
       String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
-          "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
+          FILE_S_IS_NOT_DECLARED_IN_MODULE_BASEDIR_S, sourceFile.getAbsoluteFile(), fileSystem.baseDir()
           ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, type)) {
@@ -147,7 +149,7 @@ public class FileIndex implements BatchComponent {
       String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
       if (path == null) {
         LoggerFactory.getLogger(getClass()).warn(String.format(
-          "File '%s' is not declared in module basedir %s", sourceFile.getAbsoluteFile(), fileSystem.baseDir()
+          FILE_S_IS_NOT_DECLARED_IN_MODULE_BASEDIR_S, sourceFile.getAbsoluteFile(), fileSystem.baseDir()
           ));
       } else {
         if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_MAIN)) {

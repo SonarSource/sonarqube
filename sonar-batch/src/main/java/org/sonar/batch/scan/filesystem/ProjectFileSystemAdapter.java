@@ -182,11 +182,11 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     if (file == null || !file.exists()) {
       return null;
     }
-    PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
+    String relativePath = pathResolver.relativePath(getBasedir(), file);
     if (relativePath == null) {
       return null;
     }
-    return file.isFile() ? new org.sonar.api.resources.File(relativePath.path()) : new org.sonar.api.resources.Directory(relativePath.path());
+    return file.isFile() ? org.sonar.api.resources.File.create(relativePath) : org.sonar.api.resources.Directory.create(relativePath);
   }
 
   public List<InputFile> mainFiles(String... langs) {

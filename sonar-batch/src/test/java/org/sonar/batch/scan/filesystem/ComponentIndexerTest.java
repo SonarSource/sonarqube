@@ -43,7 +43,6 @@ import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
-import org.sonar.core.resource.ResourceDao;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +96,7 @@ public class ComponentIndexerTest {
       newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true)));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
@@ -122,7 +121,7 @@ public class ComponentIndexerTest {
 
     Languages languages = new Languages(cobolLanguage);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
@@ -138,7 +137,7 @@ public class ComponentIndexerTest {
       newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false)));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
@@ -180,7 +179,7 @@ public class ComponentIndexerTest {
         .build()));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
@@ -208,7 +207,7 @@ public class ComponentIndexerTest {
             .build()));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
@@ -231,7 +230,7 @@ public class ComponentIndexerTest {
     when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(inputFile3lines, inputFileEmpty, inputFileEndsWithNewLine, inputFileMixedLineEnds));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(ResourceDao.class), mock(InputFileCache.class));
+      mock(InputFileCache.class));
     indexer.execute(fs);
 
     assertThat(inputFile3lines.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("3");

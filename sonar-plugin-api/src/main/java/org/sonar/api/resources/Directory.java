@@ -131,7 +131,7 @@ public class Directory extends Resource {
    * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)} when resources are already indexed.
    * Internal use only.
    */
-  static Directory create(String relativePathFromBaseDir) {
+  public static Directory create(String relativePathFromBaseDir) {
     Directory d = new Directory();
     String normalizedPath = normalize(relativePathFromBaseDir);
     d.setKey(normalizedPath);

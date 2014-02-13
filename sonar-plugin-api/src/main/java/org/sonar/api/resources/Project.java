@@ -46,7 +46,7 @@ public class Project extends Resource implements Component {
   public static final Language NONE_LANGUAGE = new AbstractLanguage("none", "None") {
     @Override
     public String[] getFileSuffixes() {
-      return null;
+      return new String[0];
     }
   };
 

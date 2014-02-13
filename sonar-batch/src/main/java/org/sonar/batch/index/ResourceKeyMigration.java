@@ -26,7 +26,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.PathUtils;
@@ -119,9 +126,9 @@ public class ResourceKeyMigration implements BatchComponent {
         }
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Migrated resource " + oldEffectiveKey + " to " + newEffectiveKey);
+        logger.info("Migrated resource {} to {}", oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to migrate resource " + oldEffectiveKey + ". No match was found.");
+        logger.warn("Unable to migrate resource {}. No match was found.", oldEffectiveKey);
       }
     }
   }
@@ -148,9 +155,9 @@ public class ResourceKeyMigration implements BatchComponent {
         String newEffectiveKey = deprecatedDirectoryKeyMapper.get(oldEffectiveKey);
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Migrated resource " + oldEffectiveKey + " to " + newEffectiveKey);
+        logger.info("Migrated resource {} to {}", oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to migrate resource " + oldEffectiveKey);
+        logger.warn("Unable to migrate resource {}. No match was found.", oldEffectiveKey);
       }
     }
   }
