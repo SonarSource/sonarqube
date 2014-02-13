@@ -107,12 +107,12 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     migration.migrateIfNeeded(javaModule, javaInputFiles);
     migration.migrateIfNeeded(phpModule, phpInputFiles);
 
-    verify(logger).info("Migrated resource b:org.foo.Bar to b:src/main/java/org/foo/Bar.java");
+    verify(logger).info("Migrated resource {} to {}", "b:org.foo.Bar", "b:src/main/java/org/foo/Bar.java");
     verify(logger).warn("Directory with key b:org/foo matches both b:src/main/java/org/foo and b:src/test/java/org/foo. First match is arbitrary chosen.");
-    verify(logger).info("Migrated resource b:org.foo.BarTest to b:src/test/java/org/foo/BarTest.java");
-    verify(logger).info("Migrated resource b:[default].RootBar to b:src/main/java/RootBar.java");
-    verify(logger).info("Migrated resource b:org/foo to b:src/main/java/org/foo");
-    verify(logger).info("Migrated resource b:[root] to b:src/main/java");
+    verify(logger).info("Migrated resource {} to {}", "b:org.foo.BarTest", "b:src/test/java/org/foo/BarTest.java");
+    verify(logger).info("Migrated resource {} to {}", "b:[default].RootBar", "b:src/main/java/RootBar.java");
+    verify(logger).info("Migrated resource {} to {}", "b:org/foo", "b:src/main/java/org/foo");
+    verify(logger).info("Migrated resource {} to {}", "b:[root]", "b:src/main/java");
 
     checkTables("shouldMigrateResourceKeys", new String[] {"build_date", "created_at"}, "projects");
   }
