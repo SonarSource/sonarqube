@@ -620,18 +620,6 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar-plugins.java</groupId>
-        <artifactId>sonar-pmd-plugin</artifactId>
-        <version>${sonarJava.version}</version>
-        <type>sonar-plugin</type>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar-plugins.java</groupId>
-        <artifactId>sonar-checkstyle-plugin</artifactId>
-        <version>${sonarJava.version}</version>
-        <type>sonar-plugin</type>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar-plugins.java</groupId>
         <artifactId>sonar-findbugs-plugin</artifactId>
         <version>${sonarJava.version}</version>
         <type>sonar-plugin</type>
