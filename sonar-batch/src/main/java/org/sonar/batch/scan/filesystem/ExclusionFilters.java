@@ -102,7 +102,7 @@ public class ExclusionFilters implements BatchComponent {
     List<String> sourcePattern = new ArrayList<String>();
     for (File src : fs.sourceDirs()) {
       String path = new PathResolver().relativePath(fs.baseDir(), src);
-      sourcePattern.add(path + "/**/*");
+      sourcePattern.add(path + "/**");
     }
     return PathPattern.create(sourcePattern.toArray(new String[sourcePattern.size()]));
   }
@@ -116,7 +116,7 @@ public class ExclusionFilters implements BatchComponent {
     List<String> testPatterns = new ArrayList<String>();
     for (File test : fs.testDirs()) {
       String path = new PathResolver().relativePath(fs.baseDir(), test);
-      testPatterns.add(path + "/**/*");
+      testPatterns.add(path + "/**");
     }
     return PathPattern.create(testPatterns.toArray(new String[testPatterns.size()]));
   }
