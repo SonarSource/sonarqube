@@ -1,6 +1,8 @@
 <%
   code_coverage_measure=measure('coverage')
   tests_measure=measure('tests')
+  execution_time=measure('test_execution_time')
+  success_percentage=measure('test_success_density')
 
   if code_coverage_measure || tests_measure
 %>
@@ -79,7 +81,19 @@
   if tests_measure
   %>
   <div class="dashbox">
-      <h3><%= message('widget.code_coverage.unit_test') -%></h3>
+      <h3><%= message('widget.code_coverage.test_success') -%></h3>
+      <p><span class="big">
+        <%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %></span>
+        <%= dashboard_configuration.selected_period? ? format_variation(success_percentage) : trend_icon(success_percentage) -%>
+      </p>
+      <p>
+        <%= format_measure(Metric::TEST_FAILURES, :suffix => message('widget.code_coverage.failures.suffix'), :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
+        <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_FAILURES) : trend_icon(Metric::TEST_FAILURES) -%>
+      </p>
+      <p>
+        <%= format_measure(Metric::TEST_ERRORS, :suffix => message('widget.code_coverage.errors.suffix'), :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
+        <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_ERRORS) : trend_icon(Metric::TEST_ERRORS) -%>
+      </p>
       <p>
         <%= format_measure(tests_measure, :suffix => message('widget.code_coverage.tests.suffix'), :url => url_for_drilldown('tests')) %>
         <%= dashboard_configuration.selected_period? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
@@ -92,6 +106,10 @@
         <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
       </p>
       <% end %>
+      <p>
+        <%= format_measure(execution_time, :suffix => '', :url => url_for_drilldown('test_execution_time')) %>
+        <%= dashboard_configuration.selected_period? ? format_variation(execution_time) : trend_icon(execution_time) -%>
+      </p>
   </div>
   <% end %>
 </td>
