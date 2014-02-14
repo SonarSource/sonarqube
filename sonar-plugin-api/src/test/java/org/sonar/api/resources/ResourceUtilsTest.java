@@ -21,8 +21,7 @@ package org.sonar.api.resources;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,49 +30,49 @@ public class ResourceUtilsTest {
   @Test
   public void checkFile() {
     File file = new File("hello.Foo");
-    assertThat(ResourceUtils.isClass(file), is(true));
-    assertThat(ResourceUtils.isPackage(file), is(false));
-    assertThat(ResourceUtils.isModuleProject(file), is(false));
-    assertThat(ResourceUtils.isSpace(file), is(false));
-    assertThat(ResourceUtils.isEntity(file), is(true));
-    assertThat(ResourceUtils.isSet(file), is(false));
-    assertThat(ResourceUtils.isRootProject(file), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(file), is(false));
+    assertThat(ResourceUtils.isClass(file)).isFalse();
+    assertThat(ResourceUtils.isPackage(file)).isFalse();
+    assertThat(ResourceUtils.isModuleProject(file)).isFalse();
+    assertThat(ResourceUtils.isSpace(file)).isFalse();
+    assertThat(ResourceUtils.isEntity(file)).isTrue();
+    assertThat(ResourceUtils.isSet(file)).isFalse();
+    assertThat(ResourceUtils.isRootProject(file)).isFalse();
+    assertThat(ResourceUtils.isUnitTestClass(file)).isFalse();
   }
 
   @Test
   public void checkUnitTest() {
     File utFile = new File("hello.Foo");
     utFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
-    assertThat(ResourceUtils.isClass(utFile), is(false));
-    assertThat(ResourceUtils.isPackage(utFile), is(false));
-    assertThat(ResourceUtils.isModuleProject(utFile), is(false));
-    assertThat(ResourceUtils.isSpace(utFile), is(false));
-    assertThat(ResourceUtils.isEntity(utFile), is(true));
-    assertThat(ResourceUtils.isSet(utFile), is(false));
-    assertThat(ResourceUtils.isRootProject(utFile), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(utFile), is(true));
+    assertThat(ResourceUtils.isClass(utFile)).isFalse();
+    assertThat(ResourceUtils.isPackage(utFile)).isFalse();
+    assertThat(ResourceUtils.isModuleProject(utFile)).isFalse();
+    assertThat(ResourceUtils.isSpace(utFile)).isFalse();
+    assertThat(ResourceUtils.isEntity(utFile)).isTrue();
+    assertThat(ResourceUtils.isSet(utFile)).isFalse();
+    assertThat(ResourceUtils.isRootProject(utFile)).isFalse();
+    assertThat(ResourceUtils.isUnitTestClass(utFile)).isTrue();
   }
 
   @Test
   public void checkDirectory() {
     Directory dir = new Directory("hello");
-    assertThat(ResourceUtils.isClass(dir), is(false));
-    assertThat(ResourceUtils.isPackage(dir), is(true));
-    assertThat(ResourceUtils.isModuleProject(dir), is(false));
-    assertThat(ResourceUtils.isSpace(dir), is(true));
-    assertThat(ResourceUtils.isEntity(dir), is(false));
-    assertThat(ResourceUtils.isSet(dir), is(false));
-    assertThat(ResourceUtils.isRootProject(dir), is(false));
-    assertThat(ResourceUtils.isUnitTestClass(dir), is(false));
+    assertThat(ResourceUtils.isClass(dir)).isFalse();
+    assertThat(ResourceUtils.isPackage(dir)).isFalse();
+    assertThat(ResourceUtils.isModuleProject(dir)).isFalse();
+    assertThat(ResourceUtils.isSpace(dir)).isTrue();
+    assertThat(ResourceUtils.isEntity(dir)).isFalse();
+    assertThat(ResourceUtils.isSet(dir)).isFalse();
+    assertThat(ResourceUtils.isRootProject(dir)).isFalse();
+    assertThat(ResourceUtils.isUnitTestClass(dir)).isFalse();
   }
 
   @Test
   public void shouldBePersistable() {
-    assertThat(ResourceUtils.isPersistable(new File("Foo.java")), is(true));
-    assertThat(ResourceUtils.isPersistable(new Directory("bar/Foo.java")), is(true));
-    assertThat(ResourceUtils.isPersistable(new Project("foo")), is(true));
-    assertThat(ResourceUtils.isPersistable(new Library("foo", "1.2")), is(true));
+    assertThat(ResourceUtils.isPersistable(new File("Foo.java"))).isTrue();
+    assertThat(ResourceUtils.isPersistable(new Directory("bar/Foo.java"))).isTrue();
+    assertThat(ResourceUtils.isPersistable(new Project("foo"))).isTrue();
+    assertThat(ResourceUtils.isPersistable(new Library("foo", "1.2"))).isTrue();
   }
 
   @Test
@@ -83,7 +82,7 @@ public class ResourceUtilsTest {
     Resource javaMethod = mock(Resource.class);
     when(javaMethod.getScope()).thenReturn(Scopes.BLOCK_UNIT);
 
-    assertThat(ResourceUtils.isPersistable(javaClass), is(false));
-    assertThat(ResourceUtils.isPersistable(javaMethod), is(false));
+    assertThat(ResourceUtils.isPersistable(javaClass)).isFalse();
+    assertThat(ResourceUtils.isPersistable(javaMethod)).isFalse();
   }
 }

@@ -62,7 +62,7 @@ public final class ResourceUtils {
    */
   @Deprecated
   public static boolean isPackage(Resource resource) {
-    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier()) || isDirectory(resource);
+    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier());
   }
 
   /**
@@ -115,7 +115,7 @@ public final class ResourceUtils {
    */
   @Deprecated
   public static boolean isClass(Resource resource) {
-    return Qualifiers.CLASS.equals(resource.getQualifier()) || Qualifiers.FILE.equals(resource.getQualifier());
+    return Qualifiers.CLASS.equals(resource.getQualifier());
   }
 
   /**
