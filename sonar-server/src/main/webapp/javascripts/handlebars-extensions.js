@@ -1,4 +1,4 @@
-(function() {
+define(['handlebars'], function (Handlebars) {
 
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];
 
@@ -143,4 +143,4 @@
     }, '');
   });
 
-})();
+});

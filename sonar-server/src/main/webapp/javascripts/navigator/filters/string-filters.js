@@ -1,10 +1,6 @@
-/* global _:false, $j:false */
+define(['navigator/filters/base-filters'], function (BaseFilters) {
 
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
-
-  var DetailsStringFilterView = window.SS.DetailsFilterView.extend({
+  var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#stringFilterTemplate',
 
 
@@ -19,7 +15,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     onShow: function() {
-      window.SS.DetailsFilterView.prototype.onShow.apply(this, arguments);
+      BaseFilters.DetailsFilterView.prototype.onShow.apply(this, arguments);
       this.$(':input').focus();
     },
 
@@ -34,10 +30,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var StringFilterView = window.SS.BaseFilterView.extend({
+  return BaseFilters.BaseFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsStringFilterView
       });
     },
@@ -78,14 +74,4 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   });
 
-
-
-  /*
-   * Export public classes
-   */
-
-  _.extend(window.SS, {
-    StringFilterView: StringFilterView
-  });
-
-})();
+});

@@ -1,10 +1,6 @@
-/* global _:false, $j:false */
+define(['navigator/filters/base-filters'], function (BaseFilters) {
 
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
-
-  var DetailsMetricFilterView = window.SS.DetailsFilterView.extend({
+  var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#metricFilterTemplate',
 
 
@@ -58,10 +54,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var MetricFilterView = window.SS.BaseFilterView.extend({
+  return BaseFilters.BaseFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsMetricFilterView
       });
 
@@ -149,14 +145,4 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   });
 
-
-
-  /*
-   * Export public classes
-   */
-
-  _.extend(window.SS, {
-    MetricFilterView: MetricFilterView
-  });
-
-})();
+});

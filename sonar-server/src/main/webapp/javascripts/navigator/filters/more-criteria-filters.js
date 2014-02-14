@@ -1,10 +1,6 @@
-/* global _:false, $j:false */
+define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], function (BaseFilters, SelectFilters) {
 
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
-
-  var DetailsMoreCriteriaFilterView = window.SS.DetailsFilterView.extend({
+  var DetailsMoreCriteriaFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#detailsMoreCriteriaFilterTemplate',
 
 
@@ -23,13 +19,13 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var MoreCriteriaFilterView = window.SS.SelectFilterView.extend({
+  var MoreCriteriaFilterView = SelectFilters.SelectFilterView.extend({
     template: '#moreCriteriaFilterTemplate',
     className: 'navigator-filter navigator-filter-more-criteria',
 
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsMoreCriteriaFilterView
       });
     },
@@ -55,8 +51,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
    * Export public classes
    */
 
-  _.extend(window.SS, {
+  return {
+    DetailsMoreCriteriaFilterView: DetailsMoreCriteriaFilterView,
     MoreCriteriaFilterView: MoreCriteriaFilterView
-  });
+  };
 
-})();
+});

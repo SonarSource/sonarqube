@@ -1,3 +1,7 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/javascripts/select-list.js" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+<% end %>
+
 <h1 class="admin-page-title"><%= message 'roles.page' -%></h1>
 <p class="admin-page-description"><%= message('roles.page.description2') -%></p>
 

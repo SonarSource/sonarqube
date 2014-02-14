@@ -1,10 +1,6 @@
-/* global _:false, $j:false, Backbone:false, baseUrl:false */
+define(['navigator/filters/base-filters'], function (BaseFilters) {
 
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
-
-  var DetailsSelectFilterView = window.SS.DetailsFilterView.extend({
+  var DetailsSelectFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#selectFilterTemplate',
     itemTemplate: '#selectFilterItemTemplate',
 
@@ -18,7 +14,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     render: function() {
-      window.SS.DetailsFilterView.prototype.render.apply(this, arguments);
+      BaseFilters.DetailsFilterView.prototype.render.apply(this, arguments);
       this.updateLists();
     },
 
@@ -179,12 +175,12 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var SelectFilterView = window.SS.BaseFilterView.extend({
+  var SelectFilterView = BaseFilters.BaseFilterView.extend({
     className: 'navigator-filter',
 
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsSelectFilterView
       });
 
@@ -254,7 +250,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     disable: function() {
       this.choices.add(this.selection.models);
       this.selection.reset([]);
-      window.SS.BaseFilterView.prototype.disable.apply(this, arguments);
+      BaseFilters.BaseFilterView.prototype.disable.apply(this, arguments);
     },
 
 
@@ -325,9 +321,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
    * Export public classes
    */
 
-  _.extend(window.SS, {
+  return {
     DetailsSelectFilterView: DetailsSelectFilterView,
     SelectFilterView: SelectFilterView
-  });
+  };
 
-})();
+});
