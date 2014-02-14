@@ -1,6 +1,10 @@
-define(['navigator/filters/base-filters'], function (BaseFilters) {
+/* global _:false, $j:false */
 
-  var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var DetailsStringFilterView = window.SS.DetailsFilterView.extend({
     template: '#stringFilterTemplate',
 
 
@@ -15,7 +19,7 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
     onShow: function() {
-      BaseFilters.DetailsFilterView.prototype.onShow.apply(this, arguments);
+      window.SS.DetailsFilterView.prototype.onShow.apply(this, arguments);
       this.$(':input').focus();
     },
 
@@ -30,10 +34,10 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
 
-  return BaseFilters.BaseFilterView.extend({
+  var StringFilterView = window.SS.BaseFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsStringFilterView
       });
     },
@@ -74,4 +78,14 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
   });
 
-});
+
+
+  /*
+   * Export public classes
+   */
+
+  _.extend(window.SS, {
+    StringFilterView: StringFilterView
+  });
+
+})();

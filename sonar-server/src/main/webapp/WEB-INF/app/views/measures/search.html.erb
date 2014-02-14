@@ -1,8 +1,3 @@
-<% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/javascripts/measures.js" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
-<% end %>
-
-
 <div class="navigator navigator-simple">
 
   <div class="navigator-filters"></div>
@@ -47,7 +42,12 @@
 
 
 <script>
-  window.SS = typeof window.SS === 'object' ? window.SS : {};
+  _.templateSettings = {
+    interpolate: /\{\{(.+?)\}\}/g,
+    evaluate: /\{\[(.+?)\]\}/g,
+    escape: /\{\{\{(.+?)\}\}\}/g
+  };
+
 
   _.extend(window.SS, {
     qualifiers: <%= render :partial => 'measures/qualifiers' -%>,
@@ -116,4 +116,7 @@
 
     { key: 'nameSearch', value: '<%= h @filter.criteria['nameSearch'] -%>' }
   ];
+
+  window.SS.MeasuresNavigatorApp.start();
+  window.SS.MeasuresNavigatorApp.filterBarView.restoreFromQuery(queryParams);
 </script>

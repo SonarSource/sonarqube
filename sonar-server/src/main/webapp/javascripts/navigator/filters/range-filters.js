@@ -1,6 +1,10 @@
-define(['navigator/filters/base-filters'], function (BaseFilters) {
+/* global _:false, $j:false */
 
-  var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var DetailsRangeFilterView = window.SS.DetailsFilterView.extend({
     template: '#rangeFilterTemplate',
 
 
@@ -46,10 +50,10 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
 
-  var RangeFilterView = BaseFilters.BaseFilterView.extend({
+  var RangeFilterView = window.SS.BaseFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsRangeFilterView
       });
     },
@@ -187,9 +191,9 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
    * Export public classes
    */
 
-  return {
+  _.extend(window.SS, {
     RangeFilterView: RangeFilterView,
     DateRangeFilterView: DateRangeFilterView
-  };
+  });
 
-});
+})();

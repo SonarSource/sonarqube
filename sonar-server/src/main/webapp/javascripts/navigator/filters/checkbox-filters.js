@@ -1,6 +1,10 @@
-define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters'], function (Backbone, Marionette, BaseFilters) {
+/* global _:false, $j:false */
 
-  return BaseFilters.BaseFilterView.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var CheckboxFilterView = window.SS.BaseFilterView.extend({
     template: '#checkboxFilterTemplate',
     className: 'navigator-filter navigator-filter-inline',
 
@@ -47,4 +51,14 @@ define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters'], fu
 
   });
 
-});
+
+
+  /*
+   * Export public classes
+   */
+
+  _.extend(window.SS, {
+    CheckboxFilterView: CheckboxFilterView
+  });
+
+})();

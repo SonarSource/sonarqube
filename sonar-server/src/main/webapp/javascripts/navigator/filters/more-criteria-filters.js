@@ -1,6 +1,10 @@
-define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], function (BaseFilters, SelectFilters) {
+/* global _:false, $j:false */
 
-  var DetailsMoreCriteriaFilterView = BaseFilters.DetailsFilterView.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var DetailsMoreCriteriaFilterView = window.SS.DetailsFilterView.extend({
     template: '#detailsMoreCriteriaFilterTemplate',
 
 
@@ -19,13 +23,13 @@ define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], f
 
 
 
-  var MoreCriteriaFilterView = SelectFilters.SelectFilterView.extend({
+  var MoreCriteriaFilterView = window.SS.SelectFilterView.extend({
     template: '#moreCriteriaFilterTemplate',
     className: 'navigator-filter navigator-filter-more-criteria',
 
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsMoreCriteriaFilterView
       });
     },
@@ -51,9 +55,8 @@ define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], f
    * Export public classes
    */
 
-  return {
-    DetailsMoreCriteriaFilterView: DetailsMoreCriteriaFilterView,
+  _.extend(window.SS, {
     MoreCriteriaFilterView: MoreCriteriaFilterView
-  };
+  });
 
-});
+})();

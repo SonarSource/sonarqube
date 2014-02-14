@@ -25,9 +25,9 @@ module.exports = function(config) {
     files: [
         // dependencies
         'third-party/jquery.min.js',
-        'third-party/underscore.js',
-        'third-party/backbone.js',
-        'third-party/backbone.marionette.js',
+        'third-party/underscore-min.js',
+        'third-party/backbone-min.js',
+        'third-party/backbone.marionette.min.js',
 
         // app
         'navigator/filters/base-filters.js',

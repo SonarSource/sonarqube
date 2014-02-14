@@ -1,4 +1,4 @@
-define(['handlebars'], function (Handlebars) {
+(function() {
 
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];
 
@@ -143,4 +143,4 @@ define(['handlebars'], function (Handlebars) {
     }, '');
   });
 
-});
+})();

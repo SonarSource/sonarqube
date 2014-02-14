@@ -1,6 +1,10 @@
-define(['backbone'], function (Backbone) {
+/* global _:false, $j:false, Backbone:false */
 
-  return Backbone.View.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var ContextFilterView = Backbone.View.extend({
 
     initialize: function() {
       this.model.view = this;
@@ -63,4 +67,14 @@ define(['backbone'], function (Backbone) {
     }
   });
 
-});
+
+
+  /*
+   * Export public classes
+   */
+
+  _.extend(window.SS, {
+    ContextFilterView: ContextFilterView
+  });
+
+})();

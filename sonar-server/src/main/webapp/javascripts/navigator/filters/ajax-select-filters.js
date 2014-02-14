@@ -1,4 +1,8 @@
-define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, BaseFilters, SelectFilters) {
+/* global _:false, $j:false, Backbone:false, baseUrl:false */
+
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
 
   var PAGE_SIZE = 100;
 
@@ -51,6 +55,16 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
+  var ProjectSuggestions = Suggestions.extend({
+
+    url: function() {
+      return baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
+    }
+
+  });
+
+
+
   var ComponentSuggestions = Suggestions.extend({
 
     url: function() {
@@ -79,8 +93,13 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
-  var AjaxSelectDetailsFilterView = SelectFilters.DetailsSelectFilterView.extend({
+  var AjaxSelectDetailsFilterView = window.SS.DetailsSelectFilterView.extend({
     template: '#ajaxSelectFilterTemplate',
+
+
+    initialize: function() {
+      window.SS.DetailsSelectFilterView.prototype.initialize.apply(this, arguments);
+    },
 
 
     onRender: function() {
@@ -157,7 +176,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
     onShow: function() {
-      SelectFilters.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
+      window.SS.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
       this.$('.navigator-filter-search input').focus();
     }
 
@@ -165,7 +184,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
-  var AjaxSelectFilterView = SelectFilters.SelectFilterView.extend({
+  var AjaxSelectFilterView = window.SS.SelectFilterView.extend({
 
     isDefaultValue: function() {
       return this.selection.length === 0;
@@ -257,7 +276,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
   var ComponentFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -289,7 +308,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
   var ProjectFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -344,7 +363,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
   var AssigneeFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AssigneeDetailsFilterView
       });
 
@@ -446,7 +465,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
   var ReporterFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -479,11 +498,11 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
    * Export public classes
    */
 
-  return {
+  _.extend(window.SS, {
     ProjectFilterView: ProjectFilterView,
     ComponentFilterView: ComponentFilterView,
     AssigneeFilterView: AssigneeFilterView,
     ReporterFilterView: ReporterFilterView
-  };
+  });
 
-});
+})();

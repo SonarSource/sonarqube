@@ -1,6 +1,10 @@
-define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, Marionette, BaseFilters, SelectFilters) {
+/* global _:false, $j:false, baseUrl:false */
 
-  var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
+window.SS = typeof window.SS === 'object' ? window.SS : {};
+
+(function() {
+
+  var DetailsFavoriteFilterView = window.SS.DetailsFilterView.extend({
     template: '#detailsFavoriteFilterTemplate',
 
 
@@ -39,13 +43,13 @@ define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'na
 
 
 
-  var FavoriteFilterView = SelectFilters.SelectFilterView.extend({
+  var FavoriteFilterView = window.SS.SelectFilterView.extend({
     template: '#favoriteFilterTemplate',
     className: 'navigator-filter navigator-filter-favorite',
 
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      window.SS.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsFavoriteFilterView
       });
     },
@@ -71,9 +75,9 @@ define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'na
    * Export public classes
    */
 
-  return {
+  _.extend(window.SS, {
     DetailsFavoriteFilterView: DetailsFavoriteFilterView,
     FavoriteFilterView: FavoriteFilterView
-  };
+  });
 
-});
+})();
