@@ -78,6 +78,9 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
     return null;
   }
 
+  /**
+   * SONAR-5059
+   */
   private WorkDuration subtractNeverNegative(WorkDuration workDuration, WorkDuration toSubtractWith){
     WorkDuration result = workDuration.subtract(toSubtractWith);
     if (result.toSeconds() > 0) {
