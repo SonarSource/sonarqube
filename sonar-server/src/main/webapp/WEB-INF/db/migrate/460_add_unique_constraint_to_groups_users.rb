@@ -23,7 +23,21 @@
 #
 class AddUniqueConstraintToGroupsUsers < ActiveRecord::Migration
 
+  class GroupsUser < ActiveRecord::Base
+  end
+
   def self.up
+    GroupsUser.reset_column_information
+
+    duplicated_ids = ActiveRecord::Base.connection.select_rows('select user_id,group_id from groups_users group by user_id,group_id having count(*) > 1')
+    say_with_time "Remove duplications for #{duplicated_ids.size} user group associations" do
+      duplicated_ids.each do |user_id, group_id|
+        # delete all rows, then reinsert one
+        GroupsUser.delete_all([ "user_id=? and group_id=?", user_id, group_id ])
+        ActiveRecord::Base.connection.execute("insert into groups_users (user_id,group_id) values (%s,%s)" % [user_id, group_id])
+      end
+    end
+
     add_index :groups_users, [:group_id, :user_id], :name => 'GROUPS_USERS_UNIQUE', :unique => true
   end
 end
