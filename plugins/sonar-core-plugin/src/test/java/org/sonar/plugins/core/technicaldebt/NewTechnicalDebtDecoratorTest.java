@@ -329,6 +329,25 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.NEW_TECHNICAL_DEBT)));
   }
 
+  /**
+   * SONAR-5059
+   */
+  @Test
+  public void not_return_negative_debt() {
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setTechnicalDebt(oneDaysDebt).setChanges(
+      newArrayList(
+        // changelog created at is null because it has just been created on the current analysis
+        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(oneDaysDebt)).setCreationDate(null)
+      )
+    );
+    when(issuable.issues()).thenReturn(newArrayList(issue));
+
+    decorator.decorate(resource, context);
+
+    // remember : period1 is 5daysAgo, period2 is 10daysAgo
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 0.0)));
+  }
+
   private Long fromWorkDayDuration(WorkDuration workDayDuration) {
     return workDayDuration.toLong();
   }

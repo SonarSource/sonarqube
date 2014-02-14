@@ -33,6 +33,7 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,17 +63,27 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
     for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
       FieldDiffs diff = iterator.next();
       Date date = diff.creationDate();
+      WorkDuration newValue = newValue(diff);
+      WorkDuration oldValue = oldValue(diff);
       if (isLesserOrEqual(date, periodDate)) {
         // return new value from the change that is just before the period date
-        return currentTechnicalDebtValue.subtract(newValue(diff));
+        return subtractNeverNegative(currentTechnicalDebtValue, newValue);
       }
       if (!iterator.hasNext()) {
         // return old value from the change that is just after the period date when there's no more element in changelog
-        return currentTechnicalDebtValue.subtract(oldValue(diff));
+        return subtractNeverNegative(currentTechnicalDebtValue, oldValue);
       }
     }
     // Return null when no changelog
     return null;
+  }
+
+  private WorkDuration subtractNeverNegative(WorkDuration workDuration, WorkDuration toSubtractWith){
+    WorkDuration result = workDuration.subtract(toSubtractWith);
+    if (result.toSeconds() > 0) {
+      return result;
+    }
+    return workDurationFactory.createFromWorkingLong(0L);
   }
 
   private List<FieldDiffs> technicalDebtHistory(Issue issue) {
