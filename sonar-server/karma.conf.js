@@ -23,17 +23,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-        // dependencies
-        'third-party/jquery.min.js',
-        'third-party/underscore.js',
-        'third-party/backbone.js',
-        'third-party/backbone.marionette.js',
-
-        // app
-        'navigator/filters/base-filters.js',
-
-        // tests
-        'tests/measures.js'
+        // nothing here yet
     ],
 
 
