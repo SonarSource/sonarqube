@@ -170,7 +170,7 @@ public class DefaultI18nTest {
 
   @Test
   public void get_age_with_duration() {
-    assertThat(manager.age(Locale.ENGLISH, 10)).isEqualTo("less than a minute");
+    assertThat(manager.age(Locale.ENGLISH, 130000)).isEqualTo("less than a minute");
   }
 
   @Test

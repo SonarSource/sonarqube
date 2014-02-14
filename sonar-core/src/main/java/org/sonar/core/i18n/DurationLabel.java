@@ -24,19 +24,6 @@ import javax.annotation.Nullable;
 
 class DurationLabel {
 
-  private static String durationPrefix = "duration.";
-  private static String seconds = "seconds";
-  private static String minute = "minute";
-  private static String minutes = "minutes";
-  private static String hour = "hour";
-  private static String hours = "hours";
-  private static String day = "day";
-  private static String days = "days";
-  private static String month = "month";
-  private static String months = "months";
-  private static String year = "year";
-  private static String years = "years";
-
   private DurationLabel() {
     // Utility class
   }
@@ -53,27 +40,27 @@ class DurationLabel {
 
   private static Result getMessage(double nbSeconds, double nbMinutes, double nbHours, double nbDays, double nbYears) {
     if (nbSeconds < 45) {
-      return message(DurationLabel.seconds);
+      return message("seconds");
     } else if (nbSeconds < 90) {
-      return message(DurationLabel.minute);
+      return message("minute");
     } else if (nbMinutes < 45) {
-      return message(DurationLabel.minutes, Math.round(nbMinutes));
+      return message("minutes", Math.round(nbMinutes));
     } else if (nbMinutes < 90) {
-      return message(DurationLabel.hour);
+      return message("hour");
     } else if (nbHours < 24) {
-      return message(DurationLabel.hours, Math.round(nbHours));
+      return message("hours", Math.round(nbHours));
     } else if (nbHours < 48) {
-      return message(DurationLabel.day);
+      return message("day");
     } else if (nbDays < 30) {
-      return message(DurationLabel.days, Double.valueOf(Math.floor(nbDays)).longValue());
+      return message("days", Double.valueOf(Math.floor(nbDays)).longValue());
     } else if (nbDays < 60) {
-      return message(DurationLabel.month);
+      return message( "month");
     } else if (nbDays < 365) {
-      return message(DurationLabel.months, Double.valueOf(Math.floor(nbDays / 30)).longValue());
+      return message("months", Double.valueOf(Math.floor(nbDays / 30)).longValue());
     } else if (nbYears < 2) {
-      return message(DurationLabel.year);
+      return message("year");
     }
-    return message(DurationLabel.years, Double.valueOf(Math.floor(nbYears)).longValue());
+    return message("years", Double.valueOf(Math.floor(nbYears)).longValue());
   }
 
   private static Result message(String key) {
@@ -81,6 +68,7 @@ class DurationLabel {
   }
 
   private static Result message(String key, @Nullable Long value) {
+    String durationPrefix = "duration.";
     return new Result(durationPrefix + key, value);
   }
 
