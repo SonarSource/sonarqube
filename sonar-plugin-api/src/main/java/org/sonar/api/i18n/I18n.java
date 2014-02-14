@@ -51,47 +51,53 @@ public interface I18n extends ServerComponent, BatchComponent {
   String message(final Locale locale, final String key, @Nullable final String defaultValue, final Object... parameters);
 
   /**
-   * Return the distance in time for a duration in milliseconds
+   * Return the distance in time for a duration in milliseconds.
+   * <br>
+   * Examples :
+   * <ul>
+   * <li>age(Locale.ENGLISH, 1000) -> less than a minute</li>
+   * <li>age(Locale.ENGLISH, 60000) -> about a minute</li>
+   * <li>age(Locale.ENGLISH, 120000) -> 2 minutes</li>
+   * <li>age(Locale.ENGLISH, 3600000) -> about an hour</li>
+   * <li>age(Locale.ENGLISH, 7200000) -> 2 hours</li>
+   * <li>age(Locale.ENGLISH, 86400000) -> a day</li>
+   * <li>age(Locale.ENGLISH, 172800000) -> 2 days</li>
+   * </ul>
    *
-   * @param locale           the locale to translate into
-   * @param durationInMillis
    * @since 4.2
    */
   String age(Locale locale, long durationInMillis);
 
   /**
-   * Return the distance in time between two dates
+   * Return the distance in time between two dates.
+   * @see I18n#age(java.util.Locale, long durationInMillis)
    *
-   * @param locale   the locale to translate into
-   * @param fromDate
-   * @param toDate
    * @since 4.2
    */
   String age(Locale locale, Date fromDate, Date toDate);
 
   /**
-   * Reports the distance in time a date and now
+   * Reports the distance in time a date and now.
+   * @see I18n#age(java.util.Locale, java.util.Date, java.util.Date)
    *
-   * @param locale the locale to translate into
-   * @param date
    * @since 4.2
    */
   String ageFromNow(Locale locale, Date date);
 
   /**
-   * Return the formatted datetime
+   * Return the formatted datetime.
+   * <br>
+   * Example : formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100")) -> Jan 22, 2014 7:10 PM
    *
-   * @param locale the locale to translate into
-   * @param date
    * @since 4.2
    */
   String formatDateTime(Locale locale, Date date);
 
   /**
-   * Return the formatted date
+   * Return the formatted date.
+   * <br>
+   * Example : formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22")) -> Jan 22, 2014
    *
-   * @param locale the locale to translate into
-   * @param date
    * @since 4.2
    */
   String formatDate(Locale locale, Date date);
