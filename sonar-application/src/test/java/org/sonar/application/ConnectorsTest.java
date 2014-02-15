@@ -133,6 +133,7 @@ public class ConnectorsTest {
   public void all_connectors_are_enabled() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.ajp.port", "9009");
     p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
@@ -146,6 +147,13 @@ public class ConnectorsTest {
       }
     }));
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+    	@Override
+    	public boolean matches(Object o) {
+    		Connector c = (Connector) o;
+    		return c.getScheme().equals("http") && c.getPort() == 9009 && c.getProtocol().equals(Connectors.AJP_PROTOCOL);
+    	}
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
@@ -155,16 +163,17 @@ public class ConnectorsTest {
   }
 
   @Test
-  public void http_and_https_ports_should_be_different() throws Exception {
+  public void http_and_ajp_and_https_ports_should_be_different() throws Exception {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.ajp.port", "9000");
     p.setProperty("sonar.web.https.port", "9000");
 
     try {
       Connectors.configure(tomcat, new Props(p));
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("HTTP and HTTPS must not use the same port 9000");
+      assertThat(e).hasMessage("HTTP, AJP and HTTPS must not use the same port 9000");
     }
   }
 
@@ -172,6 +181,7 @@ public class ConnectorsTest {
   public void bind_to_all_addresses_by_default() throws Exception {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
+    p.setProperty("sonar.ajp.port", "9009");
     p.setProperty("sonar.web.https.port", "9443");
 
     Connectors.configure(tomcat, new Props(p));
@@ -182,6 +192,13 @@ public class ConnectorsTest {
         Connector c = (Connector) o;
         return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("0.0.0.0");
       }
+    }));
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+    	@Override
+    	public boolean matches(Object o) {
+    		Connector c = (Connector) o;
+    		return c.getScheme().equals("http") && c.getPort() == 9009 && ((InetAddress)c.getProperty("address")).getHostAddress().equals("0.0.0.0");
+    	}
     }));
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override

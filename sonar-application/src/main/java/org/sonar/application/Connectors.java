@@ -30,6 +30,7 @@ class Connectors {
 
   private static final int DISABLED_PORT = -1;
   static final String HTTP_PROTOCOL = "HTTP/1.1";
+  static final String AJP_PROTOCOL = "AJP/1.3";
 
   static void configure(Tomcat tomcat, Props props) {
     configureShutdown(tomcat, props);
@@ -38,7 +39,7 @@ class Connectors {
 
   private static void configureConnectors(Tomcat tomcat, Props props) {
     List<Connector> connectors = new ArrayList<Connector>();
-    connectors.addAll(Arrays.asList(newHttpConnector(props), newHttpsConnector(props)));
+    connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
 
     verify(connectors);
@@ -57,7 +58,7 @@ class Connectors {
     for (Connector connector : connectors) {
       int port = connector.getPort();
       if (ports.contains(port)) {
-        throw new IllegalStateException(String.format("HTTP and HTTPS must not use the same port %d", port));
+        throw new IllegalStateException(String.format("HTTP, AJP and HTTPS must not use the same port %d", port));
       }
       ports.add(port);
     }
@@ -86,6 +87,18 @@ class Connectors {
     return connector;
   }
 
+  @Nullable
+  private static Connector newAjpConnector(Props props) {
+    Connector connector = null;
+    int port = props.intOf("sonar.ajp.port", DISABLED_PORT);
+    if (port > DISABLED_PORT) {
+      connector = newConnector(props, AJP_PROTOCOL, "http");
+      connector.setPort(port);
+      info("AJP connector is enabled on port " + port);
+    }
+    return connector;
+  }
+  
   @Nullable
   private static Connector newHttpsConnector(Props props) {
     Connector connector = null;
