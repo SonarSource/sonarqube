@@ -53,7 +53,7 @@ public class MacroInterpreterTest {
     String ruleKey = "repo:key";
     String origin = "See {rule:" + ruleKey + "} for detail.";
     String result = interpreter.interpret(origin);
-    assertThat(result).isEqualTo("See <a class='open-modal rule-modal' modal-width='800' href='" + path + "/rules/show/" + ruleKey + "?modal=true&layout=false'>" + ruleKey + "</a> for detail.");
+    assertThat(result).isEqualTo("See <a class='open-modal rule-modal' modal-width='800' href='" + path + "/rules/show/" + ruleKey + "?modal=true&layout=false'>key</a> for detail.");
   }
 
   @Test
@@ -61,6 +61,6 @@ public class MacroInterpreterTest {
     String ruleKey = "my-repo1:my-key1";
     String origin = "See {rule:" + ruleKey + "} for detail.";
     String result = interpreter.interpret(origin);
-    assertThat(result).isEqualTo("See <a class='open-modal rule-modal' modal-width='800' href='" + path + "/rules/show/" + ruleKey + "?modal=true&layout=false'>" + ruleKey + "</a> for detail.");
+    assertThat(result).isEqualTo("See <a class='open-modal rule-modal' modal-width='800' href='" + path + "/rules/show/" + ruleKey + "?modal=true&layout=false'>my-key1</a> for detail.");
   }
 }
