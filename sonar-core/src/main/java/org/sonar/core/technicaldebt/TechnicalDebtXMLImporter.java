@@ -36,8 +36,10 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
+import javax.annotation.CheckForNull;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
@@ -184,7 +186,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
   private Property processProperty(SMInputCursor cursor, ValidationMessages messages) throws XMLStreamException {
     SMInputCursor c = cursor.childElementCursor();
     String key = null;
-    Double value = null;
+    int value = 0;
     String textValue = null;
     while (c.getNext() != null) {
       String node = c.getLocalName();
@@ -194,7 +196,9 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       } else if (StringUtils.equals(node, PROPERTY_VALUE)) {
         String s = c.collectDescendantText().trim();
         try {
-          value = NumberUtils.createDouble(s);
+          // The value is still a double for the moment
+          Double valueDouble = NumberUtils.createDouble(s);
+          value = valueDouble.intValue();
         } catch (NumberFormatException ex) {
           messages.addErrorText(String.format("Cannot import value '%s' for field %s - Expected a numeric value instead", s, key));
         }
@@ -205,16 +209,24 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return new Property(key, value, textValue);
   }
 
+  @CheckForNull
   private DefaultRequirement processFunctionsOnRequirement(DefaultRequirement requirement, Properties properties, ValidationMessages messages) {
     Property function = properties.function();
     Property factor = properties.factor();
     Property offset = properties.offset();
 
     if (function != null) {
+      // Requirements should always have values, so we init it with default values
+      requirement.setFactorValue(0);
+      requirement.setFactorUnit(WorkDuration.UNIT.DAYS);
+      requirement.setOffsetValue(0);
+      requirement.setOffsetUnit(WorkDuration.UNIT.DAYS);
+
       String functionKey = function.getTextValue();
       if ("linear_threshold".equals(functionKey)) {
         function.setTextValue(DefaultRequirement.FUNCTION_LINEAR);
-        offset.setValue(0d);
+        offset.setValue(0);
+        offset.setTextValue(CharacteristicDto.DAYS);
         messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s' is replaced by linear.", requirement.ruleKey()));
       } else if ("constant_resource".equals(functionKey)) {
         messages.addWarningText(String.format("Constant/file function is no more used, requirements '%s' are ignored.", requirement.ruleKey()));
@@ -223,10 +235,12 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
 
       requirement.setFunction(function.getTextValue());
       if (factor != null) {
-        requirement.setFactor(WorkUnit.create(factor.getValue(), factor.getTextValue()));
+        requirement.setFactorValue(factor.getValue());
+        requirement.setFactorUnit(DefaultRequirement.toUnit(factor.getTextValue()));
       }
       if (offset != null) {
-        requirement.setOffset(WorkUnit.create(offset.getValue(), offset.getTextValue()));
+        requirement.setOffsetValue(offset.getValue());
+        requirement.setOffsetUnit(DefaultRequirement.toUnit(offset.getTextValue()));
       }
       return requirement;
     }
@@ -270,16 +284,16 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
 
   private static class Property {
     String key;
-    Double value;
+    int value;
     String textValue;
 
-    private Property(String key, Double value, String textValue) {
+    private Property(String key, int value, String textValue) {
       this.key = key;
       this.value = value;
       this.textValue = textValue;
     }
 
-    private Property setValue(Double value) {
+    private Property setValue(int value) {
       this.value = value;
       return this;
     }
@@ -293,7 +307,7 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       return key;
     }
 
-    private Double getValue() {
+    private int getValue() {
       return value;
     }
 

@@ -10,7 +10,7 @@
         <rule-key>Foo</rule-key>
         <prop>
           <key>remediationFactor</key>
-          <val>3.2</val>
+          <val>3.0</val>
           <txt>h</txt>
         </prop>
         <prop>

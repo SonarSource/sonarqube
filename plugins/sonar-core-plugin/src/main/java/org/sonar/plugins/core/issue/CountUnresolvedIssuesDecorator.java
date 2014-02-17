@@ -260,13 +260,13 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  int countIssuesAfterDate(Collection<Issue> issues, @Nullable Date targetDate) {
+  int countIssuesAfterDate(Collection<Issue> issues, @Nullable Date date) {
     if (issues == null) {
       return 0;
     }
     int count = 0;
     for (Issue issue : issues) {
-      if (isAfter(issue, targetDate)) {
+      if (isAfter(issue, date)) {
         count++;
       }
     }

@@ -23,7 +23,7 @@ package org.sonar.core.technicaldebt.db;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +32,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CharacteristicDto implements Serializable {
+
+  public static final String DAYS = "d";
+  public static final String MINUTES = "mn";
+  public static final String HOURS = "h";
 
   private Integer id;
   private String kee;
@@ -227,8 +231,10 @@ public class CharacteristicDto implements Serializable {
       .setCharacteristic(characteristic)
       .setRootCharacteristic(rootCharacteristic)
       .setFunction(functionKey)
-      .setFactor(WorkUnit.create(factorValue, factorUnit))
-      .setOffset(WorkUnit.create(offsetValue, offsetUnit))
+      .setFactorValue(factorValue.intValue())
+      .setFactorUnit(toUnit(factorUnit))
+      .setOffsetValue(offsetValue.intValue())
+      .setOffsetUnit(toUnit(offsetUnit))
       .setCreatedAt(createdAt)
       .setUpdatedAt(updatedAt);
   }
@@ -239,13 +245,41 @@ public class CharacteristicDto implements Serializable {
       .setParentId(characteristicId)
       .setRootId(rootCharacteristicId)
       .setFunction(requirement.function())
-      .setFactorValue(requirement.factor().getValue())
-      .setFactorUnit(requirement.factor().getUnit())
-      .setOffsetValue(requirement.offset().getValue())
-      .setOffsetUnit(requirement.offset().getUnit())
+      .setFactorValue((double) requirement.factorValue())
+      .setFactorUnit(fromUnit(requirement.factorUnit()))
+      .setOffsetValue((double) requirement.offsetValue())
+      .setOffsetUnit(fromUnit(requirement.offsetUnit()))
       .setEnabled(true)
       .setCreatedAt(requirement.createdAt())
       .setUpdatedAt(requirement.updatedAt());
+  }
+
+  public static WorkDuration.UNIT toUnit(@Nullable String requirementUnit) {
+    if (requirementUnit != null) {
+      if (requirementUnit.equals(DAYS)) {
+        return WorkDuration.UNIT.DAYS;
+      } else if (requirementUnit.equals(HOURS)) {
+        return WorkDuration.UNIT.HOURS;
+      } else if (requirementUnit.equals(MINUTES)) {
+        return WorkDuration.UNIT.MINUTES;
+      }
+      throw new IllegalStateException("Invalid unit : " + requirementUnit);
+    }
+    return null;
+  }
+
+  public static String fromUnit(@Nullable WorkDuration.UNIT unit) {
+    if (unit != null) {
+      if (unit.equals(WorkDuration.UNIT.DAYS)) {
+        return DAYS;
+      } else if (unit.equals(WorkDuration.UNIT.HOURS)) {
+        return HOURS;
+      } else if (unit.equals(WorkDuration.UNIT.MINUTES)) {
+        return MINUTES;
+      }
+      throw new IllegalStateException("Invalid unit : " + unit);
+    }
+    return null;
   }
 
 }

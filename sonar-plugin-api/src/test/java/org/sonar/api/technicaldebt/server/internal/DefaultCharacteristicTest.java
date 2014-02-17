@@ -22,6 +22,7 @@ package org.sonar.api.technicaldebt.server.internal;
 
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -44,7 +45,11 @@ public class DefaultCharacteristicTest {
     assertThat(characteristic.order()).isEqualTo(5);
     assertThat(characteristic.ruleKey()).isNull();
     assertThat(characteristic.function()).isNull();
+    assertThat(characteristic.factorValue()).isNull();
+    assertThat(characteristic.factorUnit()).isNull();
     assertThat(characteristic.factor()).isNull();
+    assertThat(characteristic.offsetValue()).isNull();
+    assertThat(characteristic.offsetUnit()).isNull();
     assertThat(characteristic.offset()).isNull();
     assertThat(characteristic.parentId()).isEqualTo(2);
     assertThat(characteristic.rootId()).isEqualTo(2);
@@ -56,8 +61,10 @@ public class DefaultCharacteristicTest {
       .setId(1)
       .setRuleKey(RuleKey.of("repo", "rule"))
       .setFunction("linear_offset")
-      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
-      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
+      .setFactorValue(2)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setOffsetValue(1)
+      .setOffsetUnit(WorkDuration.UNIT.HOURS)
       .setRootId(3)
       .setParentId(2);
 
@@ -67,7 +74,11 @@ public class DefaultCharacteristicTest {
     assertThat(requirement.order()).isNull();
     assertThat(requirement.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(requirement.function()).isEqualTo("linear_offset");
+    assertThat(requirement.factorValue()).isEqualTo(2);
+    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
     assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offsetValue()).isEqualTo(1);
+    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.HOURS);
     assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
     assertThat(requirement.parentId()).isEqualTo(2);
     assertThat(requirement.rootId()).isEqualTo(3);
@@ -92,14 +103,15 @@ public class DefaultCharacteristicTest {
       .setId(1)
       .setRuleKey(RuleKey.of("repo", "rule"))
       .setFunction("linear_offset")
-      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
-      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
+      .setFactorValue(2)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setOffsetValue(1)
+      .setOffsetUnit(WorkDuration.UNIT.HOURS)
       .setRootId(3)
       .setParentId(2);
 
     assertThat(requirement.isRequirement()).isTrue();
   }
-
 
   @Test
   public void test_equals() throws Exception {

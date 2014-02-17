@@ -22,6 +22,7 @@ package org.sonar.api.technicaldebt.batch.internal;
 
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 
 import java.text.SimpleDateFormat;
@@ -47,8 +48,10 @@ public class DefaultRequirementTest {
       .setCharacteristic(characteristic)
       .setRootCharacteristic(root)
       .setFunction("linear_offset")
-      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
-      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS))
+      .setFactorValue(2)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setOffsetValue(1)
+      .setOffsetUnit(WorkDuration.UNIT.HOURS)
       .setCreatedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
       .setUpdatedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
 
@@ -57,7 +60,11 @@ public class DefaultRequirementTest {
     assertThat(requirement.characteristic()).isEqualTo(characteristic);
     assertThat(requirement.rootCharacteristic()).isEqualTo(root);
     assertThat(requirement.function()).isEqualTo("linear_offset");
+    assertThat(requirement.factorValue()).isEqualTo(2);
+    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
     assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offsetValue()).isEqualTo(1);
+    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.HOURS);
     assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
     assertThat(requirement.createdAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
     assertThat(requirement.updatedAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));

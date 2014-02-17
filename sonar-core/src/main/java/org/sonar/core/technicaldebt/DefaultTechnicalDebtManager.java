@@ -27,7 +27,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.TechnicalDebtManager;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
-import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -92,6 +91,8 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto, @Nullable RuleKey ruleKey) {
+    Double factorValue = dto.getFactorValue();
+    Double offsetValue = dto.getOffsetValue();
     return new DefaultCharacteristic()
       .setId(dto.getId())
       .setKey(dto.getKey())
@@ -101,8 +102,10 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
       .setRootId(dto.getRootId())
       .setRuleKey(ruleKey)
       .setFunction(dto.getFunction())
-      .setFactor(WorkUnit.create(dto.getFactorValue(), dto.getFactorUnit()))
-      .setOffset(WorkUnit.create(dto.getOffsetValue(), dto.getOffsetUnit()));
+      .setFactorValue(factorValue != null ? factorValue.intValue() : null)
+      .setFactorUnit(DefaultCharacteristic.toUnit(dto.getFactorUnit()))
+      .setOffsetValue(offsetValue != null ? offsetValue.intValue() : null)
+      .setOffsetUnit(DefaultCharacteristic.toUnit(dto.getOffsetUnit()));
   }
 
 }

@@ -29,7 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -80,7 +80,10 @@ public class DefaultTechnicalDebtManagerTest {
     rule.setId(1);
 
     when(dao.selectByRuleId(rule.getId())).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
+      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear")
+        .setFactorValue(30.0).setFactorUnit("mn")
+        .setOffsetValue(0.0).setOffsetUnit("d")
+    );
 
     Characteristic result = finder.findRequirementByRule(rule);
 
@@ -89,8 +92,10 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
     assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factor()).isEqualTo(WorkUnit.create(30d, WorkUnit.MINUTES));
-    assertThat(result.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DAYS));
+    assertThat(result.factorValue()).isEqualTo(30);
+    assertThat(result.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
+    assertThat(result.offsetValue()).isEqualTo(0);
+    assertThat(result.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
   }
 
   @Test
@@ -140,7 +145,10 @@ public class DefaultTechnicalDebtManagerTest {
     when(ruleFinder.findById(1)).thenReturn(rule);
 
     when(dao.selectByRuleId(rule.getId())).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
+      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear")
+        .setFactorValue(30.0).setFactorUnit("mn")
+        .setOffsetValue(0.0).setOffsetUnit("d")
+    );
 
     Characteristic result = finder.findRequirementByRuleId(1);
 
@@ -149,8 +157,11 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
     assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factor()).isEqualTo(WorkUnit.create(30d, WorkUnit.MINUTES));
-    assertThat(result.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DAYS));
+    assertThat(result.factorValue()).isEqualTo(30);
+    assertThat(result.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
+    assertThat(result.offsetValue()).isEqualTo(0);
+    assertThat(result.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
+
   }
 
   @Test

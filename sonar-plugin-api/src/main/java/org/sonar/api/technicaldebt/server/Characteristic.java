@@ -21,6 +21,7 @@
 package org.sonar.api.technicaldebt.server;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.CheckForNull;
@@ -48,9 +49,43 @@ public interface Characteristic {
 
   String function();
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
+  @CheckForNull
   WorkUnit factor();
 
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  Integer factorValue();
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  WorkDuration.UNIT factorUnit();
+
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
+  @CheckForNull
   WorkUnit offset();
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  Integer offsetValue();
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  WorkDuration.UNIT offsetUnit();
 
   boolean isRoot();
 

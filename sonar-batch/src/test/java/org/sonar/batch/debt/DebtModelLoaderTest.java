@@ -31,6 +31,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -108,8 +109,10 @@ public class DebtModelLoaderTest {
     DefaultRequirement requirement = result.requirementsByRule(ruleKey);
     assertThat(requirement.ruleKey()).isEqualTo(ruleKey);
     assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
-    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(0d, WorkUnit.DAYS));
+    assertThat(requirement.factorValue()).isEqualTo(2);
+    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
+    assertThat(requirement.offsetValue()).isEqualTo(0);
+    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
   }
 
 }

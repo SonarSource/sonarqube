@@ -32,7 +32,7 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 
 import java.io.IOException;
 
@@ -89,7 +89,7 @@ public class TechnicalDebtXMLImporterTest {
     ValidationMessages messages = ValidationMessages.create();
     DefaultTechnicalDebtModel sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
 
-    checkXmlCorrectlyImported(sqale, WorkUnit.create(1.0, "h"), messages);
+    checkXmlCorrectlyImported(sqale, 1, WorkDuration.UNIT.HOURS, messages);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class TechnicalDebtXMLImporterTest {
     ValidationMessages messages = ValidationMessages.create();
     DefaultTechnicalDebtModel sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
 
-    checkXmlCorrectlyImported(sqale, WorkUnit.create(0.0, "h"), messages);
+    checkXmlCorrectlyImported(sqale, 0, WorkDuration.UNIT.DAYS, messages);
     assertThat(messages.getWarnings()).hasSize(1);
   }
 
@@ -189,10 +189,10 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, ValidationMessages messages) {
-    checkXmlCorrectlyImported(sqale, WorkUnit.create(0d, WorkUnit.DAYS), messages);
+    checkXmlCorrectlyImported(sqale, 0, WorkDuration.UNIT.DAYS, messages);
   }
 
-  private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, WorkUnit offset, ValidationMessages messages) {
+  private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, Integer offsetValue, WorkDuration.UNIT offsetUnit, ValidationMessages messages) {
     assertThat(messages.getErrors()).isEmpty();
 
     // characteristics
@@ -211,8 +211,10 @@ public class TechnicalDebtXMLImporterTest {
     assertThat(requirement.ruleKey().repository()).isEqualTo("checkstyle");
     assertThat(requirement.ruleKey().rule()).isEqualTo("Regexp");
     assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(3.2, "h"));
-    assertThat(requirement.offset()).isEqualTo(offset);
+    assertThat(requirement.factorValue()).isEqualTo(3);
+    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.HOURS);
+    assertThat(requirement.offsetValue()).isEqualTo(offsetValue);
+    assertThat(requirement.offsetUnit()).isEqualTo(offsetUnit);
     assertThat(requirement.characteristic().key()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(requirement.rootCharacteristic().key()).isEqualTo("EFFICIENCY");
   }

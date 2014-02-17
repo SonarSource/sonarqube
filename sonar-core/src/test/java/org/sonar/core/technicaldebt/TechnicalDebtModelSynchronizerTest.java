@@ -35,7 +35,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -142,7 +142,11 @@ public class TechnicalDebtModelSynchronizerTest {
     RuleKey ruleKey = RuleKey.of("checkstyle", "import");
     when(ruleCache.getByRuleKey(ruleKey)).thenReturn(rule);
     new DefaultRequirement().setRuleKey(ruleKey)
-      .setFunction("linear").setFactor(WorkUnit.create(30d, WorkUnit.MINUTES)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
+      .setFunction("linear")
+      .setFactorValue(30)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setCharacteristic(javaCharacteristic)
+      .setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
@@ -195,7 +199,11 @@ public class TechnicalDebtModelSynchronizerTest {
 
     // New requirement
     new DefaultRequirement().setRuleKey(ruleKey2)
-      .setFunction("linear").setFactor(WorkUnit.create(1d, WorkUnit.HOURS)).setCharacteristic(javaCharacteristic).setRootCharacteristic(javaRootCharacteristic);
+      .setFunction("linear")
+      .setFactorValue(1)
+      .setFactorUnit(WorkDuration.UNIT.HOURS)
+      .setCharacteristic(javaCharacteristic)
+      .setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);

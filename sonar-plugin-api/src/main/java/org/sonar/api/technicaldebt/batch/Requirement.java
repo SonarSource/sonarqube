@@ -21,6 +21,7 @@
 package org.sonar.api.technicaldebt.batch;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
 
 import java.util.Date;
@@ -40,9 +41,37 @@ public interface Requirement {
 
   String function();
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   WorkUnit factor();
 
+  /**
+   * @since 4.2
+   */
+  int factorValue();
+
+  /**
+   * @since 4.2
+   */
+  WorkDuration.UNIT factorUnit();
+
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   WorkUnit offset();
+
+  /**
+   * @since 4.2
+   */
+  int offsetValue();
+
+  /**
+   * @since 4.2
+   */
+  WorkDuration.UNIT offsetUnit();
 
   Date createdAt();
 
