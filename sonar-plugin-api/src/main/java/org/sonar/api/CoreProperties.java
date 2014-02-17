@@ -179,6 +179,7 @@ public interface CoreProperties {
   /**
    * @deprecated since 4.2. See http://jira.codehaus.org/browse/SONAR-5058
    */
+  @Deprecated
   String GLOBAL_TEST_EXCLUSIONS_DEFAULT = "";
 
   /**
