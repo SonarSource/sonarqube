@@ -51,6 +51,16 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
+  var ProjectSuggestions = Suggestions.extend({
+
+    url: function() {
+      return baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
+    }
+
+  });
+
+
+
   var ComponentSuggestions = Suggestions.extend({
 
     url: function() {
@@ -293,8 +303,8 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
         detailsView: AjaxSelectDetailsFilterView
       });
 
-      this.selection = new ComponentSuggestions();
-      this.choices = new ComponentSuggestions();
+      this.selection = new ProjectSuggestions();
+      this.choices = new ProjectSuggestions();
     },
 
 
