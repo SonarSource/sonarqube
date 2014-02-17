@@ -47,6 +47,7 @@ public class DebtService implements ServerComponent {
     return debtFormatter.format(UserSession.get().locale(), technicalDebt);
   }
 
+  @CheckForNull
   public WorkDuration toTechnicalDebt(String technicalDebtInLong) {
     return workDurationFactory.createFromWorkingLong(Long.parseLong(technicalDebtInLong));
   }

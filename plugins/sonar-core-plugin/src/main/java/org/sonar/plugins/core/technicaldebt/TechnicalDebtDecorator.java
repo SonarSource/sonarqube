@@ -167,13 +167,9 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private double computeTechnicalDebt(Metric metric, DecoratorContext context, Requirement requirement, Collection<Issue> issues) {
-    WorkDuration debt = workDurationFactory.createFromWorkingLong(0l);
-//    double value = 0d;
+    WorkDuration debt = workDurationFactory.createFromWorkingValue(0, WorkDuration.UNIT.MINUTES);
     if (issues != null) {
       for (Issue issue : issues) {
-//        if (debt != null) {
-//          value += debt.toWorkingDays();
-//        }
         debt = debt.add(((DefaultIssue) issue).technicalDebt());
       }
     }

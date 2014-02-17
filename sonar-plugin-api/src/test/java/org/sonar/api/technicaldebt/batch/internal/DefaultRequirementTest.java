@@ -90,7 +90,7 @@ public class DefaultRequirementTest {
   }
 
   @Test
-  public void test_hascode() throws Exception {
+  public void test_hashcode() throws Exception {
     DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setId(1)
       .setKey("MODULARITY")
@@ -101,5 +101,38 @@ public class DefaultRequirementTest {
       .isEqualTo(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(characteristic).hashCode());
     assertThat(new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule")).setCharacteristic(characteristic).hashCode())
       .isNotEqualTo(new DefaultRequirement().setRuleKey(RuleKey.of("repo2", "rule2")).setCharacteristic(characteristic).hashCode());
+  }
+
+  @Test
+  public void test_deprecated_setters_and_getters_for_characteristic() throws Exception {
+    DefaultCharacteristic root = new DefaultCharacteristic().setId(1).setKey("REUSABILITY");
+
+    DefaultCharacteristic characteristic = new DefaultCharacteristic()
+      .setId(1)
+      .setKey("MODULARITY")
+      .setName("Modularity")
+      .setParent(root)
+      .setRoot(root);
+
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setId(3)
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setCharacteristic(characteristic)
+      .setRootCharacteristic(root)
+      .setFunction("linear_offset")
+      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
+      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS));
+
+    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
+
+    assertThat(new DefaultRequirement()
+      .setId(3)
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setCharacteristic(characteristic)
+      .setRootCharacteristic(root)
+      .setFunction("linear_offset")
+      .setFactor(WorkUnit.create(2d, WorkUnit.DAYS))
+      .factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
   }
 }

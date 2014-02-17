@@ -47,10 +47,8 @@ public class DefaultCharacteristicTest {
     assertThat(characteristic.function()).isNull();
     assertThat(characteristic.factorValue()).isNull();
     assertThat(characteristic.factorUnit()).isNull();
-    assertThat(characteristic.factor()).isNull();
     assertThat(characteristic.offsetValue()).isNull();
     assertThat(characteristic.offsetUnit()).isNull();
-    assertThat(characteristic.offset()).isNull();
     assertThat(characteristic.parentId()).isEqualTo(2);
     assertThat(characteristic.rootId()).isEqualTo(2);
   }
@@ -76,10 +74,8 @@ public class DefaultCharacteristicTest {
     assertThat(requirement.function()).isEqualTo("linear_offset");
     assertThat(requirement.factorValue()).isEqualTo(2);
     assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
-    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
     assertThat(requirement.offsetValue()).isEqualTo(1);
     assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.HOURS);
-    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
     assertThat(requirement.parentId()).isEqualTo(2);
     assertThat(requirement.rootId()).isEqualTo(3);
   }
@@ -131,6 +127,24 @@ public class DefaultCharacteristicTest {
     assertThat(new DefaultCharacteristic().setRuleKey(RuleKey.of("repo", "rule")).hashCode()).isNotEqualTo(new DefaultCharacteristic().setRuleKey(RuleKey.of("repo2", "rule2")).hashCode());
   }
 
+  @Test
+  public void test_deprecated_setters_and_getters_for_characteristic() throws Exception {
+    DefaultCharacteristic requirement = new DefaultCharacteristic()
+      .setId(1)
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setFunction("linear_offset")
+      .setFactor(WorkUnit.create(2d, WorkUnit.MINUTES))
+      .setOffset(WorkUnit.create(1d, WorkUnit.HOURS));
 
+    assertThat(requirement.factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.MINUTES));
+    assertThat(requirement.offset()).isEqualTo(WorkUnit.create(1d, WorkUnit.HOURS));
+
+    assertThat(new DefaultCharacteristic()
+      .setId(1)
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setFunction("linear")
+      .setFactor(WorkUnit.create(2d, WorkUnit.DAYS))
+      .factor()).isEqualTo(WorkUnit.create(2d, WorkUnit.DAYS));
+  }
 
 }

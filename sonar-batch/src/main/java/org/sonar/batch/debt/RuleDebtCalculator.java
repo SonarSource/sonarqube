@@ -29,6 +29,7 @@ import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.utils.WorkUnit;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
@@ -47,7 +48,8 @@ public class RuleDebtCalculator implements BatchExtension {
   /**
    * Calculate the technical debt from a requirement
    */
-  public WorkDuration calculateTechnicalDebt(RuleKey ruleKey, Double effortToFix) {
+  @CheckForNull
+  public WorkDuration calculateTechnicalDebt(RuleKey ruleKey, @Nullable Double effortToFix) {
     Requirement requirement = model.requirementsByRule(ruleKey);
     if (requirement != null) {
       if (requirement.function().equals(DefaultRequirement.CONSTANT_ISSUE) && effortToFix != null) {
