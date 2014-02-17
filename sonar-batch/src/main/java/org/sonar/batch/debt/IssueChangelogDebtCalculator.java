@@ -58,7 +58,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
   }
 
   @CheckForNull
-  private WorkDuration calculateNewTechnicalDebtValueFromChangelog(WorkDuration currentTechnicalDebtValue, Issue issue, Date periodDate) {
+  private WorkDuration calculateNewTechnicalDebtValueFromChangelog(@Nullable WorkDuration currentTechnicalDebtValue, Issue issue, Date periodDate) {
     List<FieldDiffs> changelog = technicalDebtHistory(issue);
     for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
       FieldDiffs diff = iterator.next();
@@ -81,12 +81,15 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
   /**
    * SONAR-5059
    */
-  private WorkDuration subtractNeverNegative(WorkDuration workDuration, WorkDuration toSubtractWith){
-    WorkDuration result = workDuration.subtract(toSubtractWith);
-    if (result.toSeconds() > 0) {
-      return result;
+  @CheckForNull
+  private WorkDuration subtractNeverNegative(@Nullable WorkDuration workDuration, WorkDuration toSubtractWith){
+    if (workDuration != null) {
+      WorkDuration result = workDuration.subtract(toSubtractWith);
+      if (result.toSeconds() > 0) {
+        return result;
+      }
     }
-    return workDurationFactory.createFromWorkingLong(0L);
+    return null;
   }
 
   private List<FieldDiffs> technicalDebtHistory(Issue issue) {
