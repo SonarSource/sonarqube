@@ -137,8 +137,6 @@
             symbol = false;
           }
 
-          console.log(e.keyCode);
-
           switch (e.keyCode) {
             case 13: // return
               prevent(e);
