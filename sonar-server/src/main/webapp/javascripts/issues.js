@@ -30,13 +30,15 @@ requirejs(
       'navigator/filters/checkbox-filters',
       'navigator/filters/select-filters',
       'navigator/filters/ajax-select-filters',
+      'navigator/filters/resolution-filters',
       'navigator/filters/favorite-filters',
       'navigator/filters/range-filters',
       'navigator/filters/context-filters',
 
       'handlebars-extensions'
     ],
-    function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters, AjaxSelectFilters, FavoriteFilters, RangeFilters, ContextFilterView) {
+    function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
+              AjaxSelectFilters, ResolutionFilterView, FavoriteFilters, RangeFilters, ContextFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
 
 
@@ -157,10 +159,11 @@ requirejs(
           new BaseFilters.Filter({
             name: window.SS.phrases.resolution,
             property: 'resolutions',
-            type: SelectFilters.SelectFilterView,
+            type: ResolutionFilterView,
             enabled: false,
             optional: true,
             choices: {
+              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
               'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
               'FIXED': window.SS.phrases.resolutions.FIXED,
               'REMOVED': window.SS.phrases.resolutions.REMOVED
@@ -182,13 +185,6 @@ requirejs(
             type: RangeFilters.DateRangeFilterView,
             enabled: false,
             optional: true
-          }),
-
-          new BaseFilters.Filter({
-            property: 'resolved',
-            type: ContextFilterView,
-            enabled: true,
-            optional: false
           }),
 
           new BaseFilters.Filter({

@@ -179,9 +179,9 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
     className: 'navigator-filter',
 
 
-    initialize: function() {
+    initialize: function(options) {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: DetailsSelectFilterView
+        detailsView: (options && options.detailsView) ? options.detailsView : DetailsSelectFilterView
       });
 
 
