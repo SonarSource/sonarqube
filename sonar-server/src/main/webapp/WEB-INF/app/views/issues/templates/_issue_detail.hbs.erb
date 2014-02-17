@@ -8,7 +8,7 @@
 
       {{#if componentLongName}}
         {{#if componentQualifier}}
-          <a href="<%= ApplicationController.root_context -%>{{dashboardUrl component componentQualifier}}">{{componentLongName}}</a>
+          <a target="_blank" href="<%= ApplicationController.root_context -%>{{dashboardUrl component componentQualifier}}">{{componentLongName}}</a>
         {{else}}
           {{componentLongName}}
         {{/if}}

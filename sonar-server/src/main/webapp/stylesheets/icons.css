@@ -80,25 +80,25 @@
 }
 .icon-status-open:before {
   content: "\f010";
-  color: #85bb43;
+  color: #4b9fd5;
   font-size: 14px;
   line-height: 12px;
 }
 .icon-status-confirmed:before {
   content: "\f011";
-  color: #d4333f;
+  color: #4b9fd5;
   font-size: 14px;
   line-height: 12px;
 }
 .icon-status-reopened:before {
   content: "\f012";
-  color: #85bb43;
+  color: #4b9fd5;
   font-size: 14px;
   line-height: 12px;
 }
 .icon-status-resolved:before {
   content: "\f013";
-  color: #4b9fd5;
+  color: #444444;
   font-size: 14px;
   line-height: 12px;
 }
