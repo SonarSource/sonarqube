@@ -38,6 +38,7 @@ import org.sonar.server.es.ESIndex;
 import org.sonar.server.rule.RuleDocument;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -284,7 +285,7 @@ public class QProfileRuleLookup implements ServerExtension {
     if (StringUtils.isNotBlank(query.nameOrKey())) {
       result.must(
         queryFilter(
-          multiMatchQuery(query.nameOrKey(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY)
+          multiMatchQuery(query.nameOrKey().trim(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY)
             .operator(Operator.AND)));
     }
 

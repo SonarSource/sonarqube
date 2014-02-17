@@ -150,10 +150,12 @@ public class QProfileRuleLookupTest {
 
     // Match on key
     assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("DM_CONVERT_CASE"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey(" \n\r\t DM_CONVERT_CASE \r\n\t "), paging).rules()).hasSize(1);
 
     // Match on name
     assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("Unused Check"), paging).rules()).hasSize(1);
     assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey("unus"), paging).rules()).hasSize(1);
+    assertThat(profileRules.search(ProfileRuleQuery.create(1).setNameOrKey(" \n\r\t Unused Check \n\r\t "), paging).rules()).hasSize(1);
 
     // Match on repositoryKey
     assertThat(profileRules.search(ProfileRuleQuery.create(1).addRepositoryKeys("findbugs"), paging).rules()).hasSize(1);
@@ -301,8 +303,17 @@ public class QProfileRuleLookupTest {
     // Search of inactive rule on profile 1
     assertThat(profileRules.searchInactives(ProfileRuleQuery.create(1), paging).rules()).hasSize(2);
 
-    // Match on key
+    // Match on name
     assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).setNameOrKey("Boolean expressions"), paging).rules()).hasSize(1);
+
+    // Match on name - trimmed
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).setNameOrKey(" \r\t\n Boolean expressions \n\r\t "), paging).rules()).hasSize(1);
+
+    // Match on key
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).setNameOrKey("S1125"), paging).rules()).hasSize(1);
+
+    // Match on key - trimmed
+    assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).setNameOrKey(" \n\r\t S1125 \n\r\t "), paging).rules()).hasSize(1);
 
     // Mach on severity
     assertThat(profileRules.searchInactives(ProfileRuleQuery.create(2).addSeverities(Severity.INFO), paging).rules()).hasSize(1);
