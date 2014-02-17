@@ -104,7 +104,10 @@ public final class NewTechnicalDebtDecorator implements Decorator {
       if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
         value += technicalDebtConverter.toDays(currentTechnicalDebt);
       } else {
-        value += calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, issue, periodDate);
+        double debt = calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, issue, periodDate);
+        if (debt > 0) {
+          value += debt;
+        }
       }
     }
     return value;
