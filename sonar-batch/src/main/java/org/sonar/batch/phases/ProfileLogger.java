@@ -60,7 +60,7 @@ public class ProfileLogger implements BatchComponent {
         defaultNameUsed = true;
       }
     }
-    if (!defaultNameUsed) {
+    if (!defaultNameUsed && !languages.languages().isEmpty()) {
       throw new SonarException("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
     }
   }

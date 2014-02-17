@@ -33,6 +33,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleQProfiles.QProfile;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -98,6 +99,17 @@ public class ProfileLoggerTest {
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("sonar.profile was set to 'Unknow' but didn't match any profile for any language. Please check your configuration.");
+
+    profileLogger.execute();
+
+  }
+
+  @Test
+  public void should_not_fail_if_no_language_on_project() {
+    settings.setProperty("sonar.profile", "Unknow");
+    when(languages.languages()).thenReturn(Collections.<Language>emptyList());
+
+    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles);
 
     profileLogger.execute();
 
