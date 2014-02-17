@@ -137,6 +137,8 @@
             symbol = false;
           }
 
+          console.log(e.keyCode);
+
           switch (e.keyCode) {
             case 13: // return
               prevent(e);
@@ -152,6 +154,12 @@
               return;
             case 37: // left
             case 39: // right
+            case 16: // shift
+            case 17: // ctrl
+            case 18: // alt
+            case 91: // cmd
+            case 20: // caps
+            case 27: // esc
               symbol = false;
               return;
             default:
