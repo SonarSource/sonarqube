@@ -47,30 +47,31 @@ public final class PhaseExecutor {
       InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
-  private EventBus eventBus;
-  private Phases phases;
-  private DecoratorsExecutor decoratorsExecutor;
-  private MavenPhaseExecutor mavenPhaseExecutor;
-  private MavenPluginsConfigurator mavenPluginsConfigurator;
-  private PostJobsExecutor postJobsExecutor;
-  private InitializersExecutor initializersExecutor;
-  private SensorsExecutor sensorsExecutor;
-  private UpdateStatusJob updateStatusJob;
-  private PersistenceManager persistenceManager;
-  private SensorContext sensorContext;
-  private DefaultIndex index;
-  private ProjectInitializer pi;
-  private ScanPersister[] persisters;
-  private FileSystemLogger fsLogger;
+  private final EventBus eventBus;
+  private final Phases phases;
+  private final DecoratorsExecutor decoratorsExecutor;
+  private final MavenPhaseExecutor mavenPhaseExecutor;
+  private final MavenPluginsConfigurator mavenPluginsConfigurator;
+  private final PostJobsExecutor postJobsExecutor;
+  private final InitializersExecutor initializersExecutor;
+  private final SensorsExecutor sensorsExecutor;
+  private final UpdateStatusJob updateStatusJob;
+  private final PersistenceManager persistenceManager;
+  private final SensorContext sensorContext;
+  private final DefaultIndex index;
+  private final ProjectInitializer pi;
+  private final ScanPersister[] persisters;
+  private final FileSystemLogger fsLogger;
   private final JsonReport jsonReport;
-  private DefaultModuleFileSystem fs;
+  private final DefaultModuleFileSystem fs;
+  private final ProfileLogger profileLogger;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs) {
+    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, ProfileLogger profileLogger) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -88,15 +89,16 @@ public final class PhaseExecutor {
     this.fsLogger = fsLogger;
     this.jsonReport = jsonReport;
     this.fs = fs;
+    this.profileLogger = profileLogger;
   }
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs) {
+    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, ProfileLogger profileLogger) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileLogger);
   }
 
   /**
@@ -116,6 +118,9 @@ public final class PhaseExecutor {
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
       // Index and lock the filesystem
       fs.index();
+
+      // Log detected languages and their profiles after FS is indexed and languages detected
+      profileLogger.execute();
 
       sensorsExecutor.execute(sensorContext);
     }

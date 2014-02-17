@@ -21,8 +21,6 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
@@ -41,7 +39,7 @@ import java.util.Map;
  */
 public class ModuleQProfiles implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ModuleQProfiles.class);
+  public static final String SONAR_PROFILE_PROP = "sonar.profile";
 
   public static class QProfile {
     private final String name, language;
@@ -83,17 +81,17 @@ public class ModuleQProfiles implements BatchComponent {
 
   public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
-    String defaultName = settings.getString("sonar.profile");
+    String defaultName = settings.getString(SONAR_PROFILE_PROP);
 
     for (Language language : languages.all()) {
-      QProfile profile;
+      QProfile profile = null;
       if (StringUtils.isNotBlank(defaultName)) {
         profile = loadDefaultQProfile(dao, defaultName, language.getKey());
-      } else {
+      }
+      if (profile == null) {
         profile = loadQProfile(dao, settings, language.getKey());
       }
       if (profile != null) {
-        LOG.info("Quality profile for {}: {}", profile.language(), profile.name());
         builder.put(profile.language(), profile);
       }
     }

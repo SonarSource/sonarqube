@@ -52,7 +52,10 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, String language, ProfilesDao dao) {
     ModuleQProfiles.QProfile qProfile = qProfiles.findByLanguage(language);
-    return new RulesProfileWrapper(select(qProfile, dao));
+    if (qProfile != null) {
+      return new RulesProfileWrapper(select(qProfile, dao));
+    }
+    return new RulesProfileWrapper(Lists.<RulesProfile>newArrayList());
   }
 
   private RulesProfile loadProfiles(ModuleQProfiles qProfiles, ProfilesDao dao) {

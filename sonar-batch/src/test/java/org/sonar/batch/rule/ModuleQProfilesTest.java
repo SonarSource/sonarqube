@@ -68,7 +68,7 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void use_deprecated_property() throws Exception {
+  public void use_sonar_profile_property() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
 
@@ -78,14 +78,20 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
     ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao);
     List<ModuleQProfiles.QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
-    assertThat(qProfiles).hasSize(1);
+    assertThat(qProfiles).hasSize(2);
     ModuleQProfiles.QProfile javaProfile = qProfiles.get(0);
     assertThat(javaProfile.id()).isEqualTo(2);
     assertThat(javaProfile.name()).isEqualTo("Java Two");
     assertThat(javaProfile.language()).isEqualTo("java");
     assertThat(javaProfile.version()).isEqualTo(20);
 
-    // the php profile is not found as sonar.profile overrides all other properties.
+    // Fallback to sonar.profile.php if no match for sonar.profile
+    ModuleQProfiles.QProfile phpProfile = qProfiles.get(1);
+    assertThat(phpProfile.id()).isEqualTo(3);
+    assertThat(phpProfile.name()).isEqualTo("Php One");
+    assertThat(phpProfile.language()).isEqualTo("php");
+    assertThat(phpProfile.version()).isEqualTo(30);
+
   }
 
   @Test

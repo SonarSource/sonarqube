@@ -47,6 +47,7 @@ import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.phases.ProfileLogger;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
@@ -119,6 +120,7 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
       ProjectFileSystemAdapter.class,
+      ProfileLogger.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),
