@@ -312,8 +312,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
         detailsView: AjaxSelectDetailsFilterView
       });
 
-      this.selection = new ComponentSuggestions();
-      this.choices = new ComponentSuggestions();
+      this.selection = new ProjectSuggestions();
+      this.choices = new ProjectSuggestions();
     },
 
 
