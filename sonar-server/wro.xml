@@ -23,10 +23,7 @@
     <js>/javascripts/third-party/jquery-ui.min.js</js>
     <js>/javascripts/third-party/jquery-ui.tabs.js</js>
     <js>/javascripts/third-party/d3.v3.min.js</js>
-    <js>/javascripts/third-party/underscore-min.js</js>
-    <js>/javascripts/third-party/backbone-min.js</js>
-    <js>/javascripts/third-party/backbone.marionette.min.js</js>
-    <js>/javascripts/third-party/handlebars.js</js>
+    <js>/javascripts/third-party/underscore.js</js>
     <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
     <js>/javascripts/third-party/select2.min.js</js>
 
@@ -37,27 +34,8 @@
     <js>/javascripts/widgets/pie-chart.js</js>
     <js>/javascripts/widgets/histogram.js</js>
     
-    <js>/javascripts/select-list.js</js>
     <js>/javascripts/top-search.js</js>
     <js>/javascripts/sortable.js</js>
-
-    <js>/javascripts/navigator/handlebars-extensions.js</js>
-
-    <js>/javascripts/navigator/filters/base-filters.js</js>
-    <js>/javascripts/navigator/filters/select-filters.js</js>
-    <js>/javascripts/navigator/filters/ajax-select-filters.js</js>
-    <js>/javascripts/navigator/filters/range-filters.js</js>
-    <js>/javascripts/navigator/filters/checkbox-filters.js</js>
-    <js>/javascripts/navigator/filters/string-filters.js</js>
-    <js>/javascripts/navigator/filters/metric-filters.js</js>
-    <js>/javascripts/navigator/filters/favorite-filters.js</js>
-    <js>/javascripts/navigator/filters/more-criteria-filters.js</js>
-    <js>/javascripts/navigator/filters/context-filters.js</js>
-
-    <js>/javascripts/navigator/issues.js</js>
-    <js>/javascripts/navigator/issues-app.js</js>
-    <js>/javascripts/navigator/issues-app-old.js</js>
-    <js>/javascripts/navigator/measures-app.js</js>
 
     <js>/javascripts/application.js</js>
     <js>/javascripts/dashboard.js</js>

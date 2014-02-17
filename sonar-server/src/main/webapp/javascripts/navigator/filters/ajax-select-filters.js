@@ -1,8 +1,4 @@
-/* global _:false, $j:false, Backbone:false, baseUrl:false */
-
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
+define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, BaseFilters, SelectFilters) {
 
   var PAGE_SIZE = 100;
 
@@ -55,16 +51,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var ProjectSuggestions = Suggestions.extend({
-
-    url: function() {
-      return baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
-    }
-
-  });
-
-
-
   var ComponentSuggestions = Suggestions.extend({
 
     url: function() {
@@ -93,13 +79,8 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var AjaxSelectDetailsFilterView = window.SS.DetailsSelectFilterView.extend({
+  var AjaxSelectDetailsFilterView = SelectFilters.DetailsSelectFilterView.extend({
     template: '#ajaxSelectFilterTemplate',
-
-
-    initialize: function() {
-      window.SS.DetailsSelectFilterView.prototype.initialize.apply(this, arguments);
-    },
 
 
     onRender: function() {
@@ -176,7 +157,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     onShow: function() {
-      window.SS.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
+      SelectFilters.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
       this.$('.navigator-filter-search input').focus();
     }
 
@@ -184,7 +165,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var AjaxSelectFilterView = window.SS.SelectFilterView.extend({
+  var AjaxSelectFilterView = SelectFilters.SelectFilterView.extend({
 
     isDefaultValue: function() {
       return this.selection.length === 0;
@@ -276,7 +257,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var ComponentFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -308,7 +289,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var ProjectFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -363,7 +344,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var AssigneeFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AssigneeDetailsFilterView
       });
 
@@ -465,7 +446,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
   var ReporterFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
 
@@ -498,11 +479,11 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
    * Export public classes
    */
 
-  _.extend(window.SS, {
+  return {
     ProjectFilterView: ProjectFilterView,
     ComponentFilterView: ComponentFilterView,
     AssigneeFilterView: AssigneeFilterView,
     ReporterFilterView: ReporterFilterView
-  });
+  };
 
-})();
+});

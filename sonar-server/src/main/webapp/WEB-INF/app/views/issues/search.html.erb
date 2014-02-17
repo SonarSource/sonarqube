@@ -1,3 +1,7 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/javascripts/issues.js" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+<% end %>
+
 <div class="navigator">
   <div class="navigator-header"></div>
   <div class="navigator-notes">
@@ -29,6 +33,8 @@
 <%= render :partial => '/issues/templates/issue_detail_plan_form.hbs' -%>
 
 <script>
+  window.SS = {};
+
   _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g,
     evaluate: /\{\[(.+?)\]\}/g,
@@ -109,9 +115,5 @@
         tooShort: '<%= escape_javascript message('select2.tooShort', :params => [2]) -%>'
       }
     }
-  });
-
-  jQuery(function() {
-    window.SS.IssuesNavigatorApp.start();
   });
 </script>
