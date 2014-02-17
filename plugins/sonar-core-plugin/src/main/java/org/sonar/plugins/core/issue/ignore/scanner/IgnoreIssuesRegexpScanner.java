@@ -37,9 +37,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
-public class RegexpScanner implements BatchExtension {
+public class IgnoreIssuesRegexpScanner implements BatchExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegexpScanner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesRegexpScanner.class);
 
   private ExclusionPatternInitializer exclusionPatternInitializer;
   private List<java.util.regex.Pattern> allFilePatterns;
@@ -51,7 +51,7 @@ public class RegexpScanner implements BatchExtension {
   private List<LineExclusion> lineExclusions;
   private LineExclusion currentLineExclusion;
 
-  public RegexpScanner(ExclusionPatternInitializer patternsInitializer) {
+  public IgnoreIssuesRegexpScanner(ExclusionPatternInitializer patternsInitializer) {
     this.exclusionPatternInitializer = patternsInitializer;
 
     lineExclusions = Lists.newArrayList();

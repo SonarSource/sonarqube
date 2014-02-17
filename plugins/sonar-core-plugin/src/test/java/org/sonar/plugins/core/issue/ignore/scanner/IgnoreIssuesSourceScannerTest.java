@@ -50,12 +50,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class SourceScannerTest {
+public class IgnoreIssuesSourceScannerTest {
 
-  private SourceScanner scanner;
+  private IgnoreIssuesSourceScanner scanner;
 
   @Mock
-  private RegexpScanner regexpScanner;
+  private IgnoreIssuesRegexpScanner regexpScanner;
   @Mock
   private InclusionPatternInitializer inclusionPatternInitializer;
   @Mock
@@ -85,7 +85,7 @@ public class SourceScannerTest {
     Mockito.doReturn("java").when(project).getLanguageKey();
     when(fs.sourceCharset()).thenReturn(UTF_8);
 
-    scanner = new SourceScanner(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
+    scanner = new IgnoreIssuesSourceScanner(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }
 
   @Test

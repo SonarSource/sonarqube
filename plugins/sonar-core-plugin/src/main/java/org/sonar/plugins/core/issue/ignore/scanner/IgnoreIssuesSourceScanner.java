@@ -20,30 +20,33 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.java.api.JavaUtils;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 
 import java.nio.charset.Charset;
 
 @Phase(name = Phase.Name.PRE)
-public final class SourceScanner implements Sensor {
+// Issue Exclusions must be computed before JavaSquidSensor is executed and creates issues
+@DependedUpon(value = JavaUtils.BARRIER_BEFORE_SQUID)
+public final class IgnoreIssuesSourceScanner implements Sensor {
 
-  private final RegexpScanner regexpScanner;
+  private final IgnoreIssuesRegexpScanner regexpScanner;
   private final ExclusionPatternInitializer exclusionPatternInitializer;
   private final InclusionPatternInitializer inclusionPatternInitializer;
   private final DefaultModuleFileSystem fileSystem;
 
-  public SourceScanner(RegexpScanner regexpScanner, ExclusionPatternInitializer exclusionPatternInitializer, InclusionPatternInitializer inclusionPatternInitializer,
+  public IgnoreIssuesSourceScanner(IgnoreIssuesRegexpScanner regexpScanner, ExclusionPatternInitializer exclusionPatternInitializer, InclusionPatternInitializer inclusionPatternInitializer,
     DefaultModuleFileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.exclusionPatternInitializer = exclusionPatternInitializer;

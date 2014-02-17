@@ -41,9 +41,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class RegexpScannerTest {
+public class IgnoreIssuesRegexpScannerTest {
 
-  private RegexpScanner regexpScanner;
+  private IgnoreIssuesRegexpScanner regexpScanner;
 
   private String javaFile;
   @Mock
@@ -70,7 +70,7 @@ public class RegexpScannerTest {
     when(patternsInitializer.getBlockPatterns()).thenReturn(Arrays.asList(blockPattern1, blockPattern2));
     when(patternsInitializer.getPatternMatcher()).thenReturn(patternMatcher);
 
-    regexpScanner = new RegexpScanner(patternsInitializer);
+    regexpScanner = new IgnoreIssuesRegexpScanner(patternsInitializer);
     verify(patternsInitializer, times(1)).getAllFilePatterns();
     verify(patternsInitializer, times(1)).getBlockPatterns();
 

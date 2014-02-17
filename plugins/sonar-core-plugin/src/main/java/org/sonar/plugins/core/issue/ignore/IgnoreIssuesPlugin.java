@@ -23,8 +23,8 @@ package org.sonar.plugins.core.issue.ignore;
 import com.google.common.collect.ImmutableList;
 import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
-import org.sonar.plugins.core.issue.ignore.scanner.RegexpScanner;
-import org.sonar.plugins.core.issue.ignore.scanner.SourceScanner;
+import org.sonar.plugins.core.issue.ignore.scanner.IgnoreIssuesRegexpScanner;
+import org.sonar.plugins.core.issue.ignore.scanner.IgnoreIssuesSourceScanner;
 
 import java.util.List;
 
@@ -41,8 +41,8 @@ public final class IgnoreIssuesPlugin {
     extensions.add(
         InclusionPatternInitializer.class,
         ExclusionPatternInitializer.class,
-        RegexpScanner.class,
-        SourceScanner.class,
+        IgnoreIssuesRegexpScanner.class,
+        IgnoreIssuesSourceScanner.class,
         EnforceIssuesFilter.class,
         IgnoreIssuesFilter.class);
 
