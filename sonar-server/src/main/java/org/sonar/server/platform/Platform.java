@@ -57,6 +57,7 @@ import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
@@ -95,6 +96,8 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
+import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
@@ -294,6 +297,11 @@ public final class Platform {
     servicesContainer.addSingleton(QProfileBackup.class);
     servicesContainer.addSingleton(QProfileRepositoryExporter.class);
     servicesContainer.addSingleton(ESActiveRule.class);
+
+    // quality gates
+    servicesContainer.addSingleton(QualityGateDao.class);
+    servicesContainer.addSingleton(QualityGates.class);
+    servicesContainer.addSingleton(QualityGatesWs.class);
 
     // users
     servicesContainer.addSingleton(HibernateUserFinder.class);

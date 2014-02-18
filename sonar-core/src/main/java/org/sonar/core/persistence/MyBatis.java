@@ -19,6 +19,9 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.core.qualitygate.db.QualityGateMapper;
+
+import org.sonar.core.qualitygate.db.QualityGateDto;
 import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -107,6 +110,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "NotificationQueue", NotificationQueueDto.class);
     loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
+    loadAlias(conf, "QualityGate", QualityGateDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
@@ -155,7 +159,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class
+      MeasureDataMapper.class, QualityGateMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
