@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -33,22 +32,18 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
-import org.sonar.api.utils.WorkUnit;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleDebtCalculatorTest {
 
   private static final int HOURS_IN_DAY = 8;
+
   @Mock
   TechnicalDebtModel model;
-
-  WorkUnit tenMinutes = WorkUnit.create(10d, WorkUnit.MINUTES);
-  WorkUnit fiveMinutes = WorkUnit.create(5d, WorkUnit.MINUTES);
 
   RuleDebtCalculator calculator;
 
@@ -64,10 +59,12 @@ public class RuleDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
-    DefaultRequirement requirement = mock(DefaultRequirement.class);
-    Mockito.when(requirement.function()).thenReturn("constant_issue");
-    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setFunction("constant_issue")
+      .setFactorValue(10)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setOffsetValue(5)
+      .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
@@ -79,10 +76,12 @@ public class RuleDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    DefaultRequirement requirement = mock(DefaultRequirement.class);
-    Mockito.when(requirement.function()).thenReturn("linear_offset");
-    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setFunction("linear_offset")
+      .setFactorValue(10)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES)
+      .setOffsetValue(5)
+      .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
@@ -94,10 +93,10 @@ public class RuleDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    DefaultRequirement requirement = mock(DefaultRequirement.class);
-    Mockito.when(requirement.function()).thenReturn("linear");
-    Mockito.when(requirement.factor()).thenReturn(tenMinutes);
-    Mockito.when(requirement.offset()).thenReturn(null);
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setFunction("linear")
+      .setFactorValue(10)
+      .setFactorUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
@@ -109,10 +108,11 @@ public class RuleDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey);
 
-    DefaultRequirement requirement = mock(DefaultRequirement.class);
-    Mockito.when(requirement.function()).thenReturn("constant_issue");
-    Mockito.when(requirement.factor()).thenReturn(null);
-    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setFunction("constant_issue")
+      .setOffsetValue(5)
+      .setOffsetUnit(WorkDuration.UNIT.MINUTES);
+
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
@@ -133,10 +133,10 @@ public class RuleDebtCalculatorTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(ruleKey).setEffortToFix(2d);
 
-    DefaultRequirement requirement = mock(DefaultRequirement.class);
-    Mockito.when(requirement.function()).thenReturn("constant_issue");
-    Mockito.when(requirement.factor()).thenReturn(null);
-    Mockito.when(requirement.offset()).thenReturn(fiveMinutes);
+    DefaultRequirement requirement = new DefaultRequirement()
+      .setFunction("constant_issue")
+      .setOffsetValue(5)
+      .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     try {

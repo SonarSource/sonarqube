@@ -133,7 +133,7 @@ public class DefaultCharacteristic implements Characteristic {
   @Deprecated
   @CheckForNull
   public WorkUnit factor() {
-    if (factorValue!= null && factorUnit!= null) {
+    if (factorValue != null && factorUnit != null) {
       return WorkUnit.create((double) factorValue, fromUnit(factorUnit));
     }
     return null;
@@ -176,8 +176,8 @@ public class DefaultCharacteristic implements Characteristic {
    */
   @Deprecated
   public WorkUnit offset() {
-    if (offsetValue!= null && offsetUnit!= null) {
-    return WorkUnit.create((double) offsetValue, fromUnit(offsetUnit));
+    if (offsetValue != null && offsetUnit != null) {
+      return WorkUnit.create((double) offsetValue, fromUnit(offsetUnit));
     }
     return null;
   }
@@ -228,7 +228,7 @@ public class DefaultCharacteristic implements Characteristic {
     return null;
   }
 
-  private static String fromUnit(WorkDuration.UNIT unit){
+  private static String fromUnit(WorkDuration.UNIT unit) {
     if (WorkDuration.UNIT.DAYS.equals(unit)) {
       return WorkUnit.DAYS;
     } else if (WorkDuration.UNIT.HOURS.equals(unit)) {

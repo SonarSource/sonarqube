@@ -254,13 +254,13 @@ public class CharacteristicDto implements Serializable {
       .setUpdatedAt(requirement.updatedAt());
   }
 
-  public static WorkDuration.UNIT toUnit(@Nullable String requirementUnit) {
+  private static WorkDuration.UNIT toUnit(@Nullable String requirementUnit) {
     if (requirementUnit != null) {
-      if (requirementUnit.equals(DAYS)) {
+      if (DAYS.equals(requirementUnit)) {
         return WorkDuration.UNIT.DAYS;
-      } else if (requirementUnit.equals(HOURS)) {
+      } else if (HOURS.equals(requirementUnit)) {
         return WorkDuration.UNIT.HOURS;
-      } else if (requirementUnit.equals(MINUTES)) {
+      } else if (MINUTES.equals(requirementUnit)) {
         return WorkDuration.UNIT.MINUTES;
       }
       throw new IllegalStateException("Invalid unit : " + requirementUnit);
@@ -268,7 +268,7 @@ public class CharacteristicDto implements Serializable {
     return null;
   }
 
-  public static String fromUnit(@Nullable WorkDuration.UNIT unit) {
+  private static String fromUnit(@Nullable WorkDuration.UNIT unit) {
     if (unit != null) {
       if (WorkDuration.UNIT.DAYS.equals(unit)) {
         return DAYS;

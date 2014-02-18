@@ -27,7 +27,6 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
-import org.sonar.api.utils.WorkUnit;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -64,31 +63,17 @@ public class RuleDebtCalculator implements BatchExtension {
   private WorkDuration calculateTechnicalDebt(Requirement requirement, @Nullable Double effortToFix) {
     WorkDuration result = workDurationFactory.createFromWorkingValue(0, WorkDuration.UNIT.DAYS);
 
-    WorkUnit factorUnit = requirement.factor();
-    if (factorUnit != null) {
-      int factorValue = (int) requirement.factor().getValue();
+    int factorValue = requirement.factorValue();
+    if (factorValue > 0) {
       int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
-      result = workDurationFactory.createFromWorkingValue(factorValue, toUnit(requirement.factor().getUnit())).multiply(effortToFixValue);
+      result = workDurationFactory.createFromWorkingValue(factorValue, requirement.factorUnit()).multiply(effortToFixValue);
     }
 
-    WorkUnit offsetUnit = requirement.offset();
-    if (offsetUnit != null) {
-      int offsetValue = (int) requirement.offset().getValue();
-      result = result.add(workDurationFactory.createFromWorkingValue(offsetValue, toUnit(requirement.offset().getUnit())));
+    int offsetValue = requirement.offsetValue();
+    if (offsetValue > 0) {
+      result = result.add(workDurationFactory.createFromWorkingValue(offsetValue, requirement.offsetUnit()));
     }
-
     return result;
-  }
-
-  private static WorkDuration.UNIT toUnit(String requirementUnit){
-    if (requirementUnit.equals(WorkUnit.DAYS)) {
-      return WorkDuration.UNIT.DAYS;
-    } else if (requirementUnit.equals(WorkUnit.HOURS)) {
-      return WorkDuration.UNIT.HOURS;
-    } else if (requirementUnit.equals(WorkUnit.MINUTES)) {
-      return WorkDuration.UNIT.MINUTES;
-    }
-    throw new IllegalStateException("Invalid unit : " + requirementUnit);
   }
 
 }
