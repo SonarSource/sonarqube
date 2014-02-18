@@ -270,11 +270,11 @@ public class CharacteristicDto implements Serializable {
 
   public static String fromUnit(@Nullable WorkDuration.UNIT unit) {
     if (unit != null) {
-      if (unit.equals(WorkDuration.UNIT.DAYS)) {
+      if (WorkDuration.UNIT.DAYS.equals(unit)) {
         return DAYS;
-      } else if (unit.equals(WorkDuration.UNIT.HOURS)) {
+      } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
         return HOURS;
-      } else if (unit.equals(WorkDuration.UNIT.MINUTES)) {
+      } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
         return MINUTES;
       }
       throw new IllegalStateException("Invalid unit : " + unit);

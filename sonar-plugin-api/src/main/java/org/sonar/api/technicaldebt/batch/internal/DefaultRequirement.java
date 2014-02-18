@@ -191,22 +191,22 @@ public class DefaultRequirement implements Requirement {
   }
 
   public static WorkDuration.UNIT toUnit(String requirementUnit){
-    if (requirementUnit.equals(WorkUnit.DAYS)) {
+    if (WorkUnit.DAYS.equals(requirementUnit)) {
       return WorkDuration.UNIT.DAYS;
-    } else if (requirementUnit.equals(WorkUnit.HOURS)) {
+    } else if (WorkUnit.HOURS.equals(requirementUnit)) {
       return WorkDuration.UNIT.HOURS;
-    } else if (requirementUnit.equals(WorkUnit.MINUTES)) {
+    } else if (WorkUnit.MINUTES.equals(requirementUnit)) {
       return WorkDuration.UNIT.MINUTES;
     }
     throw new IllegalStateException("Invalid unit : " + requirementUnit);
   }
 
   private static String fromUnit(WorkDuration.UNIT unit){
-    if (unit.equals(WorkDuration.UNIT.DAYS)) {
+    if (WorkDuration.UNIT.DAYS.equals(unit)) {
       return WorkUnit.DAYS;
-    } else if (unit.equals(WorkDuration.UNIT.HOURS)) {
+    } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
       return WorkUnit.HOURS;
-    } else if (unit.equals(WorkDuration.UNIT.MINUTES)) {
+    } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
       return WorkUnit.MINUTES;
     }
     throw new IllegalStateException("Invalid unit : " + unit);

@@ -21,6 +21,7 @@
 package org.sonar.core.technicaldebt;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -139,10 +140,10 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
     return null;
   }
 
-  private void addRequirement(DefaultRequirement requirement, DefaultCharacteristic parent, ValidationMessages messages){
+  private void addRequirement(DefaultRequirement requirement, DefaultCharacteristic parent, ValidationMessages messages) {
     DefaultCharacteristic root = parent.parent();
     if (root == null) {
-      messages.addWarningText("Requirement '" + requirement.ruleKey()  + "' is ignored because it's defined directly under a root characteristic.");
+      messages.addWarningText("Requirement '" + requirement.ruleKey() + "' is ignored because it's defined directly under a root characteristic.");
     } else {
       requirement.setCharacteristic(parent);
       requirement.setRootCharacteristic(root);
@@ -236,11 +237,15 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
       requirement.setFunction(function.getTextValue());
       if (factor != null) {
         requirement.setFactorValue(factor.getValue());
-        requirement.setFactorUnit(DefaultRequirement.toUnit(factor.getTextValue()));
+        if (!Strings.isNullOrEmpty(factor.getTextValue())) {
+          requirement.setFactorUnit(DefaultRequirement.toUnit(factor.getTextValue()));
+        }
       }
       if (offset != null) {
         requirement.setOffsetValue(offset.getValue());
-        requirement.setOffsetUnit(DefaultRequirement.toUnit(offset.getTextValue()));
+        if (!Strings.isNullOrEmpty(offset.getTextValue())) {
+          requirement.setOffsetUnit(DefaultRequirement.toUnit(offset.getTextValue()));
+        }
       }
       return requirement;
     }

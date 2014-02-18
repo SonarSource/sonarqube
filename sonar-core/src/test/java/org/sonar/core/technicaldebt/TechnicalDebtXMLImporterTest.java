@@ -69,6 +69,23 @@ public class TechnicalDebtXMLImporterTest {
   }
 
   @Test
+  public void use_default_unit_when_no_unit() {
+    TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
+
+    String xml = getFileContent("use_default_unit_when_no_unit.xml");
+
+    ValidationMessages messages = ValidationMessages.create();
+    DefaultTechnicalDebtModel sqale = new TechnicalDebtXMLImporter().importXML(xml, messages, technicalDebtRuleCache);
+
+    DefaultCharacteristic memoryEfficiency = sqale.characteristicByKey("MEMORY_EFFICIENCY");
+    DefaultRequirement requirement = memoryEfficiency.requirements().get(0);
+    assertThat(requirement.factorValue()).isEqualTo(3);
+    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
+    assertThat(requirement.offsetValue()).isEqualTo(1);
+    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
+  }
+
+  @Test
   public void import_xml_with_linear_function() {
     TechnicalDebtRuleCache technicalDebtRuleCache = mockRuleCache();
 
