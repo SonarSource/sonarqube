@@ -3,7 +3,6 @@
   ncloc=measure('ncloc')
   classes=measure('classes')
   files=measure('files')
-  packages=measure('packages')
   functions=measure('functions')
   projects=measure('projects')
   if measure('lines') || ncloc
@@ -43,9 +42,6 @@
           <%= format_measure(statements, :suffix => message('widget.size.statements.suffix'), :url => url_for_drilldown(statements)) -%> <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%>
           </p>
         <% end %>
-        <% if files && measure('classes') %>
-          <p><%= format_measure(files, :suffix => message('widget.size.files.suffix'), :url => url_for_drilldown(files)) -%> <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%></p>
-        <% end %>
         <% if projects %>
           <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
         <% end %>
@@ -54,24 +50,18 @@
     <td width="10"> </td>
     <td valign="top">
       <div class="dashbox">
+        <h3><%= message('widget.size.files') -%></h3>
+        <p>
+          <span class="big"><%= format_measure(files, :url => url_for_drilldown(files)) -%></span>
+          <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
+        </p>
+        <p><%= format_measure('directories', :suffix => message('widget.size.directories.suffix'), :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.selected_period? ? format_variation('directories') : trend_icon('directories') -%></p>
         <% if classes %>
-          <h3><%= message('widget.size.classes') -%></h3>
-          <p>
-            <span class="big"><%= format_measure(classes, :url => url_for_drilldown(classes)) -%></span>
-            <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%>
-          </p>
-          <p><%= format_measure(packages, :suffix => message('widget.size.packages.suffix'), :url => url_for_drilldown(packages)) -%> <%= dashboard_configuration.selected_period? ? format_variation(packages) : trend_icon(packages) -%></p>
-        <% else %>
-          <h3><%= message('widget.size.files') -%></h3>
-          <p>
-            <span class="big"><%= format_measure(files, :url => url_for_drilldown(files)) -%></span>
-            <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
-          </p>
-          <p><%= format_measure('directories', :suffix => message('widget.size.directories.suffix'), :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.selected_period? ? format_variation('directories') : trend_icon('directories') -%></p>
+        <p><%= format_measure(classes, :url => url_for_drilldown(classes), :suffix => message('widget.size.classes.suffix')) -%></span> <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%></p>
         <% end %>
         <p><%= format_measure(functions, :suffix => message('widget.size.methods.suffix'), :url => url_for_drilldown(functions)) -%> <%= dashboard_configuration.selected_period? ? format_variation(functions) : trend_icon(functions) -%></p>
         <%
-          if (measure('accessors'))
+          if measure('accessors')
         %>
           <p><%= format_measure('accessors', :suffix => message('widget.size.accessors.suffix'), :url => url_for_drilldown('accessors')) -%> <%= dashboard_configuration.selected_period? ? format_variation('accessors') : trend_icon('accessors') -%></p>
         <% end %>
