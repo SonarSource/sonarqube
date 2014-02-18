@@ -37,7 +37,11 @@ define(
           $j('body').on('click', function () {
             that.hideDetails();
           });
+          this.addMoreCriteriaFilter();
+        },
 
+
+        addMoreCriteriaFilter: function() {
           var disabledFilters = this.collection.where({ enabled: false });
           this.moreCriteriaFilter = new BaseFilters.Filter({
             type: require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView,

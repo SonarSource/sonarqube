@@ -3,9 +3,10 @@ define(
       'backbone', 'backbone.marionette',
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
-      'navigator/filters/favorite-filters'
+      'navigator/filters/favorite-filters',
+      'navigator/filters/read-only-filters',
     ],
-    function (Backbone, Marionette, FilterBarView, BaseFilters, FavoriteFiltersModule) {
+    function (Backbone, Marionette, FilterBarView, BaseFilters, FavoriteFiltersModule, ReadOnlyFilterView) {
 
       var AppState = Backbone.Model.extend({
 
@@ -377,6 +378,36 @@ define(
               itemView.model.get('type') === IssuesFavoriteFilterView) {
             jQuery('.navigator-header').addClass('navigator-header-favorite');
           }
+        },
+
+
+        addMoreCriteriaFilter: function() {
+          var readOnlyFilters = this.collection.where({ type: ReadOnlyFilterView }),
+              disabledFilters = _.difference(this.collection.where({ enabled: false }), readOnlyFilters);
+          this.moreCriteriaFilter = new BaseFilters.Filter({
+            type: require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView,
+            enabled: true,
+            optional: false,
+            filters: disabledFilters
+          });
+          this.collection.add(this.moreCriteriaFilter);
+        },
+
+
+        changeEnabled: function () {
+          var disabledFilters = this.collection
+              .where({ enabled: false })
+              .reject(function (filter) {
+                return filter.get('type') === require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView ||
+                    filter.get('type') === ReadOnlyFilterView;
+              });
+
+          if (disabledFilters.length === 0) {
+            this.moreCriteriaFilter.set({ enabled: false }, { silent: true });
+          } else {
+            this.moreCriteriaFilter.set({ enabled: true }, { silent: true });
+          }
+          this.moreCriteriaFilter.set('filters', disabledFilters);
         },
 
 

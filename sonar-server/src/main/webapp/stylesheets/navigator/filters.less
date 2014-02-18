@@ -67,7 +67,8 @@
   padding-right: 0;
 }
 
-.navigator-filter-inline {
+.navigator-filter-inline,
+.navigator-filter-read-only {
   cursor: default;
 
   &:hover,
@@ -75,10 +76,10 @@
     border-color: transparent;
     background: transparent;
   }
+}
 
-  .navigator-filter-label:after {
+.navigator-filter-inline .navigator-filter-label:after {
     content: "";
-  }
 }
 
 .navigator-filter-label {
