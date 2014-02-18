@@ -29,6 +29,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.index.ScanPersister;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
@@ -65,13 +66,15 @@ public final class PhaseExecutor {
   private final JsonReport jsonReport;
   private final DefaultModuleFileSystem fs;
   private final ProfileLogger profileLogger;
+  private final IssueExclusionsLoader issueExclusionsLoader;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, ProfileLogger profileLogger) {
+    ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, ProfileLogger profileLogger,
+    IssueExclusionsLoader issueExclusionsLoader) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -90,15 +93,17 @@ public final class PhaseExecutor {
     this.jsonReport = jsonReport;
     this.fs = fs;
     this.profileLogger = profileLogger;
+    this.issueExclusionsLoader = issueExclusionsLoader;
   }
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, ProfileLogger profileLogger) {
+    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport,
+    DefaultModuleFileSystem fs, ProfileLogger profileLogger, IssueExclusionsLoader issueExclusionsLoader) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileLogger);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileLogger, issueExclusionsLoader);
   }
 
   /**
@@ -121,6 +126,9 @@ public final class PhaseExecutor {
 
       // Log detected languages and their profiles after FS is indexed and languages detected
       profileLogger.execute();
+
+      // Initialize issue exclusions
+      issueExclusionsLoader.execute();
 
       sensorsExecutor.execute(sensorContext);
     }

@@ -19,6 +19,13 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.issue.ignore.EnforceIssuesFilter;
+import org.sonar.batch.issue.ignore.IgnoreIssuesFilter;
+import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -147,6 +154,14 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
+
+      // issue exclusions
+      IssueInclusionPatternInitializer.class,
+      IssueExclusionPatternInitializer.class,
+      IssueExclusionsRegexpScanner.class,
+      IssueExclusionsLoader.class,
+      EnforceIssuesFilter.class,
+      IgnoreIssuesFilter.class,
 
       ScanPerspectives.class);
   }
