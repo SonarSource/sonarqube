@@ -203,8 +203,6 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
         this.model.set({
           value: value,
           enabled: true
-        }, {
-          silent: true
         });
 
         if (_.isArray(param.text) && param.text.length === value.length) {

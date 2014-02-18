@@ -278,8 +278,6 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
         this.model.set({
           value: value,
           enabled: true
-        }, {
-          silent: true
         });
 
         this.renderBase();

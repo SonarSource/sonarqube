@@ -405,18 +405,24 @@
   padding-right: 0;
 }
 .navigator-filter-inline,
-.navigator-filter-read-only {
+.navigator-filter-read-only,
+.navigator-filter-inactive {
   cursor: default;
 }
 .navigator-filter-inline:hover,
 .navigator-filter-read-only:hover,
+.navigator-filter-inactive:hover,
 .navigator-filter-inline.active,
-.navigator-filter-read-only.active {
+.navigator-filter-read-only.active,
+.navigator-filter-inactive.active {
   border-color: transparent;
   background: transparent;
 }
 .navigator-filter-inline .navigator-filter-label:after {
   content: "";
+}
+.navigator-filter-inactive {
+  opacity: 0.5;
 }
 .navigator-filter-label {
   display: inline-block;

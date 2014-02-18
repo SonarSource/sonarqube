@@ -98,15 +98,16 @@ requirejs(
 
 
       NavigatorApp.addInitializer(function () {
-        this.filters.add([
-          new BaseFilters.Filter({
+        var projectFilter = new BaseFilters.Filter({
             name: window.SS.phrases.project,
             property: 'componentRoots',
             type: AjaxSelectFilters.ProjectFilterView,
             enabled: true,
             optional: false
-          }),
+          });
+        this.filters.add(projectFilter);
 
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.severity,
             property: 'severities',
@@ -160,25 +161,12 @@ requirejs(
           }),
 
           new BaseFilters.Filter({
-            name: window.SS.phrases.resolution,
-            property: 'resolutions',
-            type: ResolutionFilterView,
+            name: window.SS.phrases.actionPlans,
+            property: 'actionPlans',
+            type: ActionPlanFilterView,
             enabled: false,
             optional: true,
-            choices: {
-              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
-              'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
-              'FIXED': window.SS.phrases.resolutions.FIXED,
-              'REMOVED': window.SS.phrases.resolutions.REMOVED
-            }
-          }),
-
-          new BaseFilters.Filter({
-            name: window.SS.phrases.reporter,
-            property: 'reporters',
-            type: AjaxSelectFilters.ReporterFilterView,
-            enabled: false,
-            optional: true
+            projectFilter: projectFilter
           }),
 
           new BaseFilters.Filter({
@@ -200,11 +188,27 @@ requirejs(
           }),
 
           new BaseFilters.Filter({
-            property: 'actionPlans',
-            type: ContextFilterView,
-            enabled: true,
-            optional: false
-          })
+            name: window.SS.phrases.reporter,
+            property: 'reporters',
+            type: AjaxSelectFilters.ReporterFilterView,
+            enabled: false,
+            optional: true
+          }),
+
+          new BaseFilters.Filter({
+            name: window.SS.phrases.resolution,
+            property: 'resolutions',
+            type: ResolutionFilterView,
+            enabled: false,
+            optional: true,
+            choices: {
+              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
+              'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
+              'FIXED': window.SS.phrases.resolutions.FIXED,
+              'REMOVED': window.SS.phrases.resolutions.REMOVED
+            }
+          }),
+
         ]);
 
 

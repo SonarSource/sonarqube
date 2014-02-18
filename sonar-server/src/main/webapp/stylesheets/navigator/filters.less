@@ -68,7 +68,8 @@
 }
 
 .navigator-filter-inline,
-.navigator-filter-read-only {
+.navigator-filter-read-only,
+.navigator-filter-inactive {
   cursor: default;
 
   &:hover,
@@ -80,6 +81,10 @@
 
 .navigator-filter-inline .navigator-filter-label:after {
     content: "";
+}
+
+.navigator-filter-inactive {
+  opacity: 0.5;
 }
 
 .navigator-filter-label {
