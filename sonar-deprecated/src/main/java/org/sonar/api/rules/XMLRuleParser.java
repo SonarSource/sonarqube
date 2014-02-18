@@ -21,6 +21,7 @@ package org.sonar.api.rules;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -126,6 +127,7 @@ public final class XMLRuleParser implements ServerComponent {
       rule.setSeverity(RulePriority.valueOf(StringUtils.trim(priorityAttribute)));
     }
 
+    List<String> tags = Lists.newArrayList();
     SMInputCursor cursor = ruleC.childElementCursor();
 
     while (cursor.getNext() != null) {
@@ -154,11 +156,15 @@ public final class XMLRuleParser implements ServerComponent {
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);
+
+      } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
+        tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
     if (Strings.isNullOrEmpty(rule.getKey())) {
       throw new SonarException("Node <key> is missing in <rule>");
     }
+    rule.setTags(tags.toArray(new String[tags.size()]));
   }
 
   private static void processParameter(Rule rule, SMInputCursor ruleC) throws XMLStreamException {

@@ -36,10 +36,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "rules")
@@ -71,6 +68,11 @@ public class Rule {
    * @since 3.6
    */
   private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
+
+  /**
+   * @since 4.2
+   */
+  private static final String[] DEFAULT_TAGS = new String[0];
 
   @Id
   @Column(name = "id")
@@ -127,12 +129,13 @@ public class Rule {
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
 
+  private transient String[] tags = DEFAULT_TAGS;
+
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule() {
-    // TODO reduce visibility to packaete
   }
 
   /**
@@ -420,6 +423,20 @@ public class Rule {
   public Rule setLanguage(String language) {
     this.language = language;
     return this;
+  }
+
+  /**
+   * For definition of rule only
+   */
+  public String[] getTags() {
+    return tags;
+  }
+
+  /**
+   * For definition of rule only
+   */
+  public void setTags(String[] tags) {
+    this.tags = tags;
   }
 
   @Override
