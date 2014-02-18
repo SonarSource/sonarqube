@@ -35,12 +35,13 @@ requirejs(
       'navigator/filters/range-filters',
       'navigator/filters/context-filters',
       'navigator/filters/read-only-filters',
+      'navigator/filters/action-plan-filters',
 
       'handlebars-extensions'
     ],
     function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
               AjaxSelectFilters, ResolutionFilterView, FavoriteFilters, RangeFilters, ContextFilterView,
-              ReadOnlyFilterView) {
+              ReadOnlyFilterView, ActionPlanFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
 
 
@@ -194,7 +195,8 @@ requirejs(
             property: 'createdAt',
             type: ReadOnlyFilterView,
             enabled: false,
-            optional: true
+            optional: true,
+            format: function(value) { return new Date(value).toLocaleString(); }
           }),
 
           new BaseFilters.Filter({

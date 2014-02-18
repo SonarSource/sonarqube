@@ -11,6 +11,13 @@ define(['backbone', 'navigator/filters/base-filters'], function (Backbone, BaseF
 
     isDefaultValue: function() {
       return false;
+    },
+
+
+    renderValue: function() {
+      var value = this.model.get('value'),
+          format = this.model.get('format');
+      return value ? (format ? format(value) : value) : '';
     }
 
   });
