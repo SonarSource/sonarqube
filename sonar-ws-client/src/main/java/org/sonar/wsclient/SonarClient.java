@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient;
 
+import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
+
+import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.IssueClient;
@@ -119,6 +122,13 @@ public class SonarClient {
    */
   public RuleClient ruleClient() {
     return new DefaultRuleClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to quality gates
+   */
+  public QualityGateClient qualityGateClient() {
+    return new DefaultQualityGateClient(requestFactory);
   }
 
   public SystemClient systemClient() {

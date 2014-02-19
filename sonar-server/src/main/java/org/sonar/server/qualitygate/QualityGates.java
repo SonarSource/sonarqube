@@ -19,15 +19,15 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.exceptions.NotFoundException;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -87,6 +87,7 @@ public class QualityGates {
   }
 
   public void setDefault(@Nullable Long idToUseAsDefault) {
+    checkPermission(UserSession.get());
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
@@ -121,7 +122,7 @@ public class QualityGates {
   private QualityGateDto getNonNull(long id) {
     QualityGateDto qGate = dao.selectById(id);
     if (qGate == null) {
-      throw new NotFoundException();
+      throw new NotFoundException("There is no quality gate with id=" + id);
     }
     return qGate;
   }
