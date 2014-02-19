@@ -103,7 +103,8 @@ public class ActionPlanService implements ServerComponent {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     List<DefaultIssue> issues = newArrayList();
     for (IssueDto issueDto : dtos) {
-      DefaultIssue issue = issueDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(issueDto.getTechnicalDebt()));
+      Long debt = issueDto.getTechnicalDebt();
+      DefaultIssue issue = issueDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
       // Unplan issue
       if (issueUpdater.plan(issue, null, context)) {
         issues.add(issue);

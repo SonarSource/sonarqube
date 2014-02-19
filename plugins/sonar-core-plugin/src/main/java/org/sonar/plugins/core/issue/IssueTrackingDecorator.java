@@ -188,7 +188,8 @@ public class IssueTrackingDecorator implements Decorator {
 
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
-      DefaultIssue unmatched = unmatchedDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(unmatchedDto.getTechnicalDebt()));
+      Long debt = unmatchedDto.getTechnicalDebt();
+      DefaultIssue unmatched = unmatchedDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
       if (StringUtils.isNotBlank(unmatchedDto.getReporter()) && !Issue.STATUS_CLOSED.equals(unmatchedDto.getStatus())) {
         relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);
       }
@@ -199,7 +200,8 @@ public class IssueTrackingDecorator implements Decorator {
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
     for (IssueDto deadDto : initialOpenIssues.selectAllIssues()) {
-      DefaultIssue dead = deadDto.toDefaultIssue(workDurationFactory.createFromWorkingLong(deadDto.getTechnicalDebt()));
+      Long debt = deadDto.getTechnicalDebt();
+      DefaultIssue dead = deadDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
     }

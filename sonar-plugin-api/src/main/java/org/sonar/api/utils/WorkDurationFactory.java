@@ -25,9 +25,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 /**
  * @since 4.2
  */
@@ -43,11 +40,7 @@ public final class WorkDurationFactory implements BatchComponent, ServerComponen
     return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay);
   }
 
-  @CheckForNull
-  public WorkDuration createFromWorkingLong(@Nullable Long duration) {
-    if (duration == null) {
-      return null;
-    }
+  public WorkDuration createFromWorkingLong(Long duration) {
     return WorkDuration.createFromLong(duration, hoursInDay);
   }
 

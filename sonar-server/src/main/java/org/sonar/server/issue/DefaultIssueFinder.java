@@ -42,6 +42,8 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -87,7 +89,8 @@ public class DefaultIssueFinder implements IssueFinder {
       throw new IllegalStateException("User does not have the required role required to change the issue: " + issueKey);
     }
 
-    return dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt()));
+    Long debt = dto.getTechnicalDebt();
+    return dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
   }
 
   @Override
@@ -118,7 +121,8 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedSortedIssues) {
-        DefaultIssue defaultIssue = dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt()));
+        Long debt = dto.getTechnicalDebt();
+        DefaultIssue defaultIssue = dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
@@ -156,7 +160,7 @@ public class DefaultIssueFinder implements IssueFinder {
     }
   }
 
-  private boolean hideRules(IssueQuery query){
+  private boolean hideRules(IssueQuery query) {
     Boolean hideRules = query.hideRules();
     return hideRules != null ? hideRules : false;
   }
@@ -198,9 +202,14 @@ public class DefaultIssueFinder implements IssueFinder {
     return actionPlanService.findByKeys(actionPlanKeys);
   }
 
+  @CheckForNull
   public Issue findByKey(String key) {
     IssueDto dto = issueDao.selectByKey(key);
-    return dto != null ? dto.toDefaultIssue(workDurationFactory.createFromWorkingLong(dto.getTechnicalDebt())) : null;
+    if (dto == null) {
+      return null;
+    }
+    Long debt = dto.getTechnicalDebt();
+    return dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
   }
 
 }
