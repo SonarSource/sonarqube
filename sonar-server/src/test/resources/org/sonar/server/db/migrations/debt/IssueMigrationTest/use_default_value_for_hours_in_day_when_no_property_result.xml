@@ -1,0 +1,11 @@
+<dataset>
+
+  <!-- Previous debt value was 010101, it should be 1 day * 8 (nb of hours in day) * 60 * 60 + 1 hour * 60 * 60 + 1 hours * 60 = 32460 seconds -->
+  <issues ID="1" COMPONENT_ID="11" ROOT_COMPONENT_ID="10" RULE_ID="20" SEVERITY="MINOR" KEE="1"
+          ACTION_PLAN_KEY="[null]" ASSIGNEE="[null]" AUTHOR_LOGIN="[null]" CHECKSUM="ABCDE"
+          EFFORT_TO_FIX="3.14" ISSUE_ATTRIBUTES="[null]" ISSUE_CLOSE_DATE="[null]" ISSUE_CREATION_DATE="2012-01-05"
+          ISSUE_UPDATE_DATE="2012-01-05" LINE="1234" MANUAL_SEVERITY="[false]" MESSAGE="the message" REPORTER="[null]"
+          RESOLUTION="[null]" STATUS="OPEN" CREATED_AT="2012-01-05" UPDATED_AT="2014-02-19"
+          TECHNICAL_DEBT="32460"/>
+
+</dataset>

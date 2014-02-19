@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.violation;
+package org.sonar.server.db.migrations.util;
 
 import org.slf4j.Logger;
 
@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class SqlUtil {
+public class SqlUtil {
 
   private SqlUtil() {
     // only static methods
@@ -35,7 +35,7 @@ class SqlUtil {
    * Logback does not log exceptions associated to {@link java.sql.SQLException#getNextException()}.
    * See http://jira.qos.ch/browse/LOGBACK-775
    */
-  static void log(Logger logger, SQLException e) {
+  public static void log(Logger logger, SQLException e) {
     SQLException next = e.getNextException();
     while (next != null) {
       logger.error("SQL error: {}. Message: {}", next.getSQLState(), next.getMessage());
@@ -44,19 +44,19 @@ class SqlUtil {
   }
 
   @CheckForNull
-  static Long getLong(ResultSet rs, String columnName) throws SQLException {
+  public static Long getLong(ResultSet rs, String columnName) throws SQLException {
     long l = rs.getLong(columnName);
     return rs.wasNull() ? null : l;
   }
 
   @CheckForNull
-  static Double getDouble(ResultSet rs, String columnName) throws SQLException {
+  public static Double getDouble(ResultSet rs, String columnName) throws SQLException {
     double d = rs.getDouble(columnName);
     return rs.wasNull() ? null : d;
   }
 
   @CheckForNull
-  static Integer getInt(ResultSet rs, String columnName) throws SQLException {
+  public static Integer getInt(ResultSet rs, String columnName) throws SQLException {
     int i = rs.getInt(columnName);
     return rs.wasNull() ? null : i;
   }

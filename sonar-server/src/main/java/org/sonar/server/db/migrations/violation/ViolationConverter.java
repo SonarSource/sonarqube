@@ -28,6 +28,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.Database;
+import org.sonar.server.db.migrations.util.SqlUtil;
 
 import java.sql.Connection;
 import java.sql.Date;
