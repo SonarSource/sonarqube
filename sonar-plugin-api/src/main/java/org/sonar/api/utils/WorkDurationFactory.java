@@ -30,18 +30,22 @@ import org.sonar.api.config.Settings;
  */
 public final class WorkDurationFactory implements BatchComponent, ServerComponent {
 
-  private final int hoursInDay;
+  private final Settings settings;
 
   public WorkDurationFactory(Settings settings) {
-    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
+    this.settings = settings;
   }
 
   public WorkDuration createFromWorkingValue(int value, WorkDuration.UNIT unit) {
-    return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay);
+    return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay());
   }
 
   public WorkDuration createFromWorkingLong(long duration) {
-    return WorkDuration.createFromLong(duration, hoursInDay);
+    return WorkDuration.createFromLong(duration, hoursInDay());
+  }
+
+  private int hoursInDay(){
+    return settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
 }

@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -98,9 +99,9 @@ public class WorkDuration implements Serializable {
 
   static WorkDuration createFromSeconds(long seconds, int hoursInDay) {
     int days = (int) (seconds / hoursInDay / 60d / 60d);
-    long currentDurationInSeconds = seconds - (days * hoursInDay * 60 * 60);
+    long currentDurationInSeconds = seconds - (days * hoursInDay * 3600);
     int hours = (int) (currentDurationInSeconds / 60d / 60d);
-    currentDurationInSeconds = currentDurationInSeconds - (hours * 60 * 60);
+    currentDurationInSeconds = currentDurationInSeconds - (hours * 3600);
     int minutes = (int) (currentDurationInSeconds / 60d);
     return new WorkDuration(seconds, days, hours, minutes, hoursInDay);
   }
