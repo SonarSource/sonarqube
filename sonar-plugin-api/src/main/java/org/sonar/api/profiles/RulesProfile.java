@@ -29,6 +29,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -262,6 +263,7 @@ public class RulesProfile implements Cloneable {
    *
    * @since 2.5
    */
+  @CheckForNull
   public String getParentName() {
     return parentName;
   }
@@ -331,6 +333,7 @@ public class RulesProfile implements Cloneable {
    *
    * @return an active rule from a plugin key and a rule key if the rule is activated, null otherwise
    */
+  @CheckForNull
   public ActiveRule getActiveRule(String repositoryKey, String ruleKey) {
     for (ActiveRule activeRule : activeRules) {
       if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getRuleKey(), ruleKey) && activeRule.isEnabled()) {
@@ -343,6 +346,7 @@ public class RulesProfile implements Cloneable {
   /**
    * Note: disabled rules are excluded.
    */
+  @CheckForNull
   public ActiveRule getActiveRuleByConfigKey(String repositoryKey, String configKey) {
     for (ActiveRule activeRule : activeRules) {
       if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getConfigKey(), configKey) && activeRule.isEnabled()) {
@@ -355,7 +359,7 @@ public class RulesProfile implements Cloneable {
   /**
    * Note: disabled rules are excluded.
    */
-
+  @CheckForNull
   public ActiveRule getActiveRule(Rule rule) {
     return getActiveRule(rule.getRepositoryKey(), rule.getKey());
   }
