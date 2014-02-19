@@ -488,6 +488,9 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
    */
 
   return {
+    Suggestions: Suggestions,
+    AjaxSelectDetailsFilterView: AjaxSelectDetailsFilterView,
+    AjaxSelectFilterView: AjaxSelectFilterView,
     ProjectFilterView: ProjectFilterView,
     ComponentFilterView: ComponentFilterView,
     AssigneeFilterView: AssigneeFilterView,

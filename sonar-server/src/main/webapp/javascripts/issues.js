@@ -36,12 +36,13 @@ requirejs(
       'navigator/filters/context-filters',
       'navigator/filters/read-only-filters',
       'navigator/filters/action-plan-filters',
+      'navigator/filters/rule-filters',
 
       'handlebars-extensions'
     ],
     function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
               AjaxSelectFilters, ResolutionFilterView, FavoriteFilters, RangeFilters, ContextFilterView,
-              ReadOnlyFilterView, ActionPlanFilterView) {
+              ReadOnlyFilterView, ActionPlanFilterView, RuleFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
 
 
@@ -208,6 +209,14 @@ requirejs(
               'REMOVED': window.SS.phrases.resolutions.REMOVED
             }
           }),
+
+          new BaseFilters.Filter({
+            name: window.SS.phrases.rule,
+            property: 'rules',
+            type: RuleFilterView,
+            enabled: false,
+            optional: true
+          })
 
         ]);
 
