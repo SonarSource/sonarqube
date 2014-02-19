@@ -50,6 +50,10 @@ public class DebtService implements ServerComponent {
     return workDurationFactory.createFromWorkingLong(Long.parseLong(technicalDebtInLong));
   }
 
+  public WorkDuration toWorkDuration(long debt) {
+    return workDurationFactory.createFromSeconds(debt);
+  }
+
   public List<Characteristic> findRootCharacteristics() {
     return finder.findRootCharacteristics();
   }

@@ -20,7 +20,7 @@
 
 class Issue
 
-  def self.to_hash(issue, rule_name=nil)
+  def self.to_hash(issue)
     hash = {
         :key => issue.key,
         :component => issue.componentKey,
@@ -33,7 +33,7 @@ class Issue
     hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:technicalDebt] = technical_debt_to_hash(issue.debt) if issue.debt
+    hash[:technicalDebt] = debt_to_hash(issue.debt) if issue.debt
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
@@ -74,8 +74,8 @@ class Issue
         hash_diff = {}
         hash_diff[:key] = key
         if key == 'technicalDebt'
-          hash_diff[:newValue] = technical_debt_to_hash(Internal.technical_debt.toTechnicalDebt(diff.newValue())) if diff.newValue.present?
-          hash_diff[:oldValue] = technical_debt_to_hash(Internal.technical_debt.toTechnicalDebt(diff.oldValue())) if diff.oldValue.present?
+          hash_diff[:newValue] = work_duration_to_hash(Internal.technical_debt.toTechnicalDebt(diff.newValue())) if diff.newValue.present?
+          hash_diff[:oldValue] = work_duration_to_hash(Internal.technical_debt.toTechnicalDebt(diff.oldValue())) if diff.oldValue.present?
         else
           hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
           hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
@@ -88,11 +88,18 @@ class Issue
     hash
   end
 
-  def self.technical_debt_to_hash(technical_debt)
+
+  private
+
+  def self.debt_to_hash(debt)
+    work_duration_to_hash(Internal.technical_debt.toWorkDuration(debt))
+  end
+
+  def self.work_duration_to_hash(work_duration)
     {
-        :days => technical_debt.days(),
-        :hours => technical_debt.hours(),
-        :minutes => technical_debt.minutes()
+        :days => work_duration.days(),
+        :hours => work_duration.hours(),
+        :minutes => work_duration.minutes()
     }
   end
 

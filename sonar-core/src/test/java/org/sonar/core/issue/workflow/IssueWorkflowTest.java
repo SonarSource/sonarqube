@@ -31,7 +31,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.mock;
 
 public class IssueWorkflowTest {
 
-  IssueUpdater updater = new IssueUpdater();
+  IssueUpdater updater = new IssueUpdater(null);
   IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
 
   @Test
