@@ -21,5 +21,19 @@
     select <include refid="gateColumns"/> from quality_gates
     where name=#{name}
   </select>
+
+  <select id="selectById" parameterType="long" resultType="QualityGate">
+    select <include refid="gateColumns"/> from quality_gates
+    where id=#{id}
+  </select>
+
+  <update id="delete" parameterType="long">
+    delete from quality_gates where id=#{id}
+  </update>
+
+  <update id="update" parameterType="QualityGate">
+    update quality_gates set name=#{name} where id=#{id}
+  </update>
+
 </mapper>
 

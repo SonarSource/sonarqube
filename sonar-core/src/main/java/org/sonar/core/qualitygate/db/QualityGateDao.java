@@ -19,12 +19,10 @@
  */
 package org.sonar.core.qualitygate.db;
 
-import org.sonar.core.rule.RuleDto;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
-
-import org.sonar.core.persistence.MyBatis;
-import org.apache.ibatis.session.SqlSession;
 
 /**
  * @since 4.3
@@ -64,10 +62,6 @@ public class QualityGateDao {
     return getMapper(session).selectAll();
   }
 
-  private QualityGateMapper getMapper(SqlSession session) {
-    return session.getMapper(QualityGateMapper.class);
-  }
-
   public QualityGateDto selectByName(String name) {
     SqlSession session = myBatis.openSession();
     try {
@@ -77,8 +71,52 @@ public class QualityGateDao {
     }
   }
 
-  private QualityGateDto selectByName(String name, SqlSession session) {
+  public QualityGateDto selectByName(String name, SqlSession session) {
     return getMapper(session).selectByName(name);
   }
-  
+
+  public QualityGateDto selectById(long id) {
+    SqlSession session = myBatis.openSession();
+    try {
+      return selectById(id, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public QualityGateDto selectById(long id, SqlSession session) {
+    return getMapper(session).selectById(id);
+  }
+
+  public void delete(QualityGateDto qGate) {
+    SqlSession session = myBatis.openSession();
+    try {
+      delete(qGate, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void delete(QualityGateDto qGate, SqlSession session) {
+    getMapper(session).delete(qGate.getId());
+  }
+
+  public void update(QualityGateDto qGate) {
+    SqlSession session = myBatis.openSession();
+    try {
+      update(qGate, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(QualityGateDto qGate, SqlSession session) {
+    getMapper(session).update(qGate);
+  }
+
+  private QualityGateMapper getMapper(SqlSession session) {
+    return session.getMapper(QualityGateMapper.class);
+  }
 }

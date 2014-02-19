@@ -28,4 +28,10 @@ public interface QualityGateMapper {
   List<QualityGateDto> selectAll();
 
   QualityGateDto selectByName(String name);
+
+  QualityGateDto selectById(long id);
+
+  void delete(long id);
+
+  void update(QualityGateDto qGate);
 }

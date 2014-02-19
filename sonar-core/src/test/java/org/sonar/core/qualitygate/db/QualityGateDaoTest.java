@@ -62,4 +62,26 @@ public class QualityGateDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectByName("Balanced").getName()).isEqualTo("Balanced");
     assertThat(dao.selectByName("Unknown")).isNull();
   }
+
+  @Test
+  public void testSelectById() throws Exception {
+    setupData("selectAll");
+    assertThat(dao.selectById(1L).getName()).isEqualTo("Very strict");
+    assertThat(dao.selectById(42L)).isNull();
+  }
+
+  @Test
+  public void testDelete() throws Exception {
+    setupData("selectAll");
+    dao.delete(new QualityGateDto().setId(1L));
+    checkTable("delete", "quality_gates");
+  }
+
+  @Test
+  public void testUpdate() throws Exception {
+    setupData("selectAll");
+    dao.update(new QualityGateDto().setId(1L).setName("Not so strict"));
+    checkTable("update", "quality_gates");
+  }
+
 }

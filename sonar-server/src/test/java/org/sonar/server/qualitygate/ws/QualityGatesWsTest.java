@@ -19,17 +19,21 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
-
-import static org.fest.assertions.Assertions.assertThat;
-
+import org.elasticsearch.common.collect.Lists;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
+import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesWsTest {
@@ -50,7 +54,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(6);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -64,8 +68,124 @@ public class QualityGatesWsTest {
     assertThat(create.handler()).isNotNull();
     assertThat(create.since()).isEqualTo("4.3");
     assertThat(create.isPost()).isTrue();
-    assertThat(create.params()).hasSize(1);
     assertThat(create.param("name")).isNotNull();
     assertThat(create.isPrivate()).isFalse();
+
+    WebService.Action destroy = controller.action("destroy");
+    assertThat(destroy).isNotNull();
+    assertThat(destroy.handler()).isNotNull();
+    assertThat(destroy.since()).isEqualTo("4.3");
+    assertThat(destroy.isPost()).isTrue();
+    assertThat(destroy.param("id")).isNotNull();
+    assertThat(destroy.isPrivate()).isFalse();
+
+    WebService.Action rename = controller.action("rename");
+    assertThat(rename).isNotNull();
+    assertThat(rename.handler()).isNotNull();
+    assertThat(rename.since()).isEqualTo("4.3");
+    assertThat(rename.isPost()).isTrue();
+    assertThat(rename.param("id")).isNotNull();
+    assertThat(rename.param("name")).isNotNull();
+    assertThat(rename.isPrivate()).isFalse();
+
+    WebService.Action setDefault = controller.action("set_as_default");
+    assertThat(setDefault).isNotNull();
+    assertThat(setDefault.handler()).isNotNull();
+    assertThat(setDefault.since()).isEqualTo("4.3");
+    assertThat(setDefault.isPost()).isTrue();
+    assertThat(setDefault.param("id")).isNotNull();
+    assertThat(setDefault.isPrivate()).isFalse();
+
+    WebService.Action unsetDefault = controller.action("unset_default");
+    assertThat(setDefault).isNotNull();
+    assertThat(setDefault.handler()).isNotNull();
+    assertThat(setDefault.since()).isEqualTo("4.3");
+    assertThat(setDefault.isPost()).isTrue();
+    assertThat(setDefault.isPrivate()).isFalse();
+  }
+
+  @Test
+  public void create_nominal() throws Exception {
+    String name = "New QG";
+    when(qGates.create(name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
+    tester.newRequest("create").setParam("name", name).execute()
+      .assertJson("{'id':42,'name':'New QG'}");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void create_with_missing_name() throws Exception {
+    tester.newRequest("create").execute();
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_with_duplicate_name() throws Exception {
+    String name = "New QG";
+    when(qGates.create(name)).thenThrow(BadRequestException.of("Name is already used"));
+    tester.newRequest("create").setParam("name", name).execute();
+  }
+
+  @Test
+  public void rename_nominal() throws Exception {
+    Long id = 42L;
+    String name = "New QG";
+    when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
+    tester.newRequest("rename").setParam("id", id.toString()).setParam("name", name).execute()
+      .assertNoContent();
+  }
+
+  @Test
+  public void set_as_default_nominal() throws Exception {
+    Long id = 42L;
+    tester.newRequest("set_as_default").setParam("id", id.toString()).execute()
+      .assertNoContent();
+    verify(qGates).setDefault(id);
+  }
+
+  @Test
+  public void unset_default_nominal() throws Exception {
+    tester.newRequest("unset_default").execute()
+      .assertNoContent();
+    verify(qGates).setDefault(null);
+  }
+
+  @Test
+  public void destroy_nominal() throws Exception {
+    Long id = 42L;
+    tester.newRequest("destroy").setParam("id", id.toString()).execute()
+      .assertNoContent();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void destroy_without_id() throws Exception {
+    tester.newRequest("destroy").execute();
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void destroy_with_invalid_id() throws Exception {
+    tester.newRequest("destroy").setParam("id", "polop").execute();
+  }
+
+  @Test
+  public void list_nominal() throws Exception {
+    when(qGates.list()).thenReturn(Lists.newArrayList(
+      new QualityGateDto().setId(42L).setName("Golden"),
+      new QualityGateDto().setId(43L).setName("Star"),
+      new QualityGateDto().setId(666L).setName("Ninth")
+    ));
+    tester.newRequest("list").execute().assertJson(
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}]}");
+  }
+
+  @Test
+  public void list_with_default() throws Exception {
+    QualityGateDto defaultQgate = new QualityGateDto().setId(42L).setName("Golden");
+    when(qGates.list()).thenReturn(Lists.newArrayList(
+      defaultQgate,
+      new QualityGateDto().setId(43L).setName("Star"),
+      new QualityGateDto().setId(666L).setName("Ninth")
+    ));
+    when(qGates.getDefault()).thenReturn(defaultQgate);
+    tester.newRequest("list").execute().assertJson(
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
   }
 }

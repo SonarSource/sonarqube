@@ -19,6 +19,10 @@
  */
 package org.sonar.server.qualitygate;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.server.exceptions.NotFoundException;
 import com.google.common.base.Strings;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualitygate.db.QualityGateDao;
@@ -27,6 +31,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
@@ -40,10 +45,15 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class QualityGates {
 
+  public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
+
   private final QualityGateDao dao;
 
-  public QualityGates(QualityGateDao dao) {
+  private final PropertiesDao propertiesDao;
+
+  public QualityGates(QualityGateDao dao, PropertiesDao propertiesDao) {
     this.dao = dao;
+    this.propertiesDao = propertiesDao;
   }
 
   public QualityGateDto create(String name) {
@@ -54,8 +64,66 @@ public class QualityGates {
     return newQualityGate;
   }
 
+  public QualityGateDto rename(long idToRename, String name) {
+    checkPermission(UserSession.get());
+    QualityGateDto toRename = getNonNull(idToRename);
+    validateQualityGate(idToRename, name);
+    toRename.setName(name);
+    dao.update(toRename);
+    return toRename;
+  }
+
   public Collection<QualityGateDto> list() {
     return dao.selectAll();
+  }
+
+  public void delete(long idToDelete) {
+    checkPermission(UserSession.get());
+    QualityGateDto qGate = getNonNull(idToDelete);
+    if (isDefault(qGate)) {
+      throw new BadRequestException("Impossible to delete default quality gate.");
+    }
+    dao.delete(qGate);
+  }
+
+  public void setDefault(@Nullable Long idToUseAsDefault) {
+    if (idToUseAsDefault == null) {
+      propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
+    } else {
+      QualityGateDto newDefault = getNonNull(idToUseAsDefault);
+      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getName()));
+    }
+  }
+
+  @CheckForNull
+  public QualityGateDto getDefault() {
+    String defaultName = getDefaultName();
+    if (defaultName == null) {
+      return null;
+    } else {
+      return dao.selectByName(defaultName);
+    }
+  }
+
+  private boolean isDefault(QualityGateDto qGate) {
+    return qGate.getName().equals(getDefaultName());
+  }
+
+  private String getDefaultName() {
+    PropertyDto defaultQgate = propertiesDao.selectGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
+    if (defaultQgate == null || StringUtils.isBlank(defaultQgate.getValue())) {
+      return null;
+    } else {
+      return defaultQgate.getValue();
+    }
+  }
+
+  private QualityGateDto getNonNull(long id) {
+    QualityGateDto qGate = dao.selectById(id);
+    if (qGate == null) {
+      throw new NotFoundException();
+    }
+    return qGate;
   }
 
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {
