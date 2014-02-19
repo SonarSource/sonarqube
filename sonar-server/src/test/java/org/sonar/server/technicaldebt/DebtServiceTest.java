@@ -55,9 +55,8 @@ public class DebtServiceTest {
 
   @Test
   public void format() {
-    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY);
-    service.format(technicalDebt);
-    verify(debtFormatter).format(any(Locale.class), eq(technicalDebt));
+    service.format(10L);
+    verify(debtFormatter).format(any(Locale.class), eq(10L));
   }
 
   @Test

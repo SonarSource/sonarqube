@@ -41,9 +41,9 @@ public class WorkDurationFactoryTest {
   @Test
   public void create_from_working_value() throws Exception {
     // 1 working day -> 8 hours
-    assertThat(factory.createFromWorkingValue(1, WorkDuration.UNIT.DAYS).toSeconds()).isEqualTo(8*60*60);
+    assertThat(factory.createFromWorkingValue(1, WorkDuration.UNIT.DAYS).toSeconds()).isEqualTo(8 * 60 * 60);
     // 8 hours
-    assertThat(factory.createFromWorkingValue(8, WorkDuration.UNIT.HOURS).toSeconds()).isEqualTo(8*60*60);
+    assertThat(factory.createFromWorkingValue(8, WorkDuration.UNIT.HOURS).toSeconds()).isEqualTo(8 * 60 * 60);
   }
 
   @Test
@@ -52,5 +52,13 @@ public class WorkDurationFactoryTest {
     assertThat(workDuration.days()).isEqualTo(0);
     assertThat(workDuration.hours()).isEqualTo(0);
     assertThat(workDuration.minutes()).isEqualTo(1);
+  }
+
+  @Test
+  public void create_from_seconds() throws Exception {
+    WorkDuration workDuration = factory.createFromSeconds(8 * 60 * 60L);
+    assertThat(workDuration.days()).isEqualTo(1);
+    assertThat(workDuration.hours()).isEqualTo(0);
+    assertThat(workDuration.minutes()).isEqualTo(0);
   }
 }

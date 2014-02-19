@@ -35,7 +35,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.*;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.batch.debt.RuleDebtCalculator;
 
 import java.util.Calendar;
@@ -284,7 +283,7 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
-    WorkDuration debt = WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8);
+    Long debt = 10L;
     when(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).thenReturn(debt);
     when(filters.accept(issue, null)).thenReturn(true);
 
@@ -292,7 +291,7 @@ public class ModuleIssuesTest {
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().technicalDebt()).isEqualTo(debt);
+    assertThat(argument.getValue().debt()).isEqualTo(debt);
   }
 
 }

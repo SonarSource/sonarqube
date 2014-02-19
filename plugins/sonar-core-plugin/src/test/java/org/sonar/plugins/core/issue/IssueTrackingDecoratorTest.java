@@ -38,7 +38,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
@@ -514,7 +513,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void merge_matched_issue() throws Exception {
     IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
@@ -526,13 +525,13 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     verify(updater).setPastLine(eq(issue), eq(10));
     verify(updater).setPastMessage(eq(issue), eq("Message"), any(IssueChangeContext.class));
     verify(updater).setPastEffortToFix(eq(issue), eq(1.5), any(IssueChangeContext.class));
-    verify(updater).setPastTechnicalDebt(eq(issue), eq(WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.MINUTES, 8)), any(IssueChangeContext.class));
+    verify(updater).setPastTechnicalDebt(eq(issue), eq(1L), any(IssueChangeContext.class));
   }
 
   @Test
   public void merge_matched_issue_on_manual_severity() throws Exception {
     IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+      .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
@@ -550,7 +549,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD")));
 
     IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setLine(10).setMessage("Message").setEffortToFix(1.5).setTechnicalDebt(1L);
+      .setLine(10).setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);

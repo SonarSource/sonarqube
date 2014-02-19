@@ -39,7 +39,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
@@ -180,16 +179,14 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastLine(issue, ref.getLine());
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
-      Long technicalDebt = ref.getTechnicalDebt();
-      WorkDuration previousTechnicalDebt = technicalDebt != null ? workDurationFactory.createFromWorkingLong(technicalDebt) : null;
+      Long previousTechnicalDebt = ref.getDebt();
       updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
     }
   }
 
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
-      Long debt = unmatchedDto.getTechnicalDebt();
-      DefaultIssue unmatched = unmatchedDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+      DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
       if (StringUtils.isNotBlank(unmatchedDto.getReporter()) && !Issue.STATUS_CLOSED.equals(unmatchedDto.getStatus())) {
         relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);
       }
@@ -200,8 +197,7 @@ public class IssueTrackingDecorator implements Decorator {
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
     for (IssueDto deadDto : initialOpenIssues.selectAllIssues()) {
-      Long debt = deadDto.getTechnicalDebt();
-      DefaultIssue dead = deadDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+      DefaultIssue dead = deadDto.toDefaultIssue();
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
     }

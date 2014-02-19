@@ -54,7 +54,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
-    dto.setTechnicalDebt(10L);
+    dto.setDebt(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -89,7 +89,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
-    dto.setTechnicalDebt(10L);
+    dto.setDebt(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -124,7 +124,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
-    dto.setTechnicalDebt(10L);
+    dto.setDebt(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -162,7 +162,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
-    dto.setTechnicalDebt(10L);
+    dto.setDebt(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");

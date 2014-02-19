@@ -34,8 +34,6 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -76,7 +74,7 @@ public class DefaultIssueFinderTest {
   public void setUp() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
-    finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService, new WorkDurationFactory(settings));
+    finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, ruleFinder, userFinder, resourceDao, actionPlanService);
   }
 
   @Test
@@ -326,7 +324,7 @@ public class DefaultIssueFinderTest {
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN")
-      .setTechnicalDebt(10L);
+      .setDebt(10L);
     List<IssueDto> dtoList = newArrayList(issue);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
@@ -335,7 +333,7 @@ public class DefaultIssueFinderTest {
 
     assertThat(results.issues()).hasSize(1);
     DefaultIssue result = (DefaultIssue) results.issues().iterator().next();
-    assertThat(result.technicalDebt()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+    assertThat(result.debt()).isEqualTo(10L);
   }
 
 }

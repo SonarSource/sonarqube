@@ -95,8 +95,8 @@
         </li>
       <% end %>
     <% end %>
-    <% if issue.technicalDebt %>
-      <li><%= message('issue.debt') -%>&nbsp;<%= Internal.technical_debt.format(issue.technicalDebt) -%></li>
+    <% if issue.debt %>
+      <li><%= message('issue.debt') -%>&nbsp;<%= Internal.technical_debt.format(issue.debt) -%></li>
     <% end %>
     <% if issue.authorLogin %>
       <li><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></li>

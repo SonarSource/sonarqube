@@ -21,12 +21,13 @@ package org.sonar.batch.debt;
 
 import com.google.common.base.Objects;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,19 +37,19 @@ import javax.annotation.Nullable;
  */
 public class RuleDebtCalculator implements BatchExtension {
 
-  private TechnicalDebtModel model;
-  private final WorkDurationFactory workDurationFactory;
+  private final TechnicalDebtModel model;
+  private final int hoursInDay;
 
-  public RuleDebtCalculator(TechnicalDebtModel model, WorkDurationFactory workDurationFactory) {
+  public RuleDebtCalculator(TechnicalDebtModel model, Settings settings) {
     this.model = model;
-    this.workDurationFactory = workDurationFactory;
+    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
   /**
    * Calculate the technical debt from a requirement
    */
   @CheckForNull
-  public WorkDuration calculateTechnicalDebt(RuleKey ruleKey, @Nullable Double effortToFix) {
+  public Long calculateTechnicalDebt(RuleKey ruleKey, @Nullable Double effortToFix) {
     Requirement requirement = model.requirementsByRule(ruleKey);
     if (requirement != null) {
       if (requirement.function().equals(DefaultRequirement.CONSTANT_ISSUE) && effortToFix != null) {
@@ -60,20 +61,31 @@ public class RuleDebtCalculator implements BatchExtension {
     return null;
   }
 
-  private WorkDuration calculateTechnicalDebt(Requirement requirement, @Nullable Double effortToFix) {
-    WorkDuration result = workDurationFactory.createFromWorkingValue(0, WorkDuration.UNIT.DAYS);
+  private long calculateTechnicalDebt(Requirement requirement, @Nullable Double effortToFix) {
+    long result = 0L;
 
     int factorValue = requirement.factorValue();
     if (factorValue > 0) {
       int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
-      result = workDurationFactory.createFromWorkingValue(factorValue, requirement.factorUnit()).multiply(effortToFixValue);
+      result = convertValueAndUnitToSeconds(factorValue, requirement.factorUnit()) * effortToFixValue;
     }
 
     int offsetValue = requirement.offsetValue();
     if (offsetValue > 0) {
-      result = result.add(workDurationFactory.createFromWorkingValue(offsetValue, requirement.offsetUnit()));
+      result += convertValueAndUnitToSeconds(offsetValue, requirement.offsetUnit());
     }
     return result;
+  }
+
+  private int convertValueAndUnitToSeconds(int value, WorkDuration.UNIT unit){
+    if (WorkDuration.UNIT.DAYS.equals(unit)) {
+      return value * hoursInDay * 60 * 60;
+    } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
+      return value * 60 * 60;
+    } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
+      return value * 60;
+    }
+    throw new IllegalStateException("Invalid unit : " + unit);
   }
 
 }

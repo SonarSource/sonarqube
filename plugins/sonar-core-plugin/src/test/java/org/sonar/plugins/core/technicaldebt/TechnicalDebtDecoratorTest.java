@@ -49,7 +49,6 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.List;
@@ -130,9 +129,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_no_parent() throws Exception {
-    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
-
-    Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
+    Issue issue = createIssue("rule1", "repo1").setDebt(1 * 8 * 60 * 60L);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     Requirement requirement = mock(Requirement.class);
@@ -147,7 +144,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_without_debt() throws Exception {
-    Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(null);
+    Issue issue = createIssue("rule1", "repo1").setDebt(null);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     Requirement requirement = mock(Requirement.class);
@@ -161,9 +158,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_propagate_to_parents() throws Exception {
-    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
-
-    Issue issue = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
+    Issue issue = createIssue("rule1", "repo1").setDebt(1 * 8 * 60 * 60L);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     DefaultCharacteristic parentCharacteristic = new DefaultCharacteristic().setKey("parentCharacteristic");
@@ -184,13 +179,13 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_issues() throws Exception {
-    WorkDuration technicalDebt1 = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
-    WorkDuration technicalDebt2 = WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, 8);
+    long technicalDebt1 = 1 * 8 * 60 * 60;
+    long technicalDebt2 = 2 * 8 * 60 * 60L;
 
-    Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
-    Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt1);
-    Issue issue3 = createIssue("rule2", "repo2").setTechnicalDebt(technicalDebt2);
-    Issue issue4 = createIssue("rule2", "repo2").setTechnicalDebt(technicalDebt2);
+    Issue issue1 = createIssue("rule1", "repo1").setDebt(technicalDebt1);
+    Issue issue2 = createIssue("rule1", "repo1").setDebt(technicalDebt1);
+    Issue issue3 = createIssue("rule2", "repo2").setDebt(technicalDebt2);
+    Issue issue4 = createIssue("rule2", "repo2").setDebt(technicalDebt2);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2, issue3, issue4));
 
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("rootCharacteristic");
@@ -213,10 +208,10 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_children_measures() throws Exception {
-    WorkDuration technicalDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
+    long technicalDebt = 1 * 8 * 60 * 60L;
 
-    Issue issue1 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
-    Issue issue2 = createIssue("rule1", "repo1").setTechnicalDebt(technicalDebt);
+    Issue issue1 = createIssue("rule1", "repo1").setDebt(technicalDebt);
+    Issue issue2 = createIssue("rule1", "repo1").setDebt(technicalDebt);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
 
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("rootCharacteristic");

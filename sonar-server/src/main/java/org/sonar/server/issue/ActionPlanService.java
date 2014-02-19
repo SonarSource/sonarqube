@@ -27,7 +27,6 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
@@ -41,7 +40,6 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -58,10 +56,9 @@ public class ActionPlanService implements ServerComponent {
   private final IssueDao issueDao;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
-  private final WorkDurationFactory workDurationFactory;
 
   public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao,
-                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage, WorkDurationFactory workDurationFactory) {
+                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
@@ -69,7 +66,6 @@ public class ActionPlanService implements ServerComponent {
     this.issueDao = issueDao;
     this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
-    this.workDurationFactory = workDurationFactory;
   }
 
   public ActionPlan create(ActionPlan actionPlan, UserSession userSession) {
@@ -103,8 +99,7 @@ public class ActionPlanService implements ServerComponent {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     List<DefaultIssue> issues = newArrayList();
     for (IssueDto issueDto : dtos) {
-      Long debt = issueDto.getTechnicalDebt();
-      DefaultIssue issue = issueDto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+      DefaultIssue issue = issueDto.toDefaultIssue();
       // Unplan issue
       if (issueUpdater.plan(issue, null, context)) {
         issues.add(issue);

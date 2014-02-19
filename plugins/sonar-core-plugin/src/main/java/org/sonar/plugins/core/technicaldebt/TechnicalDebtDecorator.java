@@ -40,7 +40,6 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.Arrays;
@@ -167,21 +166,24 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private double computeTechnicalDebt(Metric metric, DecoratorContext context, Requirement requirement, Collection<Issue> issues) {
-    WorkDuration debt = workDurationFactory.createFromWorkingValue(0, WorkDuration.UNIT.MINUTES);
+    long debt = 0L;
     if (issues != null) {
       for (Issue issue : issues) {
-        debt = debt.add(((DefaultIssue) issue).technicalDebt());
+        Long currentDebt = ((DefaultIssue) issue).debt();
+        if (currentDebt != null) {
+          debt += currentDebt;
+        }
       }
     }
 
-    double value = debt.toWorkingDays();
+    double debtInDays = workDurationFactory.createFromSeconds(debt).toWorkingDays();
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
       Requirement measureRequirement = measure.getRequirement();
       if (measureRequirement != null && measureRequirement.equals(requirement) && measure.getValue() != null) {
-        value += measure.getValue();
+        debtInDays += measure.getValue();
       }
     }
-    return value;
+    return debtInDays;
   }
 
   private void propagateTechnicalDebtInParents(Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {

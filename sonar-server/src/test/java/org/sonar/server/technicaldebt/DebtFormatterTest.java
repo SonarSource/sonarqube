@@ -20,8 +20,12 @@
 
 package org.sonar.server.technicaldebt;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
@@ -33,23 +37,51 @@ import static org.mockito.Mockito.when;
 public class DebtFormatterTest {
 
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+  private static final int HOURS_IN_DAY = 8;
+
+  private static final long ONE_MINUTE = 60;
+  private static final long ONE_HOUR = 60 * ONE_MINUTE;
+  private static final long ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
   DefaultI18n i18n = mock(DefaultI18n.class);
-  DebtFormatter formatter = new DebtFormatter(i18n);
+  DebtFormatter formatter;
 
-  @Test
-  public void format() {
+  @Before
+  public void setUp() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, Integer.toString(HOURS_IN_DAY));
+    formatter = new DebtFormatter(i18n, new WorkDurationFactory(settings));
+
     when(i18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_days", null, 5)).thenReturn("5 days");
     when(i18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_hours", null, 2)).thenReturn("2 hours");
     when(i18n.message(DEFAULT_LOCALE, "issue.technical_debt.x_minutes", null, 1)).thenReturn("1 minutes");
+  }
 
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, 8))).isEqualTo("5 days");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.HOURS, 8))).isEqualTo("2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.MINUTES, 8))).isEqualTo("1 minutes");
+  @Test
+  public void format_from_seconds() {
+    assertThat(formatter.format(DEFAULT_LOCALE, 5 * ONE_DAY)).isEqualTo("5 days");
+    assertThat(formatter.format(DEFAULT_LOCALE, 2 * ONE_HOUR)).isEqualTo("2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, ONE_MINUTE)).isEqualTo("1 minutes");
 
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.create(5, 2, 0, 8))).isEqualTo("5 days 2 hours");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.create(0, 2, 1, 8))).isEqualTo("2 hours 1 minutes");
-    assertThat(formatter.format(DEFAULT_LOCALE, WorkDuration.create(5, 2, 10, 8))).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, 5 * ONE_DAY + 2 * ONE_HOUR)).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(DEFAULT_LOCALE, 2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("2 hours 1 minutes");
+  }
+
+  @Test
+  public void format_from_seconds_not_display_minutes_if_hours_exists() {
+    // 5 days 2 hours 1 minute -> 1 minute is not displayed
+    assertThat(formatter.format(DEFAULT_LOCALE, 5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("5 days 2 hours");
+  }
+
+  @Test
+  public void format_work_duration() {
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, HOURS_IN_DAY))).isEqualTo("5 days");
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.HOURS, HOURS_IN_DAY))).isEqualTo("2 hours");
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY))).isEqualTo("1 minutes");
+
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(5, 2, 0, HOURS_IN_DAY))).isEqualTo("5 days 2 hours");
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(0, 2, 1, HOURS_IN_DAY))).isEqualTo("2 hours 1 minutes");
+    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(5, 2, 10, HOURS_IN_DAY))).isEqualTo("5 days 2 hours");
   }
 
 }

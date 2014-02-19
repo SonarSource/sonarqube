@@ -111,7 +111,7 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    issue.setTechnicalDebt(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix()));
+    issue.setDebt(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix()));
   }
 
 }

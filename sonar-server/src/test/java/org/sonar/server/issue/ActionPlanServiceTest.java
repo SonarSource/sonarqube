@@ -23,14 +23,11 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -72,10 +69,7 @@ public class ActionPlanServiceTest {
     when(userSession.userId()).thenReturn(10);
     when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(true);
 
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
-    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage,
-      new WorkDurationFactory(settings));
+    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage);
   }
 
   @Test

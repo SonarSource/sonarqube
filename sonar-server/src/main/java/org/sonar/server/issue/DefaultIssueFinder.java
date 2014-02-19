@@ -32,7 +32,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
@@ -43,7 +42,6 @@ import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,14 +60,13 @@ public class DefaultIssueFinder implements IssueFinder {
   private final UserFinder userFinder;
   private final ResourceDao resourceDao;
   private final ActionPlanService actionPlanService;
-  private final WorkDurationFactory workDurationFactory;
 
   public DefaultIssueFinder(MyBatis myBatis,
                             IssueDao issueDao, IssueChangeDao issueChangeDao,
                             DefaultRuleFinder ruleFinder,
                             UserFinder userFinder,
                             ResourceDao resourceDao,
-                            ActionPlanService actionPlanService, WorkDurationFactory workDurationFactory) {
+                            ActionPlanService actionPlanService) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.issueChangeDao = issueChangeDao;
@@ -77,7 +74,6 @@ public class DefaultIssueFinder implements IssueFinder {
     this.userFinder = userFinder;
     this.resourceDao = resourceDao;
     this.actionPlanService = actionPlanService;
-    this.workDurationFactory = workDurationFactory;
   }
 
   DefaultIssue findByKey(String issueKey, String requiredRole) {
@@ -89,8 +85,7 @@ public class DefaultIssueFinder implements IssueFinder {
       throw new IllegalStateException("User does not have the required role required to change the issue: " + issueKey);
     }
 
-    Long debt = dto.getTechnicalDebt();
-    return dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+    return dto.toDefaultIssue();
   }
 
   @Override
@@ -121,8 +116,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedSortedIssues) {
-        Long debt = dto.getTechnicalDebt();
-        DefaultIssue defaultIssue = dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+        DefaultIssue defaultIssue = dto.toDefaultIssue();
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
@@ -205,11 +199,7 @@ public class DefaultIssueFinder implements IssueFinder {
   @CheckForNull
   public Issue findByKey(String key) {
     IssueDto dto = issueDao.selectByKey(key);
-    if (dto == null) {
-      return null;
-    }
-    Long debt = dto.getTechnicalDebt();
-    return dto.toDefaultIssue(debt != null ? workDurationFactory.createFromWorkingLong(debt) : null);
+    return dto != null ? dto.toDefaultIssue() : null;
   }
 
 }

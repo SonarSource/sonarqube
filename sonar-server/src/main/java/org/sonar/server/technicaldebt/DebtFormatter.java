@@ -22,6 +22,7 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;
@@ -29,12 +30,18 @@ import java.util.Locale;
 public class DebtFormatter implements ServerComponent {
 
   private final DefaultI18n defaultI18n;
+  private final WorkDurationFactory workDurationFactory;
 
-  public DebtFormatter(DefaultI18n defaultI18n) {
+  public DebtFormatter(DefaultI18n defaultI18n, WorkDurationFactory workDurationFactory) {
     this.defaultI18n = defaultI18n;
+    this.workDurationFactory = workDurationFactory;
   }
 
-  public String format(Locale locale, WorkDuration debt) {
+  public String format(Locale locale, long debt) {
+    return formatWorkDuration(locale, workDurationFactory.createFromSeconds(debt));
+  }
+
+  public String formatWorkDuration(Locale locale, WorkDuration debt) {
     StringBuilder message = new StringBuilder();
     if (debt.days() > 0) {
       message.append(defaultI18n.message(locale, "issue.technical_debt.x_days", null, debt.days()));

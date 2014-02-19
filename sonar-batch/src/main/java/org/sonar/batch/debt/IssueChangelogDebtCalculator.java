@@ -33,7 +33,6 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -48,7 +47,8 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
 
   @CheckForNull
   public WorkDuration calculateNewTechnicalDebt(Issue issue, @Nullable Date periodDate) {
-    WorkDuration currentTechnicalDebt = ((DefaultIssue) issue).technicalDebt();
+    Long debt = ((DefaultIssue) issue).debt();
+    WorkDuration currentTechnicalDebt = debt != null ? workDurationFactory.createFromSeconds(debt) : null;
     Date periodDatePlusOneSecond = periodDate != null ? DateUtils.addSeconds(periodDate, 1) : null;
     if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
       return currentTechnicalDebt;
@@ -82,7 +82,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
    * SONAR-5059
    */
   @CheckForNull
-  private WorkDuration subtractNeverNegative(@Nullable WorkDuration workDuration, WorkDuration toSubtractWith){
+  private WorkDuration subtractNeverNegative(@Nullable WorkDuration workDuration, WorkDuration toSubtractWith) {
     if (workDuration != null) {
       WorkDuration result = workDuration.subtract(toSubtractWith);
       if (result.toSeconds() > 0) {

@@ -42,7 +42,6 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
@@ -209,8 +208,8 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_technical_debt() throws Exception {
-    WorkDuration technicalDebt = WorkDuration.create(0, 2, 1, 8);
-    Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
+    Long technicalDebt = 7260L;
+    Issue issue = createStandardIssue().setDebt(technicalDebt);
     issues.add(issue);
 
     when(debtFormatter.format(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
@@ -222,8 +221,7 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_characteristics() throws Exception {
-    WorkDuration technicalDebt = WorkDuration.create(0, 2, 1, 8);
-    Issue issue = createStandardIssue().setTechnicalDebt(technicalDebt);
+    Issue issue = createStandardIssue().setDebt(7260L);
     issues.add(issue);
 
     Characteristic requirement = new DefaultCharacteristic().setId(5).setParentId(2).setRootId(1);

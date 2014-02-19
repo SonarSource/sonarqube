@@ -26,11 +26,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -49,7 +47,7 @@ public final class IssueDto implements Serializable {
   private String message;
   private Integer line;
   private Double effortToFix;
-  private Long technicalDebt;
+  private Long debt;
   private String status;
   private String resolution;
   private String checksum;
@@ -184,12 +182,12 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public Long getTechnicalDebt() {
-    return technicalDebt;
+  public Long getDebt() {
+    return debt;
   }
 
-  public IssueDto setTechnicalDebt(@Nullable Long technicalDebt) {
-    this.technicalDebt = technicalDebt;
+  public IssueDto setDebt(@Nullable Long debt) {
+    this.debt = debt;
     return this;
   }
 
@@ -363,13 +361,12 @@ public final class IssueDto implements Serializable {
   }
 
   public static IssueDto toDtoForInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
-    WorkDuration debt = issue.technicalDebt();
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setTechnicalDebt(debt != null ? debt.toLong() : null)
+      .setDebt(issue.debt())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -393,13 +390,12 @@ public final class IssueDto implements Serializable {
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, Date now) {
     // Invariant fields, like key and rule, can't be updated
-    WorkDuration debt = issue.technicalDebt();
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setTechnicalDebt(debt != null ? debt.toLong() : null)
+      .setDebt(issue.debt())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -417,14 +413,14 @@ public final class IssueDto implements Serializable {
       .setUpdatedAt(now);
   }
 
-  public DefaultIssue toDefaultIssue(@Nullable WorkDuration debt) {
+  public DefaultIssue toDefaultIssue() {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(kee);
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
-    issue.setTechnicalDebt(debt);
+    issue.setDebt(debt);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);

@@ -33,11 +33,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.*;
 
@@ -59,7 +57,7 @@ public class DefaultIssue implements Issue {
   private String message;
   private Integer line;
   private Double effortToFix;
-  private WorkDuration technicalDebt;
+  private Long debt;
   private String status;
   private String resolution;
   private String reporter;
@@ -196,12 +194,12 @@ public class DefaultIssue implements Issue {
    * Elapsed time to fix the issue
    */
   @CheckForNull
-  public WorkDuration technicalDebt() {
-    return technicalDebt;
+  public Long debt() {
+    return debt;
   }
 
-  public DefaultIssue setTechnicalDebt(@Nullable WorkDuration t) {
-    this.technicalDebt = t;
+  public DefaultIssue setDebt(@Nullable Long t) {
+    this.debt = t;
     return this;
   }
 

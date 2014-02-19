@@ -31,7 +31,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -51,7 +50,7 @@ public class RuleDebtCalculatorTest {
   public void before() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
-    calculator = new RuleDebtCalculator(model, new WorkDurationFactory(settings));
+    calculator = new RuleDebtCalculator(model, settings);
   }
 
   @Test
@@ -67,8 +66,7 @@ public class RuleDebtCalculatorTest {
       .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
-      WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15 * 60);
   }
 
   @Test
@@ -84,8 +82,7 @@ public class RuleDebtCalculatorTest {
       .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
-      WorkDuration.createFromValueAndUnit((10 * 2) + 5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(((10 * 2) + 5) * 60);
   }
 
   @Test
@@ -96,11 +93,10 @@ public class RuleDebtCalculatorTest {
     DefaultRequirement requirement = new DefaultRequirement()
       .setFunction("linear")
       .setFactorValue(10)
-      .setFactorUnit(WorkDuration.UNIT.MINUTES);
+      .setFactorUnit(WorkDuration.UNIT.HOURS);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
-      WorkDuration.createFromValueAndUnit((10 * 2), WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo((10 * 2) * 60 * 60);
   }
 
   @Test
@@ -111,12 +107,11 @@ public class RuleDebtCalculatorTest {
     DefaultRequirement requirement = new DefaultRequirement()
       .setFunction("constant_issue")
       .setOffsetValue(5)
-      .setOffsetUnit(WorkDuration.UNIT.MINUTES);
+      .setOffsetUnit(WorkDuration.UNIT.DAYS);
 
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
-      WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(5 * HOURS_IN_DAY * 60 * 60);
   }
 
   @Test
@@ -140,8 +135,7 @@ public class RuleDebtCalculatorTest {
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     try {
-      assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(
-        WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
+      assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15 * 60);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)

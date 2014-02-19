@@ -137,8 +137,8 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "500", "10000");
 
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY))).thenReturn("5 hours");
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY))).thenReturn("1 days");
+    when(debtFormatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY))).thenReturn("5 hours");
+    when(debtFormatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
@@ -155,7 +155,7 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "10000");
 
-    when(debtFormatter.format(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8))).thenReturn("1 days");
+    when(debtFormatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
