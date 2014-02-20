@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
@@ -60,7 +62,11 @@ public class ResourceKeyMigration implements BatchComponent {
     }
   }
 
-  public void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
+  public void migrateIfNeeded(Project module, FileSystem fs) {
+    migrateIfNeeded(module, fs.inputFiles(FilePredicates.all()));
+  }
+
+  void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
     if (migrationNeeded) {
       logger.info("Starting migration of resource keys");
       Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();

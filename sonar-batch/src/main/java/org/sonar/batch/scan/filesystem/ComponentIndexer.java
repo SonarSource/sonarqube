@@ -61,10 +61,10 @@ public class ComponentIndexer implements BatchComponent {
   }
 
   public void execute(FileSystem fs) {
+    migration.migrateIfNeeded(module, fs);
+
     boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-    Iterable<InputFile> inputFiles = fs.inputFiles(FilePredicates.all());
-    migration.migrateIfNeeded(module, inputFiles);
-    for (InputFile inputFile : inputFiles) {
+    for (InputFile inputFile : fs.inputFiles(FilePredicates.all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       String pathFromSourceDir = ((DefaultInputFile) inputFile).pathRelativeToSourceDir();

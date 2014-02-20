@@ -32,8 +32,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
@@ -44,6 +42,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -53,7 +52,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
   File baseDir;
 
   @Before
-  public void before() throws ParseException, IOException {
+  public void before() throws Exception {
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
     multiModuleProject = newProject("root", "java");

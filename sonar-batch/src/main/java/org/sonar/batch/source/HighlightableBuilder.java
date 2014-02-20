@@ -22,7 +22,6 @@ package org.sonar.batch.source;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.PerspectiveBuilder;
@@ -49,11 +48,6 @@ public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
   protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
     boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
     if (supported && component instanceof ResourceComponent) {
-      // temporary hack waiting for the removal of JavaClass.
-      // JavaClass has the same qualifier than JavaFile, so they have to distinguished by their scope
-      supported = Scopes.FILE.equals(((ResourceComponent) component).scope());
-    }
-    if (supported) {
       return new DefaultHighlightable(component, cache);
     }
     return null;

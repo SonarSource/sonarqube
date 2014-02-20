@@ -27,7 +27,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.ResourceComponent;
-import org.sonar.java.api.JavaClass;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,16 +50,6 @@ public class HighlightableBuilderTest {
   @Test
   public void project_should_not_be_highlightable() {
     Component component = new ResourceComponent(new Project("struts").setEffectiveKey("org.struts"));
-
-    HighlightableBuilder builder = new HighlightableBuilder(cache);
-    Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
-
-    assertThat(perspective).isNull();
-  }
-
-  @Test
-  public void java_class_should_not_be_highlightable() {
-    Component component = new ResourceComponent(JavaClass.create("org.struts.Action").setEffectiveKey("struts:org.struts.Action"));
 
     HighlightableBuilder builder = new HighlightableBuilder(cache);
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
