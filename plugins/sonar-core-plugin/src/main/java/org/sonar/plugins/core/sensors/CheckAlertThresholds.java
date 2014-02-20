@@ -21,17 +21,21 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.rule.ProjectAlerts;
 import org.sonar.core.timemachine.Periods;
 
 import java.util.List;
@@ -43,14 +47,13 @@ public class CheckAlertThresholds implements Decorator {
   private static final String VARIATION = "variation";
 
   private final Snapshot snapshot;
-  private final RulesProfile profile;
   private final Periods periods;
   private final I18n i18n;
+  private ProjectAlerts projectAlerts;
 
-
-  public CheckAlertThresholds(Snapshot snapshot, RulesProfile profile, Periods periods, I18n i18n) {
+  public CheckAlertThresholds(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n) {
     this.snapshot = snapshot;
-    this.profile = profile;
+    this.projectAlerts = projectAlerts;
     this.periods = periods;
     this.i18n = i18n;
   }
@@ -68,18 +71,15 @@ public class CheckAlertThresholds implements Decorator {
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
     List<Metric> metrics = Lists.newLinkedList();
-    for (Alert alert : profile.getAlerts()) {
+    for (Alert alert : projectAlerts.all()) {
       metrics.add(alert.getMetric());
     }
     return metrics;
   }
 
-
   public boolean shouldExecuteOnProject(Project project) {
-    return profile != null
-        && profile.getAlerts() != null
-        && !profile.getAlerts().isEmpty()
-        && ResourceUtils.isRootProject(project);
+    return !projectAlerts.all().isEmpty()
+      && ResourceUtils.isRootProject(project);
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
@@ -92,7 +92,7 @@ public class CheckAlertThresholds implements Decorator {
     Metric.Level globalLevel = Metric.Level.OK;
     List<String> labels = Lists.newArrayList();
 
-    for (final Alert alert : profile.getAlerts()) {
+    for (final Alert alert : projectAlerts.all()) {
       Measure measure = context.getMeasure(alert.getMetric());
       if (measure != null) {
         Metric.Level level = AlertUtils.getLevel(alert, measure);
@@ -145,16 +145,15 @@ public class CheckAlertThresholds implements Decorator {
     }
 
     stringBuilder
-        .append(" ").append(alert.getOperator()).append(" ")
-        .append(level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning());
+      .append(" ").append(alert.getOperator()).append(" ")
+      .append(level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning());
 
-    if (alertPeriod != null){
+    if (alertPeriod != null) {
       stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
     }
 
     return stringBuilder.toString();
   }
-
 
   @Override
   public String toString() {

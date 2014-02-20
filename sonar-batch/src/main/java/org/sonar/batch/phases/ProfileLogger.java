@@ -26,10 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
+import org.sonar.api.profiles.Alert;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleQProfiles.QProfile;
+import org.sonar.batch.rule.ProjectAlerts;
+import org.sonar.batch.rule.RulesProfileWrapper;
 
 public class ProfileLogger implements BatchComponent {
 
@@ -38,11 +41,16 @@ public class ProfileLogger implements BatchComponent {
   private final Settings settings;
   private final ModuleLanguages languages;
   private final ModuleQProfiles profiles;
+  private final ProjectAlerts projectAlerts;
 
-  public ProfileLogger(Settings settings, ModuleLanguages languages, ModuleQProfiles profiles) {
+  private final RulesProfile rulesProfile;
+
+  public ProfileLogger(Settings settings, ModuleLanguages languages, ModuleQProfiles profiles, ProjectAlerts projectAlerts, RulesProfile rulesProfile) {
     this.settings = settings;
     this.languages = languages;
     this.profiles = profiles;
+    this.projectAlerts = projectAlerts;
+    this.rulesProfile = rulesProfile;
   }
 
   public void execute() {
@@ -62,6 +70,18 @@ public class ProfileLogger implements BatchComponent {
     }
     if (!defaultNameUsed && !languages.keys().isEmpty()) {
       throw MessageException.of("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
+    }
+
+    addModuleAlertsToProjectAlerts();
+  }
+
+  private void addModuleAlertsToProjectAlerts() {
+    RulesProfileWrapper profileWrapper = (RulesProfileWrapper) rulesProfile;
+    for (String lang : languages.keys()) {
+      RulesProfile profile = profileWrapper.getProfileByLanguage(lang);
+      for (Alert alert : profile.getAlerts()) {
+        projectAlerts.add(alert);
+      }
     }
   }
 
