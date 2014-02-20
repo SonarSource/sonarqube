@@ -92,7 +92,7 @@ class Issue
   private
 
   def self.debt_to_hash(debt)
-    work_duration = work_duration_to_hash(Internal.technical_debt.toWorkDuration(debt))
+    work_duration = Internal.technical_debt.toWorkDuration(debt.to_i)
     {
         :days => work_duration.days(),
         :hours => work_duration.hours(),
