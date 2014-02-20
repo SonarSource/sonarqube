@@ -36,6 +36,9 @@ define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], f
       SelectFilters.SelectFilterView.prototype.initialize.call(this, {
         detailsView: ResolutionDetailFilterView
       });
+
+      var unresolved = this.choices.findWhere({ id: UNRESOLVED });
+      unresolved.set('special', true);
     },
 
 
