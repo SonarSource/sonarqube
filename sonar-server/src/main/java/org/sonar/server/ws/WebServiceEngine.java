@@ -19,19 +19,24 @@
  */
 package org.sonar.server.ws;
 
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @since 4.2
@@ -40,11 +45,14 @@ public class WebServiceEngine implements ServerComponent, Startable {
 
   private final WebService.Context context;
 
-  public WebServiceEngine(WebService[] webServices) {
+  private final I18n i18n;
+
+  public WebServiceEngine(WebService[] webServices, I18n i18n) {
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
     }
+    this.i18n = i18n;
   }
 
   @Override
@@ -76,7 +84,12 @@ public class WebServiceEngine implements ServerComponent, Startable {
     } catch (IllegalArgumentException e) {
       // TODO replace by BadRequestException in Request#requiredParam()
       sendError(400, e.getMessage(), response);
-
+    } catch (BadRequestException e) {
+      if (StringUtils.isBlank(e.getMessage())) {
+        sendError(e, response);
+      } else {
+        sendError(e.httpCode(), e.getMessage(), response);
+      }
     } catch (ServerException e) {
       // TODO support ServerException l10n messages
       sendError(e.httpCode(), e.getMessage(), response);
@@ -107,12 +120,26 @@ public class WebServiceEngine implements ServerComponent, Startable {
     }
   }
 
+  private void sendError(BadRequestException e, ServletResponse response) {
+    JsonWriter json = initErrorStream(e.httpCode(), response);
+    try {
+      json.beginObject();
+      json.name("errors").beginArray();
+      for (Message message: e.errors()) {
+        String messageToSend = i18n.message(Locale.getDefault(), message.l10nKey(), message.text(), message.l10nParams());
+        json.beginObject().prop("msg", messageToSend).endObject();
+      }
+      json.endArray();
+      json.endObject();
+    } finally {
+      // TODO if close() fails, the runtime exception should not hide the
+      // potential exception raised in the try block.
+      json.close();
+    }
+  }
+
   private void sendError(int status, String message, ServletResponse response) {
-    ServletResponse.ServletStream stream = response.stream();
-    stream.reset();
-    stream.setStatus(status);
-    stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
+    JsonWriter json = initErrorStream(status, response);
     try {
       json.beginObject();
       json.name("errors").beginArray();
@@ -124,5 +151,14 @@ public class WebServiceEngine implements ServerComponent, Startable {
       // potential exception raised in the try block.
       json.close();
     }
+  }
+
+  private JsonWriter initErrorStream(int status, ServletResponse response) {
+    ServletResponse.ServletStream stream = response.stream();
+    stream.reset();
+    stream.setStatus(status);
+    stream.setMediaType(MimeTypes.JSON);
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
+    return json;
   }
 }

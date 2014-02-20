@@ -19,29 +19,31 @@
  */
 package org.sonar.server.ws;
 
-import org.apache.commons.io.Charsets;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class WebServiceEngineTest {
 
@@ -79,7 +81,8 @@ public class WebServiceEngineTest {
 
   }
 
-  WebServiceEngine engine = new WebServiceEngine(new WebService[]{new SystemWebService()});
+  I18n i18n = mock(I18n.class);
+  WebServiceEngine engine = new WebServiceEngine(new WebService[]{new SystemWebService()}, i18n);
 
   @Before
   public void start() {
@@ -191,6 +194,25 @@ public class WebServiceEngineTest {
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
 
+  @Test
+  public void bad_request_with_multiple_messages() throws Exception {
+    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    ServletResponse response = new ServletResponse();
+    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 0)).thenReturn("Bad request reason #0");
+    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 1)).thenReturn("Bad request reason #1");
+    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 2)).thenReturn("Bad request reason #2");
+
+    engine.execute(request, response, "api/system", "fail");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
+      + "{\"msg\":\"Bad request reason #0\"},"
+      + "{\"msg\":\"Bad request reason #1\"},"
+      + "{\"msg\":\"Bad request reason #2\"}"
+      + "]}");
+    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
   static class SystemWebService implements WebService {
     @Override
     public void define(Context context) {
@@ -222,6 +244,13 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
+            if (request.param("count") != null) {
+              List<BadRequestException.Message> errors = Lists.newArrayList();
+              for (int count=0; count < Integer.valueOf(request.param("count")); count ++) {
+                errors.add(Message.ofL10n("bad.request.reason", count));
+              }
+              throw BadRequestException.of(errors);
+            }
             throw new IllegalStateException("Unexpected");
           }
         });
