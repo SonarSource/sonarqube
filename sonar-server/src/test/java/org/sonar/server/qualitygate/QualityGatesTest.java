@@ -19,30 +19,30 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.sonar.core.properties.PropertyDto;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.user.UserSessionTestUtils;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserSessionTestUtils;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.*;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +51,9 @@ public class QualityGatesTest {
 
   @Mock
   private QualityGateDao dao;
+
+  @Mock
+  private QualityGateConditionDao conditionDao;
 
   @Mock
   private PropertiesDao propertiesDao;
@@ -63,7 +66,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    qGates = new QualityGates(dao, propertiesDao);
+    qGates = new QualityGates(dao, conditionDao, propertiesDao);
     UserSessionTestUtils.setUserSession(authorizedUserSession);
   }
 

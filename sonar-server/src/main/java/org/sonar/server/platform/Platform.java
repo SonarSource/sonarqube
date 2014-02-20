@@ -57,6 +57,7 @@ import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -300,6 +301,7 @@ public final class Platform {
 
     // quality gates
     servicesContainer.addSingleton(QualityGateDao.class);
+    servicesContainer.addSingleton(QualityGateConditionDao.class);
     servicesContainer.addSingleton(QualityGates.class);
     servicesContainer.addSingleton(QualityGatesWs.class);
 

@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -49,10 +51,13 @@ public class QualityGates {
 
   private final QualityGateDao dao;
 
+  private final QualityGateConditionDao conditionDao;
+
   private final PropertiesDao propertiesDao;
 
-  public QualityGates(QualityGateDao dao, PropertiesDao propertiesDao) {
+  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, PropertiesDao propertiesDao) {
     this.dao = dao;
+    this.conditionDao = conditionDao;
     this.propertiesDao = propertiesDao;
   }
 
@@ -104,6 +109,11 @@ public class QualityGates {
     } else {
       return dao.selectByName(defaultName);
     }
+  }
+
+  public QualityGateConditionDto createCondition(long qGateId, long metricId, String operator,
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    return null;
   }
 
   private boolean isDefault(QualityGateDto qGate) {

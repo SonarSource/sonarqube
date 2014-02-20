@@ -19,9 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.qualitygate.db.QualityGateMapper;
-
-import org.sonar.core.qualitygate.db.QualityGateDto;
 import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -58,6 +55,10 @@ import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
+import org.sonar.core.qualitygate.db.QualityGateConditionMapper;
+import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.core.qualitygate.db.QualityGateMapper;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.*;
 import org.sonar.core.rule.*;
@@ -111,6 +112,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
     loadAlias(conf, "QualityGate", QualityGateDto.class);
+    loadAlias(conf, "QualityGateCondition", QualityGateConditionDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
@@ -159,7 +161,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class, QualityGateMapper.class
+      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
