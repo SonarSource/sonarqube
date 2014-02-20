@@ -1,6 +1,7 @@
 define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, BaseFilters, SelectFilters) {
 
-  var PAGE_SIZE = 100;
+  var PAGE_SIZE = 100,
+      UNASSIGNED = '<unassigned>';
 
 
 
@@ -328,13 +329,38 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
   var AssigneeDetailsFilterView = AjaxSelectDetailsFilterView.extend({
 
+    addToSelection: function(e) {
+      var id = $j(e.target).val(),
+          model = this.options.filterView.choices.findWhere({ id: id });
+
+      if (this.model.get('multiple') && id !== UNASSIGNED) {
+        this.options.filterView.selection.add(model);
+        this.options.filterView.choices.remove(model);
+
+        var unresolved = this.options.filterView.selection.findWhere({ id: UNASSIGNED });
+        if (unresolved) {
+          this.options.filterView.choices.add(unresolved);
+          this.options.filterView.selection.remove(unresolved);
+        }
+      } else {
+        this.options.filterView.choices.add(this.options.filterView.selection.models);
+        this.options.filterView.choices.remove(model);
+        this.options.filterView.selection.reset([model]);
+      }
+
+      this.updateValue();
+      this.updateLists();
+    },
+
+
     resetChoices: function() {
-      if (this.options.filterView.selection.findWhere({ id: '<unassigned>' })) {
+      if (this.options.filterView.selection.findWhere({ id: UNASSIGNED })) {
         this.options.filterView.choices.reset([]);
       } else {
         this.options.filterView.choices.reset([{
-          id: '<unassigned>',
-          text: window.SS.phrases.unassigned
+          id: UNASSIGNED,
+          text: window.SS.phrases.unassigned,
+          special: true
         }]);
       }
     },
@@ -367,9 +393,9 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
       if (!!assigned) {
         if (!param) {
-          param = { value: '<unassigned>' };
+          param = { value: UNASSIGNED };
         } else {
-          param.value += ',<unassigned>';
+          param.value += ',' + UNASSIGNED;
         }
       }
 
@@ -383,7 +409,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
     restoreFromText: function(value) {
-      if (_.indexOf(value, '<unassigned>') !== -1) {
+      if (_.indexOf(value, UNASSIGNED) !== -1) {
         this.choices.reset([]);
       }
 
@@ -392,13 +418,14 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
     restoreByRequests: function(value) {
-      if (_.indexOf(value, '<unassigned>') !== -1) {
+      if (_.indexOf(value, UNASSIGNED) !== -1) {
         this.selection.add(new Backbone.Model({
-          id: '<unassigned>',
-          text: window.SS.phrases.unassigned
+          id: UNASSIGNED,
+          text: window.SS.phrases.unassigned,
+          special: true
         }));
         this.choices.reset([]);
-        value = _.reject(value, function(k) { return k === '<unassigned>'; });
+        value = _.reject(value, function(k) { return k === UNASSIGNED; });
       }
 
       AjaxSelectFilterView.prototype.restoreByRequests.call(this, value);
@@ -436,7 +463,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
     formatValue: function() {
       var q = {};
       if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
-        var assignees = _.without(this.model.get('value'), '<unassigned>');
+        var assignees = _.without(this.model.get('value'), UNASSIGNED);
         if (assignees.length > 0) {
           q[this.model.get('property')] = assignees.join(',');
         }

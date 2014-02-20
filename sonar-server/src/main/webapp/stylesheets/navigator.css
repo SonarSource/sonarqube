@@ -521,6 +521,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.navigator-filter-select-list label.special {
+  font-style: italic;
+}
+.navigator-filter-select-list label.special > span {
+  text-decoration: underline;
+}
 .navigator-filter-select-list .single {
   padding: 5px 10px;
 }
