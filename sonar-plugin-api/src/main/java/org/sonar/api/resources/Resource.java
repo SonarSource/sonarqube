@@ -21,6 +21,7 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -233,6 +234,7 @@ public abstract class Resource implements Serializable {
     return this;
   }
 
+  @CheckForNull
   protected static String normalize(@Nullable String path) {
     if (StringUtils.isBlank(path)) {
       return null;
