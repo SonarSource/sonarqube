@@ -19,16 +19,16 @@
  */
 package org.sonar.api.batch.fs;
 
-import javax.annotation.Nullable;
+import java.util.Collection;
 
 /**
  * @since 4.2
  */
 class AndPredicate implements FilePredicate {
 
-  private final Iterable<FilePredicate> predicates;
+  private final Collection<FilePredicate> predicates;
 
-  AndPredicate(@Nullable Iterable<FilePredicate> predicates) {
+  AndPredicate(Collection<FilePredicate> predicates) {
     this.predicates = predicates;
   }
 

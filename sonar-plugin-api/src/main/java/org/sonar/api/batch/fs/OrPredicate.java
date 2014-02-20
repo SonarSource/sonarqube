@@ -19,17 +19,22 @@
  */
 package org.sonar.api.batch.fs;
 
-import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @since 4.2
  */
 class OrPredicate implements FilePredicate {
 
-  private final Iterable<FilePredicate> predicates;
+  private final Collection<FilePredicate> predicates;
 
-  OrPredicate(@Nullable Iterable<FilePredicate> predicates) {
-    this.predicates = predicates;
+  OrPredicate(Collection<FilePredicate> predicates) {
+    if (predicates.isEmpty()) {
+      this.predicates = Arrays.asList(FilePredicates.all());
+    } else {
+      this.predicates = predicates;
+    }
   }
 
   @Override

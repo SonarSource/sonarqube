@@ -34,6 +34,7 @@ import java.util.List;
  */
 public class FilePredicates {
   private static final FilePredicate ALWAYS_TRUE = new AlwaysTruePredicate();
+  private static final FilePredicate ALWAYS_FALSE = not(ALWAYS_TRUE);
 
   private FilePredicates() {
     // only static stuff
@@ -44,6 +45,13 @@ public class FilePredicates {
    */
   public static FilePredicate all() {
     return ALWAYS_TRUE;
+  }
+
+  /**
+   * Returns a predicate that always evaluates to false
+   */
+  public static FilePredicate none() {
+    return ALWAYS_FALSE;
   }
 
   /**
@@ -72,7 +80,7 @@ public class FilePredicates {
     for (int i = 0; i < inclusionPatterns.length; i++) {
       predicates[i] = new PathPatternPredicate(PathPattern.create(inclusionPatterns[i]));
     }
-    return and(predicates);
+    return or(predicates);
   }
 
   public static FilePredicate doesNotMatchPathPattern(String exclusionPattern) {
@@ -125,7 +133,7 @@ public class FilePredicates {
     return new NotPredicate(p);
   }
 
-  public static FilePredicate or(Iterable<FilePredicate> or) {
+  public static FilePredicate or(Collection<FilePredicate> or) {
     return new OrPredicate(or);
   }
 
@@ -137,7 +145,7 @@ public class FilePredicates {
     return new OrPredicate(Arrays.asList(first, second));
   }
 
-  public static FilePredicate and(Iterable<FilePredicate> and) {
+  public static FilePredicate and(Collection<FilePredicate> and) {
     return new AndPredicate(and);
   }
 
