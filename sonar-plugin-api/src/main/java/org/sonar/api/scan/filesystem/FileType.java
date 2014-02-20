@@ -21,11 +21,11 @@ package org.sonar.api.scan.filesystem;
 
 /**
  * @since 3.5
- * @deprecated since 4.2 use {@link InputFile#TYPE_MAIN} or {@link InputFile#TYPE_TEST}
+ * @deprecated in 4.2
  */
 @Deprecated
 public enum FileType {
-  SOURCE(InputFile.TYPE_MAIN), TEST(InputFile.TYPE_TEST);
+  SOURCE("MAIN"), TEST("TEST"), MAIN("MAIN");
 
   private String typeValue;
 
@@ -33,7 +33,7 @@ public enum FileType {
     this.typeValue = typeValue;
   }
 
-  String typeValue() {
+  public String typeValue() {
     return typeValue;
   }
 }

@@ -24,10 +24,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import java.io.File;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public class InputFileBuilderTest {
   LanguageDetection langDetection = mock(LanguageDetection.class);
   StatusDetection statusDetection = mock(StatusDetection.class);
   DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+  AnalysisMode analysisMode = mock(AnalysisMode.class);
 
   @Test
   public void create_input_file() throws Exception {
@@ -54,29 +56,28 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.sourceCharset()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(Charsets.UTF_8);
 
     // lang
     when(langDetection.language(any(InputFile.class))).thenReturn("java");
 
     // status
-    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a")).thenReturn(InputFile.STATUS_ADDED);
+    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
+      .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.TYPE_MAIN);
+      langDetection, statusDetection, fs, analysisMode);
+    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
 
-    assertThat(inputFile.name()).isEqualTo("Bar.java");
     assertThat(inputFile.file()).isEqualTo(srcFile.getAbsoluteFile());
     assertThat(inputFile.absolutePath()).isEqualTo(PathUtils.sanitize(srcFile.getAbsolutePath()));
     assertThat(inputFile.language()).isEqualTo("java");
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY)).isEqualTo("struts:src/main/java/foo/Bar.java");
-    assertThat(inputFile.path()).isEqualTo("src/main/java/foo/Bar.java");
-
-    assertThat(inputFile.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("1");
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH)).isNull();
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH)).isNull();
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY)).isNull();
+    assertThat(inputFile.key()).isEqualTo("struts:src/main/java/foo/Bar.java");
+    assertThat(inputFile.relativePath()).isEqualTo("src/main/java/foo/Bar.java");
+    assertThat(inputFile.lines()).isEqualTo(1);
+    assertThat(inputFile.sourceDirAbsolutePath()).isNull();
+    assertThat(inputFile.pathRelativeToSourceDir()).isNull();
+    assertThat(inputFile.deprecatedKey()).isNull();
   }
 
   @Test
@@ -89,8 +90,8 @@ public class InputFileBuilderTest {
     when(fs.baseDir()).thenReturn(basedir);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.TYPE_MAIN);
+      langDetection, statusDetection, fs, analysisMode);
+    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
 
     assertThat(inputFile).isNull();
   }
@@ -103,14 +104,14 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.sourceCharset()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(Charsets.UTF_8);
 
     // lang
     when(langDetection.language(any(InputFile.class))).thenReturn(null);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.TYPE_MAIN);
+      langDetection, statusDetection, fs, analysisMode);
+    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
 
     assertThat(inputFile).isNull();
   }
@@ -123,7 +124,7 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.sourceCharset()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(Charsets.UTF_8);
     File sourceDir = new File(basedir, "src/main/java");
     when(fs.sourceDirs()).thenReturn(Arrays.asList(sourceDir));
 
@@ -131,15 +132,16 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn("java");
 
     // status
-    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a")).thenReturn(InputFile.STATUS_ADDED);
+    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
+      .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.TYPE_MAIN);
+      langDetection, statusDetection, fs, analysisMode);
+    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
 
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH)).isEqualTo("foo/Bar.java");
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY)).isEqualTo("struts:foo.Bar");
+    assertThat(inputFile.pathRelativeToSourceDir()).isEqualTo("foo/Bar.java");
+    assertThat(inputFile.sourceDirAbsolutePath()).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));
+    assertThat(inputFile.deprecatedKey()).isEqualTo("struts:foo.Bar");
   }
 
   @Test
@@ -150,7 +152,7 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.sourceCharset()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(Charsets.UTF_8);
     File sourceDir = new File(basedir, "src");
     when(fs.sourceDirs()).thenReturn(Arrays.asList(sourceDir));
 
@@ -158,15 +160,16 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn("php");
 
     // status
-    when(statusDetection.status("src/Bar.php", "6c1d64c0b3555892fe7273e954f6fb5a")).thenReturn(InputFile.STATUS_ADDED);
+    when(statusDetection.status("src/Bar.php", "6c1d64c0b3555892fe7273e954f6fb5a"))
+      .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.TYPE_MAIN);
+      langDetection, statusDetection, fs, analysisMode);
+    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
 
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH)).isEqualTo("foo/Bar.php");
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH)).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));
-    assertThat(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY)).isEqualTo("struts:foo/Bar.php");
+    assertThat(inputFile.pathRelativeToSourceDir()).isEqualTo("foo/Bar.php");
+    assertThat(inputFile.sourceDirAbsolutePath()).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));
+    assertThat(inputFile.deprecatedKey()).isEqualTo("struts:foo/Bar.php");
 
   }
 }

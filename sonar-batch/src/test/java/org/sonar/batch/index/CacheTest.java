@@ -20,10 +20,9 @@
 package org.sonar.batch.index;
 
 import com.google.common.collect.Iterables;
-import com.persistit.exception.PersistitException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -31,8 +30,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CacheTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   Caches caches;
 
@@ -48,20 +47,42 @@ public class CacheTest {
   }
 
   @Test
-  public void test_put_get_remove() throws Exception {
-    Cache<String, String> cache = caches.createCache("issues");
-    assertThat(cache.get("foo")).isNull();
-    cache.put("foo", "bar");
-    assertThat(cache.get("foo")).isEqualTo("bar");
-    assertThat(cache.keySet()).containsOnly("foo");
-    cache.remove("foo");
-    assertThat(cache.get("foo")).isNull();
-    assertThat(cache.keySet()).isEmpty();
+  public void one_part_key() throws Exception {
+    Cache<String> cache = caches.createCache("capitals");
+
+    assertThat(cache.get("france")).isNull();
+
+    cache.put("france", "paris");
+    cache.put("italy", "rome");
+    assertThat(cache.get("france")).isEqualTo("paris");
+    assertThat(cache.keySet()).containsOnly("france", "italy");
+    assertThat(cache.keySet("france")).isEmpty();
+    assertThat(cache.values()).containsOnly("paris", "rome");
+    assertThat(cache.containsKey("france")).isTrue();
+
+    Cache.Entry[] entries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    assertThat(entries).hasSize(2);
+    assertThat(entries[0].key()[0]).isEqualTo("france");
+    assertThat(entries[0].value()).isEqualTo("paris");
+    assertThat(entries[1].key()[0]).isEqualTo("italy");
+    assertThat(entries[1].value()).isEqualTo("rome");
+
+    cache.remove("france");
+    assertThat(cache.get("france")).isNull();
+    assertThat(cache.get("italy")).isEqualTo("rome");
+    assertThat(cache.keySet()).containsOnly("italy");
+    assertThat(cache.keySet("france")).isEmpty();
+    assertThat(cache.containsKey("france")).isFalse();
+    assertThat(cache.containsKey("italy")).isTrue();
+    assertThat(cache.values()).containsOnly("rome");
+
+    cache.clear();
+    assertThat(cache.values()).isEmpty();
   }
 
   @Test
   public void test_key_being_prefix_of_another_key() throws Exception {
-    Cache<String, String> cache = caches.createCache("components");
+    Cache<String> cache = caches.createCache("components");
 
     cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTag", "the Tag");
     cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo", "the BeanInfo");
@@ -71,147 +92,142 @@ public class CacheTest {
   }
 
   @Test
-  public void test_put_get_remove_on_groups() throws Exception {
-    Cache<String, Float> cache = caches.createCache("measures");
-    String group = "org/apache/struts/Action.java";
-    assertThat(cache.get(group, "ncloc")).isNull();
-    cache.put(group, "ncloc", 123f);
-    assertThat(cache.get(group, "ncloc")).isEqualTo(123f);
-    assertThat(cache.keySet(group)).containsOnly("ncloc");
-    assertThat(cache.containsKey(group, "ncloc")).isTrue();
-    assertThat(cache.get("ncloc")).isNull();
-    assertThat(cache.get(group)).isNull();
-    cache.remove(group, "ncloc");
-    assertThat(cache.get(group, "ncloc")).isNull();
-    assertThat(cache.keySet(group)).isEmpty();
-    assertThat(cache.containsKey(group, "ncloc")).isFalse();
-  }
+  public void two_parts_key() throws Exception {
+    Cache<String> cache = caches.createCache("capitals");
 
-  @Test
-  public void test_clear_group() throws Exception {
-    Cache<String, Float> cache = caches.createCache("measures");
-    String group = "org/apache/struts/Action.java";
-    cache.put(group, "ncloc", 123f);
-    cache.put(group, "lines", 200f);
-    cache.put("otherGroup", "lines", 400f);
-    assertThat(cache.get(group, "lines")).isNotNull();
-    assertThat(cache.get("otherGroup", "lines")).isNotNull();
+    assertThat(cache.get("europe", "france")).isNull();
 
-    cache.clear(group);
-    assertThat(cache.get(group, "lines")).isNull();
-    assertThat(cache.get("otherGroup", "lines")).isNotNull();
-  }
+    cache.put("europe", "france", "paris");
+    cache.put("europe", "italy", "rome");
+    assertThat(cache.get("europe")).isNull();
+    assertThat(cache.get("europe", "france")).isEqualTo("paris");
+    assertThat(cache.get("europe", "italy")).isEqualTo("rome");
+    assertThat(cache.get("europe")).isNull();
+    assertThat(cache.keySet("europe")).containsOnly("france", "italy");
+    assertThat(cache.keySet()).containsOnly("europe");
+    assertThat(cache.containsKey("europe")).isFalse();
+    assertThat(cache.containsKey("europe", "france")).isTrue();
+    assertThat(cache.containsKey("europe", "spain")).isFalse();
+    assertThat(cache.values()).containsOnly("paris", "rome");
+    assertThat(cache.values("america")).isEmpty();
+    assertThat(cache.values("europe")).containsOnly("paris", "rome");
+    assertThat(cache.values("oceania")).isEmpty();
 
-  @Test
-  public void test_operations_on_empty_cache() throws Exception {
-    Cache<String, String> cache = caches.createCache("issues");
-    assertThat(cache.get("foo")).isNull();
-    assertThat(cache.get("group", "foo")).isNull();
+    Cache.Entry[] allEntries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    assertThat(allEntries).hasSize(2);
+    assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france"});
+    assertThat(allEntries[0].value()).isEqualTo("paris");
+    assertThat(allEntries[1].key()).isEqualTo(new String[]{"europe", "italy"});
+    assertThat(allEntries[1].value()).isEqualTo("rome");
+
+    Cache.SubEntry[] subEntries = Iterables.toArray(cache.<String>subEntries("europe"), Cache.SubEntry.class);
+    assertThat(subEntries).hasSize(2);
+    assertThat(subEntries[0].keyAsString()).isEqualTo("france");
+    assertThat(subEntries[0].value()).isEqualTo("paris");
+    assertThat(subEntries[1].keyAsString()).isEqualTo("italy");
+    assertThat(subEntries[1].value()).isEqualTo("rome");
+
+    cache.remove("europe", "france");
+    assertThat(cache.values()).containsOnly("rome");
+    assertThat(cache.get("europe", "france")).isNull();
+    assertThat(cache.get("europe", "italy")).isEqualTo("rome");
+    assertThat(cache.containsKey("europe", "france")).isFalse();
+    assertThat(cache.keySet("europe")).containsOnly("italy");
+
+    cache.clear("america");
+    assertThat(cache.keySet()).containsOnly("europe");
+    cache.clear("europe");
     assertThat(cache.keySet()).isEmpty();
-    assertThat(cache.keySet("group")).isEmpty();
+  }
+
+  @Test
+  public void three_parts_key() throws Exception {
+    Cache<String> cache = caches.createCache("places");
+    assertThat(cache.get("europe", "france", "paris")).isNull();
+
+    cache.put("europe", "france", "paris", "eiffel tower");
+    cache.put("europe", "france", "annecy", "lake");
+    cache.put("europe", "italy", "rome", "colosseum");
+    assertThat(cache.get("europe")).isNull();
+    assertThat(cache.get("europe", "france")).isNull();
+    assertThat(cache.get("europe", "france", "paris")).isEqualTo("eiffel tower");
+    assertThat(cache.get("europe", "france", "annecy")).isEqualTo("lake");
+    assertThat(cache.get("europe", "italy", "rome")).isEqualTo("colosseum");
+    assertThat(cache.keySet()).containsOnly("europe");
+    assertThat(cache.keySet("europe")).containsOnly("france", "italy");
+    assertThat(cache.keySet("europe", "france")).containsOnly("annecy", "paris");
+    assertThat(cache.containsKey("europe")).isFalse();
+    assertThat(cache.containsKey("europe", "france")).isFalse();
+    assertThat(cache.containsKey("europe", "france", "annecy")).isTrue();
+    assertThat(cache.containsKey("europe", "france", "biarritz")).isFalse();
+    assertThat(cache.values()).containsOnly("eiffel tower", "lake", "colosseum");
+
+    Cache.Entry[] allEntries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    assertThat(allEntries).hasSize(3);
+    assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france", "annecy"});
+    assertThat(allEntries[0].value()).isEqualTo("lake");
+    assertThat(allEntries[1].key()).isEqualTo(new String[]{"europe", "france", "paris"});
+    assertThat(allEntries[1].value()).isEqualTo("eiffel tower");
+    assertThat(allEntries[2].key()).isEqualTo(new String[]{"europe", "italy", "rome"});
+    assertThat(allEntries[2].value()).isEqualTo("colosseum");
+
+    Cache.SubEntry[] subEntries = Iterables.toArray(cache.<String>subEntries("europe"), Cache.SubEntry.class);
+    assertThat(subEntries).hasSize(2);
+    assertThat(subEntries[0].keyAsString()).isEqualTo("france");
+    assertThat(subEntries[0].value()).isNull();
+    assertThat(subEntries[1].keyAsString()).isEqualTo("italy");
+    assertThat(subEntries[1].value()).isNull();
+
+    cache.remove("europe", "france", "annecy");
+    assertThat(cache.values()).containsOnly("eiffel tower", "colosseum");
+    assertThat(cache.get("europe", "france", "annecy")).isNull();
+    assertThat(cache.get("europe", "italy", "rome")).isEqualTo("colosseum");
+    assertThat(cache.containsKey("europe", "france")).isFalse();
+
+    cache.clear("europe", "italy");
+    assertThat(cache.values()).containsOnly("eiffel tower");
+
+    cache.clear("europe");
     assertThat(cache.values()).isEmpty();
-    assertThat(cache.values("group")).isEmpty();
+  }
+
+  @Test
+  public void remove_versus_clear() throws Exception {
+    Cache<String> cache = caches.createCache("capitals");
+    cache.put("europe", "france", "paris");
+    cache.put("europe", "italy", "rome");
+
+    // remove("europe") does not remove sub-keys
+    cache.remove("europe");
+    assertThat(cache.values()).containsOnly("paris", "rome");
+
+    // clear("europe") removes sub-keys
+    cache.clear("europe");
+    assertThat(cache.values()).isEmpty();
+  }
+
+  @Test
+  public void empty_cache() throws Exception {
+    Cache<String> cache = caches.createCache("empty");
+
+    assertThat(cache.get("foo")).isNull();
+    assertThat(cache.get("foo", "bar")).isNull();
+    assertThat(cache.get("foo", "bar", "baz")).isNull();
+    assertThat(cache.keySet()).isEmpty();
+    assertThat(cache.keySet("foo")).isEmpty();
+    assertThat(cache.containsKey("foo")).isFalse();
+    assertThat(cache.containsKey("foo", "bar")).isFalse();
+    assertThat(cache.containsKey("foo", "bar", "baz")).isFalse();
+    assertThat(cache.values()).isEmpty();
+    assertThat(cache.values("foo")).isEmpty();
 
     // do not fail
     cache.remove("foo");
-    cache.remove("group", "foo");
+    cache.remove("foo", "bar");
+    cache.remove("foo", "bar", "baz");
+    cache.clear("foo");
+    cache.clear("foo", "bar");
+    cache.clear("foo", "bar", "baz");
     cache.clear();
-    cache.clear("group");
-    cache.clearAll();
-  }
-
-  @Test
-  public void test_get_missing_key() {
-    Cache<String, String> cache = caches.createCache("issues");
-    assertThat(cache.get("foo")).isNull();
-  }
-
-  @Test
-  public void test_keyset_of_group() {
-    Cache<String, Float> cache = caches.createCache("measures");
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "coverage", 500f);
-    assertThat(cache.keySet("org/apache/struts/Action.java")).containsOnly("ncloc", "lines");
-    assertThat(cache.keySet("org/apache/struts/Filter.java")).containsOnly("coverage");
-  }
-
-  @Test
-  public void test_values_of_group() {
-    Cache<String, Float> cache = caches.createCache("measures");
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "lines", 500f);
-    assertThat(cache.values("org/apache/struts/Action.java")).containsOnly(123f, 200f);
-    assertThat(cache.values("org/apache/struts/Filter.java")).containsOnly(500f);
-    assertThat(cache.values("other")).isEmpty();
-  }
-
-  @Test
-  public void test_values() {
-    Cache<String, Float> cache = caches.createCache("measures");
-    cache.put("ncloc", 123f);
-    cache.put("lines", 200f);
-    assertThat(cache.values()).containsOnly(123f, 200f);
-  }
-
-  @Test
-  public void test_all_values() {
-    Cache<String, Float> cache = caches.createCache("measures");
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
-    cache.put("org/apache/struts/Filter.java", "lines", 500f);
-
-    assertThat(cache.allValues()).containsOnly(123f, 200f, 400f, 500f);
-  }
-
-  @Test
-  public void test_groups() {
-    Cache<String, Float> cache = caches.createCache("issues");
-    assertThat(cache.groups()).isEmpty();
-
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
-
-    assertThat(cache.groups()).containsOnly("org/apache/struts/Action.java", "org/apache/struts/Filter.java");
-  }
-
-  @Test
-  public void test_entries() throws PersistitException {
-    Cache<String, Float> cache = caches.createCache("issues");
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
-
-    Cache.Entry[] entries = Iterables.toArray(cache.<Float>entries(), Cache.Entry.class);
-    assertThat(entries).hasSize(3);
-    assertThat(entries[0].group()).isEqualTo("org/apache/struts/Action.java");
-    assertThat(entries[0].key()).isEqualTo("lines");
-    assertThat(entries[0].value()).isEqualTo(200f);
-    assertThat(entries[1].group()).isEqualTo("org/apache/struts/Action.java");
-    assertThat(entries[1].key()).isEqualTo("ncloc");
-    assertThat(entries[1].value()).isEqualTo(123f);
-    assertThat(entries[2].group()).isEqualTo("org/apache/struts/Filter.java");
-    assertThat(entries[2].key()).isEqualTo("ncloc");
-    assertThat(entries[2].value()).isEqualTo(400f);
-  }
-
-  @Test
-  public void test_entries_of_group() throws PersistitException {
-    Cache<String, Float> cache = caches.createCache("issues");
-    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
-    cache.put("org/apache/struts/Action.java", "lines", 200f);
-    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
-
-    Cache.Entry[] entries = Iterables.toArray(cache.<Float>entries("org/apache/struts/Action.java"), Cache.Entry.class);
-    assertThat(entries).hasSize(2);
-    assertThat(entries[0].group()).isEqualTo("org/apache/struts/Action.java");
-    assertThat(entries[0].key()).isEqualTo("lines");
-    assertThat(entries[0].value()).isEqualTo(200f);
-    assertThat(entries[1].group()).isEqualTo("org/apache/struts/Action.java");
-    assertThat(entries[1].key()).isEqualTo("ncloc");
-    assertThat(entries[1].value()).isEqualTo(123f);
   }
 }

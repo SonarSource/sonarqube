@@ -19,9 +19,8 @@
  */
 package org.sonar.plugins.cpd.index;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.collect.Lists;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;

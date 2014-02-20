@@ -19,9 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
 public class RulesWs implements WebService {
@@ -41,16 +38,6 @@ public class RulesWs implements WebService {
     NewController controller = context.newController("api/rules")
       .setDescription("Coding rules");
 
-    controller.newAction("list")
-      .setDescription("List coding rules")
-      .setSince("4.2")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          list(request, response);
-        }
-      });
-
     controller.newAction("show")
       .setDescription("Detail of rule")
       .setSince("4.2")
@@ -69,13 +56,6 @@ public class RulesWs implements WebService {
       .setHandler(removeTagsWsHandler));
 
     controller.done();
-  }
-
-  void list(Request request, Response response) {
-    response.newJsonWriter().beginObject()
-      .prop("TODO", true)
-      .endObject()
-      .close();
   }
 
   private void addTagParams(final NewAction action) {

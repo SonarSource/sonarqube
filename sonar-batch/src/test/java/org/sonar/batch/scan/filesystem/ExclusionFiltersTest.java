@@ -24,9 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
@@ -60,12 +60,12 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isFalse();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.Type.MAIN)).isTrue();
 
     // test are excluded by default if no sonar.tests nor sonar.test.inclusions
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isFalse();
   }
 
   @Test
@@ -78,12 +78,12 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isTrue();
 
-    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.Type.MAIN)).isFalse();
 
     // source inclusions do not apply to tests
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isFalse();
   }
 
   @Test
@@ -97,11 +97,11 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isTrue();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isFalse();
 
-    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isTrue();
   }
 
   @Test
@@ -115,12 +115,12 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isFalse();
 
-    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java2/com/mycompany/FooDao.java", InputFile.Type.MAIN)).isTrue();
 
     // source inclusions do not apply to tests
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isFalse();
   }
 
   @Test
@@ -134,11 +134,11 @@ public class ExclusionFiltersTest {
     java.io.File file = temp.newFile();
 
     // test inclusions do not apply to main code
-    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isFalse();
 
-    assertThat(filter.accept(file, "src/test2/java/com/mycompany/FooTest.java", InputFile.TYPE_TEST)).isFalse();
+    assertThat(filter.accept(file, "src/test2/java/com/mycompany/FooTest.java", InputFile.Type.TEST)).isFalse();
 
-    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.TYPE_TEST)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/Foo.java", InputFile.Type.TEST)).isTrue();
   }
 
   @Test
@@ -151,9 +151,9 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isFalse();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDto.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDto.java", InputFile.Type.MAIN)).isTrue();
   }
 
   @Test
@@ -167,12 +167,12 @@ public class ExclusionFiltersTest {
     filter.prepare(fs);
 
     java.io.File file = temp.newFile();
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/FooDao.java", InputFile.Type.MAIN)).isFalse();
 
-    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(file, "src/main/java/com/mycompany/Foo.java", InputFile.Type.MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    assertThat(filter.accept(file, "src/test/java/com/mycompany/FooDao.java", InputFile.TYPE_TEST)).isTrue();
+    assertThat(filter.accept(file, "src/test/java/com/mycompany/FooDao.java", InputFile.Type.TEST)).isTrue();
   }
 
   @Test
@@ -187,9 +187,9 @@ public class ExclusionFiltersTest {
 
     filter.prepare(fs);
 
-    assertThat(filter.accept(includedFile, "src/main/java/org/bar/Foo.java", InputFile.TYPE_MAIN)).isTrue();
+    assertThat(filter.accept(includedFile, "src/main/java/org/bar/Foo.java", InputFile.Type.MAIN)).isTrue();
 
-    assertThat(filter.accept(excludedFile, "src/main/java/org/bar/Bar.java", InputFile.TYPE_MAIN)).isFalse();
+    assertThat(filter.accept(excludedFile, "src/main/java/org/bar/Bar.java", InputFile.Type.MAIN)).isFalse();
   }
 
   @Test

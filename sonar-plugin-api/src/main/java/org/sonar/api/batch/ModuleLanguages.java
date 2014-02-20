@@ -33,6 +33,4 @@ public interface ModuleLanguages extends BatchComponent {
 
   Collection<String> keys();
 
-  Collection<Language> languages();
-
 }

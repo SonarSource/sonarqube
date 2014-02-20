@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,10 +26,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
@@ -89,10 +87,10 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     File file = new File(baseDir, path);
     String effectiveKey = module.getKey() + ":" + path;
     String deprecatedEffectiveKey = module.getKey() + ":" + deprecatedKey;
-    return new InputFileBuilder(file, Charsets.UTF_8, path)
-      .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, effectiveKey)
-      .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_DEPRECATED_KEY, deprecatedEffectiveKey)
-      .attribute(InputFile.ATTRIBUTE_TYPE, isTest ? InputFile.TYPE_TEST : InputFile.TYPE_MAIN).build();
+    return new DefaultInputFile(path).setFile(file)
+      .setKey(effectiveKey)
+      .setDeprecatedKey(deprecatedEffectiveKey)
+      .setType(isTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }
 
   @Test
@@ -114,7 +112,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     verify(logger).info("Migrated resource {} to {}", "b:org/foo", "b:src/main/java/org/foo");
     verify(logger).info("Migrated resource {} to {}", "b:[root]", "b:src/main/java");
 
-    checkTables("shouldMigrateResourceKeys", new String[] {"build_date", "created_at"}, "projects");
+    checkTables("shouldMigrateResourceKeys", new String[]{"build_date", "created_at"}, "projects");
   }
 
   private static Project newProject(String key, String language) {

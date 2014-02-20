@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,10 +36,11 @@ public class InputFileBuilderFactoryTest {
     LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+    AnalysisMode analysisMode = mock(AnalysisMode.class);
 
     InputFileBuilderFactory factory = new InputFileBuilderFactory(
       project, pathResolver, langDetectionFactory,
-      statusDetectionFactory);
+      statusDetectionFactory, analysisMode);
     InputFileBuilder builder = factory.create(fs);
 
     assertThat(builder.langDetection()).isNotNull();

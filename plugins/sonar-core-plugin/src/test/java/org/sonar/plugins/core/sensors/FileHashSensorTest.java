@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -29,8 +27,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -59,9 +58,8 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes() throws Exception {
     when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
-      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Foo.java", ImmutableMap.of(DefaultInputFile.ATTRIBUTE_HASH, "ABC")),
-      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Bar.java", ImmutableMap.of(DefaultInputFile.ATTRIBUTE_HASH, "DEF"))
-      ));
+      new DefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);
@@ -74,9 +72,8 @@ public class FileHashSensorTest {
   public void store_file_hashes_for_branches() throws Exception {
     project = new Project("struts", "branch-2.x", "Struts 2.x");
     when(fileCache.byModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
-      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Foo.java", ImmutableMap.of(DefaultInputFile.ATTRIBUTE_HASH, "ABC")),
-      DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/Bar.java", ImmutableMap.of(DefaultInputFile.ATTRIBUTE_HASH, "DEF"))
-      ));
+      new DefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);

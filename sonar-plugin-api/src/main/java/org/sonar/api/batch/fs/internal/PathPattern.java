@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 
-abstract class PathPattern {
-
-  private static final Logger LOG = LoggerFactory.getLogger(PathPattern.class);
+public abstract class PathPattern {
 
   final WildcardPattern pattern;
 
@@ -40,26 +35,21 @@ abstract class PathPattern {
     this.pattern = WildcardPattern.create(pattern);
   }
 
-  abstract boolean match(Resource resource);
+  public abstract boolean match(InputFile inputFile);
 
-  abstract boolean match(InputFile inputFile);
+  public abstract boolean match(File ioFile, String relativePathFromBasedir);
 
-  abstract boolean match(File ioFile, String relativePathFromBasedir);
+  public abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
 
-  abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
-
-  abstract boolean supportResource();
-
-  static PathPattern create(String s) {
+  public static PathPattern create(String s) {
     String trimmed = StringUtils.trim(s);
     if (StringUtils.startsWithIgnoreCase(trimmed, "file:")) {
-      LOG.warn("Absolute path patterns are deprecated. Please replace {} by a path pattern relative to the basedir of the module.", trimmed);
       return new AbsolutePathPattern(StringUtils.substring(trimmed, "file:".length()));
     }
     return new RelativePathPattern(trimmed);
   }
 
-  static PathPattern[] create(String[] s) {
+  public static PathPattern[] create(String[] s) {
     PathPattern[] result = new PathPattern[s.length];
     for (int i = 0; i < s.length; i++) {
       result[i] = create(s[i]);
@@ -67,28 +57,24 @@ abstract class PathPattern {
     return result;
   }
 
-  /**
-   * @deprecated since 4.2
-   */
-  @Deprecated
   private static class AbsolutePathPattern extends PathPattern {
     private AbsolutePathPattern(String pattern) {
       super(pattern);
     }
 
     @Override
-    boolean match(File ioFile, String relativePathFromBasedir) {
-      String path = PathUtils.canonicalPath(ioFile);
+    public boolean match(File ioFile, String relativePathFromBasedir) {
+      String path = PathUtils.sanitize(ioFile.getAbsolutePath());
       return pattern.match(path);
     }
 
     @Override
-    boolean match(InputFile inputFile) {
+    public boolean match(InputFile inputFile) {
       return match(inputFile, true);
     }
 
     @Override
-    boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
+    public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.absolutePath();
       if (!caseSensitiveFileExtension) {
         String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
@@ -98,16 +84,6 @@ abstract class PathPattern {
         }
       }
       return pattern.match(path);
-    }
-
-    @Override
-    boolean match(Resource resource) {
-      return false;
-    }
-
-    @Override
-    boolean supportResource() {
-      return false;
     }
 
     @Override
@@ -125,18 +101,18 @@ abstract class PathPattern {
     }
 
     @Override
-    boolean match(File ioFile, String relativePathFromBasedir) {
+    public boolean match(File ioFile, String relativePathFromBasedir) {
       return relativePathFromBasedir != null && pattern.match(relativePathFromBasedir);
     }
 
     @Override
-    boolean match(InputFile inputFile) {
+    public boolean match(InputFile inputFile) {
       return match(inputFile, true);
     }
 
     @Override
-    boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
-      String path = inputFile.path();
+    public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
+      String path = inputFile.relativePath();
       if (!caseSensitiveFileExtension) {
         String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
         if (StringUtils.isNotBlank(extension)) {
@@ -145,16 +121,6 @@ abstract class PathPattern {
         }
       }
       return path != null && pattern.match(path);
-    }
-
-    @Override
-    boolean match(Resource resource) {
-      return resource.matchFilePattern(pattern.toString());
-    }
-
-    @Override
-    boolean supportResource() {
-      return true;
     }
 
     @Override

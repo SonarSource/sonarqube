@@ -59,18 +59,8 @@ import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
-import org.sonar.batch.scan.filesystem.ComponentIndexer;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
-import org.sonar.batch.scan.filesystem.ExclusionFilters;
-import org.sonar.batch.scan.filesystem.FileIndex;
-import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
-import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
-import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
-import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
+import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.scan.filesystem.FileIndexer;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
@@ -112,6 +102,7 @@ public class ModuleScanContainer extends ComponentContainer {
       moduleDefinition.getContainerExtensions(),
 
       // file system
+      ModuleInputFileCache.class,
       FileExclusions.class,
       ExclusionFilters.class,
       DeprecatedFileFilters.class,
@@ -119,7 +110,7 @@ public class ModuleScanContainer extends ComponentContainer {
       StatusDetectionFactory.class,
       LanguageDetectionFactory.class,
       PreviousFileHashLoader.class,
-      FileIndex.class,
+      FileIndexer.class,
       ComponentIndexer.class,
       DefaultModuleLanguages.class,
       FileSystemLogger.class,

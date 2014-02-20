@@ -27,17 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -53,7 +53,6 @@ import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import javax.annotation.Nullable;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -62,12 +61,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class SonarEngine extends CpdEngine {
 
@@ -81,12 +75,12 @@ public class SonarEngine extends CpdEngine {
   private static final int TIMEOUT = 5 * 60;
 
   private final IndexFactory indexFactory;
-  private final DefaultModuleFileSystem fileSystem;
+  private final FileSystem fs;
   private final Settings settings;
 
-  public SonarEngine(IndexFactory indexFactory, DefaultModuleFileSystem moduleFileSystem, Settings settings) {
+  public SonarEngine(IndexFactory indexFactory, FileSystem fs, Settings settings) {
     this.indexFactory = indexFactory;
-    this.fileSystem = moduleFileSystem;
+    this.fs = fs;
     this.settings = settings;
   }
 
@@ -99,7 +93,11 @@ public class SonarEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    Iterable<InputFile> sourceFiles = fileSystem.inputFiles(FileQuery.onMain().onLanguage(languageKey).withExclusions(cpdExclusions));
+    Iterable<InputFile> sourceFiles = fs.inputFiles(FilePredicates.and(
+      FilePredicates.hasType(InputFile.Type.MAIN),
+      FilePredicates.hasLanguage(languageKey),
+      FilePredicates.doesNotMatchPathPatterns(cpdExclusions)
+    ));
     if (!sourceFiles.iterator().hasNext()) {
       return;
     }
@@ -116,13 +114,13 @@ public class SonarEngine extends CpdEngine {
 
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
 
       List<Statement> statements;
 
       Reader reader = null;
       try {
-        reader = new InputStreamReader(new FileInputStream(inputFile.file()), fileSystem.sourceCharset());
+        reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new SonarException("Cannot find file " + inputFile.file(), e);
@@ -142,7 +140,7 @@ public class SonarEngine extends CpdEngine {
     try {
       for (InputFile inputFile : sourceFiles) {
         LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
 
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 

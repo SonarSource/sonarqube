@@ -19,18 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class InputFileCacheTest {
@@ -54,17 +52,15 @@ public class InputFileCacheTest {
   @Test
   public void should_add_input_file() throws Exception {
     InputFileCache cache = new InputFileCache(caches);
-    cache.put("struts", DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
-    cache.put("struts-core", DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap()));
+    cache.put("struts", new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java")));
+    cache.put("struts-core", new DefaultInputFile("src/main/java/Bar.java").setFile(temp.newFile("Bar.java")));
 
     assertThat(cache.byModule("struts")).hasSize(1);
     assertThat(cache.byModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(2);
     for (InputFile inputFile : cache.all()) {
-      assertThat(inputFile.path()).startsWith("src/main/java");
+      assertThat(inputFile.relativePath()).startsWith("src/main/java/");
     }
-    assertThat(cache.fileRelativePaths("struts-core")).containsOnly("src/main/java/Foo.java");
-
     cache.removeModule("struts");
     assertThat(cache.byModule("struts")).hasSize(0);
     assertThat(cache.byModule("struts-core")).hasSize(1);

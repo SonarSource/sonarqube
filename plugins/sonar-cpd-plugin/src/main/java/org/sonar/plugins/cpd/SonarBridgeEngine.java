@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.CloneGroup;
@@ -42,14 +42,9 @@ import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class SonarBridgeEngine extends CpdEngine {
 
@@ -62,18 +57,18 @@ public class SonarBridgeEngine extends CpdEngine {
 
   private final IndexFactory indexFactory;
   private final CpdMapping[] mappings;
-  private final DefaultModuleFileSystem fileSystem;
+  private final FileSystem fs;
   private final Settings settings;
 
-  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings, DefaultModuleFileSystem moduleFileSystem, Settings settings) {
+  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings, FileSystem fs, Settings settings) {
     this.indexFactory = indexFactory;
     this.mappings = mappings;
-    this.fileSystem = moduleFileSystem;
+    this.fs = fs;
     this.settings = settings;
   }
 
-  public SonarBridgeEngine(IndexFactory indexFactory, DefaultModuleFileSystem moduleFileSystem, Settings settings) {
-    this(indexFactory, new CpdMapping[0], moduleFileSystem, settings);
+  public SonarBridgeEngine(IndexFactory indexFactory, FileSystem fs, Settings settings) {
+    this(indexFactory, new CpdMapping[0], fs, settings);
   }
 
   @Override
@@ -85,8 +80,11 @@ public class SonarBridgeEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    Iterable<InputFile> sourceFiles = fileSystem.inputFiles(FileQuery.onMain().onLanguage(languageKey)
-      .withExclusions(cpdExclusions));
+    Iterable<InputFile> sourceFiles = fs.inputFiles(FilePredicates.and(
+      FilePredicates.hasType(InputFile.Type.MAIN),
+      FilePredicates.hasLanguage(languageKey),
+      FilePredicates.doesNotMatchPathPatterns(cpdExclusions)
+    ));
     if (!sourceFiles.iterator().hasNext()) {
       return;
     }
@@ -99,10 +97,10 @@ public class SonarBridgeEngine extends CpdEngine {
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);
 
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.sourceCharset().name(), getBlockSize(project, languageKey));
+    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(project, languageKey));
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
       List<Block> blocks = bridge.chunk(resourceEffectiveKey, inputFile.file());
       index.insert(inputFile, blocks);
     }
@@ -114,7 +112,7 @@ public class SonarBridgeEngine extends CpdEngine {
     try {
       for (InputFile inputFile : sourceFiles) {
         LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 
         Iterable<CloneGroup> filtered;

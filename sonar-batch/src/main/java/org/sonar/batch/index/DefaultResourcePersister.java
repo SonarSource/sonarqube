@@ -22,23 +22,16 @@ package org.sonar.batch.index;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.resources.*;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
-
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -140,7 +133,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Resource fromInputFile(InputFile inputFile) {
-    return File.create(inputFile.path());
+    return File.create(inputFile.relativePath());
   }
 
   /**

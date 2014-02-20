@@ -53,7 +53,7 @@ public class FileSystemLogger implements BatchComponent {
   }
 
   private void logEncoding(Logger logger, Charset charset) {
-    if (!fs.isDefaultSourceCharset()) {
+    if (!fs.isDefaultJvmEncoding()) {
       logger.info("Source encoding: " + charset.displayName() + ", default locale: " + Locale.getDefault());
     } else {
       logger.warn("Source encoding is platform dependent (" + charset.displayName() + "), default locale: " + Locale.getDefault());

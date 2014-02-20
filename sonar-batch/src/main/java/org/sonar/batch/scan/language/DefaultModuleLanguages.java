@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.language;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -27,26 +28,22 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.SonarException;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Give access to all languages detected on the current module
+ *
  * @since 4.2
  */
 public class DefaultModuleLanguages implements ModuleLanguages {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleLanguages.class);
 
-  private Map<String, Language> moduleLanguages = new HashMap<String, Language>();
-
-  private Languages languages;
+  private final List<String> moduleLanguages = Lists.newArrayList();
 
   public DefaultModuleLanguages(Settings settings, Languages languages) {
-    this.languages = languages;
     if (settings.hasKey(CoreProperties.PROJECT_LANGUAGE_PROPERTY)) {
       String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
       LOG.info("Language is forced to {}", languageKey);
@@ -59,18 +56,11 @@ public class DefaultModuleLanguages implements ModuleLanguages {
   }
 
   public void addLanguage(String languageKey) {
-    Language language = languages.get(languageKey);
-    if (language == null) {
-      throw new SonarException("Language with key '" + languageKey + "' not found");
-    }
-    moduleLanguages.put(languageKey, language);
+    moduleLanguages.add(languageKey);
   }
 
+  @Override
   public Collection<String> keys() {
-    return moduleLanguages.keySet();
-  }
-
-  public Collection<Language> languages() {
-    return moduleLanguages.values();
+    return moduleLanguages;
   }
 }

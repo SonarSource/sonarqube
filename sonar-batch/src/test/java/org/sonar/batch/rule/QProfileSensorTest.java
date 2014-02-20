@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.rule;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.SensorContext;
@@ -52,7 +52,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
   public void no_qprofiles() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findAll()).thenReturn(Collections.emptyList());
+    when(moduleQProfiles.findAll()).thenReturn(Collections.<ModuleQProfiles.QProfile>emptyList());
 
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();

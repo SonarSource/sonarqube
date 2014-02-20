@@ -22,6 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 public class InputFileBuilderFactory implements BatchComponent {
 
@@ -29,16 +30,18 @@ public class InputFileBuilderFactory implements BatchComponent {
   private final PathResolver pathResolver;
   private final LanguageDetectionFactory langDetectionFactory;
   private final StatusDetectionFactory statusDetectionFactory;
+  private final AnalysisMode analysisMode;
 
   public InputFileBuilderFactory(Project moduleDef, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-                                 StatusDetectionFactory statusDetectionFactory) {
+                                 StatusDetectionFactory statusDetectionFactory, AnalysisMode analysisMode) {
     this.moduleKey = moduleDef.getEffectiveKey();
     this.pathResolver = pathResolver;
     this.langDetectionFactory = langDetectionFactory;
     this.statusDetectionFactory = statusDetectionFactory;
+    this.analysisMode = analysisMode;
   }
 
   InputFileBuilder create(DefaultModuleFileSystem fs) {
-    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs);
+    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode);
   }
 }

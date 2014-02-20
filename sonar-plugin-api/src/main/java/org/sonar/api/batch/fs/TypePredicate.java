@@ -17,32 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
+package org.sonar.api.batch.fs;
 
-import org.sonar.api.scan.filesystem.InputFile;
+/**
+ * @since 4.2
+ */
+class TypePredicate implements FilePredicate {
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+  private final InputFile.Type type;
 
-import java.io.File;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class InputFilesTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void test_toFiles() throws Exception {
-    File file1 = temp.newFile();
-    File file2 = temp.newFile();
-    InputFile input1 = new InputFileBuilder(file1, Charsets.UTF_8, "src/main/java/Foo.java").build();
-    InputFile input2 = new InputFileBuilder(file2, Charsets.UTF_8, "src/main/java/Bar.java").build();
-
-    assertThat(InputFiles.toFiles(Lists.newArrayList(input1, input2))).containsOnly(file1, file2);
+  TypePredicate(InputFile.Type type) {
+    this.type = type;
   }
+
+  @Override
+  public boolean apply(InputFile f) {
+    return type == f.type();
+  }
+
 }
+

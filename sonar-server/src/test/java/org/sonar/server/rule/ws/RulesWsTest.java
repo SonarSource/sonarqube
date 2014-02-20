@@ -54,14 +54,7 @@ public class RulesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(4);
-
-    WebService.Action search = controller.action("list");
-    assertThat(search).isNotNull();
-    assertThat(search.handler()).isNotNull();
-    assertThat(search.since()).isEqualTo("4.2");
-    assertThat(search.isPost()).isFalse();
-    assertThat(search.isPrivate()).isFalse();
+    assertThat(controller.actions()).hasSize(3);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -86,10 +79,4 @@ public class RulesWsTest {
     assertThat(removeTags.isPrivate()).isFalse();
     assertThat(removeTags.params()).hasSize(2);
   }
-
-  @Test
-  public void search_for_rules() throws Exception {
-    tester.newRequest("list").execute().assertJson(getClass(), "list.json");
-  }
-
 }

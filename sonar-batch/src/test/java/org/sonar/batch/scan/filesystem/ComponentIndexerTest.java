@@ -30,50 +30,40 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
+import org.sonar.api.resources.*;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ComponentIndexerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  private File baseDir;
-  private DefaultModuleFileSystem fs;
-  private SonarIndex sonarIndex;
-  private AbstractLanguage cobolLanguage;
-  private Project project;
-  private Settings settings;
+  File baseDir;
+  DefaultFileSystem fs = new DefaultFileSystem();
+  SonarIndex sonarIndex;
+  AbstractLanguage cobolLanguage;
+  Project project;
+  Settings settings;
 
-  private String aClaess;
-  private String explicacao;
+  String aClaess;
+  String explicacao;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    fs = mock(DefaultModuleFileSystem.class);
     sonarIndex = mock(SonarIndex.class);
     project = mock(Project.class);
     settings = new Settings();
@@ -90,10 +80,9 @@ public class ComponentIndexerTest {
 
   @Test
   public void should_index_java_files() throws IOException {
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false),
-      newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false),
-      newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true)));
+    fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
+    fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
+    fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(InputFileCache.class));
@@ -114,10 +103,9 @@ public class ComponentIndexerTest {
 
   @Test
   public void should_index_cobol_files() throws IOException {
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false),
-      newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false),
-      newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true)));
+    fs.add(newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false));
+    fs.add(newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false));
+    fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true));
 
     Languages languages = new Languages(cobolLanguage);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
@@ -133,8 +121,7 @@ public class ComponentIndexerTest {
   public void shouldImportSource() throws IOException {
     settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
 
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false)));
+    fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(InputFileCache.class));
@@ -167,16 +154,14 @@ public class ComponentIndexerTest {
   }
 
   @Test
-  public void should_remove_byte_order_mark_character() throws Exception {
+  public void remove_byte_order_mark_character() throws Exception {
     settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charset.forName("UTF-8"), "src/main/java/foo/bar/Foo.java")
-        .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
-        .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
-        .build()));
+    fs.add(new DefaultInputFile("src/main/java/foo/bar/Foo.java").setFile(javaFile1)
+      .setPathRelativeToSourceDir("foo/bar/Foo.java")
+      .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(InputFileCache.class));
@@ -195,16 +180,14 @@ public class ComponentIndexerTest {
 
   private void fileEncodingTest(String encoding, String testFile) throws Exception {
     settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
+    fs.setEncoding(Charset.forName(encoding));
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.copyFile(getFile(testFile), javaFile1);
-    when(fs.inputFiles(FileQuery.all()))
-      .thenReturn(
-        (Iterable) Arrays.asList(
-          new InputFileBuilder(javaFile1, Charset.forName(encoding), "src/main/java/foo/bar/Foo.java")
-            .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "foo/bar/Foo.java")
-            .attribute(InputFile.ATTRIBUTE_LANGUAGE, "java")
-            .build()));
+    fs.add(new DefaultInputFile("src/main/java/foo/bar/Foo.java")
+      .setFile(javaFile1)
+      .setPathRelativeToSourceDir("foo/bar/Foo.java")
+      .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
       mock(InputFileCache.class));
@@ -221,36 +204,18 @@ public class ComponentIndexerTest {
     }));
   }
 
-  @Test
-  public void should_compute_line_count() throws IOException {
-    DefaultInputFile inputFile3lines = newInputFile("src/main/java/foo/bar/Foo1.java", "line1\nline2\nline3", "foo/bar/Foo1.java", "java", false);
-    DefaultInputFile inputFileEmpty = newInputFile("src/main/java/foo/bar/Foo2.java", "", "foo/bar/Foo2.java", "java", false);
-    DefaultInputFile inputFileEndsWithNewLine = newInputFile("src/main/java/foo/bar/Foo3.java", "line1\nline2\nline3\n", "foo/bar/Foo3.java", "java", false);
-    DefaultInputFile inputFileMixedLineEnds = newInputFile("src/main/java/foo/bar/Foo4.java", "line1\r\r\nline3\r\n\nline5\r", "foo/bar/Foo4.java", "java", false);
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(inputFile3lines, inputFileEmpty, inputFileEndsWithNewLine, inputFileMixedLineEnds));
-    Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(InputFileCache.class));
-    indexer.execute(fs);
-
-    assertThat(inputFile3lines.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("3");
-    assertThat(inputFileEmpty.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("1");
-    assertThat(inputFileEndsWithNewLine.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("4");
-    assertThat(inputFileMixedLineEnds.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).isEqualTo("6");
-  }
 
   private File getFile(String testFile) {
-    return new File("test-resources/org/sonar/batch/phases/FileIndexerTest/encoding/" + testFile);
+    return new File("test-resources/org/sonar/batch/phases/ComponentIndexerTest/encoding/" + testFile);
   }
 
   private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
-    return new InputFileBuilder(file, Charsets.UTF_8, path)
-      .attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, sourceRelativePath)
-      .attribute(InputFile.ATTRIBUTE_LANGUAGE, languageKey)
-      .attribute(InputFile.ATTRIBUTE_TYPE, unitTest ? InputFile.TYPE_TEST : InputFile.TYPE_MAIN)
-      .build();
+    return new DefaultInputFile(path).setFile(file)
+      .setPathRelativeToSourceDir(sourceRelativePath)
+      .setLanguage(languageKey)
+      .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }
 
 }

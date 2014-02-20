@@ -26,10 +26,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
@@ -100,7 +101,7 @@ class LanguageDetection {
               break;
             } else {
               // Language was already forced by another pattern
-              throw MessageException.of("Language of file '" + inputFile.path() + "' can not be decided as the file matches patterns of both " + getDetails(detectedLanguage)
+              throw MessageException.of("Language of file '" + inputFile.relativePath() + "' can not be decided as the file matches patterns of both " + getDetails(detectedLanguage)
                 + " and " + getDetails(languageKey));
             }
           }
@@ -108,7 +109,7 @@ class LanguageDetection {
       }
     }
     if (detectedLanguage != null) {
-      LOG.debug("Language of file '" + inputFile.path() + "' was detected to be '" + detectedLanguage + "'");
+      LOG.debug("Language of file '" + inputFile.relativePath() + "' was detected to be '" + detectedLanguage + "'");
       return detectedLanguage;
     }
 

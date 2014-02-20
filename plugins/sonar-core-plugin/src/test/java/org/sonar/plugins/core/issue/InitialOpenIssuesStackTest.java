@@ -60,14 +60,14 @@ public class InitialOpenIssuesStackTest {
   Caches caches;
 
   @Before
-  public void setUp() throws Exception {
+  public void before() throws Exception {
     caches = createCacheOnTemp(temp);
     caches.start();
     stack = new InitialOpenIssuesStack(caches);
   }
 
   @After
-  public void tearDown() {
+  public void after() {
     caches.stop();
   }
 

@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
 
 import java.util.Map;
 
@@ -32,15 +32,15 @@ class StatusDetection {
     this.previousHashByRelativePath = previousHashByRelativePath;
   }
 
-  String status(String relativePath, String hash) {
+  InputFile.Status status(String relativePath, String hash) {
     String previousHash = previousHashByRelativePath.get(relativePath);
 
     if (StringUtils.equals(hash, previousHash)) {
-      return InputFile.STATUS_SAME;
+      return InputFile.Status.SAME;
     }
     if (StringUtils.isEmpty(previousHash)) {
-      return InputFile.STATUS_ADDED;
+      return InputFile.Status.ADDED;
     }
-    return InputFile.STATUS_CHANGED;
+    return InputFile.Status.CHANGED;
   }
 }

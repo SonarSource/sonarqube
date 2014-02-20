@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
@@ -26,9 +27,9 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.InputFileFilter;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
@@ -41,33 +42,9 @@ import java.util.Set;
 /**
  * Index input files into {@link InputFileCache}.
  */
-public class FileIndex implements BatchComponent {
+public class FileIndexer implements BatchComponent {
 
   private static final String FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR = "File '%s' is not declared in module basedir %s";
-
-  private static class Progress {
-    private final Set<String> removedPaths;
-    private final Set<String> indexed;
-
-    Progress(Set<String> removedPaths) {
-      this.removedPaths = removedPaths;
-      this.indexed = new HashSet<String>();
-    }
-
-    void markAsIndexed(String relativePath) {
-      if (indexed.contains(relativePath)) {
-        throw new SonarException("File " + relativePath + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
-          + "disjoint sets for main and test files");
-      }
-      removedPaths.remove(relativePath);
-      indexed.add(relativePath);
-    }
-
-    int count() {
-      return indexed.size();
-    }
-  }
-
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
@@ -78,18 +55,18 @@ public class FileIndex implements BatchComponent {
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
-  public FileIndex(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputFileCache cache, PathResolver pathResolver, Project project) {
+  public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
+                     InputFileCache cache, PathResolver pathResolver, Project module) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
     this.fileCache = cache;
     this.pathResolver = pathResolver;
-    this.module = project;
+    this.module = module;
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
-    Logger logger = LoggerFactory.getLogger(FileIndex.class);
+    Logger logger = LoggerFactory.getLogger(FileIndexer.class);
     if (!module.getModules().isEmpty()) {
       // No indexing for an aggregator module
       return;
@@ -98,28 +75,28 @@ public class FileIndex implements BatchComponent {
     exclusionFilters.prepare(fileSystem);
     // TODO log configuration too (replace FileSystemLogger)
 
-    Progress progress = new Progress(fileCache.fileRelativePaths(fileSystem.moduleKey()));
+    Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     if (!fileSystem.sourceFiles().isEmpty() || !fileSystem.testFiles().isEmpty()) {
       // Index only provided files
-      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.TYPE_MAIN);
-      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.TYPE_TEST);
+      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.Type.MAIN);
+      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.Type.TEST);
     } else if (fileSystem.baseDir() != null) {
       // index from basedir
       indexDirectory(inputFileBuilder, fileSystem, progress, fileSystem.baseDir());
     }
 
     // Remove files that have been removed since previous indexation
-    for (String path : progress.removedPaths) {
-      fileCache.remove(fileSystem.moduleKey(), path);
+    for (InputFile removed : progress.removed) {
+      fileCache.remove(fileSystem.moduleKey(), removed);
     }
 
     logger.info(String.format("%d files indexed", progress.count()));
 
   }
 
-  private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, String type) {
+  private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, InputFile.Type type) {
     for (File sourceFile : sourceFiles) {
       String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
       if (path == null) {
@@ -134,15 +111,6 @@ public class FileIndex implements BatchComponent {
     }
   }
 
-  Iterable<InputFile> inputFiles(String moduleKey) {
-    return fileCache.byModule(moduleKey);
-  }
-
-  InputFile inputFile(DefaultModuleFileSystem fileSystem, File ioFile) {
-    String path = computeFilePath(fileSystem, ioFile);
-    return fileCache.byPath(fileSystem.moduleKey(), path);
-  }
-
   private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File sourceFile : files) {
@@ -152,26 +120,22 @@ public class FileIndex implements BatchComponent {
           FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR, sourceFile.getAbsoluteFile(), fileSystem.baseDir()
           ));
       } else {
-        if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_MAIN)) {
-          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.TYPE_MAIN);
+        if (exclusionFilters.accept(sourceFile, path, InputFile.Type.MAIN)) {
+          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.Type.MAIN);
         }
-        if (exclusionFilters.accept(sourceFile, path, InputFile.TYPE_TEST)) {
-          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.TYPE_TEST);
+        if (exclusionFilters.accept(sourceFile, path, InputFile.Type.TEST)) {
+          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.Type.TEST);
         }
       }
     }
   }
 
-  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs, Progress status, File file, String path, String type) {
+  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs, Progress status, File file, String path, InputFile.Type type) {
     InputFile inputFile = inputFileBuilder.create(file, type);
     if (inputFile != null && accept(inputFile)) {
-      fileCache.put(fs.moduleKey(), inputFile);
-      status.markAsIndexed(path);
+      fs.add(inputFile);
+      status.markAsIndexed(inputFile);
     }
-  }
-
-  private String computeFilePath(DefaultModuleFileSystem fileSystem, File file) {
-    return pathResolver.relativePath(fileSystem.baseDir(), file);
   }
 
   private boolean accept(InputFile inputFile) {
@@ -183,4 +147,28 @@ public class FileIndex implements BatchComponent {
     }
     return true;
   }
+
+  private static class Progress {
+    private final Set<InputFile> removed;
+    private final Set<InputFile> indexed;
+
+    Progress(Iterable<InputFile> removed) {
+      this.removed = Sets.newHashSet(removed);
+      this.indexed = new HashSet<InputFile>();
+    }
+
+    void markAsIndexed(InputFile inputFile) {
+      if (indexed.contains(inputFile)) {
+        throw new SonarException("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
+          + "disjoint sets for main and test files");
+      }
+      removed.remove(inputFile);
+      indexed.add(inputFile);
+    }
+
+    int count() {
+      return indexed.size();
+    }
+  }
+
 }

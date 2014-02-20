@@ -83,16 +83,16 @@ public class CachesTest {
   @Test
   public void should_create_cache() throws Exception {
     caches.start();
-    Cache<String, Element> cache = caches.createCache("foo");
+    Cache<Element> cache = caches.createCache("foo");
     assertThat(cache).isNotNull();
   }
 
   @Test
   public void should_not_create_cache_twice() throws Exception {
     caches.start();
-    caches.<String, Element>createCache("foo");
+    caches.<Element>createCache("foo");
     try {
-      caches.<String, Element>createCache("foo");
+      caches.<Element>createCache("foo");
       fail();
     } catch (IllegalStateException e) {
       // ok

@@ -77,12 +77,12 @@ public class Caches implements BatchComponent, Startable {
     }
   }
 
-  public <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
+  public <V extends Serializable> Cache<V> createCache(String cacheName) {
     Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
     Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
-      Cache<K, V> cache = new Cache<K, V>(cacheName, exchange);
+      Cache<V> cache = new Cache<V>(cacheName, exchange);
       cacheNames.add(cacheName);
       return cache;
     } catch (Exception e) {

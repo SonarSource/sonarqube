@@ -17,35 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.report;
+package org.sonar.api.batch.fs;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+/**
+ * @since 4.2
+ */
+class NotPredicate implements FilePredicate {
 
-import java.util.Set;
+  private final FilePredicate predicate;
 
-abstract class ComponentSelector {
-
-  private final InputFileCache cache;
-
-  ComponentSelector(InputFileCache cache) {
-    this.cache = cache;
+  NotPredicate(FilePredicate predicate) {
+    this.predicate = predicate;
   }
 
-  public InputFileCache getCache() {
-    return cache;
+  @Override
+  public boolean apply(InputFile f) {
+    return !predicate.apply(f);
   }
 
-  abstract void init();
-
-  abstract boolean register(Issue issue);
-
-  abstract Set<String> componentKeys();
-
-  InputFile component(String componentKey) {
-    String moduleKey = org.apache.commons.lang.StringUtils.substringBeforeLast(componentKey, ":");
-    String path = org.apache.commons.lang.StringUtils.substringAfterLast(componentKey, ":");
-    return cache.byPath(moduleKey, path);
-  }
 }

@@ -46,7 +46,7 @@ public class ComponentDataCache implements BatchComponent {
     return data == null ? null : ((StringData) data).data();
   }
 
-  public <D extends Data> Iterable<Cache.Entry<D>> entries(String componentKey) {
-    return cache.entries(componentKey);
+  public <D extends Data> Iterable<Cache.SubEntry<D>> entries(String componentKey) {
+    return cache.subEntries(componentKey);
   }
 }

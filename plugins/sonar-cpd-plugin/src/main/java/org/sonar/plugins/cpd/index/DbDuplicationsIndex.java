@@ -19,10 +19,9 @@
  */
 package org.sonar.plugins.cpd.index;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ResourcePersister;

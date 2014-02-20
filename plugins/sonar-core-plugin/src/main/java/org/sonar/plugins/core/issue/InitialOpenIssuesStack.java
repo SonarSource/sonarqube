@@ -36,8 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class InitialOpenIssuesStack implements BatchExtension {
 
-  private final Cache<String, IssueDto> issuesCache;
-  private final Cache<String, ArrayList<IssueChangeDto>> issuesChangelogCache;
+  private final Cache<IssueDto> issuesCache;
+  private final Cache<ArrayList<IssueChangeDto>> issuesChangelogCache;
 
   public InitialOpenIssuesStack(Caches caches) {
     issuesCache = caches.createCache("last-open-issues");
@@ -60,7 +60,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
   }
 
   public Iterable<IssueDto> selectAllIssues() {
-    return issuesCache.allValues();
+    return issuesCache.values();
   }
 
   public InitialOpenIssuesStack addChangelog(IssueChangeDto issueChangeDto) {
@@ -79,7 +79,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
   }
 
   public void clear() {
-    issuesCache.clearAll();
-    issuesChangelogCache.clearAll();
+    issuesCache.clear();
+    issuesChangelogCache.clear();
   }
 }

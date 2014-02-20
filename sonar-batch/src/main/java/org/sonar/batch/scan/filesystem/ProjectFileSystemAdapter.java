@@ -21,22 +21,17 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.resources.*;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -140,11 +135,9 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
   }
 
   public List<File> getSourceFiles(Language... langs) {
-    List<File> result = Lists.newArrayList();
-    for (Language lang : langs) {
-      result.addAll(target.files(FileQuery.onMain().onLanguage(lang.getKey())));
-    }
-    return result;
+    return Lists.newArrayList(target.files(FilePredicates.and(
+      FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.MAIN),
+      newHasLanguagesPredicate(langs))));
   }
 
   public List<File> getJavaSourceFiles() {
@@ -156,15 +149,15 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
   }
 
   public List<File> getTestFiles(Language... langs) {
-    List<File> result = Lists.newArrayList();
-    for (Language lang : langs) {
-      result.addAll(target.files(FileQuery.onTest().onLanguage(lang.getKey())));
-    }
-    return result;
+    return Lists.newArrayList(target.files(FilePredicates.and(
+      FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
+      newHasLanguagesPredicate(langs))));
   }
 
   public boolean hasTestFiles(Language lang) {
-    return !getTestFiles(lang).isEmpty();
+    return target.hasFiles(FilePredicates.and(
+      FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
+      FilePredicates.hasLanguage(lang.getKey())));
   }
 
   public File writeToWorkingDirectory(String content, String fileName) throws IOException {
@@ -190,32 +183,25 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
   }
 
   public List<InputFile> mainFiles(String... langs) {
-    List<InputFile> result = Lists.newArrayList();
-    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onMain().onLanguage(langs));
-    for (org.sonar.api.scan.filesystem.InputFile file : files) {
-      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH);
-      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
-      if (sourceDir != null && sourceRelativePath != null) {
-        result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
-      } else {
-        result.add(InputFileUtils.create(target.baseDir(), file.path()));
-      }
-    }
-    return result;
+    return Lists.newArrayList((Iterable) target.inputFiles(FilePredicates.and(
+      FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.MAIN),
+      FilePredicates.hasLanguages(Arrays.asList(langs))
+    )));
+
   }
 
   public List<InputFile> testFiles(String... langs) {
-    List<InputFile> result = Lists.newArrayList();
-    Iterable<org.sonar.api.scan.filesystem.InputFile> files = target.inputFiles(FileQuery.onTest().onLanguage(langs));
-    for (org.sonar.api.scan.filesystem.InputFile file : files) {
-      String sourceDir = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH);
-      String sourceRelativePath = file.attribute(org.sonar.api.scan.filesystem.internal.DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
-      if (sourceDir != null && sourceRelativePath != null) {
-        result.add(InputFileUtils.create(new File(sourceDir), sourceRelativePath));
-      } else {
-        result.add(InputFileUtils.create(target.baseDir(), file.path()));
-      }
+    return Lists.newArrayList((Iterable) target.inputFiles(FilePredicates.and(
+      FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
+      FilePredicates.hasLanguages(Arrays.asList(langs))
+    )));
+  }
+
+  private static FilePredicate newHasLanguagesPredicate(Language... languages) {
+    List<FilePredicate> list = Lists.newArrayList();
+    for (Language language : languages) {
+      list.add(FilePredicates.hasLanguage(language.getKey()));
     }
-    return result;
+    return FilePredicates.or(list);
   }
 }

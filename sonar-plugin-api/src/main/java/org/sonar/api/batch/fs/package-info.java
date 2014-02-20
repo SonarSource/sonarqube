@@ -17,37 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+@ParametersAreNonnullByDefault
+package org.sonar.api.batch.fs;
 
-import org.sonar.api.scan.filesystem.InputFileFilter;
-
-import org.sonar.api.scan.filesystem.InputFile;
-import com.google.common.annotations.VisibleForTesting;
-
-import java.util.Collection;
-
-class AttributeFilter implements InputFileFilter {
-  private final String key;
-  private final Collection<String> values;
-
-  AttributeFilter(String key, Collection<String> values) {
-    this.key = key;
-    this.values = values;
-  }
-
-  @Override
-  public boolean accept(InputFile inputFile) {
-    String value = inputFile.attribute(key);
-    return values.contains(value);
-  }
-
-  @VisibleForTesting
-  String key() {
-    return key;
-  }
-
-  @VisibleForTesting
-  Collection<String> values() {
-    return values;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

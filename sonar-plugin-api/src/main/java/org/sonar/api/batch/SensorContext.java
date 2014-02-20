@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -26,7 +27,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.scan.filesystem.InputFile;
 
 import java.util.Collection;
 import java.util.Date;
@@ -42,7 +42,6 @@ public interface SensorContext {
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
    *
    * @return false if the resource is excluded
-   * @since 2.6
    * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
    */
   boolean index(Resource resource);
@@ -53,19 +52,20 @@ public interface SensorContext {
    * @param resource        the resource to index. Not nullable
    * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
    * @return false if the parent is not indexed or if the resource is excluded
-   * @since 2.6
    * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
    */
   boolean index(Resource resource, Resource parentReference);
 
   /**
    * Returns true if the referenced resource is indexed and excluded.
+   *
    * @since 2.6
    */
   boolean isExcluded(Resource reference);
 
   /**
    * Returns true if the referenced resource is indexed.
+   *
    * @since 2.6
    */
   boolean isIndexed(Resource reference, boolean acceptExcluded);
@@ -143,13 +143,6 @@ public interface SensorContext {
   Measure saveMeasure(Resource resource, Metric metric, Double value);
 
   /**
-   * Experimental.
-   * Add or update a measure on an InputFile.
-   * @since 4.2
-   */
-  Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
-
-  /**
    * Add or update a measure.
    * <p>
    * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
@@ -157,13 +150,6 @@ public interface SensorContext {
    * </p>
    */
   Measure saveMeasure(Resource resource, Measure measure);
-
-  /**
-   * Experimental.
-   * Add or update a measure on an InputFile.
-   * @since 4.2
-   */
-  Measure saveMeasure(InputFile inputFile, Measure measure);
 
   // ----------- RULE VIOLATIONS --------------
 
@@ -203,8 +189,7 @@ public interface SensorContext {
   /**
    * Save the source code of a file. The file must be have been indexed before.
    *
-   * @throws org.sonar.api.resources.DuplicatedSourceException
-   *          if the source has already been set on this resource
+   * @throws org.sonar.api.resources.DuplicatedSourceException if the source has already been set on this resource
    * @since 1.10. Returns a boolean since 2.6.
    * @deprecated since 4.2 Source import is done by the platform
    */
@@ -249,4 +234,13 @@ public interface SensorContext {
    */
   void deleteEvent(Event event);
 
+  /**
+   * @since 4.2
+   */
+  Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
+
+  /**
+   * @since 4.2
+   */
+  Measure saveMeasure(InputFile inputFile, Measure measure);
 }

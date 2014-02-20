@@ -47,7 +47,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
   }
 
@@ -57,7 +57,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz\r\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 
@@ -67,7 +67,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\nbaz", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
   }
 
@@ -77,7 +77,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\nbaz\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 
@@ -87,7 +87,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\r\nbaz\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 
@@ -97,7 +97,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\r\nbaz", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3L);
+    assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
   }
 

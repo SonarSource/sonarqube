@@ -25,16 +25,12 @@ import com.google.common.io.Files;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.scan.language.DefaultModuleLanguages;
@@ -64,18 +60,18 @@ public class ComponentIndexer implements BatchComponent {
     this.fileCache = fileCache;
   }
 
-  public void execute(DefaultModuleFileSystem fs) {
+  public void execute(FileSystem fs) {
     boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-    Iterable<InputFile> inputFiles = fs.inputFiles(FileQuery.all());
+    Iterable<InputFile> inputFiles = fs.inputFiles(FilePredicates.all());
     migration.migrateIfNeeded(module, inputFiles);
     for (InputFile inputFile : inputFiles) {
-      String languageKey = inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE);
-      boolean unitTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
-      String pathFromSourceDir = inputFile.attribute(DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
+      String languageKey = inputFile.language();
+      boolean unitTest = InputFile.Type.TEST == inputFile.type();
+      String pathFromSourceDir = ((DefaultInputFile) inputFile).pathRelativeToSourceDir();
       if (pathFromSourceDir == null) {
-        pathFromSourceDir = inputFile.path();
+        pathFromSourceDir = inputFile.relativePath();
       }
-      Resource sonarFile = File.create(inputFile.path(), pathFromSourceDir, languages.get(languageKey), unitTest);
+      Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
       if (Java.KEY.equals(languageKey)) {
         sonarFile.setDeprecatedKey(JavaFile.fromRelativePath(pathFromSourceDir, false).getDeprecatedKey());
       } else {
@@ -84,29 +80,27 @@ public class ComponentIndexer implements BatchComponent {
       if (sonarFile != null) {
         moduleLanguages.addLanguage(languageKey);
         sonarIndex.index(sonarFile);
-        importSources(shouldImportSource, inputFile, sonarFile);
+        importSources(fs, shouldImportSource, inputFile, sonarFile);
       }
     }
   }
 
   @VisibleForTesting
-  void importSources(boolean shouldImportSource, InputFile inputFile, Resource sonarFile) {
+  void importSources(FileSystem fs, boolean shouldImportSource, InputFile inputFile, Resource sonarFile) {
     try {
-      // TODO this part deserve optimization.
+      // TODO this part deserves optimization.
       // No need to read full content in memory when shouldImportSource=false
       // We should try to remove BOM and count lines in a single pass
-      String source = Files.toString(inputFile.file(), inputFile.encoding());
+      String source = Files.toString(inputFile.file(), fs.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      String[] lines = source.split("(\r)?\n|\r", -1);
-      inputFile.attributes().put(InputFile.ATTRIBUTE_LINE_COUNT, String.valueOf(lines.length));
       fileCache.put(module.getKey(), inputFile);
       if (shouldImportSource) {
         sonarIndex.setSource(sonarFile, source);
       }
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
-        + inputFile.encoding() + "'.", e);
+        + fs.encoding() + "'.", e);
     }
   }
 }

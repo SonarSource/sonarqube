@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
+package org.sonar.api.batch.fs;
 
-import org.junit.Test;
-
-public class InputFileBuilderTest {
-  @Test
-  public void just_for_coverage() throws Exception {
-    InputFileBuilder._FOR_UNIT_TESTING_ONLY_();
-    // do not fail
-  }
+/**
+ * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
+ * and {@link org.sonar.api.batch.fs.FilePredicates}.
+ * @since 4.2
+ */
+public interface FilePredicate {
+  boolean apply(InputFile inputFile);
 }

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Language;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleQProfiles.QProfile;
@@ -53,15 +53,15 @@ public class ProfileLogger implements BatchComponent {
   void execute(Logger logger) {
     String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
-    for (Language lang : languages.languages()) {
-      QProfile profile = profiles.findByLanguage(lang.getKey());
-      logger.info("Quality profile for {}: {}", lang.getName(), profile.name());
+    for (String lang : languages.keys()) {
+      QProfile profile = profiles.findByLanguage(lang);
+      logger.info("Quality profile for {}: {}", lang, profile.name());
       if (StringUtils.isNotBlank(defaultName) && defaultName.equals(profile.name())) {
         defaultNameUsed = true;
       }
     }
-    if (!defaultNameUsed && !languages.languages().isEmpty()) {
-      throw new SonarException("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
+    if (!defaultNameUsed && !languages.keys().isEmpty()) {
+      throw MessageException.of("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
     }
   }
 

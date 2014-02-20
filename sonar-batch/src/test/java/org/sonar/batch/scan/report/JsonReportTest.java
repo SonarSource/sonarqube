@@ -25,6 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -34,9 +37,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -68,36 +68,33 @@ public class JsonReportTest {
 
   JsonReport jsonReport;
   Resource resource = mock(Resource.class);
-  ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
+  DefaultFileSystem fs = new DefaultFileSystem();
   Server server = mock(Server.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
-  Settings settings;
+  Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
   private AnalysisMode mode;
   private UserFinder userFinder;
 
   @Before
-  public void setUp() {
+  public void before() {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
-
-    settings = new Settings();
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.path()).thenReturn("src/main/java/org/apache/struts/Action.java");
-    when(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY)).thenReturn("struts:src/main/java/org/apache/struts/Action.java");
-    when(inputFile.attribute(InputFile.ATTRIBUTE_STATUS)).thenReturn(InputFile.STATUS_CHANGED);
+    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/org/apache/struts/Action.java");
+    inputFile.setKey("struts:src/main/java/org/apache/struts/Action.java");
+    inputFile.setStatus(InputFile.Status.CHANGED);
     InputFileCache fileCache = mock(InputFileCache.class);
-    when(fileCache.all()).thenReturn(Arrays.asList(inputFile));
+    when(fileCache.all()).thenReturn(Arrays.<InputFile>asList(inputFile));
     Project rootModule = new Project("struts");
     Project moduleA = new Project("struts-core");
     moduleA.setParent(rootModule).setPath("core");
     Project moduleB = new Project("struts-ui");
     moduleB.setParent(rootModule).setPath("ui");
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleFinder, issueCache, mock(EventBus.class),
+    jsonReport = new JsonReport(settings, fs, server, ruleFinder, issueCache, mock(EventBus.class),
       mode, userFinder, rootModule, fileCache);
   }
 
@@ -166,18 +163,18 @@ public class JsonReportTest {
 
   @Test
   public void should_export_issues_to_file() throws IOException {
-    File sonarDirectory = temporaryFolder.newFolder("sonar");
+    File workDir = temporaryFolder.newFolder("sonar");
+    fs.setWorkDir(workDir);
 
     Rule rule = Rule.create("squid", "AvoidCycles").setName("Avoid Cycles");
     when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(rule);
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
-    when(fileSystem.workingDir()).thenReturn(sonarDirectory);
 
     jsonReport.execute();
 
-    assertThat(new File(sonarDirectory, "output.json")).exists();
+    assertThat(new File(workDir, "output.json")).exists();
   }
 
 }

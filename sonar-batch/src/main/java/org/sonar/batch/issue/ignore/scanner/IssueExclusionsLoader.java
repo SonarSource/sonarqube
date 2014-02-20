@@ -20,14 +20,14 @@
 
 package org.sonar.batch.issue.ignore.scanner;
 
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.nio.charset.Charset;
 
@@ -36,11 +36,11 @@ public final class IssueExclusionsLoader {
   private final IssueExclusionsRegexpScanner regexpScanner;
   private final IssueExclusionPatternInitializer exclusionPatternInitializer;
   private final IssueInclusionPatternInitializer inclusionPatternInitializer;
-  private final DefaultModuleFileSystem fileSystem;
+  private final FileSystem fileSystem;
 
   public IssueExclusionsLoader(IssueExclusionsRegexpScanner regexpScanner, IssueExclusionPatternInitializer exclusionPatternInitializer,
     IssueInclusionPatternInitializer inclusionPatternInitializer,
-    DefaultModuleFileSystem fileSystem) {
+    FileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.exclusionPatternInitializer = exclusionPatternInitializer;
     this.inclusionPatternInitializer = inclusionPatternInitializer;
@@ -56,13 +56,13 @@ public final class IssueExclusionsLoader {
    * {@inheritDoc}
    */
   public void execute() {
-    Charset sourcesEncoding = fileSystem.sourceCharset();
+    Charset sourcesEncoding = fileSystem.encoding();
 
-    for (InputFile inputFile : fileSystem.inputFiles(FileQuery.all())) {
+    for (InputFile inputFile : fileSystem.inputFiles(FilePredicates.all())) {
       try {
-        String componentEffectiveKey = inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY);
+        String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
         if (componentEffectiveKey != null) {
-          String path = inputFile.path();
+          String path = inputFile.relativePath();
           inclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
           exclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);
           if (exclusionPatternInitializer.hasFileContentPattern()) {

@@ -21,20 +21,20 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() throws Exception {
-    StatusDetection statusDetection = new StatusDetection(ImmutableMap.<String, String>of(
+    StatusDetection statusDetection = new StatusDetection(ImmutableMap.of(
       "src/Foo.java", "ABCDE",
       "src/Bar.java", "FGHIJ"
     ));
 
-    assertThat(statusDetection.status("src/Foo.java", "ABCDE")).isEqualTo(InputFile.STATUS_SAME);
-    assertThat(statusDetection.status("src/Foo.java", "XXXXX")).isEqualTo(InputFile.STATUS_CHANGED);
-    assertThat(statusDetection.status("src/Other.java", "QWERT")).isEqualTo(InputFile.STATUS_ADDED);
+    assertThat(statusDetection.status("src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
+    assertThat(statusDetection.status("src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
+    assertThat(statusDetection.status("src/Other.java", "QWERT")).isEqualTo(InputFile.Status.ADDED);
   }
 }

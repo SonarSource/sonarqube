@@ -21,8 +21,8 @@ package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
 
 /**
  * <p>This interface is not intended to be implemented by clients.</p>

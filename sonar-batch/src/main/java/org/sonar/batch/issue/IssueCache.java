@@ -31,7 +31,7 @@ import org.sonar.batch.index.Caches;
 public class IssueCache implements BatchComponent {
 
   // component key -> issue key -> issue
-  private final Cache<String, DefaultIssue> cache;
+  private final Cache<DefaultIssue> cache;
 
   public IssueCache(Caches caches) {
     cache = caches.createCache("issues");
@@ -42,7 +42,7 @@ public class IssueCache implements BatchComponent {
   }
 
   public Iterable<DefaultIssue> all() {
-    return cache.allValues();
+    return cache.values();
   }
 
   public IssueCache put(DefaultIssue issue) {

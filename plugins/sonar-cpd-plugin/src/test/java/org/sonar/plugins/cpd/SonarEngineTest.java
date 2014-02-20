@@ -19,37 +19,39 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
-import com.google.common.base.Charsets;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class SonarEngineTest {
 
-  private SensorContext context;
-  private InputFile inputFile;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  SensorContext context = mock(SensorContext.class);
+  DefaultInputFile inputFile;
 
   @Before
-  public void setUp() {
-    context = mock(SensorContext.class);
-    inputFile = new InputFileBuilder(new java.io.File(""), Charsets.UTF_8, "src/main/java/Foo.java").build();
+  public void before() throws IOException {
+    inputFile = new DefaultInputFile("src/main/java/Foo.java");
+    inputFile.setFile(temp.newFile("Foo.java"));
   }
 
   @SuppressWarnings("unchecked")
@@ -135,8 +137,9 @@ public class SonarEngineTest {
   }
 
   @Test
-  public void shouldEscapeXmlEntities() {
-    InputFile csharpFile = new InputFileBuilder(new java.io.File(""), Charsets.UTF_8, "Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs").build();
+  public void shouldEscapeXmlEntities() throws IOException {
+    InputFile csharpFile = new DefaultInputFile("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs")
+      .setFile(temp.newFile("SubsRedsDelivery.cs"));
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(
       new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),
       new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery2.cs", 0, 15, 214)));

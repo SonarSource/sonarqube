@@ -19,17 +19,17 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
+import org.sonar.batch.bootstrap.AnalysisMode;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.util.List;
 
@@ -40,14 +40,16 @@ class InputFileBuilder {
   private final LanguageDetection langDetection;
   private final StatusDetection statusDetection;
   private final DefaultModuleFileSystem fs;
+  private final AnalysisMode analysisMode;
 
   InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-                   StatusDetection statusDetection, DefaultModuleFileSystem fs) {
+                   StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
     this.statusDetection = statusDetection;
     this.fs = fs;
+    this.analysisMode = analysisMode;
   }
 
   String moduleKey() {
@@ -66,37 +68,42 @@ class InputFileBuilder {
     return statusDetection;
   }
 
-  DefaultModuleFileSystem fs() {
+  FileSystem fs() {
     return fs;
   }
 
   @CheckForNull
-  DefaultInputFile create(File file, String type) {
+  DefaultInputFile create(File file, InputFile.Type type) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
       LoggerFactory.getLogger(getClass()).warn(
         "File '%s' is ignored. It is not in module basedir '%s'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
-    DefaultInputFile inputFile = DefaultInputFile.create(file, fs.sourceCharset(), relativePath, Maps.<String, String>newHashMap());
+    DefaultInputFile inputFile = new DefaultInputFile(relativePath);
     inputFile.setType(type);
-    inputFile.setKey(moduleKey + ":" + inputFile.path());
+    inputFile.setKey(new StringBuilder().append(moduleKey).append(":").append(inputFile.relativePath()).toString());
+    inputFile.setBasedir(fs.baseDir());
+    inputFile.setAbsolutePath(file.getAbsolutePath());
+    inputFile.setFile(file);
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.encoding());
+    inputFile.setLines(metadata.lines);
+    inputFile.setHash(metadata.hash);
+    inputFile.setStatus(statusDetection.status(inputFile.relativePath(), metadata.hash));
+    if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
+      return null;
+    }
     String lang = langDetection.language(inputFile);
     if (lang == null) {
-      // TODO use a default plain-text language ?
       return null;
     }
     inputFile.setLanguage(lang);
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.sourceCharset());
-    inputFile.setLines(metadata.lines);
-    inputFile.setHash(metadata.hash);
-    inputFile.setStatus(statusDetection.status(inputFile.path(), metadata.hash));
     fillDeprecatedData(inputFile);
     return inputFile;
   }
 
   private void fillDeprecatedData(DefaultInputFile inputFile) {
-    List<File> sourceDirs = InputFile.TYPE_MAIN.equals(inputFile.type()) ? fs.sourceDirs() : fs.testDirs();
+    List<File> sourceDirs = InputFile.Type.MAIN == inputFile.type() ? fs.sourceDirs() : fs.testDirs();
     for (File sourceDir : sourceDirs) {
       String sourceRelativePath = pathResolver.relativePath(sourceDir, inputFile.file());
       if (sourceRelativePath != null) {
@@ -104,9 +111,10 @@ class InputFileBuilder {
         inputFile.setSourceDirAbsolutePath(FilenameUtils.normalize(sourceDir.getAbsolutePath(), true));
 
         if (Java.KEY.equals(inputFile.language())) {
-          inputFile.setDeprecatedKey(moduleKey + ":" + JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey());
+          inputFile.setDeprecatedKey(new StringBuilder()
+            .append(moduleKey).append(":").append(JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey()).toString());
         } else {
-          inputFile.setDeprecatedKey(moduleKey + ":" + sourceRelativePath);
+          inputFile.setDeprecatedKey(new StringBuilder().append(moduleKey).append(":").append(sourceRelativePath).toString());
         }
       }
     }

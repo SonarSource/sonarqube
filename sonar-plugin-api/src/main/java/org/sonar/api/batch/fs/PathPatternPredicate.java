@@ -17,7 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.api.scan.filesystem.internal;
+package org.sonar.api.batch.fs;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.batch.fs.internal.PathPattern;
+
+/**
+ * @since 4.2
+ */
+class PathPatternPredicate implements FilePredicate {
+
+  private final PathPattern pattern;
+
+  PathPatternPredicate(PathPattern pattern) {
+    this.pattern = pattern;
+  }
+
+  @Override
+  public boolean apply(InputFile f) {
+    return pattern.match(f);
+  }
+
+}

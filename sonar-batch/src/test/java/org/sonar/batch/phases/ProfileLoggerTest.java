@@ -27,47 +27,27 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Language;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleQProfiles.QProfile;
 
 import java.util.Collections;
-import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProfileLoggerTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ModuleLanguages languages;
-  private ModuleQProfiles profiles;
-  private Settings settings;
+  ModuleLanguages languages;
+  ModuleQProfiles profiles;
+  Settings settings = new Settings();
 
   @Before
-  public void prepare() {
+  public void before() {
     languages = mock(ModuleLanguages.class);
-    List<Language> languageList = Lists.newArrayList();
-    languageList.add(new AbstractLanguage("java", "Java") {
-
-      @Override
-      public String[] getFileSuffixes() {
-        return null;
-      }
-    });
-    languageList.add(new AbstractLanguage("cobol", "Cobol") {
-
-      @Override
-      public String[] getFileSuffixes() {
-        return null;
-      }
-    });
-    when(languages.languages()).thenReturn(languageList);
+    when(languages.keys()).thenReturn(Lists.newArrayList("java", "cobol"));
 
     profiles = mock(ModuleQProfiles.class);
     QProfile javaProfile = mock(QProfile.class);
@@ -76,38 +56,34 @@ public class ProfileLoggerTest {
     QProfile cobolProfile = mock(QProfile.class);
     when(cobolProfile.name()).thenReturn("My Cobol profile");
     when(profiles.findByLanguage("cobol")).thenReturn(cobolProfile);
-
-    settings = new Settings();
   }
 
   @Test
   public void should_log_all_used_profiles() {
-
     ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles);
     Logger logger = mock(Logger.class);
     profileLogger.execute(logger);
 
-    verify(logger).info("Quality profile for {}: {}", "Java", "My Java profile");
-    verify(logger).info("Quality profile for {}: {}", "Cobol", "My Cobol profile");
+    verify(logger).info("Quality profile for {}: {}", "java", "My Java profile");
+    verify(logger).info("Quality profile for {}: {}", "cobol", "My Cobol profile");
   }
 
   @Test
   public void should_fail_if_default_profile_not_used() {
-    settings.setProperty("sonar.profile", "Unknow");
+    settings.setProperty("sonar.profile", "Unknown");
 
     ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles);
 
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("sonar.profile was set to 'Unknow' but didn't match any profile for any language. Please check your configuration.");
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("sonar.profile was set to 'Unknown' but didn't match any profile for any language. Please check your configuration.");
 
     profileLogger.execute();
-
   }
 
   @Test
   public void should_not_fail_if_no_language_on_project() {
-    settings.setProperty("sonar.profile", "Unknow");
-    when(languages.languages()).thenReturn(Collections.<Language>emptyList());
+    settings.setProperty("sonar.profile", "Unknown");
+    when(languages.keys()).thenReturn(Collections.<String>emptyList());
 
     ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles);
 

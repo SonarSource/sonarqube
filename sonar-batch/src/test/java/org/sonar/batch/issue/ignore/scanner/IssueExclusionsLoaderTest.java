@@ -20,13 +20,6 @@
 
 package org.sonar.batch.issue.ignore.scanner;
 
-import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
-import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-
-import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,37 +27,22 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueExclusionsLoaderTest {
-
-  private IssueExclusionsLoader scanner;
-
-  @Mock
-  private IssueExclusionsRegexpScanner regexpScanner;
-  @Mock
-  private IssueInclusionPatternInitializer inclusionPatternInitializer;
-  @Mock
-  private IssueExclusionPatternInitializer exclusionPatternInitializer;
-  @Mock
-  private PatternMatcher patternMatcher;
-  @Mock
-  private DefaultModuleFileSystem fs;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -72,15 +50,26 @@ public class IssueExclusionsLoaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private File baseDir;
+  @Mock
+  private IssueExclusionsRegexpScanner regexpScanner;
+
+  @Mock
+  private IssueInclusionPatternInitializer inclusionPatternInitializer;
+
+  @Mock
+  private IssueExclusionPatternInitializer exclusionPatternInitializer;
+
+  @Mock
+  private PatternMatcher patternMatcher;
+
+  DefaultFileSystem fs = new DefaultFileSystem().setEncoding(UTF_8);
+  IssueExclusionsLoader scanner;
+  File baseDir;
 
   @Before
-  public void init() throws IOException {
+  public void before() throws IOException {
     baseDir = temp.newFolder();
     MockitoAnnotations.initMocks(this);
-
-    when(fs.sourceCharset()).thenReturn(UTF_8);
-
     scanner = new IssueExclusionsLoader(regexpScanner, exclusionPatternInitializer, inclusionPatternInitializer, fs);
   }
 
@@ -110,16 +99,17 @@ public class IssueExclusionsLoaderTest {
   }
 
   @Test
-  public void shouldAnalyseProject() throws IOException {
+  public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
+    fs.add(new DefaultInputFile("src/main/java/Foo.java")
+      .setFile(javaFile1)
+      .setType(InputFile.Type.MAIN)
+      .setKey("polop:src/main/java/Foo.java"));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/Foo.java")
-        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:src/main/java/Foo.java")
-        .build(),
-      new InputFileBuilder(javaTestFile1, Charsets.UTF_8, "src/test/java/FooTest.java")
-        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:src/test/java/FooTest.java")
-        .build()));
+    fs.add(new DefaultInputFile("src/test/java/FooTest.java")
+      .setFile(javaTestFile1)
+      .setType(InputFile.Type.TEST)
+      .setKey("polop:src/test/java/FooTest.java"));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
@@ -136,15 +126,15 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
+    fs.add(new DefaultInputFile("src/main/java/Foo.java")
+      .setFile(javaFile1)
+      .setType(InputFile.Type.MAIN)
+      .setKey("polop:src/main/java/Foo.java"));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(javaFile1, Charsets.UTF_8, "src/main/java/Foo.java")
-        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:src/main/java/Foo.java")
-        .build(),
-      new InputFileBuilder(javaTestFile1, Charsets.UTF_8, "src/test/java/FooTest.java")
-        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:src/test/java/FooTest.java")
-        .build()));
-
+    fs.add(new DefaultInputFile("src/test/java/FooTest.java")
+      .setFile(javaTestFile1)
+      .setType(InputFile.Type.TEST)
+      .setKey("polop:src/test/java/FooTest.java"));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
     scanner.execute();
@@ -159,10 +149,10 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
-    when(fs.inputFiles(FileQuery.all())).thenReturn((Iterable) Arrays.asList(
-      new InputFileBuilder(phpFile1, Charsets.UTF_8, "src/Foo.php")
-        .attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY, "polop:src/Foo.php")
-        .build()));
+    fs.add(new DefaultInputFile("src/Foo.php")
+      .setFile(phpFile1)
+      .setType(InputFile.Type.MAIN)
+      .setKey("polop:src/Foo.php"));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:src/Foo.php", phpFile1, UTF_8);

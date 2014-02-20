@@ -50,7 +50,7 @@ public class FileQuery {
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
     for (FileType type : types) {
-      query.on(InputFile.ATTRIBUTE_TYPE, type.typeValue());
+      query.on("TYPE", type.typeValue());
     }
     return query;
   }
@@ -75,12 +75,12 @@ public class FileQuery {
    */
   public static FileQuery onMain() {
     FileQuery query = new FileQuery();
-    return query.on(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_MAIN);
+    return query.on("TYPE", "MAIN");
   }
 
   public static FileQuery onTest() {
     FileQuery query = new FileQuery();
-    return query.on(InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST);
+    return query.on("TYPE", "TEST");
   }
 
   private FileQuery() {
@@ -102,7 +102,7 @@ public class FileQuery {
    */
   @Deprecated
   public Collection<FileType> types() {
-    return Collections2.transform(attributes.get(InputFile.ATTRIBUTE_TYPE), new Function<String, FileType>() {
+    return Collections2.transform(attributes.get("TYPE"), new Function<String, FileType>() {
       @Override
       public FileType apply(@Nullable String input) {
         return input != null ? FileType.valueOf(input) : null;
@@ -111,15 +111,15 @@ public class FileQuery {
   }
 
   public Collection<String> typeAttributes() {
-    return attributes.get(InputFile.ATTRIBUTE_TYPE);
+    return attributes.get("TYPE");
   }
 
   public Collection<String> languages() {
-    return attributes.get(InputFile.ATTRIBUTE_LANGUAGE);
+    return attributes.get("LANG");
   }
 
   public FileQuery onLanguage(String... languages) {
-    return on(InputFile.ATTRIBUTE_LANGUAGE, languages);
+    return on("LANG", languages);
   }
 
   public Collection<String> inclusions() {
@@ -141,10 +141,6 @@ public class FileQuery {
   }
 
   public Collection<FileFilter> filters() {
-    throw new UnsupportedOperationException("TODO");
-  }
-
-  public FileQuery withFilters(FileFilter... filters) {
     throw new UnsupportedOperationException("TODO");
   }
 

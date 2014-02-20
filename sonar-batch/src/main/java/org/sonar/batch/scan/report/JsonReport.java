@@ -25,6 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
@@ -32,9 +35,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
@@ -45,11 +45,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +60,7 @@ public class JsonReport implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsonReport.class);
   private final Settings settings;
-  private final ModuleFileSystem fileSystem;
+  private final FileSystem fileSystem;
   private final Server server;
   private final RuleFinder ruleFinder;
   private final IssueCache issueCache;
@@ -74,8 +70,8 @@ public class JsonReport implements BatchComponent {
   private final InputFileCache fileCache;
   private final Project rootModule;
 
-  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputFileCache fileCache) {
+  public JsonReport(Settings settings, FileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
+                    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputFileCache fileCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -97,7 +93,7 @@ public class JsonReport implements BatchComponent {
   }
 
   private void exportResults() {
-    File exportFile = new File(fileSystem.workingDir(), settings.getString("sonar.report.export.path"));
+    File exportFile = new File(fileSystem.workDir(), settings.getString("sonar.report.export.path"));
 
     LOG.info("Export results to " + exportFile.getAbsolutePath());
     Writer output = null;
@@ -173,12 +169,13 @@ public class JsonReport implements BatchComponent {
     writeJsonModuleComponents(json, rootModule);
     // TODO we need to dump directories
     for (InputFile inputFile : fileCache.all()) {
+      String key = ((DefaultInputFile) inputFile).key();
       json
         .beginObject()
-        .prop("key", inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY))
-        .prop("path", inputFile.path())
-        .prop("moduleKey", StringUtils.substringBeforeLast(inputFile.attribute(DefaultInputFile.ATTRIBUTE_COMPONENT_KEY), ":"))
-        .prop("status", inputFile.attribute(InputFile.ATTRIBUTE_STATUS))
+        .prop("key", key)
+        .prop("path", inputFile.relativePath())
+        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+        .prop("status", inputFile.status().name())
         .endObject();
     }
     json.endArray();

@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.measure.MeasurementFilters;
 
@@ -248,6 +248,6 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private Resource fromInputFile(InputFile inputFile) {
-    return File.create(inputFile.path());
+    return File.create(inputFile.relativePath());
   }
 }

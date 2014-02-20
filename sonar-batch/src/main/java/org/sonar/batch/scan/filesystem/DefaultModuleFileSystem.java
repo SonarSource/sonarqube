@@ -19,60 +19,58 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.internal.InputFiles;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.AnalysisMode;
 
 import javax.annotation.CheckForNull;
-
+import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class can't be immutable because of execution of maven plugins that can change the project structure (see MavenPluginHandler and sonar.phase)
  *
  * @since 3.5
  */
-public class DefaultModuleFileSystem implements ModuleFileSystem {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleFileSystem.class);
+public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
 
   private final String moduleKey;
-  private final FileIndex index;
+  private final FileIndexer index;
   private final Settings settings;
 
-  private File baseDir, workingDir, buildDir;
+  private File buildDir;
   private List<File> sourceDirs = Lists.newArrayList();
   private List<File> testDirs = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();
   private List<File> sourceFiles = Lists.newArrayList();
   private List<File> testFiles = Lists.newArrayList();
-  private AnalysisMode analysisMode;
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
-  public DefaultModuleFileSystem(Project module, Settings settings, FileIndex index, ModuleFileSystemInitializer initializer, AnalysisMode analysisMode,
-    ComponentIndexer componentIndexer) {
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer index, ModuleFileSystemInitializer initializer,
+                                 ComponentIndexer componentIndexer) {
+    super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
     this.settings = settings;
     this.index = index;
-    this.analysisMode = analysisMode;
-    this.baseDir = initializer.baseDir();
-    this.workingDir = initializer.workingDir();
+    setBaseDir(initializer.baseDir());
+    setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
     this.sourceDirs = initializer.sourceDirs();
     this.testDirs = initializer.testDirs();
@@ -87,11 +85,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   public String moduleKey() {
     return moduleKey;
-  }
-
-  @Override
-  public File baseDir() {
-    return baseDir;
   }
 
   @Override
@@ -115,17 +108,29 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return binaryDirs;
   }
 
-  @Override
-  public File workingDir() {
-    return workingDir;
-  }
-
   List<File> sourceFiles() {
     return sourceFiles;
   }
 
   List<File> testFiles() {
     return testFiles;
+  }
+
+  @Override
+  public Charset encoding() {
+    final Charset charset;
+    String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
+    if (StringUtils.isNotEmpty(encoding)) {
+      charset = Charset.forName(StringUtils.trim(encoding));
+    } else {
+      charset = Charset.defaultCharset();
+    }
+    return charset;
+  }
+
+  @Override
+  public boolean isDefaultJvmEncoding() {
+    return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
   /**
@@ -146,60 +151,39 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     throw new UnsupportedOperationException("Modifications of the file system are not permitted");
   }
 
+  /**
+   * @return
+   * @deprecated in 4.2. Replaced by {@link #encoding()}
+   */
   @Override
+  @Deprecated
   public Charset sourceCharset() {
-    final Charset charset;
-    String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
-    if (StringUtils.isNotEmpty(encoding)) {
-      charset = Charset.forName(StringUtils.trim(encoding));
-    } else {
-      charset = Charset.defaultCharset();
-    }
-    return charset;
-  }
-
-  boolean isDefaultSourceCharset() {
-    return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
+    return encoding();
   }
 
   /**
-   * @since 4.0
+   * @deprecated in 4.2. Replaced by {@link #workDir()}
    */
+  @Deprecated
   @Override
-  public Iterable<InputFile> inputFiles(FileQuery query) {
-    if (!initialized) {
-      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
-      index.index(this);
-    }
-    List<InputFile> result = Lists.newArrayList();
-    FileQueryFilter filter = new FileQueryFilter(analysisMode, query);
-    for (InputFile input : index.inputFiles(moduleKey)) {
-      if (filter.accept(input)) {
-        result.add(input);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public InputFile inputFile(File ioFile) {
-    if (!ioFile.isFile()) {
-      throw new SonarException(ioFile.getAbsolutePath() + "is not a file");
-    }
-    return index.inputFile(this, ioFile);
+  public File workingDir() {
+    return workDir();
   }
 
   @Override
   public List<File> files(FileQuery query) {
-    return InputFiles.toFiles(inputFiles(query));
+    Collection<FilePredicate> predicates = Lists.newArrayList();
+    for (Map.Entry<String, Collection<String>> entry : query.attributes().entrySet()) {
+      predicates.add(fromDeprecatedAttribute(entry.getKey(), entry.getValue()));
+    }
+    return ImmutableList.copyOf(files(FilePredicates.and(predicates)));
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     if (initialized) {
       throw new SonarException("Module filesystem is already initialized. Modification of the filesystem are only allowed during Initializer phase.");
     }
-    Preconditions.checkNotNull(basedir, "Basedir can't be null");
-    this.baseDir = basedir;
+    setBaseDir(basedir);
     this.buildDir = buildDir;
     this.sourceDirs = existingDirs(sourceDirs);
     this.testDirs = existingDirs(testDirs);
@@ -210,9 +194,9 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     if (initialized) {
       throw new SonarException("Module filesystem can only be indexed once");
     }
-    initialized = true;
     index.index(this);
     componentIndexer.execute(this);
+    initialized = true;
   }
 
   private List<File> existingDirs(List<File> dirs) {
@@ -224,6 +208,67 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     }
     return builder.build();
   }
+
+  static FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {
+    if ("TYPE".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
+        }
+      }));
+    }
+    if ("STATUS".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return FilePredicates.hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
+        }
+      }));
+    }
+    if ("LANG".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return FilePredicates.hasLanguage(s);
+        }
+      }));
+    }
+    if ("CMP_KEY".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return new FilePredicateAdapters.KeyPredicate(s);
+        }
+      }));
+    }
+    if ("CMP_DEPRECATED_KEY".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return new FilePredicateAdapters.DeprecatedKeyPredicate(s);
+        }
+      }));
+    }
+    if ("SRC_REL_PATH".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return new FilePredicateAdapters.SourceRelativePathPredicate(s);
+        }
+      }));
+    }
+    if ("SRC_DIR_PATH".equals(key)) {
+      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+        @Override
+        public FilePredicate apply(@Nullable String s) {
+          return new FilePredicateAdapters.SourceDirPredicate(s);
+        }
+      }));
+    }
+    throw new IllegalArgumentException("Unsupported file attribute: " + key);
+  }
+
 
   @Override
   public boolean equals(Object o) {

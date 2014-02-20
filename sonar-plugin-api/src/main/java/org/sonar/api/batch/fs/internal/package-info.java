@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem.internal;
+@ParametersAreNonnullByDefault
+package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
-import com.google.common.collect.Lists;
-
-import java.io.File;
-import java.util.List;
-
-/**
- * @since 4.0
- */
-public class InputFiles {
-  InputFiles() {
-    // static methods only
-  }
-
-  public static List<File> toFiles(Iterable<InputFile> inputFiles) {
-    List<File> files = Lists.newArrayList();
-    for (InputFile inputFile : inputFiles) {
-      files.add(inputFile.file());
-    }
-    return files;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

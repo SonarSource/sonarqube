@@ -20,11 +20,11 @@
 package org.sonar.batch;
 
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
 
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
@@ -43,7 +43,7 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
   @Override
   public FileLinesContext createFor(InputFile inputFile) {
-    File sonarFile = File.create(inputFile.path());
+    File sonarFile = File.create(inputFile.relativePath());
     // Reload resource from index
     sonarFile = index.getResource(sonarFile);
     return new DefaultFileLinesContext(index, sonarFile);

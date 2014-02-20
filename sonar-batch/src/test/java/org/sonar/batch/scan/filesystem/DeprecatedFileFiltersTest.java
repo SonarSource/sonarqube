@@ -19,28 +19,22 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.InputFile;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
-import org.sonar.api.scan.filesystem.internal.DefaultInputFile;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DeprecatedFileFiltersTest {
 
@@ -53,7 +47,7 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() throws Exception {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = DefaultInputFile.create(temp.newFile(), Charsets.UTF_8, "src/main/java/Foo.java", Maps.<String, String>newHashMap());
+    InputFile inputFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile());
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
@@ -63,12 +57,11 @@ public class DeprecatedFileFiltersTest {
 
     File basedir = temp.newFolder();
     File file = temp.newFile();
-    InputFile inputFile = DefaultInputFile.create(file, Charsets.UTF_8, "src/main/java/Foo.java", ImmutableMap.of(
-      DefaultInputFile.ATTRIBUTE_SOURCEDIR_PATH, new File(basedir, "src/main/java").getAbsolutePath(),
-      DefaultInputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH, "Foo.java",
-      InputFile.ATTRIBUTE_TYPE, InputFile.TYPE_TEST
-
-      ));
+    InputFile inputFile = new DefaultInputFile("src/main/java/Foo.java")
+      .setFile(file)
+      .setType(InputFile.Type.MAIN)
+      .setSourceDirAbsolutePath(new File(basedir, "src/main/java").getAbsolutePath())
+      .setPathRelativeToSourceDir("Foo.java");
     when(filter.accept(eq(file), any(DeprecatedFileFilters.DeprecatedContext.class))).thenReturn(false);
 
     assertThat(filters.accept(inputFile)).isFalse();
@@ -80,6 +73,6 @@ public class DeprecatedFileFiltersTest {
     assertThat(context.canonicalPath()).isEqualTo(FilenameUtils.separatorsToUnix(file.getAbsolutePath()));
     assertThat(context.relativeDir()).isEqualTo(new File(basedir, "src/main/java"));
     assertThat(context.relativePath()).isEqualTo("Foo.java");
-    assertThat(context.type()).isEqualTo(FileType.TEST);
+    assertThat(context.type()).isEqualTo(FileType.MAIN);
   }
 }

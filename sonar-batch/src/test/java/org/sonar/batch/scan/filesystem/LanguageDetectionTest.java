@@ -19,17 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.internal.InputFileBuilder;
 import org.sonar.api.utils.MessageException;
 
 import java.io.File;
@@ -182,7 +181,7 @@ public class LanguageDetectionTest {
 
   private InputFile newInputFile(String path) throws IOException {
     File basedir = temp.newFolder();
-    return new InputFileBuilder(new File(basedir, path), Charsets.UTF_8, path).build();
+    return new DefaultInputFile(path).setFile(new File(basedir, path));
   }
 
   static class MockLanguage implements Language {

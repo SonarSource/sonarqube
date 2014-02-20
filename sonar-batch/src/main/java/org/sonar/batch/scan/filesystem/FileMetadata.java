@@ -49,7 +49,7 @@ class FileMetadata {
    */
   Metadata read(File file, Charset encoding) {
     Reader reader = null;
-    long lines = 0L;
+    int lines = 0;
     char c = (char)-1;
     try {
       MessageDigest md5Digest = DigestUtils.getMd5Digest();
@@ -102,10 +102,10 @@ class FileMetadata {
   }
 
   static class Metadata {
-    long lines;
+    int lines;
     String hash;
 
-    private Metadata(long lines, String hash) {
+    private Metadata(int lines, String hash) {
       this.lines = lines;
       this.hash = hash;
     }

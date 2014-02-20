@@ -20,13 +20,13 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.FileIndex;
+import org.sonar.api.batch.fs.internal.RelativePathIndex;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
 import javax.annotation.CheckForNull;
-
-import java.util.Set;
 
 /**
  * Cache of all files. This cache is shared amongst all project modules. Inclusion and
@@ -34,20 +34,24 @@ import java.util.Set;
  */
 public class InputFileCache implements BatchComponent {
 
-  // module key -> path -> InputFile
-  private final Cache<String, InputFile> cache;
+  // [path type | module key | path] -> InputFile
+  // For example:
+  // [rel | struts-core | src/main/java/Action.java] -> InputFile
+  // [rel | struts-core | src/main/java/Filter.java] -> InputFile
+  // [abs | struts-core | /absolute/path/to/src/main/java/Action.java] -> InputFile
+  // [abs | struts-core | /absolute/path/to/src/main/java/Filter.java] -> InputFile
+  private final Cache<InputFile> cache;
 
   public InputFileCache(Caches caches) {
     cache = caches.createCache("inputFiles");
   }
 
-  public Iterable<InputFile> byModule(String moduleKey) {
-    return cache.values(moduleKey);
+  public Iterable<InputFile> all() {
+    return cache.values();
   }
 
-  @CheckForNull
-  public InputFile byPath(String moduleKey, String path) {
-    return cache.get(moduleKey, path);
+  public Iterable<InputFile> byModule(String moduleKey) {
+    return cache.values(moduleKey);
   }
 
   public InputFileCache removeModule(String moduleKey) {
@@ -55,25 +59,33 @@ public class InputFileCache implements BatchComponent {
     return this;
   }
 
-  public InputFileCache remove(String moduleKey, String relativePath) {
-    cache.remove(moduleKey, relativePath);
+  public InputFileCache remove(String moduleKey, InputFile inputFile) {
+    cache.remove(moduleKey, inputFile.relativePath());
     return this;
   }
 
-  public Iterable<InputFile> all() {
-    return cache.allValues();
-  }
-
-  public Set<String> fileRelativePaths(String moduleKey) {
-    return cache.keySet(moduleKey);
-  }
-
-  public boolean containsFile(String moduleKey, String relativePath) {
-    return cache.containsKey(moduleKey, relativePath);
-  }
-
-  public InputFileCache put(String moduleKey, InputFile file) {
-    cache.put(moduleKey, file.path(), file);
+  public InputFileCache put(String moduleKey, InputFile inputFile) {
+    cache.put(moduleKey, inputFile.relativePath(), inputFile);
     return this;
+  }
+
+
+  public void index(String moduleKey, String indexId, Object indexValue, InputFile inputFile) {
+    // already indexed by relative path is already used
+    if (!indexId.equals(RelativePathIndex.ID)) {
+      // See limitation of org.sonar.batch.index.Cache -> fail
+      // to traverse a sub-tree, for example in order to
+      // have the following structure in InputFileCache :
+      // [index id|module key|index value]
+      throw new UnsupportedOperationException("Only relative path index is supported yet");
+    }
+  }
+
+  @CheckForNull
+  public InputFile get(String moduleKey, String indexId, Object indexValue) {
+    if (!indexId.equals(RelativePathIndex.ID)) {
+      throw new UnsupportedOperationException("Only relative path index is supported yet");
+    }
+    return cache.get(moduleKey, indexValue);
   }
 }
