@@ -34,7 +34,9 @@ import java.util.List;
 
 /**
  * @since 2.8
+ * @deprecated in 4.2. Useless when using by {@link org.sonar.api.batch.fs.FileSystem}.
  */
+@Deprecated
 public final class InputFileUtils {
 
   private InputFileUtils() {
@@ -44,6 +46,7 @@ public final class InputFileUtils {
   /**
    * @param inputFiles not nullable
    * @return not null list
+   * @deprecated in 4.2. Use {@link org.sonar.api.batch.fs.FileSystem#files(org.sonar.api.batch.fs.FilePredicate)}
    */
   public static List<java.io.File> toFiles(Collection<InputFile> inputFiles) {
     List<java.io.File> files = Lists.newArrayList();
