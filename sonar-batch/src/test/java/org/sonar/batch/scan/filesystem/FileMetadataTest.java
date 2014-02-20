@@ -42,6 +42,16 @@ public class FileMetadataTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
+  public void empty_file() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.touch(tempFile);
+
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(0);
+    assertThat(metadata.hash).isNotEmpty();
+  }
+
+  @Test
   public void windows_without_latest_eol() throws Exception {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz", Charsets.UTF_8, true);
@@ -57,7 +67,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz\r\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 
@@ -77,7 +87,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\nbaz\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 
@@ -87,7 +97,7 @@ public class FileMetadataTest {
     FileUtils.write(tempFile, "foo\nbar\r\nbaz\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
   }
 

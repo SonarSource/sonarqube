@@ -77,7 +77,7 @@ class FileMetadata {
         md5Digest.update(charToBytesUTF(c));
         i = reader.read();
       }
-      if (c != LINE_FEED) {
+      if (c != (char)-1) {
         lines++;
       }
       String hash = Hex.encodeHexString(md5Digest.digest());
