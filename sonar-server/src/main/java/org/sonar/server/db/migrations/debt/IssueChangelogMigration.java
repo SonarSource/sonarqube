@@ -43,31 +43,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Used in the Active Record Migration 513
+ * Used in the Active Record Migration 514
  */
-public class IssueMigration implements DatabaseMigration {
+public class IssueChangelogMigration implements DatabaseMigration {
 
-  private Logger logger = LoggerFactory.getLogger(IssueMigration.class);
+  private Logger logger = LoggerFactory.getLogger(IssueChangelogMigration.class);
 
   private static final String ID = "id";
-  private static final String DEBT = "debt";
+  private static final String CHANGE_DATA = "changeData";
 
-  private static final String FAILURE_MESSAGE = "Fail to convert issue debt from work duration to seconds";
+  private static final String FAILURE_MESSAGE = "Fail to convert issue changelog debt from work duration to seconds";
 
-  private static final String SQL_SELECT = "SELECT id FROM issues WHERE technical_debt IS NOT NULL";
-  private static final String SQL_UPDATE = "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
+  private static final String SQL_SELECT = "SELECT * FROM issue_changes WHERE change_type = 'diff' and change_data LIKE '%technicalDebt%'";
+  private static final String SQL_UPDATE = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
 
   static final String SQL_SELECT_ISSUES;
 
   static {
-    StringBuilder sb = new StringBuilder("select i.id as "+ ID +", i.technical_debt as " + DEBT +
-      " from issues i " +
+    StringBuilder sb = new StringBuilder("select c.id as "+ ID +", c.change_data as " + CHANGE_DATA +
+      " from issue_changes c " +
       " where ");
     for (int i = 0; i < Referentials.GROUP_SIZE; i++) {
       if (i > 0) {
         sb.append(" or ");
       }
-      sb.append("i.id=?");
+      sb.append("c.id=?");
     }
     SQL_SELECT_ISSUES = sb.toString();
   }
@@ -76,12 +76,12 @@ public class IssueMigration implements DatabaseMigration {
   private final System2 system2;
   private final Database db;
 
-  public IssueMigration(Database database, Settings settings) {
+  public IssueChangelogMigration(Database database, Settings settings) {
     this(database, settings, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  IssueMigration(Database database, Settings settings, System2 system2) {
+  IssueChangelogMigration(Database database, Settings settings, System2 system2) {
     this.db = database;
     this.debtConvertor = new DebtConvertor(settings);
     this.system2 = system2;
@@ -93,7 +93,7 @@ public class IssueMigration implements DatabaseMigration {
       logger.info("Initialize input");
       Referentials referentials = new Referentials(db, SQL_SELECT);
       if (referentials.size() > 0) {
-        logger.info("Migrate {} issues", referentials.size());
+        logger.info("Migrate {} issues changelog", referentials.size());
         convert(referentials);
       }
     } catch (SQLException e) {
@@ -147,7 +147,8 @@ public class IssueMigration implements DatabaseMigration {
       QueryRunner runner = new QueryRunner();
       for (Map<String, Object> row : rows) {
         Object[] params = new Object[3];
-        params[0] = debtConvertor.createFromLong((Long) row.get(DEBT));
+//        params[0] = debtConvertor.createFromLong((Long) row.get(CHANGE_DATA));
+        params[0] = row.get(CHANGE_DATA);
         params[1] = new Date(system2.now());
         params[2] = row.get(ID);
         allParams.add(params);
@@ -166,7 +167,7 @@ public class IssueMigration implements DatabaseMigration {
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
       map.put(ID, SqlUtil.getLong(rs, ID));
-      map.put(DEBT, SqlUtil.getLong(rs, DEBT));
+      map.put(CHANGE_DATA, SqlUtil.getLong(rs, CHANGE_DATA));
       return map;
     }
   }

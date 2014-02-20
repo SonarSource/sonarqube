@@ -33,23 +33,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Data loaded from database before migrating debt of issues.
  */
-class IssueReferentials {
+class Referentials {
 
   static final int GROUP_SIZE = 1000;
 
-  private final Queue<long[]> groupsOfIssuesIds;
+  private final Queue<long[]> groupsOfIds;
+  private final String query;
   private long totalIssues = 0L;
 
-  IssueReferentials(Database database) throws SQLException {
-    groupsOfIssuesIds = initGroupOfIssueIds(database);
+  Referentials(Database database, String query) throws SQLException {
+    this.query = query;
+    groupsOfIds = initGroupOfIssueIds(database);
   }
 
-  long totalIssues() {
+  long size() {
     return totalIssues;
   }
 
-  Long[] pollGroupOfIssueIds() {
-    long[] longs = groupsOfIssuesIds.poll();
+  Long[] pollGroupOfIds() {
+    long[] longs = groupsOfIds.poll();
     if (longs == null) {
       return new Long[0];
     }
@@ -68,7 +70,7 @@ class IssueReferentials {
       connection.setAutoCommit(false);
       stmt = connection.createStatement();
       stmt.setFetchSize(10000);
-      rs = stmt.executeQuery("SELECT id FROM issues WHERE technical_debt IS NOT NULL");
+      rs = stmt.executeQuery(query);
       ConcurrentLinkedQueue<long[]> queue = new ConcurrentLinkedQueue<long[]>();
 
       totalIssues = 0;

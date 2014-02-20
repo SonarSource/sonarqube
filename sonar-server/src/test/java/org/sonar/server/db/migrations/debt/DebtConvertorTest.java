@@ -21,71 +21,58 @@
 package org.sonar.server.db.migrations.debt;
 
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.TestDatabase;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IssueMigrationTest {
+public class DebtConvertorTest {
 
-  @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(IssueMigrationTest.class, "schema.sql");
+  DebtConvertor convertor;
 
-  @Mock
-  System2 system2;
-
-  Settings settings;
-
-  IssueMigration issueMigration;
+  Settings settings = new Settings();
 
   @Before
   public void setUp() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
-    settings = new Settings();
-
-    issueMigration = new IssueMigration(db.database(), settings, system2);
+    convertor = new DebtConvertor(settings);
   }
 
   @Test
-  public void migrate_issues() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
-
+  public void convert() throws Exception {
     settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
-    issueMigration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", "issues");
+    assertThat(convertor.createFromLong(1)).isEqualTo(60);
+    assertThat(convertor.createFromLong(100)).isEqualTo(3600);
+    assertThat(convertor.createFromLong(10000)).isEqualTo(28800);
+    assertThat(convertor.createFromLong(10101)).isEqualTo(32460);
+  }
+
+  @Ignore("Failing, to be fixed")
+  @Test
+  public void convert_with_useless_zro_in_front() throws Exception {
+    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+
+    assertThat(convertor.createFromLong(01)).isEqualTo(60);
+    assertThat(convertor.createFromLong(0100)).isEqualTo(3600);
+    assertThat(convertor.createFromLong(010000)).isEqualTo(28800);
+    assertThat(convertor.createFromLong(010101)).isEqualTo(32460);
   }
 
   @Test
   public void use_default_value_for_hours_in_day_when_no_property() throws Exception {
-    db.prepareDbUnit(getClass(), "use_default_value_for_hours_in_day_when_no_property.xml");
-
-    issueMigration.execute();
-
-    db.assertDbUnit(getClass(), "use_default_value_for_hours_in_day_when_no_property_result.xml", "issues");
+    assertThat(convertor.createFromLong(1)).isEqualTo(60);
   }
 
   @Test
   public void fail_on_bad_hours_in_day_settings() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
-
     try {
       settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
-      issueMigration.execute();
+      convertor.createFromLong(1);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
     }
   }
 

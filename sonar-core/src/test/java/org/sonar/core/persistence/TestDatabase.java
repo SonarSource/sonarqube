@@ -65,7 +65,7 @@ import java.util.Properties;
 import static org.junit.Assert.fail;
 
 /**
- * This class should be call using @ClassRule, in order to create the schema once per test class.
+ * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
  */
 public class TestDatabase extends ExternalResource {
