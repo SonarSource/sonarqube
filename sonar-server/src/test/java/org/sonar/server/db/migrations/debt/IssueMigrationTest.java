@@ -21,6 +21,7 @@
 package org.sonar.server.db.migrations.debt;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class IssueMigrationTest {
 

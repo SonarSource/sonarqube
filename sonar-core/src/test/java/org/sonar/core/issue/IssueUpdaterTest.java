@@ -19,12 +19,17 @@
  */
 package org.sonar.core.issue;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.user.DefaultUser;
 
 import java.util.Date;
@@ -34,9 +39,18 @@ import static org.sonar.core.issue.IssueUpdater.*;
 
 public class IssueUpdaterTest {
 
-  IssueUpdater updater = new IssueUpdater();
   DefaultIssue issue = new DefaultIssue();
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+
+  IssueUpdater updater;
+
+  @Before
+  public void setUp() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
+
+    updater = new IssueUpdater(new WorkDurationFactory(settings));
+  }
 
   @Test
   public void assign() throws Exception {
@@ -365,8 +379,8 @@ public class IssueUpdaterTest {
 
   @Test
   public void set_past_technical_debt() throws Exception {
-    long newDebt = 15;
-    long previousDebt = 10;
+    long newDebt = 15 * 8 * 60 * 60;
+    long previousDebt = 10 * 8 * 60 * 60;
     issue.setDebt(newDebt);
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
@@ -374,13 +388,13 @@ public class IssueUpdaterTest {
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(previousDebt);
-    assertThat(diff.newValue()).isEqualTo(newDebt);
+    assertThat(diff.oldValue()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8).toLong());
+    assertThat(diff.newValue()).isEqualTo(WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.DAYS, 8).toLong());
   }
 
   @Test
   public void set_past_technical_debt_without_previous_value() throws Exception {
-    long newDebt = 15;
+    long newDebt = 15 * 8 * 60 * 60;
     issue.setDebt(newDebt);
     boolean updated = updater.setPastTechnicalDebt(issue, null, context);
     assertThat(updated).isTrue();
@@ -389,20 +403,20 @@ public class IssueUpdaterTest {
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
     assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo(newDebt);
+    assertThat(diff.newValue()).isEqualTo(WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.DAYS, 8).toLong());
   }
 
   @Test
   public void set_past_technical_debt_with_null_new_value() throws Exception {
     issue.setDebt(null);
-    long previousDebt = 10;
+    long previousDebt = 10 * 8 * 60 * 60;
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(previousDebt);
+    assertThat(diff.oldValue()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8).toLong());
     assertThat(diff.newValue()).isNull();
   }
 
