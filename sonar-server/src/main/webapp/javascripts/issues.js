@@ -200,8 +200,8 @@ requirejs(
             name: window.SS.phrases.resolution,
             property: 'resolutions',
             type: ResolutionFilterView,
-            enabled: false,
-            optional: true,
+            enabled: true,
+            optional: false,
             choices: {
               'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
               'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],

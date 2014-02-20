@@ -453,7 +453,7 @@ define(
 
         newSearch: function () {
           this.model.clear();
-          this.options.app.router.navigate('statuses=OPEN,REOPENED', { trigger: true, replace: true });
+          this.options.app.router.navigate('resolved=false', { trigger: true, replace: true });
         },
 
 
@@ -1168,7 +1168,7 @@ define(
 
 
         emptyQuery: function () {
-          this.navigate('statuses=OPEN,REOPENED', { trigger: true, replace: true });
+          this.navigate('resolved=false', { trigger: true, replace: true });
         },
 
 
