@@ -28,12 +28,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,46 +44,24 @@ public class IssueMigrationTest {
 
   Settings settings;
 
-  IssueMigration issueMigration;
+  IssueMigration migration;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
     settings = new Settings();
+    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
-    issueMigration = new IssueMigration(db.database(), settings, system2);
+    migration = new IssueMigration(db.database(), settings, system2);
   }
 
   @Test
-  public void migrate_issues() throws Exception {
+  public void migrate_issues_debt() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
 
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
-    issueMigration.execute();
+    migration.execute();
 
     db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", "issues");
-  }
-
-  @Test
-  public void use_default_value_for_hours_in_day_when_no_property() throws Exception {
-    db.prepareDbUnit(getClass(), "use_default_value_for_hours_in_day_when_no_property.xml");
-
-    issueMigration.execute();
-
-    db.assertDbUnit(getClass(), "use_default_value_for_hours_in_day_when_no_property_result.xml", "issues");
-  }
-
-  @Test
-  public void fail_on_bad_hours_in_day_settings() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
-
-    try {
-      settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
-      issueMigration.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
-    }
   }
 
 }

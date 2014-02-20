@@ -21,7 +21,6 @@
 package org.sonar.server.db.migrations.debt;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 
@@ -49,24 +48,13 @@ public class DebtConvertorTest {
     assertThat(convertor.createFromLong(10101)).isEqualTo(32460);
   }
 
-  @Ignore("Failing, to be fixed")
-  @Test
-  public void convert_with_useless_zro_in_front() throws Exception {
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
-
-    assertThat(convertor.createFromLong(01)).isEqualTo(60);
-    assertThat(convertor.createFromLong(0100)).isEqualTo(3600);
-    assertThat(convertor.createFromLong(010000)).isEqualTo(28800);
-    assertThat(convertor.createFromLong(010101)).isEqualTo(32460);
-  }
-
   @Test
   public void use_default_value_for_hours_in_day_when_no_property() throws Exception {
     assertThat(convertor.createFromLong(1)).isEqualTo(60);
   }
 
   @Test
-  public void fail_on_bad_hours_in_day_settings() throws Exception {
+  public void fail_on_bad_hours_in_day_property() throws Exception {
     try {
       settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
       convertor.createFromLong(1);

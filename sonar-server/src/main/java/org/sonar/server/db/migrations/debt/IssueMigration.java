@@ -60,12 +60,12 @@ public class IssueMigration implements DatabaseMigration {
   static final String SQL_SELECT_ISSUES;
 
   static {
-    StringBuilder sb = new StringBuilder("select i.id as "+ ID +", i.technical_debt as " + DEBT +
-      " from issues i " +
-      " where ");
+    StringBuilder sb = new StringBuilder("SELECT i.id AS "+ ID +", i.technical_debt AS " + DEBT +
+      " FROM issues i " +
+      " WHERE ");
     for (int i = 0; i < Referentials.GROUP_SIZE; i++) {
       if (i > 0) {
-        sb.append(" or ");
+        sb.append(" OR ");
       }
       sb.append("i.id=?");
     }

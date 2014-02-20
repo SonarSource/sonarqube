@@ -21,6 +21,7 @@
 package org.sonar.server.db.migrations.debt;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.dbutils.DbUtils;
@@ -41,6 +42,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Used in the Active Record Migration 514
@@ -52,7 +55,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
   private static final String ID = "id";
   private static final String CHANGE_DATA = "changeData";
 
-  private static final String FAILURE_MESSAGE = "Fail to convert issue changelog debt from work duration to seconds";
+  private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
   private static final String SQL_SELECT = "SELECT * FROM issue_changes WHERE change_type = 'diff' and change_data LIKE '%technicalDebt%'";
   private static final String SQL_UPDATE = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
@@ -60,12 +63,12 @@ public class IssueChangelogMigration implements DatabaseMigration {
   static final String SQL_SELECT_ISSUES;
 
   static {
-    StringBuilder sb = new StringBuilder("select c.id as "+ ID +", c.change_data as " + CHANGE_DATA +
-      " from issue_changes c " +
-      " where ");
+    StringBuilder sb = new StringBuilder("SELECT c.id AS "+ ID +", c.change_data AS " + CHANGE_DATA +
+      " FROM issue_changes c " +
+      " WHERE ");
     for (int i = 0; i < Referentials.GROUP_SIZE; i++) {
       if (i > 0) {
-        sb.append(" or ");
+        sb.append(" OR ");
       }
       sb.append("c.id=?");
     }
@@ -93,7 +96,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
       logger.info("Initialize input");
       Referentials referentials = new Referentials(db, SQL_SELECT);
       if (referentials.size() > 0) {
-        logger.info("Migrate {} issues changelog", referentials.size());
+        logger.info("Migrate {} rows", referentials.size());
         convert(referentials);
       }
     } catch (SQLException e) {
@@ -108,34 +111,29 @@ public class IssueChangelogMigration implements DatabaseMigration {
   }
 
   public Object convert(Referentials referentials) throws Exception {
-    // For each group of 1000 issue ids:
-    // - load related issues
-    // - in a transaction
-    //   -- update issues
+    Long[] ids = referentials.pollGroupOfIds();
+    while (ids.length > 0) {
+      List<Map<String, Object>> rows = selectRows(ids);
+      convert(rows, ids);
 
-    Long[] issueIds = referentials.pollGroupOfIds();
-    while (issueIds.length > 0) {
-      List<Map<String, Object>> rows = selectRows(issueIds);
-      convert(rows, issueIds);
-
-      issueIds = referentials.pollGroupOfIds();
+      ids = referentials.pollGroupOfIds();
     }
     return null;
   }
 
-  private List<Map<String, Object>> selectRows(Long[] issueIds) throws SQLException {
+  private List<Map<String, Object>> selectRows(Long[] ids) throws SQLException {
     Connection readConnection = null;
     try {
       readConnection = db.getDataSource().getConnection();
-      IssueHandler issueHandler = new IssueHandler();
-      return new QueryRunner().query(readConnection, SQL_SELECT_ISSUES, issueHandler, issueIds);
+      RowHandler rowHandler = new RowHandler();
+      return new QueryRunner().query(readConnection, SQL_SELECT_ISSUES, rowHandler, ids);
 
     } finally {
       DbUtils.closeQuietly(readConnection);
     }
   }
 
-  private void convert(List<Map<String, Object>> rows, Long[] issueIds) throws SQLException {
+  private void convert(List<Map<String, Object>> rows, Long[] ids) throws SQLException {
     Connection readConnection = null;
     Connection writeConnection = null;
     try {
@@ -147,8 +145,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
       QueryRunner runner = new QueryRunner();
       for (Map<String, Object> row : rows) {
         Object[] params = new Object[3];
-//        params[0] = debtConvertor.createFromLong((Long) row.get(CHANGE_DATA));
-        params[0] = row.get(CHANGE_DATA);
+        params[0] = convertChangelog((String) row.get(CHANGE_DATA));
         params[1] = new Date(system2.now());
         params[2] = row.get(ID);
         allParams.add(params);
@@ -162,12 +159,36 @@ public class IssueChangelogMigration implements DatabaseMigration {
     }
   }
 
-  private static class IssueHandler extends AbstractListHandler<Map<String, Object>> {
+  @VisibleForTesting
+  String convertChangelog(String data){
+    Pattern pattern = Pattern.compile("technicalDebt=(\\d*)\\|(\\d*)", Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher(data);
+    StringBuffer sb = new StringBuffer();
+    if (matcher.find()) {
+      String replacement = "technicalDebt=";
+      String oldValue = matcher.group(1);
+      if (!Strings.isNullOrEmpty(oldValue)) {
+        long oldDebt = debtConvertor.createFromLong(Long.parseLong(oldValue));
+        replacement += Long.toString(oldDebt);
+      }
+      replacement +=  "|";
+      String newValue = matcher.group(2);
+      if (!Strings.isNullOrEmpty(newValue)) {
+        long newDebt = debtConvertor.createFromLong(Long.parseLong(newValue));
+        replacement += Long.toString(newDebt);
+      }
+      matcher.appendReplacement(sb, replacement);
+    }
+    matcher.appendTail(sb);
+    return sb.toString();
+  }
+
+  private static class RowHandler extends AbstractListHandler<Map<String, Object>> {
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
       map.put(ID, SqlUtil.getLong(rs, ID));
-      map.put(CHANGE_DATA, SqlUtil.getLong(rs, CHANGE_DATA));
+      map.put(CHANGE_DATA, rs.getString(CHANGE_DATA));
       return map;
     }
   }
