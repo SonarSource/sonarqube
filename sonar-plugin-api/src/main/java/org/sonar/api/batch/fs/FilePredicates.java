@@ -65,6 +65,9 @@ public class FilePredicates {
   }
 
   public static FilePredicate matchesPathPatterns(String[] inclusionPatterns) {
+    if (inclusionPatterns.length == 0) {
+      return ALWAYS_TRUE;
+    }
     FilePredicate[] predicates = new FilePredicate[inclusionPatterns.length];
     for (int i = 0; i < inclusionPatterns.length; i++) {
       predicates[i] = new PathPatternPredicate(PathPattern.create(inclusionPatterns[i]));
@@ -77,6 +80,9 @@ public class FilePredicates {
   }
 
   public static FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns) {
+    if (exclusionPatterns.length == 0) {
+      return ALWAYS_TRUE;
+    }
     return not(matchesPathPatterns(exclusionPatterns));
   }
 

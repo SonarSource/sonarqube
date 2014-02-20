@@ -21,6 +21,7 @@
 package org.sonar.plugins.cpd;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -93,12 +94,12 @@ public class SonarEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    Iterable<InputFile> sourceFiles = fs.inputFiles(FilePredicates.and(
+    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(FilePredicates.and(
       FilePredicates.hasType(InputFile.Type.MAIN),
       FilePredicates.hasLanguage(languageKey),
       FilePredicates.doesNotMatchPathPatterns(cpdExclusions)
-    ));
-    if (!sourceFiles.iterator().hasNext()) {
+    )));
+    if (sourceFiles.isEmpty()) {
       return;
     }
     SonarDuplicationsIndex index = createIndex(project, sourceFiles);
@@ -135,7 +136,7 @@ public class SonarEngine extends CpdEngine {
     return index;
   }
 
-  private void detect(SonarDuplicationsIndex index, SensorContext context, Iterable<InputFile> sourceFiles) {
+  private void detect(SonarDuplicationsIndex index, SensorContext context, List<InputFile> sourceFiles) {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       for (InputFile inputFile : sourceFiles) {

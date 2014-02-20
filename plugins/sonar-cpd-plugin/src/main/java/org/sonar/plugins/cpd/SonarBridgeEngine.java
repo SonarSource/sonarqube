@@ -22,6 +22,7 @@ package org.sonar.plugins.cpd;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -80,12 +81,12 @@ public class SonarBridgeEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    Iterable<InputFile> sourceFiles = fs.inputFiles(FilePredicates.and(
+    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(FilePredicates.and(
       FilePredicates.hasType(InputFile.Type.MAIN),
       FilePredicates.hasLanguage(languageKey),
       FilePredicates.doesNotMatchPathPatterns(cpdExclusions)
-    ));
-    if (!sourceFiles.iterator().hasNext()) {
+    )));
+    if (sourceFiles.isEmpty()) {
       return;
     }
 
