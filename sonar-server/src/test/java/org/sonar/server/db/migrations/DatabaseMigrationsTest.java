@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.db.migrations;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.debt.IssueMigration;
-import org.sonar.server.db.migrations.violation.ViolationMigration;
+import org.junit.Test;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public interface DatabaseMigrations {
+public class DatabaseMigrationsTest {
 
-  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
-    ViolationMigration.class,
-    IssueMigration.class
-  );
-
+  @Test
+  public void check_number_of_migrations() throws Exception {
+    assertThat(DatabaseMigrations.CLASSES).hasSize(2);
+  }
 }
