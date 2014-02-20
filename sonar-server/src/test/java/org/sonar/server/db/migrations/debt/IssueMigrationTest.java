@@ -21,8 +21,7 @@
 package org.sonar.server.db.migrations.debt;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,12 +36,11 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class IssueMigrationTest {
 
-  @Rule
-  public TestDatabase db = new TestDatabase().schema(getClass(), "issueSchema.sql");
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(IssueMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

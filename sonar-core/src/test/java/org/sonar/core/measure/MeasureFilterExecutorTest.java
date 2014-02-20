@@ -20,7 +20,7 @@
 package org.sonar.core.measure;
 
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -53,8 +53,8 @@ public class MeasureFilterExecutorTest {
 
   private MeasureFilterExecutor executor;
 
-  @Rule
-  public TestDatabase db = new TestDatabase();
+  @ClassRule
+  public static TestDatabase db = new TestDatabase();
 
   @Before
   public void before() {

@@ -64,16 +64,19 @@ import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
+/**
+ * This class should be call using @ClassRule, in order to create the schema once per test class.
+ * Data will be truncated each time you call prepareDbUnit().
+ */
 public class TestDatabase extends ExternalResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(TestDatabase.class);
 
-  private static Database db;
-  private static DatabaseCommands commands;
-  private static IDatabaseTester tester;
-  private static MyBatis myBatis;
+  private Database db;
+  private DatabaseCommands commands;
+  private IDatabaseTester tester;
+  private MyBatis myBatis;
   private String schemaPath = null;
-
 
   public TestDatabase schema(Class baseClass, String filename) {
     String path = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
@@ -83,34 +86,39 @@ public class TestDatabase extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    if (db == null) {
-      Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
-      if (settings.hasKey("orchestrator.configUrl")) {
-        loadOrchestratorSettings(settings);
-      }
-      for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
-        LOG.info(key + ": " + settings.getString(key));
-      }
-      boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
-      if (hasDialect) {
-        db = new DefaultDatabase(settings);
-      } else {
-        db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
-      }
-      db.start();
-      if (schemaPath != null) {
-        // will fail if not H2
-        ((H2Database) db).executeScript(schemaPath);
-      }
-      LOG.info("Test Database: " + db);
-
-      commands = DatabaseCommands.forDialect(db.getDialect());
-      tester = new DataSourceDatabaseTester(db.getDataSource());
-
-      myBatis = new MyBatis(db, new Logback());
-      myBatis.start();
+    Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
+    if (settings.hasKey("orchestrator.configUrl")) {
+      loadOrchestratorSettings(settings);
     }
+    for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
+      LOG.info(key + ": " + settings.getString(key));
+    }
+    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
+    if (hasDialect) {
+      db = new DefaultDatabase(settings);
+    } else {
+      db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
+    }
+    db.start();
+    if (schemaPath != null) {
+      // will fail if not H2
+      ((H2Database) db).executeScript(schemaPath);
+    }
+    LOG.info("Test Database: " + db);
+
+    commands = DatabaseCommands.forDialect(db.getDialect());
+    tester = new DataSourceDatabaseTester(db.getDataSource());
+
+    myBatis = new MyBatis(db, new Logback());
+    myBatis.start();
+
     commands.truncateDatabase(db.getDataSource());
+  }
+
+  @Override
+  protected void after() {
+    db.stop();
+    db = null;
   }
 
   public Database database() {
@@ -148,7 +156,7 @@ public class TestDatabase extends ExternalResource {
   public int count(String sql) {
     Connection connection = null;
     PreparedStatement stmt = null;
-      ResultSet rs = null;
+    ResultSet rs = null;
     try {
       connection = openConnection();
       stmt = connection.prepareStatement(sql);
@@ -170,6 +178,9 @@ public class TestDatabase extends ExternalResource {
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
+      // Purge previous data
+      commands.truncateDatabase(db.getDataSource());
+
       for (int i = 0; i < testNames.length; i++) {
         String path = "/" + testClass.getName().replace('.', '/') + "/" + testNames[i];
         streams[i] = testClass.getResourceAsStream(path);

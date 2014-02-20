@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.migrations.violation;
 
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
@@ -27,12 +27,11 @@ import org.sonar.core.persistence.TestDatabase;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class ViolationMigrationTest {
 
-  @Rule
-  public TestDatabase db = new TestDatabase().schema(getClass(), "schema.sql");
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(ViolationMigrationTest.class, "schema.sql");
 
   @Test
   public void migrate_violations() throws Exception {
