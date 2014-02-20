@@ -94,8 +94,8 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   }
 
   /**
-   * Marked as nullable just for the unit tests that do not previously call
-   * {@link #setHash(String)}
+   * Digest hash of the file. Marked as nullable just for the unit tests
+   * that do not previously call {@link #setHash(String)}
    */
   @CheckForNull
   public String hash() {
@@ -108,8 +108,8 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   }
 
   /**
-   * Marked as nullable just for the unit tests that do not previously call
-   * {@link #setKey(String)}.
+   * Component key. It's marked as nullable just for the unit tests that
+   * do not previously call {@link #setKey(String)}.
    */
   @CheckForNull
   public String key() {
@@ -157,7 +157,7 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   }
 
   /**
-   * Key used before version 4.2. It's different than {@link #key} on Java files.
+   * Key used before version 4.2. It can be different than {@link #key} on Java files.
    */
   public String deprecatedKey() {
     return deprecatedKey;
@@ -212,7 +212,7 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   }
 
   /**
-   * @deprecated in 4.2. Use {@link org.sonar.api.batch.fs.FileSystem#baseDir()}
+   * @deprecated in 4.2. Replaced by {@link org.sonar.api.batch.fs.FileSystem#baseDir()}
    */
   @Deprecated
   @Override

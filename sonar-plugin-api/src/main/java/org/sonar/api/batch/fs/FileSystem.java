@@ -30,7 +30,7 @@ import java.util.Set;
  * <p>The unit tests needing an instance of FileSystem can use the implementation
  * {@link org.sonar.api.batch.fs.internal.DefaultFileSystem} and the related {@link org.sonar.api.scan.filesystem.internal.DefaultInputFile}:</p>
  * <pre>
- *   FileSystem fs = new DefaultFileSystem();
+ *   DefaultFileSystem fs = new DefaultFileSystem();
  *   fs.add(new DefaultInputFile("src/foo/bar.php"));
  * </pre>
  *
@@ -58,6 +58,9 @@ public interface FileSystem extends BatchComponent {
   File workDir();
 
   /**
+   * Returns the single element matching the predicate. If more than one elements match
+   * the predicate, then {@link IllegalArgumentException} is thrown. Returns {@code null}
+   * if no files match.
    * @see org.sonar.api.batch.fs.FilePredicates
    */
   @CheckForNull
@@ -66,27 +69,30 @@ public interface FileSystem extends BatchComponent {
   /**
    * Input files matching the given attributes. Return all the files if the parameter
    * <code>attributes</code> is empty.
+   * <p/>
+   * Important - result is an {@link java.lang.Iterable} to benefit from streaming and decreasing
+   * memory consumption. It should be iterated only once, else copy it into a list :
+   * {@code com.google.common.collect.Lists.newArrayList(inputFiles(predicate))}
    * @see org.sonar.api.batch.fs.FilePredicates
    */
   Iterable<InputFile> inputFiles(FilePredicate predicate);
 
   /**
    * Returns true if at least one {@link org.sonar.api.batch.fs.InputFile} matches
-   * the given attributes. This method can be faster than checking if {@link #inputFiles(org.sonar.api.batch.fs.FilePredicate...)}
-   * has elements. If the parameter <code>attributes</code> is empty, then returns true
-   * if at least one input file exists.
+   * the given predicate. This method can be faster than checking if {@link #inputFiles(org.sonar.api.batch.fs.FilePredicate...)}
+   * has elements.
    * @see org.sonar.api.batch.fs.FilePredicates
    */
   boolean hasFiles(FilePredicate predicate);
 
   /**
-   * Files matching the given attributes.
+   * Files matching the given predicate.
    * @see org.sonar.api.batch.fs.FilePredicates
    */
   Iterable<File> files(FilePredicate predicate);
 
   /**
-   * Languages detected in all the files, whatever their type (main code or test)
+   * Languages detected in all files, whatever their type (main or test)
    */
   Set<String> languages();
 }

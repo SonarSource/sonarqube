@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * This layer over {@link java.io.File} adds information useful for code analyzers.
+ * This layer over {@link java.io.File} adds information for code analyzers.
  *
  * @since 4.2
  */
@@ -42,12 +42,12 @@ public interface InputFile extends Serializable {
 
   /**
    * Path relative to module base directory. Path is unique and identifies file
-   * within given <code>{@link FileSystem}</code>.
-   * File separator is the forward slash ('/'), even on Microsoft Windows.
+   * within given <code>{@link FileSystem}</code>. File separator is the forward
+   * slash ('/'), even on Microsoft Windows.
    * <p/>
    * Returns <code>src/main/java/com/Foo.java</code> if module base dir is
-   * <code>/absolute/path/to/module</code> and if file is
-   * <code>/absolute/path/to/module/src/main/java/com/Foo.java</code>.
+   * <code>/path/to/module</code> and if file is
+   * <code>/path/to/module/src/main/java/com/Foo.java</code>.
    * <p/>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
    */
@@ -68,8 +68,8 @@ public interface InputFile extends Serializable {
   File file();
 
   /**
-   * Language, for example "java" or "php". It's automatically guessed when it is not
-   * set by project configuration.
+   * Language, for example "java" or "php". It's automatically guessed if it is not
+   * set in project settings.
    */
   String language();
 
@@ -83,5 +83,9 @@ public interface InputFile extends Serializable {
    */
   Status status();
 
+  /**
+   * Number of physical lines. This method supports all end-of-line characters. Returns
+   * zero if the file is empty.
+   */
   int lines();
 }

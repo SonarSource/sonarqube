@@ -22,7 +22,7 @@ package org.sonar.api.batch.fs;
 import org.sonar.api.BatchExtension;
 
 /**
- * Extension point to complete the list of files to ignore during inspection
+ * Extension point to exclude some files from inspection
  * @since 4.2
  */
 public interface InputFileFilter extends BatchExtension {
