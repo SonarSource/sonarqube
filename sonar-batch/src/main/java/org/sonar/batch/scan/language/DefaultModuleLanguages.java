@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.language;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -30,7 +30,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Give access to all languages detected on the current module
@@ -41,7 +41,7 @@ public class DefaultModuleLanguages implements ModuleLanguages {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleLanguages.class);
 
-  private final List<String> moduleLanguages = Lists.newArrayList();
+  private final Set<String> moduleLanguages = Sets.newTreeSet();
 
   public DefaultModuleLanguages(Settings settings, Languages languages) {
     if (settings.hasKey(CoreProperties.PROJECT_LANGUAGE_PROPERTY)) {
