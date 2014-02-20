@@ -60,7 +60,7 @@ public class CacheTest {
     assertThat(cache.values()).containsOnly("paris", "rome");
     assertThat(cache.containsKey("france")).isTrue();
 
-    Cache.Entry[] entries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    Cache.Entry[] entries = Iterables.toArray(cache.entries(), Cache.Entry.class);
     assertThat(entries).hasSize(2);
     assertThat(entries[0].key()[0]).isEqualTo("france");
     assertThat(entries[0].value()).isEqualTo("paris");
@@ -113,14 +113,14 @@ public class CacheTest {
     assertThat(cache.values("europe")).containsOnly("paris", "rome");
     assertThat(cache.values("oceania")).isEmpty();
 
-    Cache.Entry[] allEntries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);
     assertThat(allEntries).hasSize(2);
     assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france"});
     assertThat(allEntries[0].value()).isEqualTo("paris");
     assertThat(allEntries[1].key()).isEqualTo(new String[]{"europe", "italy"});
     assertThat(allEntries[1].value()).isEqualTo("rome");
 
-    Cache.SubEntry[] subEntries = Iterables.toArray(cache.<String>subEntries("europe"), Cache.SubEntry.class);
+    Cache.SubEntry[] subEntries = Iterables.toArray(cache.subEntries("europe"), Cache.SubEntry.class);
     assertThat(subEntries).hasSize(2);
     assertThat(subEntries[0].keyAsString()).isEqualTo("france");
     assertThat(subEntries[0].value()).isEqualTo("paris");
@@ -162,7 +162,7 @@ public class CacheTest {
     assertThat(cache.containsKey("europe", "france", "biarritz")).isFalse();
     assertThat(cache.values()).containsOnly("eiffel tower", "lake", "colosseum");
 
-    Cache.Entry[] allEntries = Iterables.toArray(cache.<String>entries(), Cache.Entry.class);
+    Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);
     assertThat(allEntries).hasSize(3);
     assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france", "annecy"});
     assertThat(allEntries[0].value()).isEqualTo("lake");
@@ -171,7 +171,7 @@ public class CacheTest {
     assertThat(allEntries[2].key()).isEqualTo(new String[]{"europe", "italy", "rome"});
     assertThat(allEntries[2].value()).isEqualTo("colosseum");
 
-    Cache.SubEntry[] subEntries = Iterables.toArray(cache.<String>subEntries("europe"), Cache.SubEntry.class);
+    Cache.SubEntry[] subEntries = Iterables.toArray(cache.subEntries("europe"), Cache.SubEntry.class);
     assertThat(subEntries).hasSize(2);
     assertThat(subEntries[0].keyAsString()).isEqualTo("france");
     assertThat(subEntries[0].value()).isNull();
