@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.i18n.DefaultI18n;
 
@@ -71,17 +70,6 @@ public class DebtFormatterTest {
   public void format_from_seconds_not_display_minutes_if_hours_exists() {
     // 5 days 2 hours 1 minute -> 1 minute is not displayed
     assertThat(formatter.format(DEFAULT_LOCALE, 5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("5 days 2 hours");
-  }
-
-  @Test
-  public void format_work_duration() {
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, HOURS_IN_DAY))).isEqualTo("5 days");
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.HOURS, HOURS_IN_DAY))).isEqualTo("2 hours");
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY))).isEqualTo("1 minutes");
-
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(5, 2, 0, HOURS_IN_DAY))).isEqualTo("5 days 2 hours");
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(0, 2, 1, HOURS_IN_DAY))).isEqualTo("2 hours 1 minutes");
-    assertThat(formatter.formatWorkDuration(DEFAULT_LOCALE, WorkDuration.create(5, 2, 10, HOURS_IN_DAY))).isEqualTo("5 days 2 hours");
   }
 
 }

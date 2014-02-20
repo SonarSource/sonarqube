@@ -41,7 +41,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -78,18 +77,16 @@ public class NewTechnicalDebtDecoratorTest {
   Date fiveDaysAgo;
   Date fourDaysAgo;
 
-  WorkDuration oneDaysWorkDuration = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, 8);
-  WorkDuration twoDaysWorkDuration = WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, 8);
-  WorkDuration fiveDaysWorkDuration = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, 8);
+  private static final int HOURS_IN_DAY = 8;
 
-  long oneDays = 1 * 8 * 60 * 60;
-  long twoDays = 2 * 8 * 60 * 60;
-  long fiveDays = 5 * 8 * 60 * 60;
+  long oneDay = 1 * HOURS_IN_DAY * 60 * 60L;
+  long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
+  long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
 
   @Before
   public void setup() {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, "8");
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
 
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
@@ -122,7 +119,7 @@ public class NewTechnicalDebtDecoratorTest {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
       newArrayList(
         // changelog created at is null because it has just been created on the current analysis
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(null)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -137,8 +134,8 @@ public class NewTechnicalDebtDecoratorTest {
   public void save_on_one_issue_with_changelog() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysWorkDuration), fromWorkDayDuration(fiveDaysWorkDuration)).setCreationDate(null),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(fourDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(null),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -151,10 +148,10 @@ public class NewTechnicalDebtDecoratorTest {
 
   @Test
   public void save_on_one_issue_with_changelog_only_in_the_past() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDay).setChanges(
       newArrayList(
         // Change before all periods
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(elevenDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(elevenDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -169,9 +166,9 @@ public class NewTechnicalDebtDecoratorTest {
   public void save_on_one_issue_with_changelog_having_null_value() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysWorkDuration)).setCreationDate(null),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), null).setCreationDate(fourDaysAgo),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", null, fiveDays).setCreationDate(null),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, null).setCreationDate(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -188,9 +185,9 @@ public class NewTechnicalDebtDecoratorTest {
 
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(fiveDaysWorkDuration)).setCreationDate(null),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), null).setCreationDate(fourDaysAgo),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", null, fiveDays).setCreationDate(null),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, null).setCreationDate(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -207,7 +204,7 @@ public class NewTechnicalDebtDecoratorTest {
       newArrayList(
         new FieldDiffs()
           .setDiff("actionPlan", "1.0", "1.1").setCreationDate(fourDaysAgo)
-          .setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(fourDaysAgo)
+          .setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -222,15 +219,15 @@ public class NewTechnicalDebtDecoratorTest {
   public void save_on_issues_with_changelog() {
     Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysWorkDuration), fromWorkDayDuration(fiveDaysWorkDuration)).setCreationDate(rightNow),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(fourDaysAgo),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
     Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(rightNow),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
@@ -297,15 +294,15 @@ public class NewTechnicalDebtDecoratorTest {
     // issue1 and issue2 have changelog
     Issue issue1 = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysWorkDuration), fromWorkDayDuration(fiveDaysWorkDuration)).setCreationDate(rightNow),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(fourDaysAgo),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
     Issue issue2 = new DefaultIssue().setKey("B").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysWorkDuration), fromWorkDayDuration(twoDaysWorkDuration)).setCreationDate(rightNow),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
 
@@ -338,10 +335,10 @@ public class NewTechnicalDebtDecoratorTest {
    */
   @Test
   public void not_return_negative_debt() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDay).setChanges(
       newArrayList(
         // changelog created at is null because it has just been created on the current analysis
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysWorkDuration), fromWorkDayDuration(oneDaysWorkDuration)).setCreationDate(null)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, oneDay).setCreationDate(null)
       )
     );
     when(issuable.issues()).thenReturn(newArrayList(issue));
@@ -352,11 +349,7 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 0.0)));
   }
 
-  private Long fromWorkDayDuration(WorkDuration workDayDuration) {
-    return workDayDuration.toLong();
-  }
-
-
+  
   class IsVariationMeasure extends ArgumentMatcher<Measure> {
     Metric metric = null;
     Double var1 = null;

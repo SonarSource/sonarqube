@@ -36,6 +36,10 @@ public final class WorkDurationFactory implements BatchComponent, ServerComponen
     this.settings = settings;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public WorkDuration createFromWorkingValue(int value, WorkDuration.UNIT unit) {
     return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay());
   }

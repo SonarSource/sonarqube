@@ -41,7 +41,7 @@ public class DebtFormatter implements ServerComponent {
     return formatWorkDuration(locale, workDurationFactory.createFromSeconds(debt));
   }
 
-  public String formatWorkDuration(Locale locale, WorkDuration debt) {
+  private String formatWorkDuration(Locale locale, WorkDuration debt) {
     StringBuilder message = new StringBuilder();
     if (debt.days() > 0) {
       message.append(defaultI18n.message(locale, "issue.technical_debt.x_days", null, debt.days()));

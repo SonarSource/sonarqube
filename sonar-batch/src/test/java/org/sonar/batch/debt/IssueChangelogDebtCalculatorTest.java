@@ -39,6 +39,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueChangelogDebtCalculatorTest {
 
   private static final int HOURS_IN_DAY = 8;
+
   IssueChangelogDebtCalculator issueChangelogDebtCalculator;
 
   Date rightNow = new Date();
@@ -48,13 +49,9 @@ public class IssueChangelogDebtCalculatorTest {
   Date fiveDaysAgo = DateUtils.addDays(rightNow, -5);
   Date fourDaysAgo = DateUtils.addDays(rightNow, -4);
 
-  WorkDuration oneDaysDebt = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY);
-  WorkDuration twoDaysDebt = WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY);
-  WorkDuration fiveDaysDebt = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, HOURS_IN_DAY);
-
-  Long oneDaysDebtInSec = 1 * HOURS_IN_DAY * 60 * 60L;
-  Long twoDaysDebtInSec = 2 * HOURS_IN_DAY * 60 * 60L;
-  Long fiveDaysDebtInSec = 5 * HOURS_IN_DAY * 60 * 60L;
+  long oneDay = 1 * HOURS_IN_DAY * 60 * 60L;
+  long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
+  long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
 
   @Before
   public void setUp() throws Exception {
@@ -66,10 +63,10 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void calculate_new_technical_debt_with_one_diff_in_changelog() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebtInSec).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
       newArrayList(
         // changelog created at is null because it has just been created on the current analysis
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreationDate(null)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
       )
     );
 
@@ -84,10 +81,10 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void calculate_new_technical_debt_with_many_diffs_in_changelog() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebtInSec).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreationDate(null),
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreationDate(fourDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(null),
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
       )
     );
 
@@ -101,14 +98,14 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void changelog_can_be_in_wrong_order() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebtInSec).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
       newArrayList(
         // 3rd
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreationDate(nineDaysAgo),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo),
         // 1st
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(fiveDaysDebt)).setCreationDate(rightNow),
+        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(rightNow),
         // 2nd
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreationDate(fourDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
       )
     );
 
@@ -120,9 +117,9 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void calculate_new_technical_debt_with_null_date() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebtInSec).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), fromWorkDayDuration(twoDaysDebt)).setCreationDate(null)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
       )
     );
 
@@ -134,8 +131,8 @@ public class IssueChangelogDebtCalculatorTest {
   public void calculate_new_technical_debt_when_new_debt_is_null() throws Exception {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(null).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(oneDaysDebt), null).setCreationDate(null),
-        new FieldDiffs().setDiff("technicalDebt", null, fromWorkDayDuration(oneDaysDebt)).setCreationDate(nineDaysAgo)
+        new FieldDiffs().setDiff("technicalDebt", oneDay, null).setCreationDate(null),
+        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
       )
     );
 
@@ -151,17 +148,13 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void not_return_negative_debt() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDaysDebtInSec).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDay).setChanges(
       newArrayList(
-        new FieldDiffs().setDiff("technicalDebt", fromWorkDayDuration(twoDaysDebt), fromWorkDayDuration(oneDaysDebt)).setCreationDate(null)
+        new FieldDiffs().setDiff("technicalDebt", twoDays, oneDay).setCreationDate(null)
       )
     );
 
     assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isNull();
-  }
-
-  private Long fromWorkDayDuration(WorkDuration workDayDuration) {
-    return workDayDuration.toLong();
   }
 
 }

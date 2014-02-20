@@ -21,15 +21,11 @@ package org.sonar.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.user.DefaultUser;
 
 import java.util.Date;
@@ -46,10 +42,7 @@ public class IssueUpdaterTest {
 
   @Before
   public void setUp() throws Exception {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
-
-    updater = new IssueUpdater(new WorkDurationFactory(settings));
+    updater = new IssueUpdater();
   }
 
   @Test
@@ -388,8 +381,8 @@ public class IssueUpdaterTest {
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8).toLong());
-    assertThat(diff.newValue()).isEqualTo(WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.DAYS, 8).toLong());
+    assertThat(diff.oldValue()).isEqualTo(previousDebt);
+    assertThat(diff.newValue()).isEqualTo(newDebt);
   }
 
   @Test
@@ -403,7 +396,7 @@ public class IssueUpdaterTest {
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
     assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo(WorkDuration.createFromValueAndUnit(15, WorkDuration.UNIT.DAYS, 8).toLong());
+    assertThat(diff.newValue()).isEqualTo(newDebt);
   }
 
   @Test
@@ -416,7 +409,7 @@ public class IssueUpdaterTest {
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.DAYS, 8).toLong());
+    assertThat(diff.oldValue()).isEqualTo(previousDebt);
     assertThat(diff.newValue()).isNull();
   }
 

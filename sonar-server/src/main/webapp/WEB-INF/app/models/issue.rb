@@ -74,8 +74,8 @@ class Issue
         hash_diff = {}
         hash_diff[:key] = key
         if key == 'technicalDebt'
-          hash_diff[:newValue] = work_duration_to_hash(Internal.technical_debt.toTechnicalDebt(diff.newValue())) if diff.newValue.present?
-          hash_diff[:oldValue] = work_duration_to_hash(Internal.technical_debt.toTechnicalDebt(diff.oldValue())) if diff.oldValue.present?
+          hash_diff[:newValue] = debt_to_hash(diff.newValue()) if diff.newValue.present?
+          hash_diff[:oldValue] = debt_to_hash(diff.oldValue()) if diff.oldValue.present?
         else
           hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
           hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
@@ -92,10 +92,7 @@ class Issue
   private
 
   def self.debt_to_hash(debt)
-    work_duration_to_hash(Internal.technical_debt.toWorkDuration(debt))
-  end
-
-  def self.work_duration_to_hash(work_duration)
+    work_duration = work_duration_to_hash(Internal.technical_debt.toWorkDuration(debt))
     {
         :days => work_duration.days(),
         :hours => work_duration.hours(),

@@ -123,7 +123,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long newValue = entry.getValue().newValueLong();
         if (newValue != null) {
-          return workDurationFactory.createFromWorkingLong(newValue);
+          return workDurationFactory.createFromSeconds(newValue);
         }
       }
     }
@@ -136,7 +136,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         Long value = entry.getValue().oldValueLong();
         if (value != null) {
-          return workDurationFactory.createFromWorkingLong(value);
+          return workDurationFactory.createFromSeconds(value);
         }
       }
     }
