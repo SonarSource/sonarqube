@@ -36,17 +36,16 @@ import java.util.Set;
 
 /**
  * @since 3.5
+ * @deprecated in 4.2. Replaced by {@link org.sonar.api.batch.fs.FileSystem} and
+ * {@link org.sonar.api.batch.fs.FilePredicate}
  */
+@Deprecated
 public class FileQuery {
 
   private final ListMultimap<String, String> attributes = ArrayListMultimap.create();
   private final Set<String> inclusions = Sets.newHashSet();
   private final Set<String> exclusions = Sets.newHashSet();
 
-  /**
-   * @deprecated since 4.2 use {@link #onMain()} or {@link #onTest()}
-   */
-  @Deprecated
   public static FileQuery on(FileType... types) {
     FileQuery query = new FileQuery();
     for (FileType type : types) {
@@ -55,17 +54,6 @@ public class FileQuery {
     return query;
   }
 
-  /**
-   * @since 4.2
-   */
-  public static FileQuery all() {
-    return on();
-  }
-
-  /**
-   * @deprecated since 4.2 use {@link #onMain()}
-   */
-  @Deprecated
   public static FileQuery onSource() {
     return onMain();
   }
@@ -97,10 +85,6 @@ public class FileQuery {
     return attributes.asMap();
   }
 
-  /**
-   * @deprecated since 4.2 use {@link #typeAttributes()}
-   */
-  @Deprecated
   public Collection<FileType> types() {
     return Collections2.transform(attributes.get("TYPE"), new Function<String, FileType>() {
       @Override
