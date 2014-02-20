@@ -14,7 +14,7 @@
 
 <script id="selectFilterItemTemplate" type="text/template">
   <li>
-    <label {[ if (item.special) { ]}class="special"{[ } ]}>
+    <label title="{{ item.text }}" {[ if (item.special) { ]}class="special"{[ } ]}>
       <input type="checkbox" value="{{ item.id }}"
       {[ if (checked) { ]}checked{[ } ]}>
       {[ if (item.icon) { ]}
