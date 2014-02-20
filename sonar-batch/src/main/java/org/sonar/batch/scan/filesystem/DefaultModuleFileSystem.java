@@ -69,7 +69,9 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.moduleKey = module.getKey();
     this.settings = settings;
     this.index = index;
-    setBaseDir(initializer.baseDir());
+    if (initializer.baseDir() != null) {
+      setBaseDir(initializer.baseDir());
+    }
     setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
     this.sourceDirs = initializer.sourceDirs();
