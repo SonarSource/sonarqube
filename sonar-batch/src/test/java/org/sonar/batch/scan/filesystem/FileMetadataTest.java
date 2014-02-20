@@ -121,4 +121,23 @@ public class FileMetadataTest {
 
     FileMetadata.INSTANCE.read(file, Charsets.UTF_8);
   }
+
+  @Test
+  public void line_feed_is_included_into_hash() throws Exception {
+    File file1 = temp.newFile();
+    FileUtils.write(file1, "foo\nbar\n", Charsets.UTF_8, true);
+
+    // same as file1, except an additional return carriage
+    File file1a = temp.newFile();
+    FileUtils.write(file1a, "foo\r\nbar\n", Charsets.UTF_8, true);
+
+    File file2 = temp.newFile();
+    FileUtils.write(file2, "foo\nbar", Charsets.UTF_8, true);
+
+    String hash1 = FileMetadata.INSTANCE.read(file1, Charsets.UTF_8).hash;
+    String hash1a = FileMetadata.INSTANCE.read(file1a, Charsets.UTF_8).hash;
+    String hash2 = FileMetadata.INSTANCE.read(file2, Charsets.UTF_8).hash;
+    assertThat(hash1).isEqualTo(hash1a);
+    assertThat(hash1).isNotEqualTo(hash2);
+  }
 }

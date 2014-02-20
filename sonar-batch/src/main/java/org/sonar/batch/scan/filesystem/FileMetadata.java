@@ -64,14 +64,14 @@ class FileMetadata {
           if (c == LINE_FEED) {
             // Ignore
             i = reader.read();
-            lines++;
             continue;
           }
         }
         if (c == CARRIAGE_RETURN) {
           afterCR = true;
           c = LINE_FEED;
-        } else if (c == LINE_FEED) {
+        }
+        if (c == LINE_FEED) {
           lines++;
         }
         md5Digest.update(charToBytesUTF(c));
