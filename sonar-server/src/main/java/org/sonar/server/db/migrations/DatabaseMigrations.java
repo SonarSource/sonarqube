@@ -20,6 +20,7 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.server.db.migrations.debt.IssueChangelogMigration;
 import org.sonar.server.db.migrations.debt.IssueMigration;
 import org.sonar.server.db.migrations.violation.ViolationMigration;
 
@@ -29,7 +30,8 @@ public interface DatabaseMigrations {
 
   List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
     ViolationMigration.class,
-    IssueMigration.class
+    IssueMigration.class,
+    IssueChangelogMigration.class
   );
 
 }
