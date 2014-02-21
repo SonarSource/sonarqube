@@ -503,7 +503,8 @@ public class Metric implements ServerExtension, BatchExtension {
       || ValueType.PERCENT.equals(type)
       || ValueType.BOOL.equals(type)
       || ValueType.MILLISEC.equals(type)
-      || ValueType.RATING.equals(type);
+      || ValueType.RATING.equals(type)
+      || ValueType.WORK_DUR.equals(type);
   }
 
   /**

@@ -86,7 +86,7 @@ class ProjectMeasure < ActiveRecord::Base
       when Metric::VALUE_TYPE_MILLISEC
         millisecs_formatted_value( value() )
       when Metric::VALUE_TYPE_WORK_DUR
-        Internal.work_duration_formatter.abbreviation(value())
+        work_duration_formatted_value(value())
       when Metric::VALUE_TYPE_BOOLEAN
         value() == 1 ? 'Yes' : 'No'
       when Metric::VALUE_TYPE_LEVEL
@@ -118,6 +118,8 @@ class ProjectMeasure < ActiveRecord::Base
         end
       when Metric::VALUE_TYPE_MILLISEC
         millisecs_formatted_value(val)
+      when Metric::VALUE_TYPE_WORK_DUR
+        work_duration_formatted_value(val)
       else
         val.to_s
     end
@@ -158,6 +160,15 @@ class ProjectMeasure < ActiveRecord::Base
       return secs.to_s + (ms < 100 ? '' : '.' + ms.to_s[-3,1]) + ' sec'
     else
       ( '%d' % value ) + ' ms'
+    end
+  end
+
+  def work_duration_formatted_value(value)
+    if value == 0
+      '0'
+    else
+      duration = Internal.work_duration_formatter.abbreviation(value.abs).to_s
+      value > 0 ? duration : '-' + duration
     end
   end
 
