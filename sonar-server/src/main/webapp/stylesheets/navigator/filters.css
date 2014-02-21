@@ -186,6 +186,13 @@
 .navigator-filter-select-list label.special > span {
   text-decoration: underline;
 }
+.navigator-filter-select-list label.inactive {
+  cursor: default;
+  opacity: 0.5;
+}
+.navigator-filter-select-list label.inactive:hover {
+  background-color: transparent;
+}
 .navigator-filter-select-list .single {
   padding: 5px 10px;
 }

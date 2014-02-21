@@ -5,7 +5,7 @@ define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], f
 
 
     events: {
-      'click label[data-id]': 'enableFilter'
+      'click label[data-id]:not(.inactive)': 'enableFilter'
     },
 
 

@@ -162,7 +162,21 @@ requirejs(
           }),
 
           new BaseFilters.Filter({
-            name: window.SS.phrases.actionPlans,
+            name: window.SS.phrases.resolution,
+            property: 'resolutions',
+            type: ResolutionFilterView,
+            enabled: true,
+            optional: false,
+            choices: {
+              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
+              'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
+              'FIXED': window.SS.phrases.resolutions.FIXED,
+              'REMOVED': window.SS.phrases.resolutions.REMOVED
+            }
+          }),
+
+          new BaseFilters.Filter({
+            name: window.SS.phrases.actionPlan,
             property: 'actionPlans',
             type: ActionPlanFilterView,
             enabled: false,
@@ -194,20 +208,6 @@ requirejs(
             type: AjaxSelectFilters.ReporterFilterView,
             enabled: false,
             optional: true
-          }),
-
-          new BaseFilters.Filter({
-            name: window.SS.phrases.resolution,
-            property: 'resolutions',
-            type: ResolutionFilterView,
-            enabled: true,
-            optional: false,
-            choices: {
-              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
-              'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
-              'FIXED': window.SS.phrases.resolutions.FIXED,
-              'REMOVED': window.SS.phrases.resolutions.REMOVED
-            }
           }),
 
           new BaseFilters.Filter({

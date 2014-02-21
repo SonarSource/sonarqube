@@ -73,16 +73,27 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
     makeActive: function() {
-      this.$el.removeClass('navigator-filter-inactive');
+      this.model.set({
+        inactive: false,
+        title: ''
+      });
+      this.model.trigger('change:enabled');
+      this.$el.removeClass('navigator-filter-inactive').prop('title', '');
     },
 
 
     makeInactive: function() {
+      this.model.set({
+        inactive: true,
+        title: window.SS.phrases.actionPlanNotAvailable
+      });
+      this.model.trigger('change:enabled');
       this.selection.reset([]);
       this.choices.reset([]);
       this.detailsView.updateLists();
       this.detailsView.updateValue();
-      this.$el.addClass('navigator-filter-inactive');
+      this.$el.addClass('navigator-filter-inactive')
+          .prop('title', window.SS.phrases.actionPlanNotAvailable);
     },
 
 
@@ -102,7 +113,8 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
             that.choices.reset(nonClosedActionPlans.map(function(plan) {
               return {
                 id: plan.key,
-                text: plan.name
+                text: plan.name,
+                category: plan.fDeadLine
               }
             }));
             that.choices.add(new Backbone.Model({

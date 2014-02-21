@@ -408,7 +408,8 @@ define(
           } else {
             this.moreCriteriaFilter.set({ enabled: true }, { silent: true });
           }
-          this.moreCriteriaFilter.set('filters', disabledFilters);
+          this.moreCriteriaFilter.set({ filters: disabledFilters }, { silent: true });
+          this.moreCriteriaFilter.trigger('change:filters');
         },
 
 
