@@ -27,7 +27,7 @@
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-01 13:58:00.00" build_date="2008-12-01 13:58:00.00"
              version="[null]" path=""/>
 
-  <!-- project -->
+  <!-- module -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
@@ -42,10 +42,10 @@
                version="[null]" path="1."/>
 
   <!-- directory -->
-  <projects long_name="org.struts" id="3" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
-              name="org.struts" root_id="1"
+  <projects long_name="org.struts" id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
+              name="src/org/struts" root_id="2"
               description="[null]"
-              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts"/>
   <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -57,10 +57,10 @@
                version="[null]" path="1.2."/>
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.RequestContext"
-            name="RequestContext" root_id="1"
+  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            name="RequestContext.java" root_id="2"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/main/java/RequestContext.java"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java"/>
 
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"

@@ -20,6 +20,7 @@
 package org.sonar.core.component;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.component.Component;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
@@ -29,6 +30,7 @@ import javax.annotation.Nullable;
 public class ResourceComponent implements Component {
   private String key;
   private String path;
+  private String moduleKey;
   private String name;
   private String longName;
   private String qualifier;
@@ -39,6 +41,8 @@ public class ResourceComponent implements Component {
   public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
     this.path = resource.getPath();
+    // Kind of a hack as it depends on format of resource effective key
+    this.moduleKey = StringUtils.removeEnd(resource.getEffectiveKey(), ":" + resource.getKey());
     if (Strings.isNullOrEmpty(key)) {
       throw new IllegalArgumentException("Missing component key");
     }
@@ -63,6 +67,11 @@ public class ResourceComponent implements Component {
   @Override
   public String path() {
     return path;
+  }
+
+  @Override
+  public String moduleKey() {
+    return moduleKey;
   }
 
   public String name() {

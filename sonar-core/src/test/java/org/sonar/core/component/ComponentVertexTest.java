@@ -36,7 +36,7 @@ public class ComponentVertexTest {
     BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
     ComponentVertex vertex = beanGraph.createVertex(ComponentVertex.class);
     Component file = MockSourceFile.createMain("myproject:org/Foo.java").setName("Foo.java").setQualifier(Qualifiers.FILE)
-      .setPath("src/org/Foo.java");
+      .setPath("src/org/Foo.java").setModuleKey("myproject");
 
     vertex.copyFrom(file);
 
@@ -44,6 +44,7 @@ public class ComponentVertexTest {
     assertThat(vertex.name()).isEqualTo("Foo.java");
     assertThat(vertex.qualifier()).isEqualTo(Qualifiers.FILE);
     assertThat(vertex.path()).isEqualTo("src/org/Foo.java");
+    assertThat(vertex.moduleKey()).isEqualTo("myproject");
   }
 
   @Test

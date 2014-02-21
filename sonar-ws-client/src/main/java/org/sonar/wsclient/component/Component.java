@@ -48,6 +48,14 @@ public class Component {
     return JsonUtils.getString(json, "path");
   }
 
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  public String moduleKey() {
+    return JsonUtils.getString(json, "moduleKey");
+  }
+
   public String name() {
     return JsonUtils.getString(json, "name");
   }

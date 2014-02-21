@@ -19,13 +19,26 @@
  */
 package org.sonar.api.component;
 
+import javax.annotation.CheckForNull;
+
 public interface Component<C extends Component> {
   String key();
 
   /**
+   * Path of the component relative to basedir of the parent module.
+   * @return null if this component is not a child of a module
    * @since 4.2
    */
+  @CheckForNull
   String path();
+
+  /**
+   * Key of the module this component belong to.
+   * @return null for components that are module themself
+   * @since 4.2
+   */
+  @CheckForNull
+  String moduleKey();
 
   String name();
 

@@ -343,6 +343,7 @@ class Api::IssuesController < Api::ApiController
     hash[:name] = component.name if component.name
     hash[:longName] = component.longName if component.longName
     hash[:path] = component.path if component.path
+    hash[:moduleKey] = component.moduleKey if component.moduleKey
     hash
   end
 

@@ -73,12 +73,26 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     ResourceDto resource = dao.getResource(1L);
 
     assertThat(resource.getPath()).isNull();
+    assertThat(resource.getModuleKey()).isNull();
     assertThat(resource.getName()).isEqualTo("Struts");
     assertThat(resource.getLongName()).isEqualTo("Apache Struts");
     assertThat(resource.getScope()).isEqualTo("PRJ");
     assertThat(resource.getDescription()).isEqualTo("the description");
     assertThat(resource.getLanguage()).isEqualTo("java");
     assertThat(resource.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void get_resource_path_and_module_key() {
+    setupData("fixture");
+
+    ResourceDto dir = dao.getResource(3L);
+    assertThat(dir.getPath()).isEqualTo("src/org/struts");
+    assertThat(dir.getModuleKey()).isEqualTo("org.struts:struts-core");
+
+    ResourceDto file = dao.getResource(4L);
+    assertThat(file.getPath()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(file.getModuleKey()).isEqualTo("org.struts:struts-core");
   }
 
   @Test
@@ -185,10 +199,10 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_find_root_project_by_component_key() {
     setupData("fixture");
 
-    ResourceDto resource = dao.getRootProjectByComponentKey("org.struts:struts:org.struts.RequestContext");
+    ResourceDto resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(resource.getName()).isEqualTo("Struts");
 
-    resource = dao.getRootProjectByComponentKey("org.struts:struts:org.struts");
+    resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts");
     assertThat(resource.getName()).isEqualTo("Struts");
 
     resource = dao.getRootProjectByComponentKey("org.struts:struts-core");
@@ -279,8 +293,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), null, "user")).hasSize(4);
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), null, "user")).hasSize(3);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), null, "user")).hasSize(2);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), null, "user")).hasSize(1);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core:src/org/struts"), null, "user")).hasSize(2);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java"), null, "user")).hasSize(1);
 
     assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), null, "user")).isEmpty();
     assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), null, "user")).isEmpty();
@@ -317,9 +331,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     assertThat(dao.findByKey("org.struts:struts")).isNotNull();
-    Component<?> component = dao.findByKey("org.struts:struts:org.struts.RequestContext");
+    Component<?> component = dao.findByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(component).isNotNull();
-    assertThat(component.path()).isEqualTo("src/main/java/RequestContext.java");
+    assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(dao.findByKey("unknown")).isNull();
   }
 

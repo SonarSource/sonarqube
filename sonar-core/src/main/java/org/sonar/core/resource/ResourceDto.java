@@ -29,6 +29,7 @@ public class ResourceDto {
   private String name;
   private String longName;
   private Long rootId;
+  private String moduleKey;
   private String path;
   private String scope;
   private String qualifier;
@@ -90,6 +91,15 @@ public class ResourceDto {
 
   public ResourceDto setPath(String s) {
     this.path = s;
+    return this;
+  }
+
+  public String getModuleKey() {
+    return moduleKey;
+  }
+
+  public ResourceDto setModuleKey(String s) {
+    this.moduleKey = s;
     return this;
   }
 

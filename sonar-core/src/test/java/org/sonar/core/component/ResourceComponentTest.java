@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.File;
@@ -29,7 +30,13 @@ import static org.fest.assertions.Fail.fail;
 
 public class ResourceComponentTest {
 
-  Resource file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+  private Resource file;
+
+  @Before
+  public void prepare() {
+    file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+    file.setKey("path/to/foo.c");
+  }
 
   @Test
   public void db_ids_should_be_optional() {
@@ -54,6 +61,7 @@ public class ResourceComponentTest {
   public void should_use_effective_key() {
     ResourceComponent component = new ResourceComponent(file);
     assertThat(component.key()).isEqualTo("myproject:path/to/foo.c");
+    assertThat(component.moduleKey()).isEqualTo("myproject");
   }
 
   @Test
