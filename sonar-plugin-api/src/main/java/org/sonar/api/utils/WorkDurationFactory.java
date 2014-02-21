@@ -63,11 +63,4 @@ public final class WorkDurationFactory implements BatchComponent, ServerComponen
     return settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
-  /**
-   * @since 4.3
-   */
-  public WorkDuration createFromSeconds(long durationInSeconds) {
-    return WorkDuration.createFromSeconds(durationInSeconds, hoursInDay);
-  }
-
 }
