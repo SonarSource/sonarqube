@@ -39,7 +39,7 @@ public class DebtConvertorTest {
   }
 
   @Test
-  public void convert() throws Exception {
+  public void convert_fromn_long() throws Exception {
     settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
     assertThat(convertor.createFromLong(1)).isEqualTo(60);
@@ -49,12 +49,12 @@ public class DebtConvertorTest {
   }
 
   @Test
-  public void use_default_value_for_hours_in_day_when_no_property() throws Exception {
+  public void convert_fromn_long_use_default_value_for_hours_in_day_when_no_property() throws Exception {
     assertThat(convertor.createFromLong(1)).isEqualTo(60);
   }
 
   @Test
-  public void fail_on_bad_hours_in_day_property() throws Exception {
+  public void fail_convert_fromn_long_on_bad_hours_in_day_property() throws Exception {
     try {
       settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
       convertor.createFromLong(1);
@@ -62,6 +62,17 @@ public class DebtConvertorTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
     }
+  }
+
+  @Test
+  public void convert_from_days() throws Exception {
+    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+
+    assertThat(convertor.createFromDays(1.0)).isEqualTo(28800);
+    assertThat(convertor.createFromDays(0.1)).isEqualTo(2880);
+
+    // Should be 1.88 but as it's a long it's truncated after comma
+    assertThat(convertor.createFromDays(0.0001)).isEqualTo(2);
   }
 
 }

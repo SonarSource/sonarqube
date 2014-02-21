@@ -57,6 +57,10 @@ class DebtConvertor {
     return durationInSeconds;
   }
 
+  long createFromDays(double days) {
+    return ((Double) (days * hoursInDay() * 3600L)).longValue();
+  }
+
   private int hoursInDay() {
     int hoursInDay = settings.getInt(HOURS_IN_DAY_PROPERTY);
     if (hoursInDay < 0) {

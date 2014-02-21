@@ -21,73 +21,71 @@
 package org.sonar.server.db.migrations.debt;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
+import org.picocontainer.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.util.SqlUtil;
 
+import javax.annotation.CheckForNull;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Used in the Active Record Migration 514
+ * Used in the Active Record Migration 515
  */
-public class IssueChangelogMigration implements DatabaseMigration {
+public class TechnicalDebtMeasureMigration implements DatabaseMigration {
 
-  private Logger logger = LoggerFactory.getLogger(IssueChangelogMigration.class);
+  private Logger logger = LoggerFactory.getLogger(TechnicalDebtMeasureMigration.class);
 
   private static final String ID = "id";
-  private static final String CHANGE_DATA = "changeData";
+  private static final String VALUE = "changeData";
+  private static final String VAR1 = "var1";
+  private static final String VAR2 = "var2";
+  private static final String VAR3 = "var3";
+  private static final String VAR4 = "var4";
+  private static final String VAR5 = "var5";
 
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
-  private static final String SQL_SELECT = "SELECT * FROM issue_changes WHERE change_type = 'diff' and change_data LIKE '%technicalDebt%'";
-  private static final String SQL_UPDATE = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
-
-  static final String SQL_SELECT_ALL;
+  private static final String SQL_SELECT = "SELECT * FROM project_measures INNER JOIN metrics on metrics.id=project_measures.metric_id " +
+    "WHERE metrics.name='sqale_index' or metrics.name='new_technical_debt'";
+  private static final String SQL_UPDATE = "UPDATE project_measures SET value=?," +
+    "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?";
+  private static final String SQL_SELECT_ALL;
 
   static {
-    StringBuilder sb = new StringBuilder("SELECT c.id AS "+ ID +", c.change_data AS " + CHANGE_DATA +
-      " FROM issue_changes c " +
+    StringBuilder sb = new StringBuilder("SELECT pm.id AS " + ID + ", pm.value AS " + VALUE +
+      ", pm.variation_value_1 AS " + VAR1 + ", pm.variation_value_2 AS " + VAR2 + ", pm.variation_value_3 AS " + VAR3 +
+      ", pm.variation_value_4 AS " + VAR4 + ", pm.variation_value_5 AS " + VAR5 +
+      " FROM project_measures pm " +
       " WHERE ");
     for (int i = 0; i < Referentials.GROUP_SIZE; i++) {
       if (i > 0) {
         sb.append(" OR ");
       }
-      sb.append("c.id=?");
+      sb.append("pm.id=?");
     }
     SQL_SELECT_ALL = sb.toString();
   }
 
   private final DebtConvertor debtConvertor;
-  private final System2 system2;
   private final Database db;
 
-  public IssueChangelogMigration(Database database, Settings settings) {
-    this(database, settings, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  IssueChangelogMigration(Database database, Settings settings, System2 system2) {
+  public TechnicalDebtMeasureMigration(Database database, Settings settings) {
     this.db = database;
     this.debtConvertor = new DebtConvertor(settings);
-    this.system2 = system2;
   }
 
   @Override
@@ -144,10 +142,14 @@ public class IssueChangelogMigration implements DatabaseMigration {
       List<Object[]> allParams = Lists.newArrayList();
       QueryRunner runner = new QueryRunner();
       for (Map<String, Object> row : rows) {
-        Object[] params = new Object[3];
-        params[0] = convertChangelog((String) row.get(CHANGE_DATA));
-        params[1] = new Date(system2.now());
-        params[2] = row.get(ID);
+        Object[] params = new Object[7];
+        params[0] = convertDebtForDays((Double) row.get(VALUE));
+        params[1] = convertDebtForDays((Double) row.get(VAR1));
+        params[2] = convertDebtForDays((Double) row.get(VAR2));
+        params[3] = convertDebtForDays((Double) row.get(VAR3));
+        params[4] = convertDebtForDays((Double) row.get(VAR4));
+        params[5] = convertDebtForDays((Double) row.get(VAR5));
+        params[6] = row.get(ID);
         allParams.add(params);
       }
       runner.batch(writeConnection, SQL_UPDATE, allParams.toArray(new Object[allParams.size()][]));
@@ -160,27 +162,12 @@ public class IssueChangelogMigration implements DatabaseMigration {
   }
 
   @VisibleForTesting
-  String convertChangelog(String data){
-    Pattern pattern = Pattern.compile("technicalDebt=(\\d*)\\|(\\d*)", Pattern.CASE_INSENSITIVE);
-    Matcher matcher = pattern.matcher(data);
-    StringBuffer sb = new StringBuffer();
-    if (matcher.find()) {
-      String replacement = "technicalDebt=";
-      String oldValue = matcher.group(1);
-      if (!Strings.isNullOrEmpty(oldValue)) {
-        long oldDebt = debtConvertor.createFromLong(Long.parseLong(oldValue));
-        replacement += Long.toString(oldDebt);
-      }
-      replacement +=  "|";
-      String newValue = matcher.group(2);
-      if (!Strings.isNullOrEmpty(newValue)) {
-        long newDebt = debtConvertor.createFromLong(Long.parseLong(newValue));
-        replacement += Long.toString(newDebt);
-      }
-      matcher.appendReplacement(sb, replacement);
+  @CheckForNull
+  Long convertDebtForDays(@Nullable Double data) {
+    if (data == null) {
+      return null;
     }
-    matcher.appendTail(sb);
-    return sb.toString();
+    return debtConvertor.createFromDays(data);
   }
 
   private static class RowHandler extends AbstractListHandler<Map<String, Object>> {
@@ -188,7 +175,12 @@ public class IssueChangelogMigration implements DatabaseMigration {
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
       map.put(ID, SqlUtil.getLong(rs, ID));
-      map.put(CHANGE_DATA, rs.getString(CHANGE_DATA));
+      map.put(VALUE, SqlUtil.getDouble(rs, VALUE));
+      map.put(VAR1, SqlUtil.getDouble(rs, VAR1));
+      map.put(VAR2, SqlUtil.getDouble(rs, VAR2));
+      map.put(VAR3, SqlUtil.getDouble(rs, VAR3));
+      map.put(VAR4, SqlUtil.getDouble(rs, VAR4));
+      map.put(VAR5, SqlUtil.getDouble(rs, VAR5));
       return map;
     }
   }
