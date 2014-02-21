@@ -24,6 +24,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -49,8 +51,10 @@ import java.util.Map;
  */
 public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultModuleFileSystem.class);
+
   private final String moduleKey;
-  private final FileIndexer index;
+  private final FileIndexer indexer;
   private final Settings settings;
 
   private File buildDir;
@@ -62,13 +66,13 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer index, ModuleFileSystemInitializer initializer,
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
                                  ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
     this.settings = settings;
-    this.index = index;
+    this.indexer = indexer;
     if (initializer.baseDir() != null) {
       setBaseDir(initializer.baseDir());
     }
@@ -174,6 +178,10 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> files(FileQuery query) {
+    if (!initialized) {
+      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
+      indexer.index(this);
+    }
     Collection<FilePredicate> predicates = Lists.newArrayList();
     for (Map.Entry<String, Collection<String>> entry : query.attributes().entrySet()) {
       predicates.add(fromDeprecatedAttribute(entry.getKey(), entry.getValue()));
@@ -183,7 +191,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     if (initialized) {
-      throw new SonarException("Module filesystem is already initialized. Modification of the filesystem are only allowed during Initializer phase.");
+      throw new SonarException("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
     }
     setBaseDir(basedir);
     this.buildDir = buildDir;
@@ -196,7 +204,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (initialized) {
       throw new SonarException("Module filesystem can only be indexed once");
     }
-    index.index(this);
+    indexer.index(this);
     componentIndexer.execute(this);
     initialized = true;
   }
