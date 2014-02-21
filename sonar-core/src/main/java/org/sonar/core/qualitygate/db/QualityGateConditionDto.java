@@ -19,10 +19,48 @@
  */
 package org.sonar.core.qualitygate.db;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.measures.Metric.ValueType;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @since 4.3
  */
 public class QualityGateConditionDto {
+
+  public static final String OPERATOR_EQUALS = "EQ";
+
+  public static final String OPERATOR_NOT_EQUALS = "NE";
+
+  public static final String OPERATOR_GREATER_THAN = "GT";
+
+  public static final String OPERATOR_LESS_THAN = "LT";
+
+  private static final List<String> NUMERIC_OPERATORS = ImmutableList.of(
+      OPERATOR_LESS_THAN,
+      OPERATOR_GREATER_THAN,
+      OPERATOR_EQUALS,
+      OPERATOR_NOT_EQUALS
+  );
+  private static final List<String> STRING_OPERATORS = ImmutableList.of(
+      OPERATOR_EQUALS,
+      OPERATOR_NOT_EQUALS,
+      OPERATOR_LESS_THAN,
+      OPERATOR_GREATER_THAN
+  );
+  private static final List<String> LEVEL_OPERATORS = ImmutableList.of(
+    OPERATOR_EQUALS,
+    OPERATOR_NOT_EQUALS
+  );
+  private static final List<String> BOOLEAN_OPERATORS = ImmutableList.of(
+    OPERATOR_EQUALS
+  );
 
   private long id;
 
@@ -30,7 +68,9 @@ public class QualityGateConditionDto {
 
   private long metricId;
 
-  private int period;
+  private transient String metricKey;
+
+  private Integer period;
 
   private String operator;
 
@@ -65,11 +105,22 @@ public class QualityGateConditionDto {
     return this;
   }
 
-  public int getPeriod() {
+  @CheckForNull
+  public String getMetricKey() {
+    return metricKey;
+  }
+
+  public QualityGateConditionDto setMetricKey(String metricKey) {
+    this.metricKey = metricKey;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getPeriod() {
     return period;
   }
 
-  public QualityGateConditionDto setPeriod(int period) {
+  public QualityGateConditionDto setPeriod(@Nullable Integer period) {
     this.period = period;
     return this;
   }
@@ -99,5 +150,32 @@ public class QualityGateConditionDto {
   public QualityGateConditionDto setErrorThreshold(String errorThreshold) {
     this.errorThreshold = errorThreshold;
     return this;
+  }
+
+  public static boolean isOperatorAllowed(String operator, ValueType metricType) {
+    return getOperatorsForType(metricType).contains(operator);
+  }
+
+  public static Collection<String> getOperatorsForType(ValueType metricType) {
+    if (metricType == null) {
+      return Collections.emptySet();
+    } else {
+      switch(metricType) {
+        case BOOL:
+          return BOOLEAN_OPERATORS;
+        case LEVEL:
+          return LEVEL_OPERATORS;
+        case STRING:
+          return STRING_OPERATORS;
+        case INT:
+        case FLOAT:
+        case PERCENT:
+        case MILLISEC:
+        case RATING:
+          return NUMERIC_OPERATORS;
+        default:
+          return Collections.emptySet();
+      }
+    }
   }
 }

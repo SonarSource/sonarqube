@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
@@ -54,7 +55,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(7);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -97,11 +98,24 @@ public class QualityGatesWsTest {
     assertThat(setDefault.isPrivate()).isFalse();
 
     WebService.Action unsetDefault = controller.action("unset_default");
-    assertThat(setDefault).isNotNull();
-    assertThat(setDefault.handler()).isNotNull();
-    assertThat(setDefault.since()).isEqualTo("4.3");
-    assertThat(setDefault.isPost()).isTrue();
-    assertThat(setDefault.isPrivate()).isFalse();
+    assertThat(unsetDefault).isNotNull();
+    assertThat(unsetDefault.handler()).isNotNull();
+    assertThat(unsetDefault.since()).isEqualTo("4.3");
+    assertThat(unsetDefault.isPost()).isTrue();
+    assertThat(unsetDefault.isPrivate()).isFalse();
+
+    WebService.Action createCondition = controller.action("create_condition");
+    assertThat(createCondition).isNotNull();
+    assertThat(createCondition.handler()).isNotNull();
+    assertThat(createCondition.since()).isEqualTo("4.3");
+    assertThat(createCondition.isPost()).isTrue();
+    assertThat(createCondition.param("gateId")).isNotNull();
+    assertThat(createCondition.param("metric")).isNotNull();
+    assertThat(createCondition.param("op")).isNotNull();
+    assertThat(createCondition.param("warning")).isNotNull();
+    assertThat(createCondition.param("error")).isNotNull();
+    assertThat(createCondition.param("period")).isNotNull();
+    assertThat(createCondition.isPrivate()).isFalse();
   }
 
   @Test
@@ -187,5 +201,25 @@ public class QualityGatesWsTest {
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newRequest("list").execute().assertJson(
         "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
+  }
+
+  @Test
+  public void create_condition_nominal() throws Exception {
+    long qGateId = 42L;
+    String metricKey = "coverage";
+    String operator = "LT";
+    String warningThreshold = "80";
+    String errorThreshold = "75";
+    when(qGates.createCondition(qGateId, metricKey, operator, warningThreshold, errorThreshold, null))
+      .thenReturn(new QualityGateConditionDto().setId(12345L).setQualityGateId(qGateId).setMetricId(10).setMetricKey(metricKey)
+        .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold));
+    tester.newRequest("create_condition")
+      .setParam("gateId", Long.toString(qGateId))
+      .setParam("metric", metricKey)
+      .setParam("op", operator)
+      .setParam("warning", warningThreshold)
+      .setParam("error", errorThreshold)
+      .execute()
+      .assertJson("{'id':12345,'gateId':42,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
   }
 }

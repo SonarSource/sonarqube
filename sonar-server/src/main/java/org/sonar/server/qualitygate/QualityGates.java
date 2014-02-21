@@ -21,6 +21,11 @@ package org.sonar.server.qualitygate;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -29,6 +34,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
@@ -53,11 +59,14 @@ public class QualityGates {
 
   private final QualityGateConditionDao conditionDao;
 
+  private final MetricFinder metricFinder;
+
   private final PropertiesDao propertiesDao;
 
-  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, PropertiesDao propertiesDao) {
+  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao) {
     this.dao = dao;
     this.conditionDao = conditionDao;
+    this.metricFinder = metricFinder;
     this.propertiesDao = propertiesDao;
   }
 
@@ -71,7 +80,7 @@ public class QualityGates {
 
   public QualityGateDto rename(long idToRename, String name) {
     checkPermission(UserSession.get());
-    QualityGateDto toRename = getNonNull(idToRename);
+    QualityGateDto toRename = getNonNullQgate(idToRename);
     validateQualityGate(idToRename, name);
     toRename.setName(name);
     dao.update(toRename);
@@ -84,7 +93,7 @@ public class QualityGates {
 
   public void delete(long idToDelete) {
     checkPermission(UserSession.get());
-    QualityGateDto qGate = getNonNull(idToDelete);
+    QualityGateDto qGate = getNonNullQgate(idToDelete);
     if (isDefault(qGate)) {
       throw new BadRequestException("Impossible to delete default quality gate.");
     }
@@ -96,7 +105,7 @@ public class QualityGates {
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
-      QualityGateDto newDefault = getNonNull(idToUseAsDefault);
+      QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
       propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getName()));
     }
   }
@@ -111,9 +120,56 @@ public class QualityGates {
     }
   }
 
-  public QualityGateConditionDto createCondition(long qGateId, long metricId, String operator,
+  public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
     @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    return null;
+    checkPermission(UserSession.get());
+    getNonNullQgate(qGateId);
+    Metric metric = getNonNullMetric(metricKey);
+    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
+      .setMetricId(metric.getId()).setMetricKey(metric.getKey())
+      .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold).setPeriod(period);
+    conditionDao.insert(newCondition);
+    return newCondition;
+  }
+
+  private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
+    List<Message> validationMessages = Lists.newArrayList();
+    validateMetric(metric, validationMessages);
+    validateOperator(metric, operator, validationMessages);
+    validateThresholds(warningThreshold, errorThreshold, validationMessages);
+    validatePeriod(metric, period, validationMessages);
+    if (!validationMessages.isEmpty()) {
+      throw BadRequestException.of(validationMessages);
+    }
+  }
+
+  private void validatePeriod(Metric metric, Integer period, List<Message> validationMessages) {
+    if (period == null) {
+      if (metric.getKey().startsWith("new_")) {
+        validationMessages.add(Message.of("A period must be selected for differential metrics."));
+      }
+    } else if (period < 1 || period > 3) {
+      validationMessages.add(Message.of("Valid periods are 1, 2 and 3."));
+    }
+  }
+
+  private void validateThresholds(String warningThreshold, String errorThreshold, List<Message> validationMessages) {
+    if (warningThreshold == null && errorThreshold == null) {
+      validationMessages.add(Message.of("At least one threshold (warning, error) must be set."));
+    }
+  }
+
+  private void validateOperator(Metric metric, String operator, List<Message> validationMessages) {
+    if (!QualityGateConditionDto.isOperatorAllowed(operator, metric.getType())) {
+      validationMessages.add(Message.of(String.format("Operator %s is not allowed for metric type %s.", operator, metric.getType())));
+    }
+  }
+
+  private void validateMetric(Metric metric, List<Message> validationMessages) {
+    if (metric.isDataType() || metric.isHidden() || CoreMetrics.ALERT_STATUS.equals(metric) || ValueType.RATING == metric.getType()) {
+      validationMessages.add(Message.of(String.format("Metric '%s' cannot be used to define a condition.", metric.getKey())));
+    }
   }
 
   private boolean isDefault(QualityGateDto qGate) {
@@ -129,12 +185,20 @@ public class QualityGates {
     }
   }
 
-  private QualityGateDto getNonNull(long id) {
+  private QualityGateDto getNonNullQgate(long id) {
     QualityGateDto qGate = dao.selectById(id);
     if (qGate == null) {
       throw new NotFoundException("There is no quality gate with id=" + id);
     }
     return qGate;
+  }
+
+  private Metric getNonNullMetric(String metricKey) {
+    Metric metric = metricFinder.findByKey(metricKey);
+    if (metric == null) {
+      throw new NotFoundException("There is no metric with key=" + metricKey);
+    }
+    return metric;
   }
 
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {

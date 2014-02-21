@@ -19,17 +19,24 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
 
 public class QualityGatesWs implements WebService {
 
+  private static final String PARAM_ERROR = "error";
+  private static final String PARAM_WARNING = "warning";
+  private static final String PARAM_PERIOD = "period";
+  private static final String PARAM_OPERATOR = "op";
+  private static final String PARAM_METRIC = "metric";
+  private static final String PARAM_GATE_ID = "gateId";
   private final QualityGates qualityGates;
 
   public QualityGatesWs(QualityGates qualityGates) {
@@ -103,11 +110,39 @@ public class QualityGatesWs implements WebService {
       }
     }).newParam("id").setDescription("The numerical ID of the quality gate to destroy.");
 
+    NewAction createCondition = controller.newAction("create_condition")
+    .setDescription("Add a new condition to a quality gate.")
+    .setPost(true)
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        createCondition(request, response);
+      }
+    });
+    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
+    createCondition.newParam(PARAM_METRIC).setDescription("The key for the metric tested by this condition.");
+    createCondition.newParam(PARAM_OPERATOR).setDescription("The operator used for the test, one of 'EQ', 'NE', 'LT', 'GT'.");
+    createCondition.newParam(PARAM_PERIOD).setDescription("The optional period to use (for differential measures).");
+    createCondition.newParam(PARAM_WARNING).setDescription("An optional value for the warning threshold.");
+    createCondition.newParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
+
     controller.done();
   }
 
+  protected void createCondition(Request request, Response response) {
+    writeQualityGateCondition(
+      qualityGates.createCondition(
+        parseId(request, PARAM_GATE_ID),
+        request.requiredParam(PARAM_METRIC),
+        request.requiredParam(PARAM_OPERATOR),
+        request.param(PARAM_WARNING),
+        request.param(PARAM_ERROR),
+        request.intParam(PARAM_PERIOD)
+      ), response.newJsonWriter()).close();;
+  }
+
   protected void setDefault(Request request, Response response) {
-    qualityGates.setDefault(parse(request.requiredParam("id")));
+    qualityGates.setDefault(parseId(request, "id"));
     response.noContent();
   }
 
@@ -117,14 +152,14 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void rename(Request request, Response response) {
-    long idToRename = parse(request.requiredParam("id"));
+    long idToRename = parseId(request, "id");
     QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.requiredParam("name"));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(renamedQualityGate, writer).close();
   }
 
   protected void destroy(Request request, Response response) {
-    qualityGates.delete(parse(request.requiredParam("id")));
+    qualityGates.delete(parseId(request, "id"));
     response.noContent();
   }
 
@@ -147,11 +182,11 @@ public class QualityGatesWs implements WebService {
     writeQualityGate(newQualityGate, writer).close();
   }
 
-  private Long parse(String idParam) {
+  private Long parseId(Request request, String paramName) {
     try {
-      return Long.valueOf(idParam);
+      return Long.valueOf(request.requiredParam(paramName));
     } catch (NumberFormatException badFormat) {
-      throw new BadRequestException("id must be a valid long value");
+      throw new BadRequestException(paramName + " must be a valid long value");
     }
   }
 
@@ -160,6 +195,25 @@ public class QualityGatesWs implements WebService {
       .prop("id", newQualityGate.getId())
       .prop("name", newQualityGate.getName())
       .endObject();
+  }
+
+  private JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
+    writer.beginObject()
+      .prop("id", condition.getId())
+      .prop("gateId", condition.getQualityGateId())
+      .prop("metric", condition.getMetricKey())
+      .prop("op", condition.getOperator());
+    if(condition.getWarningThreshold() != null) {
+      writer.prop("warning", condition.getWarningThreshold());
+    }
+    if(condition.getErrorThreshold() != null) {
+      writer.prop("error", condition.getErrorThreshold());
+    }
+    if(condition.getPeriod() != null) {
+      writer.prop("period", condition.getPeriod());
+    }
+    writer.endObject();
+    return writer;
   }
 
 }

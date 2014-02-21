@@ -158,7 +158,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
     stream.reset();
     stream.setStatus(status);
     stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
-    return json;
+    return JsonWriter.of(new OutputStreamWriter(stream.output()));
   }
 }

@@ -25,11 +25,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -43,6 +49,8 @@ import org.sonar.server.user.UserSessionTestUtils;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +64,9 @@ public class QualityGatesTest {
   private QualityGateConditionDao conditionDao;
 
   @Mock
+  private MetricFinder metricFinder;
+
+  @Mock
   private PropertiesDao propertiesDao;
 
   private QualityGates qGates;
@@ -66,7 +77,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    qGates = new QualityGates(dao, conditionDao, propertiesDao);
+    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao);
     UserSessionTestUtils.setUserSession(authorizedUserSession);
   }
 
@@ -214,5 +225,139 @@ public class QualityGatesTest {
   public void should_return_null_default_qgate_if_unset() throws Exception {
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(""));
     assertThat(qGates.getDefault()).isNull();
+  }
+
+  @Test
+  public void should_create_warning_condition_without_period() {
+    long qGateId = 42L;
+    String metricKey = "coverage";
+    String operator = "LT";
+    String warningThreshold = "90";
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    Integer metricId = 10;
+    Metric coverage = Mockito.spy(CoreMetrics.COVERAGE);
+    when(coverage.getId()).thenReturn(metricId);
+    when(metricFinder.findByKey(metricKey)).thenReturn(coverage);
+
+    QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, warningThreshold, null, null);
+    assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
+    assertThat(newCondition.getMetricId()).isEqualTo(metricId);
+    assertThat(newCondition.getOperator()).isEqualTo(operator);
+    assertThat(newCondition.getWarningThreshold()).isEqualTo(warningThreshold);
+    assertThat(newCondition.getErrorThreshold()).isNull();
+    assertThat(newCondition.getPeriod()).isNull();
+    verify(conditionDao).insert(newCondition);
+  }
+
+  @Test
+  public void should_create_error_condition_with_period() {
+    long qGateId = 42L;
+    String metricKey = "new_coverage";
+    String operator = "LT";
+    String errorThreshold = "80";
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    Integer metricId = 10;
+    Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
+    when(newCoverage.getId()).thenReturn(metricId);
+    when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
+    int period = 2;
+
+    QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, null, errorThreshold, period);
+    assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
+    assertThat(newCondition.getMetricId()).isEqualTo(metricId);
+    assertThat(newCondition.getMetricKey()).isEqualTo(metricKey);
+    assertThat(newCondition.getOperator()).isEqualTo(operator);
+    assertThat(newCondition.getWarningThreshold()).isNull();
+    assertThat(newCondition.getErrorThreshold()).isEqualTo(errorThreshold);
+    assertThat(newCondition.getPeriod()).isEqualTo(period);
+    verify(conditionDao).insert(newCondition);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_fail_create_condition_on_missing_metric() {
+    long qGateId = 42L;
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "new_coverage", "LT", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_alert_metric() {
+    long qGateId = 42L;
+    when(metricFinder.findByKey(anyString())).thenReturn(CoreMetrics.ALERT_STATUS);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "EQ", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_non_data_metric() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getType()).thenReturn(ValueType.DATA);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_hidden_metric() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.isHidden()).thenReturn(true);
+    when(metric.getType()).thenReturn(ValueType.INT);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_rating_metric() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getType()).thenReturn(ValueType.RATING);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_unallowed_operator() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_missing_thresholds() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "EQ", null, null, 2);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_missing_period() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getKey()).thenReturn("new_coverage");
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "EQ", null, "90", null);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_fail_create_condition_on_invalid_period() {
+    long qGateId = 42L;
+    final Metric metric = mock(Metric.class);
+    when(metric.getKey()).thenReturn("new_coverage");
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metricFinder.findByKey(anyString())).thenReturn(metric);
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.createCondition(qGateId, "alert_status", "EQ", null, "90", 4);
   }
 }
