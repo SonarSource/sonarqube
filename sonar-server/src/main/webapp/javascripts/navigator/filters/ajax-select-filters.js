@@ -241,7 +241,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
     },
 
 
-    onRestore: function(value) {
+    onRestore: function() {
       this.detailsView.updateLists();
       this.renderBase();
     },
@@ -252,6 +252,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
       if (this.selection && this.choices) {
         this.choices.reset([]);
         this.selection.reset([]);
+        this.detailsView.updateLists();
       }
       this.renderBase();
     },
