@@ -249,11 +249,12 @@ define(
 
 
         onRender: function () {
-          var $scrollEl = jQuery('.navigator-results'),
+          var that = this,
+              $scrollEl = jQuery('.navigator-results'),
               scrollEl = $scrollEl.get(0),
               onScroll = function () {
                 if (scrollEl.offsetHeight + scrollEl.scrollTop >= scrollEl.scrollHeight) {
-                  window.SS.IssuesNavigatorApp.fetchNextPage();
+                  that.options.app.fetchNextPage();
                 }
               },
               throttledScroll = _.throttle(onScroll, 300);
