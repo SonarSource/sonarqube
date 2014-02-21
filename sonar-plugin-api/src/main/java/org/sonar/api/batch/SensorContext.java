@@ -28,6 +28,8 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -42,8 +44,9 @@ public interface SensorContext {
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
    *
    * @return false if the resource is excluded
-   * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
+   * @deprecated since 4.2 Resource indexing is done by the platform for all physical resources.
    */
+  @Deprecated
   boolean index(Resource resource);
 
   /**
@@ -52,22 +55,27 @@ public interface SensorContext {
    * @param resource        the resource to index. Not nullable
    * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
    * @return false if the parent is not indexed or if the resource is excluded
-   * @since 4.2 Resource indexing is done by the platform for all physical resources. This method should only be used to index methods/paragraphs (see SONAR-5006)
+   * @deprecated since 4.2 Resource indexing is done by the platform for all physical resources.
    */
+  @Deprecated
   boolean index(Resource resource, Resource parentReference);
 
   /**
    * Returns true if the referenced resource is indexed and excluded.
    *
    * @since 2.6
+   * @deprecated since 4.2 Excluded resources are not indexed.
    */
+  @Deprecated
   boolean isExcluded(Resource reference);
 
   /**
    * Returns true if the referenced resource is indexed.
    *
    * @since 2.6
+   * @deprecated since 4.2 Excluded resources are not indexed.
    */
+  @Deprecated
   boolean isIndexed(Resource reference, boolean acceptExcluded);
 
   /**
@@ -77,6 +85,7 @@ public interface SensorContext {
    * @return the indexed resource, null if it's not indexed
    * @since 1.10. Generic types since 2.6.
    */
+  @CheckForNull
   <R extends Resource> R getResource(R reference);
 
   /**
@@ -235,11 +244,13 @@ public interface SensorContext {
   void deleteEvent(Event event);
 
   /**
+   * Experimental
    * @since 4.2
    */
   Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
 
   /**
+   * Experimental
    * @since 4.2
    */
   Measure saveMeasure(InputFile inputFile, Measure measure);
