@@ -88,4 +88,9 @@ public class ResourceComponent implements Component {
   public Long resourceId() {
     return resourceId;
   }
+
+  @Override
+  public String toString() {
+    return key;
+  }
 }
