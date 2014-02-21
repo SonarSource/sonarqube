@@ -28,8 +28,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.Date;
 
@@ -58,7 +56,7 @@ public class IssueChangelogDebtCalculatorTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, Integer.toString(HOURS_IN_DAY));
 
-    issueChangelogDebtCalculator = new IssueChangelogDebtCalculator(new WorkDurationFactory(settings));
+    issueChangelogDebtCalculator = new IssueChangelogDebtCalculator();
   }
 
   @Test
@@ -70,13 +68,10 @@ public class IssueChangelogDebtCalculatorTest {
       )
     );
 
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(oneDay);
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(oneDay);
 
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(twoDays);
   }
 
   @Test
@@ -88,12 +83,9 @@ public class IssueChangelogDebtCalculatorTest {
       )
     );
 
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(3, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(3 * oneDay);
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(4 * oneDay);
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(5 * oneDay);
   }
 
   @Test
@@ -109,10 +101,8 @@ public class IssueChangelogDebtCalculatorTest {
       )
     );
 
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(4 * oneDay);
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(5 * oneDay);
   }
 
   @Test
@@ -123,8 +113,7 @@ public class IssueChangelogDebtCalculatorTest {
       )
     );
 
-    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, null)).isEqualTo(
-      WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, null)).isEqualTo(2 * oneDay);
   }
 
   @Test

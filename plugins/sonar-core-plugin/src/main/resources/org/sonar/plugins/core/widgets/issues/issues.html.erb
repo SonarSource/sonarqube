@@ -56,7 +56,7 @@
                if @dashboard_configuration.selected_period?
                  technical_debt_variation = variation_value(technical_debt)
                  new_technical_debt_variation = variation_value(new_technical_debt)
-                 estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_f if technical_debt_variation && new_technical_debt_variation
+                 estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
             %>
               <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
                 <br/>
@@ -70,7 +70,7 @@
                 <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= number_with_precision(estimated_cleared_technical_debt, :precision => 1) -%></span>
+                  <span class="varb"><%= Internal.work_duration_formatter.abbreviation(estimated_cleared_technical_debt) -%></span>
                 </span>
               <% end %>
             <% end %>

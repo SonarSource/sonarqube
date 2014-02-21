@@ -31,7 +31,6 @@ import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -91,15 +90,15 @@ public final class NewTechnicalDebtDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private Double calculateNewTechnicalDebtValue(Collection<Issue> issues, @Nullable Date periodDate) {
-    WorkDuration duration = null;
+  private long calculateNewTechnicalDebtValue(Collection<Issue> issues, @Nullable Date periodDate) {
+    long result = 0;
     for (Issue issue : issues) {
-      WorkDuration debt = issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, periodDate);
+      Long debt = issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, periodDate);
       if (debt != null) {
-        duration = duration != null ? duration.add(debt) : debt;
+        result += debt;
       }
     }
-    return duration != null ? duration.toWorkingDays() : 0d;
+    return result;
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

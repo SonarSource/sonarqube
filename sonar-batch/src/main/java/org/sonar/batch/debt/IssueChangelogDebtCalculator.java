@@ -27,8 +27,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.CheckForNull;
@@ -39,39 +37,30 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueChangelogDebtCalculator implements BatchComponent {
 
-  private final WorkDurationFactory workDurationFactory;
-
-  public IssueChangelogDebtCalculator(WorkDurationFactory workDurationFactory) {
-    this.workDurationFactory = workDurationFactory;
-  }
-
   @CheckForNull
-  public WorkDuration calculateNewTechnicalDebt(Issue issue, @Nullable Date periodDate) {
+  public Long calculateNewTechnicalDebt(Issue issue, @Nullable Date periodDate) {
     Long debt = ((DefaultIssue) issue).debt();
-    WorkDuration currentTechnicalDebt = debt != null ? workDurationFactory.createFromSeconds(debt) : null;
     Date periodDatePlusOneSecond = periodDate != null ? DateUtils.addSeconds(periodDate, 1) : null;
     if (isAfter(issue.creationDate(), periodDatePlusOneSecond)) {
-      return currentTechnicalDebt;
+      return debt;
     } else {
-      return calculateNewTechnicalDebtValueFromChangelog(currentTechnicalDebt, issue, periodDate);
+      return calculateNewTechnicalDebtValueFromChangelog(debt, issue, periodDate);
     }
   }
 
   @CheckForNull
-  private WorkDuration calculateNewTechnicalDebtValueFromChangelog(@Nullable WorkDuration currentTechnicalDebtValue, Issue issue, Date periodDate) {
+  private Long calculateNewTechnicalDebtValueFromChangelog(@Nullable Long currentTechnicalDebtValue, Issue issue, Date periodDate) {
     List<FieldDiffs> changelog = technicalDebtHistory(issue);
     for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
       FieldDiffs diff = iterator.next();
       Date date = diff.creationDate();
-      WorkDuration newValue = newValue(diff);
-      WorkDuration oldValue = oldValue(diff);
       if (isLesserOrEqual(date, periodDate)) {
         // return new value from the change that is just before the period date
-        return subtractNeverNegative(currentTechnicalDebtValue, newValue);
+        return subtractNeverNegative(currentTechnicalDebtValue, newValue(diff));
       }
       if (!iterator.hasNext()) {
         // return old value from the change that is just after the period date when there's no more element in changelog
-        return subtractNeverNegative(currentTechnicalDebtValue, oldValue);
+        return subtractNeverNegative(currentTechnicalDebtValue, oldValue(diff));
       }
     }
     // Return null when no changelog
@@ -82,14 +71,9 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
    * SONAR-5059
    */
   @CheckForNull
-  private WorkDuration subtractNeverNegative(@Nullable WorkDuration workDuration, WorkDuration toSubtractWith) {
-    if (workDuration != null) {
-      WorkDuration result = workDuration.subtract(toSubtractWith);
-      if (result.toSeconds() > 0) {
-        return result;
-      }
-    }
-    return null;
+  private Long subtractNeverNegative(@Nullable Long value, Long with) {
+    Long result = (value != null ? value : 0) - (with != null ? with : 0);
+    return result > 0 ? result : null;
   }
 
   private List<FieldDiffs> technicalDebtHistory(Issue issue) {
@@ -118,26 +102,20 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
   }
 
   @CheckForNull
-  private WorkDuration newValue(FieldDiffs fieldDiffs) {
+  private Long newValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
-        Long newValue = entry.getValue().newValueLong();
-        if (newValue != null) {
-          return workDurationFactory.createFromSeconds(newValue);
-        }
+        return entry.getValue().newValueLong();
       }
     }
     return null;
   }
 
   @CheckForNull
-  private WorkDuration oldValue(FieldDiffs fieldDiffs) {
+  private Long oldValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
-        Long value = entry.getValue().oldValueLong();
-        if (value != null) {
-          return workDurationFactory.createFromSeconds(value);
-        }
+        return entry.getValue().oldValueLong();
       }
     }
     return null;

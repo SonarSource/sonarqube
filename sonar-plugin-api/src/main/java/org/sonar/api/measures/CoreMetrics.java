@@ -2146,7 +2146,7 @@ public final class CoreMetrics {
   /**
    * @since 4.1
    */
-  public static final Metric NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.FLOAT)
+  public static final Metric NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.WORK_DUR)
     .setDescription("Technical Debt of new code")
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)

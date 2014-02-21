@@ -79,9 +79,9 @@ public class NewTechnicalDebtDecoratorTest {
 
   private static final int HOURS_IN_DAY = 8;
 
-  long oneDay = 1 * HOURS_IN_DAY * 60 * 60L;
-  long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
-  long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
+  Long oneDay = 1 * HOURS_IN_DAY * 60 * 60L;
+  Long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
+  Long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
 
   @Before
   public void setup() {
@@ -101,7 +101,7 @@ public class NewTechnicalDebtDecoratorTest {
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
     WorkDurationFactory workDurationFactory = new WorkDurationFactory(settings);
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator(workDurationFactory));
+    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator());
   }
 
   @Test
@@ -127,7 +127,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 1.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 1.0 * oneDay, 1.0 * oneDay)));
   }
 
   @Test
@@ -143,7 +143,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 4.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0 * oneDay, 4.0 * oneDay)));
   }
 
   @Test
@@ -176,7 +176,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 5.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0 * oneDay, 5.0 * oneDay)));
   }
 
   @Test
@@ -195,7 +195,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 5.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0 * oneDay, 5.0 * oneDay)));
   }
 
   @Test
@@ -212,7 +212,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0, 4.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 4.0 * oneDay, 4.0 * oneDay)));
   }
 
   @Test
@@ -235,7 +235,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 7.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0 * oneDay, 7.0 * oneDay)));
   }
 
   @Test
@@ -247,7 +247,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 5.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 5.0 * oneDay)));
   }
 
   @Test
@@ -273,7 +273,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is null, period2 is null
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 5.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0 * oneDay, 5.0 * oneDay)));
   }
 
   @Test
@@ -286,7 +286,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 7.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 7.0 * oneDay)));
   }
 
   @Test
@@ -314,7 +314,7 @@ public class NewTechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0, 14.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 5.0 * oneDay, 14.0 * oneDay)));
   }
 
   @Test
