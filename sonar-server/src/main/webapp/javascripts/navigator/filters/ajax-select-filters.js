@@ -251,7 +251,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
     },
 
 
-    onRestore: function(value) {
+    onRestore: function() {
       this.detailsView.updateLists();
       this.renderBase();
     },
@@ -262,6 +262,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       if (this.selection && this.choices) {
         this.choices.reset([]);
         this.selection.reset([]);
+        this.detailsView.updateLists();
       }
       this.renderBase();
     },
