@@ -29,6 +29,8 @@ import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
 
+import java.util.Collection;
+
 public class QualityGatesWs implements WebService {
 
   private static final String PARAM_ERROR = "error";
@@ -100,6 +102,15 @@ public class QualityGatesWs implements WebService {
       }
     });
 
+    controller.newAction("show")
+    .setDescription("Show a quality gate in details, with associated conditions.")
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        show(request, response);
+      }
+    }).newParam("id").setDescription("The ID of the quality gate.");
+
     controller.newAction("destroy")
     .setDescription("Destroy a quality gate, given its id.")
     .setPost(true)
@@ -127,6 +138,23 @@ public class QualityGatesWs implements WebService {
     createCondition.newParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
 
     controller.done();
+  }
+
+  protected void show(Request request, Response response) {
+    final Long qGateId = parseId(request, "id");
+    QualityGateDto qGate = qualityGates.get(qGateId);
+    JsonWriter writer = response.newJsonWriter().beginObject()
+      .prop("id", qGate.getId())
+      .prop("name", qGate.getName());
+    Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
+    if (!conditions.isEmpty()) {
+      writer.name("conditions").beginArray();
+      for (QualityGateConditionDto condition: conditions) {
+        writeQualityGateCondition(condition, writer);
+      }
+      writer.endArray();
+    }
+    writer.endObject().close();
   }
 
   protected void createCondition(Request request, Response response) {
@@ -200,7 +228,6 @@ public class QualityGatesWs implements WebService {
   private JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
     writer.beginObject()
       .prop("id", condition.getId())
-      .prop("gateId", condition.getQualityGateId())
       .prop("metric", condition.getMetricKey())
       .prop("op", condition.getOperator());
     if(condition.getWarningThreshold() != null) {

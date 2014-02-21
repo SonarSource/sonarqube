@@ -55,7 +55,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(7);
+    assertThat(controller.actions()).hasSize(8);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -63,6 +63,14 @@ public class QualityGatesWsTest {
     assertThat(list.since()).isEqualTo("4.3");
     assertThat(list.isPost()).isFalse();
     assertThat(list.isPrivate()).isFalse();
+
+    WebService.Action show = controller.action("show");
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.since()).isEqualTo("4.3");
+    assertThat(show.isPost()).isFalse();
+    assertThat(show.param("id")).isNotNull();
+    assertThat(show.isPrivate()).isFalse();
 
     WebService.Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -220,6 +228,6 @@ public class QualityGatesWsTest {
       .setParam("warning", warningThreshold)
       .setParam("error", errorThreshold)
       .execute()
-      .assertJson("{'id':12345,'gateId':42,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
+      .assertJson("{'id':12345,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
   }
 }

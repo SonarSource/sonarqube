@@ -78,6 +78,10 @@ public class QualityGates {
     return newQualityGate;
   }
 
+  public QualityGateDto get(Long parseId) {
+    return getNonNullQgate(parseId);
+  }
+
   public QualityGateDto rename(long idToRename, String name) {
     checkPermission(UserSession.get());
     QualityGateDto toRename = getNonNullQgate(idToRename);
@@ -131,6 +135,14 @@ public class QualityGates {
       .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold).setPeriod(period);
     conditionDao.insert(newCondition);
     return newCondition;
+  }
+
+  public Collection<QualityGateConditionDto> listConditions(long qGateId) {
+    Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(qGateId);
+    for (QualityGateConditionDto condition: conditionsForGate) {
+      condition.setMetricKey(metricFinder.findById((int) condition.getMetricId()).getKey());
+    }
+    return conditionsForGate;
   }
 
   private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
