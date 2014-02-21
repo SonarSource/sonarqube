@@ -6,7 +6,7 @@
      measures << m if m
    end
    period = params[:period]
-   unless measures.empty?
+   unless measures.empty? || measures.none? {|measure| measure.visible?(period.to_i)}
 %>
 
   <table class="width100">
