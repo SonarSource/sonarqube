@@ -109,14 +109,10 @@ import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.SourcesShowWsHandler;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
-import org.sonar.server.technicaldebt.DebtFormatter;
 import org.sonar.server.technicaldebt.DebtService;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
-import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.JRubyProfiling;
-import org.sonar.server.ui.PageDecorations;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.*;
 import org.sonar.server.user.*;
 import org.sonar.server.util.*;
 import org.sonar.server.ws.ListingWs;
@@ -379,7 +375,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
-    servicesContainer.addSingleton(DebtFormatter.class);
+    servicesContainer.addSingleton(WorkDurationFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
     servicesContainer.addSingleton(WorkDurationFactory.class);
 

@@ -85,6 +85,8 @@ class ProjectMeasure < ActiveRecord::Base
         number_to_percentage(value(), {:precision => 1})
       when Metric::VALUE_TYPE_MILLISEC
         millisecs_formatted_value( value() )
+      when Metric::VALUE_TYPE_WORK_DUR
+        Internal.work_duration_formatter.abbreviation(value())
       when Metric::VALUE_TYPE_BOOLEAN
         value() == 1 ? 'Yes' : 'No'
       when Metric::VALUE_TYPE_LEVEL
@@ -267,12 +269,5 @@ class ProjectMeasure < ActiveRecord::Base
   def visible?(period)
     ! (value.nil? && variation(period).nil?)
   end
-
-  private
-
-  def numerical_metric?
-    [Metric::VALUE_TYPE_INT, Metric::VALUE_TYPE_FLOAT, Metric::VALUE_TYPE_PERCENT, Metric::VALUE_TYPE_MILLISEC].include?(metric.val_type)
-  end
-
 
 end

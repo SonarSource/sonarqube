@@ -27,14 +27,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 /**
  * This class represents the definition of a metric in Sonar.
@@ -60,7 +53,7 @@ public class Metric implements ServerExtension, BatchExtension {
   public static final int DIRECTION_NONE = 0;
 
   public enum ValueType {
-    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING
+    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING, WORK_DUR
   }
 
   public enum Level {

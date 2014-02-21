@@ -2130,7 +2130,7 @@ public final class CoreMetrics {
   /**
    * @since 4.0
    */
-  public static final Metric TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.FLOAT)
+  public static final Metric TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.WORK_DUR)
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)

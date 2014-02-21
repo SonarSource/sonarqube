@@ -31,7 +31,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Data loaded from database before migrating debt of issues.
+ * Data loaded from database before migration
  */
 class Referentials {
 
@@ -57,7 +57,7 @@ class Referentials {
     }
     Long[] objects = new Long[longs.length];
     for (int i = 0; i < longs.length; i++) {
-      objects[i] = Long.valueOf(longs[i]);
+      objects[i] = longs[i];
     }
     return objects;
   }

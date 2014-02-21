@@ -40,7 +40,6 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.utils.WorkDurationFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,16 +55,12 @@ import static com.google.common.collect.Maps.newHashMap;
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public final class TechnicalDebtDecorator implements Decorator {
 
-  private static final int DECIMALS_PRECISION = 5;
-
   private final ResourcePerspectives perspectives;
   private final TechnicalDebtModel model;
-  private final WorkDurationFactory workDurationFactory;
 
-  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, WorkDurationFactory workDurationFactory) {
+  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model) {
     this.perspectives = perspectives;
     this.model = model;
-    this.workDurationFactory = workDurationFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -102,7 +97,7 @@ public final class TechnicalDebtDecorator implements Decorator {
       propagateTechnicalDebtInParents(requirement.characteristic(), value, characteristicCosts);
     }
 
-    context.saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT, total, DECIMALS_PRECISION));
+    context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total);
     saveOnCharacteristic(context, characteristicCosts);
     saveOnRequirement(context, requirementCosts);
   }
@@ -126,11 +121,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     if (value > 0.0 || (ResourceUtils.isProject(context.getResource()) && characteristic.isRoot())) {
       Measure measure = new Measure(CoreMetrics.TECHNICAL_DEBT);
       measure.setCharacteristic(characteristic);
-      measure.setValue(value, DECIMALS_PRECISION);
-      if (inMemory) {
-        measure.setPersistenceMode(PersistenceMode.MEMORY);
-      }
-      context.saveMeasure(measure);
+      saveMeasure(context, measure, value, inMemory);
     }
   }
 
@@ -141,12 +132,16 @@ public final class TechnicalDebtDecorator implements Decorator {
     if (value > 0.0) {
       Measure measure = new Measure(CoreMetrics.TECHNICAL_DEBT);
       measure.setRequirement(requirement);
-      measure.setValue(value, DECIMALS_PRECISION);
-      if (inMemory) {
-        measure.setPersistenceMode(PersistenceMode.MEMORY);
-      }
-      context.saveMeasure(measure);
+      saveMeasure(context, measure, value, inMemory);
     }
+  }
+
+  private void saveMeasure(DecoratorContext context, Measure measure, Double value, boolean inMemory){
+    measure.setValue(value);
+    if (inMemory) {
+      measure.setPersistenceMode(PersistenceMode.MEMORY);
+    }
+    context.saveMeasure(measure);
   }
 
   @VisibleForTesting
@@ -176,14 +171,13 @@ public final class TechnicalDebtDecorator implements Decorator {
       }
     }
 
-    double debtInDays = workDurationFactory.createFromSeconds(debt).toWorkingDays();
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
       Requirement measureRequirement = measure.getRequirement();
       if (measureRequirement != null && measureRequirement.equals(requirement) && measure.getValue() != null) {
-        debtInDays += measure.getValue();
+        debt += measure.getValue();
       }
     }
-    return debtInDays;
+    return debt;
   }
 
   private void propagateTechnicalDebtInParents(Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {
