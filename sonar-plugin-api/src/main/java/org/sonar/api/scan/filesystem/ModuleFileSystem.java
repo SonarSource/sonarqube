@@ -20,8 +20,11 @@
 package org.sonar.api.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -46,16 +49,15 @@ public interface ModuleFileSystem extends BatchComponent {
   File buildDir();
 
   /**
-   * Source directories. Non-existing directories are excluded.
-   * Example in Maven : ${project.basedir}/src/main/java
-   * @deprecated since 4.2 will always return {@link #baseDir()}
+   * Source directories.
+   * @deprecated since 4.2 use {@link FileSystem#files(org.sonar.api.batch.fs.FilePredicate)} to get all files with type {@link InputFile.Type#MAIN}.
    */
   List<File> sourceDirs();
 
   /**
    * Test directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/test/java
-   * @deprecated since 4.2 will always return {@link #baseDir()}
+   * @deprecated since 4.2 use {@link FileSystem#files(org.sonar.api.batch.fs.FilePredicate)} to get all files with type {@link InputFile.Type#TEST}.
    */
   List<File> testDirs();
 
@@ -67,7 +69,7 @@ public interface ModuleFileSystem extends BatchComponent {
    * <li>Binary directories can be empty</li>
    * <li>Test binary directories are not supported yet.</li>
    * </ul>
-   * @deprecated since 4.2 sonar.binaries should be converted to language specific property
+   * @deprecated since 4.2 sonar.binaries will be converted to java specific property
    */
   List<File> binaryDirs();
 

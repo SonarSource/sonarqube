@@ -38,8 +38,10 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private boolean initialized;
 
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
-                                 ComponentIndexer componentIndexer) {
+    ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
@@ -101,6 +103,10 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> sourceDirs() {
+    if (sourceDirs.isEmpty()) {
+      // For backward compatibility with File::fromIOFile(file, sourceDirs) we need to always return something
+      return Arrays.asList(baseDir());
+    }
     return sourceDirs;
   }
 
@@ -278,7 +284,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     }
     throw new IllegalArgumentException("Unsupported file attribute: " + key);
   }
-
 
   @Override
   public boolean equals(Object o) {

@@ -41,8 +41,11 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 /**
  * Class that creates a Sonar project definition based on a set of properties.
@@ -88,7 +91,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
-    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY, CoreProperties.PROJECT_VERSION_PROPERTY, PROPERTY_SOURCES
+    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY, CoreProperties.PROJECT_VERSION_PROPERTY
   };
 
   /**
@@ -152,7 +155,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     if (!ComponentKeys.isValidModuleKey(projectKey)) {
       throw new IllegalStateException(String.format(
         "Invalid project key '%s'.\n"
-        + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", projectKey));
+          + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", projectKey));
     }
   }
 
