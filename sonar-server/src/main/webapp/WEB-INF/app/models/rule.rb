@@ -268,15 +268,19 @@ class Rule < ActiveRecord::Base
     params = java.util.HashMap.new(java_hash)
 
     # SONAR-5048 Group results by 1000 due to fix issue on Oracle db
-    ids_grouped = Array(Internal.rrules.findIds(params)).each_slice(1000).to_a
-    ids_condition = []
-    ids_grouped.each do |group|
-      ids_condition << 'id in (' + group.join(',') + ')'
-    end
+    rules = []
+    matching_rule_ids = Array(Internal.rrules.findIds(params))
+    unless matching_rule_ids.empty?
+      ids_grouped = matching_rule_ids.each_slice(1000).to_a
+      ids_condition = []
+      ids_grouped.each do |group|
+        ids_condition << 'id in (' + group.join(',') + ')'
+      end
 
-    includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
-    rules = Rule.all(:include => includes, :conditions => [ids_condition.join(' or ')])
-    rules = Rule.sort_by(rules, options[:sort_by])
+      includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
+      rules = Rule.all(:include => includes, :conditions => [ids_condition.join(' or ')])
+      rules = Rule.sort_by(rules, options[:sort_by])
+    end
     filter(rules, options)
   end
 
