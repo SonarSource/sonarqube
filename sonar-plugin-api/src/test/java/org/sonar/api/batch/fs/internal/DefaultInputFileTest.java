@@ -43,10 +43,12 @@ public class DefaultInputFileTest {
       .setLines(42)
       .setLanguage("php")
       .setStatus(InputFile.Status.ADDED)
-      .setType(InputFile.Type.TEST);
+      .setType(InputFile.Type.TEST)
+      .setPathRelativeToSourceDir("Foo.php");
 
     assertThat(inputFile.relativePath()).isEqualTo("src/Foo.php");
-    assertThat(inputFile.getRelativePath()).isEqualTo("src/Foo.php");
+    // deprecated method is different -> path relative to source dir
+    assertThat(inputFile.getRelativePath()).isEqualTo("Foo.php");
     assertThat(new File(inputFile.relativePath())).isRelative();
     assertThat(inputFile.absolutePath()).endsWith("Foo.php");
     assertThat(new File(inputFile.absolutePath())).isAbsolute();

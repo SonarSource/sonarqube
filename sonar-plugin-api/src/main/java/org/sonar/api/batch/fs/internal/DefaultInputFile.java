@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
@@ -239,7 +240,7 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   @Deprecated
   @Override
   public String getRelativePath() {
-    return relativePath();
+    return pathRelativeToSourceDir;
   }
 
   @Override
