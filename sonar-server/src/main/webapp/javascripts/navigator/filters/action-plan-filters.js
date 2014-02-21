@@ -1,9 +1,54 @@
 define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, BaseFilters, SelectFilters) {
 
+  var UNPLANNED = '<unplanned>';
+
+
+  var ActionPlanDetailsFilterView = SelectFilters.DetailsSelectFilterView.extend({
+
+    addToSelection: function(e) {
+      var id = $j(e.target).val(),
+          model = this.options.filterView.choices.findWhere({ id: id });
+
+      if (this.model.get('multiple') && id !== UNPLANNED) {
+        this.options.filterView.selection.add(model);
+        this.options.filterView.choices.remove(model);
+
+        var unplanned = this.options.filterView.selection.findWhere({ id: UNPLANNED });
+        if (unplanned) {
+          this.options.filterView.choices.add(unplanned);
+          this.options.filterView.selection.remove(unplanned);
+        }
+      } else {
+        this.options.filterView.choices.add(this.options.filterView.selection.models);
+        this.options.filterView.choices.remove(model);
+        this.options.filterView.selection.reset([model]);
+      }
+
+      this.updateValue();
+      this.updateLists();
+    },
+
+
+    resetChoices: function() {
+      if (this.options.filterView.selection.findWhere({ id: UNPLANNED })) {
+        this.options.filterView.choices.reset([]);
+      } else {
+        this.options.filterView.choices.reset([{
+          id: UNPLANNED,
+          text: window.SS.phrases.unplanned,
+          special: true
+        }]);
+      }
+    }
+  });
+
+
   return SelectFilters.SelectFilterView.extend({
 
     initialize: function() {
-      SelectFilters.SelectFilterView.prototype.initialize.apply(this, arguments);
+      SelectFilters.SelectFilterView.prototype.initialize.call(this, {
+        detailsView: ActionPlanDetailsFilterView
+      });
       this.projectFilter = this.model.get('projectFilter');
       this.listenTo(this.projectFilter, 'change:value', this.onChangeProjectFilter);
       this.onChangeProjectFilter();
@@ -60,6 +105,11 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
                 text: plan.name
               }
             }));
+            that.choices.add(new Backbone.Model({
+              id: UNPLANNED,
+              text: window.SS.phrases.unplanned,
+              special: true
+            }));
 
             var value = that.model.get('value');
             if (that.choices && that.selection && value && value.length > 0) {
@@ -77,6 +127,27 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
     },
 
 
+    restoreFromQuery: function(q) {
+      var param = _.findWhere(q, { key: this.model.get('property') }),
+          planned = _.findWhere(q, { key: 'planned' });
+
+      if (!!planned) {
+        if (!param) {
+          param = { value: UNPLANNED };
+        } else {
+          param.value += ',' + UNPLANNED;
+        }
+      }
+
+      if (param && param.value) {
+        this.model.set('enabled', true);
+        this.restore(param.value);
+      } else {
+        this.clear();
+      }
+    },
+
+
     restore: function(value) {
       if (_.isString(value)) {
         value = value.split(',');
@@ -88,6 +159,21 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
       } else {
         this.clear();
       }
+    },
+
+
+    formatValue: function() {
+      var q = {};
+      if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
+        var assignees = _.without(this.model.get('value'), UNPLANNED);
+        if (assignees.length > 0) {
+          q[this.model.get('property')] = assignees.join(',');
+        }
+        if (this.model.get('value').length > assignees.length) {
+          q.planned = false;
+        }
+      }
+      return q;
     }
 
   });

@@ -338,10 +338,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
         this.options.filterView.selection.add(model);
         this.options.filterView.choices.remove(model);
 
-        var unresolved = this.options.filterView.selection.findWhere({ id: UNASSIGNED });
-        if (unresolved) {
-          this.options.filterView.choices.add(unresolved);
-          this.options.filterView.selection.remove(unresolved);
+        var unassigned = this.options.filterView.selection.findWhere({ id: UNASSIGNED });
+        if (unassigned) {
+          this.options.filterView.choices.add(unassigned);
+          this.options.filterView.selection.remove(unassigned);
         }
       } else {
         this.options.filterView.choices.add(this.options.filterView.selection.models);
