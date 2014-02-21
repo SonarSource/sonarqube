@@ -3,7 +3,8 @@ requirejs.config({
   paths: {
     'backbone': 'third-party/backbone',
     'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars'
+    'handlebars': 'third-party/handlebars',
+    'moment': 'third-party/moment'
   },
 
   shim: {
@@ -16,6 +17,9 @@ requirejs.config({
     },
     'handlebars': {
       exports: 'Handlebars'
+    },
+    'moment': {
+      exports: 'moment'
     }
   }
 
@@ -23,7 +27,7 @@ requirejs.config({
 
 requirejs(
     [
-      'backbone', 'backbone.marionette', 'handlebars',
+      'backbone', 'backbone.marionette', 'handlebars', 'moment',
       'issues-extra',
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
@@ -40,7 +44,7 @@ requirejs(
 
       'handlebars-extensions'
     ],
-    function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
+    function (Backbone, Marionette, Handlebars, moment, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
               AjaxSelectFilters, ResolutionFilterView, FavoriteFilters, RangeFilters, ContextFilterView,
               ReadOnlyFilterView, ActionPlanFilterView, RuleFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
@@ -199,7 +203,7 @@ requirejs(
             type: ReadOnlyFilterView,
             enabled: false,
             optional: true,
-            format: function(value) { return new Date(value).toLocaleString(); }
+            format: function(value) { return moment(value).format('DD-MM-YYYY HH:mm'); }
           }),
 
           new BaseFilters.Filter({
