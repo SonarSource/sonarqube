@@ -184,15 +184,20 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> files(FileQuery query) {
-    if (!initialized) {
-      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
-      indexer.index(this);
-    }
+    doPreloadFiles();
     Collection<FilePredicate> predicates = Lists.newArrayList();
     for (Map.Entry<String, Collection<String>> entry : query.attributes().entrySet()) {
       predicates.add(fromDeprecatedAttribute(entry.getKey(), entry.getValue()));
     }
     return ImmutableList.copyOf(files(FilePredicates.and(predicates)));
+  }
+
+  @Override
+  protected void doPreloadFiles() {
+    if (!initialized) {
+      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
+      indexer.index(this);
+    }
   }
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {

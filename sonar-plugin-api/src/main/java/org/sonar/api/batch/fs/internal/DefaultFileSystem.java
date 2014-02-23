@@ -109,6 +109,7 @@ public class DefaultFileSystem implements FileSystem {
 
   @Override
   public InputFile inputFile(FilePredicate predicate) {
+    doPreloadFiles();
     if (predicate instanceof UniqueIndexPredicate) {
       return cache.inputFile((UniqueIndexPredicate) predicate);
     }
@@ -122,16 +123,19 @@ public class DefaultFileSystem implements FileSystem {
 
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
+    doPreloadFiles();
     return Iterables.filter(cache.inputFiles(), new GuavaPredicate(predicate));
   }
 
   @Override
   public boolean hasFiles(FilePredicate predicate) {
+    doPreloadFiles();
     return Iterables.indexOf(cache.inputFiles(), new GuavaPredicate(predicate)) >= 0;
   }
 
   @Override
   public Iterable<File> files(FilePredicate predicate) {
+    doPreloadFiles();
     return Iterables.transform(inputFiles(predicate), new Function<InputFile, File>() {
       @Override
       public File apply(@Nullable InputFile input) {
@@ -149,7 +153,15 @@ public class DefaultFileSystem implements FileSystem {
 
   @Override
   public Set<String> languages() {
+    doPreloadFiles();
     return languages;
+  }
+
+  /**
+   * This method is called before each search of files.
+   */
+  protected void doPreloadFiles() {
+
   }
 
   public static abstract class Cache {
