@@ -404,6 +404,7 @@ public class Cache<V extends Serializable> {
 
     @Override
     public void remove() {
+      throw new UnsupportedOperationException("Removing an item is not supported");
     }
   }
 
@@ -529,7 +530,7 @@ public class Cache<V extends Serializable> {
 
     @Override
     public void remove() {
-      // nothing to do
+      throw new UnsupportedOperationException("Removing an item is not supported");
     }
   }
 

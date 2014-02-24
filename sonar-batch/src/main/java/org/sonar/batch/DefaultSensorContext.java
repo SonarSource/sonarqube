@@ -207,6 +207,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public void saveSource(Resource reference, String source) {
+    // useless since 4.2.
   }
 
   public void saveLink(ProjectLink link) {

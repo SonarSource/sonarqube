@@ -109,7 +109,7 @@ class LanguageDetection {
       }
     }
     if (detectedLanguage != null) {
-      LOG.debug("Language of file '" + inputFile.relativePath() + "' was detected to be '" + detectedLanguage + "'");
+      LOG.debug(String.format("Language of file '%s' is detected to be '%s'", inputFile.relativePath(), detectedLanguage));
       return detectedLanguage;
     }
 
