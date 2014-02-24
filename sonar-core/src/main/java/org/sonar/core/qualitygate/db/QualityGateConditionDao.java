@@ -23,6 +23,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @since 4.3
@@ -46,7 +47,7 @@ public class QualityGateConditionDao {
   }
 
   public void insert(QualityGateConditionDto newQualityGate, SqlSession session) {
-    getMapper(session).insert(newQualityGate);
+    getMapper(session).insert(newQualityGate.setCreatedAt(new Date()));
   }
 
   public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId) {
@@ -100,7 +101,7 @@ public class QualityGateConditionDao {
   }
 
   public void update(QualityGateConditionDto qGate, SqlSession session) {
-    getMapper(session).update(qGate);
+    getMapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
   private QualityGateConditionMapper getMapper(SqlSession session) {

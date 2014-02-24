@@ -4,12 +4,13 @@
 <mapper namespace="org.sonar.core.qualitygate.db.QualityGateConditionMapper">
 
   <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, value_warning, period)
-    values (#{qualityGateId}, #{metricId}, #{operator}, #{warningThreshold}, #{errorThreshold}, #{period})
+    insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, value_warning, period, created_at, updated_at)
+    values (#{qualityGateId}, #{metricId}, #{operator}, #{warningThreshold}, #{errorThreshold}, #{period}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="conditionColumns">
-    id, qgate_id as qualityGateId, metric_id as metricId, operator, value_warning as warningThreshold, value_error as errorThreshold, period
+    id, qgate_id as qualityGateId, metric_id as metricId, operator, value_warning as warningThreshold, value_error as errorThreshold, period,
+      created_at as createdAt, updated_at as updatedAt
   </sql>
 
   <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="long">
@@ -31,7 +32,8 @@
     operator=#{operator},
     value_warning=#{warningThreshold},
     value_error=#{errorThreshold},
-    period=#{period}
+    period=#{period},
+    updated_at=#{updatedAt}
     where id=#{id}
   </update>
 

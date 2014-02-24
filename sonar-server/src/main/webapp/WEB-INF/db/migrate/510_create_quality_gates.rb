@@ -26,6 +26,7 @@ class CreateQualityGates < ActiveRecord::Migration
   def self.up
     create_table :quality_gates do |t|
       t.column :name, :string, :null => false, :limit => 100
+      t.timestamps
     end
     add_index 'quality_gates', ['name'], :unique => true, :name => 'uniq_quality_gates'
   end

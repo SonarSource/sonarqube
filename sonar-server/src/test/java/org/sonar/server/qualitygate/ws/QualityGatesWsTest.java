@@ -253,7 +253,7 @@ public class QualityGatesWsTest {
     tester.newRequest("show").setParam("id", Long.toString(gateId)).execute().assertJson(
       "{'id':12345,'name':'Golden','conditions':["
         + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
-        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','error':'80','period':3}"
+        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
     + "]}");
   }
 

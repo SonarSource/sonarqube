@@ -27,6 +27,10 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
 
+  private static final String[] COLUMNS_WITHOUT_TIMESTAMPS = {
+    "id", "qgate_id", "metric_id", "operator", "value_warning", "value_error", "period"
+  };
+
   private static QualityGateConditionDao dao;
 
   @Before
@@ -70,14 +74,14 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
   public void testDelete() throws Exception {
     setupData("selectForQualityGate");
     dao.delete(new QualityGateConditionDto().setId(1L));
-    checkTable("delete", "quality_gate_conditions");
+    checkTable("delete", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
   @Test
   public void testUpdate() throws Exception {
     setupData("selectForQualityGate");
     dao.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"));
-    checkTable("update", "quality_gate_conditions");
+    checkTable("update", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
 }

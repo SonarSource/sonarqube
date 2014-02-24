@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,6 +78,10 @@ public class QualityGateConditionDto {
   private String warningThreshold;
 
   private String errorThreshold;
+
+  private Date createdAt;
+
+  private Date updatedAt;
 
   public long getId() {
     return id;
@@ -149,6 +154,24 @@ public class QualityGateConditionDto {
 
   public QualityGateConditionDto setErrorThreshold(String errorThreshold) {
     this.errorThreshold = errorThreshold;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public QualityGateConditionDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public QualityGateConditionDto setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

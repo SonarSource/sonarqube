@@ -19,12 +19,13 @@
  */
 package org.sonar.core.qualitygate.db;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import java.util.Collection;
+import java.util.Iterator;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class QualityGateDaoTest extends AbstractDaoTestCase {
@@ -74,14 +75,14 @@ public class QualityGateDaoTest extends AbstractDaoTestCase {
   public void testDelete() throws Exception {
     setupData("selectAll");
     dao.delete(new QualityGateDto().setId(1L));
-    checkTable("delete", "quality_gates");
+    checkTable("delete", "quality_gates", "id", "name");
   }
 
   @Test
   public void testUpdate() throws Exception {
     setupData("selectAll");
     dao.update(new QualityGateDto().setId(1L).setName("Not so strict"));
-    checkTable("update", "quality_gates");
+    checkTable("update", "quality_gates", "id", "name");
   }
 
 }

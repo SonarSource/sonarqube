@@ -41,6 +41,7 @@ public class QualityGatesWs implements WebService {
   private static final String PARAM_METRIC = "metric";
   private static final String PARAM_GATE_ID = "gateId";
   private static final String PARAM_ID = "id";
+
   private final QualityGates qualityGates;
 
   public QualityGatesWs(QualityGates qualityGates) {
@@ -271,10 +272,10 @@ public class QualityGatesWs implements WebService {
     }
   }
 
-  private JsonWriter writeQualityGate(QualityGateDto newQualityGate, JsonWriter writer) {
+  private JsonWriter writeQualityGate(QualityGateDto qualityGate, JsonWriter writer) {
     return writer.beginObject()
-      .prop(PARAM_ID, newQualityGate.getId())
-      .prop(PARAM_NAME, newQualityGate.getName())
+      .prop(PARAM_ID, qualityGate.getId())
+      .prop(PARAM_NAME, qualityGate.getName())
       .endObject();
   }
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.core.qualitygate.db;
 
+import java.util.Date;
+
 /**
  * @since 4.3
  */
@@ -27,6 +29,10 @@ public class QualityGateDto {
   private Long id;
 
   private String name;
+
+  private Date createdAt;
+
+  private Date updatedAt;
 
   public Long getId() {
     return id;
@@ -43,6 +49,24 @@ public class QualityGateDto {
 
   public QualityGateDto setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public QualityGateDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public QualityGateDto setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 }
