@@ -164,13 +164,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def work_duration_formatted_value(value)
-    val = value.to_i
-    if val == 0
-      '0'
-    else
-      duration = Internal.work_duration_formatter.abbreviation(val.abs).to_s
-      val > 0 ? duration : '-' + duration
-    end
+    Internal.work_duration_formatter.format(value.to_i, 'SHORT')
   end
 
   def color

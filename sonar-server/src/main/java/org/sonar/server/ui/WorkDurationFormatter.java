@@ -30,6 +30,10 @@ import java.util.Locale;
 
 public class WorkDurationFormatter implements ServerComponent {
 
+  public enum Format {
+    SHORT, LONG
+  }
+
   private final DefaultI18n defaultI18n;
   private final WorkDurationFactory workDurationFactory;
 
@@ -38,15 +42,24 @@ public class WorkDurationFormatter implements ServerComponent {
     this.workDurationFactory = workDurationFactory;
   }
 
-  public String format(long durationInSeconds) {
-    return formatWorkDuration(UserSession.get().locale(), workDurationFactory.createFromSeconds(durationInSeconds), false);
+  /**
+   * Used by rails
+   */
+  public String format(long durationInSeconds, String stringFormat) {
+    return format(durationInSeconds, Format.valueOf(stringFormat));
   }
 
-  public String abbreviation(long durationInSeconds) {
-    return formatWorkDuration(UserSession.get().locale(), workDurationFactory.createFromSeconds(durationInSeconds), true);
+  public String format(long durationInSeconds, Format format) {
+    return formatWorkDuration(UserSession.get().locale(), durationInSeconds, format);
   }
 
-  private String formatWorkDuration(Locale locale, WorkDuration workDuration, boolean shortLabel) {
+  private String formatWorkDuration(Locale locale, long durationInSeconds, Format format) {
+    if (durationInSeconds == 0) {
+      return "0";
+    }
+    Long absDuration = Math.abs(durationInSeconds);
+    WorkDuration workDuration =  workDurationFactory.createFromSeconds(absDuration);
+    boolean shortLabel = Format.SHORT.equals(format);
     StringBuilder message = new StringBuilder();
     if (workDuration.days() > 0) {
       message.append(message(locale, "work_duration.x_days", shortLabel, workDuration.days()));
@@ -62,6 +75,9 @@ public class WorkDurationFormatter implements ServerComponent {
         message.append(" ");
       }
       message.append(message(locale, "work_duration.x_minutes", shortLabel, workDuration.minutes()));
+    }
+    if (durationInSeconds < 0) {
+      message.insert(0, "-");
     }
     return message.toString();
   }

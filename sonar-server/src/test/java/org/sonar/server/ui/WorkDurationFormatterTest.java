@@ -53,35 +53,53 @@ public class WorkDurationFormatterTest {
     formatter = new WorkDurationFormatter(i18n, new WorkDurationFactory(settings));
 
     when(i18n.message(any(Locale.class), eq("work_duration.x_days"), eq((String) null), eq(5))).thenReturn("5 days");
-    when(i18n.message(any(Locale.class), eq("work_duration.x_days.short"), eq((String) null), eq(5))).thenReturn("5 d");
+    when(i18n.message(any(Locale.class), eq("work_duration.x_days.short"), eq((String) null), eq(5))).thenReturn("5d");
     when(i18n.message(any(Locale.class), eq("work_duration.x_hours"), eq((String) null), eq(2))).thenReturn("2 hours");
-    when(i18n.message(any(Locale.class), eq("work_duration.x_hours.short"), eq((String) null), eq(2))).thenReturn("2 h");
+    when(i18n.message(any(Locale.class), eq("work_duration.x_hours.short"), eq((String) null), eq(2))).thenReturn("2h");
     when(i18n.message(any(Locale.class), eq("work_duration.x_minutes"), eq((String) null), eq(1))).thenReturn("1 minutes");
-    when(i18n.message(any(Locale.class), eq("work_duration.x_minutes.short"), eq((String) null), eq(1))).thenReturn("1 min");
+    when(i18n.message(any(Locale.class), eq("work_duration.x_minutes.short"), eq((String) null), eq(1))).thenReturn("1min");
   }
 
   @Test
-  public void format_from_seconds() {
-    assertThat(formatter.format(5 * ONE_DAY)).isEqualTo("5 days");
-    assertThat(formatter.format(2 * ONE_HOUR)).isEqualTo("2 hours");
-    assertThat(formatter.format(ONE_MINUTE)).isEqualTo("1 minutes");
+  public void long_format() {
+    assertThat(formatter.format(5 * ONE_DAY, WorkDurationFormatter.Format.LONG)).isEqualTo("5 days");
+    assertThat(formatter.format(2 * ONE_HOUR, WorkDurationFormatter.Format.LONG)).isEqualTo("2 hours");
+    assertThat(formatter.format(ONE_MINUTE, WorkDurationFormatter.Format.LONG)).isEqualTo("1 minutes");
 
-    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR)).isEqualTo("5 days 2 hours");
-    assertThat(formatter.format(2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("2 hours 1 minutes");
+    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR, WorkDurationFormatter.Format.LONG)).isEqualTo("5 days 2 hours");
+    assertThat(formatter.format(2 * ONE_HOUR + ONE_MINUTE, WorkDurationFormatter.Format.LONG)).isEqualTo("2 hours 1 minutes");
 
-    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("5 days 2 hours 1 minutes");
+    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, WorkDurationFormatter.Format.LONG)).isEqualTo("5 days 2 hours 1 minutes");
   }
 
   @Test
-  public void abbreviation() {
-    assertThat(formatter.abbreviation(5 * ONE_DAY)).isEqualTo("5 d");
-    assertThat(formatter.abbreviation(2 * ONE_HOUR)).isEqualTo("2 h");
-    assertThat(formatter.abbreviation(ONE_MINUTE)).isEqualTo("1 min");
+  public void short_format() {
+    assertThat(formatter.format(5 * ONE_DAY, WorkDurationFormatter.Format.SHORT)).isEqualTo("5d");
+    assertThat(formatter.format(2 * ONE_HOUR, WorkDurationFormatter.Format.SHORT)).isEqualTo("2h");
+    assertThat(formatter.format(ONE_MINUTE, WorkDurationFormatter.Format.SHORT)).isEqualTo("1min");
 
-    assertThat(formatter.abbreviation(5 * ONE_DAY + 2 * ONE_HOUR)).isEqualTo("5 d 2 h");
-    assertThat(formatter.abbreviation(2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("2 h 1 min");
+    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR, WorkDurationFormatter.Format.SHORT)).isEqualTo("5d 2h");
+    assertThat(formatter.format(2 * ONE_HOUR + ONE_MINUTE, WorkDurationFormatter.Format.SHORT)).isEqualTo("2h 1min");
 
-    assertThat(formatter.abbreviation(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE)).isEqualTo("5 d 2 h 1 min");
+    assertThat(formatter.format(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, WorkDurationFormatter.Format.SHORT)).isEqualTo("5d 2h 1min");
+  }
+
+  @Test
+  public void format_with_string_parameter() {
+    assertThat(formatter.format(5 * ONE_DAY, "LONG")).isEqualTo("5 days");
+    assertThat(formatter.format(5 * ONE_DAY, "SHORT")).isEqualTo("5d");
+  }
+
+  @Test
+  public void display_zero_without_unit() {
+    assertThat(formatter.format(0, WorkDurationFormatter.Format.SHORT)).isEqualTo("0");
+  }
+
+  @Test
+  public void display_negative_duration() {
+    assertThat(formatter.format(-5 * ONE_DAY, WorkDurationFormatter.Format.SHORT)).isEqualTo("-5d");
+    assertThat(formatter.format(-2 * ONE_HOUR, WorkDurationFormatter.Format.SHORT)).isEqualTo("-2h");
+    assertThat(formatter.format(-1 * ONE_MINUTE, WorkDurationFormatter.Format.SHORT)).isEqualTo("-1min");
   }
 
 }

@@ -212,7 +212,7 @@ public class IssueShowWsHandlerTest {
     Issue issue = createStandardIssue().setDebt(technicalDebt);
     issues.add(issue);
 
-    when(workDurationFormatter.format(eq(technicalDebt))).thenReturn("2 hours 1 minutes");
+    when(workDurationFormatter.format(eq(technicalDebt), any(WorkDurationFormatter.Format.class))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());

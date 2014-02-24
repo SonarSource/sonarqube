@@ -55,7 +55,7 @@ public class DebtServiceTest {
   @Test
   public void format() {
     service.format(10L);
-    verify(workDurationFormatter).abbreviation(eq(10L));
+    verify(workDurationFormatter).format(eq(10L), eq(WorkDurationFormatter.Format.SHORT));
   }
 
   @Test

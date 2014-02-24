@@ -17,7 +17,7 @@
         <h3><%= message('widget.rules.issues') -%></h3>
 
         <div class="marginbottom10">
-            <span class="big">
+            <span class="big link-<%= widget.key %>-issues">
               <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
             </span>
           <%= dashboard_configuration.selected_period? ? format_variation(issues) : trend_icon(issues) -%>
@@ -31,7 +31,8 @@
               <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>" class="varw">
+                  <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>"
+                     class="varw link-<%= widget.key %>-new-issues">
                     <%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
                 </span>
             <% end %>
@@ -49,7 +50,7 @@
 
           <div>
             <span class="big">
-              <a href="<%= url_for_drilldown('sqale_index') -%>"><%= format_measure(technical_debt) -%></a>
+              <a href="<%= url_for_drilldown('sqale_index') -%>" class="link-<%= widget.key %>-debt"><%= format_measure(technical_debt) -%></a>
             </span>
             <span><%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%></span>
             <%
@@ -62,7 +63,7 @@
                 <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw">
+                  <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw link-<%= widget.key %>-new-debt">
                     <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
                 </span>
               <% end %>
@@ -70,7 +71,7 @@
                 <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= Internal.work_duration_formatter.abbreviation(estimated_cleared_technical_debt) -%></span>
+                  <span class="varb"><%= Internal.work_duration_formatter.format(estimated_cleared_technical_debt, 'SHORT') -%></span>
                 </span>
               <% end %>
             <% end %>

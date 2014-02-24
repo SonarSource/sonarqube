@@ -131,8 +131,8 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "18000", "28800");
 
-    when(workDurationFormatter.format(18000)).thenReturn("5 hours");
-    when(workDurationFormatter.format(28800)).thenReturn("1 days");
+    when(workDurationFormatter.format(18000, WorkDurationFormatter.Format.SHORT)).thenReturn("5 hours");
+    when(workDurationFormatter.format(28800, WorkDurationFormatter.Format.SHORT)).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
@@ -149,7 +149,7 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "28800");
 
-    when(workDurationFormatter.format(28800)).thenReturn("1 days");
+    when(workDurationFormatter.format(28800, WorkDurationFormatter.Format.SHORT)).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");

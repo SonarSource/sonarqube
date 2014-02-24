@@ -21,7 +21,6 @@ package org.sonar.wsclient.services;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -81,6 +80,14 @@ public class Measure extends Model {
       return null;
     }
     return value.intValue();
+  }
+
+  @CheckForNull
+  public Long getLongValue() {
+    if (value == null) {
+      return null;
+    }
+    return value.longValue();
   }
 
   public Measure setValue(@Nullable Double value) {

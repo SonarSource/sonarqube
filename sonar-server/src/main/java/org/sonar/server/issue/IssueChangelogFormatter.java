@@ -73,10 +73,10 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = workDurationFormatter.format(Long.parseLong(newValueString));
+        newValueString = workDurationFormatter.format(Long.parseLong(newValueString), WorkDurationFormatter.Format.SHORT);
       }
       if (oldValueString != null) {
-        oldValueString = workDurationFormatter.format(Long.parseLong(oldValueString));
+        oldValueString = workDurationFormatter.format(Long.parseLong(oldValueString), WorkDurationFormatter.Format.SHORT);
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

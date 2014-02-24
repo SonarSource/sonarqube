@@ -120,7 +120,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", technicalDebt != null ? workDurationFormatter.format(technicalDebt) : null)
+      .prop("debt", technicalDebt != null ? workDurationFormatter.format(technicalDebt, WorkDurationFormatter.Format.SHORT) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
