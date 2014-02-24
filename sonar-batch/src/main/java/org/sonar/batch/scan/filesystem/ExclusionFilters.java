@@ -65,7 +65,7 @@ public class ExclusionFilters implements BatchComponent {
     }
   }
 
-  public boolean accept(File ioFile, String relativePathFromBasedir, InputFile.Type type) {
+  public boolean accept(InputFile inputFile, InputFile.Type type) {
     PathPattern[] inclusionPatterns = null;
     PathPattern[] exclusionPatterns = null;
     if (InputFile.Type.MAIN==type) {
@@ -78,7 +78,7 @@ public class ExclusionFilters implements BatchComponent {
     boolean matchInclusion = false;
     if (inclusionPatterns != null && inclusionPatterns.length > 0) {
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(ioFile, relativePathFromBasedir);
+        matchInclusion |= pattern.match(inputFile);
       }
       if (!matchInclusion) {
         return false;
@@ -86,7 +86,7 @@ public class ExclusionFilters implements BatchComponent {
     }
     if (exclusionPatterns != null && exclusionPatterns.length > 0) {
       for (PathPattern pattern : exclusionPatterns) {
-        if (pattern.match(ioFile, relativePathFromBasedir)) {
+        if (pattern.match(inputFile)) {
           return false;
         }
       }

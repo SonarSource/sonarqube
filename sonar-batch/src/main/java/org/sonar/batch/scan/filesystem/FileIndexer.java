@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
@@ -73,7 +74,6 @@ public class FileIndexer implements BatchComponent {
     }
     logger.info("Index files");
     exclusionFilters.prepare(fileSystem);
-    // TODO log configuration too (replace FileSystemLogger)
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 
@@ -98,15 +98,9 @@ public class FileIndexer implements BatchComponent {
 
   private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, InputFile.Type type) {
     for (File sourceFile : sourceFiles) {
-      String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
-      if (path == null) {
-        LoggerFactory.getLogger(getClass()).warn(String.format(
-          FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR, sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-          ));
-      } else {
-        if (exclusionFilters.accept(sourceFile, path, type)) {
-          indexFile(inputFileBuilder, fileSystem, progress, sourceFile, path, type);
-        }
+      DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+      if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
+        indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
       }
     }
   }
@@ -114,24 +108,21 @@ public class FileIndexer implements BatchComponent {
   private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File sourceFile : files) {
-      String path = pathResolver.relativePath(fileSystem.baseDir(), sourceFile);
-      if (path == null) {
-        LoggerFactory.getLogger(getClass()).warn(String.format(
-          FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR, sourceFile.getAbsoluteFile(), fileSystem.baseDir()
-          ));
-      } else {
-        if (exclusionFilters.accept(sourceFile, path, InputFile.Type.MAIN)) {
-          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.Type.MAIN);
+      DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+      if (inputFile != null) {
+        if (exclusionFilters.accept(inputFile, InputFile.Type.MAIN)) {
+          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.MAIN);
         }
-        if (exclusionFilters.accept(sourceFile, path, InputFile.Type.TEST)) {
-          indexFile(inputFileBuilder, fileSystem, status, sourceFile, path, InputFile.Type.TEST);
+        if (exclusionFilters.accept(inputFile, InputFile.Type.TEST)) {
+          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.TEST);
         }
       }
     }
   }
 
-  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs, Progress status, File file, String path, InputFile.Type type) {
-    InputFile inputFile = inputFileBuilder.create(file, type);
+  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs,
+                         Progress status, DefaultInputFile inputFile, InputFile.Type type) {
+    inputFile = inputFileBuilder.complete(inputFile, type);
     if (inputFile != null && accept(inputFile)) {
       fs.add(inputFile);
       status.markAsIndexed(inputFile);

@@ -24,7 +24,16 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
-class FilePredicateAdapters {
+/**
+ * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
+ * not published in public API
+ */
+class AdditionalFilePredicates {
+
+  private AdditionalFilePredicates() {
+    // only static inner classes
+  }
+
   static class KeyPredicate implements FilePredicate {
     private final String key;
 
