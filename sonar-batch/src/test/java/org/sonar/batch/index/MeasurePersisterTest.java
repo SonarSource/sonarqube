@@ -55,15 +55,15 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public static final int FILE_SNAPSHOT_ID = 3003;
   public static final int COVERAGE_METRIC_ID = 2;
 
-  private MeasurePersister measurePersister;
-  private RuleFinder ruleFinder = mock(RuleFinder.class);
-  private ResourcePersister resourcePersister = mock(ResourcePersister.class);
-  private MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
-  private Project project = new Project("foo");
-  private JavaPackage aPackage = new JavaPackage("org.foo");
-  private JavaFile aFile = new JavaFile("org.foo.Bar");
-  private Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
-  private Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
+  MeasurePersister measurePersister;
+  RuleFinder ruleFinder = mock(RuleFinder.class);
+  ResourcePersister resourcePersister = mock(ResourcePersister.class);
+  MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
+  Project project = new Project("foo");
+  JavaPackage aPackage = new JavaPackage("org.foo");
+  JavaFile aFile = new JavaFile("org.foo.Bar");
+  Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
+  Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
 
   @Before
   public void mockResourcePersister() {

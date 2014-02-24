@@ -49,7 +49,7 @@ public class InputFileBuilderTest {
   AnalysisMode analysisMode = mock(AnalysisMode.class);
 
   @Test
-  public void create_input_file() throws Exception {
+  public void complete_input_file() throws Exception {
     // file system
     File basedir = temp.newFolder();
     File srcFile = new File(basedir, "src/main/java/foo/Bar.java");
@@ -67,8 +67,10 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
+    DefaultInputFile inputFile = builder.create(srcFile);
+    inputFile = builder.complete(inputFile, InputFile.Type.MAIN);
 
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(inputFile.file()).isEqualTo(srcFile.getAbsoluteFile());
     assertThat(inputFile.absolutePath()).isEqualTo(PathUtils.sanitize(srcFile.getAbsolutePath()));
     assertThat(inputFile.language()).isEqualTo("java");
@@ -91,7 +93,7 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
+    DefaultInputFile inputFile = builder.create(srcFile);
 
     assertThat(inputFile).isNull();
   }
@@ -111,7 +113,8 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
+    DefaultInputFile inputFile = builder.create(srcFile);
+    inputFile = builder.complete(inputFile, InputFile.Type.MAIN);
 
     assertThat(inputFile).isNull();
   }
@@ -137,7 +140,8 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
+    DefaultInputFile inputFile = builder.create(srcFile);
+    inputFile = builder.complete(inputFile, InputFile.Type.MAIN);
 
     assertThat(inputFile.pathRelativeToSourceDir()).isEqualTo("foo/Bar.java");
     assertThat(inputFile.sourceDirAbsolutePath()).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));
@@ -165,7 +169,8 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode);
-    DefaultInputFile inputFile = builder.create(srcFile, InputFile.Type.MAIN);
+    DefaultInputFile inputFile = builder.create(srcFile);
+    inputFile = builder.complete(inputFile, InputFile.Type.MAIN);
 
     assertThat(inputFile.pathRelativeToSourceDir()).isEqualTo("foo/Bar.php");
     assertThat(inputFile.sourceDirAbsolutePath()).isEqualTo(PathUtils.sanitize(sourceDir.getAbsolutePath()));

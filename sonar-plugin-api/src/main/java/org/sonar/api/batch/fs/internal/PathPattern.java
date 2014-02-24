@@ -22,10 +22,7 @@ package org.sonar.api.batch.fs.internal;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
-
-import java.io.File;
 
 public abstract class PathPattern {
 
@@ -36,8 +33,6 @@ public abstract class PathPattern {
   }
 
   public abstract boolean match(InputFile inputFile);
-
-  public abstract boolean match(File ioFile, String relativePathFromBasedir);
 
   public abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
 
@@ -60,12 +55,6 @@ public abstract class PathPattern {
   private static class AbsolutePathPattern extends PathPattern {
     private AbsolutePathPattern(String pattern) {
       super(pattern);
-    }
-
-    @Override
-    public boolean match(File ioFile, String relativePathFromBasedir) {
-      String path = PathUtils.sanitize(ioFile.getAbsolutePath());
-      return pattern.match(path);
     }
 
     @Override
@@ -98,11 +87,6 @@ public abstract class PathPattern {
   private static class RelativePathPattern extends PathPattern {
     private RelativePathPattern(String pattern) {
       super(pattern);
-    }
-
-    @Override
-    public boolean match(File ioFile, String relativePathFromBasedir) {
-      return relativePathFromBasedir != null && pattern.match(relativePathFromBasedir);
     }
 
     @Override
