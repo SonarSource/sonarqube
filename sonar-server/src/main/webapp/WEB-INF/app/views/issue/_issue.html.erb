@@ -52,10 +52,12 @@
           <li><%= message('assigned_to') -%> <strong><%= h @issue_results.user(issue.assignee).name -%></strong></li>
         <% end %>
       <% elsif current_user %>
-        <li><a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a></li>
-        <% if issue.assignee != current_user.login %>
-          <li>[<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]</li>
-        <% end %>
+        <li>
+          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
+          <% if issue.assignee != current_user.login %>
+            [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+          <% end %>
+        </li>
       <% end %>
       <% if issue.actionPlanKey %>
         <% if current_user %>

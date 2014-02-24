@@ -108,6 +108,7 @@
     position: relative;
 
     &:before {
+      z-index: 3;
       background-color: #EFEFEF;
     }
   }
@@ -116,6 +117,7 @@
     position: relative;
 
     &:before {
+      z-index: 3;
       background-color: #E4ECF3;
     }
   }
@@ -321,7 +323,7 @@
   .source {
     padding-right: 10px;
 
-    table {
+    & > table {
       border: 1px solid #DDD;
     }
   }

@@ -108,12 +108,14 @@
   position: relative;
 }
 .navigator-fetching#tab-issue-rule:before {
+  z-index: 3;
   background-color: #EFEFEF;
 }
 .navigator-fetching.code-issue-actions {
   position: relative;
 }
 .navigator-fetching.code-issue-actions:before {
+  z-index: 3;
   background-color: #E4ECF3;
 }
 .navigator-header {
@@ -269,7 +271,7 @@
 .navigator-details .source {
   padding-right: 10px;
 }
-.navigator-details .source table {
+.navigator-details .source > table {
   border: 1px solid #DDD;
 }
 .navigator-details .scm .author {
