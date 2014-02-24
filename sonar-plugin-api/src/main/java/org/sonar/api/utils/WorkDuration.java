@@ -37,7 +37,9 @@ public class WorkDuration implements Serializable {
   static final int HOUR_POSITION_IN_LONG = 100;
   static final int MINUTE_POSITION_IN_LONG = 1;
 
-  public static enum UNIT {DAYS, HOURS, MINUTES}
+  public static enum UNIT {
+    DAYS, HOURS, MINUTES
+  }
 
   private int hoursInDay;
 
