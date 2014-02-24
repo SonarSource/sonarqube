@@ -203,7 +203,7 @@ requirejs(
             type: ReadOnlyFilterView,
             enabled: false,
             optional: true,
-            format: function(value) { return moment(value).format('DD-MM-YYYY HH:mm'); }
+            format: function(value) { return moment(value).format('YYYY-MM-DD HH:mm'); }
           }),
 
           new BaseFilters.Filter({

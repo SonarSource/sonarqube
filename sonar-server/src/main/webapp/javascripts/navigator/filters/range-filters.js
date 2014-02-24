@@ -166,7 +166,7 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
     render: function() {
       RangeFilterView.prototype.render.apply(this, arguments);
-      this.detailsView.$('input').prop('placeholder', '1970-01-01');
+      this.detailsView.$('input').prop('placeholder', '1970-01-31');
     },
 
 
