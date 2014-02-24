@@ -55,9 +55,9 @@ public class WorkDuration implements Serializable {
   }
 
   public static WorkDuration create(int days, int hours, int minutes, int hoursInDay) {
-    long durationInSeconds = days * hoursInDay * 60 * 60;
-    durationInSeconds += hours * 60 * 60;
-    durationInSeconds += minutes * 60;
+    long durationInSeconds = 3600L * days * hoursInDay;
+    durationInSeconds += 3600L * hours;
+    durationInSeconds += 60L * minutes;
     return new WorkDuration(durationInSeconds, days, hours, minutes, hoursInDay);
   }
 
