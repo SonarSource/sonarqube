@@ -322,7 +322,7 @@ public interface RuleDefinitions extends ServerExtension {
       return this.key;
     }
 
-    public NewRule setName(String s) {
+    public NewRule setName(@Nullable String s) {
       this.name = StringUtils.trim(s);
       return this;
     }
@@ -353,7 +353,7 @@ public interface RuleDefinitions extends ServerExtension {
         try {
           setHtmlDescription(IOUtils.toString(classpathUrl));
         } catch (IOException e) {
-          throw new IllegalStateException("Fail to read: " + classpathUrl);
+          throw new IllegalStateException("Fail to read: " + classpathUrl, e);
         }
       } else {
         this.htmlDescription = null;

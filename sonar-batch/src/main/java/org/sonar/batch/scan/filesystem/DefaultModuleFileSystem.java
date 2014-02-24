@@ -235,7 +235,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
+          return s == null ? FilePredicates.all() : FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
         }
       }));
     }
@@ -243,7 +243,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return FilePredicates.hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
+          return s == null ? FilePredicates.all() : FilePredicates.hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
         }
       }));
     }
@@ -251,7 +251,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return FilePredicates.hasLanguage(s);
+          return s == null ? FilePredicates.all() : FilePredicates.hasLanguage(s);
         }
       }));
     }
@@ -259,7 +259,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return new FilePredicateAdapters.KeyPredicate(s);
+          return s == null ? FilePredicates.all() : new FilePredicateAdapters.KeyPredicate(s);
         }
       }));
     }
@@ -267,7 +267,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return new FilePredicateAdapters.DeprecatedKeyPredicate(s);
+          return s == null ? FilePredicates.all() : new FilePredicateAdapters.DeprecatedKeyPredicate(s);
         }
       }));
     }
@@ -275,7 +275,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return new FilePredicateAdapters.SourceRelativePathPredicate(s);
+          return s == null ? FilePredicates.all() : new FilePredicateAdapters.SourceRelativePathPredicate(s);
         }
       }));
     }
@@ -283,7 +283,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return new FilePredicateAdapters.SourceDirPredicate(s);
+          return s == null ? FilePredicates.all() : new FilePredicateAdapters.SourceDirPredicate(s);
         }
       }));
     }

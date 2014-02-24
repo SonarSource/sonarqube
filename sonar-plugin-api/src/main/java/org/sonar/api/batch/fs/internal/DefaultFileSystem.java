@@ -66,11 +66,7 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  /**
-   * Marked as nullable only for the tests that do not call {@link #setBaseDir(java.io.File)}
-   */
   @Override
-  @CheckForNull
   public File baseDir() {
     return baseDir;
   }
@@ -98,11 +94,7 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  /**
-   * Marked as nullable only for the tests that do not call {@link #setWorkDir(java.io.File)}
-   */
   @Override
-  @CheckForNull
   public File workDir() {
     return workDir;
   }
