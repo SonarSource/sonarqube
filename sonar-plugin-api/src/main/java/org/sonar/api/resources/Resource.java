@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 
 /**
@@ -191,7 +190,6 @@ public abstract class Resource implements Serializable {
    * The qualifier tells the type of the resource. For example, it can be a File, a Class, a Project, a Unit Test...
    *
    * @return the qualifier
-   *
    * @see org.sonar.api.resources.Qualifiers for the list of qualifiers
    * @see org.sonar.api.resources.ResourceUtils to find out if a resource if a class, a unit test,... from its qualifier
    */
@@ -272,6 +270,7 @@ public abstract class Resource implements Serializable {
 
   /**
    * Internal use only
+   *
    * @deprecated since 2.6 should use SensorContext#isExcluded(resource). It will make inheritance of Resource easier.
    */
   @Deprecated

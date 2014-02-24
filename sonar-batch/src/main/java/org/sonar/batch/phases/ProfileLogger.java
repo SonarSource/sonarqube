@@ -63,9 +63,13 @@ public class ProfileLogger implements BatchComponent {
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
     for (String lang : languages.keys()) {
       QProfile profile = profiles.findByLanguage(lang);
-      logger.info("Quality profile for {}: {}", lang, profile.name());
-      if (StringUtils.isNotBlank(defaultName) && defaultName.equals(profile.name())) {
-        defaultNameUsed = true;
+      if (profile == null) {
+        logger.warn("No Quality profile found for language " + lang);
+      } else {
+        logger.info("Quality profile for {}: {}", lang, profile.name());
+        if (StringUtils.isNotBlank(defaultName) && defaultName.equals(profile.name())) {
+          defaultNameUsed = true;
+        }
       }
     }
     if (!defaultNameUsed && !languages.keys().isEmpty()) {

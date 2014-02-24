@@ -109,6 +109,7 @@ public class DefaultFileSystem implements FileSystem {
       Iterable<InputFile> files = inputFiles(predicate);
       return Iterables.getOnlyElement(files);
     } catch (NoSuchElementException e) {
+      // contrary to guava, return null if iterable is empty
       return null;
     }
   }

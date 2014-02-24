@@ -251,7 +251,7 @@ public class File extends Resource {
     file.setKey(normalizedPath);
     file.setPath(normalizedPath);
     String directoryPath;
-    if (normalizedPath.contains(Directory.SEPARATOR)) {
+    if (normalizedPath != null && normalizedPath.contains(Directory.SEPARATOR)) {
       directoryPath = StringUtils.substringBeforeLast(normalizedPath, Directory.SEPARATOR);
     } else {
       directoryPath = Directory.SEPARATOR;
