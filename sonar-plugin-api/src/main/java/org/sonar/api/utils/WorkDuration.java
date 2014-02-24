@@ -37,9 +37,7 @@ public class WorkDuration implements Serializable {
   static final int HOUR_POSITION_IN_LONG = 100;
   static final int MINUTE_POSITION_IN_LONG = 1;
 
-  public static enum UNIT {
-    DAYS, HOURS, MINUTES
-  }
+  public static enum UNIT {DAYS, HOURS, MINUTES}
 
   private int hoursInDay;
 
@@ -100,11 +98,11 @@ public class WorkDuration implements Serializable {
   }
 
   static WorkDuration createFromSeconds(long seconds, int hoursInDay) {
-    int days = (int) (seconds / hoursInDay / 60d / 60d);
-    long currentDurationInSeconds = seconds - (days * hoursInDay * 3600);
-    int hours = (int) (currentDurationInSeconds / 60d / 60d);
-    currentDurationInSeconds = currentDurationInSeconds - (hours * 3600);
-    int minutes = (int) (currentDurationInSeconds / 60d);
+    int days = (int) (seconds / hoursInDay / 60f / 60f);
+    long currentDurationInSeconds = seconds - (3600L * days * hoursInDay);
+    int hours = (int) (currentDurationInSeconds / 60f / 60f);
+    currentDurationInSeconds = currentDurationInSeconds - (3600L * hours);
+    int minutes = (int) (currentDurationInSeconds / 60f);
     return new WorkDuration(seconds, days, hours, minutes, hoursInDay);
   }
 
