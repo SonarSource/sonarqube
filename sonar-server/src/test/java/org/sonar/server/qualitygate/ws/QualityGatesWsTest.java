@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(8);
+    assertThat(controller.actions()).hasSize(10);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -124,6 +125,28 @@ public class QualityGatesWsTest {
     assertThat(createCondition.param("error")).isNotNull();
     assertThat(createCondition.param("period")).isNotNull();
     assertThat(createCondition.isPrivate()).isFalse();
+
+    WebService.Action updateCondition = controller.action("update_condition");
+    assertThat(updateCondition).isNotNull();
+    assertThat(updateCondition.handler()).isNotNull();
+    assertThat(updateCondition.since()).isEqualTo("4.3");
+    assertThat(updateCondition.isPost()).isTrue();
+    assertThat(updateCondition.param("id")).isNotNull();
+    assertThat(updateCondition.param("metric")).isNotNull();
+    assertThat(updateCondition.param("op")).isNotNull();
+    assertThat(updateCondition.param("warning")).isNotNull();
+    assertThat(updateCondition.param("error")).isNotNull();
+    assertThat(updateCondition.param("period")).isNotNull();
+    assertThat(updateCondition.isPrivate()).isFalse();
+
+    WebService.Action deleteCondition = controller.action("delete_condition");
+    assertThat(deleteCondition).isNotNull();
+    assertThat(deleteCondition.handler()).isNotNull();
+    assertThat(deleteCondition.since()).isEqualTo("4.3");
+    assertThat(deleteCondition.isPost()).isTrue();
+    assertThat(deleteCondition.param("id")).isNotNull();
+    assertThat(deleteCondition.isPrivate()).isFalse();
+
   }
 
   @Test
@@ -212,6 +235,29 @@ public class QualityGatesWsTest {
   }
 
   @Test
+  public void show_empty() throws Exception {
+    long gateId = 12345L;
+    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
+    tester.newRequest("show").setParam("id", Long.toString(gateId)).execute().assertJson(
+      "{'id':12345,'name':'Golden'}");
+  }
+
+  @Test
+  public void show_nominal() throws Exception {
+    long gateId = 12345L;
+    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
+    when(qGates.listConditions(gateId)).thenReturn(ImmutableList.of(
+        new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
+        new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
+    ));
+    tester.newRequest("show").setParam("id", Long.toString(gateId)).execute().assertJson(
+      "{'id':12345,'name':'Golden','conditions':["
+        + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
+        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','error':'80','period':3}"
+    + "]}");
+  }
+
+  @Test
   public void create_condition_nominal() throws Exception {
     long qGateId = 42L;
     String metricKey = "coverage";
@@ -229,5 +275,34 @@ public class QualityGatesWsTest {
       .setParam("error", errorThreshold)
       .execute()
       .assertJson("{'id':12345,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
+  }
+
+  @Test
+  public void update_condition_nominal() throws Exception {
+    long condId = 12345L;
+    String metricKey = "coverage";
+    String operator = "LT";
+    String warningThreshold = "80";
+    String errorThreshold = "75";
+    when(qGates.updateCondition(condId, metricKey, operator, warningThreshold, errorThreshold, null))
+      .thenReturn(new QualityGateConditionDto().setId(condId).setMetricId(10).setMetricKey(metricKey)
+        .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold));
+    tester.newRequest("update_condition")
+      .setParam("id", Long.toString(condId))
+      .setParam("metric", metricKey)
+      .setParam("op", operator)
+      .setParam("warning", warningThreshold)
+      .setParam("error", errorThreshold)
+      .execute()
+      .assertJson("{'id':12345,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
+  }
+
+  @Test
+  public void delete_condition_nominal() throws Exception {
+    long condId = 12345L;
+    tester.newRequest("delete_condition")
+      .setParam("id", Long.toString(condId))
+      .execute()
+      .assertNoContent();
   }
 }

@@ -137,12 +137,29 @@ public class QualityGates {
     return newCondition;
   }
 
+  public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    checkPermission(UserSession.get());
+    QualityGateConditionDto condition = getNonNullCondition(condId);
+    Metric metric = getNonNullMetric(metricKey);
+    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    condition.setMetricId(metric.getId()).setMetricKey(metric.getKey())
+      .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold).setPeriod(period);
+    conditionDao.update(condition);
+    return condition;
+  }
+
   public Collection<QualityGateConditionDto> listConditions(long qGateId) {
     Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(qGateId);
     for (QualityGateConditionDto condition: conditionsForGate) {
       condition.setMetricKey(metricFinder.findById((int) condition.getMetricId()).getKey());
     }
     return conditionsForGate;
+  }
+
+  public void deleteCondition(Long condId) {
+    checkPermission(UserSession.get());
+    conditionDao.delete(getNonNullCondition(condId));
   }
 
   private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
@@ -211,6 +228,14 @@ public class QualityGates {
       throw new NotFoundException("There is no metric with key=" + metricKey);
     }
     return metric;
+  }
+
+  private QualityGateConditionDto getNonNullCondition(long id) {
+    QualityGateConditionDto condition = conditionDao.selectById(id);
+    if (condition == null) {
+      throw new NotFoundException("There is no condition with id=" + id);
+    }
+    return condition;
   }
 
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {

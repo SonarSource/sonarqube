@@ -33,12 +33,14 @@ import java.util.Collection;
 
 public class QualityGatesWs implements WebService {
 
+  private static final String PARAM_NAME = "name";
   private static final String PARAM_ERROR = "error";
   private static final String PARAM_WARNING = "warning";
   private static final String PARAM_PERIOD = "period";
   private static final String PARAM_OPERATOR = "op";
   private static final String PARAM_METRIC = "metric";
   private static final String PARAM_GATE_ID = "gateId";
+  private static final String PARAM_ID = "id";
   private final QualityGates qualityGates;
 
   public QualityGatesWs(QualityGates qualityGates) {
@@ -51,6 +53,58 @@ public class QualityGatesWs implements WebService {
       .setSince("4.3")
       .setDescription("This service can be used to manage quality gates, including requirements and project association.");
 
+    defineQualityGateActions(controller);
+
+    defineConditionActions(controller);
+
+    controller.done();
+  }
+
+  private void defineConditionActions(NewController controller) {
+    NewAction createCondition = controller.newAction("create_condition")
+    .setDescription("Add a new condition to a quality gate.")
+    .setPost(true)
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        createCondition(request, response);
+      }
+    });
+    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
+    addConditionParams(createCondition);
+
+    NewAction updateCondition = controller.newAction("update_condition")
+    .setDescription("Update a condition attached to a quality gate.")
+    .setPost(true)
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        updateCondition(request, response);
+      }
+    });
+    updateCondition.newParam(PARAM_ID).setDescription("The numerical ID of the condition to update.");
+    addConditionParams(updateCondition);
+
+    controller.newAction("delete_condition")
+    .setDescription("Remove a condition from a quality gate.")
+    .setPost(true)
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        deleteCondition(request, response);
+      }
+    }).newParam(PARAM_ID).setDescription("The numerical ID of the condition to delete.");
+  }
+
+  private void addConditionParams(NewAction createCondition) {
+    createCondition.newParam(PARAM_METRIC).setDescription("The key for the metric tested by this condition.");
+    createCondition.newParam(PARAM_OPERATOR).setDescription("The operator used for the test, one of 'EQ', 'NE', 'LT', 'GT'.");
+    createCondition.newParam(PARAM_PERIOD).setDescription("The optional period to use (for differential measures).");
+    createCondition.newParam(PARAM_WARNING).setDescription("An optional value for the warning threshold.");
+    createCondition.newParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
+  }
+
+  private void defineQualityGateActions(NewController controller) {
     controller.newAction("create")
       .setDescription("Create a quality gate, given its name.")
       .setPost(true)
@@ -59,7 +113,7 @@ public class QualityGatesWs implements WebService {
         public void handle(Request request, Response response) {
           create(request, response);
         }
-    }).newParam("name").setDescription("The name of the quality gate to create.");
+    }).newParam(PARAM_NAME).setDescription("The name of the quality gate to create.");
 
     controller.newAction("set_as_default")
     .setDescription("Select the default quality gate.")
@@ -69,7 +123,7 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         setDefault(request, response);
       }
-    }).newParam("id").setDescription("The ID of the quality gate to use as default.");
+    }).newParam(PARAM_ID).setDescription("The ID of the quality gate to use as default.");
 
     controller.newAction("unset_default")
     .setDescription("Unselect the default quality gate.")
@@ -90,8 +144,8 @@ public class QualityGatesWs implements WebService {
         rename(request, response);
       }
     });
-    rename.newParam("id").setDescription("The ID of the quality gate to rename.");
-    rename.newParam("name").setDescription("The new name for the quality gate.");
+    rename.newParam(PARAM_ID).setDescription("The ID of the quality gate to rename.");
+    rename.newParam(PARAM_NAME).setDescription("The new name for the quality gate.");
 
     controller.newAction("list")
     .setDescription("List all quality gates.")
@@ -109,7 +163,7 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         show(request, response);
       }
-    }).newParam("id").setDescription("The ID of the quality gate.");
+    }).newParam(PARAM_ID).setDescription("The ID of the quality gate.");
 
     controller.newAction("destroy")
     .setDescription("Destroy a quality gate, given its id.")
@@ -119,33 +173,15 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         destroy(request, response);
       }
-    }).newParam("id").setDescription("The numerical ID of the quality gate to destroy.");
-
-    NewAction createCondition = controller.newAction("create_condition")
-    .setDescription("Add a new condition to a quality gate.")
-    .setPost(true)
-    .setHandler(new RequestHandler() {
-      @Override
-      public void handle(Request request, Response response) {
-        createCondition(request, response);
-      }
-    });
-    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
-    createCondition.newParam(PARAM_METRIC).setDescription("The key for the metric tested by this condition.");
-    createCondition.newParam(PARAM_OPERATOR).setDescription("The operator used for the test, one of 'EQ', 'NE', 'LT', 'GT'.");
-    createCondition.newParam(PARAM_PERIOD).setDescription("The optional period to use (for differential measures).");
-    createCondition.newParam(PARAM_WARNING).setDescription("An optional value for the warning threshold.");
-    createCondition.newParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
-
-    controller.done();
+    }).newParam(PARAM_ID).setDescription("The numerical ID of the quality gate to destroy.");
   }
 
   protected void show(Request request, Response response) {
-    final Long qGateId = parseId(request, "id");
+    final Long qGateId = parseId(request, PARAM_ID);
     QualityGateDto qGate = qualityGates.get(qGateId);
     JsonWriter writer = response.newJsonWriter().beginObject()
-      .prop("id", qGate.getId())
-      .prop("name", qGate.getName());
+      .prop(PARAM_ID, qGate.getId())
+      .prop(PARAM_NAME, qGate.getName());
     Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
     if (!conditions.isEmpty()) {
       writer.name("conditions").beginArray();
@@ -166,11 +202,28 @@ public class QualityGatesWs implements WebService {
         request.param(PARAM_WARNING),
         request.param(PARAM_ERROR),
         request.intParam(PARAM_PERIOD)
-      ), response.newJsonWriter()).close();;
+      ), response.newJsonWriter()).close();
+  }
+
+  protected void updateCondition(Request request, Response response) {
+    writeQualityGateCondition(
+      qualityGates.updateCondition(
+        parseId(request, PARAM_ID),
+        request.requiredParam(PARAM_METRIC),
+        request.requiredParam(PARAM_OPERATOR),
+        request.param(PARAM_WARNING),
+        request.param(PARAM_ERROR),
+        request.intParam(PARAM_PERIOD)
+      ), response.newJsonWriter()).close();
+  }
+
+  protected void deleteCondition(Request request, Response response) {
+    qualityGates.deleteCondition(parseId(request, PARAM_ID));
+    response.noContent();
   }
 
   protected void setDefault(Request request, Response response) {
-    qualityGates.setDefault(parseId(request, "id"));
+    qualityGates.setDefault(parseId(request, PARAM_ID));
     response.noContent();
   }
 
@@ -180,14 +233,14 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void rename(Request request, Response response) {
-    long idToRename = parseId(request, "id");
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.requiredParam("name"));
+    long idToRename = parseId(request, PARAM_ID);
+    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.requiredParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(renamedQualityGate, writer).close();
   }
 
   protected void destroy(Request request, Response response) {
-    qualityGates.delete(parseId(request, "id"));
+    qualityGates.delete(parseId(request, PARAM_ID));
     response.noContent();
   }
 
@@ -205,7 +258,7 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void create(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.create(request.requiredParam("name"));
+    QualityGateDto newQualityGate = qualityGates.create(request.requiredParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(newQualityGate, writer).close();
   }
@@ -220,24 +273,24 @@ public class QualityGatesWs implements WebService {
 
   private JsonWriter writeQualityGate(QualityGateDto newQualityGate, JsonWriter writer) {
     return writer.beginObject()
-      .prop("id", newQualityGate.getId())
-      .prop("name", newQualityGate.getName())
+      .prop(PARAM_ID, newQualityGate.getId())
+      .prop(PARAM_NAME, newQualityGate.getName())
       .endObject();
   }
 
   private JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
     writer.beginObject()
-      .prop("id", condition.getId())
-      .prop("metric", condition.getMetricKey())
-      .prop("op", condition.getOperator());
+      .prop(PARAM_ID, condition.getId())
+      .prop(PARAM_METRIC, condition.getMetricKey())
+      .prop(PARAM_OPERATOR, condition.getOperator());
     if(condition.getWarningThreshold() != null) {
-      writer.prop("warning", condition.getWarningThreshold());
+      writer.prop(PARAM_WARNING, condition.getWarningThreshold());
     }
     if(condition.getErrorThreshold() != null) {
-      writer.prop("error", condition.getErrorThreshold());
+      writer.prop(PARAM_ERROR, condition.getErrorThreshold());
     }
     if(condition.getPeriod() != null) {
-      writer.prop("period", condition.getPeriod());
+      writer.prop(PARAM_PERIOD, condition.getPeriod());
     }
     writer.endObject();
     return writer;

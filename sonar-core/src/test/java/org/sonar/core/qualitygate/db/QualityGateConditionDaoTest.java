@@ -56,7 +56,7 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
     setupData("selectForQualityGate");
     QualityGateConditionDto selectById = dao.selectById(1L);
     assertThat(selectById).isNotNull();
-    assertThat(selectById.getId()).isNotNull();
+    assertThat(selectById.getId()).isNotNull().isNotEqualTo(0L);
     assertThat(selectById.getMetricId()).isEqualTo(2L);
     assertThat(selectById.getOperator()).isEqualTo("<");
     assertThat(selectById.getPeriod()).isEqualTo(3);

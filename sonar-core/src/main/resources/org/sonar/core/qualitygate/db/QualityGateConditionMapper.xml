@@ -9,7 +9,7 @@
   </insert>
 
   <sql id="conditionColumns">
-    qgate_id as qualityGateId, metric_id as metricId, operator, value_warning as warningThreshold, value_error as errorThreshold, period
+    id, qgate_id as qualityGateId, metric_id as metricId, operator, value_warning as warningThreshold, value_error as errorThreshold, period
   </sql>
 
   <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="long">

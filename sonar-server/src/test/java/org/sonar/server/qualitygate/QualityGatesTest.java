@@ -1,5 +1,5 @@
 /*
- * SonarQube, open source software quality management tool.
+ * SonarQube, open source software quality management toonditionol.
  * Copyright (C) 2008-2013 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,8 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionTestUtils;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -119,6 +122,16 @@ public class QualityGatesTest {
     String name = "SG-1";
     when(dao.selectByName(name)).thenReturn(new QualityGateDto().setName(name).setId(42L));
     qGates.create(name);
+  }
+
+  @Test
+  public void should_get_qgate() throws Exception {
+    long id = 42L;
+    final String name = "Golden";
+    QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
+    when(dao.selectById(id)).thenReturn(existing);
+    assertThat(qGates.get(id)).isEqualTo(existing);
+    verify(dao).selectById(id);
   }
 
   @Test
@@ -359,5 +372,69 @@ public class QualityGatesTest {
     when(metricFinder.findByKey(anyString())).thenReturn(metric);
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
     qGates.createCondition(qGateId, "alert_status", "EQ", null, "90", 4);
+  }
+
+  @Test
+  public void should_update_condition() {
+    long condId = 42L;
+    String metricKey = "new_coverage";
+    String operator = "LT";
+    String errorThreshold = "80";
+    final QualityGateConditionDto condition = new QualityGateConditionDto().setId(condId)
+      .setMetricId(666L).setOperator("GT").setWarningThreshold("123");
+    when(conditionDao.selectById(condId)).thenReturn(condition);
+    Integer metricId = 10;
+    Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
+    when(newCoverage.getId()).thenReturn(metricId);
+    when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
+    int period = 2;
+
+    assertThat(qGates.updateCondition(condId, metricKey, operator, null, errorThreshold, period)).isEqualTo(condition);
+    assertThat(condition.getId()).isEqualTo(condId);
+    assertThat(condition.getMetricId()).isEqualTo(metricId);
+    assertThat(condition.getMetricKey()).isEqualTo(metricKey);
+    assertThat(condition.getOperator()).isEqualTo(operator);
+    assertThat(condition.getWarningThreshold()).isNull();
+    assertThat(condition.getErrorThreshold()).isEqualTo(errorThreshold);
+    assertThat(condition.getPeriod()).isEqualTo(period);
+    verify(conditionDao).update(condition);
+  }
+
+  @Test
+  public void should_list_conditions() throws Exception {
+    long qGateId = 42L;
+    long metric1Id = 1L;
+    String metric1Key = "polop";
+    long metric2Id = 2L;
+    String metric2Key = "palap";
+    QualityGateConditionDto cond1 = new QualityGateConditionDto().setMetricId(metric1Id);
+    QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
+    Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
+    when(conditionDao.selectForQualityGate(qGateId)).thenReturn(conditions );
+    Metric metric1 = mock(Metric.class);
+    when(metric1.getKey()).thenReturn(metric1Key);
+    when(metricFinder.findById((int) metric1Id)).thenReturn(metric1);
+    Metric metric2 = mock(Metric.class);
+    when(metric2.getKey()).thenReturn(metric2Key);
+    when(metricFinder.findById((int) metric2Id)).thenReturn(metric2);
+    assertThat(qGates.listConditions(qGateId)).isEqualTo(conditions);
+    Iterator<QualityGateConditionDto> iterator = conditions.iterator();
+    assertThat(iterator.next().getMetricKey()).isEqualTo(metric1Key);
+    assertThat(iterator.next().getMetricKey()).isEqualTo(metric2Key);
+  }
+
+  @Test
+  public void should_delete_condition() throws Exception {
+    long idToDelete = 42L;
+    QualityGateConditionDto toDelete = new QualityGateConditionDto().setId(idToDelete);
+    when(conditionDao.selectById(idToDelete)).thenReturn(toDelete);
+    qGates.deleteCondition(idToDelete);
+    verify(conditionDao).selectById(idToDelete);
+    verify(conditionDao).delete(toDelete);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_fail_delete_condition() throws Exception {
+    qGates.deleteCondition(42L);
   }
 }
