@@ -99,17 +99,16 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     Logger logger = mock(Logger.class);
     ResourceKeyMigration migration = new ResourceKeyMigration(getSession(), logger);
     migration.checkIfMigrationNeeded(multiModuleProject);
-    verify(logger).info("Resources keys of project 'Root' should be migrated");
-
+    
     migration.migrateIfNeeded(javaModule, javaInputFiles);
     migration.migrateIfNeeded(phpModule, phpInputFiles);
 
-    verify(logger).info("Migrated resource {} to {}", "b:org.foo.Bar", "b:src/main/java/org/foo/Bar.java");
+    verify(logger).info("Component {} changed to {}", "b:org.foo.Bar", "b:src/main/java/org/foo/Bar.java");
     verify(logger).warn("Directory with key b:org/foo matches both b:src/main/java/org/foo and b:src/test/java/org/foo. First match is arbitrary chosen.");
-    verify(logger).info("Migrated resource {} to {}", "b:org.foo.BarTest", "b:src/test/java/org/foo/BarTest.java");
-    verify(logger).info("Migrated resource {} to {}", "b:[default].RootBar", "b:src/main/java/RootBar.java");
-    verify(logger).info("Migrated resource {} to {}", "b:org/foo", "b:src/main/java/org/foo");
-    verify(logger).info("Migrated resource {} to {}", "b:[root]", "b:src/main/java");
+    verify(logger).info("Component {} changed to {}", "b:org.foo.BarTest", "b:src/test/java/org/foo/BarTest.java");
+    verify(logger).info("Component {} changed to {}", "b:[default].RootBar", "b:src/main/java/RootBar.java");
+    verify(logger).info("Component {} changed to {}", "b:org/foo", "b:src/main/java/org/foo");
+    verify(logger).info("Component {} changed to {}", "b:[root]", "b:src/main/java");
 
     checkTables("shouldMigrateResourceKeys", new String[]{"build_date", "created_at"}, "projects");
   }

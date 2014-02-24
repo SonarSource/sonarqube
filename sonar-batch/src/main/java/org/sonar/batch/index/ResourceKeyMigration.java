@@ -57,7 +57,6 @@ public class ResourceKeyMigration implements BatchComponent {
   public void checkIfMigrationNeeded(Project rootProject) {
     ResourceModel model = session.getSingleResult(ResourceModel.class, "key", rootProject.getEffectiveKey());
     if (model != null && StringUtils.isBlank(model.getDeprecatedKey())) {
-      logger.info("Resources keys of project '" + rootProject.getName() + "' should be migrated");
       this.migrationNeeded = true;
     }
   }
@@ -68,16 +67,16 @@ public class ResourceKeyMigration implements BatchComponent {
 
   void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
     if (migrationNeeded) {
-      logger.info("Starting migration of resource keys");
+      logger.info("Update component keys");
       Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
       Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
       Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
       for (InputFile inputFile : inputFiles) {
         String deprecatedKey = ((DefaultInputFile) inputFile).deprecatedKey();
         if (deprecatedKey != null) {
-          if (InputFile.Type.TEST == inputFile.type()) {
+          if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
             deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
-          } else {
+          } else if (InputFile.Type.MAIN == inputFile.type() && !deprecatedFileKeyMapper.containsKey(deprecatedKey)) {
             deprecatedFileKeyMapper.put(deprecatedKey, inputFile);
           }
         }
@@ -99,7 +98,7 @@ public class ResourceKeyMigration implements BatchComponent {
       .append(ResourceModel.class.getSimpleName())
       .append(" where enabled = true ")
       .append(" and rootId = :rootId ")
-      .append(" and scope = '").append(Scopes.FILE).append("' order by key");
+      .append(" and scope = '").append(Scopes.FILE).append("' order by qualifier, key");
     List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
     for (ResourceModel resourceModel : resources) {
       String oldEffectiveKey = resourceModel.getKey();
@@ -125,9 +124,9 @@ public class ResourceKeyMigration implements BatchComponent {
         }
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Migrated resource {} to {}", oldEffectiveKey, newEffectiveKey);
+        logger.info("Component {} changed to {}", oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to migrate resource {}. No match was found.", oldEffectiveKey);
+        logger.warn("Unable to update component {}. No match was found.", oldEffectiveKey);
       }
     }
   }
@@ -146,7 +145,7 @@ public class ResourceKeyMigration implements BatchComponent {
       .append(ResourceModel.class.getSimpleName())
       .append(" where enabled = true ")
       .append(" and rootId = :rootId ")
-      .append(" and qualifier = '").append(Qualifiers.DIRECTORY).append("')");
+      .append(" and qualifier = '").append(Qualifiers.DIRECTORY).append("'");
     List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
     for (ResourceModel resourceModel : resources) {
       String oldEffectiveKey = resourceModel.getKey();
@@ -154,9 +153,9 @@ public class ResourceKeyMigration implements BatchComponent {
         String newEffectiveKey = deprecatedDirectoryKeyMapper.get(oldEffectiveKey);
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Migrated resource {} to {}", oldEffectiveKey, newEffectiveKey);
+        logger.info("Component {} changed to {}", oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to migrate resource {}. No match was found.", oldEffectiveKey);
+        logger.warn("Unable to update component {}. No match was found.", oldEffectiveKey);
       }
     }
   }
