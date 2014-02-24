@@ -556,8 +556,16 @@ jQuery(function() {
 
 
     onRender: function() {
+      var format = function(state) {
+        if (!state.id) return state.text; // optgroup
+        return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i>' + state.text;
+      }
+
       this.ui.select.select2({
-        minimumResultsForSearch: 100
+        minimumResultsForSearch: 100,
+        formatResult: format,
+        formatSelection: format,
+        escapeMarkup: function(m) { return m; }
       });
     },
 
