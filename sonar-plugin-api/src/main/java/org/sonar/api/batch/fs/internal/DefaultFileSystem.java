@@ -161,7 +161,7 @@ public class DefaultFileSystem implements FileSystem {
    * This method is called before each search of files.
    */
   protected void doPreloadFiles() {
-
+    // nothing to do by default
   }
 
   public static abstract class Cache {

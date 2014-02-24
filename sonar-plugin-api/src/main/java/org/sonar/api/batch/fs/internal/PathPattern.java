@@ -79,7 +79,7 @@ public abstract class PathPattern {
       if (!caseSensitiveFileExtension) {
         String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
         if (StringUtils.isNotBlank(extension)) {
-          StringUtils.removeEndIgnoreCase(path, extension);
+          path = StringUtils.removeEndIgnoreCase(path, extension);
           path = path + extension;
         }
       }
