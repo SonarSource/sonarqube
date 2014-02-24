@@ -1104,7 +1104,7 @@ define(
 
         applyFavorite: function (e) {
           var id = $j(e.target).data('id'),
-              filter = new window.SS.FavoriteFilter({ id: id }),
+              filter = new FavoriteFilter({ id: id }),
               app = this.options.filterView.options.app;
 
           filter.fetch({

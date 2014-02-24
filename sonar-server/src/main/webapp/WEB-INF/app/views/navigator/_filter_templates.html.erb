@@ -36,12 +36,33 @@
   <ul class="navigator-filter-select-list choices"></ul>
 </script>
 
+<script id="choiceFilterTemplate" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list choices"></ul>
+  <ul class="navigator-filter-select-list opposite"></ul>
+</script>
+
+<script id="choiceFilterItemTemplate" type="text/x-handlebars-template">
+  <li>
+    <label title="{{text}}"> {{! TODO: escape }}
+      <input type="checkbox" value="{{id}}" {{#if checked}}checked{{/if}}>
+      {{#if icon}}<i class="icon-{{icon}}"></i>{{/if}}
+      <span>
+        {{text}}
+        {{#if category}}
+          <br>
+          <span class="subtitle">{{category}}</span>
+        {{/if}}
+      </span>
+    </label>
+  </li>
+</script>
+
 <script id="ajaxSelectFilterTemplate" type="text/template">
   <div class="navigator-filter-search">
     <input type="text">
   </div>
-  <ul class="navigator-filter-select-list selection"></ul>
   <ul class="navigator-filter-select-list choices"></ul>
+  <ul class="navigator-filter-select-list opposite"></ul>
 </script>
 
 <script id="rangeFilterTemplate" type="text/template">

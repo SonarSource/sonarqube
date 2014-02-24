@@ -13,6 +13,9 @@ requirejs.config({
     },
     'backbone': {
       exports: 'Backbone'
+    },
+    'handlebars': {
+      exports: 'Handlebars'
     }
   }
 
@@ -24,14 +27,14 @@ requirejs(
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',
-      'navigator/filters/select-filters',
+      'navigator/filters/choice-filters',
       'navigator/filters/ajax-select-filters',
       'navigator/filters/favorite-filters',
       'navigator/filters/range-filters',
       'navigator/filters/string-filters',
       'navigator/filters/metric-filters'
     ],
-    function (Backbone, Marionette, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters, AjaxSelectFilters,
+    function (Backbone, Marionette, FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters,
               FavoriteFilters, RangeFilters, StringFilterView, MetricFilterView) {
 
       _.templateSettings = {
@@ -67,7 +70,7 @@ requirejs(
           new BaseFilters.Filter({
             name: window.SS.phrases.components,
             property: 'qualifiers[]',
-            type: SelectFilters.SelectFilterView,
+            type: ChoiceFilters.ChoiceFilterView,
             enabled: true,
             optional: false,
             choices: window.SS.qualifiers,
@@ -77,7 +80,7 @@ requirejs(
           new BaseFilters.Filter({
             name: window.SS.phrases.alert,
             property: 'alertLevels[]',
-            type: SelectFilters.SelectFilterView,
+            type: ChoiceFilters.ChoiceFilterView,
             enabled: false,
             optional: true,
             choices: {
@@ -127,7 +130,7 @@ requirejs(
             new BaseFilters.Filter({
               name: window.SS.phrases.language,
               property: 'languages[]',
-              type: SelectFilters.SelectFilterView,
+              type: ChoiceFilters.ChoiceFilterView,
               enabled: false,
               optional: true,
               choices: window.SS.languages

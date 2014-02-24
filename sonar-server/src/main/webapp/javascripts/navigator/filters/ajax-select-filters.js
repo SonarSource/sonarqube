@@ -1,11 +1,12 @@
-define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-filters'], function (Backbone, BaseFilters, SelectFilters) {
+define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-filters'], function (Backbone, BaseFilters, ChoiceFilters) {
 
   var PAGE_SIZE = 100,
-      UNASSIGNED = '<unassigned>';
+      UNASSIGNED = '';
 
 
 
   var Suggestions = Backbone.Collection.extend({
+    comparator: 'checked',
 
     initialize: function() {
       this.more = false;
@@ -90,12 +91,13 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
-  var AjaxSelectDetailsFilterView = SelectFilters.DetailsSelectFilterView.extend({
+  var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: '#ajaxSelectFilterTemplate',
+    listTemplate: '#choiceFilterTemplate',
 
 
-    onRender: function() {
-      this.resetChoices();
+    render: function() {
+      ChoiceFilters.DetailsChoiceFilterView.prototype.render.apply(this, arguments);
 
       var that = this,
           keyup = function(e) {
@@ -123,16 +125,19 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
       this.query = this.$('.navigator-filter-search input').val();
       if (this.query.length > 1) {
         this.$el.addClass('fetching');
+        var selected = that.options.filterView.getSelected();
         this.options.filterView.choices.fetch({
           data: {
             s: this.query,
             ps: PAGE_SIZE
           },
           success: function() {
-            var choices = that.options.filterView.choices.reject(function(item) {
-              return that.options.filterView.selection.findWhere({ id: item.get('id') });
+            selected.each(function(item) {
+              that.options.filterView.choices.unshift(item);
             });
-            that.options.filterView.choices.reset(choices);
+            _.each(that.model.get('choices'), function(v, k) {
+              that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
+            });
             that.updateLists();
             that.$el.removeClass('fetching');
           }
@@ -163,12 +168,20 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
     resetChoices: function() {
-      this.options.filterView.choices.reset([]);
+      var that = this;
+      this.options.filterView.choices.reset(this.options.filterView.choices.filter(function(item) {
+        return item.get('checked');
+      }));
+      _.each(this.model.get('choices'), function(v, k) {
+        that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
+      });
     },
 
 
     onShow: function() {
-      SelectFilters.DetailsSelectFilterView.prototype.onShow.apply(this, arguments);
+      ChoiceFilters.DetailsChoiceFilterView.prototype.onShow.apply(this, arguments);
+      this.resetChoices();
+      this.render();
       this.$('.navigator-filter-search input').focus();
     }
 
@@ -176,10 +189,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
 
 
-  var AjaxSelectFilterView = SelectFilters.SelectFilterView.extend({
+  var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
     isDefaultValue: function() {
-      return this.selection.length === 0;
+      return this.getSelected().length === 0;
     },
 
 
@@ -199,13 +212,8 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
         value = value.split(',');
       }
 
-      if (this.choices && this.selection && value.length > 0) {
-        this.selection.reset([]);
-        this.model.set({
-          value: value,
-          enabled: true
-        });
-
+      if (this.choices && value.length > 0) {
+        this.model.set({ value: value, enabled: true });
         if (_.isArray(param.text) && param.text.length === value.length) {
           this.restoreFromText(value, param.text);
         } else {
@@ -220,9 +228,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
     restoreFromText: function(value, text) {
       var that = this;
       _.each(value, function(v, i) {
-        that.selection.add(new Backbone.Model({
+        that.choices.add(new Backbone.Model({
           id: v,
-          text: text[i]
+          text: text[i],
+          checked: true
         }));
       });
       this.onRestore(value);
@@ -249,12 +258,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
     clear: function() {
       this.model.unset('value');
-      if (this.selection && this.choices) {
+      if (this.choices) {
         this.choices.reset([]);
-        this.selection.reset([]);
-        this.detailsView.updateLists();
       }
-      this.renderBase();
+      this.render();
     },
 
 
@@ -267,11 +274,9 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
   var ComponentFilterView = AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      AjaxSelectFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
-
-      this.selection = new ComponentSuggestions();
       this.choices = new ComponentSuggestions();
     },
 
@@ -303,7 +308,6 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
         detailsView: AjaxSelectDetailsFilterView
       });
 
-      this.selection = new ProjectSuggestions();
       this.choices = new ProjectSuggestions();
     },
 
@@ -317,59 +321,12 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
             data: { resource: v }
           })
           .done(function (r) {
-            that.selection.add(new Backbone.Model({
+            that.choices.add(new Backbone.Model({
               id: r[0].key,
-              text: r[0].name
+              text: r[0].name,
+              checked: true
             }));
           });
-    }
-
-  });
-
-
-
-  var AssigneeDetailsFilterView = AjaxSelectDetailsFilterView.extend({
-
-    addToSelection: function(e) {
-      var id = $j(e.target).val(),
-          model = this.options.filterView.choices.findWhere({ id: id });
-
-      if (this.model.get('multiple') && id !== UNASSIGNED) {
-        this.options.filterView.selection.add(model);
-        this.options.filterView.choices.remove(model);
-
-        var unassigned = this.options.filterView.selection.findWhere({ id: UNASSIGNED });
-        if (unassigned) {
-          this.options.filterView.choices.add(unassigned);
-          this.options.filterView.selection.remove(unassigned);
-        }
-      } else {
-        this.options.filterView.choices.add(this.options.filterView.selection.models);
-        this.options.filterView.choices.remove(model);
-        this.options.filterView.selection.reset([model]);
-      }
-
-      this.updateValue();
-      this.updateLists();
-    },
-
-
-    resetChoices: function() {
-      if (this.options.filterView.selection.findWhere({ id: UNASSIGNED })) {
-        this.options.filterView.choices.reset([]);
-      } else {
-        this.options.filterView.choices.reset([{
-          id: UNASSIGNED,
-          text: window.SS.phrases.unassigned,
-          special: true
-        }]);
-      }
-    },
-
-
-    onShow: function() {
-      AjaxSelectDetailsFilterView.prototype.onShow.apply(this, arguments);
-      this.$('.navigator-filter-search input').focus();
     }
 
   });
@@ -380,58 +337,11 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
 
     initialize: function() {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: AssigneeDetailsFilterView
+        detailsView: AjaxSelectDetailsFilterView
       });
 
-      this.selection = new UserSuggestions();
       this.choices = new UserSuggestions();
     },
-
-
-    restoreFromQuery: function(q) {
-      var param = _.findWhere(q, { key: this.model.get('property') }),
-          assigned = _.findWhere(q, { key: 'assigned' });
-
-      if (!!assigned) {
-        if (!param) {
-          param = { value: UNASSIGNED };
-        } else {
-          param.value += ',' + UNASSIGNED;
-        }
-      }
-
-      if (param && param.value) {
-        this.model.set('enabled', true);
-        this.restore(param.value, param);
-      } else {
-        this.clear();
-      }
-    },
-
-
-    restoreFromText: function(value) {
-      if (_.indexOf(value, UNASSIGNED) !== -1) {
-        this.choices.reset([]);
-      }
-
-      AjaxSelectFilterView.prototype.restoreFromText.apply(this, arguments);
-    },
-
-
-    restoreByRequests: function(value) {
-      if (_.indexOf(value, UNASSIGNED) !== -1) {
-        this.selection.add(new Backbone.Model({
-          id: UNASSIGNED,
-          text: window.SS.phrases.unassigned,
-          special: true
-        }));
-        this.choices.reset([]);
-        value = _.reject(value, function(k) { return k === UNASSIGNED; });
-      }
-
-      AjaxSelectFilterView.prototype.restoreByRequests.call(this, value);
-    },
-
 
     createRequest: function(v) {
       var that = this;
@@ -442,37 +352,12 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
             data: { logins: v }
           })
           .done(function (r) {
-            that.selection.add(new Backbone.Model({
+            that.choices.add(new Backbone.Model({
               id: r.users[0].login,
-              text: r.users[0].name + ' (' + r.users[0].login + ')'
+              text: r.users[0].name + ' (' + r.users[0].login + ')',
+              checked: true
             }));
           });
-    },
-
-
-    clear: function() {
-      this.model.unset('value');
-      if (this.selection && this.choices) {
-        this.detailsView.resetChoices();
-        this.selection.reset([]);
-      }
-      this.renderBase();
-      this.detailsView.updateLists();
-    },
-
-
-    formatValue: function() {
-      var q = {};
-      if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
-        var assignees = _.without(this.model.get('value'), UNASSIGNED);
-        if (assignees.length > 0) {
-          q[this.model.get('property')] = assignees.join(',');
-        }
-        if (this.model.get('value').length > assignees.length) {
-          q.assigned = false;
-        }
-      }
-      return q;
     }
 
   });
@@ -500,9 +385,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/select-
             data: { logins: v }
           })
           .done(function (r) {
-            that.selection.add(new Backbone.Model({
+            that.choices.add(new Backbone.Model({
               id: r.users[0].login,
-              text: r.users[0].name + ' (' + r.users[0].login + ')'
+              text: r.users[0].name + ' (' + r.users[0].login + ')',
+              checked: true
             }));
           });
     }

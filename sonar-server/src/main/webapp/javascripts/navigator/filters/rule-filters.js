@@ -36,11 +36,10 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-se
   return AjaxSelectFilters.AjaxSelectFilterView.extend({
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      AjaxSelectFilters.AjaxSelectFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectFilters.AjaxSelectDetailsFilterView
       });
 
-      this.selection = new RuleSuggestions();
       this.choices = new RuleSuggestions();
     },
 

@@ -1,4 +1,4 @@
-define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], function (BaseFilters, SelectFilters) {
+define(['navigator/filters/base-filters', 'navigator/filters/choice-filters'], function (BaseFilters, ChoiceFilters) {
 
   var DetailsMoreCriteriaFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#detailsMoreCriteriaFilterTemplate',
@@ -19,13 +19,13 @@ define(['navigator/filters/base-filters', 'navigator/filters/select-filters'], f
 
 
 
-  var MoreCriteriaFilterView = SelectFilters.SelectFilterView.extend({
+  var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
     template: '#moreCriteriaFilterTemplate',
     className: 'navigator-filter navigator-filter-more-criteria',
 
 
     initialize: function() {
-      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+      ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
         detailsView: DetailsMoreCriteriaFilterView
       });
     },

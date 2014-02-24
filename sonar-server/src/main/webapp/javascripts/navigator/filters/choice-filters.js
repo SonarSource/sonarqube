@@ -1,14 +1,13 @@
-define(['navigator/filters/base-filters'], function (BaseFilters) {
+define(['handlebars', 'navigator/filters/base-filters'], function (Handlebars, BaseFilters) {
 
-  var DetailsSelectFilterView = BaseFilters.DetailsFilterView.extend({
-    template: '#selectFilterTemplate',
-    itemTemplate: '#selectFilterItemTemplate',
+  var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
+    template: Handlebars.compile(jQuery('#choiceFilterTemplate').html()),
+    itemTemplate: Handlebars.compile(jQuery('#choiceFilterItemTemplate').html()),
 
 
     events: function() {
       return {
-        'change .choices input[type=checkbox]': 'addToSelection',
-        'change .selection input[type=checkbox]': 'removeFromSelection'
+        'change input[type=checkbox]': 'onCheck'
       };
     },
 
@@ -19,63 +18,66 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
     },
 
 
-    renderList: function(collection, selector, checked) {
+    renderList: function(collection, selector) {
       var that = this,
-          container = this.$(selector),
-          t = _.template($j(this.itemTemplate).html());
+          container = this.$(selector);
 
       container.empty().toggleClass('hidden', collection.length === 0);
       collection.each(function(item) {
-        container.append(t(_.extend(
-            {
-              item: item.toJSON(),
-              checked: checked
-            }, that.model.toJSON())));
+        container.append(that.itemTemplate(item.toJSON()));
       });
     },
 
 
     updateLists: function() {
-      this.renderList(this.options.filterView.selection, '.selection', true);
-      this.renderList(this.options.filterView.choices, '.choices', false);
+      var choices = new Backbone.Collection(this.options.filterView.choices.reject(function(item) {
+            return item.get('id')[0] === '!';
+          })),
+          opposite = new Backbone.Collection(this.options.filterView.choices.filter(function(item) {
+            return item.get('id')[0] === '!';
+          }));
+
+      this.renderList(choices, '.choices');
+      this.renderList(opposite, '.opposite');
 
       var current = this.currentChoice || 0;
       this.updateCurrent(current);
     },
 
 
-    addToSelection: function(e) {
-      var id = $j(e.target).val(),
-          model = this.options.filterView.choices.findWhere({ id: id });
+    onCheck: function(e) {
+      var checkbox = jQuery(e.target),
+          id = checkbox.val(),
+          checked = checkbox.prop('checked');
 
       if (this.model.get('multiple')) {
-        this.options.filterView.selection.add(model);
-        this.options.filterView.choices.remove(model);
+        if (checkbox.closest('.opposite').length > 0) {
+          this.options.filterView.choices.reject(function(item) {
+            return item.get('id')[0] === '!'
+          }).forEach(function(item) {
+                item.set('checked', false);
+              });
+        } else {
+          this.options.filterView.choices.filter(function(item) {
+            return item.get('id')[0] === '!'
+          }).forEach(function(item) {
+                item.set('checked', false);
+              });
+        }
       } else {
-        this.options.filterView.choices.add(this.options.filterView.selection.models);
-        this.options.filterView.choices.remove(model);
-        this.options.filterView.selection.reset([model]);
+        this.options.filterView.choices.each(function(item) {
+          item.set('checked', false);
+        });
       }
 
-      this.updateValue();
-      this.updateLists();
-    },
-
-
-    removeFromSelection: function(e) {
-      var id = $j(e.target).val(),
-          model = this.options.filterView.selection.findWhere({ id: id });
-
-      this.options.filterView.choices.add(model);
-      this.options.filterView.selection.remove(model);
-
+      this.options.filterView.choices.get(id).set('checked', checked);
       this.updateValue();
       this.updateLists();
     },
 
 
     updateValue: function() {
-      this.model.set('value', this.options.filterView.selection.map(function(m) {
+      this.model.set('value', this.options.filterView.getSelected().map(function(m) {
         return m.get('id');
       }));
     },
@@ -167,25 +169,25 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
     serializeData: function() {
       return _.extend({}, this.model.toJSON(), {
-        selection: this.options.filterView.selection.toJSON(),
-        choices: this.options.filterView.choices.toJSON()
+        choices: new Backbone.Collection(this.options.filterView.choices.reject(function(item) {
+          return item.get('id')[0] === '!';
+        })).toJSON(),
+        opposite: new Backbone.Collection(this.options.filterView.choices.filter(function(item) {
+          return item.get('id')[0] === '!';
+        })).toJSON()
       });
     }
+
   });
 
 
 
-  var SelectFilterView = BaseFilters.BaseFilterView.extend({
-    className: 'navigator-filter',
-
+  var ChoiceFilterView = BaseFilters.BaseFilterView.extend({
 
     initialize: function(options) {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-        detailsView: (options && options.detailsView) ? options.detailsView : DetailsSelectFilterView
+        detailsView: (options && options.detailsView) ? options.detailsView : DetailsChoiceFilterView
       });
-
-
-      this.selection = new Backbone.Collection([], { comparator: 'index' });
 
       var index = 0,
           icons = this.model.get('choiceIcons');
@@ -195,6 +197,7 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
             var model = new Backbone.Model({
               id: key,
               text: value,
+              checked: false,
               index: index++
             });
 
@@ -208,21 +211,22 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
     },
 
 
+    getSelected: function() {
+      return this.choices.filter(function(m) {
+        return m.get('checked');
+      });
+    },
+
+
     renderInput: function() {
       var input = $j('<select>')
           .prop('name', this.model.get('property'))
           .prop('multiple', true)
           .css('display', 'none');
-      this.selection.each(function(item) {
-        var option = $j('<option>')
-            .prop('value', item.get('id'))
-            .prop('selected', true)
-            .text(item.get('text'));
-        option.appendTo(input);
-      });
       this.choices.each(function(item) {
         var option = $j('<option>')
             .prop('value', item.get('id'))
+            .prop('selected', item.get('checked'))
             .text(item.get('text'));
         option.appendTo(input);
       });
@@ -231,7 +235,7 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
     renderValue: function() {
-      var value = this.selection.map(function(item) {
+      var value = this.getSelected().map(function(item) {
             return item.get('text');
           }),
           defaultValue = this.model.has('defaultValue') ?
@@ -243,14 +247,43 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
     isDefaultValue: function() {
-      return this.selection.length === 0 || this.choices.length === 0;
+      var selected = this.getSelected();
+      return selected.length === 0;
     },
 
 
     disable: function() {
-      this.choices.add(this.selection.models);
-      this.selection.reset([]);
+      this.choices.each(function(item) {
+        item.set('checked', false);
+      });
       BaseFilters.BaseFilterView.prototype.disable.apply(this, arguments);
+    },
+
+
+    restoreFromQuery: function(q) {
+      var param = _.findWhere(q, { key: this.model.get('property') });
+
+      if (this.choices) {
+        this.choices.forEach(function(item) {
+          if (item.get('id')[0] === '!') {
+            var x = _.findWhere(q, { key: item.get('id').substr(1) });
+            if (x) {
+              if (!param) {
+                param = { value: item.get('id') };
+              } else {
+                param.value += ',' + item.get('id');
+              }
+            }
+          }
+        });
+      }
+
+      if (param && param.value) {
+        this.model.set('enabled', true);
+        this.restore(param.value, param);
+      } else {
+        this.clear();
+      }
     },
 
 
@@ -259,28 +292,24 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
         value = value.split(',');
       }
 
-      if (this.choices && this.selection && value.length > 0) {
+      if (this.choices && value.length > 0) {
         var that = this;
-        this.choices.add(this.selection.models);
-        this.selection.reset([]);
+
+        that.choices.each(function(item) {
+          item.set('checked', false);
+        });
 
         _.each(value, function(v) {
           var cModel = that.choices.findWhere({ id: v });
-
-          if (cModel) {
-            that.selection.add(cModel);
-            that.choices.remove(cModel);
-          }
+          cModel.set('checked', true);
         });
-
-        this.detailsView.updateLists();
 
         this.model.set({
           value: value,
           enabled: true
         });
 
-        this.renderBase();
+        this.render();
       } else {
         this.clear();
       }
@@ -288,12 +317,10 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
 
 
     clear: function() {
-      var that = this;
-      if (this.selection && this.choices) {
-        this.selection.each(function(m) {
-          that.choices.add(m);
+      if (this.choices) {
+        this.choices.each(function(item) {
+          item.set('checked', false);
         });
-        this.selection.reset([]);
       }
       this.model.unset('value');
       this.detailsView.render();
@@ -306,7 +333,16 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
     formatValue: function() {
       var q = {};
       if (this.model.has('property') && this.model.has('value') && this.model.get('value').length > 0) {
-        q[this.model.get('property')] = this.model.get('value').join(',');
+        var opposite = _.filter(this.model.get('value'), function(item) {
+          return item[0] === '!';
+        });
+        if (opposite.length > 0) {
+          opposite.forEach(function(item) {
+            q[item.substr(1)] = false;
+          });
+        } else {
+          q[this.model.get('property')] = this.model.get('value').join(',');
+        }
       }
       return q;
     }
@@ -320,8 +356,8 @@ define(['navigator/filters/base-filters'], function (BaseFilters) {
    */
 
   return {
-    DetailsSelectFilterView: DetailsSelectFilterView,
-    SelectFilterView: SelectFilterView
+    DetailsChoiceFilterView: DetailsChoiceFilterView,
+    ChoiceFilterView: ChoiceFilterView
   };
 
 });

@@ -32,9 +32,8 @@ requirejs(
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',
-      'navigator/filters/select-filters',
+      'navigator/filters/choice-filters',
       'navigator/filters/ajax-select-filters',
-      'navigator/filters/resolution-filters',
       'navigator/filters/favorite-filters',
       'navigator/filters/range-filters',
       'navigator/filters/context-filters',
@@ -44,8 +43,8 @@ requirejs(
 
       'handlebars-extensions'
     ],
-    function (Backbone, Marionette, Handlebars, moment, Extra, FilterBar, BaseFilters, CheckboxFilterView, SelectFilters,
-              AjaxSelectFilters, ResolutionFilterView, FavoriteFilters, RangeFilters, ContextFilterView,
+    function (Backbone, Marionette, Handlebars, moment, Extra, FilterBar, BaseFilters, CheckboxFilterView,
+              ChoiceFilters, AjaxSelectFilters, FavoriteFilters, RangeFilters, ContextFilterView,
               ReadOnlyFilterView, ActionPlanFilterView, RuleFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
 
@@ -116,7 +115,7 @@ requirejs(
           new BaseFilters.Filter({
             name: window.SS.phrases.severity,
             property: 'severities',
-            type: SelectFilters.SelectFilterView,
+            type: ChoiceFilters.ChoiceFilterView,
             enabled: true,
             optional: false,
             choices: {
@@ -138,7 +137,7 @@ requirejs(
           new BaseFilters.Filter({
             name: window.SS.phrases.status,
             property: 'statuses',
-            type: SelectFilters.SelectFilterView,
+            type: ChoiceFilters.ChoiceFilterView,
             enabled: true,
             optional: false,
             choices: {
@@ -162,17 +161,20 @@ requirejs(
             property: 'assignees',
             type: AjaxSelectFilters.AssigneeFilterView,
             enabled: true,
-            optional: false
+            optional: false,
+            choices: {
+              '!assigned': window.SS.phrases.unassigned
+            }
           }),
 
           new BaseFilters.Filter({
             name: window.SS.phrases.resolution,
             property: 'resolutions',
-            type: ResolutionFilterView,
+            type: ChoiceFilters.ChoiceFilterView,
             enabled: true,
             optional: false,
             choices: {
-              'UNRESOLVED': window.SS.phrases.resolutions.UNRESOLVED,
+              '!resolved': window.SS.phrases.resolutions.UNRESOLVED,
               'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
               'FIXED': window.SS.phrases.resolutions.FIXED,
               'REMOVED': window.SS.phrases.resolutions.REMOVED
@@ -185,7 +187,10 @@ requirejs(
             type: ActionPlanFilterView,
             enabled: false,
             optional: true,
-            projectFilter: projectFilter
+            projectFilter: projectFilter,
+            choices: {
+              '!planned': window.SS.phrases.unplanned
+            }
           }),
 
           new BaseFilters.Filter({
