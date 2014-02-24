@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -35,6 +36,7 @@ import org.sonar.server.plugins.MimeTypes;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -121,13 +123,29 @@ public class WebServiceEngine implements ServerComponent, Startable {
   }
 
   private void sendError(BadRequestException e, ServletResponse response) {
-    JsonWriter json = initErrorStream(e.httpCode(), response);
+    Collection<String> messages = Lists.newArrayList();
+    for (Message message: e.errors()) {
+      messages.add(i18n.message(Locale.getDefault(), message.l10nKey(), message.text(), message.l10nParams()));
+    }
+    sendErrors(response, e.httpCode(), messages.toArray(new String[0]));
+  }
+
+  private void sendError(int status, String message, ServletResponse response) {
+    sendErrors(response, status, message);
+  }
+
+  private void sendErrors(ServletResponse response, int status, String... errors) {
+    ServletResponse.ServletStream stream = response.stream();
+    stream.reset();
+    stream.setStatus(status);
+    stream.setMediaType(MimeTypes.JSON);
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output()));
+
     try {
       json.beginObject();
       json.name("errors").beginArray();
-      for (Message message: e.errors()) {
-        String messageToSend = i18n.message(Locale.getDefault(), message.l10nKey(), message.text(), message.l10nParams());
-        json.beginObject().prop("msg", messageToSend).endObject();
+      for (String message: errors) {
+        json.beginObject().prop("msg", message).endObject();
       }
       json.endArray();
       json.endObject();
@@ -136,28 +154,5 @@ public class WebServiceEngine implements ServerComponent, Startable {
       // potential exception raised in the try block.
       json.close();
     }
-  }
-
-  private void sendError(int status, String message, ServletResponse response) {
-    JsonWriter json = initErrorStream(status, response);
-    try {
-      json.beginObject();
-      json.name("errors").beginArray();
-      json.beginObject().prop("msg", message).endObject();
-      json.endArray();
-      json.endObject();
-    } finally {
-      // TODO if close() fails, the runtime exception should not hide the
-      // potential exception raised in the try block.
-      json.close();
-    }
-  }
-
-  private JsonWriter initErrorStream(int status, ServletResponse response) {
-    ServletResponse.ServletStream stream = response.stream();
-    stream.reset();
-    stream.setStatus(status);
-    stream.setMediaType(MimeTypes.JSON);
-    return JsonWriter.of(new OutputStreamWriter(stream.output()));
   }
 }
