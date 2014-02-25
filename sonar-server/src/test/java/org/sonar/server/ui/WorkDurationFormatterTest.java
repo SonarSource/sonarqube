@@ -37,11 +37,11 @@ import static org.mockito.Mockito.when;
 
 public class WorkDurationFormatterTest {
 
-  private static final int HOURS_IN_DAY = 8;
+  static final int HOURS_IN_DAY = 8;
 
-  private static final long ONE_MINUTE = 60;
-  private static final long ONE_HOUR = 60 * ONE_MINUTE;
-  private static final long ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+  static final long ONE_MINUTE = 1L;
+  static final long ONE_HOUR = ONE_MINUTE * 60;
+  static final long ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
   DefaultI18n i18n = mock(DefaultI18n.class);
   WorkDurationFormatter formatter;

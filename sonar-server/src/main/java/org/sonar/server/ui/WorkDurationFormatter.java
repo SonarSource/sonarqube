@@ -58,7 +58,7 @@ public class WorkDurationFormatter implements ServerComponent {
       return "0";
     }
     Long absDuration = Math.abs(durationInSeconds);
-    WorkDuration workDuration =  workDurationFactory.createFromSeconds(absDuration);
+    WorkDuration workDuration =  workDurationFactory.createFromMinutes(absDuration);
     boolean shortLabel = Format.SHORT.equals(format);
     StringBuilder message = new StringBuilder();
     if (workDuration.days() > 0) {

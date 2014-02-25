@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.debt;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.dbutils.DbUtils;
@@ -45,12 +44,12 @@ import java.util.Map;
 /**
  * Used in the Active Record Migration 515
  */
-public class TechnicalDebtMeasureMigration implements DatabaseMigration {
+public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
 
-  private Logger logger = LoggerFactory.getLogger(TechnicalDebtMeasureMigration.class);
+  private Logger logger = LoggerFactory.getLogger(TechnicalDebtMeasuresMigration.class);
 
   private static final String ID = "id";
-  private static final String VALUE = "changeData";
+  private static final String VALUE = "value";
   private static final String VAR1 = "var1";
   private static final String VAR2 = "var2";
   private static final String VAR3 = "var3";
@@ -62,7 +61,6 @@ public class TechnicalDebtMeasureMigration implements DatabaseMigration {
   private static final String SQL_SELECT = "SELECT * FROM project_measures INNER JOIN metrics on metrics.id=project_measures.metric_id " +
     "WHERE (metrics.name='sqale_index' or metrics.name='new_technical_debt' " +
     // SQALE measures
-    "or metrics.name='development_cost' " +
     "or metrics.name='sqale_effort_to_grade_a' or metrics.name='sqale_effort_to_grade_b' or metrics.name='sqale_effort_to_grade_c' or metrics.name='sqale_effort_to_grade_d' " +
     "or metrics.name='blocker_remediation_cost' or metrics.name='critical_remediation_cost' or metrics.name='major_remediation_cost' or metrics.name='minor_remediation_cost' " +
     "or metrics.name='info_remediation_cost' " +
@@ -91,7 +89,7 @@ public class TechnicalDebtMeasureMigration implements DatabaseMigration {
   private final DebtConvertor debtConvertor;
   private final Database db;
 
-  public TechnicalDebtMeasureMigration(Database database, Settings settings) {
+  public TechnicalDebtMeasuresMigration(Database database, Settings settings) {
     this.db = database;
     this.debtConvertor = new DebtConvertor(settings);
   }
@@ -169,9 +167,8 @@ public class TechnicalDebtMeasureMigration implements DatabaseMigration {
     }
   }
 
-  @VisibleForTesting
   @CheckForNull
-  Long convertDebtForDays(@Nullable Double data) {
+  private Long convertDebtForDays(@Nullable Double data) {
     if (data == null) {
       return null;
     }

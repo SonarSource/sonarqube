@@ -24,7 +24,10 @@ import org.sonar.api.config.Settings;
 
 class DebtConvertor {
 
+  static final long ONE_HOUR = 60L;
+
   static final String HOURS_IN_DAY_PROPERTY = "sonar.technicalDebt.hoursInDay";
+
   private final Settings settings;
 
   DebtConvertor(Settings settings) {
@@ -34,31 +37,31 @@ class DebtConvertor {
   long createFromLong(long durationInLong) {
     int hoursInDay = hoursInDay();
 
-    long durationInSeconds = 0;
+    long durationInMinutes = 0L;
 
     long remainingTime = durationInLong;
     Long currentTime = remainingTime / 10000;
     if (currentTime > 0) {
-      durationInSeconds = currentTime.intValue() * hoursInDay * 3600;
+      durationInMinutes = currentTime.intValue() * hoursInDay * ONE_HOUR;
       remainingTime = remainingTime - (currentTime * 10000);
     }
 
     currentTime = remainingTime / 100;
     if (currentTime > 0) {
-      durationInSeconds += currentTime.intValue() * 3600;
+      durationInMinutes += currentTime.intValue() * ONE_HOUR;
       remainingTime = remainingTime - (currentTime * 100);
     }
 
     currentTime = remainingTime;
     if (currentTime > 0) {
-      durationInSeconds += currentTime.intValue() * 60;
+      durationInMinutes += currentTime.intValue();
     }
 
-    return durationInSeconds;
+    return durationInMinutes;
   }
 
   long createFromDays(double days) {
-    return ((Double) (days * hoursInDay() * 3600L)).longValue();
+    return ((Double) (days * hoursInDay() * ONE_HOUR)).longValue();
   }
 
   private int hoursInDay() {

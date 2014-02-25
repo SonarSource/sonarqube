@@ -61,7 +61,9 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class TechnicalDebtDecoratorTest {
 
-  final static Long ONE_DAY_DEBT = 1 * 8 * 60 * 60L;
+  static final int HOURS_IN_DAY = 8;
+
+  static final Long ONE_DAY_IN_MINUTES = 1L * HOURS_IN_DAY * 60;
 
   @Mock
   DecoratorContext context;
@@ -128,7 +130,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_no_parent() throws Exception {
-    Issue issue = createIssue("rule1", "repo1").setDebt(ONE_DAY_DEBT);
+    Issue issue = createIssue("rule1", "repo1").setDebt(ONE_DAY_IN_MINUTES);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     Requirement requirement = mock(Requirement.class);
@@ -137,8 +139,8 @@ public class TechnicalDebtDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, ONE_DAY_DEBT.doubleValue());
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, requirement, ONE_DAY_DEBT.doubleValue())));
+    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, ONE_DAY_IN_MINUTES.doubleValue());
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, null, requirement, ONE_DAY_IN_MINUTES.doubleValue())));
   }
 
   @Test
@@ -157,7 +159,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void add_technical_debt_from_one_issue_and_propagate_to_parents() throws Exception {
-    Issue issue = createIssue("rule1", "repo1").setDebt(ONE_DAY_DEBT);
+    Issue issue = createIssue("rule1", "repo1").setDebt(ONE_DAY_IN_MINUTES);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
     DefaultCharacteristic parentCharacteristic = new DefaultCharacteristic().setKey("parentCharacteristic");
@@ -170,16 +172,16 @@ public class TechnicalDebtDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, ONE_DAY_DEBT.doubleValue());
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, parentCharacteristic, ONE_DAY_DEBT.doubleValue())));
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, characteristic, ONE_DAY_DEBT.doubleValue())));
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, ONE_DAY_DEBT.doubleValue())));
+    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, ONE_DAY_IN_MINUTES.doubleValue());
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, parentCharacteristic, ONE_DAY_IN_MINUTES.doubleValue())));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, characteristic, ONE_DAY_IN_MINUTES.doubleValue())));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, ONE_DAY_IN_MINUTES.doubleValue())));
   }
 
   @Test
   public void add_technical_debt_from_issues() throws Exception {
-    Long technicalDebt1 = ONE_DAY_DEBT;
-    Long technicalDebt2 = 2 * ONE_DAY_DEBT;
+    Long technicalDebt1 = ONE_DAY_IN_MINUTES;
+    Long technicalDebt2 = 2 * ONE_DAY_IN_MINUTES;
 
     Issue issue1 = createIssue("rule1", "repo1").setDebt(technicalDebt1);
     Issue issue2 = createIssue("rule1", "repo1").setDebt(technicalDebt1);
@@ -200,15 +202,15 @@ public class TechnicalDebtDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 6d * ONE_DAY_DEBT);
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement1, 2d * ONE_DAY_DEBT)));
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement2, 4d * ONE_DAY_DEBT)));
+    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 6d * ONE_DAY_IN_MINUTES);
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement1, 2d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement2, 4d * ONE_DAY_IN_MINUTES)));
   }
 
   @Test
   public void add_technical_debt_from_children_measures() throws Exception {
-    Issue issue1 = createIssue("rule1", "repo1").setDebt(ONE_DAY_DEBT);
-    Issue issue2 = createIssue("rule1", "repo1").setDebt(ONE_DAY_DEBT);
+    Issue issue1 = createIssue("rule1", "repo1").setDebt(ONE_DAY_IN_MINUTES);
+    Issue issue2 = createIssue("rule1", "repo1").setDebt(ONE_DAY_IN_MINUTES);
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
 
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("rootCharacteristic");
@@ -219,13 +221,13 @@ public class TechnicalDebtDecoratorTest {
     when(defaultTechnicalDebtModel.requirementsByRule(ruleKey1)).thenReturn(requirement);
     doReturn(newArrayList(requirement)).when(defaultTechnicalDebtModel).requirements();
 
-    Measure measure = new Measure().setRequirement(requirement).setValue(5d * ONE_DAY_DEBT);
+    Measure measure = new Measure().setRequirement(requirement).setValue(5d * ONE_DAY_IN_MINUTES);
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(newArrayList(measure));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 7d * ONE_DAY_DEBT);
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, 7d * ONE_DAY_DEBT)));
+    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 7d * ONE_DAY_IN_MINUTES);
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, requirement, 7d * ONE_DAY_IN_MINUTES)));
   }
 
   @Test

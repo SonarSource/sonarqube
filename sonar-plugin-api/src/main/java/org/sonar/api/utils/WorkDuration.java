@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 
 /**
@@ -43,13 +42,13 @@ public class WorkDuration implements Serializable {
 
   private int hoursInDay;
 
-  private long durationInSeconds;
+  private long durationInMinutes;
   private int days;
   private int hours;
   private int minutes;
 
-  private WorkDuration(long durationInSeconds, int days, int hours, int minutes, int hoursInDay) {
-    this.durationInSeconds = durationInSeconds;
+  private WorkDuration(long durationInMinutes, int days, int hours, int minutes, int hoursInDay) {
+    this.durationInMinutes = durationInMinutes;
     this.days = days;
     this.hours = hours;
     this.minutes = minutes;
@@ -57,9 +56,9 @@ public class WorkDuration implements Serializable {
   }
 
   public static WorkDuration create(int days, int hours, int minutes, int hoursInDay) {
-    long durationInSeconds = 3600L * days * hoursInDay;
-    durationInSeconds += 3600L * hours;
-    durationInSeconds += 60L * minutes;
+    long durationInSeconds = 60L * days * hoursInDay;
+    durationInSeconds += 60L * hours;
+    durationInSeconds += minutes;
     return new WorkDuration(durationInSeconds, days, hours, minutes, hoursInDay);
   }
 
@@ -99,13 +98,12 @@ public class WorkDuration implements Serializable {
     return WorkDuration.create(days, hours, minutes, hoursInDay);
   }
 
-  static WorkDuration createFromSeconds(long seconds, int hoursInDay) {
-    int days = (int) (seconds / hoursInDay / 60f / 60f);
-    long currentDurationInSeconds = seconds - (3600L * days * hoursInDay);
-    int hours = (int) (currentDurationInSeconds / 60f / 60f);
-    currentDurationInSeconds = currentDurationInSeconds - (3600L * hours);
-    int minutes = (int) (currentDurationInSeconds / 60f);
-    return new WorkDuration(seconds, days, hours, minutes, hoursInDay);
+  static WorkDuration createFromMinutes(long duration, int hoursInDay) {
+    int days = ((Double) (duration / hoursInDay / 60d)).intValue();
+    Long currentDurationInMinutes = duration - (60L * days * hoursInDay);
+    int hours = ((Double) (currentDurationInMinutes / 60d)).intValue();
+    currentDurationInMinutes = currentDurationInMinutes - (60L * hours);
+    return new WorkDuration(duration, days, hours, currentDurationInMinutes.intValue(), hoursInDay);
   }
 
   /**
@@ -113,7 +111,7 @@ public class WorkDuration implements Serializable {
    * For instance, 3 days and 4 hours will return 3.5 days (if hoursIndDay is 8).
    */
   public double toWorkingDays() {
-    return durationInSeconds / 60d / 60d / hoursInDay;
+    return durationInMinutes / 60d / hoursInDay;
   }
 
   /**
@@ -131,13 +129,13 @@ public class WorkDuration implements Serializable {
     return workingDays * DAY_POSITION_IN_LONG + workingHours * HOUR_POSITION_IN_LONG + minutes * MINUTE_POSITION_IN_LONG;
   }
 
-  public long toSeconds() {
-    return durationInSeconds;
+  public long toMinutes() {
+    return durationInMinutes;
   }
 
   public WorkDuration add(@Nullable WorkDuration with) {
     if (with != null) {
-      return WorkDuration.createFromSeconds(this.toSeconds() + with.toSeconds(), this.hoursInDay);
+      return WorkDuration.createFromMinutes(this.toMinutes() + with.toMinutes(), this.hoursInDay);
     } else {
       return this;
     }
@@ -145,14 +143,14 @@ public class WorkDuration implements Serializable {
 
   public WorkDuration subtract(@Nullable WorkDuration with) {
     if (with != null) {
-      return WorkDuration.createFromSeconds(this.toSeconds() - with.toSeconds(), this.hoursInDay);
+      return WorkDuration.createFromMinutes(this.toMinutes() - with.toMinutes(), this.hoursInDay);
     } else {
       return this;
     }
   }
 
   public WorkDuration multiply(int factor) {
-    return WorkDuration.createFromSeconds(this.toSeconds() * factor, this.hoursInDay);
+    return WorkDuration.createFromMinutes(this.toMinutes() * factor, this.hoursInDay);
   }
 
   public int days() {
@@ -182,7 +180,7 @@ public class WorkDuration implements Serializable {
     }
 
     WorkDuration that = (WorkDuration) o;
-    if (durationInSeconds != that.durationInSeconds) {
+    if (durationInMinutes != that.durationInMinutes) {
       return false;
     }
 
@@ -191,7 +189,7 @@ public class WorkDuration implements Serializable {
 
   @Override
   public int hashCode() {
-    return (int) (durationInSeconds ^ (durationInSeconds >>> 32));
+    return (int) (durationInMinutes ^ (durationInMinutes >>> 32));
   }
 
   @Override

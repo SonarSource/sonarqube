@@ -60,7 +60,7 @@ public class DebtServiceTest {
 
   @Test
   public void to_work_duration() {
-    assertThat(service.toWorkDuration(HOURS_IN_DAY * 60 * 60L)).isEqualTo(WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
+    assertThat(service.toWorkDuration(60L * HOURS_IN_DAY)).isEqualTo(WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY));
   }
 
   @Test

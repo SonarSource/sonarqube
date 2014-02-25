@@ -31,19 +31,22 @@ public class WorkDurationFactoryTest {
 
   WorkDurationFactory factory;
 
+  static final int HOURS_IN_DAY = 8;
+  static final Long ONE_HOUR_IN_MINUTES = 1L * 60;
+
   @Before
   public void setUp() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
+    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
     factory = new WorkDurationFactory(settings);
   }
 
   @Test
   public void create_from_working_value() throws Exception {
     // 1 working day -> 8 hours
-    assertThat(factory.createFromWorkingValue(1, WorkDuration.UNIT.DAYS).toSeconds()).isEqualTo(8 * 60 * 60);
+    assertThat(factory.createFromWorkingValue(1, WorkDuration.UNIT.DAYS).toMinutes()).isEqualTo(8L * ONE_HOUR_IN_MINUTES);
     // 8 hours
-    assertThat(factory.createFromWorkingValue(8, WorkDuration.UNIT.HOURS).toSeconds()).isEqualTo(8 * 60 * 60);
+    assertThat(factory.createFromWorkingValue(8, WorkDuration.UNIT.HOURS).toMinutes()).isEqualTo(8L * ONE_HOUR_IN_MINUTES);
   }
 
   @Test
@@ -56,7 +59,7 @@ public class WorkDurationFactoryTest {
 
   @Test
   public void create_from_seconds() throws Exception {
-    WorkDuration workDuration = factory.createFromSeconds(8 * 60 * 60L);
+    WorkDuration workDuration = factory.createFromMinutes(8L * ONE_HOUR_IN_MINUTES);
     assertThat(workDuration.days()).isEqualTo(1);
     assertThat(workDuration.hours()).isEqualTo(0);
     assertThat(workDuration.minutes()).isEqualTo(0);

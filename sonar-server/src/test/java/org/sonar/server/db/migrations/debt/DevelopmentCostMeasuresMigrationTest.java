@@ -29,48 +29,30 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtMeasureMigrationTest {
+public class DevelopmentCostMeasuresMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(TechnicalDebtMeasureMigrationTest.class, "schema.sql");
+  public static TestDatabase db = new TestDatabase().schema(DevelopmentCostMeasuresMigrationTest.class, "schema.sql");
 
   Settings settings;
 
-  TechnicalDebtMeasureMigration migration;
+  DevelopmentCostMeasuresMigration migration;
 
   @Before
   public void setUp() throws Exception {
     settings = new Settings();
     settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
-    migration = new TechnicalDebtMeasureMigration(db.database(), settings);
+    migration = new DevelopmentCostMeasuresMigration(db.database(), settings);
   }
 
   @Test
-  public void migrate_technical_debt_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_technical_debt_measures.xml");
+  public void migrate_dev_cost_measures() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_dev_cost_measures.xml");
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_technical_debt_measures_result.xml", "project_measures");
-  }
-
-  @Test
-  public void migrate_added_technical_debt_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_new_technical_debt_measures.xml");
-
-    migration.execute();
-
-    db.assertDbUnit(getClass(), "migrate_new_technical_debt_measures_result.xml", "project_measures");
-  }
-
-  @Test
-  public void migrate_sqale_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_sqale_measures.xml");
-
-    migration.execute();
-
-    db.assertDbUnit(getClass(), "migrate_sqale_measures_result.xml", "project_measures");
+    db.assertDbUnit(getClass(), "migrate_dev_cost_measures_result.xml", "project_measures");
   }
 
 }

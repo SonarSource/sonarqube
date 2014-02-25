@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.db.migrations.debt.IssueChangelogMigration;
 import org.sonar.server.db.migrations.debt.IssueMigration;
-import org.sonar.server.db.migrations.debt.TechnicalDebtMeasureMigration;
+import org.sonar.server.db.migrations.debt.TechnicalDebtMeasuresMigration;
 import org.sonar.server.db.migrations.violation.ViolationMigration;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public interface DatabaseMigrations {
     ViolationMigration.class,
     IssueMigration.class,
     IssueChangelogMigration.class,
-    TechnicalDebtMeasureMigration.class
+    TechnicalDebtMeasuresMigration.class
   );
 
 }

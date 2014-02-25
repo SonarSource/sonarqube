@@ -66,7 +66,7 @@ public class RuleDebtCalculatorTest {
       .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15 * 60);
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15L);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class RuleDebtCalculatorTest {
       .setOffsetUnit(WorkDuration.UNIT.MINUTES);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(((10 * 2) + 5) * 60);
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(((10 * 2) + 5));
   }
 
   @Test
@@ -96,7 +96,7 @@ public class RuleDebtCalculatorTest {
       .setFactorUnit(WorkDuration.UNIT.HOURS);
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo((10 * 2) * 60 * 60);
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo((10 * 2) * 60);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class RuleDebtCalculatorTest {
 
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
-    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(5 * HOURS_IN_DAY * 60 * 60);
+    assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(5 * HOURS_IN_DAY * 60);
   }
 
   @Test
@@ -135,7 +135,7 @@ public class RuleDebtCalculatorTest {
     when(model.requirementsByRule(ruleKey)).thenReturn(requirement);
 
     try {
-      assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15 * 60);
+      assertThat(calculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).isEqualTo(15);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)

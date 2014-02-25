@@ -29,9 +29,15 @@ import static org.fest.assertions.Fail.fail;
 
 public class DebtConvertorTest {
 
-  DebtConvertor convertor;
+  static final int HOURS_IN_DAY = 8;
+
+  static final Long ONE_MINUTE = 1L;
+  static final Long ONE_HOUR_IN_MINUTES = ONE_MINUTE * 60;
+  static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
   Settings settings = new Settings();
+
+  DebtConvertor convertor;
 
   @Before
   public void setUp() throws Exception {
@@ -39,22 +45,22 @@ public class DebtConvertorTest {
   }
 
   @Test
-  public void convert_fromn_long() throws Exception {
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+  public void convert_from_long() throws Exception {
+    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
 
-    assertThat(convertor.createFromLong(1)).isEqualTo(60);
-    assertThat(convertor.createFromLong(100)).isEqualTo(3600);
-    assertThat(convertor.createFromLong(10000)).isEqualTo(28800);
-    assertThat(convertor.createFromLong(10101)).isEqualTo(32460);
+    assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
+    assertThat(convertor.createFromLong(100)).isEqualTo(ONE_HOUR_IN_MINUTES);
+    assertThat(convertor.createFromLong(10000)).isEqualTo(ONE_DAY_IN_MINUTES);
+    assertThat(convertor.createFromLong(10101)).isEqualTo(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
   }
 
   @Test
-  public void convert_fromn_long_use_default_value_for_hours_in_day_when_no_property() throws Exception {
-    assertThat(convertor.createFromLong(1)).isEqualTo(60);
+  public void convert_from_long_use_default_value_for_hours_in_day_when_no_property() throws Exception {
+    assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
   }
 
   @Test
-  public void fail_convert_fromn_long_on_bad_hours_in_day_property() throws Exception {
+  public void fail_convert_from_long_on_bad_hours_in_day_property() throws Exception {
     try {
       settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
       convertor.createFromLong(1);
@@ -66,13 +72,13 @@ public class DebtConvertorTest {
 
   @Test
   public void convert_from_days() throws Exception {
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
 
-    assertThat(convertor.createFromDays(1.0)).isEqualTo(28800);
-    assertThat(convertor.createFromDays(0.1)).isEqualTo(2880);
+    assertThat(convertor.createFromDays(1.0)).isEqualTo(ONE_DAY_IN_MINUTES);
+    assertThat(convertor.createFromDays(0.1)).isEqualTo(48L);
 
-    // Should be 1.88 but as it's a long it's truncated after comma
-    assertThat(convertor.createFromDays(0.0001)).isEqualTo(2);
+    // Should be 4.8 but as it's a long it's truncated after comma
+    assertThat(convertor.createFromDays(0.01)).isEqualTo(4L);
   }
 
 }

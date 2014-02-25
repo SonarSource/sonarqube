@@ -22,9 +22,9 @@
 # Sonar 4.3
 # SONAR-4996
 #
-class UpdateMeasuresDebtToSeconds < ActiveRecord::Migration
+class UpdateIssueDebtToMinutes < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.debt.TechnicalDebtMeasureMigration')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.debt.IssueMigration')
   end
 end

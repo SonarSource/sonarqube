@@ -67,23 +67,23 @@ public class RuleDebtCalculator implements BatchExtension {
     int factorValue = requirement.factorValue();
     if (factorValue > 0) {
       int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
-      result = convertValueAndUnitToSeconds(factorValue, requirement.factorUnit()) * effortToFixValue;
+      result = convertValueAndUnitToMinutes(factorValue, requirement.factorUnit()) * effortToFixValue;
     }
 
     int offsetValue = requirement.offsetValue();
     if (offsetValue > 0) {
-      result += convertValueAndUnitToSeconds(offsetValue, requirement.offsetUnit());
+      result += convertValueAndUnitToMinutes(offsetValue, requirement.offsetUnit());
     }
     return result;
   }
 
-  private int convertValueAndUnitToSeconds(int value, WorkDuration.UNIT unit){
+  private long convertValueAndUnitToMinutes(int value, WorkDuration.UNIT unit){
     if (WorkDuration.UNIT.DAYS.equals(unit)) {
-      return value * hoursInDay * 60 * 60;
+      return 60L * value * hoursInDay;
     } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
-      return value * 60 * 60;
+      return 60L * value;
     } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
-      return value * 60;
+      return value;
     }
     throw new IllegalStateException("Invalid unit : " + unit);
   }
