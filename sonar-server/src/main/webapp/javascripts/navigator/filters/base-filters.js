@@ -1,8 +1,4 @@
-/* global _:false, $j:false, Backbone:false */
-
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
+define(['backbone', 'backbone.marionette'], function (Backbone, Marionette) {
 
   var Filter = Backbone.Model.extend({
 
@@ -21,7 +17,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var DetailsFilterView = Backbone.Marionette.ItemView.extend({
+  var DetailsFilterView = Marionette.ItemView.extend({
     template: '#detailsFilterTemplate',
     className: 'navigator-filter-details',
 
@@ -39,7 +35,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var BaseFilterView = Backbone.Marionette.ItemView.extend({
+  var BaseFilterView = Marionette.ItemView.extend({
     template: '#baseFilterTemplate',
     className: 'navigator-filter',
 
@@ -62,9 +58,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     initialize: function(options) {
-      Backbone.Marionette.ItemView.prototype.initialize.apply(this, arguments);
+      Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
-      var detailsView = options.detailsView || DetailsFilterView;
+      var detailsView = (options && options.detailsView) || DetailsFilterView;
       this.detailsView = new detailsView({
         model: this.model,
         filterView: this
@@ -96,7 +92,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
     renderBase: function() {
-      Backbone.Marionette.ItemView.prototype.render.apply(this, arguments);
+      Marionette.ItemView.prototype.render.apply(this, arguments);
       this.renderInput();
     },
 
@@ -213,111 +209,15 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var FilterBarView = Backbone.Marionette.CompositeView.extend({
-    template: '#filterBarTemplate',
-    itemViewContainer: '.navigator-filters-list',
-
-
-    collectionEvents: {
-      'change:enabled': 'changeEnabled'
-    },
-
-
-    getItemView: function(item) {
-      return item.get('type') || BaseFilterView;
-    },
-
-
-    itemViewOptions: function() {
-      return {
-        filterBarView: this,
-        app: this.options.app
-      };
-    },
-
-
-    initialize: function() {
-      Backbone.Marionette.CompositeView.prototype.initialize.apply(this, arguments);
-
-      var that = this;
-      $j('body').on('click', function() {
-        that.hideDetails();
-      });
-
-      var disabledFilters = this.collection.where({ enabled: false });
-      this.moreCriteriaFilter = new window.SS.Filter({
-        type: window.SS.MoreCriteriaFilterView,
-        enabled: true,
-        optional: false,
-        filters: disabledFilters
-      });
-      this.collection.add(this.moreCriteriaFilter);
-    },
-
-
-    onAfterItemAdded: function(itemView) {
-      if (itemView.model.get('type') === window.SS.FavoriteFilterView ||
-          itemView.model.get('type') === window.SS.IssuesFavoriteFilterView) {
-        this.$el.addClass('navigator-filter-list-favorite');
-      }
-    },
-
-
-    restoreFromQuery: function(q) {
-      this.collection.each(function(item) {
-        item.set('enabled', !item.get('optional'));
-        item.view.clear();
-        item.view.restoreFromQuery(q);
-      });
-    },
-
-
-    hideDetails: function() {
-      if (_.isObject(this.showedView)) {
-        this.showedView.hideDetails();
-      }
-    },
-
-
-    enableFilter: function(id) {
-      var filter = this.collection.get(id),
-          filterView = filter.view;
-
-      filterView.$el.detach().insertBefore(this.$('.navigator-filter-more-criteria'));
-      filter.set('enabled', true);
-      filterView.showDetails();
-    },
-
-
-    changeEnabled: function() {
-      var disabledFilters = this.collection
-          .where({ enabled: false })
-          .reject(function(filter) {
-            return filter.get('type') === window.SS.MoreCriteriaFilterView;
-          });
-
-      if (disabledFilters.length === 0) {
-        this.moreCriteriaFilter.set({ enabled: false }, { silent: true });
-      } else {
-        this.moreCriteriaFilter.set({ enabled: true }, { silent: true });
-      }
-      this.moreCriteriaFilter.set('filters', disabledFilters);
-    }
-
-  });
-
-
-
   /*
    * Export public classes
    */
 
-  _.extend(window.SS, {
+  return {
     Filter: Filter,
     Filters: Filters,
     BaseFilterView: BaseFilterView,
-    DetailsFilterView: DetailsFilterView,
-    FilterBarView: FilterBarView
-  });
+    DetailsFilterView: DetailsFilterView
+  };
 
-})();
+});

@@ -36,12 +36,33 @@
   <ul class="navigator-filter-select-list choices"></ul>
 </script>
 
+<script id="choiceFilterTemplate" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list choices"></ul>
+  <ul class="navigator-filter-select-list opposite"></ul>
+</script>
+
+<script id="choiceFilterItemTemplate" type="text/x-handlebars-template">
+  <li>
+    <label title="{{text}}"> {{! TODO: escape }}
+      <input type="checkbox" value="{{id}}" {{#if checked}}checked{{/if}}>
+      {{#if icon}}<i class="icon-{{icon}}"></i>{{/if}}
+      <span>
+        {{text}}
+        {{#if category}}
+          <br>
+          <span class="subtitle">{{category}}</span>
+        {{/if}}
+      </span>
+    </label>
+  </li>
+</script>
+
 <script id="ajaxSelectFilterTemplate" type="text/template">
   <div class="navigator-filter-search">
     <input type="text">
   </div>
-  <ul class="navigator-filter-select-list selection"></ul>
   <ul class="navigator-filter-select-list choices"></ul>
+  <ul class="navigator-filter-select-list opposite"></ul>
 </script>
 
 <script id="rangeFilterTemplate" type="text/template">
@@ -126,7 +147,8 @@
     {[ _.each(filters, function(filter, i) { ]}
     {[ if (!(i > 0 && filters[i - 1].get('name') === filter.get('name'))) { ]}
     <li>
-      <label data-id="{{ filter.cid }}">{[ print(filter.get('name')); ]}</label>
+      <label data-id="{{ filter.cid }}" {[ if (filter.get('inactive')) { ]}class="inactive"{[ } ]}
+          {[ if (filter.get('title')) { ]}title="{{ filter.get('title') }}"{[ } ]}>{[ print(filter.get('name')); ]}</label>
     </li>
     {[ } ]}
     {[ }); ]}

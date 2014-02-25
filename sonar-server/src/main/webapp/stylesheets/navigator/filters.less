@@ -67,7 +67,9 @@
   padding-right: 0;
 }
 
-.navigator-filter-inline {
+.navigator-filter-inline,
+.navigator-filter-read-only,
+.navigator-filter-inactive {
   cursor: default;
 
   &:hover,
@@ -75,10 +77,14 @@
     border-color: transparent;
     background: transparent;
   }
+}
 
-  .navigator-filter-label:after {
+.navigator-filter-inline .navigator-filter-label:after {
     content: "";
-  }
+}
+
+.navigator-filter-inactive {
+  opacity: 0.5;
 }
 
 .navigator-filter-label {
@@ -188,6 +194,23 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    &.special {
+      font-style: italic;
+
+      & > span {
+        text-decoration: underline;
+      }
+    }
+
+    &.inactive {
+      cursor: default;
+      opacity: 0.5;
+
+      &:hover {
+        background-color: transparent;
+      }
     }
   }
 

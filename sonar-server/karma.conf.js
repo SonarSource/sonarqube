@@ -18,22 +18,29 @@ module.exports = function(config) {
 
 
     // frameworks to use
-    frameworks: ['qunit'],
+    frameworks: ['jasmine'],
 
 
     // list of files / patterns to load in the browser
     files: [
         // dependencies
         'third-party/jquery.min.js',
-        'third-party/underscore-min.js',
-        'third-party/backbone-min.js',
-        'third-party/backbone.marionette.min.js',
+        'third-party/underscore.js',
+        'third-party/require.js',
+
+        // libs
+        { pattern: 'third-party/**/*.js', included: false },
+
+        // templates
+        { pattern: '../WEB-INF/app/views/**/*.hbs.erb', included: false },
 
         // app
-        'navigator/filters/base-filters.js',
+        { pattern: 'navigator/**/*.js', included: false },
 
         // tests
-        'tests/measures.js'
+        { pattern: 'tests/**/*Spec.js', included: false },
+
+        'tests/main.js'
     ],
 
 
@@ -49,7 +56,7 @@ module.exports = function(config) {
 
 
     plugins: [
-      'karma-qunit',
+      'karma-jasmine',
       'karma-phantomjs-launcher',
       'karma-coverage',
       'karma-junit-reporter'
@@ -108,6 +115,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: true
+    singleRun: false
   });
 };

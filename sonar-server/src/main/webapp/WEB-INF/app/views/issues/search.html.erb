@@ -1,3 +1,7 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/javascripts/issues.js" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+<% end %>
+
 <div class="navigator">
   <div class="navigator-header"></div>
   <div class="navigator-notes">
@@ -29,6 +33,8 @@
 <%= render :partial => '/issues/templates/issue_detail_plan_form.hbs' -%>
 
 <script>
+  window.SS = {};
+
   _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g,
     evaluate: /\{\[(.+?)\]\}/g,
@@ -43,6 +49,8 @@
     favorites: <%= render :partial => 'issues/filter_favourites' -%>,
 
     phrases: {
+      'actionPlan':    '<%= escape_javascript message('issue_filter.criteria.actionPlan') -%>',
+      'actionPlanNotAvailable': '<%= escape_javascript message('issue_filter.criteria.actionPlanNotAvailable') -%>',
       'any':           '<%= escape_javascript message('any') -%>',
       'anytime':       '<%= escape_javascript message('anytime') -%>',
       'all':           '<%= escape_javascript message('all') -%>',
@@ -89,15 +97,19 @@
       assignee:        '<%= escape_javascript message('issue_filter.criteria.assignee') -%>',
       resolution:      '<%= escape_javascript message('issue_filter.criteria.resolution') -%>',
       resolutions: {
+        'UNRESOLVED':  '<%= escape_javascript message('unresolved') -%>',
         'FALSE-POSITIVE': '<%= escape_javascript message('issue.resolution.FALSE-POSITIVE') -%>',
         'FIXED':       '<%= escape_javascript message('issue.resolution.FIXED') -%>',
         'REMOVED':     '<%= escape_javascript message('issue.resolution.REMOVED') -%>'
       },
       reporter:        '<%= escape_javascript message('issue_filter.criteria.reporter') -%>',
+      rule:            '<%= escape_javascript message('issue_filter.criteria.rule') -%>',
       created:         '<%= escape_javascript message('issue_filter.criteria.created') -%>',
+      createdAt:       '<%= escape_javascript message('issue_filter.criteria.created_at') -%>',
 
       moreCriteria:    '<%= escape_javascript message('issue_filter.more_criteria') -%>',
       unassigned:      '<%= escape_javascript message('unassigned') -%>',
+      unplanned:       '<%= escape_javascript message('issue.unplanned') -%>',
       assignedToMe:    '<%= escape_javascript message('assigned_to_me') -%>',
       filtersList:     '<%= escape_javascript message('issue_filter.filter_list') -%>',
       commentConfirmDelete:  '<%= escape_javascript message('issue.comment.delete_confirm_message') -%>',
@@ -109,9 +121,5 @@
         tooShort: '<%= escape_javascript message('select2.tooShort', :params => [2]) -%>'
       }
     }
-  });
-
-  jQuery(function() {
-    window.SS.IssuesNavigatorApp.start();
   });
 </script>

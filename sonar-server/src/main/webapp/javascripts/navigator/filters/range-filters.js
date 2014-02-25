@@ -1,10 +1,6 @@
-/* global _:false, $j:false */
+define(['navigator/filters/base-filters'], function (BaseFilters) {
 
-window.SS = typeof window.SS === 'object' ? window.SS : {};
-
-(function() {
-
-  var DetailsRangeFilterView = window.SS.DetailsFilterView.extend({
+  var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
     template: '#rangeFilterTemplate',
 
 
@@ -50,10 +46,10 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
 
 
-  var RangeFilterView = window.SS.BaseFilterView.extend({
+  var RangeFilterView = BaseFilters.BaseFilterView.extend({
 
     initialize: function() {
-      window.SS.BaseFilterView.prototype.initialize.call(this, {
+      BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsRangeFilterView
       });
     },
@@ -170,7 +166,7 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
 
     render: function() {
       RangeFilterView.prototype.render.apply(this, arguments);
-      this.detailsView.$('input').prop('placeholder', '1970-01-01');
+      this.detailsView.$('input').prop('placeholder', '1970-01-31');
     },
 
 
@@ -191,9 +187,9 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
    * Export public classes
    */
 
-  _.extend(window.SS, {
+  return {
     RangeFilterView: RangeFilterView,
     DateRangeFilterView: DateRangeFilterView
-  });
+  };
 
-})();
+});
