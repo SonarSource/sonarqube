@@ -1255,14 +1255,6 @@
   </developers>
 
   <profiles>
-
-    <profile>
-      <id>dev</id>
-      <properties>
-        <skipSanityChecks>true</skipSanityChecks>
-      </properties>
-    </profile>
-
     <profile>
       <id>release</id>
       <build>
