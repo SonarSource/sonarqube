@@ -352,6 +352,7 @@ class Api::IssuesController < Api::ApiController
       :pageIndex => paging.pageIndex,
       :pageSize => paging.pageSize,
       :total => paging.total,
+      :fTotal => ActionController::Base.helpers.number_with_precision(paging.total, :precision => 0),
       :pages => paging.pages
     }
   end
