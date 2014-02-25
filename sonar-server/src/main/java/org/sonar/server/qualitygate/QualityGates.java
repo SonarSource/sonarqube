@@ -173,12 +173,14 @@ public class QualityGates {
   }
 
   public void associateProject(Long qGateId, Long projectId) {
+    checkPermission(UserSession.get());
     getNonNullQgate(qGateId);
     checkNonNullProject(projectId);
     propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
   }
 
   public void dissociateProject(Long qGateId, Long projectId) {
+    checkPermission(UserSession.get());
     getNonNullQgate(qGateId);
     checkNonNullProject(projectId);
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
