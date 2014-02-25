@@ -207,13 +207,56 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
     },
 
 
+    restoreFromQuery: function(q) {
+      var param = _.findWhere(q, { key: this.model.get('property') });
+
+      if (this.model.get('choices')) {
+        _.each(this.model.get('choices'), function(v, k) {
+          if (k[0] === '!') {
+            var x = _.findWhere(q, { key: k.substr(1) });
+            if (x) {
+              if (!param) {
+                param = { value: k };
+              } else {
+                param.value += ',' + k;
+              }
+            }
+          }
+        });
+      }
+
+      if (param && param.value) {
+        this.model.set('enabled', true);
+        this.restore(param.value, param);
+      } else {
+        this.clear();
+      }
+    },
+
+
     restore: function(value, param) {
+      var that = this;
       if (_.isString(value)) {
         value = value.split(',');
       }
 
       if (this.choices && value.length > 0) {
         this.model.set({ value: value, enabled: true });
+
+        var opposite = _.filter(value, function(item) {
+          return item[0] === '!';
+        });
+        opposite.forEach(function(item) {
+          that.choices.add(new Backbone.Model({
+            id: item,
+            text: that.model.get('choices')[item],
+            checked: true
+          }));
+        });
+
+        value = _.reject(value, function(item) {
+          return item[0] === '!';
+        });
         if (_.isArray(param.text) && param.text.length === value.length) {
           this.restoreFromText(value, param.text);
         } else {
