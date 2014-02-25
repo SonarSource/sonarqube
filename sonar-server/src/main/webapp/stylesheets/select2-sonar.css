@@ -142,7 +142,7 @@
 .select2-container-multi .select2-choices .select2-search-field input.select2-active {
   background-image: url('../images/spinner.gif');
 }
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-resolution: 144dpi) {
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .select2-search-choice-close,
   .select2-container .select2-choice abbr,
   .select2-container .select2-choice div b {

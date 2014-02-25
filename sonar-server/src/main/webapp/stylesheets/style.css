@@ -648,6 +648,10 @@ th.operations, td.operations {
   white-space: nowrap;
 }
 
+.sources2 tr:first-child td.revision {
+  border-top: none;
+}
+
 .sources2 tr.row td.plus {
   background-color: #EFEFEF;
   padding: 0;
@@ -666,7 +670,6 @@ th.operations, td.operations {
 }
 
 .sources2 td.gray {
-  border-left: 1px solid #DDD;
   background-color: #EFEFEF;
   padding: 2px 0.5em 0;
 }
@@ -864,7 +867,9 @@ th.operations, td.operations {
   padding: 5px 10px;
 }
 
-.code-issue-form input[type=submit] {
+.code-issue-form input[type=submit],
+.code-issue-form input[type=button],
+.code-issue-form button {
   vertical-align: middle;
 }
 

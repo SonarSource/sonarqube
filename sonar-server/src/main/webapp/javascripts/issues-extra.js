@@ -289,7 +289,8 @@ define(
 
         events: {
           'click .navigator-actions-order': 'toggleOrderChoices',
-          'click .navigator-actions-order-choices': 'sort'
+          'click .navigator-actions-order-choices': 'sort',
+          'click .navigator-actions-bulk': 'bulkChange'
         },
 
 
@@ -304,8 +305,6 @@ define(
             this.render();
             return;
           }
-
-          this.$('.open-modal').modal();
         },
 
 
@@ -337,6 +336,12 @@ define(
             };
             this.options.app.fetchFirstPage();
           }
+        },
+
+
+        bulkChange: function(e) {
+          e.preventDefault();
+          openModalWindow(jQuery(e.currentTarget).prop('href'), {});
         },
 
 
