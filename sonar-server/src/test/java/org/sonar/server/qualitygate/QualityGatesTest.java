@@ -32,6 +32,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ComponentQuery;
+import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -52,6 +55,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -72,6 +76,9 @@ public class QualityGatesTest {
   @Mock
   private PropertiesDao propertiesDao;
 
+  @Mock
+  private ComponentDao componentDao;
+
   private QualityGates qGates;
 
   UserSession authorizedUserSession = MockUserSession.create().setLogin("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -80,7 +87,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao);
+    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao);
     UserSessionTestUtils.setUserSession(authorizedUserSession);
   }
 
@@ -185,7 +192,7 @@ public class QualityGatesTest {
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(propertyCaptor.capture());
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
-    assertThat(propertyCaptor.getValue().getValue()).isEqualTo(defaultName);
+    assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
   }
 
   @Test
@@ -209,7 +216,7 @@ public class QualityGatesTest {
     long idToDelete = 42L;
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName("To Delete");
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("Other Qgate"));
+    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
     verify(dao).delete(toDelete);
@@ -221,16 +228,17 @@ public class QualityGatesTest {
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(name));
+    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(Long.toString(idToDelete)));
     qGates.delete(idToDelete);
   }
 
   @Test
   public void should_return_default_qgate_if_set() throws Exception {
     String defaultName = "Sonar way";
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(defaultName));
-    QualityGateDto defaultQgate = new QualityGateDto().setId(42L).setName(defaultName);
-    when(dao.selectByName(defaultName)).thenReturn(defaultQgate);
+    long defaultId = 42L;
+    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(Long.toString(defaultId)));
+    QualityGateDto defaultQgate = new QualityGateDto().setId(defaultId).setName(defaultName);
+    when(dao.selectById(defaultId)).thenReturn(defaultQgate);
     assertThat(qGates.getDefault()).isEqualTo(defaultQgate);
   }
 
@@ -437,4 +445,42 @@ public class QualityGatesTest {
   public void should_fail_delete_condition() throws Exception {
     qGates.deleteCondition(42L);
   }
+
+  @Test
+  public void should_associate_project() {
+    Long qGateId = 42L;
+    Long projectId = 24L;
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(componentDao.selectComponent(any(ComponentQuery.class))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
+    qGates.associateProject(qGateId , projectId);
+    verify(dao).selectById(qGateId);
+    verify(componentDao).selectComponent(any(ComponentQuery.class));
+    ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
+    verify(propertiesDao).setProperty(propertyCaptor.capture());
+    PropertyDto property = propertyCaptor.getValue();
+    assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
+    assertThat(property.getResourceId()).isEqualTo(projectId);
+    assertThat(property.getValue()).isEqualTo("42");
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_fail_associate_project_on_unexisting_project() {
+    Long qGateId = 42L;
+    Long projectId = 24L;
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    qGates.associateProject(qGateId , projectId);
+  }
+
+  @Test
+  public void should_dissociate_project() {
+    Long qGateId = 42L;
+    Long projectId = 24L;
+    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(componentDao.selectComponent(any(ComponentQuery.class))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
+    qGates.dissociateProject(qGateId , projectId);
+    verify(dao).selectById(qGateId);
+    verify(componentDao).selectComponent(any(ComponentQuery.class));
+    verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
+  }
+
 }

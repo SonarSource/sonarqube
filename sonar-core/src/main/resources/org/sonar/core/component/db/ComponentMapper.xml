@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.core.component.db.ComponentMapper">
+
+  <sql id="componentColumns">
+    p.id,
+    p.kee as kee,
+    p.qualifier
+  </sql>
+
+  <sql id="sortColumn">
+    <if test="query.sort() != null">,
+      <choose>
+        <when test="'SEVERITY'.equals(query.sort())">
+          p.severity as severity
+        </when>
+        <when test="'STATUS'.equals(query.sort())">
+          p.status as status
+        </when>
+        <when test="'ASSIGNEE'.equals(query.sort())">
+          p.assignee as assignee
+        </when>
+        <when test="'CREATION_DATE'.equals(query.sort())">
+          p.issue_creation_date as issueCreationDate
+        </when>
+        <when test="'UPDATE_DATE'.equals(query.sort())">
+          p.issue_update_date as issueUpdateDate
+        </when>
+        <when test="'CLOSE_DATE'.equals(query.sort())">
+          p.issue_close_date as issueCloseDate
+        </when>
+      </choose>
+    </if>
+  </sql>
+
+  <select id="selectComponents" parameterType="map" resultType="Issue">
+    select <include refid="componentColumns"/>
+    from projects p
+    <include refid="selectQueryConditions"/>
+  </select>
+
+  <sql id="selectQueryConditions">
+    <where>
+      <if test="query.ids().size()>0">
+        and <foreach item="id" index="index" collection="query.ids()" open="(" separator=" or " close=")">p.id=#{id}
+        </foreach>
+      </if>
+      <if test="query.qualifiers().size()>0">
+        and <foreach item="qualifier" index="index" collection="query.qualifiers()" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+</mapper>
+

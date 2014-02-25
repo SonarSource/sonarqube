@@ -38,6 +38,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.GwtI18n;
@@ -57,6 +58,7 @@ import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
@@ -97,6 +99,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
+import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
@@ -299,6 +302,8 @@ public final class Platform {
     servicesContainer.addSingleton(QualityGateDao.class);
     servicesContainer.addSingleton(QualityGateConditionDao.class);
     servicesContainer.addSingleton(QualityGates.class);
+    servicesContainer.addSingleton(ProjectQgateAssociationDao.class);
+    servicesContainer.addSingleton(QgateProjectFinder.class);
     servicesContainer.addSingleton(QualityGatesWs.class);
 
     // users
@@ -320,6 +325,7 @@ public final class Platform {
     // components
     servicesContainer.addSingleton(DefaultComponentFinder.class);
     servicesContainer.addSingleton(DefaultRubyComponentService.class);
+    servicesContainer.addSingleton(ComponentDao.class);
 
     // issues
     servicesContainer.addSingleton(ServerIssueStorage.class);

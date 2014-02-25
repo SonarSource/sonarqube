@@ -1,0 +1,5 @@
+<dataset>
+  <projects id="1" kee="project1" qualifier="TRK"/>
+  <projects id="2" kee="project2" qualifier="TRK"/>
+  <projects id="3" kee="view3" qualifier="VW"/>
+</dataset>

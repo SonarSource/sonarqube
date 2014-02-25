@@ -1,0 +1,37 @@
+<dataset>
+
+  <quality_gates id="42" name="Golden"/>
+  <quality_gates id="43" name="Ninth"/>
+
+  <projects id="1" name="Project One" qualifier="TRK" scope="PRJ"/>
+  <projects id="2" name="Project Two" qualifier="TRK" scope="PRJ"/>
+  <projects id="3" name="Project Three" qualifier="TRK" scope="PRJ"/>
+  <projects id="4" name="Project Four" qualifier="TRK" scope="PRJ"/>
+  <projects id="5" name="Project Five" qualifier="TRK" scope="PRJ"/>
+  <projects id="6" name="View Six" qualifier="VW" scope="PRJ"/>
+  <projects id="7" name="Project One" qualifier="TRK" scope="FIL"/>
+
+  <resource_index kee="project one" resource_id="1" root_project_id="1" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index kee="roject one" resource_id="1" root_project_id="1" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index kee="oject one" resource_id="1" root_project_id="1" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ject one" resource_id="1" root_project_id="1" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ect one" resource_id="1" root_project_id="1" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ct one" resource_id="1" root_project_id="1" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index kee="t one" resource_id="1" root_project_id="1" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index kee=" one" resource_id="1" root_project_id="1" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index kee="one" resource_id="1" root_project_id="1" position="8" name_size="11" qualifier="TRK"/>
+  <resource_index kee="project two" resource_id="2" root_project_id="2" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index kee="roject two" resource_id="2" root_project_id="2" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index kee="oject two" resource_id="2" root_project_id="2" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ject two" resource_id="2" root_project_id="2" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ect two" resource_id="2" root_project_id="2" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index kee="ct two" resource_id="2" root_project_id="2" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index kee="t two" resource_id="2" root_project_id="2" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index kee=" two" resource_id="2" root_project_id="2" position="7" name_size="11" qualifier="TRK"/>
+
+  <properties prop_key="sonar.qualitygate" resource_id="[null]" text_value="43"/>
+  <properties prop_key="sonar.qualitygate" resource_id="1" text_value="42"/>
+  <properties prop_key="sonar.qualitygate" resource_id="2" text_value="42"/>
+  <properties prop_key="sonar.qualitygate" resource_id="3" text_value="42"/>
+
+</dataset>

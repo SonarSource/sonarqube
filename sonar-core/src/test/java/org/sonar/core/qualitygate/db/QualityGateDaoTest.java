@@ -84,5 +84,4 @@ public class QualityGateDaoTest extends AbstractDaoTestCase {
     dao.update(new QualityGateDto().setId(1L).setName("Not so strict"));
     checkTable("update", "quality_gates", "id", "name");
   }
-
 }

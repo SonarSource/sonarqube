@@ -24,9 +24,13 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
+import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualitygate.QgateProjectFinder;
+import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
 
 import java.util.Collection;
@@ -40,12 +44,16 @@ public class QualityGatesWs implements WebService {
   private static final String PARAM_OPERATOR = "op";
   private static final String PARAM_METRIC = "metric";
   private static final String PARAM_GATE_ID = "gateId";
+  private static final String PARAM_PROJECT_ID = "projectId";
   private static final String PARAM_ID = "id";
 
   private final QualityGates qualityGates;
 
-  public QualityGatesWs(QualityGates qualityGates) {
+  private final QgateProjectFinder projectFinder;
+
+  public QualityGatesWs(QualityGates qualityGates, QgateProjectFinder projectFinder) {
     this.qualityGates = qualityGates;
+    this.projectFinder = projectFinder;
   }
 
   @Override
@@ -175,6 +183,69 @@ public class QualityGatesWs implements WebService {
         destroy(request, response);
       }
     }).newParam(PARAM_ID).setDescription("The numerical ID of the quality gate to destroy.");
+
+    NewAction search = controller.newAction("search")
+    .setDescription("Search projects associated (or not) with a quality gate.")
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        search(request, response);
+      }
+    });
+    search.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
+    search.newParam("selected").setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
+    search.newParam("query").setDescription("Optionally, part of the name of the projects to search for.");
+    search.newParam("page");
+    search.newParam("pageSize");
+
+    NewAction select = controller.newAction("select")
+      .setPost(true)
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          select(request, response);
+        }
+      });
+    select.newParam(PARAM_GATE_ID);
+    select.newParam(PARAM_PROJECT_ID);
+
+    NewAction deselect = controller.newAction("deselect")
+      .setPost(true)
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          deselect(request, response);
+        }
+      });
+    deselect.newParam(PARAM_GATE_ID);
+    deselect.newParam(PARAM_PROJECT_ID);
+  }
+
+  protected void select(Request request, Response response) {
+    qualityGates.associateProject(parseId(request, PARAM_GATE_ID), parseId(request, PARAM_PROJECT_ID));
+    response.noContent();
+  }
+
+  protected void deselect(Request request, Response response) {
+    qualityGates.dissociateProject(parseId(request, PARAM_GATE_ID), parseId(request, PARAM_PROJECT_ID));
+    response.noContent();
+  }
+
+  protected void search(Request request, Response response) {
+    Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
+      .gateId(request.requiredParam(PARAM_GATE_ID))
+      .membership(request.param("selected"))
+      .projectSearch(request.param("query"))
+      .pageIndex(request.intParam("page"))
+      .pageSize(request.intParam("pageSize"))
+      .build());
+    JsonWriter writer = response.newJsonWriter();
+    writer.beginObject().prop("more", associations.hasMoreResults());
+    writer.name("results").beginArray();
+    for (ProjectQgateAssociation project: associations.projects()) {
+      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop("selected", project.isMember()).endObject();
+    }
+    writer.endArray().endObject().close();
   }
 
   protected void show(Request request, Response response) {

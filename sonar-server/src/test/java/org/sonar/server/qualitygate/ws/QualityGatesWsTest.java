@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -43,11 +44,14 @@ public class QualityGatesWsTest {
   @Mock
   private QualityGates qGates;
 
+  @Mock
+  private QgateProjectFinder projectFinder;
+
   WsTester tester;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QualityGatesWs(qGates));
+    tester = new WsTester(new QualityGatesWs(qGates, projectFinder));
   }
 
   @Test
@@ -56,7 +60,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(10);
+    assertThat(controller.actions()).hasSize(13);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();

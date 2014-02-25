@@ -26,6 +26,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.component.ComponentQuery;
+import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -63,11 +66,14 @@ public class QualityGates {
 
   private final PropertiesDao propertiesDao;
 
-  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao) {
+  private final ComponentDao componentDao;
+
+  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
     this.propertiesDao = propertiesDao;
+    this.componentDao = componentDao;
   }
 
   public QualityGateDto create(String name) {
@@ -110,17 +116,17 @@ public class QualityGates {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
       QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
-      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getName()));
+      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
     }
   }
 
   @CheckForNull
   public QualityGateDto getDefault() {
-    String defaultName = getDefaultName();
-    if (defaultName == null) {
+    Long defaultId = getDefaultId();
+    if (defaultId == null) {
       return null;
     } else {
-      return dao.selectByName(defaultName);
+      return dao.selectById(defaultId);
     }
   }
 
@@ -160,6 +166,18 @@ public class QualityGates {
   public void deleteCondition(Long condId) {
     checkPermission(UserSession.get());
     conditionDao.delete(getNonNullCondition(condId));
+  }
+
+  public void associateProject(Long qGateId, Long projectId) {
+    getNonNullQgate(qGateId);
+    checkNonNullProject(projectId);
+    propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
+  }
+
+  public void dissociateProject(Long qGateId, Long projectId) {
+    getNonNullQgate(qGateId);
+    checkNonNullProject(projectId);
+    propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
   }
 
   private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
@@ -202,15 +220,15 @@ public class QualityGates {
   }
 
   private boolean isDefault(QualityGateDto qGate) {
-    return qGate.getName().equals(getDefaultName());
+    return qGate.getId().equals(getDefaultId());
   }
 
-  private String getDefaultName() {
+  private Long getDefaultId() {
     PropertyDto defaultQgate = propertiesDao.selectGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     if (defaultQgate == null || StringUtils.isBlank(defaultQgate.getValue())) {
       return null;
     } else {
-      return defaultQgate.getValue();
+      return Long.valueOf(defaultQgate.getValue());
     }
   }
 
@@ -236,6 +254,12 @@ public class QualityGates {
       throw new NotFoundException("There is no condition with id=" + id);
     }
     return condition;
+  }
+
+  private void checkNonNullProject(long projectId) {
+    if (componentDao.selectComponent(ComponentQuery.create().addIds(projectId).addQualifiers(Qualifiers.PROJECT)).isEmpty()) {
+      throw new NotFoundException("There is no project with id=" + projectId);
+    }
   }
 
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {

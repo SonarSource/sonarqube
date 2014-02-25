@@ -33,6 +33,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.config.Logback;
 import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
@@ -55,10 +56,7 @@ import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateConditionMapper;
-import org.sonar.core.qualitygate.db.QualityGateDto;
-import org.sonar.core.qualitygate.db.QualityGateMapper;
+import org.sonar.core.qualitygate.db.*;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.*;
 import org.sonar.core.rule.*;
@@ -113,6 +111,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
     loadAlias(conf, "QualityGate", QualityGateDto.class);
     loadAlias(conf, "QualityGateCondition", QualityGateConditionDto.class);
+    loadAlias(conf, "ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
@@ -161,7 +160,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class
+      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
