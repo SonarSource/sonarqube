@@ -22,7 +22,7 @@
 # Sonar 4.3
 # SONAR-4996
 #
-class UpdateWorkUnitsBySizePointsPropertyToMinutes < ActiveRecord::Migration
+class UpdateWorkUnitsBySizePointPropertyToMinutes < ActiveRecord::Migration
 
   class Property < ActiveRecord::Base
 
@@ -52,7 +52,7 @@ class UpdateWorkUnitsBySizePointsPropertyToMinutes < ActiveRecord::Migration
 
   def self.convert_days_to_minutes(hours, hours_in_day)
     result = hours * hours_in_day * 60
-    # Truncate value after comma
-    result.to_i
+    # Round value
+    result.ceil
   end
 end

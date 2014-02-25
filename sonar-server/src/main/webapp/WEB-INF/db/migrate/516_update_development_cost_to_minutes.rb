@@ -22,7 +22,7 @@
 # Sonar 4.3
 # SONAR-4996
 #
-class UpdateWorkUnitsBySizePointsPropertyToMinutes < ActiveRecord::Migration
+class UpdateDevelopmentCostToMinutes < ActiveRecord::Migration
 
   def self.up
     Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.debt.DevelopmentCostMeasuresMigration')

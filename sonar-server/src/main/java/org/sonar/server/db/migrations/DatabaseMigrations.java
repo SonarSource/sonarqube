@@ -20,6 +20,7 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.server.db.migrations.debt.DevelopmentCostMeasuresMigration;
 import org.sonar.server.db.migrations.debt.IssueChangelogMigration;
 import org.sonar.server.db.migrations.debt.IssueMigration;
 import org.sonar.server.db.migrations.debt.TechnicalDebtMeasuresMigration;
@@ -33,7 +34,8 @@ public interface DatabaseMigrations {
     ViolationMigration.class,
     IssueMigration.class,
     IssueChangelogMigration.class,
-    TechnicalDebtMeasuresMigration.class
+    TechnicalDebtMeasuresMigration.class,
+    DevelopmentCostMeasuresMigration.class
   );
 
 }
