@@ -20,7 +20,7 @@
     <%= message('issues.found') -%>: <strong>{{paging.total}}</strong>
     {{#if appState.canBulkChange}}
       <a href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>?{{query}}"
-         class="navigator-actions-bulk open-modal"
+         class="navigator-actions-bulk"
          title="<%= message('bulk_change') -%>"><i class="icon-settings-multiple"></i></a>
     {{/if}}
   </div>
