@@ -215,9 +215,9 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (initialized) {
       throw new SonarException("Module filesystem can only be indexed once");
     }
+    initialized = true;
     indexer.index(this);
     componentIndexer.execute(this);
-    initialized = true;
   }
 
   private List<File> existingDirs(List<File> dirs) {
