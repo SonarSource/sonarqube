@@ -64,4 +64,13 @@ public class TechnicalDebtMeasureMigrationTest {
     db.assertDbUnit(getClass(), "migrate_new_technical_debt_measures_result.xml", "project_measures");
   }
 
+  @Test
+  public void migrate_sqale_measures() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_sqale_measures.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "migrate_sqale_measures_result.xml", "project_measures");
+  }
+
 }

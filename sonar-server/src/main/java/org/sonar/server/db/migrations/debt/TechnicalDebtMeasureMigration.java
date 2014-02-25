@@ -60,9 +60,17 @@ public class TechnicalDebtMeasureMigration implements DatabaseMigration {
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
   private static final String SQL_SELECT = "SELECT * FROM project_measures INNER JOIN metrics on metrics.id=project_measures.metric_id " +
-    "WHERE metrics.name='sqale_index' or metrics.name='new_technical_debt'";
+    "WHERE (metrics.name='sqale_index' or metrics.name='new_technical_debt' " +
+    // SQALE measures
+    "or metrics.name='development_cost' " +
+    "or metrics.name='sqale_effort_to_grade_a' or metrics.name='sqale_effort_to_grade_b' or metrics.name='sqale_effort_to_grade_c' or metrics.name='sqale_effort_to_grade_d' " +
+    "or metrics.name='blocker_remediation_cost' or metrics.name='critical_remediation_cost' or metrics.name='major_remediation_cost' or metrics.name='minor_remediation_cost' " +
+    "or metrics.name='info_remediation_cost' " +
+    ")";
+
   private static final String SQL_UPDATE = "UPDATE project_measures SET value=?," +
     "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?";
+
   private static final String SQL_SELECT_ALL;
 
   static {

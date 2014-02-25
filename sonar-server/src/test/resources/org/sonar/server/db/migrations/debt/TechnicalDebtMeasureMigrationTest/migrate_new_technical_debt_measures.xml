@@ -10,13 +10,13 @@
 
 
   <!-- Measure with variations on all period -->
-  <project_measures id="2" VALUE="[null]" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+  <project_measures id="1" VALUE="[null]" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]" person_id="[null]"
                     variation_value_1="0.01" variation_value_2="0.02" variation_value_3="0.03" variation_value_4="0.04" variation_value_5="0.05"/>
 
   <!-- Measure with some variations -->
-  <project_measures id="3" VALUE="[null]" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+  <project_measures id="2" VALUE="[null]" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]" person_id="[null]"
                     variation_value_1="0.01" variation_value_2="0.02" variation_value_3="0.0" variation_value_4="0.0" variation_value_5="0.0"/>
