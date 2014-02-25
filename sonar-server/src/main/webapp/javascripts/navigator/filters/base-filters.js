@@ -60,7 +60,7 @@ define(['backbone', 'backbone.marionette'], function (Backbone, Marionette) {
     initialize: function(options) {
       Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
-      var detailsView = options.detailsView || DetailsFilterView;
+      var detailsView = (options && options.detailsView) || DetailsFilterView;
       this.detailsView = new detailsView({
         model: this.model,
         filterView: this

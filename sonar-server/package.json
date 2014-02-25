@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "karma": "~0.10.8",
-    "karma-qunit": "*",
+    "karma-jasmine": "*",
     "karma-phantomjs-launcher": "*",
     "karma-coverage": "*",
     "karma-junit-reporter": "*"
