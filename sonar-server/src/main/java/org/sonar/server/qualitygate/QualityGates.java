@@ -19,6 +19,10 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.base.Predicate;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -180,6 +184,15 @@ public class QualityGates {
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
   }
 
+  public Collection<Metric> gateMetrics() {
+    return Collections2.filter(metricFinder.findAll(), new Predicate<Metric>() {
+      @Override
+      public boolean apply(Metric metric) {
+        return isAlertable(metric);
+      }
+    });
+  }
+
   private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
     List<Message> validationMessages = Lists.newArrayList();
     validateMetric(metric, validationMessages);
@@ -214,9 +227,13 @@ public class QualityGates {
   }
 
   private void validateMetric(Metric metric, List<Message> validationMessages) {
-    if (metric.isDataType() || metric.isHidden() || CoreMetrics.ALERT_STATUS.equals(metric) || ValueType.RATING == metric.getType()) {
+    if (!isAlertable(metric)) {
       validationMessages.add(Message.of(String.format("Metric '%s' cannot be used to define a condition.", metric.getKey())));
     }
+  }
+
+  private boolean isAlertable(Metric metric) {
+    return !metric.isDataType() && !metric.isHidden() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
   }
 
   private boolean isDefault(QualityGateDto qGate) {

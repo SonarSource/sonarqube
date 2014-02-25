@@ -60,7 +60,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(13);
+    assertThat(controller.actions()).hasSize(14);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();

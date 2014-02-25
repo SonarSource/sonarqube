@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.measures.Metric;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -174,6 +176,15 @@ public class QualityGatesWs implements WebService {
       }
     }).newParam(PARAM_ID).setDescription("The ID of the quality gate.");
 
+    controller.newAction("metrics")
+    .setDescription("List metrics available for definition of conditions.")
+    .setHandler(new RequestHandler() {
+      @Override
+      public void handle(Request request, Response response) {
+        listMetrics(request, response);
+      }
+    });
+
     controller.newAction("destroy")
     .setDescription("Destroy a quality gate, given its id.")
     .setPost(true)
@@ -219,6 +230,20 @@ public class QualityGatesWs implements WebService {
       });
     deselect.newParam(PARAM_GATE_ID);
     deselect.newParam(PARAM_PROJECT_ID);
+  }
+
+  protected void listMetrics(Request request, Response response) {
+    JsonWriter writer = response.newJsonWriter().beginObject().name("metrics").beginArray();
+    for (Metric metric: qualityGates.gateMetrics()) {
+      writer.beginObject()
+        .prop("id", metric.getId())
+        .prop("key", metric.getKey())
+        .prop("name", metric.getName())
+        .prop("type", metric.getType().toString())
+        .prop("domain", metric.getDomain())
+      .endObject();
+    }
+    writer.endArray().endObject().close();
   }
 
   protected void select(Request request, Response response) {
