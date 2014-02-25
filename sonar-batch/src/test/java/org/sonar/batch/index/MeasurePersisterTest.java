@@ -94,7 +94,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG);
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Unable to save measure for metric [ncloc] on resource [foo]");
+    thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
 
     measurePersister.saveMeasure(project, measure);
   }
@@ -213,7 +213,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT).setAlertText(TOO_LONG));
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Unable to save measure for metric [ncloc] on resource [foo]");
+    thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
 
     measurePersister.dump();
   }

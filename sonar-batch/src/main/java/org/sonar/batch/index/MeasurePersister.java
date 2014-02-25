@@ -82,7 +82,7 @@ public final class MeasurePersister {
       model = insertOrUpdate(resource, measure);
     } catch (Exception e) {
       // SONAR-4066
-      throw new SonarException(String.format("Unable to save measure for metric [%s] on resource [%s]", measure.getMetricKey(), resource.getKey()), e);
+      throw new SonarException(String.format("Unable to save measure for metric [%s] on component [%s]", measure.getMetricKey(), resource.getKey()), e);
     }
     if (model != null) {
       memoryOptimizer.evictDataMeasure(measure, model);
@@ -196,7 +196,7 @@ public final class MeasurePersister {
           }
         } catch (Exception e) {
           // SONAR-4066
-          throw new SonarException(String.format("Unable to save measure for metric [%s] on resource [%s]", value.getMetricKey(), value.getResourceKey()), e);
+          throw new SonarException(String.format("Unable to save measure for metric [%s] on component [%s]", value.getMetricKey(), value.getResourceKey()), e);
         }
       }
 
