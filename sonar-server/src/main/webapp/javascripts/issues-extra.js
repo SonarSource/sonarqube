@@ -586,7 +586,7 @@ define(
         onRender: function () {
           var format = function(state) {
             if (!state.id) return state.text; // optgroup
-            return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i>' + state.text;
+            return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i> ' + state.text;
           }
 
           this.ui.select.select2({
