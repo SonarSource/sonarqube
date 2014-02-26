@@ -94,7 +94,7 @@ public class ComponentIndexerTest {
       @Override
       public boolean matches(Object arg0) {
         org.sonar.api.resources.File javaFile = (org.sonar.api.resources.File) arg0;
-        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
+        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getPath().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getQualifier().equals(Qualifiers.UNIT_TEST_FILE);
       }
