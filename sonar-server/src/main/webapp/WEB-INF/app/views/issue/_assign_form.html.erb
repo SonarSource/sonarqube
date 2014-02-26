@@ -15,7 +15,7 @@
         -%>
         <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="submitIssueForm(this)">
         &nbsp;
-        <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+        <%= link_to_function message('cancel'), 'closeIssueForm(this)', :class => 'action' -%>&nbsp;
         <span class="loading hidden"></span>
       </td>
     </tr>

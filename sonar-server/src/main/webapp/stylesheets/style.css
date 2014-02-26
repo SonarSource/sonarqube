@@ -869,7 +869,8 @@ th.operations, td.operations {
 
 .code-issue-form input[type=submit],
 .code-issue-form input[type=button],
-.code-issue-form button {
+.code-issue-form button,
+.code-issue-form .action {
   vertical-align: middle;
 }
 
