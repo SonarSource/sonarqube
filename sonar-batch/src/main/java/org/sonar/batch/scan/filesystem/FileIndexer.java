@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -45,11 +44,9 @@ import java.util.Set;
  */
 public class FileIndexer implements BatchComponent {
 
-  private static final String FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR = "File '%s' is not declared in module basedir %s";
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
-  private final PathResolver pathResolver;
   private final List<InputFileFilter> filters;
   private final InputFileCache fileCache;
   private final Project module;
@@ -57,12 +54,11 @@ public class FileIndexer implements BatchComponent {
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-                     InputFileCache cache, PathResolver pathResolver, Project module) {
+                     InputFileCache cache, Project module) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
     this.fileCache = cache;
-    this.pathResolver = pathResolver;
     this.module = module;
   }
 
@@ -122,10 +118,10 @@ public class FileIndexer implements BatchComponent {
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs,
                          Progress status, DefaultInputFile inputFile, InputFile.Type type) {
-    inputFile = inputFileBuilder.complete(inputFile, type);
-    if (inputFile != null && accept(inputFile)) {
-      fs.add(inputFile);
-      status.markAsIndexed(inputFile);
+    InputFile completedFile = inputFileBuilder.complete(inputFile, type);
+    if (completedFile != null && accept(completedFile)) {
+      fs.add(completedFile);
+      status.markAsIndexed(completedFile);
     }
   }
 
