@@ -61,7 +61,6 @@ import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.filesystem.FileIndexer;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
@@ -112,7 +111,7 @@ public class ModuleScanContainer extends ComponentContainer {
       PreviousFileHashLoader.class,
       FileIndexer.class,
       ComponentIndexer.class,
-      DefaultModuleLanguages.class,
+      LanguageVerifier.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,
       DefaultModuleFileSystem.class,

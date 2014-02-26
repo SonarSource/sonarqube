@@ -19,12 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.batch.Event;
-import org.sonar.api.batch.ModuleLanguages;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.*;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -38,12 +34,12 @@ public class ProfileEventsSensor implements Sensor {
 
   private final RulesProfile profile;
   private final TimeMachine timeMachine;
-  private final ModuleLanguages moduleLanguages;
+  private final FileSystem fs;
 
-  public ProfileEventsSensor(RulesProfile profile, TimeMachine timeMachine, ModuleLanguages moduleLanguages) {
+  public ProfileEventsSensor(RulesProfile profile, TimeMachine timeMachine, FileSystem fs) {
     this.profile = profile;
     this.timeMachine = timeMachine;
-    this.moduleLanguages = moduleLanguages;
+    this.fs = fs;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -53,7 +49,7 @@ public class ProfileEventsSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     RulesProfileWrapper profileWrapper = (RulesProfileWrapper) profile;
-    for (String languageKey : moduleLanguages.keys()) {
+    for (String languageKey : fs.languages()) {
       RulesProfile realProfile = profileWrapper.getProfileByLanguage(languageKey);
       Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
       if (pastProfileMeasure == null) {

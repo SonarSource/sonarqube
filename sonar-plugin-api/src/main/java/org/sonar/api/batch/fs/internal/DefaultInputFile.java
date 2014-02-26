@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
@@ -66,6 +65,9 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
 
   @Override
   public File file() {
+    if (absolutePath == null) {
+      throw new IllegalStateException("Can not return the java.io.File because absolute path is not set (see method setFile(java.io.File))");
+    }
     return new File(absolutePath);
   }
 
