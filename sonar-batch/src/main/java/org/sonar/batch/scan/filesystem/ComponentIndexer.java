@@ -30,10 +30,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 
@@ -72,8 +69,12 @@ public class ComponentIndexer implements BatchComponent {
         pathFromSourceDir = inputFile.relativePath();
       }
       Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
+      if (Java.KEY.equals(languageKey)) {
+        sonarFile.setDeprecatedKey(JavaFile.fromRelativePath(pathFromSourceDir, false).getDeprecatedKey());
+      } else {
+        sonarFile.setDeprecatedKey(pathFromSourceDir);
+      }
       if (sonarFile != null) {
-        sonarFile.setDeprecatedKey(((DefaultInputFile) inputFile).deprecatedKey());
         sonarIndex.index(sonarFile);
         importSources(fs, shouldImportSource, inputFile, sonarFile);
       }
