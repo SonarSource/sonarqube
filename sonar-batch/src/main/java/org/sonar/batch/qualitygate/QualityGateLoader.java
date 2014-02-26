@@ -32,10 +32,10 @@ import org.sonar.batch.rule.RulesProfileWrapper;
 public class QualityGateLoader implements Sensor {
 
   private final FileSystem fs;
-  private final RulesProfileWrapper qProfile;
+  private final RulesProfile qProfile;
   private final ProjectAlerts projectAlerts;
 
-  public QualityGateLoader(FileSystem fs, RulesProfileWrapper qProfile, ProjectAlerts projectAlerts) {
+  public QualityGateLoader(FileSystem fs, RulesProfile qProfile, ProjectAlerts projectAlerts) {
     this.fs = fs;
     this.qProfile = qProfile;
     this.projectAlerts = projectAlerts;
@@ -49,7 +49,7 @@ public class QualityGateLoader implements Sensor {
   @Override
   public void analyse(Project module, SensorContext context) {
     for (String lang : fs.languages()) {
-      RulesProfile profile = qProfile.getProfileByLanguage(lang);
+      RulesProfile profile = qProfile instanceof RulesProfileWrapper ? ((RulesProfileWrapper) qProfile).getProfileByLanguage(lang) : qProfile;
       if (profile != null) {
         projectAlerts.addAll(profile.getAlerts());
       }
