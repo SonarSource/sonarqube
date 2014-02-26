@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.phases;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
-import org.sonar.api.batch.ModuleLanguages;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
@@ -39,28 +38,23 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProfileLoggerTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ModuleLanguages languages;
-  private ModuleQProfiles profiles;
-  private Settings settings = new Settings();
-  private ProjectAlerts projectAlerts = new ProjectAlerts();
-  private RulesProfileWrapper rulesProfile = mock(RulesProfileWrapper.class);
-  private RulesProfile javaRulesProfile;
-  private RulesProfile cobolRulesProfile;
+  DefaultFileSystem fs = new DefaultFileSystem();
+  ModuleQProfiles profiles;
+  Settings settings = new Settings();
+  ProjectAlerts projectAlerts = new ProjectAlerts();
+  RulesProfileWrapper rulesProfile = mock(RulesProfileWrapper.class);
+  RulesProfile javaRulesProfile;
+  RulesProfile cobolRulesProfile;
 
   @Before
   public void before() {
-    languages = mock(ModuleLanguages.class);
-    when(languages.keys()).thenReturn(Lists.newArrayList("java", "cobol"));
-
     profiles = mock(ModuleQProfiles.class);
     QProfile javaProfile = mock(QProfile.class);
     when(javaProfile.name()).thenReturn("My Java profile");
@@ -76,7 +70,8 @@ public class ProfileLoggerTest {
 
   @Test
   public void should_log_all_used_profiles() {
-    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles, projectAlerts, rulesProfile);
+    fs.addLanguages("java", "cobol");
+    ProfileLogger profileLogger = new ProfileLogger(settings, fs, profiles, projectAlerts, rulesProfile);
     Logger logger = mock(Logger.class);
     profileLogger.execute(logger);
 
@@ -86,9 +81,10 @@ public class ProfileLoggerTest {
 
   @Test
   public void should_fail_if_default_profile_not_used() {
+    fs.addLanguages("java", "cobol");
     settings.setProperty("sonar.profile", "Unknown");
 
-    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles, projectAlerts, rulesProfile);
+    ProfileLogger profileLogger = new ProfileLogger(settings, fs, profiles, projectAlerts, rulesProfile);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("sonar.profile was set to 'Unknown' but didn't match any profile for any language. Please check your configuration.");
@@ -99,9 +95,8 @@ public class ProfileLoggerTest {
   @Test
   public void should_not_fail_if_no_language_on_project() {
     settings.setProperty("sonar.profile", "Unknown");
-    when(languages.keys()).thenReturn(Collections.<String>emptyList());
 
-    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles, projectAlerts, rulesProfile);
+    ProfileLogger profileLogger = new ProfileLogger(settings, fs, profiles, projectAlerts, rulesProfile);
 
     profileLogger.execute();
 
@@ -109,15 +104,17 @@ public class ProfileLoggerTest {
 
   @Test
   public void should_not_fail_if_default_profile_used_at_least_once() {
+    fs.addLanguages("java", "cobol");
     settings.setProperty("sonar.profile", "My Java profile");
 
-    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles, projectAlerts, rulesProfile);
+    ProfileLogger profileLogger = new ProfileLogger(settings, fs, profiles, projectAlerts, rulesProfile);
 
     profileLogger.execute();
   }
 
   @Test
   public void should_collect_alerts() {
+    fs.addLanguages("java", "cobol");
     Alert javaAlert1 = new Alert();
     Alert javaAlert2 = new Alert();
     Alert cobolAlert1 = new Alert();
@@ -125,10 +122,10 @@ public class ProfileLoggerTest {
     when(javaRulesProfile.getAlerts()).thenReturn(Arrays.asList(javaAlert1, javaAlert2));
     when(cobolRulesProfile.getAlerts()).thenReturn(Arrays.asList(cobolAlert1, cobolAlert2));
 
-    ProfileLogger profileLogger = new ProfileLogger(settings, languages, profiles, projectAlerts, rulesProfile);
+    ProfileLogger profileLogger = new ProfileLogger(settings, fs, profiles, projectAlerts, rulesProfile);
 
     profileLogger.execute();
 
-    assertThat(projectAlerts.all()).containsExactly(javaAlert1, javaAlert2, cobolAlert1, cobolAlert2);
+    assertThat(projectAlerts.all()).containsExactly(cobolAlert1, cobolAlert2, javaAlert1, javaAlert2);
   }
 }

@@ -21,13 +21,10 @@ package org.sonar.plugins.cpd;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -46,7 +43,9 @@ public class CpdSensorTest {
     sonarEngine = new SonarEngine(indexFactory, null, null);
     sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
-    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, new DefaultModuleLanguages(settings, new Languages()));
+
+    DefaultFileSystem fs = new DefaultFileSystem();
+    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, fs);
   }
 
   @Test

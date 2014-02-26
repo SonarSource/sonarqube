@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.component.Component;
 
 import java.util.ArrayList;
@@ -241,7 +240,7 @@ public class Project extends Resource implements Component {
 
   /**
    * @return the project language when there is only one language
-   * @deprecated since 4.2 use {@link ModuleLanguages}
+   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
    */
   @Deprecated
   @Override
@@ -259,7 +258,7 @@ public class Project extends Resource implements Component {
 
   /**
    * @return the language key or empty if no language is specified
-   * @deprecated since 4.2 use {@link ModuleLanguages}
+   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
    */
   @Deprecated
   public String getLanguageKey() {

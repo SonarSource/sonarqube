@@ -30,10 +30,12 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -46,17 +48,15 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
-  private final DefaultModuleLanguages moduleLanguages;
   private InputFileCache fileCache;
 
   public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-    DefaultModuleLanguages moduleLanguages, InputFileCache fileCache) {
+                          InputFileCache fileCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.settings = settings;
     this.migration = migration;
-    this.moduleLanguages = moduleLanguages;
     this.fileCache = fileCache;
   }
 
@@ -73,8 +73,7 @@ public class ComponentIndexer implements BatchComponent {
       }
       Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
       if (sonarFile != null) {
-        sonarFile.setDeprecatedKey(((DefaultInputFile)inputFile).deprecatedKey());
-        moduleLanguages.addLanguage(languageKey);
+        sonarFile.setDeprecatedKey(((DefaultInputFile) inputFile).deprecatedKey());
         sonarIndex.index(sonarFile);
         importSources(fs, shouldImportSource, inputFile, sonarFile);
       }

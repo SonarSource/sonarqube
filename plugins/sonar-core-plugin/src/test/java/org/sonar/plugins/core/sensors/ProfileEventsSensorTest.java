@@ -25,15 +25,13 @@ import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.rule.RulesProfileWrapper;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +47,7 @@ public class ProfileEventsSensorTest {
 
   Project project;
   SensorContext context;
-  DefaultModuleLanguages moduleLanguages;
+  FileSystem fs;
   RulesProfileWrapper wrapper;
   RulesProfile profile;
 
@@ -58,8 +56,7 @@ public class ProfileEventsSensorTest {
     project = mock(Project.class);
     context = mock(SensorContext.class);
 
-    moduleLanguages = new DefaultModuleLanguages(new Settings(), new Languages(Java.INSTANCE));
-    moduleLanguages.addLanguage("java");
+    fs = new DefaultFileSystem().addLanguages("java");
     profile = mock(RulesProfile.class);
     when(profile.getLanguage()).thenReturn("java");
     wrapper = new RulesProfileWrapper(profile);
@@ -68,7 +65,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldExecuteWhenProfileWithId() {
     when(profile.getId()).thenReturn(123);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, null, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, null, fs);
 
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     verifyZeroInteractions(project);
@@ -78,7 +75,7 @@ public class ProfileEventsSensorTest {
   public void shouldNotExecuteIfProfileIsNotWrapper() {
     RulesProfile profile = mock(RulesProfile.class);
     when(profile.getId()).thenReturn(null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null, fs);
 
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
     verifyZeroInteractions(project);
@@ -88,7 +85,7 @@ public class ProfileEventsSensorTest {
   public void shouldDoNothingIfNoProfileChange() {
     mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, same version
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, fs);
 
     sensor.analyse(project, context);
 
@@ -99,7 +96,7 @@ public class ProfileEventsSensorTest {
   public void shouldCreateEventIfProfileChange() {
     mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(21.0, "Bar", 1.0); // Different profile
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, fs);
 
     sensor.analyse(project, context);
 
@@ -113,7 +110,7 @@ public class ProfileEventsSensorTest {
   public void shouldCreateEventIfProfileVersionChange() {
     mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, different version
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, fs);
 
     sensor.analyse(project, context);
 
@@ -127,7 +124,7 @@ public class ProfileEventsSensorTest {
   public void shouldNotCreateEventIfFirstAnalysis() {
     mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(null, null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, fs);
 
     sensor.analyse(project, context);
 
@@ -138,7 +135,7 @@ public class ProfileEventsSensorTest {
   public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() {
     mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(22.0, "Foo", null);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, moduleLanguages);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(wrapper, timeMachine, fs);
 
     sensor.analyse(project, context);
 

@@ -24,7 +24,7 @@ import org.sonar.api.BatchComponent;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * <p>The unit tests needing an instance of FileSystem can use the implementation
@@ -94,5 +94,5 @@ public interface FileSystem extends BatchComponent {
   /**
    * Languages detected in all files, whatever their type (main or test)
    */
-  Set<String> languages();
+  SortedSet<String> languages();
 }
