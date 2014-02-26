@@ -1,3 +1,4 @@
+
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2013 SonarSource
@@ -17,8 +18,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.qualitygate;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,45 +33,37 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.batch.rule.ProjectAlerts;
 import org.sonar.core.timemachine.Periods;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class CheckAlertThresholdsTest {
+public class QualityGateVerifierTest {
 
-  private CheckAlertThresholds decorator;
-  private DecoratorContext context;
-  private ProjectAlerts projectAlerts;
+  QualityGateVerifier verifier;
+  DecoratorContext context;
+  ProjectAlerts projectAlerts;
 
-  private Measure measureClasses;
-  private Measure measureCoverage;
-  private Measure measureComplexity;
-
-  private Resource project;
-  private Snapshot snapshot;
-  private Periods periods;
-  private I18n i18n;
+  Measure measureClasses;
+  Measure measureCoverage;
+  Measure measureComplexity;
+  Resource project;
+  Snapshot snapshot;
+  Periods periods;
+  I18n i18n;
 
   @Before
-  public void setup() {
+  public void before() {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
     i18n = mock(I18n.class);
@@ -84,41 +78,44 @@ public class CheckAlertThresholdsTest {
     when(context.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(measureComplexity);
 
     snapshot = mock(Snapshot.class);
-    projectAlerts = mock(ProjectAlerts.class);
-    decorator = new CheckAlertThresholds(snapshot, projectAlerts, periods, i18n);
-    project = mock(Resource.class);
-    when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
+    projectAlerts = new ProjectAlerts();
+    verifier = new QualityGateVerifier(snapshot, projectAlerts, periods, i18n);
+    project = new Project("foo");
   }
 
   @Test
-  public void should_generates_alert_status() {
-    assertThat(decorator.generatesAlertStatus()).isEqualTo(CoreMetrics.ALERT_STATUS);
+  public void should_always_be_executed() {
+    assertThat(verifier.shouldExecuteOnProject(new Project("foo"))).isTrue();
   }
 
   @Test
-  public void should_depends_on_variations() {
-    assertThat(decorator.dependsOnVariations()).isEqualTo(DecoratorBarriers.END_OF_TIME_MACHINE);
+  public void test_toString() {
+    assertThat(verifier.toString()).isEqualTo("QualityGateVerifier");
   }
 
   @Test
-  public void should_depends_upon_metrics() {
-    when(projectAlerts.all()).thenReturn(newArrayList(new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20")));
-    assertThat(decorator.dependsUponMetrics()).containsOnly(CoreMetrics.CLASSES);
+  public void generates_alert_status() {
+    assertThat(verifier.generatesAlertStatus()).isEqualTo(CoreMetrics.ALERT_STATUS);
   }
 
   @Test
-  public void shouldNotCreateAlertsWhenNoThresholds() {
-    when(projectAlerts.all()).thenReturn(new ArrayList<Alert>());
-    assertThat(decorator.shouldExecuteOnProject(new Project("key"))).isFalse();
+  public void depends_on_variations() {
+    assertThat(verifier.dependsOnVariations()).isEqualTo(DecoratorBarriers.END_OF_TIME_MACHINE);
   }
 
   @Test
-  public void shouldBeOkWhenNoAlert() {
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+  public void depends_upon_metrics() {
+    projectAlerts.addAll(Lists.newArrayList(new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20")));
+    assertThat(verifier.dependsUponMetrics()).containsOnly(CoreMetrics.CLASSES);
+  }
+
+  @Test
+  public void ok_when_no_alerts() {
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
@@ -126,24 +123,23 @@ public class CheckAlertThresholdsTest {
   }
 
   @Test
-  public void checkRootProjectsOnly() {
-    when(project.getQualifier()).thenReturn(Resource.QUALIFIER_FILE);
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+  public void check_root_modules_only() {
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
 
-    decorator.decorate(project, context);
+    verifier.decorate(File.create("src/Foo.php"), context);
 
     verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test
-  public void shouldGenerateWarnings() {
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+  public void generate_warnings() {
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "100"),
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, null, "95.0"))); // generates warning because coverage 35% < 95%
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
@@ -154,11 +150,11 @@ public class CheckAlertThresholdsTest {
 
   @Test
   public void globalStatusShouldBeErrorIfWarningsAndErrors() {
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, null, "100"), // generates warning because classes 20 < 100
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, "50.0", "80.0"))); // generates error because coverage 35% < 50%
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, null)));
 
@@ -170,13 +166,13 @@ public class CheckAlertThresholdsTest {
   public void globalLabelShouldAggregateAllLabels() {
     when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
     when(i18n.message(any(Locale.class), eq("metric.coverage.name"), anyString())).thenReturn("Coverages");
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, null, "10000"), // there are 20 classes, error threshold is higher =>
-                                                                                   // alert
+      // alert
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, "50.0", "80.0"))); // coverage is 35%, warning threshold is higher =>
-                                                                                       // alert
+    // alert
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
   }
@@ -189,8 +185,8 @@ public class CheckAlertThresholdsTest {
     when(i18n.message(any(Locale.class), eq("metric.rating.name"), anyString())).thenReturn("THE RATING");
 
     when(context.getMeasure(metric)).thenReturn(new Measure(metric, 4d));
-    when(projectAlerts.all()).thenReturn(Arrays.<Alert>asList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "10", null)));
-    decorator.decorate(project, context);
+    projectAlerts.addAll(Lists.newArrayList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "10", null)));
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "THE RATING < 10")));
   }
@@ -199,12 +195,12 @@ public class CheckAlertThresholdsTest {
   public void alertLabelUsesMetricNameIfMissingL10nBundle() {
     // the third argument is Metric#getName()
     when(i18n.message(any(Locale.class), eq("metric.classes.name"), eq("Classes"))).thenReturn("Classes");
-    when(projectAlerts.all()).thenReturn(Arrays.<Alert>asList(
+    projectAlerts.addAll(Lists.newArrayList(
       // there are 20 classes, error threshold is higher => alert
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, "10000", null)
-      ));
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000")));
   }
@@ -215,15 +211,15 @@ public class CheckAlertThresholdsTest {
     measureCoverage.setVariation2(50d);
     measureComplexity.setVariation3(2d);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "10", 1), // ok because no variation
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, null, "40.0", 2), // ok because coverage increases of 50%, which is more
-                                                                                      // than 40%
+      // than 40%
       new Alert(null, CoreMetrics.COMPLEXITY, Alert.OPERATOR_GREATER, null, "5", 3) // ok because complexity increases of 2, which is less
-                                                                                    // than 5
-      ));
+      // than 5
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
 
@@ -238,16 +234,16 @@ public class CheckAlertThresholdsTest {
     measureCoverage.setVariation2(5d);
     measureComplexity.setVariation3(70d);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 1), // generates warning because classes increases of 40,
-                                                                                   // which is greater than 30
+      // which is greater than 30
       new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, null, "10.0", 2), // generates warning because coverage increases of 5%,
-                                                                                      // which is smaller than 10%
+      // which is smaller than 10%
       new Alert(null, CoreMetrics.COMPLEXITY, Alert.OPERATOR_GREATER, null, "60", 3) // generates warning because complexity increases of
-                                                                                     // 70, which is smaller than 60
-      ));
+      // 70, which is smaller than 60
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
@@ -260,11 +256,10 @@ public class CheckAlertThresholdsTest {
   public void shouldBeOkIfVariationIsNull() {
     measureClasses.setVariation1(null);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
-      new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "10", 1)
-      ));
+    projectAlerts.addAll(Lists.newArrayList(
+      new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "10", 1)));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
@@ -277,11 +272,11 @@ public class CheckAlertThresholdsTest {
     measureRatingMetric.setVariation1(50d);
     when(context.getMeasure(ratingMetric)).thenReturn(measureRatingMetric);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, ratingMetric, Alert.OPERATOR_GREATER, null, "100", 1)
-      ));
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
     verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
@@ -291,11 +286,11 @@ public class CheckAlertThresholdsTest {
   public void shouldAllowOnlyVariationPeriodOneGlobalPeriods() {
     measureClasses.setVariation4(40d);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 4)
-      ));
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
   }
 
   @Test(expected = NotImplementedException.class)
@@ -304,11 +299,11 @@ public class CheckAlertThresholdsTest {
     measure.setVariation1(50d);
     when(context.getMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)).thenReturn(measure);
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.SCM_AUTHORS_BY_LINE, Alert.OPERATOR_GREATER, null, "30", 1)
-      ));
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
   }
 
   @Test
@@ -318,12 +313,12 @@ public class CheckAlertThresholdsTest {
     when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 1) // generates warning because classes increases of 40,
-                                                                                  // which is greater than 30
-      ));
+      // which is greater than 30
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
   }
@@ -339,12 +334,12 @@ public class CheckAlertThresholdsTest {
     when(i18n.message(any(Locale.class), eq("metric.new_metric_key.name"), anyString())).thenReturn("New Measure");
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
-    when(projectAlerts.all()).thenReturn(Arrays.asList(
+    projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, newMetric, Alert.OPERATOR_GREATER, null, "30", 1) // generates warning because classes increases of 40, which is
-                                                                        // greater than 30
-      ));
+      // greater than 30
+    ));
 
-    decorator.decorate(project, context);
+    verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
   }

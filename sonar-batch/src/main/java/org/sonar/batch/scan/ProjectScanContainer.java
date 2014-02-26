@@ -68,7 +68,7 @@ import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.rule.ProjectAlerts;
+import org.sonar.batch.qualitygate.ProjectAlerts;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -189,6 +189,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       ProjectSettingsReady.class,
 
+      // quality gates
       ProjectAlerts.class);
   }
 

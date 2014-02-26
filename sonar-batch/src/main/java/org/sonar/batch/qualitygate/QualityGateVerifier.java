@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.qualitygate;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -35,13 +32,14 @@ import org.sonar.api.profiles.Alert;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.batch.rule.ProjectAlerts;
 import org.sonar.core.timemachine.Periods;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
-public class CheckAlertThresholds implements Decorator {
+public class QualityGateVerifier implements Decorator {
 
   private static final String VARIATION_METRIC_PREFIX = "new_";
   private static final String VARIATION = "variation";
@@ -51,7 +49,7 @@ public class CheckAlertThresholds implements Decorator {
   private final I18n i18n;
   private ProjectAlerts projectAlerts;
 
-  public CheckAlertThresholds(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n) {
+  public QualityGateVerifier(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n) {
     this.snapshot = snapshot;
     this.projectAlerts = projectAlerts;
     this.periods = periods;
@@ -69,8 +67,8 @@ public class CheckAlertThresholds implements Decorator {
   }
 
   @DependsUpon
-  public List<Metric> dependsUponMetrics() {
-    List<Metric> metrics = Lists.newLinkedList();
+  public Collection<Metric> dependsUponMetrics() {
+    Set<Metric> metrics = Sets.newHashSet();
     for (Alert alert : projectAlerts.all()) {
       metrics.add(alert.getMetric());
     }
@@ -78,21 +76,20 @@ public class CheckAlertThresholds implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return !projectAlerts.all().isEmpty()
-      && ResourceUtils.isRootProject(project);
+    return true;
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
-    if (shouldDecorateResource(resource)) {
-      decorateResource(context);
+    if (ResourceUtils.isRootProject(resource) && !projectAlerts.all().isEmpty()) {
+      checkProjectAlerts(context);
     }
   }
 
-  private void decorateResource(DecoratorContext context) {
+  private void checkProjectAlerts(DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
     List<String> labels = Lists.newArrayList();
 
-    for (final Alert alert : projectAlerts.all()) {
+    for (Alert alert : projectAlerts.all()) {
       Measure measure = context.getMeasure(alert.getMetric());
       if (measure != null) {
         Metric.Level level = AlertUtils.getLevel(alert, measure);
@@ -121,10 +118,6 @@ public class CheckAlertThresholds implements Decorator {
     context.saveMeasure(globalMeasure);
   }
 
-  private boolean shouldDecorateResource(final Resource resource) {
-    return ResourceUtils.isRootProject(resource);
-  }
-
   private String getText(Alert alert, Metric.Level level) {
     if (level == Metric.Level.OK) {
       return null;
@@ -134,13 +127,13 @@ public class CheckAlertThresholds implements Decorator {
 
   private String getAlertLabel(Alert alert, Metric.Level level) {
     Integer alertPeriod = alert.getPeriod();
-    String metric = i18n.message(getLocale(), "metric." + alert.getMetric().getKey() + ".name", alert.getMetric().getName());
+    String metric = i18n.message(Locale.ENGLISH, "metric." + alert.getMetric().getKey() + ".name", alert.getMetric().getName());
 
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(metric);
 
     if (alertPeriod != null && !alert.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
-      String variation = i18n.message(getLocale(), VARIATION, VARIATION).toLowerCase();
+      String variation = i18n.message(Locale.ENGLISH, VARIATION, VARIATION).toLowerCase();
       stringBuilder.append(" ").append(variation);
     }
 
@@ -159,9 +152,4 @@ public class CheckAlertThresholds implements Decorator {
   public String toString() {
     return getClass().getSimpleName();
   }
-
-  private Locale getLocale() {
-    return Locale.ENGLISH;
-  }
-
 }

@@ -22,25 +22,30 @@ package org.sonar.batch.scan;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class LanguageVerifierTest {
 
   Settings settings = new Settings();
   Languages languages = new Languages(Java.INSTANCE);
+  DefaultFileSystem fs = new DefaultFileSystem();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void language_is_not_set() throws Exception {
-    LanguageVerifier verifier = new LanguageVerifier(settings, languages);
+    LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
     verifier.start();
 
-    // no failure
+    // no failure and no language is forced
+    assertThat(fs.languages()).isEmpty();
 
     verifier.stop();
   }
@@ -49,10 +54,11 @@ public class LanguageVerifierTest {
   public void language_is_valid() throws Exception {
     settings.setProperty("sonar.language", "java");
 
-    LanguageVerifier verifier = new LanguageVerifier(settings, languages);
+    LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
     verifier.start();
 
-    // no failure
+    // no failure and language is hardly registered
+    assertThat(fs.languages()).contains("java");
 
     verifier.stop();
   }
@@ -63,7 +69,7 @@ public class LanguageVerifierTest {
     thrown.expectMessage("You must install a plugin that supports the language 'php'");
 
     settings.setProperty("sonar.language", "php");
-    LanguageVerifier verifier = new LanguageVerifier(settings, languages);
+    LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
     verifier.start();
   }
 }
