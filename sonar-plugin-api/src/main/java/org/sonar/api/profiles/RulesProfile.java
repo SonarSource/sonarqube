@@ -376,9 +376,10 @@ public class RulesProfile implements Cloneable {
       public boolean apply(ActiveRule input) {
         return input.getRule().equals(rule);
       }
-    })){
-      throw new IllegalStateException(String.format("The rule '%s:%s' is already activated on the profile '%s' (language '%s')",
-        rule.getRepositoryKey(), rule.getKey(), getName(), getLanguage()));
+    })) {
+      throw new IllegalStateException(String.format(
+        "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
+        getName(), getLanguage(), rule.getRepositoryKey(), rule.getKey()));
     }
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);

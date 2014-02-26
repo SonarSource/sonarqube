@@ -71,7 +71,8 @@ public class RulesProfileTest {
       profile.activateRule(rule, null);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("The rule 'repo:key1' is already activated on the profile 'Default' (language 'java')");
+      assertThat(e).isInstanceOf(IllegalStateException.class)
+        .hasMessage("The definition of the profile 'Default' (language 'java') contains multiple occurrences of the 'repo:key1' rule. The plugin which declares this profile should fix this.");
     }
   }
 }
