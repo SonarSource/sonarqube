@@ -22,6 +22,7 @@ package org.sonar.api.profiles;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.MessageException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -71,7 +72,7 @@ public class RulesProfileTest {
       profile.activateRule(rule, null);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class)
+      assertThat(e).isInstanceOf(MessageException.class)
         .hasMessage("The definition of the profile 'Default' (language 'java') contains multiple occurrences of the 'repo:key1' rule. The plugin which declares this profile should fix this.");
     }
   }
