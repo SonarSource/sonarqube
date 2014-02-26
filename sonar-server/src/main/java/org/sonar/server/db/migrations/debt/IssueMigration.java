@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class IssueMigration implements DatabaseMigration {
 
-  private Logger logger = LoggerFactory.getLogger(IssueMigration.class);
+  private static final Logger logger = LoggerFactory.getLogger(IssueMigration.class);
 
   private static final String ID = "id";
   private static final String DEBT = "debt";
@@ -107,7 +107,7 @@ public class IssueMigration implements DatabaseMigration {
     }
   }
 
-  public Object convert(Referentials referentials) throws Exception {
+  public Object convert(Referentials referentials) throws SQLException {
     // For each group of 1000 issue ids:
     // - load related issues
     // - in a transaction

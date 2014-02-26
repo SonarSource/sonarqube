@@ -34,10 +34,11 @@ import java.sql.SQLException;
  */
 public class ViolationMigration implements DatabaseMigration {
 
-  private static final String FAILURE_MESSAGE = "Fail to convert violations to issues";
-  private final Settings settings;
+  private static final Logger logger = LoggerFactory.getLogger(ViolationMigration.class);
 
-  private Logger logger = LoggerFactory.getLogger(ViolationMigration.class);
+  private static final String FAILURE_MESSAGE = "Fail to convert violations to issues";
+
+  private final Settings settings;
   private final Database db;
 
   public ViolationMigration(Database database, Settings settings) {

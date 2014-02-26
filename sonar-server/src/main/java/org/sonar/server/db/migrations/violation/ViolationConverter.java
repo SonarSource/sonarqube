@@ -130,7 +130,7 @@ class ViolationConverter implements Callable<Object> {
   }
 
   @Override
-  public Object call() throws Exception {
+  public Object call() throws SQLException {
     // For each group of 1000 violation ids:
     // - load related violations, reviews and action plans
     // - in a transaction

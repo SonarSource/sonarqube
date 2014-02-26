@@ -35,6 +35,7 @@ import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.util.SqlUtil;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,7 +47,7 @@ import java.util.Map;
  */
 public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
 
-  private Logger logger = LoggerFactory.getLogger(DevelopmentCostMeasuresMigration.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevelopmentCostMeasuresMigration.class);
 
   private static final String ID = "id";
   private static final String VALUE = "value";
@@ -101,7 +102,7 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
     }
   }
 
-  public Object convert(Referentials referentials) throws Exception {
+  public Object convert(Referentials referentials) throws SQLException {
     Long[] ids = referentials.pollGroupOfIds();
     while (ids.length > 0) {
       List<Map<String, Object>> rows = selectRows(ids);
