@@ -19,6 +19,8 @@
  */
 package org.sonar.api.profiles;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -31,6 +33,7 @@ import org.sonar.api.rules.RulePriority;
 
 import javax.annotation.CheckForNull;
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -367,7 +370,16 @@ public class RulesProfile implements Cloneable {
   /**
    * @param optionalSeverity if null, then the default rule severity is used
    */
-  public ActiveRule activateRule(Rule rule, RulePriority optionalSeverity) {
+  public ActiveRule activateRule(final Rule rule, RulePriority optionalSeverity) {
+    if (Iterables.any(activeRules, new Predicate<ActiveRule>() {
+      @Override
+      public boolean apply(ActiveRule input) {
+        return input.getRule().equals(rule);
+      }
+    })){
+      throw new IllegalStateException(String.format("The rule '%s:%s' is already activated on the profile '%s' (language '%s')",
+        rule.getRepositoryKey(), rule.getKey(), getName(), getLanguage()));
+    }
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);
     activeRule.setRulesProfile(this);
