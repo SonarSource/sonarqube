@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.persistence.*;
@@ -377,7 +378,7 @@ public class RulesProfile implements Cloneable {
         return input.getRule().equals(rule);
       }
     })) {
-      throw new IllegalStateException(String.format(
+      throw MessageException.of(String.format(
         "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
         getName(), getLanguage(), rule.getRepositoryKey(), rule.getKey()));
     }
