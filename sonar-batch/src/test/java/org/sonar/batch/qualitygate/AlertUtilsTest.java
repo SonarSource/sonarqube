@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+
+package org.sonar.batch.qualitygate;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -234,7 +235,6 @@ public class AlertUtilsTest {
 
   @Test
   public void testErrorAndWarningLevel() {
-
     metric.setType(Metric.ValueType.FLOAT);
     measure.setValue(10.2d);
     alert.setOperator(Alert.OPERATOR_EQUALS);

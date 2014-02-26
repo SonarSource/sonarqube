@@ -247,4 +247,29 @@ public class Alert extends BaseIdentifiable implements Cloneable {
     return new Alert(getRulesProfile(), getMetric(), getOperator(), getValueError(), getValueWarning(), getPeriod());
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Alert alert = (Alert) o;
+    if (metric != null ? !metric.equals(alert.metric) : alert.metric != null) {
+      return false;
+    }
+    if (period != null ? !period.equals(alert.period) : alert.period != null) {
+      return false;
+    }
+    return !(rulesProfile != null ? !rulesProfile.equals(alert.rulesProfile) : alert.rulesProfile != null);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = rulesProfile != null ? rulesProfile.hashCode() : 0;
+    result = 31 * result + (metric != null ? metric.hashCode() : 0);
+    result = 31 * result + (period != null ? period.hashCode() : 0);
+    return result;
+  }
 }

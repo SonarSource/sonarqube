@@ -17,11 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.batch.qualitygate;
 
-/**
- * This package is a part of bootstrap process, so we should take care about backward compatibility.
- */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.fs;
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.api.profiles.Alert;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import static org.fest.assertions.Assertions.assertThat;
+
+public class ProjectAlertsTest {
+  @Test
+  public void test() throws Exception {
+    ProjectAlerts alerts = new ProjectAlerts();
+    assertThat(alerts.all()).isEmpty();
+
+    alerts.addAll(Lists.newArrayList(new Alert()));
+    assertThat(alerts.all()).hasSize(1);
+  }
+}

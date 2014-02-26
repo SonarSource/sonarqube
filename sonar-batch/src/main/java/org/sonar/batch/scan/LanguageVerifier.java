@@ -23,6 +23,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -37,10 +39,12 @@ public class LanguageVerifier implements Startable {
 
   private final Settings settings;
   private final Languages languages;
+  private final DefaultFileSystem fs;
 
-  public LanguageVerifier(Settings settings, Languages languages) {
+  public LanguageVerifier(Settings settings, Languages languages, DefaultFileSystem fs) {
     this.settings = settings;
     this.languages = languages;
+    this.fs = fs;
   }
 
 
@@ -53,6 +57,9 @@ public class LanguageVerifier implements Startable {
       if (language == null) {
         throw MessageException.of("You must install a plugin that supports the language '" + languageKey + "'");
       }
+
+      // force the registration of the language, even if there are no related source files
+      fs.addLanguages(languageKey);
     }
   }
 

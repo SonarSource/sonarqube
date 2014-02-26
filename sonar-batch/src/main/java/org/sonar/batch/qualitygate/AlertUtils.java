@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.qualitygate;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -25,15 +25,16 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 
-public final class AlertUtils {
+class AlertUtils {
 
   private AlertUtils() {
+    // only static stuff
   }
 
   /**
    * Get the matching alert level for the given measure
    */
-  public static Metric.Level getLevel(Alert alert, Measure measure) {
+  static Metric.Level getLevel(Alert alert, Measure measure) {
     if (evaluateAlert(alert, measure, Metric.Level.ERROR)) {
       return Metric.Level.ERROR;
     }
