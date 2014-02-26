@@ -72,12 +72,8 @@ public class ComponentIndexer implements BatchComponent {
         pathFromSourceDir = inputFile.relativePath();
       }
       Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
-      if (Java.KEY.equals(languageKey)) {
-        sonarFile.setDeprecatedKey(JavaFile.fromRelativePath(pathFromSourceDir, false).getDeprecatedKey());
-      } else {
-        sonarFile.setDeprecatedKey(pathFromSourceDir);
-      }
       if (sonarFile != null) {
+        sonarFile.setDeprecatedKey(((DefaultInputFile)inputFile).deprecatedKey());
         moduleLanguages.addLanguage(languageKey);
         sonarIndex.index(sonarFile);
         importSources(fs, shouldImportSource, inputFile, sonarFile);
