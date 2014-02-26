@@ -9,7 +9,7 @@
     <if test="query.projectSearch() != null">
       JOIN resource_index ind ON ind.root_project_id=proj.id
     </if>
-    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value=#{gateId}
+    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value LIKE #{gateId}
     <where>
       <choose>
         <when test="query.membership() == 'IN'">
