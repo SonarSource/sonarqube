@@ -103,7 +103,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #ffffff url(../images/loading.gif) no-repeat 4px 4px;
+  background: #ffffff url(../images/loading-new.gif) no-repeat 4px 4px;
 }
 .navigator-fetching#tab-issue-rule {
   position: relative;
@@ -256,7 +256,7 @@
   overflow: auto;
 }
 .navigator-details.loading {
-  background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
+  background: #ffffff url("../images/loading-new.gif") no-repeat 4px 2px;
 }
 .navigator-details .code-issue-name {
   border-bottom: none;

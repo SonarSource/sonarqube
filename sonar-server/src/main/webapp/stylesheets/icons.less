@@ -1,4 +1,5 @@
 @import "variables";
+@import "mixins";
 
 @font-face {
   font-family: 'sonar';
@@ -180,4 +181,56 @@
   position: relative;
   top: -0.1em;
   content: "\f00c";
+}
+
+
+/*
+ * Spinner
+ */
+
+.spinner {
+  position: relative;
+  vertical-align: middle;
+  .square(16px);
+  border: 2px solid #0cf;
+  border-radius: 50%;
+  .animation(spin 0.75s infinite linear);
+}
+
+.spinner:before,
+.spinner:after {
+  left: -2px;
+  top: -2px;
+  display: none;
+  position: absolute;
+  content: '';
+  width: inherit;
+  height: inherit;
+  border: inherit;
+  border-radius: inherit;
+}
+
+.spinner,
+.spinner:before,
+.spinner:after {
+  display: inline-block;
+  .box-sizing(border-box);
+  border-color: transparent;
+  border-top-color: @blue;
+  .animation-duration(1.2s);
+}
+.spinner:before {
+  .rotate(120deg);
+}
+.spinner:after {
+  .rotate(240deg);
+}
+
+@-webkit-keyframes spin {
+  from { .rotate(0deg); }
+  to { .rotate(360deg); }
+}
+@keyframes spin {
+  from { .rotate(0deg); }
+  to { .rotate(360deg); }
 }
