@@ -20,9 +20,8 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.MessageException;
+import org.sonar.api.rule.RuleStatus;
 
 import java.net.URL;
 
@@ -228,9 +227,8 @@ public class RuleDefinitionsTest {
       // whitespaces are not allowed in tags
       context.newRepository("findbugs", "java").newRule("NPE").setTags("coding style");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class)
-        .hasMessage("Tag 'coding style' is invalid. Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.'");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.' - 'coding style'");
     }
   }
 
