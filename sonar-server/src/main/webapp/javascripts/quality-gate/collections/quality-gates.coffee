@@ -1,6 +1,6 @@
 define [
   'backbone',
-  '../models/quality-gate'
+  'quality-gate/models/quality-gate'
 ], (
   Backbone,
   QualityGate

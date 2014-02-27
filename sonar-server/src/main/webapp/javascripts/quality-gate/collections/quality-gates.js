@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone', '../models/quality-gate'], function(Backbone, QualityGate) {
+  define(['backbone', 'quality-gate/models/quality-gate'], function(Backbone, QualityGate) {
     var QualityGates, _ref;
     return QualityGates = (function(_super) {
       __extends(QualityGates, _super);

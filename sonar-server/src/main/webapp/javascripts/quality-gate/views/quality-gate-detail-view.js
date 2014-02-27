@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'handlebars', '../collections/conditions', '../views/quality-gate-detail-header-view', '../views/quality-gate-detail-renaming-view', '../views/quality-gate-detail-conditions-view', '../views/quality-gate-detail-projects-view'], function(Marionette, Handlebars, Conditions, QualityGateDetailHeaderView, QualityGateDetailRenamingView, QualityGateDetailConditionsView, QualityGateDetailProjectsView) {
+  define(['backbone.marionette', 'handlebars', 'quality-gate/collections/conditions', 'quality-gate/views/quality-gate-detail-header-view', 'quality-gate/views/quality-gate-detail-renaming-view', 'quality-gate/views/quality-gate-detail-conditions-view', 'quality-gate/views/quality-gate-detail-projects-view'], function(Marionette, Handlebars, Conditions, QualityGateDetailHeaderView, QualityGateDetailRenamingView, QualityGateDetailConditionsView, QualityGateDetailProjectsView) {
     var QualityGateDetailView, _ref;
     return QualityGateDetailView = (function(_super) {
       __extends(QualityGateDetailView, _super);

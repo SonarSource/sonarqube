@@ -1,8 +1,8 @@
 define [
   'backbone',
-  'models/quality-gate',
-  'views/quality-gate-detail-view',
-  'views/quality-gate-new-view'
+  'quality-gate/models/quality-gate',
+  'quality-gate/views/quality-gate-detail-view',
+  'quality-gate/views/quality-gate-new-view'
 ], (
   Backbone,
   QualityGate,

@@ -1,11 +1,11 @@
 define [
   'backbone.marionette',
   'handlebars',
-  '../collections/conditions',
-  '../views/quality-gate-detail-header-view',
-  '../views/quality-gate-detail-renaming-view',
-  '../views/quality-gate-detail-conditions-view',
-  '../views/quality-gate-detail-projects-view'
+  'quality-gate/collections/conditions',
+  'quality-gate/views/quality-gate-detail-header-view',
+  'quality-gate/views/quality-gate-detail-renaming-view',
+  'quality-gate/views/quality-gate-detail-conditions-view',
+  'quality-gate/views/quality-gate-detail-projects-view'
 ], (
   Marionette,
   Handlebars,

@@ -25,6 +25,7 @@ module.exports = function(config) {
     files: [
         // dependencies
         'third-party/jquery.min.js',
+        'third-party/jquery.mockjax.js',
         'third-party/underscore.js',
         'third-party/require.js',
 
@@ -36,6 +37,7 @@ module.exports = function(config) {
 
         // app
         { pattern: 'navigator/**/*.js', included: false },
+        { pattern: 'quality-gate/**/*.js', included: false },
 
         // tests
         { pattern: 'tests/**/*Spec.js', included: false },

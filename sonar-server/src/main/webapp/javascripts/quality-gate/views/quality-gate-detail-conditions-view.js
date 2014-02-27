@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'handlebars', '../models/condition', '../views/quality-gate-detail-condition-view'], function(Marionette, Handlebars, Condition, QualityGateDetailConditionView) {
+  define(['backbone.marionette', 'handlebars', 'quality-gate/models/condition', 'quality-gate/views/quality-gate-detail-condition-view'], function(Marionette, Handlebars, Condition, QualityGateDetailConditionView) {
     var QualityGateDetailConditionsView, _ref;
     return QualityGateDetailConditionsView = (function(_super) {
       __extends(QualityGateDetailConditionsView, _super);

@@ -1,8 +1,8 @@
 define [
   'backbone.marionette',
   'handlebars',
-  '../models/condition',
-  '../views/quality-gate-detail-condition-view'
+  'quality-gate/models/condition',
+  'quality-gate/views/quality-gate-detail-condition-view'
 ], (
   Marionette,
   Handlebars,

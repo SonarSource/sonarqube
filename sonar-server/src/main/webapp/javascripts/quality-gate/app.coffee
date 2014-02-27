@@ -1,11 +1,12 @@
 requirejs.config
+  baseUrl: 'javascripts'
 
   paths:
-    'backbone': '../third-party/backbone'
-    'backbone.marionette': '../third-party/backbone.marionette'
-    'handlebars': '../third-party/handlebars'
-    'moment': '../third-party/moment'
-    'select-list': '../select-list'
+    'backbone': 'third-party/backbone'
+    'backbone.marionette': 'third-party/backbone.marionette'
+    'handlebars': 'third-party/handlebars'
+    'moment': 'third-party/moment'
+    'select-list': 'select-list'
 
   shim:
     'backbone.marionette':
@@ -23,11 +24,11 @@ requirejs.config
 
 requirejs [
   'backbone', 'backbone.marionette', 'handlebars',
-  'collections/quality-gates',
-  'collections/metrics',
-  'views/quality-gate-sidebar-list-view',
-  'router'
-  '../handlebars-extensions'
+  'quality-gate/collections/quality-gates',
+  'quality-gate/collections/metrics',
+  'quality-gate/views/quality-gate-sidebar-list-view',
+  'quality-gate/router'
+  'handlebars-extensions'
 ], (
   Backbone, Marionette, Handlebars,
   QualityGates,

@@ -1,2 +1,5 @@
 # nodeJS dependencies
 node_modules/
+
+# js build
+src/main/webapp/javascripts/build/
