@@ -249,6 +249,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>ro.isdc.wro4j</groupId>
         <artifactId>wro4j-maven-plugin</artifactId>
@@ -269,6 +270,27 @@
           <wroFile>${basedir}/wro.xml</wroFile>
           <wroManagerFactory>ro.isdc.wro.extensions.manager.standalone.GoogleStandaloneManagerFactory</wroManagerFactory>
           <ignoreMissingResources>false</ignoreMissingResources>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.bringking</groupId>
+        <artifactId>requirejs-maven-plugin</artifactId>
+        <version>2.0.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>optimize</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <configFile>${basedir}/src/main/webapp/javascripts/build.js</configFile>
+          <optimizerParameters>
+            <parameter>dir=${project.build.directory}/${project.build.finalName}/javascripts</parameter>
+            <parameter>skipDirOptimize=true</parameter>
+            <parameter>keepBuildDir=true</parameter>
+          </optimizerParameters>
         </configuration>
       </plugin>
 
@@ -297,7 +319,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <packagingExcludes>
-            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css
+            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests,
           </packagingExcludes>
           <warSourceExcludes>
             **/*

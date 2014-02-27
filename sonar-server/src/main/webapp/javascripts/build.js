@@ -1,7 +1,7 @@
 ({
   appDir: '.',
   baseUrl: '.',
-  dir: 'build',
+  dir: 'DEFINED IN POM.XML',
 
   modules: [
   	{ name: 'quality-gate/app' },
