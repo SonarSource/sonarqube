@@ -81,5 +81,6 @@ requirejs [
 
   # Load metrics and the list of quality gates before start the application
   jQuery.when(App.metrics.fetch(), App.qualityGates.fetch()).done ->
+    jQuery('.quality-gate-page-loader').remove()
     # Start the application
     App.start()

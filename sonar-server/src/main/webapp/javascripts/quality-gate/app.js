@@ -79,6 +79,7 @@
       }
     });
     return jQuery.when(App.metrics.fetch(), App.qualityGates.fetch()).done(function() {
+      jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });
   });

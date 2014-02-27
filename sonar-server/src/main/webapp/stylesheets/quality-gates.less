@@ -1,10 +1,17 @@
 @import "variables";
 @import "mixins";
+@import "navigator/base";
 
 .quality-gate {
   position: relative;
   padding: 0 10px;
   overflow: hidden;
+}
+
+.quality-gate-page-loader {
+  position: relative;
+  .square(24px);
+  .navigator-fetching;
 }
 
 .quality-gate-header {

@@ -10,10 +10,389 @@
 /*
  * Transitions
  */
+.navigator-header {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 30px;
+  left: 0;
+  width: 100%;
+  height: 37px;
+}
+.navigator-filters {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 67px;
+  left: 0;
+  width: 100%;
+  height: 37px;
+}
+.navigator-results {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  top: 134px;
+  bottom: 0;
+  left: 0;
+  width: 319px;
+}
+.navigator-details {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 104px;
+  bottom: 35px;
+  left: 320px;
+  right: 0;
+}
+.navigator-actions {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 104px;
+  left: 0;
+  width: 320px;
+  height: 30px;
+}
+.navigator-notes {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 104px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  display: none;
+}
+.navigator-simple .navigator-filters {
+  top: 30px;
+}
+.navigator-simple .navigator-results {
+  top: 67px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+.navigator-with-notes .navigator-actions,
+.navigator-with-notes .navigator-details {
+  top: 124px;
+}
+.navigator-with-notes .navigator-results {
+  top: 154px;
+}
+.navigator-with-notes .navigator-notes {
+  display: block;
+}
+.navigator-with-notes .navigator-details .source_title {
+  top: 124px;
+}
+.navigator-fetching:before {
+  content: " ";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff url(../images/loading.gif) no-repeat 4px 4px;
+}
+.navigator-fetching#tab-issue-rule {
+  position: relative;
+}
+.navigator-fetching#tab-issue-rule:before {
+  z-index: 3;
+  background-color: #EFEFEF;
+}
+.navigator-fetching.code-issue-actions {
+  position: relative;
+}
+.navigator-fetching.code-issue-actions:before {
+  z-index: 3;
+  background-color: #E4ECF3;
+}
+.navigator-header {
+  padding: 0 10px;
+  border-bottom: 1px solid #cdcdcd;
+  background-color: #efefef;
+  font-size: 0;
+}
+.navigator-header-favorite {
+  padding-left: 46px;
+}
+.navigator-header-title {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 20px;
+  line-height: 37px;
+}
+.navigator-header-description {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 16px;
+  font-size: 11px;
+  font-style: italic;
+}
+.navigator-header-actions {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 16px;
+}
+.navigator-header-actions > button {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: normal;
+  cursor: pointer;
+}
+.navigator-header-actions > button:hover,
+.navigator-header-actions > button:focus {
+  z-index: 3;
+}
+.navigator-header-actions > button + button {
+  margin-left: -1px;
+}
+.navigator-header-actions > a {
+  vertical-align: middle;
+  margin: 0 8px;
+  font-size: 11px;
+}
+.navigator-notes {
+  padding: 0 10px;
+  border-bottom: 1px solid #cdcdcd;
+  background-color: #efefef;
+  color: #777;
+  font-size: 11px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.navigator-results {
+  border-right: 1px solid #e1e1e1;
+  background-color: #ffffff;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.navigator-results-list > li {
+  padding: 5px 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.navigator-results-list > li:first-child {
+  border-top: 1px solid transparent;
+}
+.navigator-results-list > li:first-child.active {
+  border-top-color: #4B9FD5;
+}
+.navigator-results-list > li:last-child {
+  border-bottom: 1px solid transparent;
+}
+.navigator-results-list > li:last-child.active {
+  border-bottom-color: #4B9FD5;
+}
+.navigator-results-list > li .line {
+  padding: 5px 10px;
+  line-height: 1.2;
+}
+.navigator-results-list > li .line-small {
+  font-size: 11px;
+  line-height: 14px;
+}
+.navigator-results-list > li .line-right {
+  float: right;
+}
+.navigator-results-list > li .line-nowrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.navigator-results-list > li:hover {
+  background-color: #efefef;
+}
+.navigator-results-list > li.active {
+  background-color: #CAE3F2;
+  border-color: #4B9FD5;
+}
+.navigator-results-list > li + li {
+  border-top: 1px solid #e1e1e1;
+}
+.navigator-results-list > li.active + li {
+  border-top-color: #4B9FD5;
+}
+.navigator-results-list.navigator-fetching > li .line-nowrap {
+  text-overflow: clip;
+  /* thanks to FF */
+
+}
+.navigator-results-list.navigator-fetching:before {
+  position: fixed;
+  z-index: 3;
+  top: 134px;
+  bottom: 0;
+  left: 0;
+  width: 319px;
+}
+.navigator-results-no-issues {
+  padding-top: 20%;
+  color: #999;
+  text-align: center;
+}
+.navigator-details {
+  padding: 62px 0 10px 10px;
+  background-color: #ffffff;
+  overflow: auto;
+}
+.navigator-details.loading {
+  background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;
+}
+.navigator-details .code-issue-name {
+  border-bottom: none;
+}
+.navigator-details .code-issue-actions {
+  background-color: #E4ECF3;
+}
+.navigator-details .source_title {
+  position: fixed;
+  z-index: 3;
+  top: 104px;
+  left: 320px;
+  right: 0;
+  padding: 10px;
+  border-bottom: 1px solid #e1e1e1;
+  background-color: #fff;
+}
+.navigator-details .source {
+  padding-right: 10px;
+}
+.navigator-details .source > table {
+  border: 1px solid #DDD;
+}
+.navigator-details .scm .author {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.navigator-actions {
+  padding: 0 10px 0 0;
+  border-right: 1px solid #e1e1e1;
+  border-bottom: 1px solid #e1e1e1;
+  background-color: #efefef;
+  font-size: 11px;
+}
+.navigator-actions strong {
+  font-weight: bold;
+}
+.navigator-actions-order {
+  float: left;
+  padding: 0 10px;
+  line-height: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.navigator-actions-order:hover {
+  background-color: #efefef;
+}
+.navigator-actions-order-choices {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 134px;
+  left: 0;
+  min-width: 160px;
+  background-color: #fff;
+  border-bottom: 1px solid #e1e1e1;
+  border-right: 1px solid #e1e1e1;
+  overflow: hidden;
+  display: none;
+}
+.navigator-actions-order-choices > li {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.navigator-actions-order-choices > li:hover {
+  background-color: #efefef;
+}
+.navigator-actions-order-choices.open {
+  display: block;
+}
+.navigator-actions-total {
+  float: right;
+  line-height: 26px;
+}
+.navigator-actions-bulk {
+  position: relative;
+  top: -1px;
+  margin-left: 8px;
+  font-size: 16px;
+  text-decoration: none;
+}
+.issues-page #footer {
+  position: fixed;
+  z-index: 2;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0;
+  left: 320px;
+  right: 0;
+  margin: 0;
+  border-top: 1px solid #e1e1e1;
+}
+.issues-page #ftlinks {
+  margin-top: 0;
+}
 .quality-gate {
   position: relative;
   padding: 0 10px;
   overflow: hidden;
+}
+.quality-gate-page-loader {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+.quality-gate-page-loader:before {
+  content: " ";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff url(../images/loading.gif) no-repeat 4px 4px;
+}
+.quality-gate-page-loader#tab-issue-rule {
+  position: relative;
+}
+.quality-gate-page-loader#tab-issue-rule:before {
+  z-index: 3;
+  background-color: #EFEFEF;
+}
+.quality-gate-page-loader.code-issue-actions {
+  position: relative;
+}
+.quality-gate-page-loader.code-issue-actions:before {
+  z-index: 3;
+  background-color: #E4ECF3;
 }
 .quality-gate-header {
   position: relative;
