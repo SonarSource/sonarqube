@@ -77,9 +77,11 @@ define [
         op: @ui.operatorSelect.val()
         warning: @ui.warningInput.val()
         error: @ui.errorInput.val()
-      @model.save().done =>
-        @options.collectionView.updateConditions()
-        @hideSpinner()
+      @model.save()
+        .always =>
+          @hideSpinner()
+        .done =>
+          @options.collectionView.updateConditions()
 
 
     deleteCondition: ->

@@ -40,10 +40,11 @@
             id: this.model.id,
             name: newName
           }
+        }).always(function() {
+          return _this.options.detailView.hideHeaderSpinner();
         }).done(function() {
           _this.model.set('name', newName);
-          _this.options.detailView.showHeader();
-          return _this.options.detailView.hideHeaderSpinner();
+          return _this.options.detailView.showHeader();
         });
       };
 

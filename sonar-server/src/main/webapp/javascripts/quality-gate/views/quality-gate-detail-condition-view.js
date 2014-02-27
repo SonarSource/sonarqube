@@ -94,9 +94,10 @@
           warning: this.ui.warningInput.val(),
           error: this.ui.errorInput.val()
         });
-        return this.model.save().done(function() {
-          _this.options.collectionView.updateConditions();
+        return this.model.save().always(function() {
           return _this.hideSpinner();
+        }).done(function() {
+          return _this.options.collectionView.updateConditions();
         });
       };
 

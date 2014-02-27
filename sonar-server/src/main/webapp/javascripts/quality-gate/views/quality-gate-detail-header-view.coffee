@@ -36,14 +36,15 @@ define [
       @options.detailView.showHeaderSpinner()
       data = if set then { id: @model.id } else {}
       method = if set then 'set_as_default' else 'unset_default'
-      jQuery.ajax({
+      jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/qualitygates/#{method}"
         data: data
-      }).done =>
+      .always =>
+        @options.detailView.hideHeaderSpinner()
+      .done =>
         @options.app.unsetDefaults @model.id
         @model.set 'default', !@model.get('default')
-        @options.detailView.hideHeaderSpinner()
 
 
     setAsDefault: ->

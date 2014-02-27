@@ -54,10 +54,11 @@
           type: 'POST',
           url: "" + baseUrl + "/api/qualitygates/" + method,
           data: data
+        }).always(function() {
+          return _this.options.detailView.hideHeaderSpinner();
         }).done(function() {
           _this.options.app.unsetDefaults(_this.model.id);
-          _this.model.set('default', !_this.model.get('default'));
-          return _this.options.detailView.hideHeaderSpinner();
+          return _this.model.set('default', !_this.model.get('default'));
         });
       };
 

@@ -31,6 +31,16 @@
 
   requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/router', 'handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateRouter) {
     var App;
+    jQuery.ajaxSetup({
+      error: function(jqXHR) {
+        var _ref;
+        if (((_ref = jqXHR.responseJSON) != null ? _ref.errors : void 0) != null) {
+          return alert(_.pluck(jqXHR.responseJSON.errors, 'msg').join('. '));
+        } else {
+          return alert(jqXHR.responseText);
+        }
+      }
+    });
     App = new Marionette.Application;
     App.metrics = new Metrics;
     App.qualityGates = new QualityGates;

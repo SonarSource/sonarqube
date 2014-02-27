@@ -28,11 +28,11 @@ define [
     save: ->
       @showHeaderSpinner()
       name = @ui.input.val()
-      jQuery.ajax({
+      jQuery.ajax
         url: "#{baseUrl}/api/qualitygates/create"
         type: 'POST'
         data: name: name
-      }).done (r) =>
+      .done (r) =>
         @model.set r
         @options.app.qualityGates.add @model
         @options.app.router.navigate "show/#{@model.id}", trigger: true

@@ -26,16 +26,17 @@ define [
     rename: ->
       @options.detailView.showHeaderSpinner()
       newName = @ui.input.val()
-      jQuery.ajax({
+      jQuery.ajax
         url: "#{baseUrl}/api/qualitygates/rename"
         type: 'POST'
         data:
           id: @model.id
           name: newName
-      }).done =>
+      .always =>
+        @options.detailView.hideHeaderSpinner()
+      .done =>
         @model.set 'name', newName
         @options.detailView.showHeader()
-        @options.detailView.hideHeaderSpinner()
 
 
     cancel: ->

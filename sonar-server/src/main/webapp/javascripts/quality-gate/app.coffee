@@ -37,6 +37,14 @@ requirejs [
   QualityGateRouter
 ) ->
 
+  # Create a generic error handler for ajax requests
+  jQuery.ajaxSetup
+    error: (jqXHR) ->
+      if jqXHR.responseJSON?.errors?
+        alert _.pluck(jqXHR.responseJSON.errors, 'msg').join '. '
+      else
+        alert jqXHR.responseText
+
   # Create a Quality Gate Application
   App = new Marionette.Application
 
@@ -80,7 +88,8 @@ requirejs [
     App.openFirstQualityGate() if initial
 
   # Load metrics and the list of quality gates before start the application
-  jQuery.when(App.metrics.fetch(), App.qualityGates.fetch()).done ->
-    jQuery('.quality-gate-page-loader').remove()
-    # Start the application
-    App.start()
+  jQuery.when(App.metrics.fetch(), App.qualityGates.fetch())
+    .done ->
+      jQuery('.quality-gate-page-loader').remove()
+      # Start the application
+      App.start()
