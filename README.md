@@ -40,7 +40,7 @@ Committers must configure their SSH key (see GitHub documentation for Windows an
 * Install JDK 6 or greater
 * Install Maven 3.0.5 or greater
 * Execute `mvn clean install`. ZIP file of application is generated into sonar-application/target/
-* To speed-up the build, http://nodejs.org must be installed (simply execute `brew install nodejs` on MacOS). node executable node must be available in PATH.
+* Optionally, to speed-up build, http://nodejs.org should be installed (simply execute `brew install nodejs` on MacOS). node executable node must be available in PATH.
 
 ### Edit Ruby Code
 
