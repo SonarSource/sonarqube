@@ -5,8 +5,9 @@
 
   modules: [
   	{ name: 'quality-gate/app' },
-  	{ name: 'issues' },
-  	{ name: 'measures' }
+  	{ name: 'issues/app' },
+  	{ name: 'measures/app' },
+  	{ name: 'common/select-list' }
   ],
 
   paths: {
@@ -14,7 +15,7 @@
     'backbone.marionette': 'third-party/backbone.marionette',
     'handlebars': 'third-party/handlebars',
     'moment': 'third-party/moment',
-    'select-list': 'select-list'
+    'select-list': 'common/select-list'
   },
 
   shim: {

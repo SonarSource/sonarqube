@@ -1,4 +1,5 @@
 requirejs.config({
+  baseUrl: baseUrl + '/javascripts',
 
   paths: {
     'backbone': 'third-party/backbone',

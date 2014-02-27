@@ -1,4 +1,5 @@
 requirejs.config({
+  baseUrl: baseUrl + '/javascripts',
 
   paths: {
     'backbone': 'third-party/backbone',
@@ -28,7 +29,7 @@ requirejs.config({
 requirejs(
     [
       'backbone', 'backbone.marionette', 'handlebars', 'moment',
-      'issues-extra',
+      'issues/extra',
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',
@@ -41,7 +42,7 @@ requirejs(
       'navigator/filters/action-plan-filters',
       'navigator/filters/rule-filters',
 
-      'handlebars-extensions'
+      'common/handlebars-extensions'
     ],
     function (Backbone, Marionette, Handlebars, moment, Extra, FilterBar, BaseFilters, CheckboxFilterView,
               ChoiceFilters, AjaxSelectFilters, FavoriteFilters, RangeFilters, ContextFilterView,

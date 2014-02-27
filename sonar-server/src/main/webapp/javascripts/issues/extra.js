@@ -1,7 +1,7 @@
 define(
     [
       'backbone', 'backbone.marionette',
-      'navigator/filters/filter-bar',
+      '../navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/favorite-filters',
       'navigator/filters/read-only-filters'
