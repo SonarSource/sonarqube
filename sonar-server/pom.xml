@@ -255,7 +255,7 @@
         <artifactId>wro4j-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>run</goal>
             </goals>
@@ -279,6 +279,7 @@
         <version>2.0.3</version>
         <executions>
           <execution>
+            <phase>prepare-package</phase>
             <goals>
               <goal>optimize</goal>
             </goals>
@@ -300,7 +301,7 @@
         <executions>
           <execution>
             <id>trim</id>
-            <phase>process-resources</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>trim</goal>
             </goals>

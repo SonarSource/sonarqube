@@ -39,15 +39,15 @@ Committers must configure their SSH key (see GitHub documentation for Windows an
 
 * Install JDK 6 or greater
 * Install Maven 3.0.5 or greater
-* Execute `mvn clean install`. To quickly build in development environment, the script `quick-build.sh` does not execute unit tests and compile GWT components for Firefox/Chrome only.
-* ZIP file of application is generated in sonar-application/target/
+* Execute `mvn clean install`. ZIP file of application is generated into sonar-application/target/
+* To speed-up the build, http://nodejs.org must be installed (simply execute `brew install nodejs` on MacOS). node executable node must be available in PATH.
 
 ### Edit Ruby Code
 
 The development mode is used to edit Ruby on Rails code. The application is automatically reloaded when Ruby files are saved. It avoids restarting the server. Changes are reloaded on the fly. Execute one of the following commands from the sonar-server/ directory to start server:
 
     # for embedded database
-    sonar-server/derby-start.sh
+    sonar-server/h2-start.sh
     
     # or for other dbs
     sonar-server/mysql-start.sh
@@ -69,34 +69,9 @@ Duplicate $MAVEN_HOME/bin/mvnDebug to mvnJProfiler and replace the property MAVE
 
 Then start JProfiler -> Connect to an application on a remote computer
 
-### Log All Server SQL Requests
-
-Download log4jdbc4-1.2.jar from http://log4jdbc.googlecode.com/files/log4jdbc4-1.2.jar in $SONAR_HOME/war/sonar-server/WEB-INF/lib/log4jdbc4-1.2.jar, and edit conf/logback.xml:
-
-    <logger name="jdbc.sqltiming">
-      <level value="OFF"/>
-      <appender-ref ref="PROFILING_FILE"/>
-    </logger>
-    <logger name="jdbc.connection">
-        <level value="INFO"/>
-        <appender-ref ref="PROFILING_FILE"/>
-    </logger>
-    <logger name="jdbc.audit">
-        <level value="OFF"/>
-        <appender-ref ref="PROFILING_FILE"/>
-    </logger>
-    <logger name="jdbc.resultset">
-        <level value="OFF"/>
-        <appender-ref ref="PROFILING_FILE"/>
-    </logger>
-    <logger name="jdbc.sqlonly">
-        <level value="OFF"/>
-        <appender-ref ref="PROFILING_FILE"/>
-    </logger>
-    
 ## License
 
-Copyright 2008-2013 SonarSource.
+Copyright 2008-2014 SonarSource.
 
 Licensed under the GNU Lesser General Public License, Version 3.0: http://www.gnu.org/licenses/lgpl.txt
 
