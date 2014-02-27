@@ -47,17 +47,23 @@ public class RulesProfile implements Cloneable {
 
   /**
    * Name of the default profile "Sonar Way"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SONAR_WAY_NAME = "Sonar way";
 
   /**
    * Name of the default java profile "Sonar way with Findbugs"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SONAR_WAY_FINDBUGS_NAME = "Sonar way with Findbugs";
 
   /**
    * Name of the default java profile "Sun checks"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SUN_CONVENTIONS_NAME = "Sun checks";
 
   @Id

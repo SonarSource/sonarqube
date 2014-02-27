@@ -109,7 +109,7 @@ public class ResourceKeyMigration implements BatchComponent {
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
         Resource sonarFile;
-        if (Java.KEY.equals(resourceModel.getLanguageKey())) {
+        if ("java".equals(resourceModel.getLanguageKey())) {
           sonarFile = new JavaFile(oldKey);
         } else {
           sonarFile = new File(oldKey);
