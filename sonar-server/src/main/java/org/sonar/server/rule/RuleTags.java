@@ -26,7 +26,7 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 
 /**
- * Used through ruby code <pre>Internal.quality_profiles</pre>
+ * Used through ruby code <pre>Internal.rule_tags</pre>
  */
 public class RuleTags implements ServerExtension {
 
