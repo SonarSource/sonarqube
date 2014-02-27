@@ -26,10 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -388,7 +390,11 @@ public interface RuleDefinitions extends ServerExtension {
      */
     public NewRule addTags(String... list) {
       for (String tag : list) {
-        RuleTagFormat.validate(tag);
+        try {
+          RuleTagFormat.validate(tag);
+        } catch (IllegalArgumentException e) {
+          throw MessageException.of(String.format("Tag '%s' is invalid. %s", tag, e.getMessage()));
+        }
         tags.add(tag);
       }
       return this;
