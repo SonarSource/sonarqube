@@ -121,7 +121,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-detail-condition-view.map
-*/

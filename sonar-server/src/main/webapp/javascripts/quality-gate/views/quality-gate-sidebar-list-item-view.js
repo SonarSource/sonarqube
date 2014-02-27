@@ -41,7 +41,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-sidebar-list-item-view.map
-*/

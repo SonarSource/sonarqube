@@ -33,7 +33,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gates.map
-*/

@@ -57,7 +57,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-detail-renaming-view.map
-*/

@@ -69,7 +69,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-new-view.map
-*/

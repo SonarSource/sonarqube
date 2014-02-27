@@ -54,7 +54,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=router.map
-*/

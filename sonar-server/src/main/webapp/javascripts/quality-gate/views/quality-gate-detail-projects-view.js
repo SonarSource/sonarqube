@@ -49,7 +49,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-detail-projects-view.map
-*/

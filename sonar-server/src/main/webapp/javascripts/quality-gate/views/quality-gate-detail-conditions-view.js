@@ -110,7 +110,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate-detail-conditions-view.map
-*/

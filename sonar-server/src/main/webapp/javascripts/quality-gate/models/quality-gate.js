@@ -23,7 +23,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=quality-gate.map
-*/

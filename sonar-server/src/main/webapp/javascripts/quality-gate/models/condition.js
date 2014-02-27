@@ -60,7 +60,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=condition.map
-*/

@@ -19,7 +19,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=metric.map
-*/
