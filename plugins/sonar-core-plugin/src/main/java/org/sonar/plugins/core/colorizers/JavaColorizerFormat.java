@@ -19,17 +19,16 @@
  */
 package org.sonar.plugins.core.colorizers;
 
-import java.util.List;
-
-import org.sonar.api.resources.Java;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.CodeColorizer;
 import org.sonar.colorizer.Tokenizer;
 
+import java.util.List;
+
 public class JavaColorizerFormat extends CodeColorizerFormat{
 
   public JavaColorizerFormat() {
-    super(Java.KEY);
+    super("java");
   }
 
   @Override

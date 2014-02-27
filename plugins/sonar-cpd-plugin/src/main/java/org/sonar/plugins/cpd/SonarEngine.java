@@ -36,7 +36,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.block.Block;
@@ -87,7 +86,7 @@ public class SonarEngine extends CpdEngine {
 
   @Override
   public boolean isLanguageSupported(String language) {
-    return Java.KEY.equals(language);
+    return "java".equals(language);
   }
 
   @Override

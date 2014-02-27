@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -118,7 +117,7 @@ class InputFileBuilder {
         inputFile.setPathRelativeToSourceDir(sourceRelativePath);
         inputFile.setSourceDirAbsolutePath(FilenameUtils.normalize(sourceDir.getAbsolutePath(), true));
 
-        if (Java.KEY.equals(inputFile.language())) {
+        if ("java".equals(inputFile.language())) {
           inputFile.setDeprecatedKey(new StringBuilder()
             .append(moduleKey).append(":").append(JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey()).toString());
         } else {
