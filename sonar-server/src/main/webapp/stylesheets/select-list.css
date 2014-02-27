@@ -53,7 +53,7 @@
   }
 
   .select-list-list > li.progress {
-    background: url(../images/loading-new.gif) no-repeat 10px 5px;
+    background: url(../images/loading.gif) no-repeat 10px 5px;
   }
 
   .select-list-list > li.progress .select-list-list-checkbox {

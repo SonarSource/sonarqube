@@ -255,7 +255,7 @@
   display: block;
   width: 16px;
   height: 16px;
-  background: #ffffff url(../images/loading-new.gif) no-repeat center center;
+  background: #ffffff url(../images/loading.gif) no-repeat center center;
 }
 .navigator-filter-load-more {
   display: none;
