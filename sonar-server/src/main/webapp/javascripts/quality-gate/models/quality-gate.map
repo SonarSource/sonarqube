@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "quality-gate.js",
+  "sourceRoot": "",
+  "sources": [
+    "quality-gate.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAEG,GAFH,EAEG,CACD,CAHK;CAML,OAAA,SAAA;WAAM;CAEJ;;;;;CAAA;;CAAA,EAAA,MAAK;CACmC,CAAtC,CAAE,CAAqC,GAAvC,QAAA,aAAA;CADF,MAAK;;CAAL;;CAFwB,OAAQ;CANpC,EAEG;CAFH"
+}

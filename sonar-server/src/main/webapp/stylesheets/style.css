@@ -57,6 +57,10 @@
 /*
   GENERAL
 */
+a {
+  cursor: pointer;
+}
+
 .loading {
   background: url("../images/loading.gif") no-repeat 4px 2px;
   color: #444;
@@ -1749,7 +1753,7 @@ ul.bullet li {
   outline: none;
 }
 
-.tabs2 li a:link, .tabs2 li a:visited, .tabs li a:link, .tabs li a:visited {
+.tabs2 li a, .tabs li a {
   float: left;
   color: #777;
   vertical-align: bottom;
@@ -1758,7 +1762,7 @@ ul.bullet li {
   padding: 1px 5px;
 }
 
-.tabs2 li a.selected:link, .tabs2 li a.selected:visited, .tabs li a.selected:link, .tabs li a.selected:visited, .tabs .ui-tabs-active a {
+.tabs2 li a.selected, .tabs li a.selected, .tabs .ui-tabs-active a {
   text-decoration: none;
   color: #555 !important;
   font-weight: bold;

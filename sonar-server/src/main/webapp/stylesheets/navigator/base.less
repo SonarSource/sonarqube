@@ -100,6 +100,7 @@
   &:before {
     content: " ";
     position: absolute;
+    z-index: 3;
     top: 0; bottom: 0; left: 0; right: 0;
     background: #fff url(../images/loading.gif) no-repeat 4px 4px;
   }
@@ -175,6 +176,12 @@
 
   & > button + button {
     margin-left: -1px;
+  }
+
+  & > a {
+    vertical-align: middle;
+    margin: 0 8px;
+    font-size: @smallFontSize;
   }
 }
 

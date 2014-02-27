@@ -1,0 +1,41 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/javascripts/quality-gate/app.js" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+<% end %>
+
+<div id="sidebar"></div>
+<div id="content"></div>
+
+<%= render :partial => '/quality_gates/templates/quality_gate_sidebar_list_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_sidebar_list_item_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_new_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_header_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_renaming_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_conditions_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_condition_template.hbs' -%>
+<%= render :partial => '/quality_gates/templates/quality_gate_detail_projects_template.hbs' -%>
+
+
+<script>
+  window.SS = {
+    metricPeriods: [
+      { key: '1', text: '<%= Api::Utils.period_label(1) -%>' },
+      { key: '2', text: '<%= Api::Utils.period_label(2) -%>' },
+      { key: '3', text: '<%= Api::Utils.period_label(3) -%>' }
+    ],
+
+    phrases: {
+      areYouSure: '<%= message('are_you_sure') -%>',
+      alerts: {
+        operator: {
+          'LT': '<%= message('alerts.operator.<') -%>',
+          'GT': '<%= message('alerts.operator.>') -%>',
+          'EQ': '<%= message('alerts.operator.=') -%>',
+          'NE': '<%= message('alerts.operator.!=') -%>'
+        },
+        select_metric: '<%= message('alerts.select_metric') -%>'
+      }
+    }
+  };
+</script>
+

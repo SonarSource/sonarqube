@@ -227,6 +227,11 @@ ul.sidebar li.active a, ul.sidebar li.active a:hover {
   color: #FFF;
 }
 
+ul.sidebar li.active [class^="icon-"],
+ul.sidebar li.active [class*=" icon-"] {
+  color: #FFF;
+}
+
 li.sidebar-title {
   text-transform: uppercase;
   font-size: 93%;

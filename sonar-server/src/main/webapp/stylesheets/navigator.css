@@ -98,6 +98,7 @@
 .navigator-fetching:before {
   content: " ";
   position: absolute;
+  z-index: 3;
   top: 0;
   bottom: 0;
   left: 0;
@@ -162,6 +163,11 @@
 }
 .navigator-header-actions > button + button {
   margin-left: -1px;
+}
+.navigator-header-actions > a {
+  vertical-align: middle;
+  margin: 0 8px;
+  font-size: 11px;
 }
 .navigator-notes {
   padding: 0 10px;

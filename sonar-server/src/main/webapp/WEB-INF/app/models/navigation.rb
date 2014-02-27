@@ -34,4 +34,5 @@ class Navigation
   SECTION_ISSUES = Navigation.new('issues', false)
   SECTION_MEASURES = Navigation.new('measures', false)
   SECTION_QUALITY_PROFILES = Navigation.new('quality_profiles', false)
+  SECTION_QUALITY_GATES = Navigation.new('quality_gates', false)
 end

@@ -15,6 +15,7 @@
     <css>/stylesheets/dashboard.css</css>
     <css>/stylesheets/select-list.css</css>
     <css>/stylesheets/navigator.css</css>
+    <css>/stylesheets/quality-gates.css</css>
 
     <js>/javascripts/third-party/prototype.js</js>
     <js>/javascripts/third-party/scriptaculous.js</js>

@@ -143,4 +143,12 @@ define(['handlebars'], function (Handlebars) {
     }, '');
   });
 
+  Handlebars.registerHelper('operators', function(metricType, options) {
+    var ops = ['LT', 'GT', 'EQ', 'NE'];
+
+    return ops.reduce(function(prev, current) {
+      return prev + options.fn(current);
+    }, '');
+  });
+
 });

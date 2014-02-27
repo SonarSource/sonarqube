@@ -33,9 +33,9 @@ public class ProjectQgateAssociationQuery {
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
 
-  public static final String ANY = "ANY";
-  public static final String IN = "IN";
-  public static final String OUT = "OUT";
+  public static final String ANY = "all";
+  public static final String IN = "selected";
+  public static final String OUT = "deselected";
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
   private final String gateId;

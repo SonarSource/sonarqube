@@ -12,10 +12,10 @@
     LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value LIKE #{gateId}
     <where>
       <choose>
-        <when test="query.membership() == 'IN'">
+        <when test="query.membership() == 'selected'">
           AND prop.text_value IS NOT NULL
         </when>
-        <when test="query.membership() == 'OUT'">
+        <when test="query.membership() == 'deselected'">
           AND prop.text_value IS NULL
         </when>
       </choose>

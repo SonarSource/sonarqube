@@ -1,0 +1,62 @@
+/*
+ * Fonts
+ */
+/*
+ * Colors
+ */
+/*
+ * Icons
+ */
+/*
+ * Transitions
+ */
+.quality-gate {
+  position: relative;
+  padding: 0 10px;
+  overflow: hidden;
+}
+.quality-gate-header {
+  position: relative;
+  padding: 0 10px;
+  border-left: 1px solid #cdcdcd;
+  border-right: 1px solid #cdcdcd;
+  border-bottom: 1px solid #cdcdcd;
+  background-color: #efefef;
+  font-size: 0;
+}
+.quality-gate-header.navigator-fetching:before {
+  background-color: #efefef;
+  background-position: 10px center;
+}
+.quality-gate-header-rename {
+  padding: 8px 0 7px;
+}
+.quality-gate-header-rename input {
+  vertical-align: middle;
+  width: 200px;
+  font-size: 13px;
+}
+.quality-gate-details {
+  margin-top: 10px;
+}
+.quality-gate-tabs {
+  margin-bottom: 10px;
+}
+.quality-gate-new-condition {
+  margin: 20px 0 10px;
+}
+.quality-gate-new-condition label {
+  vertical-align: middle;
+}
+.quality-gate-conditions img,
+.quality-gate-conditions input,
+.quality-gate-conditions button,
+.quality-gate-conditions .action {
+  vertical-align: middle !important;
+}
+.quality-gate-condition-actions {
+  position: relative;
+}
+.quality-gate-condition-actions.navigator-fetching:before {
+  background-position: center left;
+}
