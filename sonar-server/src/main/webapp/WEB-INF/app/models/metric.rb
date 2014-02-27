@@ -49,11 +49,12 @@ class Metric < ActiveRecord::Base
   validates_length_of       :name,   :within => 1..64
   validates_uniqueness_of   :name
   validates_length_of       :short_name, :within => 1..64
-  validates_inclusion_of    :val_type, :in => [VALUE_TYPE_INT,VALUE_TYPE_BOOLEAN,VALUE_TYPE_FLOAT,VALUE_TYPE_PERCENT,VALUE_TYPE_STRING,VALUE_TYPE_MILLISEC,VALUE_TYPE_LEVEL, VALUE_TYPE_DATA, VALUE_TYPE_DISTRIB], :message => "wrong value type"
+  validates_inclusion_of    :val_type, :in => [VALUE_TYPE_INT,VALUE_TYPE_BOOLEAN,VALUE_TYPE_FLOAT,VALUE_TYPE_PERCENT,VALUE_TYPE_STRING,VALUE_TYPE_MILLISEC,VALUE_TYPE_LEVEL,
+                                               VALUE_TYPE_DATA,VALUE_TYPE_DISTRIB,VALUE_TYPE_WORK_DUR], :message => "wrong value type"
 
 
   @@metrics_type_names = { VALUE_TYPE_INT => 'Integer', VALUE_TYPE_FLOAT => 'Float', VALUE_TYPE_PERCENT => 'Percent',
-    VALUE_TYPE_BOOLEAN => 'Yes/No', VALUE_TYPE_STRING => 'Text', VALUE_TYPE_LEVEL => 'Level' }
+    VALUE_TYPE_BOOLEAN => 'Yes/No', VALUE_TYPE_STRING => 'Text', VALUE_TYPE_LEVEL => 'Level', VALUE_TYPE_WORK_DUR => 'Work Duration' }
 
   attr_accessible :name, :description, :direction, :domain, :short_name, :qualitative, :val_type, :user_managed
 
@@ -159,7 +160,7 @@ class Metric < ActiveRecord::Base
   end
 
   def numeric?
-    val_type==VALUE_TYPE_INT || val_type==VALUE_TYPE_FLOAT || val_type==VALUE_TYPE_PERCENT || val_type==VALUE_TYPE_MILLISEC || val_type==VALUE_TYPE_RATING
+    val_type==VALUE_TYPE_INT || val_type==VALUE_TYPE_FLOAT || val_type==VALUE_TYPE_PERCENT || val_type==VALUE_TYPE_MILLISEC || val_type==VALUE_TYPE_RATING || val_type==VALUE_TYPE_WORK_DUR
   end
 
   def data?
