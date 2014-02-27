@@ -40,7 +40,7 @@ public class RuleTagFormat {
 
   public static void validate(String tag) {
     if (!isValid(tag)) {
-      throw new IllegalArgumentException(String.format("Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.' - '%s'", tag));
+      throw new IllegalArgumentException(String.format("Tag '%s' is invalid. Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.'", tag));
     }
   }
 }

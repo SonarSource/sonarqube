@@ -20,8 +20,8 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 
 import java.net.URL;
 
@@ -184,8 +184,8 @@ public class RuleDefinitionsTest {
     try {
       context.newRepository("findbugs", "whatever_the_language").done();
       fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("The rule repository 'findbugs' is defined several times");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("The rule repository 'findbugs' is defined several times");
     }
   }
 
@@ -204,8 +204,8 @@ public class RuleDefinitionsTest {
     try {
       rule.newParam("level");
       fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The parameter 'level' is declared several times on the rule [repository=findbugs, key=NPE]");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The parameter 'level' is declared several times on the rule [repository=findbugs, key=NPE]");
     }
   }
 
@@ -216,8 +216,8 @@ public class RuleDefinitionsTest {
     try {
       newRepository.done();
       fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Name of rule [repository=findbugs, key=NPE] is empty");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Name of rule [repository=findbugs, key=NPE] is empty");
     }
   }
 
@@ -227,8 +227,9 @@ public class RuleDefinitionsTest {
       // whitespaces are not allowed in tags
       context.newRepository("findbugs", "java").newRule("NPE").setTags("coding style");
       fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.' - 'coding style'");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Tag 'coding style' is invalid. Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.'");
     }
   }
 
