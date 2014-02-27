@@ -50,7 +50,7 @@ public class ProjectQgateAssociationQueryTest {
       builder.build();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Availables values are [ANY, IN, OUT]");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Availables values are [all, selected, deselected]");
     }
   }
 
