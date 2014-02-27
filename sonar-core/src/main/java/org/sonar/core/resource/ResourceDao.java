@@ -153,23 +153,17 @@ public class ResourceDao {
     return this;
   }
 
-  public Collection<Component> findByIds(Collection<Long> ids) {
+  public Collection<ComponentDto> selectComponentsByIds(Collection<Long> ids) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-
-      List<ResourceDto> resources = newArrayList();
-      List<List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
-      for (List<Long> partition : idsPartition) {
-        List<ResourceDto> dtos = session.getMapper(ResourceMapper.class).selectResourcesById(partition);
-        resources.addAll(dtos);
-      }
-
-      Collection<Component> components = newArrayList();
-      for (ResourceDto resourceDto : resources) {
-        components.add(toComponent(resourceDto));
+      List<ComponentDto> components = newArrayList();
+      List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
+      for (List<Long> partition : partitionList) {
+        List<ComponentDto> dtos = session.getMapper(ResourceMapper.class).selectComponentsByIds(partition);
+        components.addAll(dtos);
       }
       return components;
     } finally {

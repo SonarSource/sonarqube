@@ -169,27 +169,55 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_components_by_resource_ids() {
+  public void select_components_by_ids() {
     setupData("fixture");
 
-    Collection<Component> results = dao.findByIds(newArrayList(1l));
+    // File
+    Collection<ComponentDto> results = dao.selectComponentsByIds(newArrayList(4L));
     assertThat(results).hasSize(1);
-    Component component = results.iterator().next();
-    assertThat(component.key()).isNotNull();
-    assertThat(component.name()).isNotNull();
-    assertThat(component.longName()).isNotNull();
-    assertThat(component.qualifier()).isNotNull();
+
+    ComponentDto component = results.iterator().next();
+    assertThat(component.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(component.name()).isEqualTo("RequestContext.java");
+    assertThat(component.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(component.qualifier()).isEqualTo("FIL");
+    assertThat(component.groupId()).isEqualTo(2);
+    assertThat(component.rootId()).isEqualTo(1);
+
+    // Module
+    results = dao.selectComponentsByIds(newArrayList(2L));
+    assertThat(results).hasSize(1);
+
+    component = results.iterator().next();
+    assertThat(component.key()).isEqualTo("org.struts:struts-core");
+    assertThat(component.name()).isEqualTo("Struts Core");
+    assertThat(component.longName()).isEqualTo("Struts Core");
+    assertThat(component.qualifier()).isEqualTo("BRC");
+    assertThat(component.groupId()).isEqualTo(1);
+    assertThat(component.rootId()).isEqualTo(1);
+
+    // Project
+    results = dao.selectComponentsByIds(newArrayList(1L));
+    assertThat(results).hasSize(1);
+
+    component = results.iterator().next();
+    assertThat(component.key()).isEqualTo("org.struts:struts");
+    assertThat(component.name()).isEqualTo("Struts");
+    assertThat(component.longName()).isEqualTo("Apache Struts");
+    assertThat(component.qualifier()).isEqualTo("TRK");
+    assertThat(component.groupId()).isNull();
+    assertThat(component.rootId()).isEqualTo(1);
   }
 
   @Test
-  public void should_find_components_by_resource_ids_on_huge_number_of_ids() {
+  public void select_components_by_ids_on_huge_number_of_ids() {
     setupData("fixture");
 
     List<Long> hugeNbOfIds = newArrayList();
     for (long i = 0; i < 4500; i++) {
       hugeNbOfIds.add(i);
     }
-    Collection<Component> results = dao.findByIds(hugeNbOfIds);
+    Collection<ComponentDto> results = dao.selectComponentsByIds(hugeNbOfIds);
 
     // The goal of this test is only to check that the query do no fail, not to check the number of results
     assertThat(results).isNotNull();

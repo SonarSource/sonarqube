@@ -43,6 +43,7 @@ import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
@@ -132,20 +133,71 @@ public class IssueShowWsHandlerTest {
       .setCreationDate(issue_creation_date);
     issues.add(issue);
 
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
-    when(component.longName()).thenReturn("SonarQube :: Issue Client");
-    when(component.qualifier()).thenReturn("FIL");
-    result.addComponents(newArrayList(component));
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setGroupId(1L)
+      .setRootId(1L)
+    ));
 
-    Component project = mock(Component.class);
-    when(project.key()).thenReturn("org.sonar.Sonar");
-    when(project.longName()).thenReturn("SonarQube");
-    result.addProjects(newArrayList(project));
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setRootId(1L)
+    ));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue.json");
+  }
+
+  @Test
+  public void show_issue_with_module() throws Exception {
+    String issueKey = "ABCD";
+    Issue issue = new DefaultIssue()
+      .setKey(issueKey)
+      .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setProjectKey("org.sonar.Sonar")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(12)
+      .setEffortToFix(2.0)
+      .setMessage("Fix it")
+      .setResolution("FIXED")
+      .setStatus("CLOSED")
+      .setSeverity("MAJOR")
+      .setCreationDate(issue_creation_date);
+    issues.add(issue);
+
+    // File
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setGroupId(2L)
+      .setRootId(1L)));
+
+    // Module
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(2L)
+      .setKey("org.sonar.server.Server")
+      .setLongName("SonarQube :: Server")
+      .setQualifier("BRC")
+      .setGroupId(1L)
+      .setRootId(1L)));
+
+    // Project
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issueKey);
+    request.execute().assertJson(getClass(), "show_issue_with_module.json");
   }
 
   @Test
@@ -414,15 +466,21 @@ public class IssueShowWsHandlerTest {
   }
 
   private void addComponentAndProject() {
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("org.sonar.server.issue.IssueClient");
-    when(component.longName()).thenReturn("SonarQube :: Issue Client");
-    when(component.qualifier()).thenReturn("FIL");
-    result.addComponents(newArrayList(component));
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setGroupId(1L)
+      .setRootId(1L)
+    ));
 
-    Component project = mock(Component.class);
-    when(project.key()).thenReturn("org.sonar.Sonar");
-    when(project.longName()).thenReturn("SonarQube");
-    result.addProjects(newArrayList(project));
+    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setRootId(1L)
+    ));
   }
+
 }

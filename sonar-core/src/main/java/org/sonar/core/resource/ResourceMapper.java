@@ -21,6 +21,7 @@ package org.sonar.core.resource;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.Nullable;
 
@@ -54,14 +55,11 @@ public interface ResourceMapper {
   void selectResources(ResourceQuery query, ResultHandler resultHandler);
 
   /**
-   * @since3.6
-   */
-  List<ResourceDto> selectResourcesById(@Param("ids") List<Long> ids);
-
-  /**
    * @since 3.6
    */
   ResourceDto selectRootProjectByComponentKey(@Param("componentKey") String componentKey);
+
+  List<ComponentDto> selectComponentsByIds(@Param("ids") List<Long> ids);
 
   /**
    * @since 3.6

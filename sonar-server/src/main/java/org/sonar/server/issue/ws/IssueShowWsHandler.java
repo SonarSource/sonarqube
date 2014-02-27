@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
@@ -33,6 +35,7 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.markdown.Markdown;
@@ -46,6 +49,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -95,8 +99,11 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    Component component = result.component(issue);
-    Component project = result.project(issue);
+    // component, module and project can be null if they were removed
+    ComponentDto component = (ComponentDto) result.component(issue);
+    ComponentDto module = (ComponentDto) getModule(result, component);
+    ComponentDto project = (ComponentDto) geProject(result, component);
+
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
     Long technicalDebt = issue.debt();
@@ -108,6 +115,8 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("component", issue.componentKey())
       .prop("componentLongName", component != null ? component.longName() : null)
       .prop("componentQualifier", component != null ? component.qualifier() : null)
+      // Do not display module long name if module and project are the same
+      .prop("moduleLongName", module != null && project != null && !module.getId().equals(project.getId()) ? module.longName() : null)
       .prop("project", issue.projectKey())
       .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
@@ -132,6 +141,39 @@ public class IssueShowWsHandler implements RequestHandler {
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
     addCharacteristics(result, issue, json);
+  }
+
+  /**
+   * Can be null on project or on removed component
+   */
+  @CheckForNull
+  private Component getModule(IssueQueryResult result, @Nullable final ComponentDto component){
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          Long groupId = component.groupId();
+          return groupId != null && groupId.equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
+  }
+
+  /**
+   * Can be null on removed component
+   */
+  @CheckForNull
+  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component){
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          return component.rootId().equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
   }
 
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {

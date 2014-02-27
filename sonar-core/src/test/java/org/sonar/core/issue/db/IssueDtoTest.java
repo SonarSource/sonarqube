@@ -82,6 +82,7 @@ public class IssueDtoTest {
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
+    assertThat(issue.componentId()).isEqualTo(1L);
     assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);

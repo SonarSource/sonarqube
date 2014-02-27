@@ -210,6 +210,7 @@ public class IssueService implements ServerComponent {
     }
     // Force use of correct key in case deprecated key is used
     issue.setComponentKey(resourceDto.getKey());
+    issue.setComponentId(resourceDto.getId());
     if (!authorizationDao.isAuthorizedComponentKey(resourceDto.getKey(), userSession.userId(), UserRole.USER)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");

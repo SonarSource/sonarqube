@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
@@ -32,6 +34,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
@@ -42,10 +45,12 @@ import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * @since 3.6
@@ -110,18 +115,16 @@ public class DefaultIssueFinder implements IssueFinder {
 
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
-      Set<Integer> ruleIds = Sets.newHashSet();
-      Set<Long> componentIds = Sets.newHashSet();
-      Set<Long> projectIds = Sets.newHashSet();
-      Set<String> actionPlanKeys = Sets.newHashSet();
-      Set<String> users = Sets.newHashSet();
+      Set<Integer> ruleIds = newHashSet();
+      Set<Long> componentIds = newHashSet();
+      Set<String> actionPlanKeys = newHashSet();
+      Set<String> users = newHashSet();
       for (IssueDto dto : pagedSortedIssues) {
         DefaultIssue defaultIssue = dto.toDefaultIssue();
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
         componentIds.add(dto.getComponentId());
-        projectIds.add(dto.getRootComponentId());
         actionPlanKeys.add(dto.getActionPlanKey());
         if (dto.getReporter() != null) {
           users.add(dto.getReporter());
@@ -139,12 +142,19 @@ public class DefaultIssueFinder implements IssueFinder {
         }
       }
 
+      Collection<Component> components = findComponents(componentIds);
+      Collection<Component> groupComponents = findGroupComponents(components);
+      Collection<Component> rootComponents = findRootComponents(components);
+
+      Set<Component> allComponents = newHashSet(components);
+      allComponents.addAll(groupComponents);
+      allComponents.addAll(rootComponents);
 
       return new DefaultIssueQueryResult(issues)
         .setMaxResultsReached(authorizedIssues.size() == query.maxResults())
         .addRules(hideRules(query) ? Collections.<Rule>emptyList() : findRules(ruleIds))
-        .addComponents(findComponents(componentIds))
-        .addProjects(findComponents(projectIds))
+        .addComponents(allComponents)
+        .addProjects(rootComponents)
         .addActionPlans(findActionPlans(actionPlanKeys))
         .addUsers(findUsers(users))
         .setPaging(paging);
@@ -189,7 +199,25 @@ public class DefaultIssueFinder implements IssueFinder {
   }
 
   private Collection<Component> findComponents(Set<Long> componentIds) {
-    return resourceDao.findByIds(componentIds);
+    return Lists.<Component>newArrayList(resourceDao.selectComponentsByIds(componentIds));
+  }
+
+  private Collection<Component> findGroupComponents(Collection<Component> components) {
+    return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
+      @Override
+      public Long apply(Component input) {
+        return ((ComponentDto) input).groupId();
+      }
+    })));
+  }
+
+  private Collection<Component> findRootComponents(Collection<Component> components) {
+    return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
+      @Override
+      public Long apply(Component input) {
+        return ((ComponentDto) input).rootId();
+      }
+    })));
   }
 
   private Collection<ActionPlan> findActionPlans(Set<String> actionPlanKeys) {

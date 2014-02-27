@@ -21,15 +21,25 @@ package org.sonar.core.component;
 
 import org.sonar.api.component.Component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class ComponentDto implements Component {
 
   private Long id;
   private String kee;
+
+  // TODO delete it
   private String path;
+
+  // TODO delete it
   private String moduleKey;
+
   private String name;
   private String longName;
   private String qualifier;
+  private Long groupId;
+  private Long rootId;
 
   public Long getId() {
     return id;
@@ -98,5 +108,47 @@ public class ComponentDto implements Component {
   public ComponentDto setQualifier(String qualifier) {
     this.qualifier = qualifier;
     return this;
+  }
+
+  @CheckForNull
+  public Long groupId() {
+    return groupId;
+  }
+
+  public ComponentDto setGroupId(@Nullable Long groupId) {
+    this.groupId = groupId;
+    return this;
+  }
+
+  public Long rootId() {
+    return rootId;
+  }
+
+  public ComponentDto setRootId(Long rootId) {
+    this.rootId = rootId;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ComponentDto that = (ComponentDto) o;
+
+    if (!id.equals(that.id)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
   }
 }

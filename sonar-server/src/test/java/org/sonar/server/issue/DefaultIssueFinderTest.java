@@ -24,7 +24,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -196,8 +195,8 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void get_component_from_result() {
-    Component component = new ComponentDto().setKey("Action.java");
-    when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(component));
+    ComponentDto component = new ComponentDto().setId(1L).setKey("Action.java");
+    when(resourceDao.selectComponentsByIds(anyCollection())).thenReturn(newArrayList(component));
 
     IssueQuery query = IssueQuery.builder().build();
 
@@ -223,8 +222,8 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void get_project_from_result() {
-    Component project = new ComponentDto().setKey("struts");
-    when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(project));
+    ComponentDto project = new ComponentDto().setId(1L).setKey("struts");
+    when(resourceDao.selectComponentsByIds(anyCollection())).thenReturn(newArrayList(project));
 
     IssueQuery query = IssueQuery.builder().build();
 
