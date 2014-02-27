@@ -32,13 +32,13 @@
           selectParameter: 'projectId',
           selectParameterValue: 'id',
           labels: {
-            selected: 'With',
-            deselected: 'Without',
-            all: 'All'
+            selected: window.SS.phrases.projects["with"],
+            deselected: window.SS.phrases.projects.without,
+            all: window.SS.phrases.projects.all
           },
           tooltips: {
-            select: 'Click to add this user to the group <%= h @group.name -%>',
-            deselect: 'Click to remove this member from the group <%= h @group.name -%>'
+            select: window.SS.phrases.projects.select_hint,
+            deselect: window.SS.phrases.projects.deselect_hint
           }
         });
       };
