@@ -52,6 +52,7 @@ public class DefaultIssue implements Issue {
 
   private String key;
   private String componentKey;
+  private Long componentId;
   private String projectKey;
   private RuleKey ruleKey;
   private String severity;
@@ -116,6 +117,19 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setComponentKey(String s) {
     this.componentKey = s;
+    return this;
+  }
+
+  /**
+   * The component id not populated on batch side
+   */
+  @CheckForNull
+  public Long componentId() {
+    return componentId;
+  }
+
+  public DefaultIssue setComponentId(@Nullable Long s) {
+    this.componentId = s;
     return this;
   }
 

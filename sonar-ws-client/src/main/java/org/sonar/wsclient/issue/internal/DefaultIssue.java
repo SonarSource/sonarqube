@@ -50,6 +50,10 @@ public class DefaultIssue implements Issue {
     return JsonUtils.getString(json, "component");
   }
 
+  public Long componentId() {
+    return JsonUtils.getLong(json, "componentId");
+  }
+
   public String projectKey() {
     return JsonUtils.getString(json, "project");
   }

@@ -431,6 +431,7 @@ public final class IssueDto implements Serializable {
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
+    issue.setComponentId(componentId);
     issue.setProjectKey(rootComponentKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));

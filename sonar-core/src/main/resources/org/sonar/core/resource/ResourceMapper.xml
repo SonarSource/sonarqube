@@ -21,6 +21,16 @@
     p.created_at as createdAt
   </sql>
 
+  <sql id="componentColumns">
+    p.id,
+    p.kee as key,
+    p.name as name,
+    p.long_name as longName,
+    p.qualifier as qualifier,
+    p.root_id as groupId,
+    s.root_project_id as rootId
+  </sql>
+
   <resultMap id="snapshotResultMap" type="Snapshot">
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
@@ -98,17 +108,6 @@
     where p.id=#{id}
   </select>
 
-  <select id="selectResourcesById" parameterType="map" resultMap="resourceResultMap">
-    select p.*, r.kee moduleKey
-    from projects p left outer join projects r on p.root_id=r.id
-    where p.enabled=${_true}
-    and p.id in
-    <foreach collection="ids" open="(" close=")" item="key" separator=",">
-      #{key}
-    </foreach>
-
-  </select>
-
   <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
     select * from snapshots where id=#{id}
   </select>
@@ -142,6 +141,19 @@
     <where>
       and s.project_id=#{componentId}
       and s.islast=${_true}
+    </where>
+  </select>
+
+  <select id="selectComponentsByIds" parameterType="long" resultType="Component">
+    select <include refid="componentColumns"/>
+    from projects p
+    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
+    <where>
+      p.enabled=${_true}
+      and p.id in
+      <foreach collection="ids" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
     </where>
   </select>
 

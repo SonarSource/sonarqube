@@ -338,12 +338,15 @@ class Api::IssuesController < Api::ApiController
   def component_to_hash(component)
     hash = {
       :key => component.key,
+      :id => component.id,
       :qualifier => component.qualifier
     }
     hash[:name] = component.name if component.name
     hash[:longName] = component.longName if component.longName
     hash[:path] = component.path if component.path
-    hash[:moduleKey] = component.moduleKey if component.moduleKey
+    hash[:groupId] = component.groupId if component.groupId
+    # On a root project, groupId is null but rootId is equal to itself, which make no sense.
+    hash[:rootId] = component.rootId if component.groupId && component.rootId
     hash
   end
 
