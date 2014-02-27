@@ -23,7 +23,7 @@
 
   <sql id="componentColumns">
     p.id,
-    p.kee as key,
+    p.kee as kee,
     p.name as name,
     p.long_name as longName,
     p.qualifier as qualifier,
