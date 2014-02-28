@@ -1,6 +1,7 @@
 {
-    "canManageFilter": true,
+    "canManageFilters": true,
     "canBulkChange": true,
+    "canModifyFilter": false,
     "filter": {
         "id": 13,
         "name": "Blocker issues",

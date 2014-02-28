@@ -4,7 +4,7 @@
     <div class="navigator-header-actions">
       <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>
 
-      {{#if appState.canManageFilter}}
+      {{#if appState.canManageFilters}}
         {{#if canSave}}<button id="issues-filter-save"><%= message('save') -%></button>{{/if}}
         {{#unless id}}<button id="issues-filter-save-as"><%= message('save_as') -%></button>{{/unless}}
         {{#if id}}<button id="issues-filter-copy"><%= message('copy') -%></button>{{/if}}
