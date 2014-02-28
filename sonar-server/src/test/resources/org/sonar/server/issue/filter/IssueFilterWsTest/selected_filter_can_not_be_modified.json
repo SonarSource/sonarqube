@@ -4,10 +4,10 @@
   "filter": {
     "id": 13,
     "name": "Blocker issues",
-    "shared": false,
+    "shared": true,
     "query": "severity=BLOCKER",
-    "user": "eric",
-    "canModify": true
+    "user": "simon",
+    "canModify": false
   },
   "favorites": [
   ]

@@ -29,7 +29,6 @@ import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class IssueFilterWs implements WebService {
@@ -46,21 +45,33 @@ public class IssueFilterWs implements WebService {
       .setSince("4.2")
       .setDescription("Issue Filters");
 
-    NewAction search = controller.newAction("page");
-    search
+    NewAction app = controller.newAction("page");
+    app
       .setDescription("Data required for rendering page 'Issues'. Internal use only.")
       .setPrivate(true)
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
-          page(request, response);
+          app(request, response);
         }
       });
+
+    NewAction show = controller.newAction("show");
+    show
+      .setDescription("Get detail of issue filter")
+      .setSince("4.2")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          show(request, response);
+        }
+      })
+      .newParam("id");
 
     controller.done();
   }
 
-  private void page(Request request, Response response) {
+  private void app(Request request, Response response) {
     UserSession session = UserSession.get();
 
     JsonWriter json = response.newJsonWriter();
@@ -76,17 +87,11 @@ public class IssueFilterWs implements WebService {
     // Permissions
     json.prop("canManageFilters", session.isLoggedIn());
     json.prop("canBulkChange", session.isLoggedIn());
-    json.prop("canModifyFilter", canModifyFilter(session, filter));
 
+    // Selected filter
     if (filter != null) {
-      json.name("filter")
-        .beginObject()
-        .prop("id", filter.id())
-        .prop("name", filter.name())
-        .prop("user", filter.user())
-        .prop("shared", filter.shared())
-        .prop("query", filter.data())
-        .endObject();
+      json.name("filter");
+      writeFilterJson(session, filter, json);
     }
 
     // Favorite filters, if logged in
@@ -107,8 +112,34 @@ public class IssueFilterWs implements WebService {
     json.close();
   }
 
-  private boolean canModifyFilter(UserSession session, @Nullable DefaultIssueFilter filter) {
-    return filter != null && session.isLoggedIn() &&
+  private void show(Request request, Response response) {
+    UserSession session = UserSession.get();
+    DefaultIssueFilter filter = service.find(Long.parseLong(request.requiredParam("id")), session);
+
+
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject();
+
+    json.name("filter");
+    writeFilterJson(session, filter, json);
+
+    json.endObject();
+    json.close();
+  }
+
+  private JsonWriter writeFilterJson(UserSession session, DefaultIssueFilter filter, JsonWriter json) {
+    return json.beginObject()
+      .prop("id", filter.id())
+      .prop("name", filter.name())
+      .prop("user", filter.user())
+      .prop("shared", filter.shared())
+      .prop("query", filter.data())
+      .prop("canModify", canModifyFilter(session, filter))
+      .endObject();
+  }
+
+  private boolean canModifyFilter(UserSession session, DefaultIssueFilter filter) {
+    return session.isLoggedIn() &&
       (StringUtils.equals(filter.user(), session.login()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
   }
 }
