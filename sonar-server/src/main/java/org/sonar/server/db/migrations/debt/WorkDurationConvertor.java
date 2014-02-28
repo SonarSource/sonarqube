@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations.debt;
 
 import org.sonar.api.config.Settings;
 
-class DebtConvertor {
+class WorkDurationConvertor {
 
   static final long ONE_HOUR = 60L;
 
@@ -30,7 +30,7 @@ class DebtConvertor {
 
   private final Settings settings;
 
-  DebtConvertor(Settings settings) {
+  WorkDurationConvertor(Settings settings) {
     this.settings = settings;
   }
 

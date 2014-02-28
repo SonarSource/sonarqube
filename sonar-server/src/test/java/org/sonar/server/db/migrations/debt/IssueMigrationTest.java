@@ -50,7 +50,7 @@ public class IssueMigrationTest {
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
     settings = new Settings();
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
     migration = new IssueMigration(db.database(), settings, system2);
   }

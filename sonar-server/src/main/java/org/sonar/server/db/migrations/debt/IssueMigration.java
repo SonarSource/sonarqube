@@ -21,58 +21,30 @@
 package org.sonar.server.db.migrations.debt;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.AbstractListHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.util.SqlUtil;
 
-import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Used in the Active Record Migration 513
  */
 public class IssueMigration implements DatabaseMigration {
 
-  private static final Logger logger = LoggerFactory.getLogger(IssueMigration.class);
-
   private static final String ID = "id";
   private static final String DEBT = "debt";
 
-  private static final String FAILURE_MESSAGE = "Fail to convert issue debt from work duration to seconds";
+  private static final String SELECT_SQL = "SELECT i.id AS " + ID + ", i.technical_debt AS " + DEBT +
+    " FROM issues i WHERE i.technical_debt IS NOT NULL";
+  private static final String UPDATE_SQL = "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
 
-  private static final String SQL_SELECT = "SELECT i.id FROM issues i WHERE i.technical_debt IS NOT NULL";
-  private static final String SQL_UPDATE = "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
-
-  static final String SQL_SELECT_ISSUES;
-
-  static {
-    StringBuilder sb = new StringBuilder("SELECT i.id AS "+ ID +", i.technical_debt AS " + DEBT +
-      " FROM issues i " +
-      " WHERE ");
-    for (int i = 0; i < Referentials.GROUP_SIZE; i++) {
-      if (i > 0) {
-        sb.append(" OR ");
-      }
-      sb.append("i.id=?");
-    }
-    SQL_SELECT_ISSUES = sb.toString();
-  }
-
-  private final DebtConvertor debtConvertor;
+  private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
   private final Database db;
 
@@ -83,92 +55,46 @@ public class IssueMigration implements DatabaseMigration {
   @VisibleForTesting
   IssueMigration(Database database, Settings settings, System2 system2) {
     this.db = database;
-    this.debtConvertor = new DebtConvertor(settings);
+    this.workDurationConvertor = new WorkDurationConvertor(settings);
     this.system2 = system2;
   }
 
   @Override
   public void execute() {
-    try {
-      logger.info("Initialize input");
-      Referentials referentials = new Referentials(db, SQL_SELECT);
-      if (referentials.size() > 0) {
-        logger.info("Migrate {} issues", referentials.size());
-        convert(referentials);
+    new MassUpdater(db).execute(
+      new MassUpdater.InputLoader<Row>() {
+        @Override
+        public String selectSql() {
+          return SELECT_SQL;
+        }
+
+        @Override
+        public Row load(ResultSet rs) throws SQLException {
+          Row row = new Row();
+          row.id = SqlUtil.getLong(rs, ID);
+          row.debt = SqlUtil.getLong(rs, DEBT);
+          return row;
+        }
+      },
+      new MassUpdater.InputConverter<Row>() {
+        @Override
+        public String updateSql() {
+          return UPDATE_SQL;
+        }
+
+        @Override
+        public void convert(Row row, PreparedStatement statement) throws SQLException {
+          statement.setLong(1, workDurationConvertor.createFromLong(row.debt));
+          statement.setDate(2, new Date(system2.now()));
+          statement.setDouble(3, row.id);
+        }
       }
-    } catch (SQLException e) {
-      logger.error(FAILURE_MESSAGE, e);
-      SqlUtil.log(logger, e);
-      throw MessageException.of(FAILURE_MESSAGE);
-
-    } catch (Exception e) {
-      logger.error(FAILURE_MESSAGE, e);
-      throw MessageException.of(FAILURE_MESSAGE);
-    }
+    );
   }
 
-  public Object convert(Referentials referentials) throws SQLException {
-    // For each group of 1000 issue ids:
-    // - load related issues
-    // - in a transaction
-    //   -- update issues
-
-    Long[] issueIds = referentials.pollGroupOfIds();
-    while (issueIds.length > 0) {
-      List<Map<String, Object>> rows = selectRows(issueIds);
-      convert(rows, issueIds);
-
-      issueIds = referentials.pollGroupOfIds();
-    }
-    return null;
-  }
-
-  private List<Map<String, Object>> selectRows(Long[] issueIds) throws SQLException {
-    Connection readConnection = null;
-    try {
-      readConnection = db.getDataSource().getConnection();
-      IssueHandler issueHandler = new IssueHandler();
-      return new QueryRunner().query(readConnection, SQL_SELECT_ISSUES, issueHandler, issueIds);
-
-    } finally {
-      DbUtils.closeQuietly(readConnection);
-    }
-  }
-
-  private void convert(List<Map<String, Object>> rows, Long[] issueIds) throws SQLException {
-    Connection readConnection = null;
-    Connection writeConnection = null;
-    try {
-      readConnection = db.getDataSource().getConnection();
-      writeConnection = db.getDataSource().getConnection();
-      writeConnection.setAutoCommit(false);
-
-      List<Object[]> allParams = Lists.newArrayList();
-      QueryRunner runner = new QueryRunner();
-      for (Map<String, Object> row : rows) {
-        Object[] params = new Object[3];
-        params[0] = debtConvertor.createFromLong((Long) row.get(DEBT));
-        params[1] = new Date(system2.now());
-        params[2] = row.get(ID);
-        allParams.add(params);
-      }
-      runner.batch(writeConnection, SQL_UPDATE, allParams.toArray(new Object[allParams.size()][]));
-      writeConnection.commit();
-
-    } finally {
-      DbUtils.closeQuietly(readConnection);
-      DbUtils.closeQuietly(writeConnection);
-    }
-  }
-
-  private static class IssueHandler extends AbstractListHandler<Map<String, Object>> {
-    @Override
-    protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
-      Map<String, Object> map = Maps.newHashMap();
-      map.put(ID, SqlUtil.getLong(rs, ID));
-      map.put(DEBT, SqlUtil.getLong(rs, DEBT));
-      return map;
-    }
+  private class Row {
+    Long id;
+    Long debt;
   }
 
 }

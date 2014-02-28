@@ -41,7 +41,7 @@ public class DevelopmentCostMeasuresMigrationTest {
   @Before
   public void setUp() throws Exception {
     settings = new Settings();
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, 8);
+    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
     migration = new DevelopmentCostMeasuresMigration(db.database(), settings);
   }

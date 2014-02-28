@@ -27,7 +27,7 @@ import org.sonar.api.config.Settings;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class DebtConvertorTest {
+public class DebtMigrationExecutorTest {
 
   static final int HOURS_IN_DAY = 8;
 
@@ -37,16 +37,16 @@ public class DebtConvertorTest {
 
   Settings settings = new Settings();
 
-  DebtConvertor convertor;
+  WorkDurationConvertor convertor;
 
   @Before
   public void setUp() throws Exception {
-    convertor = new DebtConvertor(settings);
+    convertor = new WorkDurationConvertor(settings);
   }
 
   @Test
   public void convert_from_long() throws Exception {
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
+    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
 
     assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
     assertThat(convertor.createFromLong(100)).isEqualTo(ONE_HOUR_IN_MINUTES);
@@ -62,7 +62,7 @@ public class DebtConvertorTest {
   @Test
   public void fail_convert_from_long_on_bad_hours_in_day_property() throws Exception {
     try {
-      settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, -2);
+      settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, -2);
       convertor.createFromLong(1);
       fail();
     } catch (Exception e) {
@@ -72,7 +72,7 @@ public class DebtConvertorTest {
 
   @Test
   public void convert_from_days() throws Exception {
-    settings.setProperty(DebtConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
+    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
 
     assertThat(convertor.createFromDays(1.0)).isEqualTo(ONE_DAY_IN_MINUTES);
     assertThat(convertor.createFromDays(0.1)).isEqualTo(48L);
