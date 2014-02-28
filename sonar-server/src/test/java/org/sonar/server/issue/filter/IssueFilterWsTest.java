@@ -79,10 +79,22 @@ public class IssueFilterWsTest {
   public void logged_in_page_with_selected_filter() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.find(13L, session)).thenReturn(
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER")
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("eric")
     );
 
     tester.newRequest("page").setParam("id", "13").execute()
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
+  }
+
+  @Test
+  public void selected_filter_can_not_be_modified() throws Exception {
+    // logged-in user is 'eric' but filter is owned by 'simon'
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(13L, session)).thenReturn(
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+    );
+
+    tester.newRequest("page").setParam("id", "13").execute()
+      .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
   }
 }

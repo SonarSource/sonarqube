@@ -1,5 +1,4 @@
 {
     "canManageFilters": false,
-    "canBulkChange": false,
-    "canModifyFilter": false
+    "canBulkChange": false
 }
