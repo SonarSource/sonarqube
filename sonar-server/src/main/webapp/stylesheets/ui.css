@@ -107,3 +107,42 @@ input[type=button][disabled]:focus {
   background: #ebebeb;
   cursor: default;
 }
+.button-red:hover,
+.button-red:focus {
+  border-color: #900;
+  background: #cc0000;
+  color: #fff;
+}
+.button-red:active {
+  border-color: #900;
+  background: #ff0000;
+}
+.button-group {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+}
+.button-group > button {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: normal;
+  cursor: pointer;
+}
+.button-group > button:hover,
+.button-group > button:focus {
+  z-index: 3;
+}
+.button-group > button + button {
+  margin-left: -1px;
+}
+.button-group > a {
+  vertical-align: middle;
+  margin: 0 8px;
+  font-size: 11px;
+}

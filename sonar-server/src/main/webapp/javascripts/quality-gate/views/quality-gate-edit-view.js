@@ -22,8 +22,7 @@
       };
 
       QualityGateEditView.prototype.events = {
-        'click #quality-gate-create': 'createQualityGate',
-        'click #quality-gate-save': 'saveQualityGate',
+        'submit form': 'onSubmit',
         'click #quality-gate-cancel-create': 'hide'
       };
 
@@ -59,6 +58,15 @@
         }).done(function() {
           return _this.hide();
         });
+      };
+
+      QualityGateEditView.prototype.onSubmit = function(e) {
+        e.preventDefault();
+        if (this.model.isNew()) {
+          return this.createQualityGate();
+        } else {
+          return this.saveQualityGate();
+        }
       };
 
       QualityGateEditView.prototype.createQualityGate = function() {

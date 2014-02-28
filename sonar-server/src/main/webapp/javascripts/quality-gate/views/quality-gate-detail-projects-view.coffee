@@ -13,7 +13,6 @@ define [
 
     onRender: ->
       unless @model.get('default')
-        @$el.css 'max-width', 600
         new SelectList
           el: @$('#select-list-projects')
           width: '100%'

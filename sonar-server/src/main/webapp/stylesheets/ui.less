@@ -81,3 +81,49 @@ input[type=button] {
     cursor: default;
   }
 }
+
+.button-red {
+  &:hover, &:focus {
+    border-color: #900;
+    background: lighten(#900, 10%);
+    color: #fff;
+  }
+
+  &:active {
+    border-color: #900;
+    background: lighten(#900, 20%);
+  }
+}
+
+.button-group {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+
+  & > button {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    padding: 2px 8px;
+    font-size: @smallFontSize;
+    font-weight: normal;
+    cursor: pointer;
+
+    &:hover, &:focus {
+      z-index: 3;
+    }
+  }
+
+  & > button + button {
+    margin-left: -1px;
+  }
+
+  & > a {
+    vertical-align: middle;
+    margin: 0 8px;
+    font-size: @smallFontSize;
+  }
+}

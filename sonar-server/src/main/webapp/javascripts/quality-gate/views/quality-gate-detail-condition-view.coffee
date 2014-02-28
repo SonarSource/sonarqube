@@ -30,6 +30,7 @@ define [
       'click .delete-condition': 'deleteCondition'
       'click .add-condition': 'saveCondition'
       'click .cancel-add-condition': 'cancelAddCondition'
+      'keyup :input': 'enableUpdate'
       'change :input': 'enableUpdate'
 
 

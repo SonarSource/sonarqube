@@ -1,22 +1,24 @@
 <script id="quality-gate-edit-template" type="text/x-handlebars-template">
-  <div class="modal-head">
-    <h2><%= message('quality_gates.add') -%></h2>
-  </div>
-
-  <div class="modal-body">
-    <div class="modal-error"></div>
-    <div class="modal-field">
-      <label for="quality-gate-edit-name"><%= message('name') -%> <em class="mandatory">*</em></label>
-      <input id="quality-gate-edit-name" value="{{name}}" type="text" size="50" maxlength="100">
+  <form>
+    <div class="modal-head">
+      <h2><%= message('quality_gates.add') -%></h2>
     </div>
-  </div>
 
-  <div class="modal-foot">
-    {{#if id}}
-      <button id="quality-gate-save"><%= message('save') -%></button>
-    {{else}}
-      <button id="quality-gate-create"><%= message('create') -%></button>
-    {{/if}}
-    <a id="quality-gate-cancel-create" class="action"><%= message('cancel') -%></a>
-  </div>
+    <div class="modal-body">
+      <div class="modal-error"></div>
+      <div class="modal-field">
+        <label for="quality-gate-edit-name"><%= message('name') -%> <em class="mandatory">*</em></label>
+        <input id="quality-gate-edit-name" value="{{name}}" type="text" size="50" maxlength="100">
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      {{#if id}}
+        <button id="quality-gate-save"><%= message('save') -%></button>
+      {{else}}
+        <button id="quality-gate-create"><%= message('create') -%></button>
+      {{/if}}
+      <a id="quality-gate-cancel-create" class="action"><%= message('cancel') -%></a>
+    </div>
+  </form>
 </script>

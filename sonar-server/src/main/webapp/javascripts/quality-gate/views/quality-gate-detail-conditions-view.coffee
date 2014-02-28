@@ -2,17 +2,20 @@ define [
   'backbone.marionette',
   'handlebars',
   'quality-gate/models/condition',
-  'quality-gate/views/quality-gate-detail-condition-view'
+  'quality-gate/views/quality-gate-detail-condition-view',
+  'quality-gate/views/quality-gate-detail-conditions-empty-view'
 ], (
   Marionette,
   Handlebars,
   Condition,
-  QualityGateDetailConditionView
+  QualityGateDetailConditionView,
+  QualityGateDetailConditionsEmptyView
 ) ->
 
   class QualityGateDetailConditionsView extends Marionette.CompositeView
     template: Handlebars.compile jQuery('#quality-gate-detail-conditions-template').html()
     itemView: QualityGateDetailConditionView
+    emptyView: QualityGateDetailConditionsEmptyView
     itemViewContainer: '.quality-gate-conditions tbody'
 
 

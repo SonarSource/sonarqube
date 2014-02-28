@@ -16,8 +16,7 @@ define [
 
 
     events:
-      'click #quality-gate-create': 'createQualityGate'
-      'click #quality-gate-save': 'saveQualityGate'
+      'submit form': 'onSubmit'
       'click #quality-gate-cancel-create': 'hide'
 
 
@@ -50,6 +49,13 @@ define [
         data: data
       .done => @hide()
 
+
+    onSubmit: (e) ->
+      e.preventDefault()
+      if @model.isNew()
+        @createQualityGate()
+      else
+        @saveQualityGate()
 
     createQualityGate: ->
       data = name: @ui.nameInput.val()

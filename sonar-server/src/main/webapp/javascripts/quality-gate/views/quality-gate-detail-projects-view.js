@@ -17,7 +17,6 @@
 
       QualityGateDetailProjectsView.prototype.onRender = function() {
         if (!this.model.get('default')) {
-          this.$el.css('max-width', 600);
           return new SelectList({
             el: this.$('#select-list-projects'),
             width: '100%',

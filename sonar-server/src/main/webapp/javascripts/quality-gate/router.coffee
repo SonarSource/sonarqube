@@ -3,13 +3,11 @@ define [
   'quality-gate/models/quality-gate',
   'quality-gate/views/quality-gate-detail-view',
   'quality-gate/views/quality-gate-detail-header-view',
-  'quality-gate/views/quality-gate-new-view'
 ], (
   Backbone,
   QualityGate,
   QualityGateDetailView,
-  QualityGateDetailHeaderView,
-  QualityGateNewView
+  QualityGateDetailHeaderView
 ) ->
 
   class QualityGateRouter extends Backbone.Router

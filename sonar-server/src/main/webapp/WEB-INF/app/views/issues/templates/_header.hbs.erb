@@ -1,7 +1,7 @@
 <script id="issues-header-template" type="text/x-handlebars-template">
   <h1 class="navigator-header-title">{{#if name}}{{name}}{{else}}<%= message ('issues') -%>{{/if}}</h1>
 
-    <div class="navigator-header-actions">
+    <div class="navigator-header-actions button-group">
       <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>
 
       {{#if appState.canManageFilters}}

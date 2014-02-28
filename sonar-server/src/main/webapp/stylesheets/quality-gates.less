@@ -16,10 +16,20 @@
     height: @navigatorHeaderHeight;
     padding: 0 @navigatorPadding;
     border-right-color: @navigatorBorderColor;
+
+    .navigator-header-title {
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
   }
 
   .navigator-results {
     top: @navigatorTopOffset + @navigatorHeaderHeight;
+
+    .subtitle {
+      text-transform: lowercase;
+    }
   }
 
   .navigator-details {
@@ -42,6 +52,7 @@
 .quality-gate-section-name {
   margin-bottom: @navigatorPadding;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 
