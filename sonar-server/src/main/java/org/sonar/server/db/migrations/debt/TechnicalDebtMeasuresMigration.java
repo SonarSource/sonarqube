@@ -59,12 +59,12 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
 
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
-  private static final String SQL_SELECT = "SELECT * FROM project_measures INNER JOIN metrics on metrics.id=project_measures.metric_id " +
-    "WHERE (metrics.name='sqale_index' or metrics.name='new_technical_debt' " +
+  private static final String SQL_SELECT = "SELECT pm.id FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
+    "WHERE (m.name='sqale_index' or m.name='new_technical_debt' " +
     // SQALE measures
-    "or metrics.name='sqale_effort_to_grade_a' or metrics.name='sqale_effort_to_grade_b' or metrics.name='sqale_effort_to_grade_c' or metrics.name='sqale_effort_to_grade_d' " +
-    "or metrics.name='blocker_remediation_cost' or metrics.name='critical_remediation_cost' or metrics.name='major_remediation_cost' or metrics.name='minor_remediation_cost' " +
-    "or metrics.name='info_remediation_cost' " +
+    "or m.name='sqale_effort_to_grade_a' or m.name='sqale_effort_to_grade_b' or m.name='sqale_effort_to_grade_c' or m.name='sqale_effort_to_grade_d' " +
+    "or m.name='blocker_remediation_cost' or m.name='critical_remediation_cost' or m.name='major_remediation_cost' or m.name='minor_remediation_cost' " +
+    "or m.name='info_remediation_cost' " +
     ")";
 
   private static final String SQL_UPDATE = "UPDATE project_measures SET value=?," +

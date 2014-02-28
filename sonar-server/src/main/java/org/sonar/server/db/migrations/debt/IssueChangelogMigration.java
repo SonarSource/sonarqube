@@ -57,7 +57,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
 
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
-  private static final String SQL_SELECT = "SELECT * FROM issue_changes WHERE change_type = 'diff' and change_data LIKE '%technicalDebt%'";
+  private static final String SQL_SELECT = "SELECT ic.id FROM issue_changes ic WHERE ic.change_type = 'diff' and ic.change_data LIKE '%technicalDebt%'";
   private static final String SQL_UPDATE = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
 
   static final String SQL_SELECT_ALL;

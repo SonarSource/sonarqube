@@ -54,8 +54,8 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
 
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
 
-  private static final String SQL_SELECT = "SELECT * FROM project_measures INNER JOIN metrics on metrics.id=project_measures.metric_id " +
-    "WHERE (metrics.name='development_cost')";
+  private static final String SQL_SELECT = "SELECT pm.id FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
+    "WHERE (m.name='development_cost')";
 
   private static final String SQL_UPDATE = "UPDATE project_measures SET value=NULL,text_value=? WHERE id=?";
 

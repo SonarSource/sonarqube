@@ -54,7 +54,7 @@ public class IssueMigration implements DatabaseMigration {
 
   private static final String FAILURE_MESSAGE = "Fail to convert issue debt from work duration to seconds";
 
-  private static final String SQL_SELECT = "SELECT id FROM issues WHERE technical_debt IS NOT NULL";
+  private static final String SQL_SELECT = "SELECT i.id FROM issues i WHERE i.technical_debt IS NOT NULL";
   private static final String SQL_UPDATE = "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
 
   static final String SQL_SELECT_ISSUES;
