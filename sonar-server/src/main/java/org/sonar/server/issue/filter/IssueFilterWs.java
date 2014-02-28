@@ -19,14 +19,17 @@
  */
 package org.sonar.server.issue.filter;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class IssueFilterWs implements WebService {
@@ -63,14 +66,19 @@ public class IssueFilterWs implements WebService {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
 
-    // Permissions
-    json.prop("canManageFilter", session.isLoggedIn());
-    json.prop("canBulkChange", session.isLoggedIn());
-
     // Current filter (optional)
     int filterId = request.intParam("id", -1);
+    DefaultIssueFilter filter = null;
     if (filterId >= 0) {
-      DefaultIssueFilter filter = service.find((long)filterId, session);
+      filter = service.find((long) filterId, session);
+    }
+
+    // Permissions
+    json.prop("canManageFilters", session.isLoggedIn());
+    json.prop("canBulkChange", session.isLoggedIn());
+    json.prop("canModifyFilter", canModifyFilter(session, filter));
+
+    if (filter != null) {
       json.name("filter")
         .beginObject()
         .prop("id", filter.id())
@@ -97,5 +105,10 @@ public class IssueFilterWs implements WebService {
 
     json.endObject();
     json.close();
+  }
+
+  private boolean canModifyFilter(UserSession session, @Nullable DefaultIssueFilter filter) {
+    return filter != null && session.isLoggedIn() &&
+      (StringUtils.equals(filter.user(), session.login()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
   }
 }

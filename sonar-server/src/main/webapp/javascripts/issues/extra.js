@@ -11,7 +11,7 @@ define(
       var AppState = Backbone.Model.extend({
 
         defaults: {
-          canManageFilter: false,
+          canManageFilters: false,
           canBulkChange: false
         },
 
