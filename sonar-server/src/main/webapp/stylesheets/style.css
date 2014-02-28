@@ -406,6 +406,10 @@ table.data th img, table.data td img {
   vertical-align: sub;
 }
 
+table.data.zebra tr:nth-child(odd) {
+  background-color: #EFEFEF;
+}
+
 .data thead tr.total {
   background-color: #EFEFEF;
   font-weight: normal;

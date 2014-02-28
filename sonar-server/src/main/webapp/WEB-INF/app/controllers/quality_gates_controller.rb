@@ -20,6 +20,8 @@
 
 class QualityGatesController < ApplicationController
 
+  SECTION=Navigation::SECTION_QUALITY_GATES
+
   # GET /quality_gates/index
   def index
 

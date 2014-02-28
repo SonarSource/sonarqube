@@ -2,11 +2,13 @@ define [
   'backbone',
   'quality-gate/models/quality-gate',
   'quality-gate/views/quality-gate-detail-view',
+  'quality-gate/views/quality-gate-detail-header-view',
   'quality-gate/views/quality-gate-new-view'
 ], (
   Backbone,
   QualityGate,
   QualityGateDetailView,
+  QualityGateDetailHeaderView,
   QualityGateNewView
 ) ->
 
@@ -14,7 +16,6 @@ define [
 
     routes:
       'show/:id': 'show'
-      'new': 'new'
 
 
     initialize: (options) ->
@@ -25,17 +26,19 @@ define [
       qualityGate = @app.qualityGates.get id
       if qualityGate
         @app.qualityGateSidebarListView.highlight id
+
+        qualityGateDetailHeaderView = new QualityGateDetailHeaderView
+          app: @app
+          model: qualityGate
+        @app.headerRegion.show qualityGateDetailHeaderView
+
         qualityGateDetailView = new QualityGateDetailView
           app: @app
           model: qualityGate
-        @app.contentRegion.show qualityGateDetailView
-        qualityGateDetailView.$el.addClass 'navigator-fetching'
+        @app.detailsRegion.show qualityGateDetailView
+        qualityGateDetailView.$el.hide()
+
+        qualityGateDetailHeaderView.showSpinner()
         qualityGate.fetch().done ->
-          qualityGateDetailView.$el.removeClass 'navigator-fetching'
-
-
-    new: ->
-      qualityGateNewView = new QualityGateNewView
-        app: @app
-        model: new QualityGate
-      @app.contentRegion.show qualityGateNewView
+          qualityGateDetailView.$el.show()
+          qualityGateDetailHeaderView.hideSpinner()

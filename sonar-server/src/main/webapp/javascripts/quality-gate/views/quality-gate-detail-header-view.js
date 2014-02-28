@@ -15,6 +15,12 @@
 
       QualityGateDetailHeaderView.prototype.template = Handlebars.compile(jQuery('#quality-gate-detail-header-template').html());
 
+      QualityGateDetailHeaderView.prototype.spinner = '<i class="spinner"></i>';
+
+      QualityGateDetailHeaderView.prototype.modelEvents = {
+        'change': 'render'
+      };
+
       QualityGateDetailHeaderView.prototype.events = {
         'click #quality-gate-rename': 'renameQualityGate',
         'click #quality-gate-delete': 'deleteQualityGate',
@@ -23,19 +29,22 @@
       };
 
       QualityGateDetailHeaderView.prototype.renameQualityGate = function() {
-        return this.options.detailView.showRenaming();
+        this.options.app.qualityGateEditView.model = this.model;
+        return this.options.app.qualityGateEditView.show();
       };
 
       QualityGateDetailHeaderView.prototype.deleteQualityGate = function() {
         var _this = this;
         if (confirm(window.SS.phrases.areYouSure)) {
-          this.options.detailView.showHeaderSpinner();
+          this.showSpinner();
           return jQuery.ajax({
             type: 'POST',
             url: "" + baseUrl + "/api/qualitygates/destroy",
             data: {
               id: this.model.id
             }
+          }).always(function() {
+            return _this.hideSpinner();
           }).done(function() {
             return _this.options.app.deleteQualityGate(_this.model.id);
           });
@@ -45,7 +54,7 @@
       QualityGateDetailHeaderView.prototype.changeDefault = function(set) {
         var data, method,
           _this = this;
-        this.options.detailView.showHeaderSpinner();
+        this.showSpinner();
         data = set ? {
           id: this.model.id
         } : {};
@@ -55,7 +64,7 @@
           url: "" + baseUrl + "/api/qualitygates/" + method,
           data: data
         }).always(function() {
-          return _this.options.detailView.hideHeaderSpinner();
+          return _this.hideSpinner();
         }).done(function() {
           _this.options.app.unsetDefaults(_this.model.id);
           return _this.model.set('default', !_this.model.get('default'));
@@ -68,6 +77,16 @@
 
       QualityGateDetailHeaderView.prototype.unsetAsDefault = function() {
         return this.changeDefault(false);
+      };
+
+      QualityGateDetailHeaderView.prototype.showSpinner = function() {
+        this.$el.hide();
+        return jQuery(this.spinner).insertBefore(this.$el);
+      };
+
+      QualityGateDetailHeaderView.prototype.hideSpinner = function() {
+        this.$el.prev().remove();
+        return this.$el.show();
       };
 
       return QualityGateDetailHeaderView;

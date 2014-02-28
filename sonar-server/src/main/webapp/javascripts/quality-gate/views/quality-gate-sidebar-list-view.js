@@ -13,21 +13,11 @@
         return _ref;
       }
 
-      QualityGateSidebarListView.prototype.tagName = 'ul';
+      QualityGateSidebarListView.prototype.tagName = 'ol';
 
-      QualityGateSidebarListView.prototype.className = 'sidebar blue-sidebar';
-
-      QualityGateSidebarListView.prototype.template = Handlebars.compile(jQuery('#quality-gate-sidebar-list-template').html());
+      QualityGateSidebarListView.prototype.className = 'navigator-results-list';
 
       QualityGateSidebarListView.prototype.itemView = QualityGateSidebarListItemView;
-
-      QualityGateSidebarListView.prototype.ui = {
-        spacer: '.spacer'
-      };
-
-      QualityGateSidebarListView.prototype.events = {
-        'click #quality-gate-add': 'addQualityGate'
-      };
 
       QualityGateSidebarListView.prototype.itemViewOptions = function(model) {
         return {
@@ -36,24 +26,14 @@
         };
       };
 
-      QualityGateSidebarListView.prototype.appendHtml = function(compositeView, itemView) {
-        return itemView.$el.insertBefore(this.ui.spacer);
-      };
-
       QualityGateSidebarListView.prototype.highlight = function(id) {
         this.highlighted = id;
         return this.render();
       };
 
-      QualityGateSidebarListView.prototype.addQualityGate = function() {
-        return this.options.app.router.navigate('new', {
-          trigger: true
-        });
-      };
-
       return QualityGateSidebarListView;
 
-    })(Marionette.CompositeView);
+    })(Marionette.CollectionView);
   });
 
 }).call(this);

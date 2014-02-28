@@ -9,6 +9,7 @@ define [
   class QualityGateDetailConditionView extends Marionette.ItemView
     tagName: 'tr'
     template: Handlebars.compile jQuery('#quality-gate-detail-condition-template').html()
+    spinner: '<i class="spinner"></i>'
 
 
     modelEvents:
@@ -21,13 +22,15 @@ define [
       warningInput: '[name=warning]'
       errorInput: '[name=error]'
       actionsBox: '.quality-gate-condition-actions'
+      updateButton: '.update-condition'
 
 
     events:
-      'click .update-condition': 'saveCondition'
+      'click @ui.updateButton': 'saveCondition'
       'click .delete-condition': 'deleteCondition'
       'click .add-condition': 'saveCondition'
       'click .cancel-add-condition': 'cancelAddCondition'
+      'change :input': 'enableUpdate'
 
 
     initialize: ->
@@ -63,11 +66,13 @@ define [
 
 
     showSpinner: ->
-      @ui.actionsBox.addClass 'navigator-fetching'
+      jQuery(@spinner).prependTo @ui.actionsBox
+      @ui.actionsBox.find(':not(.spinner)').hide()
 
 
     hideSpinner: ->
-      @ui.actionsBox.removeClass 'navigator-fetching'
+      @ui.actionsBox.find('.spinner').remove()
+      @ui.actionsBox.children().show()
 
 
     saveCondition: ->
@@ -79,6 +84,7 @@ define [
         error: @ui.errorInput.val()
       @model.save()
         .always =>
+          @ui.updateButton.prop 'disabled', true
           @hideSpinner()
         .done =>
           @options.collectionView.updateConditions()
@@ -94,3 +100,7 @@ define [
 
     cancelAddCondition: ->
       @close()
+
+
+    enableUpdate: ->
+      @ui.updateButton.prop 'disabled', false

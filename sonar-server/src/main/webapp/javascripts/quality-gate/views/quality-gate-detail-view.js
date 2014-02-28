@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'handlebars', 'quality-gate/collections/conditions', 'quality-gate/views/quality-gate-detail-header-view', 'quality-gate/views/quality-gate-detail-renaming-view', 'quality-gate/views/quality-gate-detail-conditions-view', 'quality-gate/views/quality-gate-detail-projects-view'], function(Marionette, Handlebars, Conditions, QualityGateDetailHeaderView, QualityGateDetailRenamingView, QualityGateDetailConditionsView, QualityGateDetailProjectsView) {
+  define(['backbone.marionette', 'handlebars', 'quality-gate/collections/conditions', 'quality-gate/views/quality-gate-detail-header-view', 'quality-gate/views/quality-gate-detail-conditions-view', 'quality-gate/views/quality-gate-detail-projects-view'], function(Marionette, Handlebars, Conditions, QualityGateDetailHeaderView, QualityGateDetailConditionsView, QualityGateDetailProjectsView) {
     var QualityGateDetailView, _ref;
     return QualityGateDetailView = (function(_super) {
       __extends(QualityGateDetailView, _super);
@@ -13,59 +13,24 @@
         return _ref;
       }
 
-      QualityGateDetailView.prototype.className = 'quality-gate';
-
       QualityGateDetailView.prototype.template = Handlebars.compile(jQuery('#quality-gate-detail-template').html());
 
       QualityGateDetailView.prototype.regions = {
-        headerRegion: '.quality-gate-header',
-        tabRegion: '.quality-gate-details-tab'
-      };
-
-      QualityGateDetailView.prototype.ui = {
-        tabs: '.quality-gate-tabs',
-        conditionsTab: '#quality-gate-tab-conditions',
-        projectsTab: '#quality-gate-tab-projects'
+        conditionsRegion: '#quality-gate-conditions',
+        projectsRegion: '#quality-gate-projects'
       };
 
       QualityGateDetailView.prototype.modelEvents = {
         'change': 'render'
       };
 
-      QualityGateDetailView.prototype.events = {
-        'click @ui.conditionsTab': 'showConditions',
-        'click @ui.projectsTab': 'showProjects'
-      };
-
       QualityGateDetailView.prototype.onRender = function() {
-        this.showHeader();
-        return this.showConditions();
-      };
-
-      QualityGateDetailView.prototype.showHeader = function() {
-        var view;
-        view = new QualityGateDetailHeaderView({
-          app: this.options.app,
-          detailView: this,
-          model: this.model
-        });
-        return this.headerRegion.show(view);
-      };
-
-      QualityGateDetailView.prototype.showRenaming = function() {
-        var view;
-        view = new QualityGateDetailRenamingView({
-          app: this.options.app,
-          detailView: this,
-          model: this.model
-        });
-        return this.headerRegion.show(view);
+        this.showConditions();
+        return this.showProjects();
       };
 
       QualityGateDetailView.prototype.showConditions = function() {
         var conditions, view;
-        this.ui.tabs.find('a').removeClass('selected');
-        this.ui.conditionsTab.addClass('selected');
         conditions = new Conditions(this.model.get('conditions'));
         view = new QualityGateDetailConditionsView({
           app: this.options.app,
@@ -73,26 +38,17 @@
           gateId: this.model.id,
           qualityGate: this.model
         });
-        return this.tabRegion.show(view);
+        return this.conditionsRegion.show(view);
       };
 
       QualityGateDetailView.prototype.showProjects = function() {
         var view;
-        this.ui.tabs.find('a').removeClass('selected');
-        this.ui.projectsTab.addClass('selected');
         view = new QualityGateDetailProjectsView({
           app: this.options.app,
+          model: this.model,
           gateId: this.model.id
         });
-        return this.tabRegion.show(view);
-      };
-
-      QualityGateDetailView.prototype.showHeaderSpinner = function() {
-        return this.$(this.headerRegion.el).addClass('navigator-fetching');
-      };
-
-      QualityGateDetailView.prototype.hideHeaderSpinner = function() {
-        return this.$(this.headerRegion.el).removeClass('navigator-fetching');
+        return this.projectsRegion.show(view);
       };
 
       return QualityGateDetailView;

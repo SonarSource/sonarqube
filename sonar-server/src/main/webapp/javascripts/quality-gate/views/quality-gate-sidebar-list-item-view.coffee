@@ -16,7 +16,7 @@ define [
 
 
     events:
-      'click a': 'showQualityGate'
+      'click': 'showQualityGate'
 
 
     onRender: ->

@@ -22,7 +22,7 @@
       };
 
       QualityGateSidebarListItemView.prototype.events = {
-        'click a': 'showQualityGate'
+        'click': 'showQualityGate'
       };
 
       QualityGateSidebarListItemView.prototype.onRender = function() {

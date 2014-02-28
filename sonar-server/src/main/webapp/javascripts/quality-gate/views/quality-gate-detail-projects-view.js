@@ -16,31 +16,33 @@
       QualityGateDetailProjectsView.prototype.template = Handlebars.compile(jQuery('#quality-gate-detail-projects-template').html());
 
       QualityGateDetailProjectsView.prototype.onRender = function() {
-        this.$el.css('max-width', 600);
-        return new SelectList({
-          el: this.$('#select-list-projects'),
-          width: '100%',
-          format: function(item) {
-            return item.name;
-          },
-          searchUrl: "" + baseUrl + "/api/qualitygates/search?gateId=" + this.options.gateId,
-          selectUrl: "" + baseUrl + "/api/qualitygates/select",
-          deselectUrl: "" + baseUrl + "/api/qualitygates/deselect",
-          extra: {
-            gateId: this.options.gateId
-          },
-          selectParameter: 'projectId',
-          selectParameterValue: 'id',
-          labels: {
-            selected: window.SS.phrases.projects["with"],
-            deselected: window.SS.phrases.projects.without,
-            all: window.SS.phrases.projects.all
-          },
-          tooltips: {
-            select: window.SS.phrases.projects.select_hint,
-            deselect: window.SS.phrases.projects.deselect_hint
-          }
-        });
+        if (!this.model.get('default')) {
+          this.$el.css('max-width', 600);
+          return new SelectList({
+            el: this.$('#select-list-projects'),
+            width: '100%',
+            format: function(item) {
+              return item.name;
+            },
+            searchUrl: "" + baseUrl + "/api/qualitygates/search?gateId=" + this.options.gateId,
+            selectUrl: "" + baseUrl + "/api/qualitygates/select",
+            deselectUrl: "" + baseUrl + "/api/qualitygates/deselect",
+            extra: {
+              gateId: this.options.gateId
+            },
+            selectParameter: 'projectId',
+            selectParameterValue: 'id',
+            labels: {
+              selected: window.SS.phrases.projects["with"],
+              deselected: window.SS.phrases.projects.without,
+              all: window.SS.phrases.projects.all
+            },
+            tooltips: {
+              select: window.SS.phrases.projects.select_hint,
+              deselect: window.SS.phrases.projects.deselect_hint
+            }
+          });
+        }
       };
 
       return QualityGateDetailProjectsView;

@@ -346,7 +346,7 @@
   font-size: 16px;
   text-decoration: none;
 }
-.issues-page #footer {
+.navigator-page #footer {
   position: fixed;
   z-index: 2;
   -moz-box-sizing: border-box;
@@ -357,85 +357,46 @@
   margin: 0;
   border-top: 1px solid #e1e1e1;
 }
-.issues-page #ftlinks {
+.navigator-page #ftlinks {
   margin-top: 0;
 }
-.quality-gate {
-  position: relative;
+.quality-gates-navigator .navigator-header {
+  left: 320px;
+  border-bottom-color: #e1e1e1;
+}
+.quality-gates-navigator .navigator-header .spinner {
+  margin-top: 9px;
+}
+.quality-gates-navigator .navigator-actions {
+  top: 30px;
+  height: 37px;
   padding: 0 10px;
-  overflow: hidden;
+  border-right-color: #cdcdcd;
 }
-.quality-gate-page-loader {
-  position: relative;
-  width: 24px;
-  height: 24px;
+.quality-gates-navigator .navigator-results {
+  top: 67px;
 }
-.quality-gate-page-loader:before {
-  content: " ";
-  position: absolute;
-  z-index: 3;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffffff url(../images/loading.gif) no-repeat 4px 4px;
+.quality-gates-navigator .navigator-details {
+  top: 67px;
+  padding: 10px;
 }
-.quality-gate-page-loader#tab-issue-rule {
-  position: relative;
-}
-.quality-gate-page-loader#tab-issue-rule:before {
-  z-index: 3;
-  background-color: #EFEFEF;
-}
-.quality-gate-page-loader.code-issue-actions {
-  position: relative;
-}
-.quality-gate-page-loader.code-issue-actions:before {
-  z-index: 3;
-  background-color: #E4ECF3;
-}
-.quality-gate-header {
-  position: relative;
-  padding: 0 10px;
-  border-left: 1px solid #cdcdcd;
-  border-right: 1px solid #cdcdcd;
-  border-bottom: 1px solid #cdcdcd;
-  background-color: #efefef;
-  font-size: 0;
-}
-.quality-gate-header.navigator-fetching:before {
-  background-color: #efefef;
-  background-position: 10px center;
-}
-.quality-gate-header-rename {
-  padding: 8px 0 7px;
-}
-.quality-gate-header-rename input {
-  vertical-align: middle;
-  width: 200px;
-  font-size: 13px;
-}
-.quality-gate-details {
+.quality-gate-section + .quality-gate-section {
   margin-top: 10px;
+  padding-top: 20px;
 }
-.quality-gate-tabs {
+.quality-gate-section-empty + .quality-gate-section {
+  border-top: 1px solid #e1e1e1;
+}
+.quality-gate-section-name {
   margin-bottom: 10px;
+  font-weight: bold;
+}
+.quality-gate-introduction {
+  margin-bottom: 20px;
 }
 .quality-gate-new-condition {
-  margin: 20px 0 10px;
-}
-.quality-gate-new-condition label {
-  vertical-align: middle;
-}
-.quality-gate-conditions img,
-.quality-gate-conditions input,
-.quality-gate-conditions button,
-.quality-gate-conditions .action {
-  vertical-align: middle !important;
+  margin-bottom: 10px;
 }
 .quality-gate-condition-actions {
   position: relative;
-}
-.quality-gate-condition-actions.navigator-fetching:before {
-  background-position: center left;
 }

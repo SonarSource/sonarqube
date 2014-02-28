@@ -346,7 +346,7 @@
   font-size: 16px;
   text-decoration: none;
 }
-.issues-page #footer {
+.navigator-page #footer {
   position: fixed;
   z-index: 2;
   -moz-box-sizing: border-box;
@@ -357,7 +357,7 @@
   margin: 0;
   border-top: 1px solid #e1e1e1;
 }
-.issues-page #ftlinks {
+.navigator-page #ftlinks {
   margin-top: 0;
 }
 .navigator-filters {

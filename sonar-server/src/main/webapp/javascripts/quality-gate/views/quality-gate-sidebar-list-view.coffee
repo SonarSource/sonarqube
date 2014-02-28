@@ -10,19 +10,10 @@ define [
   QualityGateSidebarListItemView
 ) ->
 
-  class QualityGateSidebarListView extends Marionette.CompositeView
-    tagName: 'ul'
-    className: 'sidebar blue-sidebar'
-    template: Handlebars.compile jQuery('#quality-gate-sidebar-list-template').html()
+  class QualityGateSidebarListView extends Marionette.CollectionView
+    tagName: 'ol'
+    className: 'navigator-results-list'
     itemView: QualityGateSidebarListItemView
-
-
-    ui:
-      spacer: '.spacer'
-
-
-    events:
-      'click #quality-gate-add': 'addQualityGate'
 
 
     itemViewOptions: (model) ->
@@ -30,14 +21,6 @@ define [
       highlighted: model.get('id') == +@highlighted
 
 
-    appendHtml: (compositeView, itemView) ->
-      itemView.$el.insertBefore @ui.spacer
-
-
     highlight: (id) ->
       @highlighted = id
       @render()
-
-
-    addQualityGate: ->
-      @options.app.router.navigate 'new', trigger: true

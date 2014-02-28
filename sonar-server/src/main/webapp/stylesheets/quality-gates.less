@@ -2,70 +2,58 @@
 @import "mixins";
 @import "navigator/base";
 
-.quality-gate {
-  position: relative;
-  padding: 0 10px;
-  overflow: hidden;
-}
+.quality-gates-navigator {
 
-.quality-gate-page-loader {
-  position: relative;
-  .square(24px);
-  .navigator-fetching;
-}
+  .navigator-header {
+    left: @navigatorResultsWidth;
+    border-bottom-color: @navigatorBorderLightColor;
 
-.quality-gate-header {
-  position: relative;
-  padding: 0 10px;
-  border-left: 1px solid @darkGrey;
-  border-right: 1px solid @darkGrey;
-  border-bottom: 1px solid @darkGrey;
-  background-color: @grey;
-  font-size: 0;
-
-  &.navigator-fetching:before {
-    background-color: @grey;
-    background-position: 10px center;
+    .spinner { margin-top: 9px; }
   }
-}
 
-.quality-gate-header-rename {
-  padding: 8px 0 7px;
-
-  input {
-    vertical-align: middle;
-    width: 200px;
-    font-size: @baseFontSize;
+  .navigator-actions {
+    top: @navigatorTopOffset;
+    height: @navigatorHeaderHeight;
+    padding: 0 @navigatorPadding;
+    border-right-color: @navigatorBorderColor;
   }
+
+  .navigator-results {
+    top: @navigatorTopOffset + @navigatorHeaderHeight;
+  }
+
+  .navigator-details {
+    top: @navigatorTopOffset + @navigatorHeaderHeight;
+    padding: @navigatorPadding;
+  }
+
 }
 
-.quality-gate-details {
-  margin-top: 10px;
+
+.quality-gate-section + .quality-gate-section {
+  margin-top: @navigatorPadding;
+  padding-top: 2 * @navigatorPadding;
 }
 
-.quality-gate-tabs {
-  margin-bottom: 10px;
+.quality-gate-section-empty + .quality-gate-section {
+  border-top: 1px solid @navigatorBorderLightColor;
 }
+
+.quality-gate-section-name {
+  margin-bottom: @navigatorPadding;
+  font-weight: bold;
+}
+
+
+.quality-gate-introduction {
+  margin-bottom: 2 * @navigatorPadding;
+}
+
 
 .quality-gate-new-condition {
-  margin: 20px 0 10px;
-  
-  label {
-    vertical-align: middle;
-  }
-}
-
-.quality-gate-conditions {
-
-  img, input, button, .action {
-    vertical-align: middle !important;
-  }
+  margin-bottom: @navigatorPadding;
 }
 
 .quality-gate-condition-actions {
   position: relative;
-
-  &.navigator-fetching:before {
-    background-position: center left;
-  }
 }

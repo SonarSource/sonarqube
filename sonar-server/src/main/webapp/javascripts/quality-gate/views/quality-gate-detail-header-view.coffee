@@ -8,6 +8,11 @@ define [
 
   class QualityGateDetailHeaderView extends Marionette.ItemView
     template: Handlebars.compile jQuery('#quality-gate-detail-header-template').html()
+    spinner: '<i class="spinner"></i>'
+
+
+    modelEvents:
+      'change': 'render'
 
 
     events:
@@ -18,22 +23,25 @@ define [
 
 
     renameQualityGate: ->
-      @options.detailView.showRenaming()
+      @options.app.qualityGateEditView.model = @model
+      @options.app.qualityGateEditView.show()
 
 
     deleteQualityGate: ->
       if confirm window.SS.phrases.areYouSure
-        @options.detailView.showHeaderSpinner()
-        jQuery.ajax({
+        @showSpinner()
+        jQuery.ajax
           type: 'POST'
           url: "#{baseUrl}/api/qualitygates/destroy"
           data: id: @model.id
-        }).done =>
+        .always =>
+          @hideSpinner()
+        .done =>
           @options.app.deleteQualityGate @model.id
 
 
     changeDefault: (set) ->
-      @options.detailView.showHeaderSpinner()
+      @showSpinner()
       data = if set then { id: @model.id } else {}
       method = if set then 'set_as_default' else 'unset_default'
       jQuery.ajax
@@ -41,7 +49,7 @@ define [
         url: "#{baseUrl}/api/qualitygates/#{method}"
         data: data
       .always =>
-        @options.detailView.hideHeaderSpinner()
+        @hideSpinner()
       .done =>
         @options.app.unsetDefaults @model.id
         @model.set 'default', !@model.get('default')
@@ -53,3 +61,13 @@ define [
 
     unsetAsDefault: ->
       @changeDefault false
+
+
+    showSpinner: ->
+      @$el.hide()
+      jQuery(@spinner).insertBefore @$el
+
+
+    hideSpinner: ->
+      @$el.prev().remove()
+      @$el.show()

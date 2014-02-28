@@ -27,6 +27,8 @@ requirejs [
   'quality-gate/collections/quality-gates',
   'quality-gate/collections/metrics',
   'quality-gate/views/quality-gate-sidebar-list-view',
+  'quality-gate/views/quality-gate-actions-view',
+  'quality-gate/views/quality-gate-edit-view',
   'quality-gate/router'
   'common/handlebars-extensions'
 ], (
@@ -34,6 +36,8 @@ requirejs [
   QualityGates,
   Metrics,
   QualityGateSidebarListItemView,
+  QualityGateActionsView,
+  QualityGateEditView,
   QualityGateRouter
 ) ->
 
@@ -44,6 +48,9 @@ requirejs [
         alert _.pluck(jqXHR.responseJSON.errors, 'msg').join '. '
       else
         alert jqXHR.responseText
+
+  # Add html class to mark the page as navigator page
+  jQuery('html').addClass('navigator-page quality-gates-page');
 
   # Create a Quality Gate Application
   App = new Marionette.Application
@@ -67,15 +74,28 @@ requirejs [
 
   # Define page regions
   App.addRegions
-    sidebarRegion: '#sidebar'
-    contentRegion: '#content'
+    headerRegion: '.navigator-header'
+    actionsRegion: '.navigator-actions'
+    listRegion: '.navigator-results'
+    detailsRegion: '.navigator-details'
+
+  # Construct actions bar
+  App.addInitializer ->
+    @qualityGateActionsView = new QualityGateActionsView
+      app: @
+    @actionsRegion.show @qualityGateActionsView
 
   # Construct sidebar
   App.addInitializer ->
     @qualityGateSidebarListView = new QualityGateSidebarListItemView
       collection: @qualityGates
       app: @
-    @sidebarRegion.show @qualityGateSidebarListView
+    @listRegion.show @qualityGateSidebarListView
+
+  # Construct edit view
+  App.addInitializer ->
+    @qualityGateEditView = new QualityGateEditView app: @
+    @qualityGateEditView.render()
 
   # Start router
   App.addInitializer ->

@@ -25,7 +25,7 @@
   </td>
   <td class="quality-gate-condition-actions" width="120px" nowrap>
     {{#if id}}
-      <button class="update-condition"><%= message('update_verb') -%></button>
+      <button class="update-condition" disabled><%= message('update_verb') -%></button>
       <a class="action link-red delete-condition"><%= message('delete') -%></a>
     {{else}}
       <button class="add-condition"><%= message('add_verb') -%></button>

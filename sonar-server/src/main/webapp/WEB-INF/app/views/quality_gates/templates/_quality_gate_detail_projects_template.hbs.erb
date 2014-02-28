@@ -1,3 +1,9 @@
 <script id="quality-gate-detail-projects-template" type="text/x-handlebars-template">
-  <div id="select-list-projects"></div>
+  <div class="quality-gate-section-name"><%= message('quality_gates.projects') -%></div>
+
+  {{#if default}}
+    <p><%= message('quality_gates.projects_for_default') -%></p>
+  {{else}}
+    <div id="select-list-projects"></div>
+  {{/if}}
 </script>

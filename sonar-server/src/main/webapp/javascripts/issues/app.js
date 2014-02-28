@@ -63,7 +63,7 @@ requirejs(
 
 
       NavigatorApp.addInitializer(function () {
-        jQuery('html').addClass('issues-page');
+        jQuery('html').addClass('navigator-page issues-page');
 
         this.appState = new Extra.AppState();
         window.SS.appState = this.appState;

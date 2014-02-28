@@ -17,6 +17,8 @@
 
       QualityGateDetailConditionView.prototype.template = Handlebars.compile(jQuery('#quality-gate-detail-condition-template').html());
 
+      QualityGateDetailConditionView.prototype.spinner = '<i class="spinner"></i>';
+
       QualityGateDetailConditionView.prototype.modelEvents = {
         'change:id': 'render'
       };
@@ -26,14 +28,16 @@
         operatorSelect: '[name=operator]',
         warningInput: '[name=warning]',
         errorInput: '[name=error]',
-        actionsBox: '.quality-gate-condition-actions'
+        actionsBox: '.quality-gate-condition-actions',
+        updateButton: '.update-condition'
       };
 
       QualityGateDetailConditionView.prototype.events = {
-        'click .update-condition': 'saveCondition',
+        'click @ui.updateButton': 'saveCondition',
         'click .delete-condition': 'deleteCondition',
         'click .add-condition': 'saveCondition',
-        'click .cancel-add-condition': 'cancelAddCondition'
+        'click .cancel-add-condition': 'cancelAddCondition',
+        'change :input': 'enableUpdate'
       };
 
       QualityGateDetailConditionView.prototype.initialize = function() {
@@ -78,11 +82,13 @@
       };
 
       QualityGateDetailConditionView.prototype.showSpinner = function() {
-        return this.ui.actionsBox.addClass('navigator-fetching');
+        jQuery(this.spinner).prependTo(this.ui.actionsBox);
+        return this.ui.actionsBox.find(':not(.spinner)').hide();
       };
 
       QualityGateDetailConditionView.prototype.hideSpinner = function() {
-        return this.ui.actionsBox.removeClass('navigator-fetching');
+        this.ui.actionsBox.find('.spinner').remove();
+        return this.ui.actionsBox.children().show();
       };
 
       QualityGateDetailConditionView.prototype.saveCondition = function() {
@@ -95,6 +101,7 @@
           error: this.ui.errorInput.val()
         });
         return this.model.save().always(function() {
+          _this.ui.updateButton.prop('disabled', true);
           return _this.hideSpinner();
         }).done(function() {
           return _this.options.collectionView.updateConditions();
@@ -114,6 +121,10 @@
 
       QualityGateDetailConditionView.prototype.cancelAddCondition = function() {
         return this.close();
+      };
+
+      QualityGateDetailConditionView.prototype.enableUpdate = function() {
+        return this.ui.updateButton.prop('disabled', false);
       };
 
       return QualityGateDetailConditionView;
