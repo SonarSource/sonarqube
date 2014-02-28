@@ -320,7 +320,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <packagingExcludes>
-            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css
+            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*
           </packagingExcludes>
           <warSourceExcludes>
             **/*
