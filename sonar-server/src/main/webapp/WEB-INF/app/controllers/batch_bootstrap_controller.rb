@@ -92,7 +92,7 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/index
   def index
-    redirect_to ApplicationController.root_context.to_s + "/deploy/bootstrap/index.txt"
+    render :file => java_facade.boostrapIndexPath(), :layout => false
   end
 
   private

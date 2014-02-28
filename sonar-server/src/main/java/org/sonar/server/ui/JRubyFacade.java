@@ -46,10 +46,7 @@ import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.migrations.DatabaseMigrator;
-import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerSettings;
-import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.platform.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.source.CodeColorizers;
@@ -60,6 +57,8 @@ import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -370,6 +369,10 @@ public final class JRubyFacade {
 
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
+  }
+
+  public String boostrapIndexPath() throws IOException {
+    return getContainer().getComponentByType(DefaultServerFileSystem.class).getBootstrapIndex().getCanonicalPath();
   }
 
   // UPDATE PROJECT KEY ------------------------------------------------------------------
