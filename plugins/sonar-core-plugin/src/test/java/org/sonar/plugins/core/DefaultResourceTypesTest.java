@@ -32,7 +32,7 @@ public class DefaultResourceTypesTest {
   public void provide_types() {
     ResourceTypeTree tree = new DefaultResourceTypes().provide();
 
-    assertThat(tree.getTypes()).hasSize(5);
+    assertThat(tree.getTypes()).hasSize(7);
     assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
   }
 
