@@ -2,13 +2,11 @@
   <script data-main="<%= ApplicationController.root_context -%>/javascripts/quality-gate/app" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
 <% end %>
 
-<div class="navigator quality-gates-navigator">
-  <div class="navigator-header"></div>
-  <div class="navigator-results"><i class="spinner"></i></div>
-  <div class="navigator-details"></div>
-  <div class="navigator-actions"></div>
+<div class="quality-gate-page-loader">
+  <i class="spinner"></i>
 </div>
 
+<%= render :partial => '/quality_gates/templates/quality_gates_layout.hbs' -%>
 <%= render :partial => '/quality_gates/templates/quality_gate_sidebar_list_item_template.hbs' -%>
 <%= render :partial => '/quality_gates/templates/quality_gate_actions_template.hbs' -%>
 <%= render :partial => '/quality_gates/templates/quality_gate_edit_template.hbs' -%>

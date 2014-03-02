@@ -30,12 +30,12 @@
             app: this.app,
             model: qualityGate
           });
-          this.app.headerRegion.show(qualityGateDetailHeaderView);
+          this.app.layout.headerRegion.show(qualityGateDetailHeaderView);
           qualityGateDetailView = new QualityGateDetailView({
             app: this.app,
             model: qualityGate
           });
-          this.app.detailsRegion.show(qualityGateDetailView);
+          this.app.layout.detailsRegion.show(qualityGateDetailView);
           qualityGateDetailView.$el.hide();
           qualityGateDetailHeaderView.showSpinner();
           return qualityGate.fetch().done(function() {

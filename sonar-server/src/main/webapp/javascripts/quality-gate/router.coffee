@@ -28,12 +28,12 @@ define [
         qualityGateDetailHeaderView = new QualityGateDetailHeaderView
           app: @app
           model: qualityGate
-        @app.headerRegion.show qualityGateDetailHeaderView
+        @app.layout.headerRegion.show qualityGateDetailHeaderView
 
         qualityGateDetailView = new QualityGateDetailView
           app: @app
           model: qualityGate
-        @app.detailsRegion.show qualityGateDetailView
+        @app.layout.detailsRegion.show qualityGateDetailView
         qualityGateDetailView.$el.hide()
 
         qualityGateDetailHeaderView.showSpinner()

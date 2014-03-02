@@ -340,6 +340,9 @@
 .navigator-page #ftlinks {
   margin-top: 0;
 }
+.quality-gate-page-loader {
+  padding: 10px 0 0 10px;
+}
 .quality-gates-navigator .navigator-header {
   left: 320px;
   border-bottom-color: #e1e1e1;

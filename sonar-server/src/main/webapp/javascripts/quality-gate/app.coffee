@@ -29,7 +29,8 @@ requirejs [
   'quality-gate/views/quality-gate-sidebar-list-view',
   'quality-gate/views/quality-gate-actions-view',
   'quality-gate/views/quality-gate-edit-view',
-  'quality-gate/router'
+  'quality-gate/router',
+  'quality-gate/layout',
   'common/handlebars-extensions'
 ], (
   Backbone, Marionette, Handlebars,
@@ -38,7 +39,8 @@ requirejs [
   QualityGateSidebarListItemView,
   QualityGateActionsView,
   QualityGateEditView,
-  QualityGateRouter
+  QualityGateRouter,
+  QualityGateLayout
 ) ->
 
   # Create a generic error handler for ajax requests
@@ -62,7 +64,7 @@ requirejs [
     if @qualityGates.length > 0
       @router.navigate "show/#{@qualityGates.models[0].get('id')}", trigger: true
     else
-      App.contentRegion.reset()
+      App.layout.contentRegion.reset()
 
   App.deleteQualityGate = (id) ->
     App.qualityGates.remove id
@@ -72,25 +74,23 @@ requirejs [
     App.qualityGates.each (gate) ->
       gate.set('default', false) unless gate.id == id
 
-  # Define page regions
-  App.addRegions
-    headerRegion: '.navigator-header'
-    actionsRegion: '.navigator-actions'
-    listRegion: '.navigator-results'
-    detailsRegion: '.navigator-details'
+  # Construct layout
+  App.addInitializer ->
+    @layout = new QualityGateLayout
+    jQuery('body').append @layout.render().el
 
   # Construct actions bar
   App.addInitializer ->
     @qualityGateActionsView = new QualityGateActionsView
       app: @
-    @actionsRegion.show @qualityGateActionsView
+    @layout.actionsRegion.show @qualityGateActionsView
 
   # Construct sidebar
   App.addInitializer ->
     @qualityGateSidebarListView = new QualityGateSidebarListItemView
       collection: @qualityGates
       app: @
-    @listRegion.show @qualityGateSidebarListView
+    @layout.listRegion.show @qualityGateSidebarListView
 
   # Construct edit view
   App.addInitializer ->

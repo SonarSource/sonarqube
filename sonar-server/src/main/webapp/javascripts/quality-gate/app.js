@@ -29,7 +29,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter) {
+  requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'quality-gate/layout', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter, QualityGateLayout) {
     var App;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
@@ -51,7 +51,7 @@
           trigger: true
         });
       } else {
-        return App.contentRegion.reset();
+        return App.layout.contentRegion.reset();
       }
     };
     App.deleteQualityGate = function(id) {
@@ -65,24 +65,22 @@
         }
       });
     };
-    App.addRegions({
-      headerRegion: '.navigator-header',
-      actionsRegion: '.navigator-actions',
-      listRegion: '.navigator-results',
-      detailsRegion: '.navigator-details'
+    App.addInitializer(function() {
+      this.layout = new QualityGateLayout;
+      return jQuery('body').append(this.layout.render().el);
     });
     App.addInitializer(function() {
       this.qualityGateActionsView = new QualityGateActionsView({
         app: this
       });
-      return this.actionsRegion.show(this.qualityGateActionsView);
+      return this.layout.actionsRegion.show(this.qualityGateActionsView);
     });
     App.addInitializer(function() {
       this.qualityGateSidebarListView = new QualityGateSidebarListItemView({
         collection: this.qualityGates,
         app: this
       });
-      return this.listRegion.show(this.qualityGateSidebarListView);
+      return this.layout.listRegion.show(this.qualityGateSidebarListView);
     });
     App.addInitializer(function() {
       this.qualityGateEditView = new QualityGateEditView({
