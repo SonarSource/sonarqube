@@ -17,9 +17,6 @@
     <css>/stylesheets/navigator.css</css>
     <css>/stylesheets/quality-gates.css</css>
 
-    <js>/javascripts/third-party/prototype.js</js>
-    <js>/javascripts/third-party/scriptaculous.js</js>
-    <js>/javascripts/third-party/tablekit.js</js>
     <js>/javascripts/third-party/jquery.js</js>
     <js>/javascripts/third-party/jquery-ui.js</js>
     <js>/javascripts/third-party/d3.js</js>
