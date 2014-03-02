@@ -188,7 +188,7 @@ requirejs(['backbone'], function (Backbone) {
         this.$list = this.$('.select-list-list');
 
         var searchInput = this.$('.select-list-search-control input')
-            .on('keyup', $.debounce(250, keyup));
+            .on('keyup', _.debounce(keyup, 250));
 
         setTimeout(function () {
           searchInput.focus();

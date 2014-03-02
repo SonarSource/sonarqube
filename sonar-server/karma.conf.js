@@ -24,7 +24,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
         // dependencies
-        'third-party/jquery.min.js',
+        'third-party/jquery.js',
         'third-party/jquery.mockjax.js',
         'third-party/underscore.js',
         'third-party/require.js',

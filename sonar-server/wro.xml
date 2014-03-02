@@ -20,13 +20,12 @@
     <js>/javascripts/third-party/prototype.js</js>
     <js>/javascripts/third-party/scriptaculous.js</js>
     <js>/javascripts/third-party/tablekit.js</js>
-    <js>/javascripts/third-party/jquery.min.js</js>
-    <js>/javascripts/third-party/jquery-ui.min.js</js>
-    <js>/javascripts/third-party/jquery-ui.tabs.js</js>
-    <js>/javascripts/third-party/d3.v3.min.js</js>
+    <js>/javascripts/third-party/jquery.js</js>
+    <js>/javascripts/third-party/jquery-ui.js</js>
+    <js>/javascripts/third-party/d3.js</js>
     <js>/javascripts/third-party/underscore.js</js>
-    <js>/javascripts/third-party/jquery.ba-throttle-debounce.min.js</js>
-    <js>/javascripts/third-party/select2.min.js</js>
+    <js>/javascripts/third-party/select2.js</js>
+    <js>/javascripts/select2-jquery-ui-fix.js</js>
 
     <js>/javascripts/widgets/widget.js</js>
     <js>/javascripts/widgets/bubble-chart.js</js>
