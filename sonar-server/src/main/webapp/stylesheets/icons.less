@@ -195,6 +195,15 @@
   border: 2px solid #0cf;
   border-radius: 50%;
   .animation(spin 0.75s infinite linear);
+
+  // For IE9 only, because it does not support css animations
+  // Show animated gif
+  .ie9 & {
+    background-image: url(../images/loading.gif);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border: none;
+  }
 }
 
 .spinner:before,

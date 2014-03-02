@@ -187,6 +187,12 @@
   -webkit-animation: spin 0.75s infinite linear;
   animation: spin 0.75s infinite linear;
 }
+.ie9 .spinner {
+  background-image: url(../images/loading.gif);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  border: none;
+}
 .spinner:before,
 .spinner:after {
   left: -2px;
