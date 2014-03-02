@@ -217,7 +217,7 @@ Treemap.prototype.currentContext = function () {
 Treemap.prototype.load = function () {
   var context = this.currentContext();
   var output = '';
-  this.breadcrumb.each(function (ctx) {
+  this.breadcrumb.forEach(function (ctx) {
     output += ctx.label + '&nbsp;/&nbsp;';
   });
   $j('#tm-bc-' + this.id).html(output);

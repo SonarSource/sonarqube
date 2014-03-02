@@ -87,7 +87,7 @@
 
   function filtersWidgetsByContent(text) {
     var userInput = text.toLowerCase();
-    widgetContents.each(function (widget) {
+    widgetContents.forEach(function (widget) {
       var element = $j('#'+widget.id);
       if (element != null) {
         if (widget.c.indexOf(userInput) != -1) {

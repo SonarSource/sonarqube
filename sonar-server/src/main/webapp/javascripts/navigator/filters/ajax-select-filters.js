@@ -132,7 +132,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
             ps: PAGE_SIZE
           },
           success: function() {
-            selected.each(function(item) {
+            selected.forEach(function(item) {
               that.options.filterView.choices.unshift(item);
             });
             _.each(that.model.get('choices'), function(v, k) {
