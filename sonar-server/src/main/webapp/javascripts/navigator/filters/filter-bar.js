@@ -3,12 +3,13 @@ define(
       'backbone.marionette',
       'navigator/filters/base-filters',
       'navigator/filters/more-criteria-filters',
-      'navigator/filters/favorite-filters'
+      'navigator/filters/favorite-filters',
+      'common/handlebars-extensions'
     ],
     function (Marionette, BaseFilters) {
 
       return Marionette.CompositeView.extend({
-        template: '#filterBarTemplate',
+        template: getTemplate('#filter-bar-template'),
         itemViewContainer: '.navigator-filters-list',
 
 

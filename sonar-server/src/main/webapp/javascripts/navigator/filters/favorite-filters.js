@@ -1,7 +1,7 @@
-define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'navigator/filters/choice-filters'], function (Backbone, Marionette, BaseFilters, ChoiceFilters) {
+define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (Backbone, Marionette, BaseFilters, ChoiceFilters) {
 
   var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
-    template: '#detailsFavoriteFilterTemplate',
+    template: getTemplate('#favorite-details-filter-template'),
 
 
     events: {
@@ -40,7 +40,7 @@ define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'na
 
 
   var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
-    template: '#favoriteFilterTemplate',
+    template: getTemplate('#favorite-filter-template'),
     className: 'navigator-filter navigator-filter-favorite',
 
 

@@ -1,8 +1,8 @@
-define(['handlebars', 'navigator/filters/base-filters'], function (Handlebars, BaseFilters) {
+define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-extensions'], function (Handlebars, BaseFilters) {
 
   var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
-    template: Handlebars.compile(jQuery('#choiceFilterTemplate').html() || ''),
-    itemTemplate: Handlebars.compile(jQuery('#choiceFilterItemTemplate').html() || ''),
+    template: getTemplate('#choice-filter-template'),
+    itemTemplate: getTemplate('#choice-filter-item-template'),
 
 
     events: function() {

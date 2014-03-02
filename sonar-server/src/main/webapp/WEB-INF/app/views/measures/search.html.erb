@@ -14,7 +14,7 @@
 </div>
 
 
-<script id="filterBarTemplate" type="text/template">
+<script id="filter-bar-template" type="text/x-handlebars-template">
   <form method="get" action="<%= ApplicationController.root_context -%>/measures/search">
     <% if @filter.id %>
       <input type="hidden" name="id" value="<%= h @filter.id -%>">

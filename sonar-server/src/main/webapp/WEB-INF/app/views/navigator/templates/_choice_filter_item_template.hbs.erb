@@ -1,0 +1,15 @@
+<script id="choice-filter-item-template" type="text/x-handlebars-template">
+  <li>
+    <label title="{{text}}"> {{! TODO: escape }}
+      <input type="checkbox" value="{{id}}" {{#if checked}}checked{{/if}}>
+      {{#if icon}}<i class="icon-{{icon}}"></i>{{/if}}
+      <span>
+        {{text}}
+        {{#if category}}
+          <br>
+          <span class="subtitle">{{category}}</span>
+        {{/if}}
+      </span>
+    </label>
+  </li>
+</script>

@@ -1,0 +1,15 @@
+<script id="favorite-details-filter-template" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list">
+    {{#ifNotEmpty choicesArray}}
+      {{#each choicesArray}}
+        <li>
+          <label data-id="{{k}}">{{v}}</label>
+        </li>
+      {{/each}}
+      <li class="line"></li>
+    {{/ifNotEmpty}}
+    <li class="manage">
+      <label id="manage-favorites">{{translate "manage" }}</label>
+    </li>
+  </ul>
+</script>

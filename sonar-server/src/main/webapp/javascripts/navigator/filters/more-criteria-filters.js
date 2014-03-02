@@ -1,7 +1,7 @@
-define(['navigator/filters/base-filters', 'navigator/filters/choice-filters'], function (BaseFilters, ChoiceFilters) {
+define(['navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (BaseFilters, ChoiceFilters) {
 
   var DetailsMoreCriteriaFilterView = BaseFilters.DetailsFilterView.extend({
-    template: '#detailsMoreCriteriaFilterTemplate',
+    template: getTemplate('#more-criteria-details-filter-template'),
 
 
     events: {
@@ -13,6 +13,17 @@ define(['navigator/filters/base-filters', 'navigator/filters/choice-filters'], f
       var id = $j(e.target).data('id');
       this.model.view.options.filterBarView.enableFilter(id);
       this.model.view.hideDetails();
+    },
+
+
+    serializeData: function() {
+      var filters = this.model.get('filters').map(function(filter) {
+            return _.extend(filter.toJSON(), { id: filter.cid });
+          }),
+          uniqueFilters = _.unique(filters, function(filter) {
+            return filter.name;
+          });
+      return _.extend(this.model.toJSON(), { filters: uniqueFilters });
     }
 
   });
@@ -20,7 +31,7 @@ define(['navigator/filters/base-filters', 'navigator/filters/choice-filters'], f
 
 
   var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
-    template: '#moreCriteriaFilterTemplate',
+    template: getTemplate('#more-criteria-filter-template'),
     className: 'navigator-filter navigator-filter-more-criteria',
 
 

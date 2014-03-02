@@ -1,0 +1,7 @@
+<script id="base-filter-template" type="text/x-handlebars-template">
+  <div class="navigator-filter-label">{{name}}</div>
+  <div class="navigator-filter-value {{#if defaultValue}}default{{/if}}">{{value}}</div>
+  {{#if optional}}
+    <div class="navigator-filter-disable">&times;</div>
+  {{/if}}
+</script>

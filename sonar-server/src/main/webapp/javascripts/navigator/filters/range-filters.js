@@ -1,7 +1,7 @@
-define(['navigator/filters/base-filters'], function (BaseFilters) {
+define(['navigator/filters/base-filters', 'common/handlebars-extensions'], function (BaseFilters) {
 
   var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
-    template: '#rangeFilterTemplate',
+    template: getTemplate('#range-filter-template'),
 
 
     events: {

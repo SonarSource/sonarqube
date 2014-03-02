@@ -1,0 +1,11 @@
+<script id="more-criteria-details-filter-template" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list">
+    {{#each filters}}
+      <li>
+        <label data-id="{{id}}" {{#if inactive}}class="inactive"{{/if}} {{#if title}}title="{{title}}"{{/if}}>
+          {{name}}
+        </label>
+      </li>
+    {{/each}}
+  </ul>
+</script>

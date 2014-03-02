@@ -1,0 +1,29 @@
+<script id="metric-filter-template" type="text/x-handlebars-template">
+  <div class="navigator-filter-details-inner">
+    <select name="metric">
+      <option></option>
+      {{#each groupedMetrics}}
+        <optgroup label="{{domain}}">
+          {{#each metrics}}
+            <option value="{{name}}">{{short_name}}</option>
+          {{/each}}
+        </optgroup>
+      {{/each}}
+    </select>
+
+    <select name="period">
+      <option value="0">{{translate "value"}}</option>
+      {{#each periods}}
+        <option value="{{@key}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <select name="op">
+      {{#each operations}}
+        <option value="{{@key}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <input type="text" name="val">
+  </div>
+</script>

@@ -38,12 +38,6 @@ requirejs(
     function (Backbone, Marionette, FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters,
               FavoriteFilters, RangeFilters, StringFilterView, MetricFilterView) {
 
-      _.templateSettings = {
-        interpolate: /\{\{(.+?)\}\}/g,
-        evaluate: /\{\[(.+?)\]\}/g,
-        escape: /\{\{\{(.+?)\}\}\}/g
-      };
-
       var NavigatorApp = new Marionette.Application();
 
 
