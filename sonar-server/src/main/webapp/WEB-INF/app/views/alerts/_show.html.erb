@@ -11,13 +11,13 @@
   </td>
   <td width="20%">
     <% if alert.metric && !alert.value_warning.blank? %>
-      <%= image_tag 'levels/warn.png', :alt => message('alerts.warning_tooltip') %>
+      <i class="icon-alert-warn" title="<%= message('alerts.warning_tooltip') -%>"></i>
       <%= alert.value_warning %> <%= alert.metric.suffix if alert.metric %>
     <% end %>
   </td>
   <td width="20%">
     <% if alert.metric && !alert.value_error.blank? %>
-      <%= image_tag 'levels/error.png', :alt => message('alerts.error_tooltip') %>
+      <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
       <%= alert.value_error %> <%= alert.metric.suffix %>
     <% end %>
   </td>

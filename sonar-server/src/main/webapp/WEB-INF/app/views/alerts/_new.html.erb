@@ -32,14 +32,14 @@
   </td>
 
   <td width="15%" valign="top" class="alert_fields">
-    <%= image_tag 'levels/warn.png', :alt => message('alerts.warning_tooltip') %>
+    <i class="icon-alert-warn" title="<%= message('alerts.warning_tooltip') -%>"></i>
     <%= value_field(@alert, '', 'alert[value_warning]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note"><%= message('alerts.warning_threshold') -%></span>
   </td>
 
   <td width="15%" valign="top" class="alert_fields">
-    <%= image_tag 'levels/error.png', :alt => message('alerts.error_tooltip') %>
+    <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
     <%= value_field(@alert, '', 'alert[value_error]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note"><%= message('alerts.error_threshold') -%></span>

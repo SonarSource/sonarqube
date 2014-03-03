@@ -127,6 +127,29 @@
   font-size: 14px;
 }
 /*
+ * Alert
+ */
+.icon-alert-ok:before {
+  content: "\f013";
+  color: #85bb43;
+  font-size: 16px;
+}
+.icon-alert-warn:before {
+  content: "\f000";
+  color: #ff9900;
+  font-size: 16px;
+}
+.icon-alert-error:before {
+  content: "\f057";
+  color: #d4333f;
+  font-size: 16px;
+}
+.icon-alert-none:before {
+  content: "\f059";
+  color: #4b9fd5;
+  font-size: 16px;
+}
+/*
  * Common
  */
 .icon-list:before {

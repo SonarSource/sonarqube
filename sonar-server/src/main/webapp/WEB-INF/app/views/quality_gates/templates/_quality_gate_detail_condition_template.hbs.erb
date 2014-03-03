@@ -16,11 +16,11 @@
     </select>
   </td>
   <td width="15%">
-    <%= image_tag 'levels/warn.png', :alt => message('alerts.warning_tooltip') %>
+    <i class="icon-alert-warn" title="<%= message('alerts.warn_tooltip') -%>"></i>
     <input name="warning" type="text" value="{{warning}}">
   </td>
   <td width="15%">
-    <%= image_tag 'levels/error.png', :alt => message('alerts.error_tooltip') %>
+    <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
     <input name="error" type="text" value="{{error}}">
   </td>
   <td class="quality-gate-condition-actions" width="120px" nowrap>
