@@ -23,11 +23,13 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,20 +54,20 @@ public class IssueFilterWsTest {
   }
 
   @Test
-  public void anonymous_page() throws Exception {
+  public void anonymous_app() throws Exception {
     MockUserSession.set().setLogin(null);
     tester.newRequest("page").execute().assertJson(getClass(), "anonymous_page.json");
   }
 
   @Test
-  public void logged_in_page() throws Exception {
+  public void logged_in_app() throws Exception {
     MockUserSession.set().setLogin("eric").setUserId(123);
     tester.newRequest("page").execute()
       .assertJson(getClass(), "logged_in_page.json");
   }
 
   @Test
-  public void logged_in_page_with_favorites() throws Exception {
+  public void logged_in_app_with_favorites() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.findFavoriteFilters(session)).thenReturn(Arrays.asList(
       new DefaultIssueFilter().setId(6L).setName("My issues"),
@@ -76,7 +78,7 @@ public class IssueFilterWsTest {
   }
 
   @Test
-  public void logged_in_page_with_selected_filter() throws Exception {
+  public void logged_in_app_with_selected_filter() throws Exception {
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
     when(service.find(13L, session)).thenReturn(
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("eric")
@@ -87,7 +89,7 @@ public class IssueFilterWsTest {
   }
 
   @Test
-  public void selected_filter_can_not_be_modified() throws Exception {
+  public void app_selected_filter_can_not_be_modified() throws Exception {
     // logged-in user is 'eric' but filter is owned by 'simon'
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(13L, session)).thenReturn(
@@ -96,5 +98,30 @@ public class IssueFilterWsTest {
 
     tester.newRequest("page").setParam("id", "13").execute()
       .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
+  }
+
+  @Test
+  public void show_filter() throws Exception {
+    // logged-in user is 'eric' but filter is owned by 'simon'
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(13L, session)).thenReturn(
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+    );
+
+    tester.newRequest("show").setParam("id", "13").execute()
+      .assertJson(getClass(), "show_filter.json");
+  }
+
+  @Test
+  public void show_unknown_filter() throws Exception {
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(42L, session)).thenThrow(new NotFoundException("Filter 42 does not exist"));
+
+    try {
+      tester.newRequest("show").setParam("id", "42").execute();
+      fail();
+    } catch (NotFoundException e) {
+      assertThat(e).hasMessage("Filter 42 does not exist");
+    }
   }
 }

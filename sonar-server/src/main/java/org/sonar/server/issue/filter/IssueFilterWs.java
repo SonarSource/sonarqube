@@ -116,13 +116,10 @@ public class IssueFilterWs implements WebService {
     UserSession session = UserSession.get();
     DefaultIssueFilter filter = service.find(Long.parseLong(request.requiredParam("id")), session);
 
-
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-
     json.name("filter");
     writeFilterJson(session, filter, json);
-
     json.endObject();
     json.close();
   }
