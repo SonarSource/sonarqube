@@ -78,7 +78,7 @@ public class IssueFilterWs implements WebService {
     json.beginObject();
 
     // Current filter (optional)
-    int filterId = request.intParam("id", -1);
+    int filterId = request.paramAsInt("id", -1);
     DefaultIssueFilter filter = null;
     if (filterId >= 0) {
       filter = service.find((long) filterId, session);
@@ -114,7 +114,7 @@ public class IssueFilterWs implements WebService {
 
   private void show(Request request, Response response) {
     UserSession session = UserSession.get();
-    DefaultIssueFilter filter = service.find(Long.parseLong(request.requiredParam("id")), session);
+    DefaultIssueFilter filter = service.find(Long.parseLong(request.mandatoryParam("id")), session);
 
 
     JsonWriter json = response.newJsonWriter();

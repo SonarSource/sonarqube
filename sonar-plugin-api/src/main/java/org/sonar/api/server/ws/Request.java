@@ -36,15 +36,12 @@ public abstract class Request {
    */
   public abstract String method();
 
-  @CheckForNull
-  public abstract String param(String key);
-
   /**
-   * Returns value of a required parameter
+   * Returns value of a mandatory parameter
    *
    * @throws java.lang.IllegalArgumentException is value is null or blank
    */
-  public String requiredParam(String key) {
+  public String mandatoryParam(String key) {
     String value = param(key);
     if (StringUtils.isBlank(value)) {
       throw new IllegalArgumentException(String.format("Parameter '%s' is missing", key));
@@ -52,29 +49,73 @@ public abstract class Request {
     return value;
   }
 
+  /**
+   * Returns value of a mandatory parameter
+   *
+   * @throws java.lang.IllegalArgumentException is value is null or blank
+   */
+  public boolean mandatoryParamAsBoolean(String key) {
+    String s = mandatoryParam(key);
+    return Boolean.parseBoolean(s);
+  }
+
+  /**
+   * Returns value of a mandatory parameter
+   *
+   * @throws java.lang.IllegalArgumentException is value is null or blank
+   */
+  public int mandatoryParamAsInt(String key) {
+    String s = mandatoryParam(key);
+    return Integer.parseInt(s);
+  }
+
+  /**
+   * Returns value of a mandatory parameter
+   *
+   * @throws java.lang.IllegalArgumentException is value is null or blank
+   */
+  public long mandatoryParamAsLong(String key) {
+    String s = mandatoryParam(key);
+    return Long.parseLong(s);
+  }
+
+  @CheckForNull
+  public abstract String param(String key);
+
   @CheckForNull
   public String param(String key, @CheckForNull String defaultValue) {
     return StringUtils.defaultString(param(key), defaultValue);
   }
 
   @CheckForNull
-  public Integer intParam(String key) {
+  public Integer paramAsInt(String key) {
     String s = param(key);
     return s == null ? null : Integer.parseInt(s);
   }
 
-  public int intParam(String key, int defaultValue) {
+  public int paramAsInt(String key, int defaultValue) {
     String s = param(key);
     return s == null ? defaultValue : Integer.parseInt(s);
   }
 
   @CheckForNull
-  public Boolean booleanParam(String key) {
+  public Long paramAsLong(String key) {
+    String s = param(key);
+    return s == null ? null : Long.parseLong(s);
+  }
+
+  public long paramAsLong(String key, long defaultValue) {
+    String s = param(key);
+    return s == null ? defaultValue : Long.parseLong(s);
+  }
+
+  @CheckForNull
+  public Boolean paramAsBoolean(String key) {
     String s = param(key);
     return s == null ? null : Boolean.parseBoolean(s);
   }
 
-  public boolean booleanParam(String key, boolean defaultValue) {
+  public boolean paramAsBoolean(String key, boolean defaultValue) {
     String s = param(key);
     return s == null ? defaultValue : Boolean.parseBoolean(s);
   }

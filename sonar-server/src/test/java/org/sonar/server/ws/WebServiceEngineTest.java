@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -28,16 +27,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -242,7 +236,7 @@ public class WebServiceEngineTest {
           public void handle(Request request, Response response) {
             try {
               IOUtils.write(
-              request.requiredParam("message") + " by " + request.param("author", "-"), response.stream().output());
+              request.mandatoryParam("message") + " by " + request.param("author", "-"), response.stream().output());
             } catch (IOException e) {
               throw new IllegalStateException(e);
             }
