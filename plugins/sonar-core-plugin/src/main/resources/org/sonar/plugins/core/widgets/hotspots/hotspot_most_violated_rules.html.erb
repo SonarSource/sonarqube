@@ -22,15 +22,12 @@
 
 <script type="text/javascript">
   function showMostViolatedRules<%= widget.id -%>(severity) {
-    divs = $j('#block_<%= widget.id-%> div.hotspot');
-    for (i = 0; i < divs.size(); i++) {
-      divs[i].hide();
-    }
+    $j('#block_<%= widget.id-%> div.hotspot').hide();
     $j('#most-violated-rules-<%= widget.id -%>-' + severity).show();
   }
 
   function severityForLink() {
-    var severity = $F('select-severity_<%= widget.id -%>');
+    var severity = $j('select-severity_<%= widget.id -%>').val();
     if (severity == 'all') {
       return '';
     } else {
