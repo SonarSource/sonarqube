@@ -20,6 +20,14 @@
   display: none;
 }
 
+.select-list-list-container-readonly {
+  border: none;
+}
+
+.select-list-list-container-readonly .select-list-list > li {
+  border: none;
+}
+
 .select-list-list {
   overflow-x: hidden;
 }

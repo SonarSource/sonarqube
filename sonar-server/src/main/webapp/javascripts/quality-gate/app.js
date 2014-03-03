@@ -11,9 +11,6 @@
       'select-list': 'common/select-list'
     },
     shim: {
-      'jquery': {
-        exports: '$'
-      },
       'backbone.marionette': {
         deps: ['backbone'],
         exports: 'Marionette'
@@ -107,7 +104,7 @@
     });
     qualityGatesXHR = App.qualityGates.fetch();
     return jQuery.when(App.metrics.fetch(), qualityGatesXHR).done(function() {
-      App.canEdit = true;
+      App.canEdit = false;
       jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });

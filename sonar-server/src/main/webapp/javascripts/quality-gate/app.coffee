@@ -10,8 +10,6 @@ requirejs.config
     'select-list': 'common/select-list'
 
   shim:
-    'jquery':
-      exports: '$'
     'backbone.marionette':
       deps: ['backbone']
       exports: 'Marionette'
@@ -115,7 +113,7 @@ requirejs [
   jQuery.when(App.metrics.fetch(), qualityGatesXHR)
     .done ->
       # Set permissions
-      App.canEdit = true #qualityGatesXHR.responseJSON.edit
+      App.canEdit = false #qualityGatesXHR.responseJSON.edit
 
       # Remove the initial spinner
       jQuery('.quality-gate-page-loader').remove()

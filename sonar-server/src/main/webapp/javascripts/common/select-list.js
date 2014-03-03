@@ -104,7 +104,12 @@ requirejs(['backbone'], function (Backbone) {
         }
       },
 
-      toggle: function () {
+      toggle: function (e) {
+        if (this.settings.readOnly) {
+          $(e.target).prop('checked', !$(e.target).prop('checked'));
+          return;
+        }
+
         var selected = this.model.get('selected'),
             that = this,
             url = selected ? this.settings.deselectUrl : this.settings.selectUrl,
@@ -178,12 +183,17 @@ requirejs(['backbone'], function (Backbone) {
         this.$el.html(this.template(this.settings.labels))
             .width(this.settings.width);
 
-        this.$listContainer = this.$('.select-list-list-container')
-            .height(this.settings.height)
-            .css('overflow', 'auto')
-            .on('scroll', function () {
-              that.scroll();
-            });
+        this.$listContainer = this.$('.select-list-list-container');
+        if (!this.settings.readOnly) {
+          this.$listContainer
+              .height(this.settings.height)
+              .css('overflow', 'auto')
+              .on('scroll', function () {
+                that.scroll();
+              });
+        } else {
+          this.$listContainer.addClass('select-list-list-container-readonly');
+        }
 
         this.$list = this.$('.select-list-list');
 
@@ -201,6 +211,10 @@ requirejs(['backbone'], function (Backbone) {
               .addClass('error').text(that.settings.errorMessage)
               .insertBefore(that.$el);
         };
+
+        if (this.settings.readOnly) {
+          this.$('.select-list-control').remove();
+        }
       },
 
       renderList: function () {
@@ -208,7 +222,11 @@ requirejs(['backbone'], function (Backbone) {
           view.remove();
         });
         this.listItemViews = [];
-        this.collection.each(this.renderListItem, this);
+        if (this.collection.length > 0) {
+          this.collection.each(this.renderListItem, this);
+        } else {
+          this.renderEmpty();
+        }
         this.$listContainer.scrollTop(0);
       },
 
@@ -220,6 +238,10 @@ requirejs(['backbone'], function (Backbone) {
         this.listItemViews.push(itemView);
         this.$list.append(itemView.el);
         itemView.render();
+      },
+
+      renderEmpty: function () {
+        this.$listContainer.html(this.settings.labels.noResults);
       },
 
       confirmFilter: function (model) {
@@ -379,6 +401,8 @@ requirejs(['backbone'], function (Backbone) {
       width: '50%',
       height: 400,
 
+      readOnly: false,
+
       format: function (item) {
         return item.value;
       },
@@ -386,7 +410,8 @@ requirejs(['backbone'], function (Backbone) {
       labels: {
         selected: 'Selected',
         deselected: 'Deselected',
-        all: 'All'
+        all: 'All',
+        noResults: ''
       },
 
       tooltips: {

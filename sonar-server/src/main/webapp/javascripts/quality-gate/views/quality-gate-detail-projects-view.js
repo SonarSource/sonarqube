@@ -20,6 +20,7 @@
           return new SelectList({
             el: this.$('#select-list-projects'),
             width: '100%',
+            readOnly: true,
             format: function(item) {
               return item.name;
             },
@@ -34,7 +35,8 @@
             labels: {
               selected: window.SS.phrases.projects["with"],
               deselected: window.SS.phrases.projects.without,
-              all: window.SS.phrases.projects.all
+              all: window.SS.phrases.projects.all,
+              noResults: window.SS.phrases.projects.noResults
             },
             tooltips: {
               select: window.SS.phrases.projects.select_hint,
