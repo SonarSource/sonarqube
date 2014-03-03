@@ -56,7 +56,8 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class DefaultIssueFinderTest {
+public class
+  DefaultIssueFinderTest {
 
   private static final int HOURS_IN_DAY = 8;
 

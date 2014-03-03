@@ -96,11 +96,6 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    // component, module and project can be null if they were removed
-    ComponentDto component = (ComponentDto) result.component(issue);
-    ComponentDto module = (ComponentDto) getModule(result, component);
-    ComponentDto project = (ComponentDto) geProject(result, component);
-
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
     Long technicalDebt = issue.debt();
@@ -109,13 +104,6 @@ public class IssueShowWsHandler implements RequestHandler {
 
     json
       .prop("key", issue.key())
-      .prop("component", issue.componentKey())
-      .prop("componentLongName", component != null ? component.longName() : null)
-      .prop("componentQualifier", component != null ? component.qualifier() : null)
-      // Do not display module long name if module and project are the same
-      .prop("moduleLongName", module != null && project != null && !module.getId().equals(project.getId()) ? module.longName() : null)
-      .prop("project", issue.projectKey())
-      .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
@@ -135,21 +123,45 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
       .prop("fCloseDate", formatDate(issue.closeDate()));
 
+    addComponents(result, issue, json);
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
     addCharacteristics(result, issue, json);
+  }
+
+  private void addComponents(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    // component, module and project can be null if they were removed
+    ComponentDto component = (ComponentDto) result.component(issue);
+    ComponentDto subProject = (ComponentDto) getSubProject(result, component);
+    ComponentDto project = (ComponentDto) geProject(result, component);
+
+    String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
+    // Do not display sub project long name if sub project and project are the same
+    String subProjectName = subProject != null && project != null && !subProject.getId().equals(project.getId()) ?
+      subProject.longName() != null ? subProject.longName() : subProject.name() :
+      null;
+
+    json
+      .prop("component", issue.componentKey())
+      .prop("componentLongName", component != null ? component.longName() : null)
+      .prop("componentQualifier", component != null ? component.qualifier() : null)
+      .prop("project", issue.projectKey())
+      .prop("projectName", projectName)
+        // Do not display sub project long name if sub project and project are the same
+      .prop("subProjectName", subProjectName)
+    ;
   }
 
   /**
    * Can be null on project or on removed component
    */
   @CheckForNull
-  private Component getModule(IssueQueryResult result, @Nullable final ComponentDto component){
+  private Component getSubProject(IssueQueryResult result, @Nullable final ComponentDto component) {
     if (component != null) {
       return Iterables.find(result.components(), new Predicate<Component>() {
         @Override
         public boolean apply(Component input) {
-          Long groupId = component.groupId();
+          Long groupId = component.subProjectId();
           return groupId != null && groupId.equals(((ComponentDto) input).getId());
         }
       }, null);
@@ -161,12 +173,12 @@ public class IssueShowWsHandler implements RequestHandler {
    * Can be null on removed component
    */
   @CheckForNull
-  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component){
+  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component) {
     if (component != null) {
       return Iterables.find(result.components(), new Predicate<Component>() {
         @Override
         public boolean apply(Component input) {
-          return component.rootId().equals(((ComponentDto) input).getId());
+          return component.projectId().equals(((ComponentDto) input).getId());
         }
       }, null);
     }

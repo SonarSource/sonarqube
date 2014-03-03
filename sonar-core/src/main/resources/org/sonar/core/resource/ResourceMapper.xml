@@ -27,8 +27,8 @@
     p.name as name,
     p.long_name as longName,
     p.qualifier as qualifier,
-    p.root_id as groupId,
-    s.root_project_id as rootId
+    s.root_project_id as projectId,
+    p.root_id as subProjectId
   </sql>
 
   <resultMap id="snapshotResultMap" type="Snapshot">
