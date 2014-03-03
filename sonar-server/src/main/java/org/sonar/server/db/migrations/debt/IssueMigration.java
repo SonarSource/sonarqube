@@ -86,13 +86,13 @@ public class IssueMigration implements DatabaseMigration {
         public void convert(Row row, PreparedStatement statement) throws SQLException {
           statement.setLong(1, workDurationConvertor.createFromLong(row.debt));
           statement.setDate(2, new Date(system2.now()));
-          statement.setDouble(3, row.id);
+          statement.setLong(3, row.id);
         }
       }
     );
   }
 
-  private class Row {
+  private static class Row {
     Long id;
     Long debt;
   }

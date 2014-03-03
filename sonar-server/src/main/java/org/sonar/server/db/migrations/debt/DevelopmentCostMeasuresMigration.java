@@ -83,9 +83,9 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
           if (row.value != null) {
             statement.setString(1, convertDebtForDays(row.value));
           } else {
-            statement.setNull(1, Types.NULL);
+            statement.setNull(1, Types.DOUBLE);
           }
-          statement.setDouble(2, row.id);
+          statement.setLong(2, row.id);
         }
       }
     );
@@ -99,7 +99,7 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
     return Long.toString(workDurationConvertor.createFromDays(data));
   }
 
-  private class Row {
+  private static class Row {
     Long id;
     Double value;
   }

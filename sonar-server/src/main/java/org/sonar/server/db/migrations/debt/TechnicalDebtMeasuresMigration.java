@@ -101,7 +101,7 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
           setDouble(statement, 4, row.var3);
           setDouble(statement, 5, row.var4);
           setDouble(statement, 6, row.var5);
-          statement.setDouble(7, row.id);
+          statement.setLong(7, row.id);
         }
       }
     );
@@ -111,7 +111,7 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
     if (value != null) {
       statement.setDouble(index, convertDebtForDays(value));
     } else {
-      statement.setNull(index, Types.NULL);
+      statement.setNull(index, Types.DOUBLE);
     }
   }
 
@@ -119,7 +119,7 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
     return workDurationConvertor.createFromDays(data);
   }
 
-  private class Row {
+  private static class Row {
     Long id;
     Double value;
     Double var1;

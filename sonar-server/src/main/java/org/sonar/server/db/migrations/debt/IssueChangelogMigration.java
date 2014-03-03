@@ -89,10 +89,10 @@ public class IssueChangelogMigration implements DatabaseMigration {
           if (row.changeData != null) {
             statement.setString(1, convertChangelog(row.changeData));
           } else {
-            statement.setNull(1, Types.NULL);
+            statement.setNull(1, Types.VARCHAR);
           }
           statement.setDate(2, new Date(system2.now()));
-          statement.setDouble(3, row.id);
+          statement.setLong(3, row.id);
         }
       }
     );
@@ -122,7 +122,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
     return sb.toString();
   }
 
-  private class Row {
+  private static class Row {
     Long id;
     String changeData;
   }

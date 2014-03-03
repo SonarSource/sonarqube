@@ -58,6 +58,7 @@ public class MassUpdater {
   }
 
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
+    int count = 0;
     try {
       Connection readConnection = db.getDataSource().getConnection();
       Statement stmt = null;
@@ -86,6 +87,7 @@ public class MassUpdater {
           writeStatement.addBatch();
 
           cursor++;
+          count++;
           if (cursor == GROUP_SIZE) {
             writeStatement.executeBatch();
             writeConnection.commit();
@@ -96,13 +98,14 @@ public class MassUpdater {
           writeStatement.executeBatch();
           writeConnection.commit();
         }
-
       } finally {
         if (writeStatement != null) {
           writeStatement.close();
         }
         DbUtils.closeQuietly(writeConnection);
         DbUtils.closeQuietly(readConnection, stmt, rs);
+
+        logger.info("{} rows have been updated", count);
       }
     } catch (SQLException e) {
       logger.error(FAILURE_MESSAGE, e);
