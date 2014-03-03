@@ -20,6 +20,7 @@
 
 #
 # Sonar 4.2
+# SONAR-4923
 # Create columns to copy rule_notes (resp. active_rule_notes) contents to rules (resp. active_rules)
 #
 class AddRuleNoteColumns < ActiveRecord::Migration
