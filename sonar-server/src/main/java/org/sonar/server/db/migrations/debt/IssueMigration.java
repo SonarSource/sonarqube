@@ -93,8 +93,8 @@ public class IssueMigration implements DatabaseMigration {
   }
 
   private static class Row {
-    Long id;
-    Long debt;
+    private Long id;
+    private Long debt;
   }
 
 }

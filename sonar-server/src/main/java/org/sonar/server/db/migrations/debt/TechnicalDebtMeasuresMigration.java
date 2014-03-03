@@ -120,13 +120,13 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
   }
 
   private static class Row {
-    Long id;
-    Double value;
-    Double var1;
-    Double var2;
-    Double var3;
-    Double var4;
-    Double var5;
+    private Long id;
+    private Double value;
+    private Double var1;
+    private Double var2;
+    private Double var3;
+    private Double var4;
+    private Double var5;
   }
 
 }

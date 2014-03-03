@@ -28,7 +28,10 @@ import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.util.SqlUtil;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +45,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
 
   private static final String SELECT_SQL = "SELECT ic.id AS " + ID + ", ic.change_data AS " + CHANGE_DATA +
     " FROM issue_changes ic " +
-    " WHERE ic.change_type = 'diff' and ic.change_data LIKE '%technicalDebt%'";
+    " WHERE ic.change_type = 'diff' AND ic.change_data LIKE '%technicalDebt%'";
 
   private static final String UPDATE_SQL = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
 
@@ -86,11 +89,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
 
         @Override
         public void convert(Row row, PreparedStatement statement) throws SQLException {
-          if (row.changeData != null) {
-            statement.setString(1, convertChangelog(row.changeData));
-          } else {
-            statement.setNull(1, Types.VARCHAR);
-          }
+          statement.setString(1, convertChangelog(row.changeData));
           statement.setDate(2, new Date(system2.now()));
           statement.setLong(3, row.id);
         }
@@ -123,8 +122,8 @@ public class IssueChangelogMigration implements DatabaseMigration {
   }
 
   private static class Row {
-    Long id;
-    String changeData;
+    private Long id;
+    private String changeData;
   }
 
 }

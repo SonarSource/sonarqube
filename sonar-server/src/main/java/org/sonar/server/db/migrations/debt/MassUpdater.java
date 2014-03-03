@@ -32,12 +32,11 @@ import java.sql.*;
 
 public class MassUpdater {
 
-  private static final Logger logger = LoggerFactory.getLogger(MassUpdater.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdater.class);
 
-  static final int GROUP_SIZE = 10000;
+  static final int GROUP_SIZE = 1000;
 
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
-
 
   private final Database db;
 
@@ -105,15 +104,15 @@ public class MassUpdater {
         DbUtils.closeQuietly(writeConnection);
         DbUtils.closeQuietly(readConnection, stmt, rs);
 
-        logger.info("{} rows have been updated", count);
+        LOGGER.info("{} rows have been updated", count);
       }
     } catch (SQLException e) {
-      logger.error(FAILURE_MESSAGE, e);
-      SqlUtil.log(logger, e);
+      LOGGER.error(FAILURE_MESSAGE, e);
+      SqlUtil.log(LOGGER, e);
       throw MessageException.of(FAILURE_MESSAGE);
 
     } catch (Exception e) {
-      logger.error(FAILURE_MESSAGE, e);
+      LOGGER.error(FAILURE_MESSAGE, e);
       throw MessageException.of(FAILURE_MESSAGE);
     }
   }

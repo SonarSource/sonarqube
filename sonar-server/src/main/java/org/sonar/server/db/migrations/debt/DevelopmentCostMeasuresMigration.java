@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.debt;
 
-import org.picocontainer.annotations.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -31,7 +30,6 @@ import javax.annotation.CheckForNull;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Used in the Active Record Migration 516
@@ -43,7 +41,7 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
 
   private static final String SELECT_SQL = "SELECT pm.id AS " + ID + ", pm.value AS " + VALUE +
     " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
-    " WHERE (m.name='development_cost')";
+    " WHERE m.name='development_cost' AND pm.value IS NOT NULL";
 
   private static final String UPDATE_SQL = "UPDATE project_measures SET value=NULL,text_value=? WHERE id=?";
 
@@ -80,11 +78,7 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
 
         @Override
         public void convert(Row row, PreparedStatement statement) throws SQLException {
-          if (row.value != null) {
-            statement.setString(1, convertDebtForDays(row.value));
-          } else {
-            statement.setNull(1, Types.VARCHAR);
-          }
+          statement.setString(1, convertDebtForDays(row.value));
           statement.setLong(2, row.id);
         }
       }
@@ -92,16 +86,13 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
   }
 
   @CheckForNull
-  private String convertDebtForDays(@Nullable Double data) {
-    if (data == null) {
-      return null;
-    }
+  private String convertDebtForDays(Double data) {
     return Long.toString(workDurationConvertor.createFromDays(data));
   }
 
   private static class Row {
-    Long id;
-    Double value;
+    private Long id;
+    private Double value;
   }
 
 }
