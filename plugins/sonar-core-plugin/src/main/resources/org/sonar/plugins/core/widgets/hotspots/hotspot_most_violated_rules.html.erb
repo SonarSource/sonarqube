@@ -27,7 +27,7 @@
   }
 
   function severityForLink() {
-    var severity = $j('select-severity_<%= widget.id -%>').val();
+    var severity = $j('#select-severity_<%= widget.id -%>').val();
     if (severity == 'all') {
       return '';
     } else {
