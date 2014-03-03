@@ -7,7 +7,6 @@
     m.id,
     m.measure_id as measureId,
     m.snapshot_id as snapshotId,
-    m.measure_id as measureId,
     m.data as data
   </sql>
 

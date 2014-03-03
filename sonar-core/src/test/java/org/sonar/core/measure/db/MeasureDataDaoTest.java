@@ -40,9 +40,9 @@ public class MeasureDataDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
-    assertThat(result.getId()).isEqualTo(1);
-    assertThat(result.getMeasureId()).isEqualTo(1);
-    assertThat(result.getSnapshotId()).isEqualTo(1);
+    assertThat(result.getId()).isEqualTo(30);
+    assertThat(result.getMeasureId()).isEqualTo(20);
+    assertThat(result.getSnapshotId()).isEqualTo(5);
     assertThat(result.getText()).isNotNull();
     assertThat(result.getData()).isNotNull();
 
@@ -55,9 +55,9 @@ public class MeasureDataDaoTest extends AbstractDaoTestCase {
     setupData("find_by_component_key_and_metric_key_without_text");
 
     MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
-    assertThat(result.getId()).isEqualTo(1);
-    assertThat(result.getMeasureId()).isEqualTo(1);
-    assertThat(result.getSnapshotId()).isEqualTo(1);
+    assertThat(result.getId()).isEqualTo(30);
+    assertThat(result.getMeasureId()).isEqualTo(20);
+    assertThat(result.getSnapshotId()).isEqualTo(5);
     assertThat(result.getText()).isNull();
     assertThat(result.getData()).isNull();
   }
