@@ -2,6 +2,8 @@
 @import "mixins";
 @import "navigator/base";
 
+@qualityGateSidebarWidth: 230px;
+
 .quality-gate-page-loader {
   padding: @navigatorPadding 0 0 @navigatorPadding;
 }
@@ -9,7 +11,7 @@
 .quality-gates-navigator {
 
   .navigator-header {
-    left: @navigatorResultsWidth;
+    left: @qualityGateSidebarWidth;
     border-color: @navigatorBorderColor;
 
     .spinner { margin-top: 9px; }
@@ -18,6 +20,7 @@
   .navigator-actions {
     top: @navigatorTopOffset;
     height: @navigatorHeaderHeight;
+    width: @qualityGateSidebarWidth;
     padding: 0 @navigatorPadding;
     border-color: @navigatorBorderColor;
     border-bottom-color: @navigatorBarBackground;
@@ -31,11 +34,13 @@
 
   .navigator-results {
     top: @navigatorTopOffset + @navigatorHeaderHeight;
+    width: @qualityGateSidebarWidth - 1px;
     border-color: @navigatorBorderColor;
   }
 
   .navigator-details {
     top: @navigatorTopOffset + @navigatorHeaderHeight;
+    left: @qualityGateSidebarWidth;
     padding: @navigatorPadding;
   }
 

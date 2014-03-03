@@ -344,7 +344,7 @@
   padding: 10px 0 0 10px;
 }
 .quality-gates-navigator .navigator-header {
-  left: 320px;
+  left: 230px;
   border-color: #cdcdcd;
 }
 .quality-gates-navigator .navigator-header .spinner {
@@ -353,6 +353,7 @@
 .quality-gates-navigator .navigator-actions {
   top: 30px;
   height: 37px;
+  width: 230px;
   padding: 0 10px;
   border-color: #cdcdcd;
   border-bottom-color: #efefef;
@@ -364,10 +365,12 @@
 }
 .quality-gates-navigator .navigator-results {
   top: 67px;
+  width: 229px;
   border-color: #cdcdcd;
 }
 .quality-gates-navigator .navigator-details {
   top: 67px;
+  left: 230px;
   padding: 10px;
 }
 .quality-gates-nav {
