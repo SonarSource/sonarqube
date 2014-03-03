@@ -16,7 +16,7 @@ define [
         new SelectList
           el: @$('#select-list-projects')
           width: '100%'
-          readOnly: true
+          readOnly: !@options.app.canEdit
           format: (item) -> item.name
           searchUrl: "#{baseUrl}/api/qualitygates/search?gateId=#{@options.gateId}"
           selectUrl: "#{baseUrl}/api/qualitygates/select"
@@ -33,9 +33,3 @@ define [
           tooltips:
             select: window.SS.phrases.projects.select_hint
             deselect: window.SS.phrases.projects.deselect_hint
-
-
-
-
-    serializeData: ->
-      _.extend super, canEdit: @options.app.canEdit

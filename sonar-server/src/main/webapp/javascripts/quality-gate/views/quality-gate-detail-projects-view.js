@@ -20,7 +20,7 @@
           return new SelectList({
             el: this.$('#select-list-projects'),
             width: '100%',
-            readOnly: true,
+            readOnly: !this.options.app.canEdit,
             format: function(item) {
               return item.name;
             },
@@ -44,12 +44,6 @@
             }
           });
         }
-      };
-
-      QualityGateDetailProjectsView.prototype.serializeData = function() {
-        return _.extend(QualityGateDetailProjectsView.__super__.serializeData.apply(this, arguments), {
-          canEdit: this.options.app.canEdit
-        });
       };
 
       return QualityGateDetailProjectsView;
