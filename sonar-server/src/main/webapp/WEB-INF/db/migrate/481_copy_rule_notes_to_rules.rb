@@ -20,6 +20,7 @@
 
 #
 # Sonar 4.2
+# SONAR-4923
 # Copy rule_notes (resp. active_rule_notes) contents to rules (resp. active_rules)
 #
 class CopyRuleNotesToRules < ActiveRecord::Migration
@@ -49,11 +50,13 @@ class CopyRuleNotesToRules < ActiveRecord::Migration
 
     RuleNote.all.each do |note|
       rule = rules[note.rule_id]
-      rule.note_created_at = note.created_at
-      rule.note_updated_at = note.updated_at
-      rule.note_user_login = note.user_login
-      rule.note_data = note.data
-      rule.save
+      if rule
+        rule.note_created_at = note.created_at
+        rule.note_updated_at = note.updated_at
+        rule.note_user_login = note.user_login
+        rule.note_data = note.data
+        rule.save
+      end
     end
 
     active_rules = {}
@@ -62,12 +65,14 @@ class CopyRuleNotesToRules < ActiveRecord::Migration
     end
 
     ActiveRuleNote.all.each do |note|
-      rule = active_rules[note.active_rule_id]
-      rule.note_created_at = note.created_at
-      rule.note_updated_at = note.updated_at
-      rule.note_user_login = note.user_login
-      rule.note_data = note.data
-      rule.save
+      active_rule = active_rules[note.active_rule_id]
+      if active_rule
+        active_rule.note_created_at = note.created_at
+        active_rule.note_updated_at = note.updated_at
+        active_rule.note_user_login = note.user_login
+        active_rule.note_data = note.data
+        active_rule.save
+      end
     end
   end
 
