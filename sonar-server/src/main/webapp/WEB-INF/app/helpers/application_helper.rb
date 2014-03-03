@@ -260,7 +260,7 @@ module ApplicationHelper
       if options[:period]
         html=m.format_numeric_value(m.variation(options[:period].to_i))
       elsif m.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        html=image_tag("levels/#{m.data.downcase}.png") unless m.data.blank?
+        html="<i class=\"icon-alert-#{m.data.downcase}\"></i>" unless m.data.blank?
       else
         html=m.formatted_value
       end
