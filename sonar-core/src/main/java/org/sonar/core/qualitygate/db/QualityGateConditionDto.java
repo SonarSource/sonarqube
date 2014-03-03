@@ -143,7 +143,7 @@ public class QualityGateConditionDto {
     return warningThreshold;
   }
 
-  public QualityGateConditionDto setWarningThreshold(String warningThreshold) {
+  public QualityGateConditionDto setWarningThreshold(@Nullable String warningThreshold) {
     this.warningThreshold = warningThreshold;
     return this;
   }
@@ -152,7 +152,7 @@ public class QualityGateConditionDto {
     return errorThreshold;
   }
 
-  public QualityGateConditionDto setErrorThreshold(String errorThreshold) {
+  public QualityGateConditionDto setErrorThreshold(@Nullable String errorThreshold) {
     this.errorThreshold = errorThreshold;
     return this;
   }
@@ -180,25 +180,29 @@ public class QualityGateConditionDto {
   }
 
   public static Collection<String> getOperatorsForType(ValueType metricType) {
-    if (metricType == null) {
-      return Collections.emptySet();
-    } else {
+    Collection<String> operators = Collections.emptySet();
+    if (metricType != null) {
       switch(metricType) {
         case BOOL:
-          return BOOLEAN_OPERATORS;
+          operators = BOOLEAN_OPERATORS;
+          break;
         case LEVEL:
-          return LEVEL_OPERATORS;
+          operators = LEVEL_OPERATORS;
+          break;
         case STRING:
-          return STRING_OPERATORS;
+          operators = STRING_OPERATORS;
+          break;
         case INT:
         case FLOAT:
         case PERCENT:
         case MILLISEC:
         case RATING:
-          return NUMERIC_OPERATORS;
+          operators = NUMERIC_OPERATORS;
+          break;
         default:
-          return Collections.emptySet();
+          operators = Collections.emptySet();
       }
     }
+    return operators;
   }
 }

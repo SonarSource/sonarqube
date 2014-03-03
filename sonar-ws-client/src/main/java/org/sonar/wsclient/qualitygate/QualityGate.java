@@ -24,7 +24,7 @@ package org.sonar.wsclient.qualitygate;
  */
 public interface QualityGate {
 
-  long id();
+  Long id();
 
   String name();
 }

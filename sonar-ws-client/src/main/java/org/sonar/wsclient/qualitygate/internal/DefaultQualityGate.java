@@ -19,11 +19,10 @@
  */
 package org.sonar.wsclient.qualitygate.internal;
 
+import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.util.Map;
-
-import org.sonar.wsclient.qualitygate.QualityGate;
 
 public class DefaultQualityGate implements QualityGate {
 
@@ -34,7 +33,7 @@ public class DefaultQualityGate implements QualityGate {
   }
 
   @Override
-  public long id() {
+  public Long id() {
     return JsonUtils.getLong(json, "id");
   }
 

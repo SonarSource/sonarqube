@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.measures.Metric;
-
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -39,6 +38,10 @@ import java.util.Collection;
 
 public class QualityGatesWs implements WebService {
 
+  private static final String PARAM_PAGE_SIZE = "pageSize";
+  private static final String PARAM_PAGE = "page";
+  private static final String PARAM_QUERY = "query";
+  private static final String PARAM_SELECTED = "selected";
   private static final String PARAM_NAME = "name";
   private static final String PARAM_ERROR = "error";
   private static final String PARAM_WARNING = "warning";
@@ -204,10 +207,10 @@ public class QualityGatesWs implements WebService {
       }
     });
     search.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
-    search.newParam("selected").setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
-    search.newParam("query").setDescription("Optionally, part of the name of the projects to search for.");
-    search.newParam("page");
-    search.newParam("pageSize");
+    search.newParam(PARAM_SELECTED).setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
+    search.newParam(PARAM_QUERY).setDescription("Optionally, part of the name of the projects to search for.");
+    search.newParam(PARAM_PAGE);
+    search.newParam(PARAM_PAGE_SIZE);
 
     NewAction select = controller.newAction("select")
       .setPost(true)
@@ -259,16 +262,16 @@ public class QualityGatesWs implements WebService {
   protected void search(Request request, Response response) {
     Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
       .gateId(request.requiredParam(PARAM_GATE_ID))
-      .membership(request.param("selected"))
-      .projectSearch(request.param("query"))
-      .pageIndex(request.intParam("page"))
-      .pageSize(request.intParam("pageSize"))
+      .membership(request.param(PARAM_SELECTED))
+      .projectSearch(request.param(PARAM_QUERY))
+      .pageIndex(request.intParam(PARAM_PAGE))
+      .pageSize(request.intParam(PARAM_PAGE_SIZE))
       .build());
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject().prop("more", associations.hasMoreResults());
     writer.name("results").beginArray();
     for (ProjectQgateAssociation project: associations.projects()) {
-      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop("selected", project.isMember()).endObject();
+      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(PARAM_SELECTED, project.isMember()).endObject();
     }
     writer.endArray().endObject().close();
   }

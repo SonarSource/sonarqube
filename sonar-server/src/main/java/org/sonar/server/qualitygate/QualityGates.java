@@ -20,10 +20,8 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.base.Predicate;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.measures.CoreMetrics;
@@ -195,7 +193,7 @@ public class QualityGates {
     });
   }
 
-  private void validateCondition(Metric metric, String operator, String warningThreshold, String errorThreshold, Integer period) {
+  private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     List<Message> validationMessages = Lists.newArrayList();
     validateMetric(metric, validationMessages);
     validateOperator(metric, operator, validationMessages);
@@ -206,7 +204,7 @@ public class QualityGates {
     }
   }
 
-  private void validatePeriod(Metric metric, Integer period, List<Message> validationMessages) {
+  private void validatePeriod(Metric metric, @Nullable Integer period, List<Message> validationMessages) {
     if (period == null) {
       if (metric.getKey().startsWith("new_")) {
         validationMessages.add(Message.of("A period must be selected for differential metrics."));
@@ -216,7 +214,7 @@ public class QualityGates {
     }
   }
 
-  private void validateThresholds(String warningThreshold, String errorThreshold, List<Message> validationMessages) {
+  private void validateThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, List<Message> validationMessages) {
     if (warningThreshold == null && errorThreshold == null) {
       validationMessages.add(Message.of("At least one threshold (warning, error) must be set."));
     }
