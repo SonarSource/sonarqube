@@ -104,7 +104,7 @@
     });
     qualityGatesXHR = App.qualityGates.fetch();
     return jQuery.when(App.metrics.fetch(), qualityGatesXHR).done(function() {
-      App.canEdit = true;
+      App.canEdit = qualityGatesXHR.responseJSON.edit;
       jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });
