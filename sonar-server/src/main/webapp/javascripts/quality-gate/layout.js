@@ -36,7 +36,8 @@
       };
 
       AppLayout.prototype.onRender = function() {
-        return this.updateLayout();
+        this.updateLayout();
+        return this.$(this.detailsRegion.el).css('bottom', jQuery('#footer').outerHeight());
       };
 
       return AppLayout;

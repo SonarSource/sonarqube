@@ -29,3 +29,6 @@ define [
 
     onRender: ->
       @updateLayout()
+
+      # Adjust details region height
+      @$(@detailsRegion.el).css 'bottom', jQuery('#footer').outerHeight()

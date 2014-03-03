@@ -49,7 +49,6 @@ requirejs(
               ReadOnlyFilterView, ActionPlanFilterView, RuleFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
 
-
       var NavigatorApp = new Marionette.Application();
 
 
@@ -60,6 +59,10 @@ requirejs(
         actionsRegion: '.navigator-actions',
         detailsRegion: '.navigator-details'
       });
+
+
+      // Adjust details region height
+      jQuery('.navigator-details').css('bottom', jQuery('#footer').outerHeight());
 
 
       NavigatorApp.addInitializer(function () {
