@@ -21,3 +21,7 @@ define [
       @options.app.qualityGateEditView.method = 'create'
       @options.app.qualityGateEditView.model = qualityGate
       @options.app.qualityGateEditView.show()
+
+
+    serializeData: ->
+      _.extend super, canEdit: @options.app.canEdit

@@ -71,9 +71,10 @@
       };
 
       QualityGateDetailConditionsView.prototype.serializeData = function() {
-        return {
+        return _.extend(QualityGateDetailConditionsView.__super__.serializeData.apply(this, arguments), {
+          canEdit: this.options.app.canEdit,
           metricGroups: this.groupedMetrics()
-        };
+        });
       };
 
       QualityGateDetailConditionsView.prototype.showMoreIntroduction = function() {

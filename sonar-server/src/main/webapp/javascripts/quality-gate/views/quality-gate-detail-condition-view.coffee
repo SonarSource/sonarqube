@@ -61,11 +61,6 @@ define [
       @ui.periodSelect.select2('open') if @model.isNew()
 
 
-    serializeData: ->
-      _.extend {}, @model.toJSON(),
-        periods: window.SS.metricPeriods
-
-
     showSpinner: ->
       jQuery(@spinner).prependTo @ui.actionsBox
       @ui.actionsBox.find(':not(.spinner)').hide()
@@ -105,3 +100,10 @@ define [
 
     enableUpdate: ->
       @ui.updateButton.prop 'disabled', false
+
+
+    serializeData: ->
+      _.extend super,
+        canEdit: @options.app.canEdit
+        periods: window.SS.metricPeriods
+        periodText: _.findWhere(window.SS.metricPeriods, key: '' + this.model.get('period')).text

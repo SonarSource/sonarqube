@@ -3,37 +3,55 @@
     {{metric.name}}
   </td>
   <td width="10%" nowrap>
-    <select name="period">
-      <option value="0"><%= message('value') -%></option>
-      {{#each periods}}<option value="{{key}}">{{text}}</option>{{/each}}
-    </select>
+    {{#if canEdit}}
+      <select name="period">
+        <option value="0"><%= message('value') -%></option>
+        {{#each periods}}<option value="{{key}}">{{text}}</option>{{/each}}
+      </select>
+    {{else}}
+      {{periodText}}
+    {{/if}}
   </td>
   <td width="10%" nowrap>
-    <select name="operator">
-      {{#operators metric.type}}
-        <option value="{{this}}">{{translate 'alerts.operator' this}}</option>
-      {{/operators}}
-    </select>
+    {{#if canEdit}}
+      <select name="operator">
+        {{#operators metric.type}}
+          <option value="{{this}}">{{translate 'alerts.operator' this}}</option>
+        {{/operators}}
+      </select>
+    {{else}}
+      {{translate 'alerts.operator' op}}
+    {{/if}}
   </td>
   <td width="15%">
     <i class="icon-alert-warn" title="<%= message('alerts.warn_tooltip') -%>"></i>
-    <input name="warning" type="text" value="{{warning}}">
+    {{#if canEdit}}
+      <input name="warning" type="text" value="{{warning}}">
+    {{else}}
+      {{warning}}
+    {{/if}}
   </td>
   <td width="15%">
     <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
-    <input name="error" type="text" value="{{error}}">
+    {{#if canEdit}}
+      <input name="error" type="text" value="{{error}}">
+    {{else}}
+      {{error}}
+    {{/if}}
   </td>
   <td class="quality-gate-condition-actions" width="120px" nowrap>
-    {{#if id}}
-      <div class="button-group">
-        <button class="update-condition" disabled><%= message('update_verb') -%></button>
-        <button class="button-red delete-condition"><%= message('delete') -%></button>
-      </div>
-    {{else}}
-      <div class="button-group">
-        <button class="add-condition"><%= message('add_verb') -%></button>
-        <a class="action cancel-add-condition"><%= message('cancel') -%></a>
-      </div>
+    {{#if canEdit}}
+      {{#if id}}
+        <div class="button-group">
+          <button class="update-condition" disabled><%= message('update_verb') -%></button>
+          <button class="button-red delete-condition"><%= message('delete') -%></button>
+        </div>
+      {{else}}
+        <div class="button-group">
+          <button class="add-condition"><%= message('add_verb') -%></button>
+          <a class="action cancel-add-condition"><%= message('cancel') -%></a>
+        </div>
+      {{/if}}
     {{/if}}
   </td>
 </script>

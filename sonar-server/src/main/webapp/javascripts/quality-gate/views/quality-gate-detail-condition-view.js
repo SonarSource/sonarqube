@@ -76,12 +76,6 @@
         }
       };
 
-      QualityGateDetailConditionView.prototype.serializeData = function() {
-        return _.extend({}, this.model.toJSON(), {
-          periods: window.SS.metricPeriods
-        });
-      };
-
       QualityGateDetailConditionView.prototype.showSpinner = function() {
         jQuery(this.spinner).prependTo(this.ui.actionsBox);
         return this.ui.actionsBox.find(':not(.spinner)').hide();
@@ -126,6 +120,16 @@
 
       QualityGateDetailConditionView.prototype.enableUpdate = function() {
         return this.ui.updateButton.prop('disabled', false);
+      };
+
+      QualityGateDetailConditionView.prototype.serializeData = function() {
+        return _.extend(QualityGateDetailConditionView.__super__.serializeData.apply(this, arguments), {
+          canEdit: this.options.app.canEdit,
+          periods: window.SS.metricPeriods,
+          periodText: _.findWhere(window.SS.metricPeriods, {
+            key: '' + this.model.get('period')
+          }).text
+        });
       };
 
       return QualityGateDetailConditionView;

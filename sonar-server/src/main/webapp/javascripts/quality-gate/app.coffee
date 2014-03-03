@@ -2,6 +2,7 @@ requirejs.config
   baseUrl: "#{baseUrl}/javascripts"
 
   paths:
+    'jquery': 'third-party/jquery'
     'backbone': 'third-party/backbone'
     'backbone.marionette': 'third-party/backbone.marionette'
     'handlebars': 'third-party/handlebars'
@@ -9,6 +10,8 @@ requirejs.config
     'select-list': 'common/select-list'
 
   shim:
+    'jquery':
+      exports: '$'
     'backbone.marionette':
       deps: ['backbone']
       exports: 'Marionette'
@@ -108,8 +111,14 @@ requirejs [
     App.openFirstQualityGate() if initial
 
   # Load metrics and the list of quality gates before start the application
-  jQuery.when(App.metrics.fetch(), App.qualityGates.fetch())
+  qualityGatesXHR = App.qualityGates.fetch()
+  jQuery.when(App.metrics.fetch(), qualityGatesXHR)
     .done ->
+      # Set permissions
+      App.canEdit = true #qualityGatesXHR.responseJSON.edit
+
+      # Remove the initial spinner
       jQuery('.quality-gate-page-loader').remove()
+
       # Start the application
       App.start()

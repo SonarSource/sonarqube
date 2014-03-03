@@ -99,6 +99,12 @@
         return this.$el.show();
       };
 
+      QualityGateDetailHeaderView.prototype.serializeData = function() {
+        return _.extend(QualityGateDetailHeaderView.__super__.serializeData.apply(this, arguments), {
+          canEdit: this.options.app.canEdit
+        });
+      };
+
       return QualityGateDetailHeaderView;
 
     })(Marionette.ItemView);

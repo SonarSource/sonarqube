@@ -31,3 +31,7 @@ define [
           tooltips:
             select: window.SS.phrases.projects.select_hint
             deselect: window.SS.phrases.projects.deselect_hint
+
+
+    serializeData: ->
+      _.extend super, canEdit: @options.app.canEdit

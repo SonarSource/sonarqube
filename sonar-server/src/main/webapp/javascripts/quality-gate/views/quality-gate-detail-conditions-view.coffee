@@ -58,7 +58,9 @@ define [
 
 
     serializeData: ->
-      metricGroups: @groupedMetrics()
+      _.extend super,
+        canEdit: @options.app.canEdit
+        metricGroups: @groupedMetrics()
 
 
     showMoreIntroduction: ->

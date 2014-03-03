@@ -1,14 +1,16 @@
 <script id="quality-gate-detail-header-template" type="text/x-handlebars-template">
   <h1 class="navigator-header-title">{{name}}</h1>
 
-  <div class="navigator-header-actions button-group">
-    <button id="quality-gate-rename"><%= message('rename') -%></button>
-    <button id="quality-gate-copy"><%= message('copy') -%></button>
-    {{#if default}}
-      <button id="quality-gate-unset-as-default"><%= message('unset_as_default') -%></button>
-    {{else}}
-      <button id="quality-gate-set-as-default"><%= message('set_as_default') -%></button>
-    {{/if}}
-    <button id="quality-gate-delete" class="button-red"><%= message('delete') -%></button>
-  </div>
+  {{#if canEdit}}
+    <div class="navigator-header-actions button-group">
+      <button id="quality-gate-rename"><%= message('rename') -%></button>
+      <button id="quality-gate-copy"><%= message('copy') -%></button>
+      {{#if default}}
+        <button id="quality-gate-unset-as-default"><%= message('unset_as_default') -%></button>
+      {{else}}
+        <button id="quality-gate-set-as-default"><%= message('set_as_default') -%></button>
+      {{/if}}
+      <button id="quality-gate-delete" class="button-red"><%= message('delete') -%></button>
+    </div>
+  {{/if}}
 </script>

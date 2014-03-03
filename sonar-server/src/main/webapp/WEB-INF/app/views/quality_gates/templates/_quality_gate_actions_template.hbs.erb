@@ -1,7 +1,8 @@
 <script id="quality-gate-actions-template" type="text/x-handlebars-template">
   <h1 class="navigator-header-title"><%= message('quality_gates.page') -%></h1>
-
-  <div class="navigator-header-actions button-group">
-    <button id="quality-gate-add"><%= message('add_verb') -%></button>
-  </div>
+  {{#if canEdit}}
+    <div class="navigator-header-actions button-group">
+      <button id="quality-gate-add"><%= message('add_verb') -%></button>
+    </div>
+  {{/if}}
 </script>

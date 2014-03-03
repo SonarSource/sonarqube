@@ -82,3 +82,7 @@ define [
     hideSpinner: ->
       @$el.prev().remove()
       @$el.show()
+
+
+    serializeData: ->
+      _.extend super, canEdit: @options.app.canEdit

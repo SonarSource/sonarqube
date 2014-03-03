@@ -27,6 +27,12 @@
         return this.options.app.qualityGateEditView.show();
       };
 
+      QualityGateActionsView.prototype.serializeData = function() {
+        return _.extend(QualityGateActionsView.__super__.serializeData.apply(this, arguments), {
+          canEdit: this.options.app.canEdit
+        });
+      };
+
       return QualityGateActionsView;
 
     })(Marionette.ItemView);

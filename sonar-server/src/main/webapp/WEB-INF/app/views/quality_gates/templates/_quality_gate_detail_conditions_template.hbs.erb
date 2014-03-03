@@ -31,17 +31,19 @@
     </div>
   </div>
 
-  <div class="quality-gate-new-condition">
-    <label for="quality-gate-new-condition-metric"><%= message('quality_gates.add_condition') -%>:</label>
-    <select id="quality-gate-new-condition-metric">
-      <option></option>
-      {{#each metricGroups}}
-      <optgroup label="{{domain}}">
-        {{#each metrics}}<option value="{{key}}">{{name}}</option>{{/each}}
-      </optgroup>
-      {{/each}}
-    </select>
-  </div>
+  {{#if canEdit}}
+    <div class="quality-gate-new-condition">
+      <label for="quality-gate-new-condition-metric"><%= message('quality_gates.add_condition') -%>:</label>
+      <select id="quality-gate-new-condition-metric">
+        <option></option>
+        {{#each metricGroups}}
+        <optgroup label="{{domain}}">
+          {{#each metrics}}<option value="{{key}}">{{name}}</option>{{/each}}
+        </optgroup>
+        {{/each}}
+      </select>
+    </div>
+  {{/if}}
 
   <table class="data zebra width100 marginbottom10 spaced quality-gate-conditions">
     <thead><tr></tr></thead>

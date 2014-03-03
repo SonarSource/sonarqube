@@ -3,6 +3,7 @@
   requirejs.config({
     baseUrl: "" + baseUrl + "/javascripts",
     paths: {
+      'jquery': 'third-party/jquery',
       'backbone': 'third-party/backbone',
       'backbone.marionette': 'third-party/backbone.marionette',
       'handlebars': 'third-party/handlebars',
@@ -10,6 +11,9 @@
       'select-list': 'common/select-list'
     },
     shim: {
+      'jquery': {
+        exports: '$'
+      },
       'backbone.marionette': {
         deps: ['backbone'],
         exports: 'Marionette'
@@ -30,7 +34,7 @@
   });
 
   requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'quality-gate/layout', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter, QualityGateLayout) {
-    var App;
+    var App, qualityGatesXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
         var _ref;
@@ -101,7 +105,9 @@
         return App.openFirstQualityGate();
       }
     });
-    return jQuery.when(App.metrics.fetch(), App.qualityGates.fetch()).done(function() {
+    qualityGatesXHR = App.qualityGates.fetch();
+    return jQuery.when(App.metrics.fetch(), qualityGatesXHR).done(function() {
+      App.canEdit = true;
       jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });
