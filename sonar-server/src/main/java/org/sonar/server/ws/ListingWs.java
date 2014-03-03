@@ -21,13 +21,11 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.exceptions.ServerException;
 
 import java.util.List;
 
@@ -48,10 +46,6 @@ public class ListingWs implements WebService {
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
-          String kill = request.param("kill");
-          if (StringUtils.isNotBlank(kill)) {
-            throw new ServerException(Integer.parseInt(kill), "KILLED");
-          }
           list(context.controllers(), response);
         }
       });
