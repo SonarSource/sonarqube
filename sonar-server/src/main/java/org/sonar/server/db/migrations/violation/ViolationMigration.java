@@ -34,7 +34,7 @@ import java.sql.SQLException;
  */
 public class ViolationMigration implements DatabaseMigration {
 
-  private static final Logger logger = LoggerFactory.getLogger(ViolationMigration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ViolationMigration.class);
 
   private static final String FAILURE_MESSAGE = "Fail to convert violations to issues";
 
@@ -49,20 +49,20 @@ public class ViolationMigration implements DatabaseMigration {
   @Override
   public void execute() {
     try {
-      logger.info("Initialize input");
+      LOGGER.info("Initialize input");
       Referentials referentials = new Referentials(db);
       if (referentials.totalViolations() > 0) {
-        logger.info("Migrate {} violations", referentials.totalViolations());
+        LOGGER.info("Migrate {} violations", referentials.totalViolations());
         ViolationConverters converters = new ViolationConverters(settings);
         converters.execute(referentials, db);
       }
     } catch (SQLException e) {
-      logger.error(FAILURE_MESSAGE, e);
-      SqlUtil.log(logger, e);
+      LOGGER.error(FAILURE_MESSAGE, e);
+      SqlUtil.log(LOGGER, e);
       throw MessageException.of(FAILURE_MESSAGE);
 
     } catch (Exception e) {
-      logger.error(FAILURE_MESSAGE, e);
+      LOGGER.error(FAILURE_MESSAGE, e);
       throw MessageException.of(FAILURE_MESSAGE);
     }
   }

@@ -141,6 +141,8 @@ public class WorkDurationTest {
     assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).add(
       WorkDuration.createFromValueAndUnit(20, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY)
     ).minutes()).isEqualTo(30);
+
+    assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).add(null).minutes()).isEqualTo(10);
   }
 
   @Test
@@ -162,6 +164,8 @@ public class WorkDurationTest {
     // 30m - 20m = 10m
     assertThat(WorkDuration.createFromValueAndUnit(30, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).subtract(WorkDuration.createFromValueAndUnit(20, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY))
       .minutes()).isEqualTo(10);
+
+    assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).subtract(null).minutes()).isEqualTo(10);
   }
 
   @Test
@@ -172,5 +176,26 @@ public class WorkDurationTest {
     assertThat(result.hours()).isEqualTo(2);
     assertThat(result.minutes()).isEqualTo(0);
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
+  }
+
+  @Test
+  public void test_equals_and_hashcode() throws Exception {
+    WorkDuration duration = WorkDuration.createFromLong(28800, HOURS_IN_DAY);
+    WorkDuration durationWithSameValue = WorkDuration.createFromLong(28800, HOURS_IN_DAY);
+    WorkDuration durationWithDifferentValue = WorkDuration.createFromLong(14400, HOURS_IN_DAY);
+
+    assertThat(duration).isEqualTo(duration);
+    assertThat(durationWithSameValue).isEqualTo(duration);
+    assertThat(durationWithDifferentValue).isNotEqualTo(duration);
+    assertThat(duration).isNotEqualTo(null);
+
+    assertThat(duration.hashCode()).isEqualTo(duration.hashCode());
+    assertThat(durationWithSameValue.hashCode()).isEqualTo(duration.hashCode());
+    assertThat(durationWithDifferentValue.hashCode()).isNotEqualTo(duration.hashCode());
+  }
+
+  @Test
+  public void test_toString() throws Exception {
+    assertThat(WorkDuration.createFromLong(28800, HOURS_IN_DAY).toString()).isNotNull();
   }
 }
