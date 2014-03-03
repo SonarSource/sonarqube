@@ -30,8 +30,6 @@ import org.sonar.api.profiles.Alert;
 public class AlertUtilsTest {
   private Metric metric;
   private Measure measure;
-  private Metric metric2;
-  private Measure measure2;
   private Alert alert;
 
   @Before
@@ -39,11 +37,6 @@ public class AlertUtilsTest {
     metric = new Metric.Builder("test-metric", "name", Metric.ValueType.FLOAT).create();
     measure = new Measure();
     measure.setMetric(metric);
-
-    metric2 = new Metric.Builder("test-metric2", "name2", Metric.ValueType.FLOAT).create();
-    measure2 = new Measure();
-    measure2.setMetric(metric2);
-
     alert = new Alert();
   }
 
@@ -231,6 +224,17 @@ public class AlertUtilsTest {
 
     alert.setValueError("0");
     Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void test_work_duration() {
+    metric.setType(Metric.ValueType.WORK_DUR);
+    measure.setValue(60.0d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("60");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
   }
 
   @Test

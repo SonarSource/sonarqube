@@ -105,6 +105,9 @@ class AlertUtils {
     if (isABoolean(metric)) {
       return Integer.parseInt(value);
     }
+    if (isAWorkDuration(metric)) {
+      return Long.parseLong(value);
+    }
     throw new NotImplementedException(metric.getType().toString());
   }
 
@@ -119,6 +122,9 @@ class AlertUtils {
     }
     if (isAInteger(metric)) {
       return parseInteger(alert, measure);
+    }
+    if (isAWorkDuration(metric)) {
+      return parseLong(alert, measure);
     }
     if (alert.getPeriod() == null) {
       return getMeasureValueForStringOrBoolean(metric, measure);
@@ -141,6 +147,11 @@ class AlertUtils {
     return value != null ? value.intValue() : null;
   }
 
+  private static Comparable<Long> parseLong(Alert alert, Measure measure) {
+    Double value = getValue(alert, measure);
+    return value != null ? value.longValue() : null;
+  }
+
   private static boolean isADouble(Metric metric) {
     return metric.getType() == Metric.ValueType.FLOAT ||
         metric.getType() == Metric.ValueType.PERCENT ||
@@ -159,6 +170,10 @@ class AlertUtils {
 
   private static boolean isABoolean(Metric metric) {
     return metric.getType() == Metric.ValueType.BOOL;
+  }
+
+  private static boolean isAWorkDuration(Metric metric) {
+    return metric.getType() == Metric.ValueType.WORK_DUR;
   }
 
   private static Double getValue(Alert alert, Measure measure) {

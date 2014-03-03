@@ -139,13 +139,22 @@ public class QualityGateVerifier implements Decorator {
 
     stringBuilder
       .append(" ").append(alert.getOperator()).append(" ")
-      .append(level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning());
+      .append(alertValue(alert, level));
 
     if (alertPeriod != null) {
       stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
     }
 
     return stringBuilder.toString();
+  }
+
+  private String alertValue(Alert alert, Metric.Level level){
+    String value = level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning();
+    if (alert.getMetric().getType().equals(Metric.ValueType.WORK_DUR)) {
+      return i18n.formatWorkDuration(Locale.ENGLISH, Long.parseLong(value));
+    } else {
+      return value;
+    }
   }
 
   @Override

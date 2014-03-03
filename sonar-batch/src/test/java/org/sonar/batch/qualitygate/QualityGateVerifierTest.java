@@ -344,6 +344,21 @@ public class QualityGateVerifierTest {
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
   }
 
+  @Test
+  public void alert_on_work_duration() {
+    Metric metric = new Metric.Builder("tech_debt", "Debt", Metric.ValueType.WORK_DUR).create();
+
+    // metric name is declared in l10n bundle
+    when(i18n.message(any(Locale.class), eq("metric.tech_debt.name"), anyString())).thenReturn("The Debt");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(3600L))).thenReturn("1h");
+
+    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 1800d));
+    projectAlerts.addAll(Lists.newArrayList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "3600", null)));
+    verifier.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
+  }
+
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
     return new ArgumentMatcher<Measure>() {
       @Override
