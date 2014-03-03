@@ -21,13 +21,16 @@ package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -36,6 +39,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -56,8 +60,11 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,6 +86,9 @@ public class QualityGatesTest {
   @Mock
   private ComponentDao componentDao;
 
+  @Mock
+  private MyBatis myBatis;
+
   private QualityGates qGates;
 
   UserSession authorizedUserSession = MockUserSession.create().setLogin("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -87,7 +97,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao);
+    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis);
     UserSessionTestUtils.setUserSession(authorizedUserSession);
   }
 
@@ -481,6 +491,36 @@ public class QualityGatesTest {
     verify(dao).selectById(qGateId);
     verify(componentDao).selectComponent(any(ComponentQuery.class));
     verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
+  }
+
+  @Test
+  public void should_copy_qgate() throws Exception {
+    String name = "Atlantis";
+    long sourceId = 42L;
+    final long destId = 43L;
+    long metric1Id = 1L;
+    long metric2Id = 2L;
+    QualityGateConditionDto cond1 = new QualityGateConditionDto().setMetricId(metric1Id);
+    QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
+    Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
+
+    when(dao.selectById(sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
+    SqlSession session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
+    Mockito.doAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        ((QualityGateDto) invocation.getArguments()[0]).setId(destId);
+        return null;
+      }
+    }).when(dao).insert(any(QualityGateDto.class), eq(session));
+    when(conditionDao.selectForQualityGate(anyLong(), eq(session))).thenReturn(conditions);
+    QualityGateDto atlantis = qGates.copy(sourceId, name);
+    assertThat(atlantis.getName()).isEqualTo(name);
+    verify(dao).selectByName(name);
+    verify(dao).insert(atlantis, session);
+    verify(conditionDao).selectForQualityGate(anyLong(), eq(session));
+    verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(session));
   }
 
 }

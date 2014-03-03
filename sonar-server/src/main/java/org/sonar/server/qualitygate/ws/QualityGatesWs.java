@@ -84,7 +84,7 @@ public class QualityGatesWs implements WebService {
         createCondition(request, response);
       }
     });
-    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
+    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate for which the condition will be created.");
     addConditionParams(createCondition);
 
     NewAction updateCondition = controller.newAction("update_condition")
@@ -128,6 +128,18 @@ public class QualityGatesWs implements WebService {
           create(request, response);
         }
     }).newParam(PARAM_NAME).setDescription("The name of the quality gate to create.");
+
+    NewAction copy = controller.newAction("copy")
+      .setDescription("Copy a quality gate, given its ID and the name for the new quality gate.")
+      .setPost(true)
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          copy(request, response);
+        }
+    });
+    copy.newParam(PARAM_ID).setDescription("The ID of the source quality gate.");
+    copy.newParam(PARAM_NAME).setDescription("The name of the destination quality gate.");
 
     controller.newAction("set_as_default")
     .setDescription("Select the default quality gate.")
@@ -206,7 +218,7 @@ public class QualityGatesWs implements WebService {
         search(request, response);
       }
     });
-    search.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate.");
+    search.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate considered for association.");
     search.newParam(PARAM_SELECTED).setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
     search.newParam(PARAM_QUERY).setDescription("Optionally, part of the name of the projects to search for.");
     search.newParam(PARAM_PAGE);
@@ -233,6 +245,12 @@ public class QualityGatesWs implements WebService {
       });
     deselect.newParam(PARAM_GATE_ID);
     deselect.newParam(PARAM_PROJECT_ID);
+  }
+
+  protected void copy(Request request, Response response) {
+    QualityGateDto newQualityGate = qualityGates.copy(parseId(request, PARAM_ID), request.requiredParam(PARAM_NAME));
+    JsonWriter writer = response.newJsonWriter();
+    writeQualityGate(newQualityGate, writer).close();
   }
 
   protected void listMetrics(Request request, Response response) {

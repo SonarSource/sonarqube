@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -32,6 +33,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -70,12 +72,16 @@ public class QualityGates {
 
   private final ComponentDao componentDao;
 
-  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao) {
+  private final MyBatis myBatis;
+
+  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
+      MyBatis myBatis) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
     this.propertiesDao = propertiesDao;
     this.componentDao = componentDao;
+    this.myBatis = myBatis;
   }
 
   public QualityGateDto create(String name) {
@@ -98,6 +104,28 @@ public class QualityGates {
     dao.update(toRename);
     return toRename;
   }
+
+  public QualityGateDto copy(long sourceId, String destinationName) {
+    checkPermission(UserSession.get());
+    getNonNullQgate(sourceId);
+    validateQualityGate(null, destinationName);
+    QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
+    SqlSession session = myBatis.openSession();
+    try {
+      dao.insert(destinationGate, session);
+      for(QualityGateConditionDto sourceCondition: conditionDao.selectForQualityGate(sourceId, session)) {
+        conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
+          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+          session);
+      }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    return destinationGate;
+  }
+
 
   public Collection<QualityGateDto> list() {
     return dao.selectAll();

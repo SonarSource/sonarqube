@@ -60,7 +60,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(14);
+    assertThat(controller.actions()).hasSize(15);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -84,6 +84,15 @@ public class QualityGatesWsTest {
     assertThat(create.isPost()).isTrue();
     assertThat(create.param("name")).isNotNull();
     assertThat(create.isPrivate()).isFalse();
+
+    WebService.Action copy = controller.action("copy");
+    assertThat(copy).isNotNull();
+    assertThat(copy.handler()).isNotNull();
+    assertThat(copy.since()).isEqualTo("4.3");
+    assertThat(copy.isPost()).isTrue();
+    assertThat(copy.param("id")).isNotNull();
+    assertThat(copy.param("name")).isNotNull();
+    assertThat(copy.isPrivate()).isFalse();
 
     WebService.Action destroy = controller.action("destroy");
     assertThat(destroy).isNotNull();
