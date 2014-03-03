@@ -344,9 +344,9 @@ class Api::IssuesController < Api::ApiController
     hash[:name] = component.name if component.name
     hash[:longName] = component.longName if component.longName
     hash[:path] = component.path if component.path
-    hash[:groupId] = component.groupId if component.groupId
-    # On a root project, groupId is null but rootId is equal to itself, which make no sense.
-    hash[:rootId] = component.rootId if component.groupId && component.rootId
+    # On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
+    hash[:projectId] = component.projectId if component.subProjectId && component.projectId
+    hash[:subProjectId] = component.subProjectId if component.subProjectId
     hash
   end
 

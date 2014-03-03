@@ -40,8 +40,8 @@
       "name": "Action",
       "qualifier": "CLA",
       "longName": "org.struts.Action",
-      "groupId" : 2,
-      "rootId" : 1
+      "subProjectId" : 2,
+      "projectId" : 1
     }
   ],
   "paging": {

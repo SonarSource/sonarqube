@@ -60,16 +60,16 @@ public class Component {
    * @since 4.2
    */
   @CheckForNull
-  public Long groupId() {
-    return JsonUtils.getLong(json, "groupId");
+  public Long subProjectId() {
+    return JsonUtils.getLong(json, "subProjectId");
   }
 
   /**
    * @since 4.2
    */
   @CheckForNull
-  public Long rootId() {
-    return JsonUtils.getLong(json, "rootId");
+  public Long projectId() {
+    return JsonUtils.getLong(json, "projectId");
   }
 
   /**

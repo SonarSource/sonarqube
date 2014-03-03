@@ -211,7 +211,7 @@ public class DefaultIssueFinder implements IssueFinder {
     return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
       @Override
       public Long apply(Component input) {
-        return ((ComponentDto) input).groupId();
+        return ((ComponentDto) input).subProjectId();
       }
     })));
   }
@@ -220,7 +220,7 @@ public class DefaultIssueFinder implements IssueFinder {
     return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
       @Override
       public Long apply(Component input) {
-        return ((ComponentDto) input).rootId();
+        return ((ComponentDto) input).projectId();
       }
     })));
   }

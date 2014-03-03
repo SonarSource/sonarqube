@@ -38,8 +38,8 @@ public class ComponentDto implements Component {
   private String name;
   private String longName;
   private String qualifier;
-  private Long groupId;
-  private Long rootId;
+  private Long projectId;
+  private Long subProjectId;
 
   public Long getId() {
     return id;
@@ -110,22 +110,22 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @CheckForNull
-  public Long groupId() {
-    return groupId;
+  public Long projectId() {
+    return projectId;
   }
 
-  public ComponentDto setGroupId(@Nullable Long groupId) {
-    this.groupId = groupId;
+  public ComponentDto setProjectId(Long projectId) {
+    this.projectId = projectId;
     return this;
   }
 
-  public Long rootId() {
-    return rootId;
+  @CheckForNull
+  public Long subProjectId() {
+    return subProjectId;
   }
 
-  public ComponentDto setRootId(Long rootId) {
-    this.rootId = rootId;
+  public ComponentDto setSubProjectId(@Nullable Long subProjectId) {
+    this.subProjectId = subProjectId;
     return this;
   }
 

@@ -165,8 +165,8 @@ public class IssueJsonParserTest {
     assertThat(component.qualifier()).isEqualTo("CLA");
     assertThat(component.name()).isEqualTo("Action");
     assertThat(component.longName()).isEqualTo("org.struts.Action");
-    assertThat(component.groupId()).isEqualTo(2L);
-    assertThat(component.rootId()).isEqualTo(1L);
+    assertThat(component.subProjectId()).isEqualTo(2L);
+    assertThat(component.projectId()).isEqualTo(1L);
   }
 
   @Test

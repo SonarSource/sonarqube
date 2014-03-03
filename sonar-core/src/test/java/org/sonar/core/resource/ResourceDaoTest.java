@@ -181,8 +181,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.name()).isEqualTo("RequestContext.java");
     assertThat(component.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(component.qualifier()).isEqualTo("FIL");
-    assertThat(component.groupId()).isEqualTo(2);
-    assertThat(component.rootId()).isEqualTo(1);
+    assertThat(component.projectId()).isEqualTo(1);
+    assertThat(component.subProjectId()).isEqualTo(2);
 
     // Module
     results = dao.selectComponentsByIds(newArrayList(2L));
@@ -193,8 +193,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.name()).isEqualTo("Struts Core");
     assertThat(component.longName()).isEqualTo("Struts Core");
     assertThat(component.qualifier()).isEqualTo("BRC");
-    assertThat(component.groupId()).isEqualTo(1);
-    assertThat(component.rootId()).isEqualTo(1);
+    assertThat(component.subProjectId()).isEqualTo(1);
+    assertThat(component.projectId()).isEqualTo(1);
 
     // Project
     results = dao.selectComponentsByIds(newArrayList(1L));
@@ -205,8 +205,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.name()).isEqualTo("Struts");
     assertThat(component.longName()).isEqualTo("Apache Struts");
     assertThat(component.qualifier()).isEqualTo("TRK");
-    assertThat(component.groupId()).isNull();
-    assertThat(component.rootId()).isEqualTo(1);
+    assertThat(component.subProjectId()).isNull();
+    assertThat(component.projectId()).isEqualTo(1);
   }
 
   @Test
