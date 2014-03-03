@@ -35,7 +35,7 @@
         <% if logged_in? %>
           <%= render 'layouts/menu_user' -%>
         <% else %>
-          <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
+          <li><a id="login-link" href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
         <% end %>
         <% if is_admin? %>
           <li><a href="<%= ApplicationController.root_context -%>/settings/index" class="<%= 'selected' if selected_section==Navigation::SECTION_CONFIGURATION -%>"><%= message('layout.settings') -%></a></li>
