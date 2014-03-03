@@ -17,7 +17,7 @@ define(
 
 
         url: function () {
-          return baseUrl + '/api/issue_filters/page';
+          return baseUrl + '/api/issue_filters/app';
         }
 
       });

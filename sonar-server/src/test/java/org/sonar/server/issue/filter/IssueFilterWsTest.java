@@ -46,7 +46,7 @@ public class IssueFilterWsTest {
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
 
-    WebService.Action index = controller.action("page");
+    WebService.Action index = controller.action("app");
     assertThat(index).isNotNull();
     assertThat(index.handler()).isNotNull();
     assertThat(index.isPost()).isFalse();
@@ -56,13 +56,13 @@ public class IssueFilterWsTest {
   @Test
   public void anonymous_app() throws Exception {
     MockUserSession.set().setLogin(null);
-    tester.newRequest("page").execute().assertJson(getClass(), "anonymous_page.json");
+    tester.newRequest("app").execute().assertJson(getClass(), "anonymous_page.json");
   }
 
   @Test
   public void logged_in_app() throws Exception {
     MockUserSession.set().setLogin("eric").setUserId(123);
-    tester.newRequest("page").execute()
+    tester.newRequest("app").execute()
       .assertJson(getClass(), "logged_in_page.json");
   }
 
@@ -73,7 +73,7 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(6L).setName("My issues"),
       new DefaultIssueFilter().setId(13L).setName("Blocker issues")
     ));
-    tester.newRequest("page").execute()
+    tester.newRequest("app").execute()
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
   }
 
@@ -84,7 +84,7 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("eric")
     );
 
-    tester.newRequest("page").setParam("id", "13").execute()
+    tester.newRequest("app").setParam("id", "13").execute()
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
   }
 
@@ -96,7 +96,7 @@ public class IssueFilterWsTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
     );
 
-    tester.newRequest("page").setParam("id", "13").execute()
+    tester.newRequest("app").setParam("id", "13").execute()
       .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
   }
 
