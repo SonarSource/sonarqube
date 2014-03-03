@@ -83,7 +83,7 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
           if (row.value != null) {
             statement.setString(1, convertDebtForDays(row.value));
           } else {
-            statement.setNull(1, Types.DOUBLE);
+            statement.setNull(1, Types.VARCHAR);
           }
           statement.setLong(2, row.id);
         }
