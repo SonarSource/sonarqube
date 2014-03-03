@@ -271,7 +271,7 @@ public class WebServiceEngineTest {
           public void handle(Request request, Response response) {
             try {
               IOUtils.write(
-              request.requiredParam("message") + " by " + request.param("author", "-"), response.stream().output());
+              request.mandatoryParam("message") + " by " + request.param("author", "-"), response.stream().output());
             } catch (IOException e) {
               throw new IllegalStateException(e);
             }

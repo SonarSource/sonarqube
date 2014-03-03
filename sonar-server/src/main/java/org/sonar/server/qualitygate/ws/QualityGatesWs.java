@@ -248,7 +248,7 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void copy(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.copy(parseId(request, PARAM_ID), request.requiredParam(PARAM_NAME));
+    QualityGateDto newQualityGate = qualityGates.copy(parseId(request, PARAM_ID), request.mandatoryParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(newQualityGate, writer).close();
   }
@@ -279,11 +279,11 @@ public class QualityGatesWs implements WebService {
 
   protected void search(Request request, Response response) {
     Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
-      .gateId(request.requiredParam(PARAM_GATE_ID))
+      .gateId(request.mandatoryParam(PARAM_GATE_ID))
       .membership(request.param(PARAM_SELECTED))
       .projectSearch(request.param(PARAM_QUERY))
-      .pageIndex(request.intParam(PARAM_PAGE))
-      .pageSize(request.intParam(PARAM_PAGE_SIZE))
+      .pageIndex(request.paramAsInt(PARAM_PAGE))
+      .pageSize(request.paramAsInt(PARAM_PAGE_SIZE))
       .build());
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject().prop("more", associations.hasMoreResults());
@@ -315,11 +315,11 @@ public class QualityGatesWs implements WebService {
     writeQualityGateCondition(
       qualityGates.createCondition(
         parseId(request, PARAM_GATE_ID),
-        request.requiredParam(PARAM_METRIC),
-        request.requiredParam(PARAM_OPERATOR),
+        request.mandatoryParam(PARAM_METRIC),
+        request.mandatoryParam(PARAM_OPERATOR),
         request.param(PARAM_WARNING),
         request.param(PARAM_ERROR),
-        request.intParam(PARAM_PERIOD)
+        request.paramAsInt(PARAM_PERIOD)
       ), response.newJsonWriter()).close();
   }
 
@@ -327,11 +327,11 @@ public class QualityGatesWs implements WebService {
     writeQualityGateCondition(
       qualityGates.updateCondition(
         parseId(request, PARAM_ID),
-        request.requiredParam(PARAM_METRIC),
-        request.requiredParam(PARAM_OPERATOR),
+        request.mandatoryParam(PARAM_METRIC),
+        request.mandatoryParam(PARAM_OPERATOR),
         request.param(PARAM_WARNING),
         request.param(PARAM_ERROR),
-        request.intParam(PARAM_PERIOD)
+        request.paramAsInt(PARAM_PERIOD)
       ), response.newJsonWriter()).close();
   }
 
@@ -352,7 +352,7 @@ public class QualityGatesWs implements WebService {
 
   protected void rename(Request request, Response response) {
     long idToRename = parseId(request, PARAM_ID);
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.requiredParam(PARAM_NAME));
+    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(renamedQualityGate, writer).close();
   }
@@ -377,14 +377,14 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void create(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.create(request.requiredParam(PARAM_NAME));
+    QualityGateDto newQualityGate = qualityGates.create(request.mandatoryParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     writeQualityGate(newQualityGate, writer).close();
   }
 
   private Long parseId(Request request, String paramName) {
     try {
-      return Long.valueOf(request.requiredParam(paramName));
+      return Long.valueOf(request.mandatoryParam(paramName));
     } catch (NumberFormatException badFormat) {
       throw new BadRequestException(paramName + " must be a valid long value");
     }

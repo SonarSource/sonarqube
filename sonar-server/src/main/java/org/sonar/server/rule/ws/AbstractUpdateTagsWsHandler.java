@@ -40,9 +40,9 @@ public abstract class AbstractUpdateTagsWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    Rule rule = rules.findByKey(RuleKey.parse(request.requiredParam("key")));
+    Rule rule = rules.findByKey(RuleKey.parse(request.mandatoryParam("key")));
     Set<String> allAdminTags = Sets.newHashSet(rule.adminTags());
-    String[] tagsFromRequest = request.requiredParam("tags").split(",");
+    String[] tagsFromRequest = request.mandatoryParam("tags").split(",");
     updateTags(allAdminTags, tagsFromRequest);
     rules.updateRuleTags(rule.id(), Lists.newArrayList(allAdminTags));
 

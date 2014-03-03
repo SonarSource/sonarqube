@@ -68,9 +68,9 @@ public class RequestTest {
   SimpleRequest request = new SimpleRequest(mock(WebService.Action.class));
 
   @Test
-  public void required_param_is_missing() throws Exception {
+  public void mandatory_param_is_missing() throws Exception {
     try {
-      request.requiredParam("foo");
+      request.mandatoryParam("foo");
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Parameter 'foo' is missing");
@@ -78,9 +78,16 @@ public class RequestTest {
   }
 
   @Test
-  public void required_param_is_set() throws Exception {
-    String value = request.setParam("foo", "bar").requiredParam("foo");
-    assertThat(value).isEqualTo("bar");
+  public void mandatory_param_is_set() throws Exception {
+    request.setParam("a_string", "foo");
+    request.setParam("a_long", "42");
+    request.setParam("a_int", "42");
+    request.setParam("a_boolean", "true");
+
+    assertThat(request.mandatoryParam("a_string")).isEqualTo("foo");
+    assertThat(request.mandatoryParamAsBoolean("a_boolean")).isTrue();
+    assertThat(request.mandatoryParamAsInt("a_int")).isEqualTo(42);
+    assertThat(request.mandatoryParamAsLong("a_long")).isEqualTo(42L);
   }
 
   @Test
@@ -90,28 +97,36 @@ public class RequestTest {
   }
 
   @Test
-  public void string_param() throws Exception {
+  public void param_as_string() throws Exception {
     String value = request.setParam("foo", "bar").param("foo", "default");
     assertThat(value).isEqualTo("bar");
   }
 
   @Test
-  public void int_param() throws Exception {
-    assertThat(request.setParam("foo", "123").intParam("foo")).isEqualTo(123);
-    assertThat(request.setParam("foo", "123").intParam("xxx")).isNull();
-    assertThat(request.setParam("foo", "123").intParam("foo", 456)).isEqualTo(123);
-    assertThat(request.setParam("foo", "123").intParam("xxx", 456)).isEqualTo(456);
+  public void param_as_int() throws Exception {
+    assertThat(request.setParam("foo", "123").paramAsInt("foo")).isEqualTo(123);
+    assertThat(request.setParam("foo", "123").paramAsInt("xxx")).isNull();
+    assertThat(request.setParam("foo", "123").paramAsInt("foo", 456)).isEqualTo(123);
+    assertThat(request.setParam("foo", "123").paramAsInt("xxx", 456)).isEqualTo(456);
   }
 
   @Test
-  public void boolean_param() throws Exception {
-    assertThat(request.setParam("foo", "true").booleanParam("foo")).isTrue();
-    assertThat(request.setParam("foo", "false").booleanParam("foo")).isFalse();
-    assertThat(request.setParam("foo", "true").booleanParam("xxx")).isNull();
+  public void param_as_long() throws Exception {
+    assertThat(request.setParam("foo", "123").paramAsLong("foo")).isEqualTo(123L);
+    assertThat(request.setParam("foo", "123").paramAsLong("xxx")).isNull();
+    assertThat(request.setParam("foo", "123").paramAsLong("foo", 456L)).isEqualTo(123L);
+    assertThat(request.setParam("foo", "123").paramAsLong("xxx", 456L)).isEqualTo(456L);
+  }
 
-    assertThat(request.setParam("foo", "true").booleanParam("foo", true)).isTrue();
-    assertThat(request.setParam("foo", "true").booleanParam("foo", false)).isTrue();
-    assertThat(request.setParam("foo", "true").booleanParam("xxx", true)).isTrue();
-    assertThat(request.setParam("foo", "true").booleanParam("xxx", false)).isFalse();
+  @Test
+  public void param_as_boolean() throws Exception {
+    assertThat(request.setParam("foo", "true").paramAsBoolean("foo")).isTrue();
+    assertThat(request.setParam("foo", "false").paramAsBoolean("foo")).isFalse();
+    assertThat(request.setParam("foo", "true").paramAsBoolean("xxx")).isNull();
+
+    assertThat(request.setParam("foo", "true").paramAsBoolean("foo", true)).isTrue();
+    assertThat(request.setParam("foo", "true").paramAsBoolean("foo", false)).isTrue();
+    assertThat(request.setParam("foo", "true").paramAsBoolean("xxx", true)).isTrue();
+    assertThat(request.setParam("foo", "true").paramAsBoolean("xxx", false)).isFalse();
   }
 }

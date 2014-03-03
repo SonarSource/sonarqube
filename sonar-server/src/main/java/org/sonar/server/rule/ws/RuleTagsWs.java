@@ -75,7 +75,7 @@ public class RuleTagsWs implements WebService {
   }
 
   private void create(Request request, Response response) {
-    RuleTagDto newTag = ruleTags.create(request.requiredParam("tag"));
+    RuleTagDto newTag = ruleTags.create(request.mandatoryParam("tag"));
     response.newJsonWriter()
       .beginObject()
       .prop("id", newTag.getId())

@@ -84,7 +84,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
       action.handler().handle(request, response);
 
     } catch (IllegalArgumentException e) {
-      // TODO replace by BadRequestException in Request#requiredParam()
+      // TODO replace by BadRequestException in Request#mandatoryParam()
       sendError(400, e.getMessage(), response);
     } catch (BadRequestException e) {
       if (StringUtils.isBlank(e.getMessage())) {

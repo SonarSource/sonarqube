@@ -76,7 +76,7 @@ public class IssueShowWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String issueKey = request.requiredParam("key");
+    String issueKey = request.mandatoryParam("key");
     IssueQueryResult queryResult = issueFinder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).build());
     if (queryResult.issues().size() != 1) {
       throw new NotFoundException("Issue not found: " + issueKey);
