@@ -103,7 +103,8 @@ define [
 
 
     serializeData: ->
+      period = _.findWhere(window.SS.metricPeriods, key: '' + this.model.get('period'))
       _.extend super,
         canEdit: @options.app.canEdit
         periods: window.SS.metricPeriods
-        periodText: _.findWhere(window.SS.metricPeriods, key: '' + this.model.get('period')).text
+        periodText: period?.text

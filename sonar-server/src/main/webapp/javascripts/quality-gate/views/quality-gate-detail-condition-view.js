@@ -123,12 +123,14 @@
       };
 
       QualityGateDetailConditionView.prototype.serializeData = function() {
+        var period;
+        period = _.findWhere(window.SS.metricPeriods, {
+          key: '' + this.model.get('period')
+        });
         return _.extend(QualityGateDetailConditionView.__super__.serializeData.apply(this, arguments), {
           canEdit: this.options.app.canEdit,
           periods: window.SS.metricPeriods,
-          periodText: _.findWhere(window.SS.metricPeriods, {
-            key: '' + this.model.get('period')
-          }).text
+          periodText: period != null ? period.text : void 0
         });
       };
 
