@@ -4,7 +4,7 @@ define(['handlebars'], function (Handlebars) {
    * Shortcut for templates retrieving
    */
   window.getTemplate = function(templateSelector) {
-    return Handlebars.compile(jQuery(templateSelector).html());
+    return Handlebars.compile(jQuery(templateSelector).html() || '');
   };
 
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];

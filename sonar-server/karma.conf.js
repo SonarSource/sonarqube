@@ -25,7 +25,6 @@ module.exports = function(config) {
     files: [
         // dependencies
         'third-party/jquery.js',
-        'third-party/jquery.mockjax.js',
         'third-party/underscore.js',
         'third-party/require.js',
 
@@ -34,6 +33,9 @@ module.exports = function(config) {
 
         // templates
         { pattern: '../WEB-INF/app/views/**/*.hbs.erb', included: false },
+
+        // common
+        { pattern: 'common/**/*.js', included: false },
 
         // app
         { pattern: 'navigator/**/*.js', included: false },
