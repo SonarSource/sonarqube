@@ -48,7 +48,7 @@ public class IssueFilterWs implements WebService {
     NewAction app = controller.newAction("page");
     app
       .setDescription("Data required for rendering page 'Issues'. Internal use only.")
-      .setPrivate(true)
+      .setInternal(true)
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {

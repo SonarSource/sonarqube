@@ -37,7 +37,7 @@ public class IssuesWs implements WebService {
     controller.newAction("show")
       .setDescription("Detail of issue")
       .setSince("4.2")
-      .setPrivate(true)
+      .setInternal(true)
       .setHandler(showHandler)
       .newParam("key", "Issue key");
 

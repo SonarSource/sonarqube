@@ -61,14 +61,14 @@ public class RulesWsTest {
     assertThat(show.handler()).isNotNull();
     assertThat(show.since()).isEqualTo("4.2");
     assertThat(show.isPost()).isFalse();
-    assertThat(show.isPrivate()).isFalse();
+    assertThat(show.isInternal()).isFalse();
 
     WebService.Action addTags = controller.action("add_tags");
     assertThat(addTags).isNotNull();
     assertThat(addTags.handler()).isNotNull();
     assertThat(addTags.since()).isEqualTo("4.2");
     assertThat(addTags.isPost()).isTrue();
-    assertThat(addTags.isPrivate()).isFalse();
+    assertThat(addTags.isInternal()).isFalse();
     assertThat(addTags.params()).hasSize(2);
 
     WebService.Action removeTags = controller.action("remove_tags");
@@ -76,7 +76,7 @@ public class RulesWsTest {
     assertThat(removeTags.handler()).isNotNull();
     assertThat(removeTags.since()).isEqualTo("4.2");
     assertThat(removeTags.isPost()).isTrue();
-    assertThat(removeTags.isPrivate()).isFalse();
+    assertThat(removeTags.isInternal()).isFalse();
     assertThat(removeTags.params()).hasSize(2);
   }
 }

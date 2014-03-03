@@ -48,7 +48,7 @@ public class IssueFilterWsTest {
     assertThat(index).isNotNull();
     assertThat(index.handler()).isNotNull();
     assertThat(index.isPost()).isFalse();
-    assertThat(index.isPrivate()).isTrue();
+    assertThat(index.isInternal()).isTrue();
   }
 
   @Test
