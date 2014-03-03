@@ -47,9 +47,12 @@ class UpdateMeasureFiltersOnDebtToMinutes < ActiveRecord::Migration
       data.scan(/c(\d+)_metric=(sqale_index|new_technical_debt|sqale_effort_to_grade_a|sqale_effort_to_grade_b|sqale_effort_to_grade_c|sqale_effort_to_grade_d|blocker_remediation_cost
         |critical_remediation_cost|major_remediation_cost|minor_remediation_cost|info_remediation_cost)/) do |find|
         index = find[0]
-        value = /c#{index}_val=((.+?)\|)?/.match(data)[2]
-        new_value = convert_days_to_minutes(value.to_f, hours_in_day)
-        filter.data = filter.data.sub("c#{index}_val=#{value}", "c#{index}_val=#{new_value}")
+        # Update filter value when it's before a '|' or at the end of the string
+        value = /c#{index}_val=((.+?)(\||\z))?/.match(data)[2]
+        if value
+          new_value = convert_days_to_minutes(value.to_f, hours_in_day)
+          filter.data = filter.data.sub("c#{index}_val=#{value}", "c#{index}_val=#{new_value}")
+        end
       end
       filter.save!
     end
