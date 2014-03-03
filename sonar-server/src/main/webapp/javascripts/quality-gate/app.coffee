@@ -113,7 +113,7 @@ requirejs [
   jQuery.when(App.metrics.fetch(), qualityGatesXHR)
     .done ->
       # Set permissions
-      App.canEdit = false #qualityGatesXHR.responseJSON.edit
+      App.canEdit = true #qualityGatesXHR.responseJSON.edit
 
       # Remove the initial spinner
       jQuery('.quality-gate-page-loader').remove()
