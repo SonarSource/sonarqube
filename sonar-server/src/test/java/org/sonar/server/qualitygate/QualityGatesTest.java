@@ -214,22 +214,30 @@ public class QualityGatesTest {
   @Test
   public void should_delete_qgate() throws Exception {
     long idToDelete = 42L;
-    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName("To Delete");
+    String name = "To Delete";
+    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
+    SqlSession session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
-    verify(dao).delete(toDelete);
+    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
+    verify(dao).delete(toDelete, session);
   }
 
   @Test
   public void should_delete_qgate_if_non_default() throws Exception {
     long idToDelete = 42L;
-    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName("To Delete");
+    String name = "To Delete";
+    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
+    SqlSession session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
-    verify(dao).delete(toDelete);
+    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
+    verify(dao).delete(toDelete, session);
   }
 
   @Test(expected = BadRequestException.class)

@@ -137,7 +137,14 @@ public class QualityGates {
     if (isDefault(qGate)) {
       throw new BadRequestException("Impossible to delete default quality gate.");
     }
-    dao.delete(qGate);
+    SqlSession session = myBatis.openSession();
+    try {
+      propertiesDao.deleteProjectProperties(SONAR_QUALITYGATE_PROPERTY, Long.toString(idToDelete), session);
+      dao.delete(qGate, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void setDefault(@Nullable Long idToUseAsDefault) {
