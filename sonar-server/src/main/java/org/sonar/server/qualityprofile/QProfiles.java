@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.paging.Paging;
+
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;

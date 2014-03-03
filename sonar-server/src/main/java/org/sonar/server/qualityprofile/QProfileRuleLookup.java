@@ -19,6 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.paging.Paging;
+import org.sonar.server.paging.PagingResult;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;

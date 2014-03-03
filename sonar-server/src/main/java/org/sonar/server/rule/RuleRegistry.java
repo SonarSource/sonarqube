@@ -20,6 +20,8 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Lists;
@@ -28,13 +30,17 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.paging.PagedResult;
+import org.sonar.server.paging.PagingResult;
 
 import javax.annotation.CheckForNull;
 
@@ -45,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
 /**
  * Fill search index with rules
@@ -97,7 +104,7 @@ public class RuleRegistry {
       searchQuery.searchString(params.remove(PARAM_NAMEORKEY));
     }
     if (!params.containsKey(PARAM_STATUS)) {
-      searchQuery.notField(PARAM_STATUS, org.sonar.api.rules.Rule.STATUS_REMOVED);
+      searchQuery.notField(PARAM_STATUS, STATUS_REMOVED);
     }
 
     for (Map.Entry<String, String> param : params.entrySet()) {
@@ -113,6 +120,25 @@ public class RuleRegistry {
     } catch (ElasticSearchException searchException) {
       throw new IllegalArgumentException("Unable to perform search, please check query", searchException);
     }
+  }
+
+  public PagedResult<Rule> find(RuleQuery query) {
+    SearchHits hits = searchIndex.executeRequest(
+      searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+        .setPostFilter(
+          FilterBuilders.boolFilter()
+            .must(FilterBuilders.termFilter(RuleDocument.FIELD_NAME, query.query()))
+            .mustNot(FilterBuilders.termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED))
+        )
+        .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC)
+        .setSize(query.paging().pageSize())
+        .setFrom(query.paging().offset()));
+
+    Builder<Rule> rulesBuilder = ImmutableList.builder();
+    for (SearchHit hit: hits.hits()) {
+      rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
+    }
+    return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(query.paging().pageSize(), query.paging().pageIndex(), hits.getTotalHits()));
   }
 
   /**

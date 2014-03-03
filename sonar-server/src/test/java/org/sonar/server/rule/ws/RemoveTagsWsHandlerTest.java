@@ -52,7 +52,7 @@ public class RemoveTagsWsHandlerTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWs(mock(RuleShowWsHandler.class), mock(AddTagsWsHandler.class), new RemoveTagsWsHandler(rules)));
+    tester = new WsTester(new RulesWs(mock(RuleSearchWsHandler.class), mock(RuleShowWsHandler.class), mock(AddTagsWsHandler.class), new RemoveTagsWsHandler(rules)));
   }
 
   @Test

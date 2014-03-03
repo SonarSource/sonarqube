@@ -23,11 +23,13 @@ import org.sonar.api.server.ws.WebService;
 
 public class RulesWs implements WebService {
 
+  private final RuleSearchWsHandler searchHandler;
   private final RuleShowWsHandler showHandler;
   private final AddTagsWsHandler addTagsWsHandler;
   private final RemoveTagsWsHandler removeTagsWsHandler;
 
-  public RulesWs(RuleShowWsHandler showHandler, AddTagsWsHandler addTagsWsHandler, RemoveTagsWsHandler removeTagsWsHandler) {
+  public RulesWs(RuleSearchWsHandler searchHandler, RuleShowWsHandler showHandler, AddTagsWsHandler addTagsWsHandler, RemoveTagsWsHandler removeTagsWsHandler) {
+    this.searchHandler = searchHandler;
     this.showHandler = showHandler;
     this.addTagsWsHandler = addTagsWsHandler;
     this.removeTagsWsHandler = removeTagsWsHandler;
@@ -37,6 +39,15 @@ public class RulesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.newController("api/rules")
       .setDescription("Coding rules");
+
+    controller.newAction("list")
+      .setDescription("List rules that match the given criteria")
+      .setSince("4.3")
+      .setHandler(searchHandler)
+      .newParam("s", "An optional query that will be matched against rule titles.")
+      .newParam("k", "An optional query that will be matched exactly agains rule keys.")
+      .newParam("ps", "Optional page size (default is 25).")
+      .newParam("p", "Optional page number (default is 0).");
 
     controller.newAction("show")
       .setDescription("Detail of rule")

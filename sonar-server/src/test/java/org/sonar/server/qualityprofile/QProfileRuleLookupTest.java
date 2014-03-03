@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.paging.Paging;
+
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Requests;

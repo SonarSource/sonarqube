@@ -373,6 +373,7 @@ public final class Platform {
     servicesContainer.addSingleton(RuleRepositories.class);
     servicesContainer.addSingleton(RulesWs.class);
     servicesContainer.addSingleton(RuleShowWsHandler.class);
+    servicesContainer.addSingleton(RuleSearchWsHandler.class);
     servicesContainer.addSingleton(AddTagsWsHandler.class);
     servicesContainer.addSingleton(RemoveTagsWsHandler.class);
 

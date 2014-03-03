@@ -27,6 +27,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.paging.PagedResult;
 import org.sonar.server.qualityprofile.QProfileValidations;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -92,6 +93,10 @@ public class Rules implements ServerExtension {
 
   public Rule findByKey(RuleKey key) {
     return ruleRegistry.findByKey(key);
+  }
+
+  public PagedResult<Rule> find(RuleQuery query) {
+    return ruleRegistry.find(query);
   }
 
   //

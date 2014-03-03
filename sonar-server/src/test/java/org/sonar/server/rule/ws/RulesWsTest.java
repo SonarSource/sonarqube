@@ -33,6 +33,9 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RulesWsTest {
 
   @Mock
+  RuleSearchWsHandler searchHandler;
+
+  @Mock
   RuleShowWsHandler showHandler;
 
   @Mock
@@ -45,7 +48,7 @@ public class RulesWsTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new RulesWs(showHandler, addTagsWsHandler, removeTagsWsHandler));
+    tester = new WsTester(new RulesWs(searchHandler, showHandler, addTagsWsHandler, removeTagsWsHandler));
   }
 
   @Test
@@ -54,7 +57,15 @@ public class RulesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(4);
+
+    WebService.Action list = controller.action("list");
+    assertThat(list).isNotNull();
+    assertThat(list.handler()).isNotNull();
+    assertThat(list.since()).isEqualTo("4.3");
+    assertThat(list.isPost()).isFalse();
+    assertThat(list.isInternal()).isFalse();
+    assertThat(list.params()).hasSize(4);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();

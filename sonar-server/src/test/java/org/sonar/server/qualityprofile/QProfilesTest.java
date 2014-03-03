@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.server.paging.Paging;
+
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
