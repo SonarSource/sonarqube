@@ -57,7 +57,7 @@ public class MassUpdater {
   }
 
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
-    int count = 0;
+    long count = 0;
     try {
       Connection readConnection = db.getDataSource().getConnection();
       Statement stmt = null;
