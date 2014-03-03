@@ -68,6 +68,18 @@ public class IssueFilterWs implements WebService {
       })
       .newParam("id");
 
+    NewAction fav = controller.newAction("favorites");
+    fav
+      .setDescription("The issue filters marked as favorite by request user")
+      .setSince("4.2")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          favorites(request, response);
+        }
+      })
+      .newParam("id");
+
     controller.done();
   }
 
@@ -122,6 +134,24 @@ public class IssueFilterWs implements WebService {
     writeFilterJson(session, filter, json);
     json.endObject();
     json.close();
+  }
+
+  private void favorites(Request request, Response response) {
+    UserSession session = UserSession.get();
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject().name("favoriteFilters").beginArray();
+    if (session.isLoggedIn()) {
+      for (DefaultIssueFilter favorite : service.findFavoriteFilters(session)) {
+        json.beginObject();
+        json.prop("id", favorite.id());
+        json.prop("name", favorite.name());
+        json.prop("user", favorite.user());
+        json.prop("shared", favorite.shared());
+        // no need to export description and query fields
+        json.endObject();
+      }
+    }
+    json.endArray().endObject().close();
   }
 
   private JsonWriter writeFilterJson(UserSession session, DefaultIssueFilter filter, JsonWriter json) {

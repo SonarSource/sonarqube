@@ -124,4 +124,23 @@ public class IssueFilterWsTest {
       assertThat(e).hasMessage("Filter 42 does not exist");
     }
   }
+
+  @Test
+  public void favorites_of_anonymous() throws Exception {
+    MockUserSession.set();
+
+    tester.newRequest("favorites").execute()
+      .assertJson("{'favoriteFilters': []}");
+  }
+
+  @Test
+  public void favorites_of_logged_in_user() throws Exception {
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
+    when(service.findFavoriteFilters(session)).thenReturn(Arrays.asList(
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+    ));
+
+    tester.newRequest("favorites").execute()
+      .assertJson("{'favoriteFilters': [{'id': 13, 'name': 'Blocker issues', 'user': 'simon', 'shared': true}]}");
+  }
 }
