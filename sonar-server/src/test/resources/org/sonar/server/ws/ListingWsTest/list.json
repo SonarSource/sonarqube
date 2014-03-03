@@ -1,42 +1,45 @@
 {
-    "webServices": [
+  "webServices": [
+    {
+      "path": "api/metric",
+      "since": "3.2",
+      "description": "Metrics",
+      "actions": [
         {
-            "path": "api/metric",
-            "since": "3.2",
-            "description": "Metrics",
-            "actions": [
-                {
-                    "key": "create",
-                    "description": "Create metric",
-                    "since": "4.1",
-                    "post": true,
-                    "params": [
-                        {
-                            "key": "key",
-                            "description": "Key of new metric"
-                        },
-                        {
-                            "key": "name"
-                        }
-                    ]
-                },
-                {
-                    "key": "show",
-                    "since": "3.2",
-                    "post": false
-                }
-            ]
+          "key": "create",
+          "description": "Create metric",
+          "since": "4.1",
+          "internal": true,
+          "post": true,
+          "params": [
+            {
+              "key": "key",
+              "description": "Key of new metric"
+            },
+            {
+              "key": "name"
+            }
+          ]
         },
         {
-            "path": "api/webservices",
-            "since": "4.2",
-            "description": "List web services",
-            "actions": [
-                {
-                    "key": "list",
-                    "since": "4.2",
-                    "post": false
-                }
-            ]
+          "key": "show",
+          "since": "3.2",
+          "internal": false,
+          "post": false
         }
-    ]}
+      ]
+    },
+    {
+      "path": "api/webservices",
+      "since": "4.2",
+      "description": "List web services",
+      "actions": [
+        {
+          "key": "list",
+          "since": "4.2",
+          "internal": false,
+          "post": false
+        }
+      ]
+    }
+  ]}

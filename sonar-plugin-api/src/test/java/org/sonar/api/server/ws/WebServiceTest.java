@@ -49,7 +49,7 @@ public class WebServiceTest {
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
-        .setPrivate(true)
+        .setInternal(true)
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -98,7 +98,7 @@ public class WebServiceTest {
     // same as controller
     assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();
-    assertThat(showAction.isPrivate()).isFalse();
+    assertThat(showAction.isInternal()).isFalse();
     assertThat(showAction.path()).isEqualTo("api/metric/show");
     WebService.Action createAction = controller.action("create");
     assertThat(createAction).isNotNull();
@@ -107,7 +107,7 @@ public class WebServiceTest {
     // overrides controller version
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
-    assertThat(createAction.isPrivate()).isTrue();
+    assertThat(createAction.isInternal()).isTrue();
   }
 
   @Test

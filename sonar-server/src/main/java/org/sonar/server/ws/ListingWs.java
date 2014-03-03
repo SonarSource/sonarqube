@@ -101,6 +101,7 @@ public class ListingWs implements WebService {
     writer.prop("key", action.key());
     writer.prop("description", action.description());
     writer.prop("since", action.since());
+    writer.prop("internal", action.isInternal());
     writer.prop("post", action.isPost());
     if (!action.params().isEmpty()) {
       // sort parameters by key
