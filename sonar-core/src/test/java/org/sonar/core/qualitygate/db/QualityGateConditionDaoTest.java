@@ -42,9 +42,9 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
   public void testInsert() throws Exception {
     setupData("insert");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
-      .setQualityGateId(1L).setMetricId(2L).setOperator(">").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
+      .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
     dao.insert(newCondition);
-    checkTable("insert", "quality_gate_conditions", "name");
+    checkTable("insert", "quality_gate_conditions", "metric_id", "operator", "error_value", "warning_value", "period");
     assertThat(newCondition.getId()).isNotNull();
   }
 

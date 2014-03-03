@@ -5,7 +5,7 @@
 
   <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, value_warning, period, created_at, updated_at)
-    values (#{qualityGateId}, #{metricId}, #{operator}, #{warningThreshold}, #{errorThreshold}, #{period}, #{createdAt}, #{updatedAt})
+    values (#{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{warningThreshold}, #{period}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="conditionColumns">
