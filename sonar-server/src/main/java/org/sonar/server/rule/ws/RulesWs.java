@@ -41,7 +41,8 @@ public class RulesWs implements WebService {
     controller.newAction("show")
       .setDescription("Detail of rule")
       .setSince("4.2")
-      .setHandler(showHandler);
+      .setHandler(showHandler)
+      .newParam("key", "Mandatory key of rule");
 
     addTagParams(controller.newAction("add_tags")
       .setDescription("Add tags to a rule")
