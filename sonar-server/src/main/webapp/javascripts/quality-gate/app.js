@@ -34,11 +34,16 @@
     var App, qualityGatesXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
-        var _ref;
+        var errorBox, text, _ref;
+        text = jqXHR.responseText;
+        errorBox = jQuery('.modal-error');
         if (((_ref = jqXHR.responseJSON) != null ? _ref.errors : void 0) != null) {
-          return alert(_.pluck(jqXHR.responseJSON.errors, 'msg').join('. '));
+          text = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
+        }
+        if (errorBox.length > 0) {
+          return errorBox.show().text(text);
         } else {
-          return alert(jqXHR.responseText);
+          return alert(text);
         }
       }
     });
@@ -52,7 +57,7 @@
           trigger: true
         });
       } else {
-        return App.layout.contentRegion.reset();
+        return App.layout.detailsRegion.reset();
       }
     };
     App.deleteQualityGate = function(id) {
@@ -67,7 +72,9 @@
       });
     };
     App.addInitializer(function() {
-      this.layout = new QualityGateLayout;
+      this.layout = new QualityGateLayout({
+        app: this
+      });
       return jQuery('body').append(this.layout.render().el);
     });
     App.addInitializer(function() {

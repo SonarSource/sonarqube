@@ -24,6 +24,21 @@
         detailsRegion: '.navigator-details'
       };
 
+      AppLayout.prototype.initialize = function(options) {
+        return this.listenTo(options.app.qualityGates, 'all', this.updateLayout);
+      };
+
+      AppLayout.prototype.updateLayout = function() {
+        var empty;
+        empty = this.options.app.qualityGates.length === 0;
+        this.$(this.headerRegion.el).toggle(!empty);
+        return this.$(this.detailsRegion.el).toggle(!empty);
+      };
+
+      AppLayout.prototype.onRender = function() {
+        return this.updateLayout();
+      };
+
       return AppLayout;
 
     })(Marionette.Layout);

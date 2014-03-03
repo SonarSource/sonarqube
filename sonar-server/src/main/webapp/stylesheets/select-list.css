@@ -24,6 +24,10 @@
   border: none;
 }
 
+.select-list-list-container-readonly .select-list-list {
+  overflow: visible;
+}
+
 .select-list-list-container-readonly .select-list-list > li {
   border: none;
 }
@@ -66,6 +70,12 @@
 
   .select-list-list > li.progress .select-list-list-checkbox {
     visibility: hidden;
+  }
+
+  .select-list-list > li.empty-message {
+    padding: 6px 5px;
+    border: 1px solid #ddd;
+    background-color: #efefef;
   }
 
 

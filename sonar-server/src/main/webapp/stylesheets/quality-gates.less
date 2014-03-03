@@ -46,6 +46,10 @@
 
 }
 
+.navigator-page #footer {
+  left: @qualityGateSidebarWidth;
+}
+
 
 .quality-gates-nav {
   background-color: @navigatorBarBackground;
@@ -55,12 +59,16 @@
     & > li {
       border-color: transparent;
 
-      &:hover:not(.active) {
+      &:hover:not(.active):not(.empty) {
         background-color: @navigatorBorderLightColor;
       }
 
       &.active {
         border-color: #4B9FD5;
+      }
+
+      &.empty {
+        cursor: default;
       }
       
       .line {

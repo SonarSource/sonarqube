@@ -90,6 +90,10 @@ requirejs(['backbone'], function (Backbone) {
                     this.settings.tooltips.deselect :
                     this.settings.tooltips.select)
             .prop('checked', this.model.get('selected'));
+
+        if (this.settings.readOnly) {
+          this.$('.select-list-list-checkbox').prop('disabled', true);
+        }
       },
 
       remove: function (postpone) {
@@ -105,11 +109,6 @@ requirejs(['backbone'], function (Backbone) {
       },
 
       toggle: function (e) {
-        if (this.settings.readOnly) {
-          $(e.target).prop('checked', !$(e.target).prop('checked'));
-          return;
-        }
-
         var selected = this.model.get('selected'),
             that = this,
             url = selected ? this.settings.deselectUrl : this.settings.selectUrl,
@@ -225,7 +224,9 @@ requirejs(['backbone'], function (Backbone) {
         if (this.collection.length > 0) {
           this.collection.each(this.renderListItem, this);
         } else {
-          this.renderEmpty();
+          if (this.settings.readOnly) {
+            this.renderEmpty();
+          }
         }
         this.$listContainer.scrollTop(0);
       },
@@ -241,7 +242,7 @@ requirejs(['backbone'], function (Backbone) {
       },
 
       renderEmpty: function () {
-        this.$listContainer.html(this.settings.labels.noResults);
+        this.$list.append('<li class="empty-message">' + this.settings.labels.noResults + '</li>');
       },
 
       confirmFilter: function (model) {
