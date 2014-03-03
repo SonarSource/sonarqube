@@ -1,7 +1,9 @@
 <script id="quality-gate-edit-template" type="text/x-handlebars-template">
   <form>
     <div class="modal-head">
-      <h2><%= message('quality_gates.add') -%></h2>
+      {{#eq method "rename"}}<h2><%= message('quality_gates.rename') -%></h2>{{/eq}}
+      {{#eq method "copy"}}<h2><%= message('quality_gates.copy') -%></h2>{{/eq}}
+      {{#eq method "create"}}<h2><%= message('quality_gates.add') -%></h2>{{/eq}}
     </div>
 
     <div class="modal-body">
@@ -13,11 +15,9 @@
     </div>
 
     <div class="modal-foot">
-      {{#if id}}
-        <button id="quality-gate-save"><%= message('save') -%></button>
-      {{else}}
-        <button id="quality-gate-create"><%= message('create') -%></button>
-      {{/if}}
+      {{#eq method "rename"}}<button><%= message('save') -%></button>{{/eq}}
+      {{#eq method "copy"}}<button><%= message('copy') -%></button>{{/eq}}
+      {{#eq method "create"}}<button><%= message('create') -%></button>{{/eq}}
       <a id="quality-gate-cancel-create" class="action"><%= message('cancel') -%></a>
     </div>
   </form>

@@ -42,24 +42,26 @@ define [
       @$el.dialog 'close'
 
 
-    saveRequest: (method, data) ->
+    saveRequest: (data) ->
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/qualitygates/#{method}"
+        url: "#{baseUrl}/api/qualitygates/#{@method}"
         data: data
       .done => @hide()
 
 
     onSubmit: (e) ->
       e.preventDefault()
-      if @model.isNew()
-        @createQualityGate()
-      else
-        @saveQualityGate()
+      switch @method
+        when 'create' then @createQualityGate()
+        when 'copy' then @copyQualityGate()
+        when 'rename' then @saveQualityGate()
+        else
+
 
     createQualityGate: ->
       data = name: @ui.nameInput.val()
-      @saveRequest('create', data).done (r) =>
+      @saveRequest(data).done (r) =>
         @model.set id: r.id, name: r.name
         @options.app.qualityGates.add @model
         @options.app.router.navigate "show/#{r.id}", trigger: true
@@ -67,5 +69,18 @@ define [
 
     saveQualityGate: ->
       data = id: @model.id, name: @ui.nameInput.val()
-      @saveRequest('rename', data).done (r) =>
+      @saveRequest(data).done (r) =>
         @model.set name: r.name
+
+
+    copyQualityGate: ->
+      data = id: @model.id, name: @ui.nameInput.val()
+      @saveRequest(data).done (r) =>
+        @model.set id: r.id, name: r.name
+        @options.app.qualityGates.add @model
+        @options.app.router.navigate "show/#{r.id}", trigger: true
+
+
+    serializeData: ->
+      if @model
+        _.extend @model.toJSON(), method: @method

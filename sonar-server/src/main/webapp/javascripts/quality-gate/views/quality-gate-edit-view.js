@@ -49,11 +49,11 @@
         return this.$el.dialog('close');
       };
 
-      QualityGateEditView.prototype.saveRequest = function(method, data) {
+      QualityGateEditView.prototype.saveRequest = function(data) {
         var _this = this;
         return jQuery.ajax({
           type: 'POST',
-          url: "" + baseUrl + "/api/qualitygates/" + method,
+          url: "" + baseUrl + "/api/qualitygates/" + this.method,
           data: data
         }).done(function() {
           return _this.hide();
@@ -62,10 +62,13 @@
 
       QualityGateEditView.prototype.onSubmit = function(e) {
         e.preventDefault();
-        if (this.model.isNew()) {
-          return this.createQualityGate();
-        } else {
-          return this.saveQualityGate();
+        switch (this.method) {
+          case 'create':
+            return this.createQualityGate();
+          case 'copy':
+            return this.copyQualityGate();
+          case 'rename':
+            return this.saveQualityGate();
         }
       };
 
@@ -75,7 +78,7 @@
         data = {
           name: this.ui.nameInput.val()
         };
-        return this.saveRequest('create', data).done(function(r) {
+        return this.saveRequest(data).done(function(r) {
           _this.model.set({
             id: r.id,
             name: r.name
@@ -94,11 +97,38 @@
           id: this.model.id,
           name: this.ui.nameInput.val()
         };
-        return this.saveRequest('rename', data).done(function(r) {
+        return this.saveRequest(data).done(function(r) {
           return _this.model.set({
             name: r.name
           });
         });
+      };
+
+      QualityGateEditView.prototype.copyQualityGate = function() {
+        var data,
+          _this = this;
+        data = {
+          id: this.model.id,
+          name: this.ui.nameInput.val()
+        };
+        return this.saveRequest(data).done(function(r) {
+          _this.model.set({
+            id: r.id,
+            name: r.name
+          });
+          _this.options.app.qualityGates.add(_this.model);
+          return _this.options.app.router.navigate("show/" + r.id, {
+            trigger: true
+          });
+        });
+      };
+
+      QualityGateEditView.prototype.serializeData = function() {
+        if (this.model) {
+          return _.extend(this.model.toJSON(), {
+            method: this.method
+          });
+        }
       };
 
       return QualityGateEditView;

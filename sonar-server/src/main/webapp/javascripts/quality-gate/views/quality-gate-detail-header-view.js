@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'handlebars'], function(Marionette, Handlebars) {
+  define(['backbone.marionette', 'handlebars', 'quality-gate/models/quality-gate'], function(Marionette, Handlebars, QualityGate) {
     var QualityGateDetailHeaderView, _ref;
     return QualityGateDetailHeaderView = (function(_super) {
       __extends(QualityGateDetailHeaderView, _super);
@@ -23,13 +23,23 @@
 
       QualityGateDetailHeaderView.prototype.events = {
         'click #quality-gate-rename': 'renameQualityGate',
+        'click #quality-gate-copy': 'copyQualityGate',
         'click #quality-gate-delete': 'deleteQualityGate',
         'click #quality-gate-set-as-default': 'setAsDefault',
         'click #quality-gate-unset-as-default': 'unsetAsDefault'
       };
 
       QualityGateDetailHeaderView.prototype.renameQualityGate = function() {
+        this.options.app.qualityGateEditView.method = 'rename';
         this.options.app.qualityGateEditView.model = this.model;
+        return this.options.app.qualityGateEditView.show();
+      };
+
+      QualityGateDetailHeaderView.prototype.copyQualityGate = function() {
+        var copiedModel;
+        copiedModel = new QualityGate(this.model.toJSON());
+        this.options.app.qualityGateEditView.method = 'copy';
+        this.options.app.qualityGateEditView.model = copiedModel;
         return this.options.app.qualityGateEditView.show();
       };
 

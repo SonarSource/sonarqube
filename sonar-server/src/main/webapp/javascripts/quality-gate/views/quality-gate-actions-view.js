@@ -22,6 +22,7 @@
       QualityGateActionsView.prototype.add = function() {
         var qualityGate;
         qualityGate = new QualityGate();
+        this.options.app.qualityGateEditView.method = 'create';
         this.options.app.qualityGateEditView.model = qualityGate;
         return this.options.app.qualityGateEditView.show();
       };

@@ -1,9 +1,11 @@
 define [
   'backbone.marionette',
-  'handlebars'
+  'handlebars',
+  'quality-gate/models/quality-gate'
 ], (
   Marionette,
   Handlebars,
+  QualityGate
 ) ->
 
   class QualityGateDetailHeaderView extends Marionette.ItemView
@@ -17,13 +19,22 @@ define [
 
     events:
       'click #quality-gate-rename': 'renameQualityGate'
+      'click #quality-gate-copy': 'copyQualityGate'
       'click #quality-gate-delete': 'deleteQualityGate'
       'click #quality-gate-set-as-default': 'setAsDefault'
       'click #quality-gate-unset-as-default': 'unsetAsDefault'
 
 
     renameQualityGate: ->
+      @options.app.qualityGateEditView.method = 'rename'
       @options.app.qualityGateEditView.model = @model
+      @options.app.qualityGateEditView.show()
+
+
+    copyQualityGate: ->
+      copiedModel = new QualityGate @model.toJSON()
+      @options.app.qualityGateEditView.method = 'copy'
+      @options.app.qualityGateEditView.model = copiedModel
       @options.app.qualityGateEditView.show()
 
 
