@@ -345,7 +345,7 @@
 }
 .quality-gates-navigator .navigator-header {
   left: 320px;
-  border-bottom-color: #e1e1e1;
+  border-color: #cdcdcd;
 }
 .quality-gates-navigator .navigator-header .spinner {
   margin-top: 9px;
@@ -354,7 +354,8 @@
   top: 30px;
   height: 37px;
   padding: 0 10px;
-  border-right-color: #cdcdcd;
+  border-color: #cdcdcd;
+  border-bottom-color: #efefef;
 }
 .quality-gates-navigator .navigator-actions .navigator-header-title {
   font-size: 13px;
@@ -363,13 +364,30 @@
 }
 .quality-gates-navigator .navigator-results {
   top: 67px;
-}
-.quality-gates-navigator .navigator-results .subtitle {
-  text-transform: lowercase;
+  border-color: #cdcdcd;
 }
 .quality-gates-navigator .navigator-details {
   top: 67px;
   padding: 10px;
+}
+.quality-gates-nav {
+  background-color: #efefef;
+}
+.quality-gates-nav .navigator-results-list > li {
+  border-color: transparent;
+}
+.quality-gates-nav .navigator-results-list > li:hover:not(.active) {
+  background-color: #e1e1e1;
+}
+.quality-gates-nav .navigator-results-list > li.active {
+  border-color: #4B9FD5;
+}
+.quality-gates-nav .navigator-results-list > li .line {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.quality-gates-nav .navigator-results-list > li .subtitle {
+  text-transform: lowercase;
 }
 .quality-gate-section + .quality-gate-section {
   margin-top: 10px;

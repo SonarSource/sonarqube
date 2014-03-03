@@ -10,7 +10,7 @@
 
   .navigator-header {
     left: @navigatorResultsWidth;
-    border-bottom-color: @navigatorBorderLightColor;
+    border-color: @navigatorBorderColor;
 
     .spinner { margin-top: 9px; }
   }
@@ -19,7 +19,8 @@
     top: @navigatorTopOffset;
     height: @navigatorHeaderHeight;
     padding: 0 @navigatorPadding;
-    border-right-color: @navigatorBorderColor;
+    border-color: @navigatorBorderColor;
+    border-bottom-color: @navigatorBarBackground;
 
     .navigator-header-title {
       font-size: 13px;
@@ -30,10 +31,7 @@
 
   .navigator-results {
     top: @navigatorTopOffset + @navigatorHeaderHeight;
-
-    .subtitle {
-      text-transform: lowercase;
-    }
+    border-color: @navigatorBorderColor;
   }
 
   .navigator-details {
@@ -41,6 +39,35 @@
     padding: @navigatorPadding;
   }
 
+}
+
+
+.quality-gates-nav {
+  background-color: @navigatorBarBackground;
+
+  .navigator-results-list {
+
+    & > li {
+      border-color: transparent;
+
+      &:hover:not(.active) {
+        background-color: @navigatorBorderLightColor;
+      }
+
+      &.active {
+        border-color: #4B9FD5;
+      }
+      
+      .line {
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+
+      .subtitle {
+        text-transform: lowercase;
+      }
+    }
+  }
 }
 
 
