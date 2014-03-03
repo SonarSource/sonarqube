@@ -2,6 +2,7 @@
   appDir: '.',
   baseUrl: '.',
   dir: 'DEFINED IN POM.XML',
+  preserveLicenseComments: false,
 
   modules: [
   	{ name: 'quality-gate/app' },
