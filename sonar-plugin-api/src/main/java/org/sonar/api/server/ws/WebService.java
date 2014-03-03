@@ -34,6 +34,7 @@ import java.util.Map;
 
 /**
  * Defines a web service implemented in Java (no Ruby on Rails at all).
+ *
  * @since 4.2
  */
 public interface WebService extends ServerExtension {
@@ -146,6 +147,21 @@ public interface WebService extends ServerExtension {
 
     public Collection<Action> actions() {
       return actions.values();
+    }
+
+    /**
+     * Returns true if all the actions are for internal use
+     *
+     * @see org.sonar.api.server.ws.WebService.Action#isInternal()
+     * @since 4.3
+     */
+    public boolean isInternal() {
+      for (Action action : actions()) {
+        if (!action.isInternal()) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 

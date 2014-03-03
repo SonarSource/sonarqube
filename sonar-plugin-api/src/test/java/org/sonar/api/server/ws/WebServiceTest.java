@@ -90,6 +90,7 @@ public class WebServiceTest {
     assertThat(controller.description()).isEqualTo("Metrics");
     assertThat(controller.since()).isEqualTo("3.2");
     assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.isInternal()).isFalse();
     WebService.Action showAction = controller.action("show");
     assertThat(showAction).isNotNull();
     assertThat(showAction.key()).isEqualTo("show");
@@ -252,4 +253,18 @@ public class WebServiceTest {
     }
   }
 
+  @Test
+  public void ws_is_internal_if_all_actions_are_internal() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.newController("api/rule");
+        newController.newAction("create").setInternal(true).setHandler(mock(RequestHandler.class));
+        newController.newAction("update").setInternal(true).setHandler(mock(RequestHandler.class));
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(context.controller("api/rule").isInternal()).isTrue();
+  }
 }
