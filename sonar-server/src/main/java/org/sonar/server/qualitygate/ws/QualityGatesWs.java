@@ -372,6 +372,7 @@ public class QualityGatesWs implements WebService {
     if (defaultQgate != null) {
       writer.prop("default", defaultQgate.getId());
     }
+    writer.prop("edit", qualityGates.currentUserHasWritePermission());
     writer.endObject().close();
   }
 

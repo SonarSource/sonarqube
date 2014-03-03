@@ -43,6 +43,7 @@ import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -226,6 +227,17 @@ public class QualityGates {
         return isAlertable(metric);
       }
     });
+  }
+
+  public boolean currentUserHasWritePermission() {
+    boolean hasWritePermission = false;
+    try {
+      checkPermission(UserSession.get());
+      hasWritePermission = true;
+    } catch(ServerException unallowed) {
+      // Ignored
+    }
+    return hasWritePermission;
   }
 
   private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {

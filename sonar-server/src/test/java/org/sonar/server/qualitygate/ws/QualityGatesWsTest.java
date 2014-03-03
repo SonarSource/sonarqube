@@ -26,15 +26,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
+import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
+import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
+import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
 
+import java.util.Collection;
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -170,6 +180,14 @@ public class QualityGatesWsTest {
       .assertJson("{'id':42,'name':'New QG'}");
   }
 
+  @Test
+  public void copy_nominal() throws Exception {
+    String name = "Copied QG";
+    when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
+    tester.newRequest("copy").setParam("id", "24").setParam("name", name).execute()
+      .assertJson("{'id':42,'name':'Copied QG'}");
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void create_with_missing_name() throws Exception {
     tester.newRequest("create").execute();
@@ -230,8 +248,9 @@ public class QualityGatesWsTest {
       new QualityGateDto().setId(43L).setName("Star"),
       new QualityGateDto().setId(666L).setName("Ninth")
     ));
+    when(qGates.currentUserHasWritePermission()).thenReturn(false);
     tester.newRequest("list").execute().assertJson(
-        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}]}");
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'edit':false}");
   }
 
   @Test
@@ -242,9 +261,10 @@ public class QualityGatesWsTest {
       new QualityGateDto().setId(43L).setName("Star"),
       new QualityGateDto().setId(666L).setName("Ninth")
     ));
+    when(qGates.currentUserHasWritePermission()).thenReturn(true);
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newRequest("list").execute().assertJson(
-        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42,'edit':true}");
   }
 
   @Test
@@ -317,5 +337,64 @@ public class QualityGatesWsTest {
       .setParam("id", Long.toString(condId))
       .execute()
       .assertNoContent();
+  }
+
+  @Test
+  public void search_nominal() throws Exception {
+    long gateId = 12345L;
+    Association assoc = mock(Association.class);
+    when(assoc.hasMoreResults()).thenReturn(true);
+    List<ProjectQgateAssociation> projects = ImmutableList.of(
+      new ProjectQgateAssociation().setId(42L).setName("Project One").setMember(false),
+      new ProjectQgateAssociation().setId(24L).setName("Project Two").setMember(true)
+      );
+    when(assoc.projects()).thenReturn(projects );
+    when(projectFinder.find(any(ProjectQgateAssociationQuery.class))).thenReturn(assoc);
+    tester.newRequest("search")
+      .setParam("gateId", Long.toString(gateId))
+      .execute()
+      .assertJson("{'more':true,'results':["
+        + "{'id':42,'name':'Project One','selected':false},"
+        + "{'id':24,'name':'Project Two','selected':true}"
+        + "]}");
+  }
+
+  @Test
+  public void select_nominal() throws Exception {
+    long gateId = 42L;
+    long projectId = 666L;
+    tester.newRequest("select")
+      .setParam("gateId", Long.toString(gateId))
+      .setParam("projectId", Long.toString(projectId))
+      .execute()
+      .assertNoContent();
+    verify(qGates).associateProject(gateId, projectId);
+  }
+
+  @Test
+  public void deselect_nominal() throws Exception {
+    long gateId = 42L;
+    long projectId = 666L;
+    tester.newRequest("deselect")
+      .setParam("gateId", Long.toString(gateId))
+      .setParam("projectId", Long.toString(projectId))
+      .execute()
+      .assertNoContent();
+    verify(qGates).dissociateProject(gateId, projectId);
+  }
+
+  @Test
+  public void metrics_nominal() throws Exception {
+    Metric metric = mock(Metric.class);
+    when(metric.getId()).thenReturn(42);
+    when(metric.getKey()).thenReturn("metric");
+    when(metric.getName()).thenReturn("Metric");
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metric.getDomain()).thenReturn("General");
+    Collection<Metric> metrics = ImmutableList.of(metric);
+    when(qGates.gateMetrics()).thenReturn(metrics);
+    tester.newRequest("metrics")
+      .execute()
+      .assertJson("{'metrics':[{'id':42,'key':'metric','name':'Metric','type':'BOOL','domain':'General'}]}");
   }
 }

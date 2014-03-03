@@ -115,11 +115,13 @@ public class QualityGatesTest {
     assertThat(sg1.getName()).isEqualTo(name);
     verify(dao).selectByName(name);
     verify(dao).insert(sg1);
+    assertThat(qGates.currentUserHasWritePermission()).isTrue();
   }
 
   @Test(expected = UnauthorizedException.class)
   public void should_fail_create_on_anonymous() throws Exception {
     UserSessionTestUtils.setUserSession(unauthenticatedUserSession);
+    assertThat(qGates.currentUserHasWritePermission()).isFalse();
     qGates.create("polop");
   }
 
@@ -531,4 +533,19 @@ public class QualityGatesTest {
     verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(session));
   }
 
+  @Test
+  public void should_list_gate_metrics() {
+    Metric dataMetric = mock(Metric.class);
+    when(dataMetric.isDataType()).thenReturn(true);
+    Metric hiddenMetric = mock(Metric.class);
+    when(hiddenMetric.isHidden()).thenReturn(true);
+    Metric alertMetric = CoreMetrics.ALERT_STATUS;
+    Metric ratingMetric = mock(Metric.class);
+    when(ratingMetric.getType()).thenReturn(ValueType.RATING);
+    Metric classicMetric = mock(Metric.class);
+    when(classicMetric.getType()).thenReturn(ValueType.BOOL);
+    when(metricFinder.findAll()).thenReturn(ImmutableList.of(
+      dataMetric, hiddenMetric, alertMetric, ratingMetric, classicMetric));
+    assertThat(qGates.gateMetrics()).hasSize(1).containsOnly(classicMetric);
+  }
 }
