@@ -115,7 +115,7 @@
           </a>
         </td>
         <td class="val value-debt-<%= h(characteristic.key) -%>">
-          <a href="<%= drilldown_url -%>" class="link-debt-<%= h(characteristic.key) -%>"><%= Internal.work_duration_formatter.format(value.to_i, 'SHORT') -%></a>
+          <a href="<%= drilldown_url -%>" class="link-debt-<%= h(characteristic.key) -%>"><%= Internal.i18n.formatWorkDuration(value.to_i) -%></a>
           <% if should_display_diff_measures %>
             <% if diff_by_characteristic_id[characteristic.id] %>
               <%= format_variation(measure) -%>
@@ -125,13 +125,13 @@
           <% end %>
         </td>
         <td class="val value-total-<%= h(characteristic.key) -%>">
-          <%= Internal.work_duration_formatter.format(cumulated.to_i, 'SHORT') -%>
+          <%= Internal.i18n.formatWorkDuration(cumulated.to_i) -%>
           <%
              if should_display_diff_measures
                css_style = 'var'
                css_style += 'b' if total_diff < 0
                css_style += 'w' if total_diff > 0
-               diff_to_display = (total_diff < 0 ? '' : '+') + Internal.work_duration_formatter.format(total_diff.to_i, 'SHORT')
+               diff_to_display = (total_diff < 0 ? '' : '+') + Internal.i18n.formatWorkDuration(total_diff.to_i)
           %>
             <span class="<%= css_style -%>"><b>(<%= diff_to_display -%>)</b></span>
           <%

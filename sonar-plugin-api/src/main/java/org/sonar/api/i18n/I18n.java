@@ -102,4 +102,13 @@ public interface I18n extends ServerComponent, BatchComponent {
    */
   String formatDate(Locale locale, Date date);
 
+  /**
+   * Return the formatted work duration.
+   * <br>
+   * Example : format(Locale.ENGLISH, WorkDuration.create(10, 2, 0, 8)) -> 10d 2h
+   *
+   * @since 4.3
+   */
+  String formatWorkDuration(Locale locale, long duration);
+
 }

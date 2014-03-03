@@ -28,19 +28,16 @@ import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
-import org.sonar.server.ui.WorkDurationFormatter;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class DebtServiceTest {
 
   private static final int HOURS_IN_DAY = 8;
-  WorkDurationFormatter workDurationFormatter = mock(WorkDurationFormatter.class);
   DefaultTechnicalDebtManager finder = mock(DefaultTechnicalDebtManager.class);
 
   DebtService service;
@@ -49,13 +46,7 @@ public class DebtServiceTest {
   public void setUp() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
-    service = new DebtService(workDurationFormatter, finder, new WorkDurationFactory(settings));
-  }
-
-  @Test
-  public void format() {
-    service.format(10L);
-    verify(workDurationFormatter).format(eq(10L), eq(WorkDurationFormatter.Format.SHORT));
+    service = new DebtService(finder, new WorkDurationFactory(settings));
   }
 
   @Test

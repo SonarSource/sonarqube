@@ -25,25 +25,19 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
-import org.sonar.server.ui.WorkDurationFormatter;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class DebtService implements ServerComponent {
 
-  private final WorkDurationFormatter workDurationFormatter;
   private final DefaultTechnicalDebtManager finder;
   private final WorkDurationFactory workDurationFactory;
 
-  public DebtService(WorkDurationFormatter workDurationFormatter, DefaultTechnicalDebtManager finder, WorkDurationFactory workDurationFactory) {
-    this.workDurationFormatter = workDurationFormatter;
+  public DebtService(DefaultTechnicalDebtManager finder, WorkDurationFactory workDurationFactory) {
     this.finder = finder;
     this.workDurationFactory = workDurationFactory;
-  }
-
-  public String format(long debt) {
-    return workDurationFormatter.format(debt, WorkDurationFormatter.Format.SHORT);
   }
 
   public WorkDuration toWorkDuration(long debt) {

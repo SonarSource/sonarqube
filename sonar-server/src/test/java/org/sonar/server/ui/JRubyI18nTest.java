@@ -92,4 +92,10 @@ public class JRubyI18nTest {
     verify(i18n).ageFromNow(any(Locale.class), eq(date));
   }
 
+  @Test
+  public void format_work_duration() throws Exception {
+    jRubyI18n.formatWorkDuration(10L);
+    verify(i18n).formatWorkDuration(any(Locale.class), eq(10L));
+  }
+
 }

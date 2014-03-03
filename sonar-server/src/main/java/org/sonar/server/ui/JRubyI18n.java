@@ -86,4 +86,8 @@ public class JRubyI18n implements ServerComponent {
     return i18n.ageFromNow(UserSession.get().locale(), date);
   }
 
+  public String formatWorkDuration(long duration) {
+    return i18n.formatWorkDuration(UserSession.get().locale(), duration);
+  }
+
 }

@@ -71,7 +71,7 @@
                 <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= Internal.work_duration_formatter.format(estimated_cleared_technical_debt, 'SHORT') -%></span>
+                  <span class="varb"><%= Internal.i18n.formatWorkDuration(estimated_cleared_technical_debt) -%></span>
                 </span>
               <% end %>
             <% end %>

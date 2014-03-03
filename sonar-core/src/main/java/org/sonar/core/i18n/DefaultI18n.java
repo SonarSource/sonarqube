@@ -43,9 +43,11 @@ import java.text.MessageFormat;
 import java.util.*;
 
 public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Startable {
+
   private static final Logger LOG = LoggerFactory.getLogger(DefaultI18n.class);
 
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
+  private final WorkDurationFormatter workDurationFormatter;
 
   private PluginRepository pluginRepository;
   private I18nClassloader i18nClassloader;
@@ -53,13 +55,14 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   private final ResourceBundle.Control control;
   private final System2 system2;
 
-  public DefaultI18n(PluginRepository pluginRepository) {
-    this(pluginRepository, System2.INSTANCE);
+  public DefaultI18n(PluginRepository pluginRepository, WorkDurationFormatter workDurationFormatter) {
+    this(pluginRepository, workDurationFormatter, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  DefaultI18n(PluginRepository pluginRepository, System2 system2) {
+  DefaultI18n(PluginRepository pluginRepository, WorkDurationFormatter workDurationFormatter, System2 system2) {
     this.pluginRepository = pluginRepository;
+    this.workDurationFormatter = workDurationFormatter;
     this.system2 = system2;
     // SONAR-2927
     this.control = new ResourceBundle.Control() {
@@ -142,6 +145,23 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
 
   public String formatDate(Locale locale, Date date) {
     return DateFormat.getDateInstance(DateFormat.DEFAULT, locale).format(date);
+  }
+
+  @Override
+  public String formatWorkDuration(Locale locale, long duration) {
+    if (duration == 0) {
+      return "0";
+    }
+    List<WorkDurationFormatter.Result> results = workDurationFormatter.format(duration);
+    StringBuilder message = new StringBuilder();
+    for (WorkDurationFormatter.Result result : results) {
+      if (result.key().equals(" ")) {
+        message.append(" ");
+      } else {
+        message.append(message(locale, result.key(), null, result.value()));
+      }
+    }
+    return message.toString();
   }
 
   /**

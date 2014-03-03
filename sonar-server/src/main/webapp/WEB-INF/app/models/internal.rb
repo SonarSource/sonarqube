@@ -90,10 +90,6 @@ class Internal
     component(Java::OrgSonarServerUi::JRubyI18n.java_class)
   end
 
-  def self.work_duration_formatter
-    component(Java::OrgSonarServerUi::WorkDurationFormatter.java_class)
-  end
-
   private
 
   def self.component(component_java_class)

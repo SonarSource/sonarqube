@@ -24,14 +24,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.core.i18n.DefaultI18n;
-import org.sonar.server.ui.WorkDurationFormatter;
 
 import java.util.List;
 import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,19 +40,14 @@ public class IssueChangelogFormatterTest {
 
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-  private static final int HOURS_IN_DAY = 8;
-
   @Mock
-  private DefaultI18n i18n;
-
-  @Mock
-  private WorkDurationFormatter workDurationFormatter;
+  private I18n i18n;
 
   private IssueChangelogFormatter formatter;
 
   @Before
   public void before() {
-    formatter = new IssueChangelogFormatter(i18n, workDurationFormatter);
+    formatter = new IssueChangelogFormatter(i18n);
   }
 
   @Test
@@ -131,8 +127,8 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "18000", "28800");
 
-    when(workDurationFormatter.format(18000, WorkDurationFormatter.Format.SHORT)).thenReturn("5 hours");
-    when(workDurationFormatter.format(28800, WorkDurationFormatter.Format.SHORT)).thenReturn("1 days");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(18000L))).thenReturn("5 hours");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(28800L))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
@@ -149,7 +145,7 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "28800");
 
-    when(workDurationFormatter.format(28800, WorkDurationFormatter.Format.SHORT)).thenReturn("1 days");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(28800L))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");

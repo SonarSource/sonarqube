@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,6 +45,10 @@ public class DefaultI18nTest {
 
   @Mock
   System2 system2;
+
+  @Mock
+  WorkDurationFormatter workDurationFormatter;
+
 
   DefaultI18n manager;
 
@@ -56,7 +61,7 @@ public class DefaultI18nTest {
     I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
       newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
     });
-    manager = new DefaultI18n(pluginRepository, system2);
+    manager = new DefaultI18n(pluginRepository, workDurationFormatter, system2);
     manager.doStart(i18nClassloader);
   }
 
@@ -192,6 +197,23 @@ public class DefaultI18nTest {
   @Test
   public void format_date() {
     assertThat(manager.formatDate(Locale.ENGLISH, DateUtils.parseDate("2014-01-22"))).isEqualTo("Jan 22, 2014");
+  }
+
+  @Test
+  public void format_work_duration() {
+    when(workDurationFormatter.format(10)).thenReturn(newArrayList(
+      new WorkDurationFormatter.Result("work_duration.x_days", 5),
+      new WorkDurationFormatter.Result(" ", null),
+      new WorkDurationFormatter.Result("work_duration.x_hours", 2),
+      new WorkDurationFormatter.Result(" ", null),
+      new WorkDurationFormatter.Result("work_duration.x_minutes", 1)
+    ));
+    assertThat(manager.formatWorkDuration(Locale.ENGLISH, 10)).isEqualTo("5d 2h 1min");
+  }
+
+  @Test
+  public void format_work_duration_when_0() {
+    assertThat(manager.formatWorkDuration(Locale.ENGLISH, 0)).isEqualTo("0");
   }
 
   static URLClassLoader newCoreClassloader() {

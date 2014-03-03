@@ -43,6 +43,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.i18n.WorkDurationFormatter;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -115,7 +116,10 @@ import org.sonar.server.startup.*;
 import org.sonar.server.technicaldebt.DebtService;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
-import org.sonar.server.ui.*;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.JRubyProfiling;
+import org.sonar.server.ui.PageDecorations;
+import org.sonar.server.ui.Views;
 import org.sonar.server.user.*;
 import org.sonar.server.util.*;
 import org.sonar.server.ws.ListingWs;
@@ -216,6 +220,9 @@ public final class Platform {
     rootContainer.addSingleton(DefaultI18n.class);
     rootContainer.addSingleton(RuleI18nManager.class);
     rootContainer.addSingleton(GwtI18n.class);
+    rootContainer.addSingleton(WorkDurationFormatter.class);
+    rootContainer.addSingleton(WorkDurationFactory.class);
+
     rootContainer.addSingleton(PreviewDatabaseFactory.class);
     rootContainer.addSingleton(SemaphoreUpdater.class);
     rootContainer.addSingleton(SemaphoresImpl.class);
@@ -381,9 +388,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
-    servicesContainer.addSingleton(WorkDurationFormatter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
-    servicesContainer.addSingleton(WorkDurationFactory.class);
 
     // source
     servicesContainer.addSingleton(HtmlSourceDecorator.class);

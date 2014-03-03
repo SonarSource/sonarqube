@@ -26,11 +26,13 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.WorkDurationFactory;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.*;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.i18n.WorkDurationFormatter;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.persistence.*;
 import org.sonar.core.purge.PurgeProfiler;
@@ -123,7 +125,10 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByVersion.class,
       PastSnapshotFinderByPreviousVersion.class,
       PastMeasuresLoader.class,
-      PastSnapshotFinder.class);
+      PastSnapshotFinder.class,
+      WorkDurationFormatter.class,
+      WorkDurationFactory.class
+    );
   }
 
   @Override

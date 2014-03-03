@@ -44,7 +44,6 @@ import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.ui.WorkDurationFormatter;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -62,17 +61,15 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
-  private final WorkDurationFormatter workDurationFormatter;
   private final DefaultTechnicalDebtManager technicalDebtManager;
   private final I18n i18n;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            WorkDurationFormatter workDurationFormatter, DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
+                            DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
-    this.workDurationFormatter = workDurationFormatter;
     this.technicalDebtManager = technicalDebtManager;
     this.i18n = i18n;
   }
@@ -129,7 +126,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", technicalDebt != null ? workDurationFormatter.format(technicalDebt, WorkDurationFormatter.Format.SHORT) : null)
+      .prop("debt", technicalDebt != null ? i18n.formatWorkDuration(UserSession.get().locale(), technicalDebt) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)

@@ -20,10 +20,10 @@
 package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.ui.WorkDurationFormatter;
+import org.sonar.server.user.UserSession;
 
 import java.io.Serializable;
 import java.util.List;
@@ -36,12 +36,10 @@ public class IssueChangelogFormatter implements ServerComponent {
 
   private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
 
-  private final DefaultI18n defaultI18n;
-  private final WorkDurationFormatter workDurationFormatter;
+  private final I18n i18n;
 
-  public IssueChangelogFormatter(DefaultI18n defaultI18n, WorkDurationFormatter workDurationFormatter) {
-    this.defaultI18n = defaultI18n;
-    this.workDurationFormatter = workDurationFormatter;
+  public IssueChangelogFormatter(I18n i18n) {
+    this.i18n = i18n;
   }
 
   public List<String> format(Locale locale, FieldDiffs diffs) {
@@ -51,13 +49,13 @@ public class IssueChangelogFormatter implements ServerComponent {
       String key = entry.getKey();
       IssueChangelogDiffFormat diffFormat = format(locale, key, entry.getValue());
       if (diffFormat.newValue() != null) {
-        message.append(defaultI18n.message(locale, "issue.changelog.changed_to", null, defaultI18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
+        message.append(i18n.message(locale, "issue.changelog.changed_to", null, i18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
       } else {
-        message.append(defaultI18n.message(locale, "issue.changelog.removed", null, defaultI18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null)));
+        message.append(i18n.message(locale, "issue.changelog.removed", null, i18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null)));
       }
       if (diffFormat.oldValue() != null) {
         message.append(" (");
-        message.append(defaultI18n.message(locale, "issue.changelog.was", null, diffFormat.oldValue()));
+        message.append(i18n.message(locale, "issue.changelog.was", null, diffFormat.oldValue()));
         message.append(")");
       }
       result.add(message.toString());
@@ -73,10 +71,11 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = workDurationFormatter.format(Long.parseLong(newValueString), WorkDurationFormatter.Format.SHORT);
+        newValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(newValueString));
       }
       if (oldValueString != null) {
-        oldValueString = workDurationFormatter.format(Long.parseLong(oldValueString), WorkDurationFormatter.Format.SHORT);
+        // TODO use i18n API
+        oldValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(oldValueString));
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);
