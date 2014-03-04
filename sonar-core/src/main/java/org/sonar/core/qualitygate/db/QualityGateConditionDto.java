@@ -197,6 +197,7 @@ public class QualityGateConditionDto {
         case PERCENT:
         case MILLISEC:
         case RATING:
+        case WORK_DUR:
           operators = NUMERIC_OPERATORS;
           break;
         default:
