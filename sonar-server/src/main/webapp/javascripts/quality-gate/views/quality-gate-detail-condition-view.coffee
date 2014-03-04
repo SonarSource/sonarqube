@@ -68,7 +68,7 @@ define [
 
     hideSpinner: ->
       @ui.actionsBox.find('.spinner').remove()
-      @ui.actionsBox.children().show()
+      @ui.actionsBox.find(':not(.spinner)').show()
 
 
     saveCondition: ->

@@ -83,7 +83,7 @@
 
       QualityGateDetailConditionView.prototype.hideSpinner = function() {
         this.ui.actionsBox.find('.spinner').remove();
-        return this.ui.actionsBox.children().show();
+        return this.ui.actionsBox.find(':not(.spinner)').show();
       };
 
       QualityGateDetailConditionView.prototype.saveCondition = function() {
