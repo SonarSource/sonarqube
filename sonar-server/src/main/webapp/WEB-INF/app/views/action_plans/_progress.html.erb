@@ -1,6 +1,8 @@
 <%
    unless action_plan.totalIssues()==0
-     options = {:actionPlans => action_plan.key}
+     project = @project
+     project = @resource if project.nil?
+     options = {:actionPlans => action_plan.key, :componentRoots => u(project.key)}
 
      resolved_issues_link = action_plan.resolvedIssues().to_s
      resolved_issues_link = link_to action_plan.resolvedIssues().to_s, url_for_issues(options.merge(:resolved => 'true')) unless action_plan.resolvedIssues()==0
