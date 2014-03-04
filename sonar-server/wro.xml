@@ -33,6 +33,7 @@
     
     <js>/javascripts/top-search.js</js>
     <js>/javascripts/sortable.js</js>
+    <js>/javascripts/common/inputs.js</js>
 
     <js>/javascripts/application.js</js>
     <js>/javascripts/dashboard.js</js>

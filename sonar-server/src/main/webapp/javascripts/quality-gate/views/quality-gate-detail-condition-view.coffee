@@ -47,6 +47,8 @@ define [
     onRender: ->
       @ui.periodSelect.val @model.get('period') || '0'
       @ui.operatorSelect.val @model.get('op')
+      @ui.warningInput.val @model.get('warning')
+      @ui.errorInput.val @model.get('error')
 
       @ui.periodSelect.select2
         allowClear: false

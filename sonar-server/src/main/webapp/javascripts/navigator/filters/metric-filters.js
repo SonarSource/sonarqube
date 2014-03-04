@@ -17,9 +17,21 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
         periodText: this.$('[name=period] option:selected').text(),
         op: this.$('[name=op]').val(),
         opText: this.$('[name=op] option:selected').text(),
-        val: this.$('[name=val]').val()
+        val: this.$('[name=val]').val(),
+        valText: this.$('[name=val]').originalVal()
       };
+      this.updateDataType(value);
       this.model.set('value', value);
+    },
+
+
+    updateDataType: function(value) {
+      var metric = _.find(window.SS.metrics, function(m) {
+        return m.metric.name === value.metric;
+      });
+      if (metric) {
+        this.$('[name=val]').data('type', metric.metric.val_type);
+      }
     },
 
 
@@ -38,6 +50,7 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
         placeholder: '=',
         minimumResultsForSearch: 100
       });
+      this.updateDataType(value);
       this.$('[name=val]').val(value.val);
       this.inputChanged();
     },
@@ -88,7 +101,7 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
     renderValue: function() {
       return this.isDefaultValue() ?
           window.SS.phrases.notSet :
-          this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' + this.model.get('value').val;
+          this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' + this.model.get('value').valText;
     },
 
 

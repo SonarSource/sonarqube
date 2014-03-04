@@ -26,7 +26,7 @@
   <td width="15%">
     <i class="icon-alert-warn" title="<%= message('alerts.warn_tooltip') -%>"></i>
     {{#if canEdit}}
-      <input name="warning" type="text" value="{{warning}}">
+      <input name="warning" class="measure-input" data-type="{{metric.type}}" type="text">
     {{else}}
       {{warning}}
     {{/if}}
@@ -34,7 +34,7 @@
   <td width="15%">
     <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
     {{#if canEdit}}
-      <input name="error" type="text" value="{{error}}">
+      <input name="error" class="measure-input" data-type="{{metric.type}}" type="text">
     {{else}}
       {{error}}
     {{/if}}

@@ -61,6 +61,8 @@
       QualityGateDetailConditionView.prototype.onRender = function() {
         this.ui.periodSelect.val(this.model.get('period') || '0');
         this.ui.operatorSelect.val(this.model.get('op'));
+        this.ui.warningInput.val(this.model.get('warning'));
+        this.ui.errorInput.val(this.model.get('error'));
         this.ui.periodSelect.select2({
           allowClear: false,
           minimumResultsForSearch: 999,

@@ -60,6 +60,11 @@
       '3': '<%= Api::Utils.period_label(3) -%>'
     },
     favorites: <%= render :partial => 'measures/favourites2' -%>,
+    workDuration: {
+      days: '<%= message('work_duration.x_days') -%>',
+      hours: '<%= message('work_duration.x_hours') -%>',
+      minutes: '<%= message('work_duration.x_minutes') -%>'
+    },
 
     phrases: {
       'any':            '<%= escape_javascript message('any') -%>',
