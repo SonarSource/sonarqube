@@ -88,11 +88,9 @@ define(
 
 
         changeEnabled: function () {
-          var disabledFilters = this.collection
-              .where({ enabled: false })
-              .reject(function (filter) {
-                return filter.get('type') === require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView;
-              });
+          var disabledFilters = _.reject(this.collection.where({ enabled: false }), function (filter) {
+            return filter.get('type') === require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView;
+          });
 
           if (disabledFilters.length === 0) {
             this.moreCriteriaFilter.set({ enabled: false }, { silent: true });
