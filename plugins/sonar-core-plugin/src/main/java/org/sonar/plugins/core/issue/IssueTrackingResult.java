@@ -28,13 +28,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Collection;
-import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 class IssueTrackingResult {
   private final Set<IssueDto> unmatched = Sets.newHashSet();
   private final Multimap<RuleKey, IssueDto> unmatchedByRule = LinkedHashMultimap.create();
-  private final IdentityHashMap<DefaultIssue, IssueDto> matched = Maps.newIdentityHashMap();
+  private final Map<DefaultIssue, IssueDto> matched = Maps.newIdentityHashMap();
 
   Collection<IssueDto> unmatched() {
     return unmatched;

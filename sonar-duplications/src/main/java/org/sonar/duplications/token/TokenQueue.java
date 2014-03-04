@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.token;
 
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.ListIterator;
 
 public class TokenQueue implements Iterable<Token> {
 
-  private final LinkedList<Token> tokenQueue;
+  private final Deque<Token> tokenQueue;
 
   public TokenQueue(List<Token> tokenList) {
     tokenQueue = new LinkedList<Token>(tokenList);
