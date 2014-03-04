@@ -28,6 +28,7 @@ import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkDurationFactory;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -41,30 +42,35 @@ public class WorkDurationFormatter implements ServerComponent, BatchExtension {
     this.workDurationFactory = workDurationFactory;
   }
 
-  public List<Result> format(long durationInSeconds) {
-    List<Result> results = newArrayList();
-    if (durationInSeconds == 0) {
+  public List<Result> format(long durationInMinutes) {
+    if (durationInMinutes == 0) {
       return newArrayList(new Result("0", null));
     }
-    boolean isNegative = durationInSeconds < 0;
-    Long absDuration = Math.abs(durationInSeconds);
-    WorkDuration workDuration = workDurationFactory.createFromMinutes(absDuration);
+    boolean isNegative = durationInMinutes < 0;
+    Long absDuration = Math.abs(durationInMinutes);
+    return format(workDurationFactory.createFromMinutes(absDuration), isNegative);
+  }
+
+  private List<Result> format(WorkDuration workDuration, boolean isNegative) {
+    List<Result> results = newArrayList();
     if (workDuration.days() > 0) {
       results.add(message("work_duration.x_days", isNegative ? -1 * workDuration.days() : workDuration.days()));
     }
     if (workDuration.hours() > 0 && workDuration.days() < 10) {
-      if (!results.isEmpty()) {
-        results.add(new Result(" ", null));
-      }
+      addSpaceIfNeeded(results);
       results.add(message("work_duration.x_hours", isNegative && results.isEmpty() ? -1 * workDuration.hours() : workDuration.hours()));
     }
     if (workDuration.minutes() > 0 && workDuration.hours() < 10 && workDuration.days() == 0) {
-      if (!results.isEmpty()) {
-        results.add(new Result(" ", null));
-      }
+      addSpaceIfNeeded(results);
       results.add(message("work_duration.x_minutes", isNegative && results.isEmpty() ? -1 * workDuration.minutes() : workDuration.minutes()));
     }
     return results;
+  }
+
+  private void addSpaceIfNeeded(List<Result> results){
+    if (!results.isEmpty()) {
+      results.add(new Result(" ", null));
+    }
   }
 
   private Result message(String key, @CheckForNull Object parameter) {
@@ -75,7 +81,7 @@ public class WorkDurationFormatter implements ServerComponent, BatchExtension {
     private String key;
     private Object value;
 
-    Result(String key, Object value) {
+    Result(String key, @Nullable Object value) {
       this.key = key;
       this.value = value;
     }
@@ -84,6 +90,7 @@ public class WorkDurationFormatter implements ServerComponent, BatchExtension {
       return key;
     }
 
+    @CheckForNull
     Object value() {
       return value;
     }

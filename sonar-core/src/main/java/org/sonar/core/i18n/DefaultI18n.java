@@ -155,7 +155,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     List<WorkDurationFormatter.Result> results = workDurationFormatter.format(duration);
     StringBuilder message = new StringBuilder();
     for (WorkDurationFormatter.Result result : results) {
-      if (result.key().equals(" ")) {
+      if (" ".equals(result.key())) {
         message.append(" ");
       } else {
         message.append(message(locale, result.key(), null, result.value()));

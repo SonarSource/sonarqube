@@ -137,9 +137,8 @@ public class IssueShowWsHandler implements RequestHandler {
 
     String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
     // Do not display sub project long name if sub project and project are the same
-    String subProjectName = subProject != null && project != null && !subProject.getId().equals(project.getId()) ?
-      subProject.longName() != null ? subProject.longName() : subProject.name() :
-      null;
+    boolean shoudDisplaySubProjectLongName = subProject != null && project != null && !subProject.getId().equals(project.getId());
+    String subProjectName = shoudDisplaySubProjectLongName ? subProject.longName() != null ? subProject.longName() : subProject.name() : null;
 
     json
       .prop("component", issue.componentKey())

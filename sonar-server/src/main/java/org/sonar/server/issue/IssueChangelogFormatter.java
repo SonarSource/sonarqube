@@ -74,7 +74,6 @@ public class IssueChangelogFormatter implements ServerComponent {
         newValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(newValueString));
       }
       if (oldValueString != null) {
-        // TODO use i18n API
         oldValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(oldValueString));
       }
     }
