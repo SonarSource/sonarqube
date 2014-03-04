@@ -1,35 +1,18 @@
 define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-select-filters'], function (Backbone, BaseFilters, AjaxSelectFilters) {
 
-  var RuleSuggestions = Backbone.Collection.extend({
+  var RuleSuggestions = AjaxSelectFilters.Suggestions.extend({
 
     url: function() {
-      return baseUrl + '/api/rules';
+      return baseUrl + '/api/rules/list';
     },
 
 
     parse: function(r) {
-      return _
-          .filter(r, function(item) {
-            return item.title;
-          })
-          .map(function(item) {
-            return { id: item.key, text: item.title };
-          });
-    },
-
-
-    fetch: function(options) {
-      var data = {};
-      if (options.data && options.data.s) {
-        data.searchtext = options.data.s;
-      }
-
-      var settings = _.extend({}, options, { data: data });
-      Backbone.Collection.prototype.fetch.call(this, settings);
-    },
-
-
-    fetchNextPage: function() {}
+      this.more = r.more;
+      return r.results.map(function(r) {
+         return { id: r.key, text: r.name };
+      });
+    }
 
   });
 
@@ -44,8 +27,21 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-se
     },
 
 
-    createRequest: function() {
-
+    createRequest: function(v) {
+      var that = this;
+      return jQuery
+          .ajax({
+            url: baseUrl + '/api/rules/show',
+            type: 'GET',
+            data: { key: v }
+          })
+          .done(function (r) {
+            that.choices.add(new Backbone.Model({
+              id: r.rule.key,
+              text: r.rule.name,
+              checked: true
+            }));
+          });
     }
 
   });

@@ -1,8 +1,6 @@
 define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (Backbone, BaseFilters, ChoiceFilters) {
 
-  var PAGE_SIZE = 100,
-      UNASSIGNED = '';
-
+  var PAGE_SIZE = 100;
 
 
   var Suggestions = Backbone.Collection.extend({
@@ -27,7 +25,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
           }, options.data || {});
 
       var settings = _.extend({}, options, { data: this.data });
-      Backbone.Collection.prototype.fetch.call(this, settings);
+      return Backbone.Collection.prototype.fetch.call(this, settings);
     },
 
 
@@ -35,8 +33,9 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
       if (this.more) {
         this.data.p += 1;
         var settings = _.extend({ remove: false }, options, { data: this.data });
-        this.fetch(settings);
+        return this.fetch(settings);
       }
+      return false;
     }
 
   });
@@ -150,12 +149,14 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
 
 
     scroll: function() {
-      var el = this.$('.choices'),
-          scrollBottom = el.scrollTop() >=
-          el[0].scrollHeight - el.outerHeight();
+      var that = this,
+          el = this.$('.choices'),
+          scrollBottom = el.scrollTop() >= el[0].scrollHeight - el.outerHeight();
 
       if (scrollBottom) {
-        this.options.filterView.selection.fetchNextPage();
+        this.options.filterView.choices.fetchNextPage().done(function() {
+          that.updateLists();
+        });
       }
     },
 
