@@ -27,6 +27,7 @@ module.exports = function(config) {
         'third-party/jquery.js',
         'third-party/underscore.js',
         'third-party/require.js',
+        'common/inputs.js',
 
         // libs
         { pattern: 'third-party/**/*.js', included: false },
