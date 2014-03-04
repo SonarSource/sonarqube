@@ -45,7 +45,7 @@ class RulesConfigurationController < ApplicationController
       stop_watch = Internal.profiling.start("rules", "BASIC")
 
       @pagination = Api::Pagination.new(params)
-      paging = Java::OrgSonarServerQualityprofile::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
+      paging = Java::OrgSonarServerPaging::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
 
       criteria = init_criteria
       query = Java::OrgSonarServerQualityprofile::ProfileRuleQuery::parse(criteria.to_java)
