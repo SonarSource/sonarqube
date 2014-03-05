@@ -35,14 +35,15 @@ import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QgateAppHandlerTest {
@@ -88,7 +89,7 @@ public class QgateAppHandlerTest {
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
     assertThat(periods).hasSize(3);
     Map messages = (Map) responseJson.get("messages");
-    assertThat(messages).isNotNull().isNotEmpty().hasSize(45);
+    assertThat(messages).isNotNull().isNotEmpty().hasSize(46);
     for (Entry message: (Set<Entry>) messages.entrySet()) {
       assertThat(message.getKey()).isEqualTo(message.getValue());
     }
