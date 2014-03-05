@@ -22,8 +22,8 @@ package org.sonar.api.technicaldebt.batch.internal;
 
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.WorkDuration;
 import org.sonar.api.utils.WorkUnit;
+import org.sonar.api.utils.internal.WorkDuration;
 
 import java.text.SimpleDateFormat;
 

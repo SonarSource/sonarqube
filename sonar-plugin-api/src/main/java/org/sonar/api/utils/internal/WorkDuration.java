@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.utils;
+package org.sonar.api.utils.internal;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**

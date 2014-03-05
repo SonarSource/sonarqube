@@ -27,7 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
