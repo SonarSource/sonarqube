@@ -22,6 +22,8 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.base.Strings;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -45,15 +47,17 @@ import java.util.Date;
 public class RuleShowWsHandler implements RequestHandler {
 
   private final Rules rules;
+  private final Languages languages;
 
   // Only used to get manual rules
   private final RuleFinder ruleFinder;
   private final I18n i18n;
 
-  public RuleShowWsHandler(Rules rules, RuleFinder ruleFinder, I18n i18n) {
+  public RuleShowWsHandler(Rules rules, RuleFinder ruleFinder, I18n i18n, Languages languages) {
     this.rules = rules;
     this.ruleFinder = ruleFinder;
     this.i18n = i18n;
+    this.languages = languages;
   }
 
   @Override
@@ -74,7 +78,7 @@ public class RuleShowWsHandler implements RequestHandler {
 
   @CheckForNull
   private Rule findRule(RuleKey ruleKey) {
-    // TODO remove this when manual rules when be indexed in E/S
+    // TODO remove this when manual rules are indexed in E/S
     if (ruleKey.repository().equals(Rule.MANUAL_REPOSITORY_KEY)) {
       org.sonar.api.rules.Rule rule = ruleFinder.findByKey(ruleKey);
       if (rule != null) {
@@ -101,11 +105,21 @@ public class RuleShowWsHandler implements RequestHandler {
       .prop("name", rule.name())
       .prop("description", rule.description())
     ;
+    addLanguage(rule, json);
     addNote(rule, json);
     addDate(rule.createdAt(), "createdAt", json);
     addFormattedDate(rule.createdAt(), "fCreatedAt", json);
     addDate(rule.updatedAt(), "updatedAt", json);
     addFormattedDate(rule.updatedAt(), "fUpdatedAt", json);
+  }
+
+  private void addLanguage(Rule rule, JsonWriter json) {
+    String languageKey = rule.language();
+    if (languageKey != null) {
+      Language language = languages.get(languageKey);
+      json.prop("language", language == null ? languageKey : language.getName());
+    }
+
   }
 
   private void addNote(Rule rule, JsonWriter json) {

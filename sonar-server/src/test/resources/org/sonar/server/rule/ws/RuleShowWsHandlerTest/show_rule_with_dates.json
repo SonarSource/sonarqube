@@ -3,6 +3,7 @@
     "key": "squid:AvoidCycle",
     "name": "Avoid cycle",
     "description": "Avoid cycle between packages",
+    "language": "xoo",
     "createdAt": "2014-01-22T19:10:03+0100",
     "fCreatedAt": "Jan 22, 2014 10:03 AM",
     "updatedAt": "2014-01-23T19:10:03+0100",

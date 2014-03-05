@@ -27,6 +27,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ws.WsTester;
@@ -54,6 +56,9 @@ public class RuleShowWsHandlerTest {
   Rules rules;
 
   @Mock
+  Languages languages;
+
+  @Mock
   RuleFinder ruleFinder;
 
   @Mock
@@ -63,13 +68,14 @@ public class RuleShowWsHandlerTest {
     .setKey("AvoidCycle")
     .setRepositoryKey("squid")
     .setName("Avoid cycle")
+    .setLanguage("xoo")
     .setDescription("Avoid cycle between packages");
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new RulesWs(mock(RuleSearchWsHandler.class), new RuleShowWsHandler(rules, ruleFinder, i18n), mock(AddTagsWsHandler.class), mock(RemoveTagsWsHandler.class)));
+    tester = new WsTester(new RulesWs(mock(RuleSearchWsHandler.class), new RuleShowWsHandler(rules, ruleFinder, i18n, languages), mock(AddTagsWsHandler.class), mock(RemoveTagsWsHandler.class)));
   }
 
   @Test
@@ -78,6 +84,9 @@ public class RuleShowWsHandlerTest {
     Rule rule = ruleBuilder.build();
 
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
+    Language language = mock(Language.class);
+    when(language.getName()).thenReturn("Xoo");
+    when(languages.get("xoo")).thenReturn(language);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
