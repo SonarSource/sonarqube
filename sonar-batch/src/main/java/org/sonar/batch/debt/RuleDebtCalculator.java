@@ -38,11 +38,11 @@ import javax.annotation.Nullable;
 public class RuleDebtCalculator implements BatchExtension {
 
   private final TechnicalDebtModel model;
-  private final int hoursInDay;
+  private final Settings settings;
 
   public RuleDebtCalculator(TechnicalDebtModel model, Settings settings) {
     this.model = model;
-    this.hoursInDay = settings.getInt(CoreProperties.HOURS_IN_DAY);
+    this.settings = settings;
   }
 
   /**
@@ -79,13 +79,17 @@ public class RuleDebtCalculator implements BatchExtension {
 
   private long convertValueAndUnitToMinutes(int value, WorkDuration.UNIT unit){
     if (WorkDuration.UNIT.DAYS.equals(unit)) {
-      return 60L * value * hoursInDay;
+      return 60L * value * hoursInDay();
     } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
       return 60L * value;
     } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
       return value;
     }
     throw new IllegalStateException("Invalid unit : " + unit);
+  }
+
+  private int hoursInDay(){
+    return settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
 }
