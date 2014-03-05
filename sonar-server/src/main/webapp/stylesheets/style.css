@@ -1447,18 +1447,18 @@ div.autocompleteNote {
 }
 
 .color_OK {
-  background-color: #6ec563;
-  color: #fff;
+  border: 2px solid #85bb43 !important;
+  color: #85bb43 !important;
 }
 
 .color_WARN {
-  background-color: #ff8500;
-  color: #fff;
+  border: 2px solid #f90 !important;
+  color: #f90 !important;
 }
 
 .color_ERROR {
-  background-color: #f93f40;
-  color: #FFF;
+  border: 2px solid #d4333f !important;
+  color: #d4333f !important;
 }
 
 #alerts_widget {
