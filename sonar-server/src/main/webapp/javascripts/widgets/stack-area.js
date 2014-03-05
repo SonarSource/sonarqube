@@ -200,14 +200,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('x2', sx);
 
 
-      // Update info
-      widget.infoDate
-          .text(d3.time.format('%b %d, %Y')(widget.data()[0][cl].x));
-
-      widget.infoTotal
-          .text('Total: ' + (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y));
-
-
       // Update metric labels
       var metricsLines = widget.data().map(function(d, i) {
         var value = d[cl].fy || d[cl].y;
@@ -230,6 +222,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         widget.infoSnapshot
             .text(this.snapshots()[snapshotIndex].e.join(', '));
       }
+
+
+      // Update info
+      widget.infoDate
+          .text(d3.time.format('%b %d, %Y')(widget.data()[0][cl].x));
+
+      var snapshotValue = this.snapshots()[snapshotIndex].fy,
+          totalValue = snapshotValue || (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y);
+      widget.infoTotal
+          .text('Total: ' + totalValue);
 
 
       // Update event
