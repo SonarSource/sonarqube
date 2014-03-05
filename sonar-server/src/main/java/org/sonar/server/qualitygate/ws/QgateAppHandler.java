@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -96,6 +97,7 @@ public class QgateAppHandler implements RequestHandler {
     JsonWriter writer = response.newJsonWriter().beginObject();
     addPermissions(writer);
     addPeriods(writer);
+    addMetrics(writer);
     addMessages(writer);
     writer.endObject().close();
   }
@@ -119,4 +121,20 @@ public class QgateAppHandler implements RequestHandler {
     }
     writer.endObject();
   }
+
+  private void addMetrics(JsonWriter writer) {
+    writer.name("metrics").beginArray();
+    for (Metric metric: qualityGates.gateMetrics()) {
+      writer.beginObject()
+        .prop("id", metric.getId())
+        .prop("key", metric.getKey())
+        .prop("name", metric.getName())
+        .prop("type", metric.getType().toString())
+        .prop("domain", metric.getDomain())
+      .endObject();
+    }
+    writer.endArray();
+  }
+
+
 }

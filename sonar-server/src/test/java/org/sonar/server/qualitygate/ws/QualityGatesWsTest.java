@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.api.server.ws.WsTester;
@@ -40,7 +38,6 @@ import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -74,7 +71,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(16);
+    assertThat(controller.actions()).hasSize(15);
 
     Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -386,20 +383,5 @@ public class QualityGatesWsTest {
       .execute()
       .assertNoContent();
     verify(qGates).dissociateProject(gateId, projectId);
-  }
-
-  @Test
-  public void metrics_nominal() throws Exception {
-    Metric metric = mock(Metric.class);
-    when(metric.getId()).thenReturn(42);
-    when(metric.getKey()).thenReturn("metric");
-    when(metric.getName()).thenReturn("Metric");
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metric.getDomain()).thenReturn("General");
-    Collection<Metric> metrics = ImmutableList.of(metric);
-    when(qGates.gateMetrics()).thenReturn(metrics);
-    tester.newRequest("metrics")
-      .execute()
-      .assertJson("{'metrics':[{'id':42,'key':'metric','name':'Metric','type':'BOOL','domain':'General'}]}");
   }
 }

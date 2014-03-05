@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
@@ -38,6 +41,8 @@ import java.util.Map.Entry;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QgateAppHandlerTest {
@@ -67,7 +72,17 @@ public class QgateAppHandlerTest {
         return (String) invocation.getArguments()[1];
       }
     }).when(i18n).message(any(Locale.class), any(String.class), any(String.class));
+
+    Metric metric = mock(Metric.class);
+    when(metric.getId()).thenReturn(42);
+    when(metric.getKey()).thenReturn("metric");
+    when(metric.getName()).thenReturn("Metric");
+    when(metric.getType()).thenReturn(ValueType.BOOL);
+    when(metric.getDomain()).thenReturn("General");
+    when(qGates.gateMetrics()).thenReturn(ImmutableList.of(metric));
+
     String json = tester.newRequest("app").execute().outputAsString();
+
     Map responseJson = (Map) JSONValue.parse(json);
     assertThat((Boolean) responseJson.get("edit")).isFalse();
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
@@ -77,5 +92,8 @@ public class QgateAppHandlerTest {
     for (Entry message: (Set<Entry>) messages.entrySet()) {
       assertThat(message.getKey()).isEqualTo(message.getValue());
     }
+    Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
+    assertThat(metrics).hasSize(1);
+    assertThat(metrics.iterator().next().get("key")).isEqualTo("metric");
   }
 }
