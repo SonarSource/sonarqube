@@ -29,8 +29,10 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -198,11 +200,11 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return setEffortToFix(issue, currentEffort, context);
   }
 
-  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable Long value, IssueChangeContext context) {
-    Long oldValue = issue.debt();
+  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable Duration value, IssueChangeContext context) {
+    Duration oldValue = issue.debt();
     if (!Objects.equal(value, oldValue)) {
-      issue.setDebt(value);
-      issue.setFieldChange(context, TECHNICAL_DEBT, oldValue, value);
+      issue.setDebt(value != null ? value : null);
+      issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toMinutes() : null, value != null ? value.toMinutes() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;
@@ -210,8 +212,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable Long previousTechnicalDebt, IssueChangeContext context) {
-    Long currentTechnicalDebt = issue.debt();
+  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable Duration previousTechnicalDebt, IssueChangeContext context) {
+    Duration currentTechnicalDebt = issue.debt();
     issue.setDebt(previousTechnicalDebt);
     return setTechnicalDebt(issue, currentTechnicalDebt, context);
   }
@@ -244,4 +246,5 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     }
     return false;
   }
+
 }

@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.utils.Duration;
 
 import java.util.List;
 import java.util.Locale;
@@ -127,8 +128,8 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", "18000", "28800");
 
-    when(i18n.formatWorkDuration(any(Locale.class), eq(18000L))).thenReturn("5 hours");
-    when(i18n.formatWorkDuration(any(Locale.class), eq(28800L))).thenReturn("1 days");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(Duration.create(18000L)))).thenReturn("5 hours");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(Duration.create(28800L)))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");
@@ -145,7 +146,7 @@ public class IssueChangelogFormatterTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("technicalDebt", null, "28800");
 
-    when(i18n.formatWorkDuration(any(Locale.class), eq(28800L))).thenReturn("1 days");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(Duration.create(28800L)))).thenReturn("1 days");
 
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.field.technicalDebt", null)).thenReturn("Technical Debt");
     when(i18n.message(DEFAULT_LOCALE, "issue.changelog.changed_to", null, "Technical Debt", "1 days")).thenReturn("Technical Debt changed to 1 days");

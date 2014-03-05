@@ -42,6 +42,7 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -302,11 +303,11 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_technical_debt() throws Exception {
-    Long technicalDebt = 7260L;
-    Issue issue = createStandardIssue().setDebt(technicalDebt);
+    Duration debt = (Duration.create(7260L));
+    Issue issue = createStandardIssue().setDebt(debt);
     issues.add(issue);
 
-    when(i18n.formatWorkDuration(any(Locale.class), eq(technicalDebt))).thenReturn("2 hours 1 minutes");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(debt))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
@@ -315,7 +316,7 @@ public class IssueShowWsHandlerTest {
 
   @Test
   public void show_issue_with_characteristics() throws Exception {
-    Issue issue = createStandardIssue().setDebt(7260L);
+    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
     issues.add(issue);
 
     Characteristic requirement = new DefaultCharacteristic().setId(5).setParentId(2).setRootId(1);

@@ -30,6 +30,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 
@@ -148,11 +149,12 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   }
 
   @Override
-  public String formatWorkDuration(Locale locale, long duration) {
-    if (duration == 0) {
+  public String formatWorkDuration(Locale locale, Duration duration) {
+    Long durationInMinutes = duration.toMinutes();
+    if (durationInMinutes == 0) {
       return "0";
     }
-    List<WorkDurationFormatter.Result> results = workDurationFormatter.format(duration);
+    List<WorkDurationFormatter.Result> results = workDurationFormatter.format(durationInMinutes);
     StringBuilder message = new StringBuilder();
     for (WorkDurationFormatter.Result result : results) {
       if (" ".equals(result.key())) {

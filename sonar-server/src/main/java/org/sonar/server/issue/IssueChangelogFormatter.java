@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
@@ -71,10 +72,10 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(newValueString));
+        newValueString = i18n.formatWorkDuration(UserSession.get().locale(), Duration.create(Long.parseLong(newValueString)));
       }
       if (oldValueString != null) {
-        oldValueString = i18n.formatWorkDuration(UserSession.get().locale(), Long.parseLong(oldValueString));
+        oldValueString = i18n.formatWorkDuration(UserSession.get().locale(), Duration.create(Long.parseLong(oldValueString)));
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

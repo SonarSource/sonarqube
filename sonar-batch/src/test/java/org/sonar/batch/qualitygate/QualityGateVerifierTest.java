@@ -37,6 +37,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.timemachine.Periods;
 
 import java.util.Locale;
@@ -350,7 +351,7 @@ public class QualityGateVerifierTest {
 
     // metric name is declared in l10n bundle
     when(i18n.message(any(Locale.class), eq("metric.tech_debt.name"), anyString())).thenReturn("The Debt");
-    when(i18n.formatWorkDuration(any(Locale.class), eq(3600L))).thenReturn("1h");
+    when(i18n.formatWorkDuration(any(Locale.class), eq(Duration.create(3600L)))).thenReturn("1h");
 
     when(context.getMeasure(metric)).thenReturn(new Measure(metric, 1800d));
     projectAlerts.addAll(Lists.newArrayList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "3600", null)));

@@ -164,7 +164,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     long debt = 0L;
     if (issues != null) {
       for (Issue issue : issues) {
-        Long currentDebt = ((DefaultIssue) issue).debt();
+        Long currentDebt = ((DefaultIssue) issue).debtInMinutes();
         if (currentDebt != null) {
           debt += currentDebt;
         }

@@ -32,6 +32,7 @@ import org.sonar.api.profiles.Alert;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.timemachine.Periods;
 
 import java.util.Collection;
@@ -151,7 +152,7 @@ public class QualityGateVerifier implements Decorator {
   private String alertValue(Alert alert, Metric.Level level){
     String value = level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning();
     if (alert.getMetric().getType().equals(Metric.ValueType.WORK_DUR)) {
-      return i18n.formatWorkDuration(Locale.ENGLISH, Long.parseLong(value));
+      return i18n.formatWorkDuration(Locale.ENGLISH, Duration.create(Long.parseLong(value)));
     } else {
       return value;
     }

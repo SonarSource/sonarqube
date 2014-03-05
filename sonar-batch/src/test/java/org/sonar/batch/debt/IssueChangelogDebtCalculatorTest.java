@@ -23,11 +23,10 @@ package org.sonar.batch.debt;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.utils.Duration;
 
 import java.util.Date;
 
@@ -51,17 +50,18 @@ public class IssueChangelogDebtCalculatorTest {
   long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
   long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
 
+  Duration oneDayDebt = Duration.create(oneDay);
+  Duration twoDaysDebt = Duration.create(twoDays);
+  Duration fiveDaysDebt = Duration.create(fiveDays);
+
   @Before
   public void setUp() throws Exception {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, Integer.toString(HOURS_IN_DAY));
-
     issueChangelogDebtCalculator = new IssueChangelogDebtCalculator();
   }
 
   @Test
   public void calculate_new_technical_debt_with_one_diff_in_changelog() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
       newArrayList(
         // changelog created at is null because it has just been created on the current analysis
         new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
@@ -76,7 +76,7 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void calculate_new_technical_debt_with_many_diffs_in_changelog() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(null),
         new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
@@ -90,7 +90,7 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void changelog_can_be_in_wrong_order() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebt).setChanges(
       newArrayList(
         // 3rd
         new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo),
@@ -107,7 +107,7 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void calculate_new_technical_debt_with_null_date() throws Exception {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDays).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
       )
@@ -137,7 +137,7 @@ public class IssueChangelogDebtCalculatorTest {
 
   @Test
   public void not_return_negative_debt() {
-    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDay).setChanges(
+    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDayDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", twoDays, oneDay).setCreationDate(null)
       )

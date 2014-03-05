@@ -21,6 +21,7 @@ package org.sonar.api.i18n;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
 
@@ -105,10 +106,10 @@ public interface I18n extends ServerComponent, BatchComponent {
   /**
    * Return the formatted work duration.
    * <br>
-   * Example : format(Locale.ENGLISH, WorkDuration.create(10, 2, 0, 8)) -> 10d 2h
+   * Example : format(Locale.ENGLISH, Duration.create(10 * 24 * 60 + 2 * 60)) -> 10d 2h
    *
    * @since 4.3
    */
-  String formatWorkDuration(Locale locale, long duration);
+  String formatWorkDuration(Locale locale, Duration duration);
 
 }

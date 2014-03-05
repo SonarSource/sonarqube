@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.server.user.UserSession;
 
@@ -86,8 +87,12 @@ public class JRubyI18n implements ServerComponent {
     return i18n.ageFromNow(UserSession.get().locale(), date);
   }
 
-  public String formatWorkDuration(long duration) {
+  public String formatWorkDuration(Duration duration) {
     return i18n.formatWorkDuration(UserSession.get().locale(), duration);
+  }
+
+  public String formatLongWorkDuration(long duration) {
+    return formatWorkDuration(Duration.create(duration));
   }
 
 }

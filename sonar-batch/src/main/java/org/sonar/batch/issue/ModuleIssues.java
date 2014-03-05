@@ -28,6 +28,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.debt.RuleDebtCalculator;
 import org.sonar.core.issue.DefaultIssueBuilder;
@@ -111,7 +112,8 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    issue.setDebt(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix()));
+    Long debt = technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix());
+    issue.setDebt(debt != null ? Duration.create(debt) : null);
   }
 
 }

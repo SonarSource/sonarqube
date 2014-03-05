@@ -75,8 +75,8 @@ class Issue
         hash_diff = {}
         hash_diff[:key] = key
         if key == 'technicalDebt'
-          hash_diff[:newValue] = debt_to_hash(diff.newValue()) if diff.newValue.present?
-          hash_diff[:oldValue] = debt_to_hash(diff.oldValue()) if diff.oldValue.present?
+          hash_diff[:newValue] = long_debt_to_hash(diff.newValue()) if diff.newValue.present?
+          hash_diff[:oldValue] = long_debt_to_hash(diff.oldValue()) if diff.oldValue.present?
         else
           hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
           hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
@@ -93,6 +93,11 @@ class Issue
   private
 
   def self.debt_to_hash(debt)
+    long_debt_to_hash(debt.toMinutes)
+  end
+
+  def self.long_debt_to_hash(debt)
+    # TODO do not use toWorkDuration() but calculate days, hours and minutes from the duration and from hoursInDay property
     work_duration = Internal.technical_debt.toWorkDuration(debt.to_i)
     {
         :days => work_duration.days(),

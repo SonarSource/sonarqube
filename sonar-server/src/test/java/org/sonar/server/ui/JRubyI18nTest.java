@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.i18n.GwtI18n;
 
 import java.util.Date;
@@ -94,8 +95,14 @@ public class JRubyI18nTest {
 
   @Test
   public void format_work_duration() throws Exception {
-    jRubyI18n.formatWorkDuration(10L);
-    verify(i18n).formatWorkDuration(any(Locale.class), eq(10L));
+    jRubyI18n.formatWorkDuration(Duration.create(10L));
+    verify(i18n).formatWorkDuration(any(Locale.class), eq(Duration.create(10L)));
+  }
+
+  @Test
+  public void format_long_work_duration() throws Exception {
+    jRubyI18n.formatLongWorkDuration(10L);
+    verify(i18n).formatWorkDuration(any(Locale.class), eq(Duration.create(10L)));
   }
 
 }

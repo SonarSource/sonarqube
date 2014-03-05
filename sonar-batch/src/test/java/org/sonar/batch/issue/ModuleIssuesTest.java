@@ -34,6 +34,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.*;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.debt.RuleDebtCalculator;
 
@@ -277,7 +278,6 @@ public class ModuleIssuesTest {
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(SQUID_RULE_KEY)
@@ -291,7 +291,7 @@ public class ModuleIssuesTest {
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().debt()).isEqualTo(debt);
+    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(debt));
   }
 
 }

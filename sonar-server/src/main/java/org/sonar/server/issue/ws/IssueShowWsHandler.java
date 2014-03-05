@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -98,7 +99,7 @@ public class IssueShowWsHandler implements RequestHandler {
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
-    Long technicalDebt = issue.debt();
+    Duration debt = issue.debt();
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
 
@@ -114,7 +115,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", technicalDebt != null ? i18n.formatWorkDuration(UserSession.get().locale(), technicalDebt) : null)
+      .prop("debt", debt != null ? i18n.formatWorkDuration(UserSession.get().locale(), debt) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)

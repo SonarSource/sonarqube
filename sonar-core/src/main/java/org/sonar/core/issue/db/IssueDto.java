@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
@@ -367,7 +368,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setDebt(issue.debt())
+      .setDebt(issue.debtInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -396,7 +397,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
-      .setDebt(issue.debt())
+      .setDebt(issue.debtInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -421,7 +422,7 @@ public final class IssueDto implements Serializable {
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
-    issue.setDebt(debt);
+    issue.setDebt(debt != null ? Duration.create(debt) : null);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);

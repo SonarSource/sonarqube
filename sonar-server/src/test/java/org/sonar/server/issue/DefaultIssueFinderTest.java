@@ -33,6 +33,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -333,7 +334,7 @@ public class
 
     assertThat(results.issues()).hasSize(1);
     DefaultIssue result = (DefaultIssue) results.issues().iterator().next();
-    assertThat(result.debt()).isEqualTo(10L);
+    assertThat(result.debt()).isEqualTo(Duration.create(10L));
   }
 
 }

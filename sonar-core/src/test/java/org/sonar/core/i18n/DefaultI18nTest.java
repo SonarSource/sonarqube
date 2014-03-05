@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 
 import java.net.URL;
@@ -208,12 +209,12 @@ public class DefaultI18nTest {
       new WorkDurationFormatter.Result(" ", null),
       new WorkDurationFormatter.Result("work_duration.x_minutes", 1)
     ));
-    assertThat(manager.formatWorkDuration(Locale.ENGLISH, 10)).isEqualTo("5d 2h 1min");
+    assertThat(manager.formatWorkDuration(Locale.ENGLISH, Duration.create(10))).isEqualTo("5d 2h 1min");
   }
 
   @Test
   public void format_work_duration_when_0() {
-    assertThat(manager.formatWorkDuration(Locale.ENGLISH, 0)).isEqualTo("0");
+    assertThat(manager.formatWorkDuration(Locale.ENGLISH, Duration.create(0))).isEqualTo("0");
   }
 
   static URLClassLoader newCoreClassloader() {

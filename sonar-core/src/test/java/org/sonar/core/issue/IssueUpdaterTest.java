@@ -26,6 +26,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.user.DefaultUser;
 
 import java.util.Date;
@@ -372,8 +373,8 @@ public class IssueUpdaterTest {
 
   @Test
   public void set_past_technical_debt() throws Exception {
-    long newDebt = 15 * 8 * 60 * 60;
-    long previousDebt = 10 * 8 * 60 * 60;
+    Duration newDebt = Duration.create(15 * 8 * 60);
+    Duration previousDebt = Duration.create(10 * 8 * 60);
     issue.setDebt(newDebt);
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
@@ -381,13 +382,13 @@ public class IssueUpdaterTest {
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(previousDebt);
-    assertThat(diff.newValue()).isEqualTo(newDebt);
+    assertThat(diff.oldValue()).isEqualTo(10L * 8 * 60);
+    assertThat(diff.newValue()).isEqualTo(15L * 8 * 60);
   }
 
   @Test
   public void set_past_technical_debt_without_previous_value() throws Exception {
-    long newDebt = 15 * 8 * 60 * 60;
+    Duration newDebt = Duration.create(15 * 8 * 60);
     issue.setDebt(newDebt);
     boolean updated = updater.setPastTechnicalDebt(issue, null, context);
     assertThat(updated).isTrue();
@@ -396,20 +397,20 @@ public class IssueUpdaterTest {
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
     assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo(newDebt);
+    assertThat(diff.newValue()).isEqualTo(15L * 8 * 60);
   }
 
   @Test
   public void set_past_technical_debt_with_null_new_value() throws Exception {
     issue.setDebt(null);
-    long previousDebt = 10 * 8 * 60 * 60;
+    Duration previousDebt = Duration.create(10 * 8 * 60);
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
-    assertThat(diff.oldValue()).isEqualTo(previousDebt);
+    assertThat(diff.oldValue()).isEqualTo(10L * 8 * 60);
     assertThat(diff.newValue()).isNull();
   }
 

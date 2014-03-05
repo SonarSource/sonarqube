@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
+
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;

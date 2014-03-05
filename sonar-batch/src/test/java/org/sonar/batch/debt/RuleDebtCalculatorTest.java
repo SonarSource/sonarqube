@@ -48,9 +48,7 @@ public class RuleDebtCalculatorTest {
 
   @Before
   public void before() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
-    calculator = new RuleDebtCalculator(model, settings);
+    calculator = new RuleDebtCalculator(model, new Settings().setProperty(CoreProperties.HOURS_IN_DAY, 8));
   }
 
   @Test
