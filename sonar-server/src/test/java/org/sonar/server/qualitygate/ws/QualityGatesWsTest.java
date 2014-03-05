@@ -28,7 +28,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Action;
+import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
@@ -57,29 +58,32 @@ public class QualityGatesWsTest {
   @Mock
   private QgateProjectFinder projectFinder;
 
+  @Mock
+  private QgateAppHandler appHandler;
+
   WsTester tester;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QualityGatesWs(qGates, projectFinder));
+    tester = new WsTester(new QualityGatesWs(qGates, projectFinder, appHandler));
   }
 
   @Test
   public void define_ws() throws Exception {
-    WebService.Controller controller = tester.controller("api/qualitygates");
+    Controller controller = tester.controller("api/qualitygates");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(15);
+    assertThat(controller.actions()).hasSize(16);
 
-    WebService.Action list = controller.action("list");
+    Action list = controller.action("list");
     assertThat(list).isNotNull();
     assertThat(list.handler()).isNotNull();
     assertThat(list.since()).isEqualTo("4.3");
     assertThat(list.isPost()).isFalse();
     assertThat(list.isInternal()).isFalse();
 
-    WebService.Action show = controller.action("show");
+    Action show = controller.action("show");
     assertThat(show).isNotNull();
     assertThat(show.handler()).isNotNull();
     assertThat(show.since()).isEqualTo("4.3");
@@ -87,7 +91,7 @@ public class QualityGatesWsTest {
     assertThat(show.param("id")).isNotNull();
     assertThat(show.isInternal()).isFalse();
 
-    WebService.Action create = controller.action("create");
+    Action create = controller.action("create");
     assertThat(create).isNotNull();
     assertThat(create.handler()).isNotNull();
     assertThat(create.since()).isEqualTo("4.3");
@@ -95,7 +99,7 @@ public class QualityGatesWsTest {
     assertThat(create.param("name")).isNotNull();
     assertThat(create.isInternal()).isFalse();
 
-    WebService.Action copy = controller.action("copy");
+    Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
     assertThat(copy.handler()).isNotNull();
     assertThat(copy.since()).isEqualTo("4.3");
@@ -104,7 +108,7 @@ public class QualityGatesWsTest {
     assertThat(copy.param("name")).isNotNull();
     assertThat(copy.isInternal()).isFalse();
 
-    WebService.Action destroy = controller.action("destroy");
+    Action destroy = controller.action("destroy");
     assertThat(destroy).isNotNull();
     assertThat(destroy.handler()).isNotNull();
     assertThat(destroy.since()).isEqualTo("4.3");
@@ -112,7 +116,7 @@ public class QualityGatesWsTest {
     assertThat(destroy.param("id")).isNotNull();
     assertThat(destroy.isInternal()).isFalse();
 
-    WebService.Action rename = controller.action("rename");
+    Action rename = controller.action("rename");
     assertThat(rename).isNotNull();
     assertThat(rename.handler()).isNotNull();
     assertThat(rename.since()).isEqualTo("4.3");
@@ -121,7 +125,7 @@ public class QualityGatesWsTest {
     assertThat(rename.param("name")).isNotNull();
     assertThat(rename.isInternal()).isFalse();
 
-    WebService.Action setDefault = controller.action("set_as_default");
+    Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.handler()).isNotNull();
     assertThat(setDefault.since()).isEqualTo("4.3");
@@ -129,14 +133,14 @@ public class QualityGatesWsTest {
     assertThat(setDefault.param("id")).isNotNull();
     assertThat(setDefault.isInternal()).isFalse();
 
-    WebService.Action unsetDefault = controller.action("unset_default");
+    Action unsetDefault = controller.action("unset_default");
     assertThat(unsetDefault).isNotNull();
     assertThat(unsetDefault.handler()).isNotNull();
     assertThat(unsetDefault.since()).isEqualTo("4.3");
     assertThat(unsetDefault.isPost()).isTrue();
     assertThat(unsetDefault.isInternal()).isFalse();
 
-    WebService.Action createCondition = controller.action("create_condition");
+    Action createCondition = controller.action("create_condition");
     assertThat(createCondition).isNotNull();
     assertThat(createCondition.handler()).isNotNull();
     assertThat(createCondition.since()).isEqualTo("4.3");
@@ -149,7 +153,7 @@ public class QualityGatesWsTest {
     assertThat(createCondition.param("period")).isNotNull();
     assertThat(createCondition.isInternal()).isFalse();
 
-    WebService.Action updateCondition = controller.action("update_condition");
+    Action updateCondition = controller.action("update_condition");
     assertThat(updateCondition).isNotNull();
     assertThat(updateCondition.handler()).isNotNull();
     assertThat(updateCondition.since()).isEqualTo("4.3");
@@ -162,7 +166,7 @@ public class QualityGatesWsTest {
     assertThat(updateCondition.param("period")).isNotNull();
     assertThat(updateCondition.isInternal()).isFalse();
 
-    WebService.Action deleteCondition = controller.action("delete_condition");
+    Action deleteCondition = controller.action("delete_condition");
     assertThat(deleteCondition).isNotNull();
     assertThat(deleteCondition.handler()).isNotNull();
     assertThat(deleteCondition.since()).isEqualTo("4.3");
@@ -170,6 +174,8 @@ public class QualityGatesWsTest {
     assertThat(deleteCondition.param("id")).isNotNull();
     assertThat(deleteCondition.isInternal()).isFalse();
 
+    Action appInit = controller.action("app");
+    assertThat(appInit.isInternal()).isTrue();
   }
 
   @Test
@@ -250,7 +256,7 @@ public class QualityGatesWsTest {
     ));
     when(qGates.currentUserHasWritePermission()).thenReturn(false);
     tester.newRequest("list").execute().assertJson(
-        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'edit':false}");
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}]}");
   }
 
   @Test
@@ -261,10 +267,9 @@ public class QualityGatesWsTest {
       new QualityGateDto().setId(43L).setName("Star"),
       new QualityGateDto().setId(666L).setName("Ninth")
     ));
-    when(qGates.currentUserHasWritePermission()).thenReturn(true);
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newRequest("list").execute().assertJson(
-        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42,'edit':true}");
+        "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
   }
 
   @Test

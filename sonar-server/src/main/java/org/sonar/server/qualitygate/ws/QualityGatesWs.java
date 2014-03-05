@@ -56,9 +56,12 @@ public class QualityGatesWs implements WebService {
 
   private final QgateProjectFinder projectFinder;
 
-  public QualityGatesWs(QualityGates qualityGates, QgateProjectFinder projectFinder) {
+  private final QgateAppHandler appHandler;
+
+  public QualityGatesWs(QualityGates qualityGates, QgateProjectFinder projectFinder, QgateAppHandler appHandler) {
     this.qualityGates = qualityGates;
     this.projectFinder = projectFinder;
+    this.appHandler = appHandler;
   }
 
   @Override
@@ -70,6 +73,12 @@ public class QualityGatesWs implements WebService {
     defineQualityGateActions(controller);
 
     defineConditionActions(controller);
+
+    controller.newAction("app")
+      .setInternal(true)
+      .setDescription("Get initialization items for the admin UI")
+      .setSince("4.3")
+      .setHandler(appHandler);
 
     controller.done();
   }
@@ -372,7 +381,6 @@ public class QualityGatesWs implements WebService {
     if (defaultQgate != null) {
       writer.prop("default", defaultQgate.getId());
     }
-    writer.prop("edit", qualityGates.currentUserHasWritePermission());
     writer.endObject().close();
   }
 

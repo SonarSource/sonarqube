@@ -102,6 +102,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.ws.QgateAppHandler;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.*;
@@ -311,6 +312,7 @@ public final class Platform {
     servicesContainer.addSingleton(QualityGates.class);
     servicesContainer.addSingleton(ProjectQgateAssociationDao.class);
     servicesContainer.addSingleton(QgateProjectFinder.class);
+    servicesContainer.addSingleton(QgateAppHandler.class);
     servicesContainer.addSingleton(QualityGatesWs.class);
 
     // users
