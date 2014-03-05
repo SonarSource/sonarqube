@@ -30,6 +30,9 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
+/**
+ * Used through ruby code <pre>Internal.technical_debt</pre>
+ */
 public class DebtService implements ServerComponent {
 
   private final DefaultTechnicalDebtManager finder;

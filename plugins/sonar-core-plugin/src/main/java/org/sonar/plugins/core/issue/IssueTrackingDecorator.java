@@ -39,7 +39,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -67,7 +66,6 @@ public class IssueTrackingDecorator implements Decorator {
   private final ResourcePerspectives perspectives;
   private final RulesProfile rulesProfile;
   private final RuleFinder ruleFinder;
-  private final WorkDurationFactory workDurationFactory;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 LastSnapshots lastSnapshots, SonarIndex index,
@@ -76,7 +74,7 @@ public class IssueTrackingDecorator implements Decorator {
                                 Project project,
                                 ResourcePerspectives perspectives,
                                 RulesProfile rulesProfile,
-                                RuleFinder ruleFinder, WorkDurationFactory workDurationFactory) {
+                                RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -85,7 +83,6 @@ public class IssueTrackingDecorator implements Decorator {
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
-    this.workDurationFactory = workDurationFactory;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.rulesProfile = rulesProfile;

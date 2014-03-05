@@ -41,7 +41,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -100,7 +99,6 @@ public class NewTechnicalDebtDecoratorTest {
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
-    WorkDurationFactory workDurationFactory = new WorkDurationFactory(settings);
     decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator());
   }
 
@@ -349,7 +347,7 @@ public class NewTechnicalDebtDecoratorTest {
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0, 0.0)));
   }
 
-  
+
   class IsVariationMeasure extends ArgumentMatcher<Measure> {
     Metric metric = null;
     Double var1 = null;

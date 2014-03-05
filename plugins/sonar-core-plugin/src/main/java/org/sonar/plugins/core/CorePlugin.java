@@ -24,7 +24,6 @@ import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
@@ -295,7 +294,6 @@ public final class CorePlugin extends SonarPlugin {
       TechnicalDebtDecorator.class,
       NewTechnicalDebtDecorator.class,
       IssueChangelogDebtCalculator.class,
-      WorkDurationFactory.class,
 
       // batch
       ProfileEventsSensor.class,
@@ -392,7 +390,7 @@ public final class CorePlugin extends SonarPlugin {
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build()
-      );
+    );
   }
 
 }

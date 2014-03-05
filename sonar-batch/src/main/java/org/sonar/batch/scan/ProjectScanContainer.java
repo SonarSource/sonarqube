@@ -31,7 +31,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
@@ -159,7 +158,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // technical debt
       DebtModelLoader.class,
       RuleDebtCalculator.class,
-      WorkDurationFactory.class,
       new DebtModelProvider(),
 
       // Differential periods

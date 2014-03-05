@@ -23,11 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -38,7 +36,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
@@ -80,9 +77,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Before
   public void init() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, 8);
-
     decorator = new IssueTrackingDecorator(
       issueCache,
       initialOpenIssues,
@@ -95,7 +89,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       mock(Project.class),
       perspectives,
       profile,
-      ruleFinder, new WorkDurationFactory(settings));
+      ruleFinder);
   }
 
   @Test
