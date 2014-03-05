@@ -56,7 +56,7 @@ convertValue = (value, input) ->
 
 
 restoreRating = (value) ->
-  return value unless typeof value == 'number'
+  return value unless /^[12345]+$/.test value
   String.fromCharCode(value - 1 + 'A'.charCodeAt(0))
 
 

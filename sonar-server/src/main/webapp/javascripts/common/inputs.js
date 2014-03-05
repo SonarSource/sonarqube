@@ -72,7 +72,7 @@
   };
 
   restoreRating = function(value) {
-    if (typeof value !== 'number') {
+    if (!/^[12345]+$/.test(value)) {
       return value;
     }
     return String.fromCharCode(value - 1 + 'A'.charCodeAt(0));
