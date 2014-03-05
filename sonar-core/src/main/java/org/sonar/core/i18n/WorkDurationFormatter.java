@@ -56,15 +56,23 @@ public class WorkDurationFormatter implements ServerComponent, BatchExtension {
     if (workDuration.days() > 0) {
       results.add(message("work_duration.x_days", isNegative ? -1 * workDuration.days() : workDuration.days()));
     }
-    if (workDuration.hours() > 0 && workDuration.days() < 10) {
+    if (displayHours(workDuration)) {
       addSpaceIfNeeded(results);
       results.add(message("work_duration.x_hours", isNegative && results.isEmpty() ? -1 * workDuration.hours() : workDuration.hours()));
     }
-    if (workDuration.minutes() > 0 && workDuration.hours() < 10 && workDuration.days() == 0) {
+    if (displayMinutes(workDuration)) {
       addSpaceIfNeeded(results);
       results.add(message("work_duration.x_minutes", isNegative && results.isEmpty() ? -1 * workDuration.minutes() : workDuration.minutes()));
     }
     return results;
+  }
+
+  private boolean displayHours(WorkDuration workDuration){
+    return workDuration.hours() > 0 && workDuration.days() < 10;
+  }
+
+  private boolean displayMinutes(WorkDuration workDuration){
+    return workDuration.minutes() > 0 && workDuration.hours() < 10 && workDuration.days() == 0;
   }
 
   private void addSpaceIfNeeded(List<Result> results){
