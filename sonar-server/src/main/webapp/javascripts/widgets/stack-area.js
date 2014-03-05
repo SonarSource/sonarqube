@@ -205,12 +205,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .text(d3.time.format('%b %d, %Y')(widget.data()[0][cl].x));
 
       widget.infoTotal
-          .text('Total: ' + d3.format('.1f')(widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y));
+          .text('Total: ' + (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y));
 
 
       // Update metric labels
       var metricsLines = widget.data().map(function(d, i) {
-        return widget.metrics()[i] + ': ' + d[cl].y;
+        var value = d[cl].fy || d[cl].y;
+        return widget.metrics()[i] + ': ' + value;
       });
 
       metricsLines.forEach(function(d, i) {
