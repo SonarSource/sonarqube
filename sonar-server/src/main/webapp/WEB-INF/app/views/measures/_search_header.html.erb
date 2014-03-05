@@ -3,7 +3,7 @@
      edit_mode = (params[:edit]=='true')
 %>
 
-  <h1 class="navigator-header-title">
+  <h1 id="filter-title" class="navigator-header-title">
     <% if @filter.id && @filter.name.present? %>
       <%= h @filter.name -%>
       <% if !@filter.shared %>
