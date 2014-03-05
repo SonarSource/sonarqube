@@ -24,7 +24,7 @@ convertWorkDuration = (value) ->
 
 
 restoreWorkDuration = (value) ->
-  return value unless typeof value == 'number'
+  return value unless /^\d+$/.test value
   days = Math.floor(value / (8 * 60))
   hours = Math.floor((value - days * 8 * 60) / 60)
   minutes = value % 60

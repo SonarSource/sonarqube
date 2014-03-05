@@ -28,7 +28,7 @@
 
   restoreWorkDuration = function(value) {
     var days, hours, minutes, result;
-    if (typeof value !== 'number') {
+    if (!/^\d+$/.test(value)) {
       return value;
     }
     days = Math.floor(value / (8 * 60));
