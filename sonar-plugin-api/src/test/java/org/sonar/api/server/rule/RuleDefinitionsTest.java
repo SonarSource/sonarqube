@@ -20,6 +20,7 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
@@ -71,6 +72,11 @@ public class RuleDefinitionsTest {
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
+      .setCharacteristicKey("COMPILER")
+      .setRemediationFunction(RemediationFunction.LINEAR_OFFSET)
+      .setRemediationFactor("1h")
+      .setRemediationOffset("10min")
+      .setEffortToFixL10nKey("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
     newFindbugs.newRule("ABC").setName("ABC").setHtmlDescription("ABC");
@@ -89,6 +95,11 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.internalKey()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(npeRule.characteristicKey()).isEqualTo("COMPILER");
+    assertThat(npeRule.remediationFunction()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
+    assertThat(npeRule.remediationFactor()).isEqualTo("1h");
+    assertThat(npeRule.remediationOffset()).isEqualTo("10min");
+    assertThat(npeRule.effortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
 
@@ -111,6 +122,10 @@ public class RuleDefinitionsTest {
     assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
+    assertThat(rule.characteristicKey()).isNull();
+    assertThat(rule.remediationFunction()).isNull();
+    assertThat(rule.remediationFactor()).isNull();
+    assertThat(rule.remediationOffset()).isNull();
   }
 
   @Test

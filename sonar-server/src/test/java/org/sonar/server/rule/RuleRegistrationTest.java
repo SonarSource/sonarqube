@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleDefinitions;
@@ -37,8 +38,11 @@ import static org.mockito.Mockito.*;
 
 public class RuleRegistrationTest extends AbstractDaoTestCase {
 
-  private static final String[] EXCLUDED_COLUMN_NAMES = {
-      "created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
+  private static final String[] EXCLUDED_COLUMN_NAMES = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
+  private static final String[] EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at",
+    "characteristic_id", "default_characteristic_id",
+    "remediation_function", "default_remediation_function", "remediation_factor", "default_remediation_factor", "remediation_offset", "default_remediation_offset",
+    "effort_to_fix_l10n_key"};
 
   RuleRegistration task;
   ProfilesManager profilesManager = mock(ProfilesManager.class);
@@ -62,19 +66,19 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_new_rules() {
+  public void insert_new_rules() {
     setupData("shared");
     task.start();
 
-    checkTables("should_insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
+    checkTables("insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }
 
   @Test
-  public void should_update_template_rule_language() {
-    setupData("should_update_template_rule_language");
+  public void update_template_rule_language() {
+    setupData("update_template_rule_language");
     task.start();
 
-    checkTables("should_update_template_rule_language", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("update_template_rule_language", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   /**
@@ -100,11 +104,11 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_reactivate_disabled_rules() {
-    setupData("should_reactivate_disabled_rules");
+  public void reactivate_disabled_rules() {
+    setupData("reactivate_disabled_rules");
     task.start();
 
-    checkTables("should_reactivate_disabled_rules", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("reactivate_disabled_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
 
     assertThat(ruleDao.selectById(1).getUpdatedAt()).isNotNull();
   }
@@ -114,72 +118,72 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     setupData("reactivate_disabled_template_rules");
     task.start();
 
-    checkTables("reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   @Test
-  public void should_disable_deprecated_active_rules() {
-    setupData("should_disable_deprecated_active_rules");
+  public void disable_deprecated_active_rules() {
+    setupData("disable_deprecated_active_rules");
     task.start();
 
-    checkTables("should_disable_deprecated_active_rules", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("disable_deprecated_active_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   @Test
-  public void should_disable_deprecated_active_rule_params() {
-    setupData("should_disable_deprecated_active_rule_params");
+  public void disable_deprecated_active_rule_params() {
+    setupData("disable_deprecated_active_rule_params");
     task.start();
 
-    checkTables("should_disable_deprecated_active_rule_params", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "active_rules", "active_rule_parameters");
+    checkTables("disable_deprecated_active_rule_params", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters", "active_rules", "active_rule_parameters");
   }
 
   @Test
-  public void should_disable_deprecated_rules() {
-    setupData("should_disable_deprecated_rules");
+  public void disable_deprecated_rules() {
+    setupData("disable_deprecated_rules");
     task.start();
 
-    checkTables("should_disable_deprecated_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
+    checkTables("disable_deprecated_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }
 
   @Test
-  public void should_update_rule_fields() {
-    setupData("updadeRuleFields");
+  public void update_rule_fields() {
+    setupData("update_rule_fields");
     task.start();
 
-    checkTables("updadeRuleFields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags", "rules_rule_tags");
+    checkTables("update_rule_fields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rule_tags", "rules_rule_tags");
   }
 
   @Test
-  public void should_update_rule_parameters() {
-    setupData("should_update_rule_parameters");
+  public void update_rule_parameters() {
+    setupData("update_rule_parameters");
     task.start();
 
-    checkTables("should_update_rule_parameters", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters");
+    checkTables("update_rule_parameters", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters");
   }
 
   @Test
-  public void should_not_disable_template_rules_if_parent_is_enabled() {
-    setupData("doNotDisableUserRulesIfParentIsEnabled");
+  public void not_disable_template_rules_if_parent_is_enabled() {
+    setupData("not_disable_template_rules_if_parent_is_enabled");
     task.start();
 
-    checkTables("doNotDisableUserRulesIfParentIsEnabled", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("not_disable_template_rules_if_parent_is_enabled", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   @Test
-  public void should_disable_template_rules_if_parent_is_disabled() {
-    setupData("disableUserRulesIfParentIsDisabled");
+  public void disable_template_rules_if_parent_is_disabled() {
+    setupData("disable_template_rules_if_parent_is_disabled");
     task.start();
 
-    checkTables("disableUserRulesIfParentIsDisabled", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("disable_template_rules_if_parent_is_disabled", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   @Test
-  public void should_not_disable_manual_rules() {
+  public void not_disable_manual_rules() {
     // the hardcoded repository "manual" is used for manual violations
-    setupData("shouldNotDisableManualRules");
+    setupData("not_disable_manual_rules");
     task.start();
 
-    checkTables("shouldNotDisableManualRules", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("not_disable_manual_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   @Test
@@ -197,15 +201,15 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_extended_repositories() {
+  public void insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
-        new FindbugsRepository(), new FbContribRepository()}),
+      new FindbugsRepository(), new FbContribRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
 
     setupData("empty");
     task.start();
 
-    checkTables("should_insert_extended_repositories", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("insert_extended_repositories", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
   static class FakeRepository implements RuleDefinitions {
@@ -214,19 +218,24 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
       NewRepository repo = context.newRepository("fake", "java");
 
       NewRule rule1 = repo.newRule("rule1")
-          .setName("One")
-          .setHtmlDescription("Description of One")
-          .setSeverity(Severity.BLOCKER)
-          .setInternalKey("config1")
-          .setTags("tag1", "tag3", "tag5");
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(Severity.BLOCKER)
+        .setCharacteristicKey("COMPILER")
+        .setRemediationFunction(RemediationFunction.LINEAR_OFFSET)
+        .setRemediationFactor("5d")
+        .setRemediationOffset("10h")
+        .setEffortToFixL10nKey("squid.S115.effortToFix")
+        .setInternalKey("config1")
+        .setTags("tag1", "tag3", "tag5");
       rule1.newParam("param1").setDescription("parameter one").setDefaultValue("default value one");
       rule1.newParam("param2").setDescription("parameter two").setDefaultValue("default value two");
 
       repo.newRule("rule2")
-          .setName("Two")
-          .setHtmlDescription("Description of Two")
-          .setSeverity(Severity.INFO)
-          .setStatus(RuleStatus.DEPRECATED);
+        .setName("Two")
+        .setHtmlDescription("Description of Two")
+        .setSeverity(Severity.INFO)
+        .setStatus(RuleStatus.DEPRECATED);
       repo.done();
     }
   }
@@ -239,11 +248,11 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
       NewRepository repo = context.newRepository("big", "java");
       for (int i = 0; i < SIZE; i++) {
         NewRule rule = repo.newRule("rule" + i)
-            .setName("name of " + i)
-            .setHtmlDescription("description of " + i)
-            .setSeverity(Severity.BLOCKER)
-            .setInternalKey("config1")
-            .setTags("tag1", "tag3", "tag5");
+          .setName("name of " + i)
+          .setHtmlDescription("description of " + i)
+          .setSeverity(Severity.BLOCKER)
+          .setInternalKey("config1")
+          .setTags("tag1", "tag3", "tag5");
         for (int j = 0; j < 20; j++) {
           rule.newParam("param" + j);
         }
@@ -258,8 +267,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     public void define(Context context) {
       NewRepository repo = context.newRepository("findbugs", "java");
       repo.newRule("rule1")
-          .setName("Rule One")
-          .setHtmlDescription("Description of Rule One");
+        .setName("Rule One")
+        .setHtmlDescription("Description of Rule One");
       repo.done();
     }
   }
@@ -269,8 +278,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     public void define(Context context) {
       NewExtendedRepository repo = context.extendRepository("findbugs", "java");
       repo.newRule("rule2")
-          .setName("Rule Two")
-          .setHtmlDescription("Description of Rule Two");
+        .setName("Rule Two")
+        .setHtmlDescription("Description of Rule Two");
       repo.done();
     }
   }

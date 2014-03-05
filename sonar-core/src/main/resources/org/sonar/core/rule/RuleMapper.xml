@@ -15,12 +15,21 @@
     cardinality,
     language as "language",
     parent_id as "parentId",
-    created_at as "createdAt",
-    updated_at as "updatedAt",
     note_data as "noteData",
     note_user_login as "noteUserLogin",
     note_created_at as "noteCreatedAt",
-    note_updated_at as "noteUpdatedAt"
+    note_updated_at as "noteUpdatedAt",
+    characteristic_id as "characteristicId",
+    default_characteristic_id as "defaultCharacteristicId",
+    remediation_function as "remediationFunction",
+    default_remediation_function as "defaultRemediationFunction",
+    remediation_factor as "remediationFactor",
+    default_remediation_factor as "defaultRemediationFactor",
+    remediation_offset as "remediationOffset",
+    default_remediation_offset as "defaultRemediationOffset",
+    effort_to_fix_l10n_key as "effortToFixL10nKey",
+    created_at as "createdAt",
+    updated_at as "updatedAt"
   </sql>
 
   <select id="selectAll" resultType="Rule">
@@ -52,29 +61,49 @@
     cardinality=#{cardinality},
     language=#{language},
     parent_id=#{parentId},
-    updated_at=#{updatedAt},
     note_data=#{noteData},
     note_user_login=#{noteUserLogin},
     note_created_at=#{noteCreatedAt},
-    note_updated_at=#{noteUpdatedAt}
+    note_updated_at=#{noteUpdatedAt},
+    characteristic_id=#{characteristicId},
+    default_characteristic_id=#{defaultCharacteristicId},
+    remediation_function=#{remediationFunction},
+    default_remediation_function=#{defaultRemediationFunction},
+    remediation_factor=#{remediationFactor},
+    default_remediation_factor=#{defaultRemediationFactor},
+    remediation_offset=#{remediationOffset},
+    default_remediation_offset=#{defaultRemediationOffset},
+    effort_to_fix_l10n_key=#{effortToFixL10nKey},
+    updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
 
   <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language,
-      parent_id, created_at, updated_at)
+    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, parent_id,
+    characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
+    remediation_factor, default_remediation_factor, remediation_offset, default_remediation_offset,
+    effort_to_fix_l10n_key,
+    created_at, updated_at)
   </sql>
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-      #{severity}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
+      #{severity}, #{cardinality}, #{language}, #{parentId},
+      #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+      #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
+      #{effortToFixL10nKey},
+      #{createdAt}, #{updatedAt})
   </insert>
 
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-    #{severity}, #{cardinality}, #{language}, #{parentId}, #{createdAt}, #{updatedAt})
+    #{severity}, #{cardinality}, #{language}, #{parentId},
+    #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+    #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
+    #{effortToFixL10nKey},
+    #{createdAt}, #{updatedAt})
   </insert>
 
   <delete id="deleteParams" parameterType="Integer" >

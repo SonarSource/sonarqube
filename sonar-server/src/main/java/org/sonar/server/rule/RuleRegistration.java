@@ -27,9 +27,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
@@ -152,6 +152,7 @@ public class RuleRegistration implements Startable {
   }
 
   private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef) {
+    RemediationFunction remediationFunction = ruleDef.remediationFunction();
     RuleDto ruleDto = new RuleDto()
       .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
       .setConfigKey(ruleDef.internalKey())
@@ -160,10 +161,15 @@ public class RuleRegistration implements Startable {
       .setName(ruleDef.name())
       .setRepositoryKey(ruleDef.repository().key())
       .setRuleKey(ruleDef.key())
-      .setSeverity(RulePriority.valueOf(ruleDef.severity()).name())
+      .setSeverity(ruleDef.severity())
       .setCreatedAt(buffer.now())
       .setUpdatedAt(buffer.now())
-      .setStatus(ruleDef.status().name());
+      .setStatus(ruleDef.status().name())
+      // TODO set default characteristic id
+      .setDefaultRemediationFunction(remediationFunction != null ? remediationFunction.name() : null)
+      .setDefaultRemediationFactor(ruleDef.remediationFactor())
+      .setDefaultRemediationOffset(ruleDef.remediationOffset())
+      .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
     ruleDao.insert(ruleDto, sqlSession);
     buffer.add(ruleDto);
 
@@ -204,7 +210,7 @@ public class RuleRegistration implements Startable {
       dto.setConfigKey(def.internalKey());
       changed = true;
     }
-    String severity = RulePriority.valueOf(def.severity()).name();
+    String severity = def.severity();
     if (!ObjectUtils.equals(dto.getSeverityString(), severity)) {
       dto.setSeverity(severity);
       changed = true;
@@ -219,6 +225,28 @@ public class RuleRegistration implements Startable {
       dto.setStatus(status);
       changed = true;
     }
+
+    // TODO add characteristic id change verification
+
+    RemediationFunction remediationFunction = def.remediationFunction();
+    String remediationFunctionString = remediationFunction != null ? remediationFunction.name() : null;
+    if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunctionString)) {
+      dto.setDefaultRemediationFunction(remediationFunctionString);
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getDefaultRemediationFactor(), def.remediationFactor())) {
+      dto.setDefaultRemediationFactor(def.remediationFactor());
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getDefaultRemediationOffset(), def.remediationOffset())) {
+      dto.setDefaultRemediationOffset(def.remediationOffset());
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getEffortToFixL10nKey(), def.effortToFixL10nKey())) {
+      dto.setEffortToFixL10nKey(def.effortToFixL10nKey());
+      changed = true;
+    }
+
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
       dto.setLanguage(def.repository().language());
       changed = true;
@@ -345,6 +373,11 @@ public class RuleRegistration implements Startable {
           // TODO merge params and tags ?
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
+          ruleDto.setDefaultCharacteristicId(parent.getDefaultCharacteristicId());
+          ruleDto.setDefaultRemediationFunction(parent.getDefaultRemediationFunction());
+          ruleDto.setDefaultRemediationFactor(parent.getDefaultRemediationFactor());
+          ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
+          ruleDto.setEffortToFixL10nKey(parent.getEffortToFixL10nKey());
           ruleDto.setUpdatedAt(buffer.now());
           ruleDao.update(ruleDto, sqlSession);
           toBeRemoved = false;

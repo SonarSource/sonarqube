@@ -24,12 +24,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -310,6 +312,11 @@ public interface RuleDefinitions extends ServerExtension {
     private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
+    private String characteristicKey;
+    private RemediationFunction remediationFunction;
+    private String remediationFactor;
+    private String remediationOffset;
+    private String effortToFixL10nKey;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
@@ -366,6 +373,34 @@ public interface RuleDefinitions extends ServerExtension {
         throw new IllegalArgumentException(String.format("Status 'REMOVED' is not accepted on rule '%s'", this));
       }
       this.status = status;
+      return this;
+    }
+
+    public NewRule setCharacteristicKey(@Nullable String characteristicKey) {
+      // TODO validate characteristic exists and it's a sub characteristic
+      this.characteristicKey = characteristicKey;
+      return this;
+    }
+
+    public NewRule setRemediationFunction(@Nullable RemediationFunction remediationFunction) {
+      this.remediationFunction = remediationFunction;
+      return this;
+    }
+
+    public NewRule setRemediationFactor(@Nullable String remediationFactor) {
+      // TODO validate format
+      this.remediationFactor = remediationFactor;
+      return this;
+    }
+
+    public NewRule setRemediationOffset(@Nullable String remediationOffset) {
+      // TODO validate format
+      this.remediationOffset = remediationOffset;
+      return this;
+    }
+
+    public NewRule setEffortToFixL10nKey(@Nullable String effortToFixL10nKey) {
+      this.effortToFixL10nKey = effortToFixL10nKey;
       return this;
     }
 
@@ -433,6 +468,11 @@ public interface RuleDefinitions extends ServerExtension {
     private final Repository repository;
     private final String repoKey, key, name, htmlDescription, internalKey, severity;
     private final boolean template;
+    private final String characteristicKey;
+    private final RemediationFunction remediationFunction;
+    private final String remediationFactor;
+    private final String remediationOffset;
+    private final String effortToFixL10nKey;
     private final Set<String> tags;
     private final Map<String, Param> params;
     private final RuleStatus status;
@@ -447,6 +487,11 @@ public interface RuleDefinitions extends ServerExtension {
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
+      this.characteristicKey = newRule.characteristicKey;
+      this.remediationFunction = newRule.remediationFunction;
+      this.remediationFactor = newRule.remediationFactor;
+      this.remediationOffset = newRule.remediationOffset;
+      this.effortToFixL10nKey = newRule.effortToFixL10nKey;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {
@@ -482,6 +527,31 @@ public interface RuleDefinitions extends ServerExtension {
 
     public RuleStatus status() {
       return status;
+    }
+
+    @CheckForNull
+    public String characteristicKey() {
+      return characteristicKey;
+    }
+
+    @CheckForNull
+    public RemediationFunction remediationFunction() {
+      return remediationFunction;
+    }
+
+    @CheckForNull
+    public String remediationFactor() {
+      return remediationFactor;
+    }
+
+    @CheckForNull
+    public String remediationOffset() {
+      return remediationOffset;
+    }
+
+    @CheckForNull
+    public String effortToFixL10nKey() {
+      return effortToFixL10nKey;
     }
 
     @CheckForNull

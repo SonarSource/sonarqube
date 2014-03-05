@@ -2,7 +2,13 @@
 
   <rules id="1" plugin_rule_key="NewRuleKey" plugin_name="plugin" name="new name" description="new description" status="DEPRECATED"
     plugin_config_key="NewConfigKey" priority="0" cardinality="MULTIPLE" language="dart" created_at="2011-04-25 01:05:00" updated_at="2013-12-17" parent_id="3"
-    note_data="My note" note_user_login="admin" note_created_at="2013-12-19" note_updated_at="2013-12-20" />
+    note_data="My note" note_user_login="admin" note_created_at="2013-12-19" note_updated_at="2013-12-20"
+    characteristic_id="100" default_characteristic_id="101"
+    remediation_function="linear" default_remediation_function="linear_offset"
+    remediation_factor="1h" default_remediation_factor="5d"
+    remediation_offset="5min" default_remediation_offset="10h"
+    effort_to_fix_l10n_key="squid.S115.effortToFix"
+  />
 
   <rules id="2" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
     plugin_config_key="Parent1" priority="2" cardinality="SINGLE" language="golo" created_at="1981-10-24 15:20:00" updated_at="[null]" parent_id="[null]"

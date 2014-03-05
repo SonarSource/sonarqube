@@ -21,9 +21,12 @@ package org.sonar.core.rule;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.check.Cardinality;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
 
@@ -39,12 +42,21 @@ public final class RuleDto {
   private Cardinality cardinality;
   private String language;
   private Integer parentId;
-  private Date createdAt;
-  private Date updatedAt;
   private String noteData;
   private String noteUserLogin;
   private Date noteCreatedAt;
   private Date noteUpdatedAt;
+  private Integer characteristicId;
+  private Integer defaultCharacteristicId;
+  private String remediationFunction;
+  private String defaultRemediationFunction;
+  private String remediationFactor;
+  private String defaultRemediationFactor;
+  private String remediationOffset;
+  private String defaultRemediationOffset;
+  private String effortToFixL10nKey;
+  private Date createdAt;
+  private Date updatedAt;
 
   public Integer getId() {
     return id;
@@ -155,24 +167,6 @@ public final class RuleDto {
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public RuleDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public RuleDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
   public String getNoteData() {
     return noteData;
   }
@@ -209,6 +203,114 @@ public final class RuleDto {
     return this;
   }
 
+  @CheckForNull
+  public Integer getCharacteristicId() {
+    return characteristicId;
+  }
+
+  public RuleDto setCharacteristicId(@Nullable Integer characteristicId) {
+    this.characteristicId = characteristicId;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getDefaultCharacteristicId() {
+    return defaultCharacteristicId;
+  }
+
+  public RuleDto setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
+    this.defaultCharacteristicId = defaultCharacteristicId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationFunction() {
+    return remediationFunction;
+  }
+
+  public RuleDto setRemediationFunction(@Nullable String remediationFunction) {
+    this.remediationFunction = remediationFunction;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDefaultRemediationFunction() {
+    return defaultRemediationFunction;
+  }
+
+  public RuleDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
+    this.defaultRemediationFunction = defaultRemediationFunction;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationFactor() {
+    return remediationFactor;
+  }
+
+  public RuleDto setRemediationFactor(@Nullable String remediationFactor) {
+    this.remediationFactor = remediationFactor;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDefaultRemediationFactor() {
+    return defaultRemediationFactor;
+  }
+
+  public RuleDto setDefaultRemediationFactor(@Nullable String defaultRemediationFactor) {
+    this.defaultRemediationFactor = defaultRemediationFactor;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationOffset() {
+    return remediationOffset;
+  }
+
+  public RuleDto setRemediationOffset(@Nullable String remediationOffset) {
+    this.remediationOffset = remediationOffset;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDefaultRemediationOffset() {
+    return defaultRemediationOffset;
+  }
+
+  public RuleDto setDefaultRemediationOffset(@Nullable String defaultRemediationOffset) {
+    this.defaultRemediationOffset = defaultRemediationOffset;
+    return this;
+  }
+
+  @CheckForNull
+  public String getEffortToFixL10nKey() {
+    return effortToFixL10nKey;
+  }
+
+  public RuleDto setEffortToFixL10nKey(@Nullable String effortToFixL10nKey) {
+    this.effortToFixL10nKey = effortToFixL10nKey;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public RuleDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public RuleDto setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof RuleDto)) {
@@ -234,18 +336,6 @@ public final class RuleDto {
 
   @Override
   public String toString() {
-    // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-      .append("id", id)
-      .append("name", name)
-      .append("key", ruleKey)
-      .append("configKey", configKey)
-      .append("plugin", repositoryKey)
-      .append("severity", getSeverityString())
-      .append("cardinality", cardinality)
-      .append("status", status)
-      .append("language", language)
-      .append("parentId", parentId)
-      .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }
