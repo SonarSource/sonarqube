@@ -45,7 +45,7 @@
 
       QualityGateDetailHeaderView.prototype.deleteQualityGate = function() {
         var _this = this;
-        if (confirm(window.SS.phrases.areYouSure)) {
+        if (confirm(t('are_you_sure'))) {
           this.showSpinner();
           return jQuery.ajax({
             type: 'POST',

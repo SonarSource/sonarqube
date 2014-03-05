@@ -1,12 +1,12 @@
 <script id="quality-gate-detail-conditions-template" type="text/x-handlebars-template">
-  <div class="quality-gate-section-name"><%= message('quality_gates.conditions') -%></div>
+  <div class="quality-gate-section-name">{{t 'quality_gates.conditions'}}</div>
 
   <div class="quality-gate-introduction">
-    <p><%= message('quality_gates.introduction') -%>
-      <a class="link-action quality-gate-introduction-show-more"><%= message('more') -%></a>
+    <p>{{t 'quality_gates.introduction'}}
+      <a class="link-action quality-gate-introduction-show-more">{{t 'more'}}</a>
     </p>
     <div class="quality-gate-introduction-more">
-      <%= message('quality_gates.health_icons') -%>
+      {{t 'quality_gates.health_icons'}}
       <table class="data">
         <thead>
         <tr>
@@ -16,15 +16,15 @@
         <tbody>
         <tr class="even">
           <td><i class="icon-alert-ok"></i></td>
-          <td><%= message('alerts.notes.ok') -%></td>
+          <td>{{t 'alerts.notes.ok'}}</td>
         </tr>
         <tr class="odd">
           <td><i class="icon-alert-warn"></i></td>
-          <td><%= message('alerts.notes.warn') -%></td>
+          <td>{{t 'alerts.notes.warn'}}</td>
         </tr>
         <tr class="even">
           <td><i class="icon-alert-error"></i></td>
-          <td><%= message('alerts.notes.error') -%></td>
+          <td>{{t 'alerts.notes.error'}}</td>
         </tr>
         </tbody>
       </table>
@@ -33,7 +33,7 @@
 
   {{#if canEdit}}
     <div class="quality-gate-new-condition">
-      <label for="quality-gate-new-condition-metric"><%= message('quality_gates.add_condition') -%>:</label>
+      <label for="quality-gate-new-condition-metric">{{t 'quality_gates.add_condition'}}:</label>
       <select id="quality-gate-new-condition-metric">
         <option></option>
         {{#each metricGroups}}

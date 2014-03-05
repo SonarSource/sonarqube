@@ -89,7 +89,7 @@ define [
 
 
     deleteCondition: ->
-      if confirm window.SS.phrases.areYouSure
+      if confirm t('are_you_sure')
         @showSpinner()
         @model.delete().done =>
           @options.collectionView.updateConditions()
@@ -105,8 +105,8 @@ define [
 
 
     serializeData: ->
-      period = _.findWhere(window.SS.metricPeriods, key: '' + this.model.get('period'))
+      period = _.findWhere(@options.app.periods, key: '' + this.model.get('period'))
       _.extend super,
         canEdit: @options.app.canEdit
-        periods: window.SS.metricPeriods
+        periods: @options.app.periods
         periodText: period?.text

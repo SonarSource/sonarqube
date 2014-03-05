@@ -82,16 +82,14 @@ define(['handlebars'], function (Handlebars) {
     return url;
   });
 
-  Handlebars.registerHelper('translate', function(key, prefix) {
-    var args = Array.prototype.slice.call(arguments, 0, -1),
-        tokens = args.reduce(function(prev, current) {
-          return prev.concat(current.split('.'));
-        }, []),
-        start = window.SS.phrases;
+  Handlebars.registerHelper('translate', function() {
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    return window.translate.apply(this, args);
+  });
 
-    return tokens.reduce(function(prev, current) {
-      return current ? prev[current] : prev;
-    }, start);
+  Handlebars.registerHelper('t', function() {
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    return window.t.apply(this, args);
   });
 
   Handlebars.registerHelper('pluginActions', function(actions, options) {

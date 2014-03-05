@@ -107,7 +107,7 @@
 
       QualityGateDetailConditionView.prototype.deleteCondition = function() {
         var _this = this;
-        if (confirm(window.SS.phrases.areYouSure)) {
+        if (confirm(t('are_you_sure'))) {
           this.showSpinner();
           return this.model["delete"]().done(function() {
             _this.options.collectionView.updateConditions();
@@ -126,12 +126,12 @@
 
       QualityGateDetailConditionView.prototype.serializeData = function() {
         var period;
-        period = _.findWhere(window.SS.metricPeriods, {
+        period = _.findWhere(this.options.app.periods, {
           key: '' + this.model.get('period')
         });
         return _.extend(QualityGateDetailConditionView.__super__.serializeData.apply(this, arguments), {
           canEdit: this.options.app.canEdit,
-          periods: window.SS.metricPeriods,
+          periods: this.options.app.periods,
           periodText: period != null ? period.text : void 0
         });
       };

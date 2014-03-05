@@ -125,13 +125,18 @@ requirejs [
     App.openFirstQualityGate() if initial
 
 
-  # Load metrics and the list of quality gates before start the application
-  qualityGatesXHR = App.qualityGates.fetch()
-  jQuery.when(App.metrics.fetch(), qualityGatesXHR)
-    .done ->
-      # Set permissions
-      App.canEdit = qualityGatesXHR.responseJSON.edit
+  # Call app, Load metrics and the list of quality gates before start the application
+  appXHR = jQuery.ajax
+    url: "#{baseUrl}/api/qualitygates/app"
+  .done (r) =>
+      App.canEdit = r.edit
+      App.periods = r.periods
+      window.messages = r.messages
 
+  qualityGatesXHR = App.qualityGates.fetch()
+
+  jQuery.when(App.metrics.fetch(), qualityGatesXHR, appXHR)
+    .done ->
       # Remove the initial spinner
       jQuery('.quality-gate-page-loader').remove()
 

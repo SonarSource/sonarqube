@@ -27,6 +27,7 @@ module.exports = function(config) {
         'third-party/jquery.js',
         'third-party/underscore.js',
         'third-party/require.js',
+        'translate.js',
         'common/inputs.js',
 
         // libs
@@ -57,7 +58,8 @@ module.exports = function(config) {
 
     preprocessors: {
       'navigator/**/*.js': 'coverage',
-      'common/inputs.js': 'coverage'
+      'common/inputs.js': 'coverage',
+      'translate.js': 'coverage'
     },
 
 

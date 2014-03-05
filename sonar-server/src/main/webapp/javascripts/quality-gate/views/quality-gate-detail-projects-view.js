@@ -33,14 +33,14 @@
             selectParameter: 'projectId',
             selectParameterValue: 'id',
             labels: {
-              selected: window.SS.phrases.projects["with"],
-              deselected: window.SS.phrases.projects.without,
-              all: window.SS.phrases.projects.all,
-              noResults: window.SS.phrases.projects.noResults
+              selected: t('quality_gates.projects.with'),
+              deselected: t('quality_gates.projects.without'),
+              all: t('quality_gates.projects.all'),
+              noResults: t('quality_gates.projects.noResults')
             },
             tooltips: {
-              select: window.SS.phrases.projects.select_hint,
-              deselect: window.SS.phrases.projects.deselect_hint
+              select: t('quality_gates.projects.select_hint'),
+              deselect: t('quality_gates.projects.deselect_hint')
             }
           });
         }

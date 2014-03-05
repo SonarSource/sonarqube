@@ -5,7 +5,7 @@
   <td width="10%" nowrap>
     {{#if canEdit}}
       <select name="period">
-        <option value="0"><%= message('value') -%></option>
+        <option value="0">{{t 'value'}}</option>
         {{#each periods}}<option value="{{key}}">{{text}}</option>{{/each}}
       </select>
     {{else}}
@@ -16,15 +16,15 @@
     {{#if canEdit}}
       <select name="operator">
         {{#operators metric.type}}
-          <option value="{{this}}">{{translate 'alerts.operator' this}}</option>
+          <option value="{{this}}">{{t 'quality_gates.operator' this}}</option>
         {{/operators}}
       </select>
     {{else}}
-      {{translate 'alerts.operator' op}}
+      {{t 'quality_gates.operator' op}}
     {{/if}}
   </td>
   <td width="15%">
-    <i class="icon-alert-warn" title="<%= message('alerts.warn_tooltip') -%>"></i>
+    <i class="icon-alert-warn" title="{{t 'alerts.warn_tooltip'}}"></i>
     {{#if canEdit}}
       <input name="warning" class="measure-input" data-type="{{metric.type}}" type="text">
     {{else}}
@@ -32,7 +32,7 @@
     {{/if}}
   </td>
   <td width="15%">
-    <i class="icon-alert-error" title="<%= message('alerts.error_tooltip') -%>"></i>
+    <i class="icon-alert-error" title="{{t 'alerts.error_tooltip'}}"></i>
     {{#if canEdit}}
       <input name="error" class="measure-input" data-type="{{metric.type}}" type="text">
     {{else}}
@@ -43,13 +43,13 @@
     {{#if canEdit}}
       {{#if id}}
         <div class="button-group">
-          <button class="update-condition" disabled><%= message('update_verb') -%></button>
-          <button class="button-red delete-condition"><%= message('delete') -%></button>
+          <button class="update-condition" disabled>{{t 'update_verb'}}</button>
+          <button class="button-red delete-condition">{{t 'delete'}}</button>
         </div>
       {{else}}
         <div class="button-group">
-          <button class="add-condition"><%= message('add_verb') -%></button>
-          <a class="action cancel-add-condition"><%= message('cancel') -%></a>
+          <button class="add-condition">{{t 'add_verb'}}</button>
+          <a class="action cancel-add-condition">{{t 'cancel'}}</a>
         </div>
       {{/if}}
     {{/if}}

@@ -31,7 +31,8 @@
   });
 
   requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'quality-gate/layout', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter, QualityGateLayout) {
-    var App, qualityGatesXHR;
+    var App, appXHR, qualityGatesXHR,
+      _this = this;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
         var errorBox, text, _ref;
@@ -109,9 +110,15 @@
         return App.openFirstQualityGate();
       }
     });
+    appXHR = jQuery.ajax({
+      url: "" + baseUrl + "/api/qualitygates/app"
+    }).done(function(r) {
+      App.canEdit = r.edit;
+      App.periods = r.periods;
+      return window.messages = r.messages;
+    });
     qualityGatesXHR = App.qualityGates.fetch();
-    return jQuery.when(App.metrics.fetch(), qualityGatesXHR).done(function() {
-      App.canEdit = qualityGatesXHR.responseJSON.edit;
+    return jQuery.when(App.metrics.fetch(), qualityGatesXHR, appXHR).done(function() {
       jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });

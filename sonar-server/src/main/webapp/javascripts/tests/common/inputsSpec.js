@@ -6,11 +6,12 @@
 
   describe('WORK_DUR suite', function() {
     beforeEach(function() {
-      window.SS = {
-        workDuration: {
-          days: '{0}d',
-          hours: '{0}h',
-          minutes: '{0}min'
+      window.SS = {};
+      window.SS.phrases = {
+        'work_duration': {
+          'x_days': '{0}d',
+          'x_hours': '{0}h',
+          'x_minutes': '{0}min'
         }
       };
       this.input = $('<input type="text">');

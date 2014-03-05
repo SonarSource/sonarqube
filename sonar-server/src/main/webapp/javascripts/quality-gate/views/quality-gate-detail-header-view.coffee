@@ -39,7 +39,7 @@ define [
 
 
     deleteQualityGate: ->
-      if confirm window.SS.phrases.areYouSure
+      if confirm t('are_you_sure')
         @showSpinner()
         jQuery.ajax
           type: 'POST'

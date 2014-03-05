@@ -49,7 +49,7 @@ define [
       @ui.metricSelect.select2
         allowClear: false,
         width: '250px',
-        placeholder: window.SS.phrases.alerts.select_metric
+        placeholder: t('alerts.select_metric')
 
 
     groupedMetrics: ->

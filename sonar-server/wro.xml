@@ -24,6 +24,8 @@
     <js>/javascripts/third-party/select2.js</js>
     <js>/javascripts/select2-jquery-ui-fix.js</js>
 
+    <js>/javascripts/translate.js</js>
+
     <js>/javascripts/widgets/widget.js</js>
     <js>/javascripts/widgets/bubble-chart.js</js>
     <js>/javascripts/widgets/timeline.js</js>
