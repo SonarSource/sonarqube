@@ -39,6 +39,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-se
             that.choices.add(new Backbone.Model({
               id: r.rule.key,
               text: r.rule.name,
+              category: r.rule.language,
               checked: true
             }));
           });
