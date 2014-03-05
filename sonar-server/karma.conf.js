@@ -56,7 +56,8 @@ module.exports = function(config) {
 
 
     preprocessors: {
-      'navigator/**/*.js': 'coverage'
+      'navigator/**/*.js': 'coverage',
+      'common/inputs.js': 'coverage'
     },
 
 
