@@ -34,7 +34,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;

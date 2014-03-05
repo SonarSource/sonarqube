@@ -24,7 +24,7 @@ import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
