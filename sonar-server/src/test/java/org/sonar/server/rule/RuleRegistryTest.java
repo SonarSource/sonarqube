@@ -273,6 +273,18 @@ public class RuleRegistryTest {
     assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
   }
 
+  @Test
+  public void should_find_rules_by_name() {
+    // Removed rule should not appear
+    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).build()).results()).hasSize(2);
+
+    // Search is case insensitive
+    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("one issue per line").build()).results()).hasSize(1);
+
+    // Search is ngram based
+    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("with param").build()).results()).hasSize(1);
+  }
+
   private String testFileAsString(String testFile) throws Exception {
     return IOUtils.toString(TestUtils.getResource(getClass(), testFile).toURI());
   }

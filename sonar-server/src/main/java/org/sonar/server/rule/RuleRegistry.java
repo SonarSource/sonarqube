@@ -23,13 +23,17 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -123,13 +127,14 @@ public class RuleRegistry {
   }
 
   public PagedResult<Rule> find(RuleQuery query) {
+    BoolFilterBuilder mainFilter = FilterBuilders.boolFilter().mustNot(FilterBuilders.termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
+    if (StringUtils.isNotBlank(query.query())) {
+      mainFilter.must(FilterBuilders.queryFilter(
+        QueryBuilders.matchQuery(RuleDocument.FIELD_NAME+".search", query.query()).operator(Operator.AND)));
+    }
     SearchHits hits = searchIndex.executeRequest(
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-        .setPostFilter(
-          FilterBuilders.boolFilter()
-            .must(FilterBuilders.termFilter(RuleDocument.FIELD_NAME, query.query()))
-            .mustNot(FilterBuilders.termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED))
-        )
+        .setPostFilter(mainFilter)
         .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC)
         .setSize(query.paging().pageSize())
         .setFrom(query.paging().offset()));
