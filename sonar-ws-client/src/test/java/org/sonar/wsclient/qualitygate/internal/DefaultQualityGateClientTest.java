@@ -19,15 +19,19 @@
  */
 package org.sonar.wsclient.qualitygate.internal;
 
-import java.net.HttpURLConnection;
-
-import org.sonar.wsclient.qualitygate.QualityGates;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
+import org.sonar.wsclient.qualitygate.QualityGates;
+
+import java.net.HttpURLConnection;
+import java.util.Collection;
+import java.util.Iterator;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.MapAssert.entry;
 
@@ -50,6 +54,8 @@ public class DefaultQualityGateClientTest {
         entry("name", "Ninth")
         );
     assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(666L);
+    assertThat(result.name()).isEqualTo("Ninth");
   }
 
   @Test
@@ -83,6 +89,44 @@ public class DefaultQualityGateClientTest {
         entry("name", "Hell")
         );
     assertThat(result).isNotNull();
+  }
+
+  @Test
+  public void should_show_qualitygate_conditions() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubResponseBody("{\"id\":5,\"name\":\"Sonar way\",\"conditions\":["
+      + "{\"id\":6,\"metric\":\"blocker_violations\",\"op\":\"GT\",\"warning\":\"\",\"error\":\"0\"},"
+      + "{\"id\":7,\"metric\":\"critical_violations\",\"op\":\"GT\",\"warning\":\"\",\"error\":\"0\"},"
+      + "{\"id\":10,\"metric\":\"test_errors\",\"op\":\"GT\",\"warning\":\"\",\"error\":\"0\"},"
+      + "{\"id\":11,\"metric\":\"test_failures\",\"op\":\"GT\",\"warning\":\"\",\"error\":\"0\"},"
+      + "{\"id\":12,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"\",\"error\":\"80%\",\"period\":3},"
+      + "{\"id\":13,\"metric\":\"open_issues\",\"op\":\"GT\",\"warning\":\"0\",\"error\":\"\"},"
+      + "{\"id\":14,\"metric\":\"reopened_issues\",\"op\":\"GT\",\"warning\":\"0\",\"error\":\"\"},"
+      + "{\"id\":15,\"metric\":\"skipped_tests\",\"op\":\"GT\",\"warning\":\"0\",\"error\":\"\"}"
+      + "]}");
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+
+    Collection<QualityGateCondition> conditions = client.conditions(5L);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/show?id=5");
+
+    assertThat(conditions).hasSize(8);
+    Iterator<QualityGateCondition> condIterator = conditions.iterator();
+    QualityGateCondition first = condIterator.next();
+    assertThat(first.id()).isEqualTo(6L);
+    QualityGateCondition second = condIterator.next();
+    assertThat(second.period()).isNull();
+    QualityGateCondition third = condIterator.next();
+    assertThat(third.metricKey()).isEqualTo("test_errors");
+    QualityGateCondition fourth = condIterator.next();
+    assertThat(fourth.operator()).isEqualTo("GT");
+    QualityGateCondition fifth = condIterator.next();
+    assertThat(fifth.errorThreshold()).isEqualTo("80%");
+    assertThat(fifth.period()).isEqualTo(3);
+    QualityGateCondition sixth = condIterator.next();
+    assertThat(sixth.warningThreshold()).isEqualTo("0");
   }
 
   @Test

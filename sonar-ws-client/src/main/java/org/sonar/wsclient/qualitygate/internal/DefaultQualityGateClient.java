@@ -23,16 +23,16 @@ import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.QualityGates;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultQualityGateClient implements QualityGateClient {
 
   private static final String ROOT_URL = "/api/qualitygates";
   private static final String LIST_URL = ROOT_URL + "/list";
+  private static final String SHOW_URL = ROOT_URL + "/show";
   private static final String CREATE_URL = ROOT_URL + "/create";
   private static final String RENAME_URL = ROOT_URL + "/rename";
   private static final String DESTROY_URL = ROOT_URL + "/destroy";
@@ -67,6 +67,12 @@ public class DefaultQualityGateClient implements QualityGateClient {
   }
 
   @Override
+  public Collection<QualityGateCondition> conditions(long qGateId) {
+    String json = requestFactory.get(SHOW_URL, Collections.singletonMap("id", (Object) qGateId));
+    return jsonToConditions(json);
+  }
+
+  @Override
   public void destroy(long qGateId) {
     requestFactory.post(DESTROY_URL, Collections.singletonMap("id", (Object) qGateId));
   }
@@ -93,4 +99,14 @@ public class DefaultQualityGateClient implements QualityGateClient {
     return new DefaultQualityGates((Map) jsonRoot);
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private Collection<QualityGateCondition> jsonToConditions(String json) {
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    Collection<Map> conditionArray = (Collection<Map>) jsonRoot.get("conditions");
+    Collection<QualityGateCondition> conditions = new ArrayList<QualityGateCondition>();
+    for (Map conditionJson: conditionArray) {
+      conditions.add(new DefaultQualityGateCondition(conditionJson));
+    }
+    return conditions;
+  }
 }
