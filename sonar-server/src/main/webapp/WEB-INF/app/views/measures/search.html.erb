@@ -3,11 +3,11 @@
 <% end %>
 
 
-<div class="navigator navigator-simple">
-
+<div class="navigator">
+  <div class="navigator-header">
+    <%= render :partial => 'search_header' -%>
+  </div>
   <div class="navigator-filters"></div>
-
-
   <div class="navigator-results">
     <%= render :partial => 'search_body' -%>
   </div>
@@ -38,7 +38,6 @@
 
     <div class="navigator-filters-list"></div>
     <button class="navigator-filter-submit"><%= message('search_verb') -%></button>
-    <a class="navigator-filter-new-search link-action" href="<%= ApplicationController.root_context -%>/measures"><%= message 'measure_filter.new_search' -%></a>
   </form>
 </script>
 
@@ -47,6 +46,8 @@
 
 
 <script>
+  jQuery('html').addClass('navigator-page measures-page');
+
   window.SS = typeof window.SS === 'object' ? window.SS : {};
 
   _.extend(window.SS, {

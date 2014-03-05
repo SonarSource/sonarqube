@@ -56,7 +56,7 @@ define(
 
         onAfterItemAdded: function (itemView) {
           if (itemView.model.get('type') === require('navigator/filters/favorite-filters').FavoriteFilterView) {
-            this.$el.addClass('navigator-filter-list-favorite');
+            jQuery('.navigator-header').addClass('navigator-header-favorite');
           }
         },
 

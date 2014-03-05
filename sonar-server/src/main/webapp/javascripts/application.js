@@ -279,7 +279,7 @@ Treemap.prototype.initNodes = function () {
 };
 
 function openModalWindow(url, options) {
-  var width = options['width']||540;
+  var width = (options && options['width']) || 540;
   var $dialog = $j('#modal');
   if (!$dialog.length) {
     $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');

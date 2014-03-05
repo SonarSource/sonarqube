@@ -73,12 +73,8 @@
   height: 20px;
   display: none;
 }
-.navigator-simple .navigator-filters {
-  top: 30px;
-}
-.navigator-simple .navigator-results {
-  top: 67px;
-  bottom: 0;
+.measures-page .navigator-results {
+  top: 104px;
   left: 0;
   width: 100%;
 }
@@ -601,12 +597,9 @@
 }
 .navigator-filter-favorite {
   position: absolute;
-  top: 0;
+  top: -100%;
   left: 0;
   border-top: none;
-}
-.issues-page .navigator-filter-favorite {
-  top: -100%;
 }
 .navigator-filter-favorite-toggle {
   width: 16px;
