@@ -10,7 +10,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-se
     parse: function(r) {
       this.more = r.more;
       return r.results.map(function(r) {
-         return { id: r.key, text: r.name };
+         return { id: r.key, text: r.name, category: r.language };
       });
     }
 
