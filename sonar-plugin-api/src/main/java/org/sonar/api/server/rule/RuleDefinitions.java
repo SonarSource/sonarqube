@@ -389,13 +389,13 @@ public interface RuleDefinitions extends ServerExtension {
 
     public NewRule setRemediationFactor(@Nullable String remediationFactor) {
       // TODO validate format
-      this.remediationFactor = remediationFactor;
+      this.remediationFactor = StringUtils.deleteWhitespace(remediationFactor);
       return this;
     }
 
     public NewRule setRemediationOffset(@Nullable String remediationOffset) {
       // TODO validate format
-      this.remediationOffset = remediationOffset;
+      this.remediationOffset = StringUtils.deleteWhitespace(remediationOffset);
       return this;
     }
 

@@ -225,6 +225,19 @@ public class RuleRegistration implements Startable {
       dto.setStatus(status);
       changed = true;
     }
+    if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
+      dto.setLanguage(def.repository().language());
+      changed = true;
+    }
+    changed = mergeDebtRule(def, dto) || changed;
+    if (changed) {
+      dto.setUpdatedAt(buffer.now());
+    }
+    return changed;
+  }
+
+  private boolean mergeDebtRule(RuleDefinitions.Rule def, RuleDto dto){
+    boolean changed = false;
 
     // TODO add characteristic id change verification
 
@@ -245,14 +258,6 @@ public class RuleRegistration implements Startable {
     if (!StringUtils.equals(dto.getEffortToFixL10nKey(), def.effortToFixL10nKey())) {
       dto.setEffortToFixL10nKey(def.effortToFixL10nKey());
       changed = true;
-    }
-
-    if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
-      dto.setLanguage(def.repository().language());
-      changed = true;
-    }
-    if (changed) {
-      dto.setUpdatedAt(buffer.now());
     }
     return changed;
   }

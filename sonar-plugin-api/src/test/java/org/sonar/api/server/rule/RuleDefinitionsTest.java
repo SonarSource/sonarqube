@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
@@ -168,6 +169,21 @@ public class RuleDefinitionsTest {
   }
 
   @Test
+  public void sanitize_remediation_factor_and_offset() {
+    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
+    newFindbugs.newRule("NPE")
+      .setName("Detect NPE")
+      .setHtmlDescription("NPE")
+      .setRemediationFactor("   1   h   ")
+      .setRemediationOffset(" 10  mi n ");
+    newFindbugs.done();
+
+    RuleDefinitions.Rule npeRule = context.repository("findbugs").rule("NPE");
+    assertThat(npeRule.remediationFactor()).isEqualTo("1h");
+    assertThat(npeRule.remediationOffset()).isEqualTo("10min");
+  }
+
+  @Test
   public void extend_repository() {
     assertThat(context.extendedRepositories()).isEmpty();
 
@@ -301,4 +317,23 @@ public class RuleDefinitionsTest {
       assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
     }
   }
+
+  @Test
+  @Ignore("TODO")
+  public void fail_if_bad_remediation_factor_or_offset() {
+    try {
+      context.newRepository("findbugs", "java").newRule("NPE").setRemediationFactor("ten hours");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");
+    }
+
+    try {
+      context.newRepository("findbugs", "java").newRule("NPE").setRemediationOffset("ten hours");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");
+    }
+  }
+
 }
