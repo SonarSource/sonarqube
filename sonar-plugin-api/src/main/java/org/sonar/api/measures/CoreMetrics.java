@@ -32,10 +32,6 @@ import java.util.List;
  */
 public final class CoreMetrics {
 
-  private CoreMetrics() {
-    // only static stuff
-  }
-
   // the following fields are not final to avoid compile-time constants used by plugins
   public static String DOMAIN_SIZE = "Size";
   public static String DOMAIN_TESTS = "Tests";
@@ -2214,6 +2210,14 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_GENERAL)
     .create();
 
+  public static final String QUALITY_GATE_STATUS_KEY = "quality_gate_status";
+  public static final Metric QUALITY_GATE_STATUS = new Metric.Builder(QUALITY_GATE_STATUS_KEY, "Quality Gate Status", Metric.ValueType.LEVEL)
+    .setDescription("The project status with regard to it's quality thresholds.")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_GENERAL)
+    .create();
+
   public static final String PROFILE_KEY = "profile";
   public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
     .setDescription("Selected quality profile")
@@ -2249,6 +2253,10 @@ public final class CoreMetrics {
         }
       }
     }
+  }
+
+  private CoreMetrics() {
+    // only static stuff
   }
 
   public static List<Metric> getMetrics() {
