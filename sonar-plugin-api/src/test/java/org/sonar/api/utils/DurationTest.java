@@ -27,90 +27,52 @@ import static org.junit.Assert.fail;
 
 public class DurationTest {
 
+  static final int HOURS_IN_DAY = 8;
+
   static final Long ONE_MINUTE = 1L;
   static final Long ONE_HOUR_IN_MINUTES = ONE_MINUTE * 60;
-  static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * 24;
-
-  @Test
-  public void of_days() throws Exception {
-    Duration duration = Duration.ofDays(1);
-    assertThat(duration.days()).isEqualTo(1);
-    assertThat(duration.hours()).isEqualTo(0);
-    assertThat(duration.minutes()).isEqualTo(0);
-    assertThat(duration.toMinutes()).isEqualTo(ONE_DAY_IN_MINUTES);
-  }
-
-  @Test
-  public void of_hours() throws Exception {
-    Duration duration = Duration.ofHours(1);
-    assertThat(duration.days()).isEqualTo(0);
-    assertThat(duration.hours()).isEqualTo(1);
-    assertThat(duration.minutes()).isEqualTo(0);
-    assertThat(duration.toMinutes()).isEqualTo(ONE_HOUR_IN_MINUTES);
-
-    duration = Duration.ofHours(25);
-    assertThat(duration.days()).isEqualTo(1);
-    assertThat(duration.hours()).isEqualTo(1);
-    assertThat(duration.minutes()).isEqualTo(0);
-    assertThat(duration.toMinutes()).isEqualTo(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES);
-  }
-
-  @Test
-  public void of_minutes() throws Exception {
-    Duration duration = Duration.ofMinutes(1);
-    assertThat(duration.days()).isEqualTo(0);
-    assertThat(duration.hours()).isEqualTo(0);
-    assertThat(duration.minutes()).isEqualTo(1);
-    assertThat(duration.toMinutes()).isEqualTo(ONE_MINUTE);
-
-    duration = Duration.ofMinutes(61);
-    assertThat(duration.days()).isEqualTo(0);
-    assertThat(duration.hours()).isEqualTo(1);
-    assertThat(duration.minutes()).isEqualTo(1);
-    assertThat(duration.toMinutes()).isEqualTo(ONE_HOUR_IN_MINUTES + ONE_MINUTE);
-  }
+  static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
   @Test
   public void create_from_duration_in_minutes() throws Exception {
     Duration duration = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
-    assertThat(duration.days()).isEqualTo(1);
-    assertThat(duration.hours()).isEqualTo(1);
-    assertThat(duration.minutes()).isEqualTo(1);
     assertThat(duration.toMinutes()).isEqualTo(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
   }
 
   @Test
   public void encode() throws Exception {
-    assertThat(Duration.create(2 * ONE_DAY_IN_MINUTES + 5 * ONE_HOUR_IN_MINUTES + 46 * ONE_MINUTE).encode()).isEqualTo("2d5h46min");
-    assertThat(Duration.create(ONE_DAY_IN_MINUTES).encode()).isEqualTo("1d");
-    assertThat(Duration.create(ONE_HOUR_IN_MINUTES).encode()).isEqualTo("1h");
-    assertThat(Duration.create(ONE_MINUTE).encode()).isEqualTo("1min");
+    assertThat(Duration.create(2 * ONE_DAY_IN_MINUTES + 5 * ONE_HOUR_IN_MINUTES + 46 * ONE_MINUTE).encode(HOURS_IN_DAY)).isEqualTo("2d5h46min");
+    assertThat(Duration.create(ONE_DAY_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1d");
+    assertThat(Duration.create(ONE_HOUR_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1h");
+    assertThat(Duration.create(HOURS_IN_DAY * ONE_HOUR_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1d");
+    assertThat(Duration.create(ONE_MINUTE).encode(HOURS_IN_DAY)).isEqualTo("1min");
   }
 
   @Test
   public void decode() throws Exception {
-    assertThat(Duration.decode("    15 d  26  h     42min  ")).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
-    assertThat(Duration.decode("26h15d42min")).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
-    assertThat(Duration.decode("26h")).isEqualTo(Duration.create(26 * ONE_HOUR_IN_MINUTES));
-    assertThat(Duration.decode("15d")).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES));
-    assertThat(Duration.decode("42min")).isEqualTo(Duration.create(42 * ONE_MINUTE));
+    assertThat(Duration.decode("    15 d  26  h     42min  ", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
+    assertThat(Duration.decode("26h15d42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
+    assertThat(Duration.decode("26h", HOURS_IN_DAY)).isEqualTo(Duration.create(26 * ONE_HOUR_IN_MINUTES));
+    assertThat(Duration.decode("15d", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES));
+    assertThat(Duration.decode("42min", HOURS_IN_DAY)).isEqualTo(Duration.create(42 * ONE_MINUTE));
   }
 
   @Test
   public void fail_to_decode_if_not_number() throws Exception {
     try {
-    Duration.decode("Xd");
+      Duration.decode("Xd", HOURS_IN_DAY);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("'Xd' is invalid, it should use the following sample format : 2d 10h 15min");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Duration 'Xd' is invalid, it should use the following sample format : 2d 10h 15min");
     }
   }
 
   @Test
-  public void convert_to_minutes_with_given_hours_in_day() throws Exception {
-    assertThat(Duration.create(2 * ONE_DAY_IN_MINUTES).toMinutes(8)).isEqualTo(2 * 8 * ONE_HOUR_IN_MINUTES);
-    assertThat(Duration.create(2 * ONE_HOUR_IN_MINUTES).toMinutes(8)).isEqualTo(2 * ONE_HOUR_IN_MINUTES);
-    assertThat(Duration.create(2 * ONE_MINUTE).toMinutes(8)).isEqualTo(2 * ONE_MINUTE);
+  public void is_greater_than() throws Exception {
+    assertThat(Duration.decode("1h", HOURS_IN_DAY).isGreaterThan(Duration.decode("1min", HOURS_IN_DAY))).isTrue();
+    assertThat(Duration.decode("1min", HOURS_IN_DAY).isGreaterThan(Duration.decode("1d", HOURS_IN_DAY))).isFalse();
+    assertThat(Duration.decode("1d", HOURS_IN_DAY).isGreaterThan(Duration.decode("1d", HOURS_IN_DAY))).isFalse();
+    assertThat(Duration.decode("1d", 10).isGreaterThan(Duration.decode("1d", 8))).isTrue();
   }
 
   @Test
