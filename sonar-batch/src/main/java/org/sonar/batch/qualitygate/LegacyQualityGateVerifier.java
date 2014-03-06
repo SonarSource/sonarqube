@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class QualityGateVerifier implements Decorator {
+public class LegacyQualityGateVerifier implements Decorator {
 
   private static final String VARIATION_METRIC_PREFIX = "new_";
   private static final String VARIATION = "variation";
@@ -52,7 +52,7 @@ public class QualityGateVerifier implements Decorator {
   private final Durations durations;
   private ProjectAlerts projectAlerts;
 
-  public QualityGateVerifier(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n, Durations durations) {
+  public LegacyQualityGateVerifier(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n, Durations durations) {
     this.snapshot = snapshot;
     this.projectAlerts = projectAlerts;
     this.periods = periods;

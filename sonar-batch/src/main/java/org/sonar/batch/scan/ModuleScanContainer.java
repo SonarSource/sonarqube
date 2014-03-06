@@ -55,8 +55,8 @@ import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.rule.QProfileVerifier;
-import org.sonar.batch.qualitygate.QualityGateLoader;
-import org.sonar.batch.qualitygate.QualityGateVerifier;
+import org.sonar.batch.qualitygate.LegacyQualityGateLoader;
+import org.sonar.batch.qualitygate.LegacyQualityGateVerifier;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
@@ -134,8 +134,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ResourceFilters.class,
 
       // quality gates
-      QualityGateLoader.class,
-      QualityGateVerifier.class,
+      LegacyQualityGateLoader.class,
+      LegacyQualityGateVerifier.class,
 
       // rules
       ModuleQProfiles.class,

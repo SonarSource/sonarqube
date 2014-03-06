@@ -48,11 +48,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class QualityGateVerifierTest {
+public class LegacyQualityGateVerifierTest {
 
-  QualityGateVerifier verifier;
+  LegacyQualityGateVerifier verifier;
   DecoratorContext context;
   ProjectAlerts projectAlerts;
 
@@ -83,7 +86,7 @@ public class QualityGateVerifierTest {
 
     snapshot = mock(Snapshot.class);
     projectAlerts = new ProjectAlerts();
-    verifier = new QualityGateVerifier(snapshot, projectAlerts, periods, i18n, durations);
+    verifier = new LegacyQualityGateVerifier(snapshot, projectAlerts, periods, i18n, durations);
     project = new Project("foo");
   }
 
@@ -94,7 +97,7 @@ public class QualityGateVerifierTest {
 
   @Test
   public void test_toString() {
-    assertThat(verifier.toString()).isEqualTo("QualityGateVerifier");
+    assertThat(verifier.toString()).isEqualTo("LegacyQualityGateVerifier");
   }
 
   @Test

@@ -29,13 +29,13 @@ import org.sonar.batch.rule.RulesProfileWrapper;
 /**
  * Executed on every module to feed {@link org.sonar.batch.qualitygate.ProjectAlerts}
  */
-public class QualityGateLoader implements Sensor {
+public class LegacyQualityGateLoader implements Sensor {
 
   private final FileSystem fs;
   private final RulesProfile qProfile;
   private final ProjectAlerts projectAlerts;
 
-  public QualityGateLoader(FileSystem fs, RulesProfile qProfile, ProjectAlerts projectAlerts) {
+  public LegacyQualityGateLoader(FileSystem fs, RulesProfile qProfile, ProjectAlerts projectAlerts) {
     this.fs = fs;
     this.qProfile = qProfile;
     this.projectAlerts = projectAlerts;

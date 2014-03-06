@@ -31,12 +31,12 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class QualityGateLoaderTest {
+public class LegacyQualityGateLoaderTest {
 
   DefaultFileSystem fs = new DefaultFileSystem();
   RulesProfileWrapper qProfile = mock(RulesProfileWrapper.class);
   ProjectAlerts alerts = new ProjectAlerts();
-  QualityGateLoader loader = new QualityGateLoader(fs, qProfile, alerts);
+  LegacyQualityGateLoader loader = new LegacyQualityGateLoader(fs, qProfile, alerts);
 
   @Test
   public void should_always_be_executed() throws Exception {
