@@ -39,7 +39,7 @@ public class QgateAppHandler implements RequestHandler {
       "alerts.notes.ok",
       "alerts.notes.warn",
       "alerts.select_metric",
-      "alerts.warn_tooltip",
+      "alerts.warning_tooltip",
       "are_you_sure",
       "cancel",
       "copy",
