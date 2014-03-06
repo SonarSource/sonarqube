@@ -19,42 +19,51 @@
  */
 package org.sonar.batch.qualitygate;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.measures.Metric;
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
 
-import javax.annotation.Nullable;
+public class ResolvedCondition implements QualityGateCondition {
 
-import java.util.Collection;
+  private QualityGateCondition wrapped;
 
-public class QualityGate implements BatchComponent {
+  private Metric metric;
 
-  private final String name;
-
-  private final Collection<ResolvedCondition> conditions;
-
-  QualityGate(@Nullable String name) {
-    this.name = name;
-    this.conditions = Lists.newArrayList();
+  public ResolvedCondition(QualityGateCondition condition, Metric metric) {
+    this.wrapped = condition;
+    this.metric = metric;
   }
 
-  void add(ResolvedCondition condition) {
-    this.conditions.add(condition);
+  public Metric metric() {
+    return metric;
   }
 
-  static QualityGate disabled() {
-    return new QualityGate(null);
+  @Override
+  public Long id() {
+    return wrapped.id();
   }
 
-  public String name() {
-    return name;
+  @Override
+  public String metricKey() {
+    return wrapped.metricKey();
   }
 
-  public Collection<ResolvedCondition> conditions() {
-    return ImmutableList.copyOf(conditions);
+  @Override
+  public String operator() {
+    return wrapped.operator();
   }
 
-  public boolean isEnabled() {
-    return name != null;
+  @Override
+  public String warningThreshold() {
+    return wrapped.warningThreshold();
+  }
+
+  @Override
+  public String errorThreshold() {
+    return wrapped.errorThreshold();
+  }
+
+  @Override
+  public Integer period() {
+    return wrapped.period();
   }
 }

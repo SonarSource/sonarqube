@@ -19,20 +19,45 @@
  */
 package org.sonar.batch.qualitygate;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
+import org.sonar.core.timemachine.Periods;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class QualityGateVerifier implements Decorator {
 
+  private static final String VARIATION_METRIC_PREFIX = "new_";
+  private static final String VARIATION = "variation";
+
   private QualityGate qualityGate;
 
-  public QualityGateVerifier(QualityGate qualityGate) {
+  private Snapshot snapshot;
+  private Periods periods;
+  private I18n i18n;
+  private Durations durations;
+
+  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations) {
     this.qualityGate = qualityGate;
+    this.snapshot = snapshot;
+    this.periods = periods;
+    this.i18n = i18n;
+    this.durations = durations;
   }
 
   @DependedUpon
@@ -43,6 +68,15 @@ public class QualityGateVerifier implements Decorator {
   @DependsUpon
   public String dependsOnVariations() {
     return DecoratorBarriers.END_OF_TIME_MACHINE;
+  }
+
+  @DependsUpon
+  public Collection<Metric> dependsUponMetrics() {
+    Set<Metric> metrics = Sets.newHashSet();
+    for (ResolvedCondition condition: qualityGate.conditions()) {
+      metrics.add(condition.metric());
+    }
+    return metrics;
   }
 
   @Override
@@ -59,10 +93,77 @@ public class QualityGateVerifier implements Decorator {
 
   private void checkProjectConditions(DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
+    List<String> labels = Lists.newArrayList();
+
+    for (ResolvedCondition condition: qualityGate.conditions()) {
+      Measure measure = context.getMeasure(condition.metric());
+      if (measure != null) {
+        Metric.Level level = ConditionUtils.getLevel(condition, measure);
+
+        /*
+         * This should probably be done only after migration from alerts
+         */
+        //measure.setAlertStatus(level);
+        String text = getText(condition, level);
+        if (!StringUtils.isBlank(text)) {
+          //measure.setAlertText(text);
+          labels.add(text);
+        }
+
+        //context.saveMeasure(measure);
+
+        if (Metric.Level.WARN == level && globalLevel != Metric.Level.ERROR) {
+          globalLevel = Metric.Level.WARN;
+
+        } else if (Metric.Level.ERROR == level) {
+          globalLevel = Metric.Level.ERROR;
+        }
+      }
+    }
+
     Measure globalMeasure = new Measure(CoreMetrics.QUALITY_GATE_STATUS, globalLevel);
     globalMeasure.setAlertStatus(globalLevel);
-    globalMeasure.setAlertText("");
+    globalMeasure.setAlertText(StringUtils.join(labels, ", "));
     context.saveMeasure(globalMeasure);
+  }
+
+  private String getText(ResolvedCondition condition, Metric.Level level) {
+    if (level == Metric.Level.OK) {
+      return null;
+    }
+    return getAlertLabel(condition, level);
+  }
+
+  private String getAlertLabel(ResolvedCondition condition, Metric.Level level) {
+    Integer alertPeriod = condition.period();
+    String metric = i18n.message(Locale.ENGLISH, "metric." + condition.metricKey() + ".name", condition.metric().getName());
+
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(metric);
+
+    if (alertPeriod != null && !condition.metricKey().startsWith(VARIATION_METRIC_PREFIX)) {
+      String variation = i18n.message(Locale.ENGLISH, VARIATION, VARIATION).toLowerCase();
+      stringBuilder.append(" ").append(variation);
+    }
+
+    stringBuilder
+      .append(" ").append(condition.operator()).append(" ")
+      .append(alertValue(condition, level));
+
+    if (alertPeriod != null) {
+      stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
+    }
+
+    return stringBuilder.toString();
+  }
+
+  private String alertValue(ResolvedCondition condition, Metric.Level level) {
+    String value = level.equals(Metric.Level.ERROR) ? condition.errorThreshold() : condition.warningThreshold();
+    if (condition.metric().getType().equals(Metric.ValueType.WORK_DUR)) {
+      return durations.format(Locale.ENGLISH, Duration.create(Long.parseLong(value)), Durations.DurationFormat.SHORT);
+    } else {
+      return value;
+    }
   }
 
   @Override

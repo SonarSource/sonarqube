@@ -24,10 +24,12 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.QualityGateDetails;
 
 import java.net.HttpURLConnection;
@@ -38,24 +40,24 @@ public class QualityGateProvider extends ProviderAdapter {
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
 
-  public QualityGate provide(Settings settings, ServerClient client) {
-    return init(settings, client, LOG);
+  public QualityGate provide(Settings settings, ServerClient client, MetricFinder metricFinder) {
+    return init(settings, client, metricFinder, LOG);
   }
 
   @VisibleForTesting
-  QualityGate init(Settings settings, ServerClient client, Logger logger) {
+  QualityGate init(Settings settings, ServerClient client, MetricFinder metricFinder, Logger logger) {
     QualityGate result = QualityGate.disabled();
     String qualityGateSetting = settings.getString(PROPERTY_QUALITY_GATE);
     if (qualityGateSetting == null) {
       logger.info("No quality gate is configured.");
     } else {
-      result = load(qualityGateSetting, client.wsClient().qualityGateClient());
+      result = load(qualityGateSetting, client.wsClient().qualityGateClient(), metricFinder);
     }
     logger.info("Loaded quality gate '{}'", result.name());
     return result;
   }
 
-  private QualityGate load(String qualityGateSetting, QualityGateClient qualityGateClient) {
+  private QualityGate load(String qualityGateSetting, QualityGateClient qualityGateClient, MetricFinder metricFinder) {
     QualityGateDetails definitionFromServer = null;
     try {
       definitionFromServer = fetch(qualityGateSetting, qualityGateClient);
@@ -68,6 +70,10 @@ public class QualityGateProvider extends ProviderAdapter {
     }
 
     QualityGate configuredGate = new QualityGate(definitionFromServer.name());
+
+    for (QualityGateCondition condition: definitionFromServer.conditions()) {
+      configuredGate.add(new ResolvedCondition(condition, metricFinder.findByKey(condition.metricKey())));
+    }
 
     return configuredGate;
   }
