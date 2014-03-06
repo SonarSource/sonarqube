@@ -1132,7 +1132,9 @@ define(
 
         serializeData: function () {
           return _.extend({}, this.model.toJSON(), {
-            items: this.model.get('choices')
+            items: _.sortBy(this.model.get('choices'), function(item) {
+              return item.name.toLowerCase();
+            })
           });
         }
       });
