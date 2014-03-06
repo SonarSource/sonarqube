@@ -1,0 +1,20 @@
+<dataset>
+
+  <!-- All debt parameters are reset as the characteristic MEMORY_EFFICIENCY do not exists -->
+  <rules id="1" plugin_rule_key="rule1" plugin_name="fake" plugin_config_key="config1" name="One" description="Description of One"
+         status="READY" priority="4" cardinality="SINGLE" parent_id="[null]" language="java"
+         characteristic_id="[null]" default_characteristic_id="[null]"
+         remediation_function="[null]" default_remediation_function="[null]"
+         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_offset="[null]" default_remediation_offset="[null]"
+         effort_to_fix_l10n_key="[null]"/>
+
+  <rules id="2" plugin_rule_key="rule2" plugin_name="fake" plugin_config_key="[null]" name="Two" description="Description of Two"
+         status="DEPRECATED" priority="0" cardinality="SINGLE" parent_id="[null]" language="java"
+         characteristic_id="[null]" default_characteristic_id="[null]"
+         remediation_function="[null]" default_remediation_function="[null]"
+         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_offset="[null]" default_remediation_offset="[null]"
+         effort_to_fix_l10n_key="[null]"/>
+
+</dataset>

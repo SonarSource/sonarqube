@@ -20,22 +20,42 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.rule.RemediationFunction;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.technicaldebt.RuleDebtXMLImporter;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DeprecatedRuleDefinitionsTest {
+
+  @Mock
+  RuleI18nManager i18n;
+
+  @Mock
+  TechnicalDebtModelRepository debtModelRepository;
+
+  @Mock
+  RuleDebtXMLImporter importer;
 
   static class CheckstyleRules extends RuleRepository {
     public CheckstyleRules() {
@@ -56,12 +76,24 @@ public class DeprecatedRuleDefinitionsTest {
     }
   }
 
+  static class UseBundles extends RuleRepository {
+    public UseBundles() {
+      super("checkstyle", "java");
+      setName("Checkstyle");
+    }
+
+    @Override
+    public List<Rule> createRules() {
+      Rule rule = Rule.create("checkstyle", "ConstantName");
+      rule.createParameter("format");
+      return Arrays.asList(rule);
+    }
+  }
+
   @Test
   public void wrap_deprecated_rule_repositories() throws Exception {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleI18nManager i18n = mock(RuleI18nManager.class);
-
-    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new CheckstyleRules()}).define(context);
+    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
 
     assertThat(context.repositories()).hasSize(1);
     RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
@@ -91,38 +123,21 @@ public class DeprecatedRuleDefinitionsTest {
   @Test
   public void emulate_the_day_deprecated_api_can_be_dropped() throws Exception {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleI18nManager i18n = mock(RuleI18nManager.class);
 
     // no more RuleRepository !
-    new DeprecatedRuleDefinitions(i18n);
+    new DeprecatedRuleDefinitions(i18n, debtModelRepository, importer);
 
     assertThat(context.repositories()).isEmpty();
-  }
-
-
-  static class UseBundles extends RuleRepository {
-    public UseBundles() {
-      super("checkstyle", "java");
-      setName("Checkstyle");
-    }
-
-    @Override
-    public List<Rule> createRules() {
-      Rule rule = Rule.create("checkstyle", "ConstantName");
-      rule.createParameter("format");
-      return Arrays.asList(rule);
-    }
   }
 
   @Test
   public void use_l10n_bundles() throws Exception {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleI18nManager i18n = mock(RuleI18nManager.class);
     when(i18n.getName("checkstyle", "ConstantName")).thenReturn("Constant Name");
     when(i18n.getDescription("checkstyle", "ConstantName")).thenReturn("Checks that constant names conform to the specified format");
     when(i18n.getParamDescription("checkstyle", "ConstantName", "format")).thenReturn("Regular expression");
 
-    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new UseBundles()}).define(context);
+    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new UseBundles()}, debtModelRepository, importer).define(context);
 
     RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
     RuleDefinitions.Rule rule = checkstyle.rule("ConstantName");
@@ -134,4 +149,38 @@ public class DeprecatedRuleDefinitionsTest {
     assertThat(param.name()).isEqualTo("format");
     assertThat(param.description()).isEqualTo("Regular expression");
   }
+
+  @Test
+  public void define_rule_debt() throws Exception {
+    RuleDefinitions.Context context = new RuleDefinitions.Context();
+
+    List<RuleDebtXMLImporter.RuleDebt> ruleDebts = newArrayList(
+      new RuleDebtXMLImporter.RuleDebt()
+        .setCharacteristicKey("MEMORY_EFFICIENCY")
+        .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
+        .setFunction(RemediationFunction.LINEAR_OFFSET)
+        .setFactor("1d")
+        .setOffset("10min")
+    );
+
+    Reader javaModelReader = mock(Reader.class);
+    when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+    when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+    when(importer.importXML(eq(javaModelReader))).thenReturn(ruleDebts);
+
+    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
+    assertThat(checkstyle.rules()).hasSize(1);
+
+    RuleDefinitions.Rule rule = checkstyle.rule("ConstantName");
+    assertThat(rule).isNotNull();
+    assertThat(rule.key()).isEqualTo("ConstantName");
+    assertThat(rule.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(rule.remediationFunction()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
+    assertThat(rule.remediationFactor()).isEqualTo("1d");
+    assertThat(rule.remediationOffset()).isEqualTo("10min");
+  }
+
 }

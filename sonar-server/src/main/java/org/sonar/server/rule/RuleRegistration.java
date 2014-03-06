@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,10 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.startup.RegisterDebtCharacteristicModel;
 
 import javax.annotation.CheckForNull;
 
@@ -51,6 +55,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 4.2
  */
 public class RuleRegistration implements Startable {
+
   private static final Logger LOG = LoggerFactory.getLogger(RuleRegistration.class);
 
   private final RuleDefinitionsLoader defLoader;
@@ -62,11 +67,16 @@ public class RuleRegistration implements Startable {
   private final RuleTagDao ruleTagDao;
   private final RuleTagOperations ruleTagOperations;
   private final ActiveRuleDao activeRuleDao;
+  private final CharacteristicDao characteristicDao;
   private final System2 system = System2.INSTANCE;
 
+  /**
+   * @param registerTechnicalDebtModel used only to be started after init of the technical debt model
+   */
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
                           RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
-                          MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao) {
+                          MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao,
+                          RegisterDebtCharacteristicModel registerTechnicalDebtModel) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;
@@ -76,6 +86,7 @@ public class RuleRegistration implements Startable {
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
     this.activeRuleDao = activeRuleDao;
+    this.characteristicDao = characteristicDao;
   }
 
   @Override
@@ -85,8 +96,9 @@ public class RuleRegistration implements Startable {
     try {
       RuleDefinitions.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
+      List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
       selectRulesFromDb(buffer, sqlSession);
-      enableRuleDefinitions(context, buffer, sqlSession);
+      enableRuleDefinitions(context, buffer, characteristicDtos, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
       removeActiveRulesOnStillExistingRepositories(removedRules, context);
       index(buffer);
@@ -120,27 +132,27 @@ public class RuleRegistration implements Startable {
     }
   }
 
-  private void enableRuleDefinitions(RuleDefinitions.Context context, Buffer buffer, SqlSession sqlSession) {
+  private void enableRuleDefinitions(RuleDefinitions.Context context, Buffer buffer, List<CharacteristicDto> characteristicDtos, SqlSession sqlSession) {
     for (RuleDefinitions.Repository repoDef : context.repositories()) {
-      enableRepository(buffer, sqlSession, repoDef);
+      enableRepository(buffer, sqlSession, repoDef, characteristicDtos);
     }
     for (RuleDefinitions.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
       if (context.repository(extendedRepoDef.key()) == null) {
         LOG.warn(String.format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
       } else {
-        enableRepository(buffer, sqlSession, extendedRepoDef);
+        enableRepository(buffer, sqlSession, extendedRepoDef, characteristicDtos);
       }
     }
   }
 
-  private void enableRepository(Buffer buffer, SqlSession sqlSession, RuleDefinitions.ExtendedRepository repoDef) {
+  private void enableRepository(Buffer buffer, SqlSession sqlSession, RuleDefinitions.ExtendedRepository repoDef, List<CharacteristicDto> characteristicDtos) {
     int count = 0;
     for (RuleDefinitions.Rule ruleDef : repoDef.rules()) {
       RuleDto dto = buffer.rule(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
       if (dto == null) {
-        dto = enableAndInsert(buffer, sqlSession, ruleDef);
+        dto = enableAndInsert(buffer, sqlSession, ruleDef, characteristicDtos);
       } else {
-        enableAndUpdate(buffer, sqlSession, ruleDef, dto);
+        enableAndUpdate(buffer, sqlSession, ruleDef, dto, characteristicDtos);
       }
       buffer.markProcessed(dto);
       count++;
@@ -151,8 +163,9 @@ public class RuleRegistration implements Startable {
     sqlSession.commit();
   }
 
-  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef) {
+  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, List<CharacteristicDto> characteristicDtos) {
     RemediationFunction remediationFunction = ruleDef.remediationFunction();
+
     RuleDto ruleDto = new RuleDto()
       .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
       .setConfigKey(ruleDef.internalKey())
@@ -164,12 +177,17 @@ public class RuleRegistration implements Startable {
       .setSeverity(ruleDef.severity())
       .setCreatedAt(buffer.now())
       .setUpdatedAt(buffer.now())
-      .setStatus(ruleDef.status().name())
-      // TODO set default characteristic id
-      .setDefaultRemediationFunction(remediationFunction != null ? remediationFunction.name() : null)
-      .setDefaultRemediationFactor(ruleDef.remediationFactor())
-      .setDefaultRemediationOffset(ruleDef.remediationOffset())
-      .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
+      .setStatus(ruleDef.status().name());
+
+    CharacteristicDto characteristic = findCharacteristic(characteristicDtos, ruleDef);
+    if (characteristic != null) {
+      ruleDto.setDefaultCharacteristicId(characteristic.getId())
+        .setDefaultRemediationFunction(remediationFunction != null ? remediationFunction.name() : null)
+        .setDefaultRemediationFactor(ruleDef.remediationFactor())
+        .setDefaultRemediationOffset(ruleDef.remediationOffset())
+        .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
+    }
+
     ruleDao.insert(ruleDto, sqlSession);
     buffer.add(ruleDto);
 
@@ -187,8 +205,8 @@ public class RuleRegistration implements Startable {
     return ruleDto;
   }
 
-  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto) {
-    if (mergeRule(buffer, ruleDef, dto)) {
+  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+    if (mergeRule(buffer, ruleDef, dto, characteristicDtos)) {
       ruleDao.update(dto);
     }
     mergeParams(buffer, sqlSession, ruleDef, dto);
@@ -196,7 +214,7 @@ public class RuleRegistration implements Startable {
     buffer.markProcessed(dto);
   }
 
-  private boolean mergeRule(Buffer buffer, RuleDefinitions.Rule def, RuleDto dto) {
+  private boolean mergeRule(Buffer buffer, RuleDefinitions.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
     if (!StringUtils.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -229,34 +247,42 @@ public class RuleRegistration implements Startable {
       dto.setLanguage(def.repository().language());
       changed = true;
     }
-    changed = mergeDebtRule(def, dto) || changed;
+    changed = mergeDebtDefinitions(def, dto, characteristicDtos) || changed;
     if (changed) {
       dto.setUpdatedAt(buffer.now());
     }
     return changed;
   }
 
-  private boolean mergeDebtRule(RuleDefinitions.Rule def, RuleDto dto){
+  private boolean mergeDebtDefinitions(RuleDefinitions.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
 
-    // TODO add characteristic id change verification
+    CharacteristicDto characteristic = findCharacteristic(characteristicDtos, def);
+    Integer characteristicId = characteristic != null ? characteristic.getId() : null;
+    RemediationFunction remediationFunction = characteristic != null ? def.remediationFunction() : null;
+    String remediationFactor = characteristic != null ? def.remediationFactor() : null;
+    String remediationOffset = characteristic != null ? def.remediationOffset() : null;
+    String effortToFixL10nKey = characteristic != null ? def.effortToFixL10nKey() : null;
 
-    RemediationFunction remediationFunction = def.remediationFunction();
+    if (!ObjectUtils.equals(dto.getDefaultCharacteristicId(), characteristicId)) {
+      dto.setDefaultCharacteristicId(characteristicId);
+      changed = true;
+    }
     String remediationFunctionString = remediationFunction != null ? remediationFunction.name() : null;
     if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunctionString)) {
       dto.setDefaultRemediationFunction(remediationFunctionString);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationFactor(), def.remediationFactor())) {
-      dto.setDefaultRemediationFactor(def.remediationFactor());
+    if (!StringUtils.equals(dto.getDefaultRemediationFactor(), remediationFactor)) {
+      dto.setDefaultRemediationFactor(remediationFactor);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationOffset(), def.remediationOffset())) {
-      dto.setDefaultRemediationOffset(def.remediationOffset());
+    if (!StringUtils.equals(dto.getDefaultRemediationOffset(), remediationOffset)) {
+      dto.setDefaultRemediationOffset(remediationOffset);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getEffortToFixL10nKey(), def.effortToFixL10nKey())) {
-      dto.setEffortToFixL10nKey(def.effortToFixL10nKey());
+    if (!StringUtils.equals(dto.getEffortToFixL10nKey(), effortToFixL10nKey)) {
+      dto.setEffortToFixL10nKey(effortToFixL10nKey);
       changed = true;
     }
     return changed;
@@ -507,5 +533,22 @@ public class RuleRegistration implements Startable {
     void markProcessed(RuleDto ruleDto) {
       unprocessedRuleIds.remove(ruleDto.getId());
     }
+  }
+
+  @CheckForNull
+  private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RuleDefinitions.Rule ruleDef) {
+    final String key = ruleDef.characteristicKey();
+    CharacteristicDto characteristicDto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
+      @Override
+      public boolean apply(CharacteristicDto input) {
+        // TODO remove check on null rule id when only characteristics without requirements will be returned
+        return input.getRuleId() == null && input.getKey().equals(key);
+      }
+    }, null);
+    // TODO check not root characteristic
+    if (characteristicDto == null) {
+      LOG.warn(String.format("Characteristic : '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored", key, ruleDef.repository(), ruleDef.key()));
+    }
+    return characteristicDto;
   }
 }

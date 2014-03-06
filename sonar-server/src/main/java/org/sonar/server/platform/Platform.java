@@ -63,10 +63,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
-import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
+import org.sonar.core.technicaldebt.*;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -387,8 +384,11 @@ public final class Platform {
     // technical debt
     servicesContainer.addSingleton(DebtService.class);
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
+    servicesContainer.addSingleton(DebtCharacteristicsSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
+    servicesContainer.addSingleton(RuleDebtXMLImporter.class);
+    servicesContainer.addSingleton(CharacteristicsXMLImporter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
     // source
@@ -437,6 +437,7 @@ public final class Platform {
     startupContainer.addSingleton(RuleRegistration.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
+    startupContainer.addSingleton(RegisterDebtCharacteristicModel.class);
     startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);

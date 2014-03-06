@@ -31,7 +31,9 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.startup.RegisterDebtCharacteristicModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -53,6 +55,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   RuleDao ruleDao;
   RuleTagDao ruleTagDao;
   ActiveRuleDao activeRuleDao;
+  CharacteristicDao characteristicDao;
 
   @Before
   public void before() {
@@ -61,8 +64,9 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
+    characteristicDao = new CharacteristicDao(myBatis);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
   }
 
   @Test
@@ -162,6 +166,14 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void remove_rule_debt_definitions_if_characteristic_not_found() {
+    setupData("remove_rule_debt_definitions_if_characteristic_not_found");
+    task.start();
+
+    checkTables("remove_rule_debt_definitions_if_characteristic_not_found", EXCLUDED_COLUMN_NAMES, "rules");
+  }
+
+  @Test
   public void not_disable_template_rules_if_parent_is_enabled() {
     setupData("not_disable_template_rules_if_parent_is_enabled");
     task.start();
@@ -189,7 +201,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
 
     setupData("shared");
     task.start();
@@ -204,7 +216,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
       new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
 
     setupData("empty");
     task.start();
@@ -221,7 +233,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setName("One")
         .setHtmlDescription("Description of One")
         .setSeverity(Severity.BLOCKER)
-        .setCharacteristicKey("COMPILER")
+        .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRemediationFunction(RemediationFunction.LINEAR_OFFSET)
         .setRemediationFactor("5d")
         .setRemediationOffset("10h")

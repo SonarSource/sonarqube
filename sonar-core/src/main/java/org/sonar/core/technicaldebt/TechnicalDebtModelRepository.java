@@ -107,8 +107,7 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
    * @return the list of plugin keys
    */
   public Collection<String> getContributingPluginList() {
-    Collection<String> contributingPlugins = newArrayList(contributingPluginKeyToClassLoader.keySet());
-    return contributingPlugins;
+    return newArrayList(contributingPluginKeyToClassLoader.keySet());
   }
 
   /**
