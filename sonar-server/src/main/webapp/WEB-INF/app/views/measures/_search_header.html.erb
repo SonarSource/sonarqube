@@ -37,7 +37,7 @@
           <button id="save-as" onclick="openModalWindow('<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>');"><%= message('save_as') -%></button>
         <% end %>
 
-        <% if @filter.owner?(current_user) %>
+        <% if @filter.id && @filter.owner?(current_user) %>
           <button id="edit-filter" onclick="openModalWindow('<%= url_for :action => 'edit_form', :id => @filter.id -%>');"><%= message('edit') -%></button>
         <% end %>
       <% end %>
