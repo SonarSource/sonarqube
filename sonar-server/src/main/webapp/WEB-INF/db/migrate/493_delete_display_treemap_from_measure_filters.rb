@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.2
+# SonarQube 4.2
 # SONAR-4997
 #
 class DeleteDisplayTreemapFromMeasureFilters < ActiveRecord::Migration

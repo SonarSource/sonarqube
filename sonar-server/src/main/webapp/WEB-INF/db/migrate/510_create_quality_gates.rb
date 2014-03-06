@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.3
+# SonarQube 4.3
 #
 class CreateQualityGates < ActiveRecord::Migration
 

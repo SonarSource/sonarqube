@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.3
+# SonarQube 4.3
 # SONAR-4996
 #
 class UpdateAlertsOnDebtToMinutes < ActiveRecord::Migration

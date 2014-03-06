@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.debt;
+package org.sonar.server.db.migrations;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
@@ -26,34 +26,34 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.MySql;
-import org.sonar.server.db.migrations.util.SqlUtil;
 
 import java.sql.*;
 
+/**
+ * Update a table by iterating a sub-set of rows. For each row a SQL UPDATE request
+ * is executed.
+ */
 public class MassUpdater {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdater.class);
-
-  static final int GROUP_SIZE = 1000;
-
   private static final String FAILURE_MESSAGE = "Fail to migrate data";
-
+  private static final int GROUP_SIZE = 1000;
   private final Database db;
 
   public MassUpdater(Database db) {
     this.db = db;
   }
 
-  interface InputLoader<S> {
+  public static interface InputLoader<S> {
     String selectSql();
 
     S load(ResultSet rs) throws SQLException;
   }
 
-  interface InputConverter<S> {
+  public static interface InputConverter<S> {
     String updateSql();
 
-    void convert(S input, PreparedStatement statement) throws SQLException;
+    void convert(S input, PreparedStatement updateStatement) throws SQLException;
   }
 
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
@@ -62,15 +62,12 @@ public class MassUpdater {
       Connection readConnection = db.getDataSource().getConnection();
       Statement stmt = null;
       ResultSet rs = null;
-
       Connection writeConnection = db.getDataSource().getConnection();
       PreparedStatement writeStatement = null;
       try {
+        readConnection.setAutoCommit(false);
         writeConnection.setAutoCommit(false);
         writeStatement = writeConnection.prepareStatement(converter.updateSql());
-
-        readConnection.setAutoCommit(false);
-
         stmt = readConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(GROUP_SIZE);
         if (db.getDialect().getId().equals(MySql.ID)) {
@@ -98,9 +95,7 @@ public class MassUpdater {
           writeConnection.commit();
         }
       } finally {
-        if (writeStatement != null) {
-          writeStatement.close();
-        }
+        DbUtils.closeQuietly(writeStatement);
         DbUtils.closeQuietly(writeConnection);
         DbUtils.closeQuietly(readConnection, stmt, rs);
 

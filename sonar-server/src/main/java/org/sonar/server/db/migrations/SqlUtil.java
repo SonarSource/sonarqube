@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.util;
+package org.sonar.server.db.migrations;
 
 import org.slf4j.Logger;
 
@@ -41,6 +41,24 @@ public class SqlUtil {
       logger.error("SQL error: {}. Message: {}", next.getSQLState(), next.getMessage());
       next = next.getNextException();
     }
+  }
+
+  @CheckForNull
+  public static Long getLong(ResultSet rs, int columnIndex) throws SQLException {
+    long l = rs.getLong(columnIndex);
+    return rs.wasNull() ? null : l;
+  }
+
+  @CheckForNull
+  public static Double getDouble(ResultSet rs, int columnIndex) throws SQLException {
+    double d = rs.getDouble(columnIndex);
+    return rs.wasNull() ? null : d;
+  }
+
+  @CheckForNull
+  public static Integer getInt(ResultSet rs, int columnIndex) throws SQLException {
+    int i = rs.getInt(columnIndex);
+    return rs.wasNull() ? null : i;
   }
 
   @CheckForNull

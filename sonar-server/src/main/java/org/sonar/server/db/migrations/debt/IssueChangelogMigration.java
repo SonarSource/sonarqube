@@ -26,7 +26,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.util.SqlUtil;
+import org.sonar.server.db.migrations.MassUpdater;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -37,17 +38,9 @@ import java.util.regex.Pattern;
 
 /**
  * Used in the Active Record Migration 514
+ * @since 4.3
  */
 public class IssueChangelogMigration implements DatabaseMigration {
-
-  private static final String ID = "id";
-  private static final String CHANGE_DATA = "changeData";
-
-  private static final String SELECT_SQL = "SELECT ic.id AS " + ID + ", ic.change_data AS " + CHANGE_DATA +
-    " FROM issue_changes ic " +
-    " WHERE ic.change_type = 'diff' AND ic.change_data LIKE '%technicalDebt%'";
-
-  private static final String UPDATE_SQL = "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
@@ -70,28 +63,29 @@ public class IssueChangelogMigration implements DatabaseMigration {
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return SELECT_SQL;
+          return "SELECT ic.id, ic.change_data  FROM issue_changes ic " +
+            " WHERE ic.change_type = 'diff' AND ic.change_data LIKE '%technicalDebt%'";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
-          row.id = SqlUtil.getLong(rs, ID);
-          row.changeData = rs.getString(CHANGE_DATA);
+          row.id = SqlUtil.getLong(rs, 1);
+          row.changeData = rs.getString(2);
           return row;
         }
       },
       new MassUpdater.InputConverter<Row>() {
         @Override
         public String updateSql() {
-          return UPDATE_SQL;
+          return "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
         }
 
         @Override
-        public void convert(Row row, PreparedStatement statement) throws SQLException {
-          statement.setString(1, convertChangelog(row.changeData));
-          statement.setDate(2, new Date(system2.now()));
-          statement.setLong(3, row.id);
+        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          updateStatement.setString(1, convertChangelog(row.changeData));
+          updateStatement.setDate(2, new Date(system2.now()));
+          updateStatement.setLong(3, row.id);
         }
       }
     );

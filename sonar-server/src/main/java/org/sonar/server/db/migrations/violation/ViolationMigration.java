@@ -25,7 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.util.SqlUtil;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import java.sql.SQLException;
 

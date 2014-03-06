@@ -25,6 +25,6 @@
 class AddProjectDeprecatedKeyColumn < ActiveRecord::Migration
 
   def self.up
-      add_column 'projects', 'deprecated_kee', :string, :null => true, :limit => 400
+    add_column 'projects', 'deprecated_kee', :string, :null => true, :limit => 400
   end
 end

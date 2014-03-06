@@ -25,7 +25,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.util.SqlUtil;
+import org.sonar.server.db.migrations.MassUpdater;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -34,15 +35,9 @@ import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 513
+ * @since 4.3
  */
 public class IssueMigration implements DatabaseMigration {
-
-  private static final String ID = "id";
-  private static final String DEBT = "debt";
-
-  private static final String SELECT_SQL = "SELECT i.id AS " + ID + ", i.technical_debt AS " + DEBT +
-    " FROM issues i WHERE i.technical_debt IS NOT NULL";
-  private static final String UPDATE_SQL = "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
@@ -65,28 +60,28 @@ public class IssueMigration implements DatabaseMigration {
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return SELECT_SQL;
+          return "SELECT i.id, i.technical_debt FROM issues i WHERE i.technical_debt IS NOT NULL";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
-          row.id = SqlUtil.getLong(rs, ID);
-          row.debt = SqlUtil.getLong(rs, DEBT);
+          row.id = SqlUtil.getLong(rs, 1);
+          row.debt = SqlUtil.getLong(rs, 2);
           return row;
         }
       },
       new MassUpdater.InputConverter<Row>() {
         @Override
         public String updateSql() {
-          return UPDATE_SQL;
+          return "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
         }
 
         @Override
-        public void convert(Row row, PreparedStatement statement) throws SQLException {
-          statement.setLong(1, workDurationConvertor.createFromLong(row.debt));
-          statement.setDate(2, new Date(system2.now()));
-          statement.setLong(3, row.id);
+        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          updateStatement.setLong(1, workDurationConvertor.createFromLong(row.debt));
+          updateStatement.setDate(2, new Date(system2.now()));
+          updateStatement.setLong(3, row.id);
         }
       }
     );

@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.2
+# SonarQube 4.2
 # SONAR-4923
 #
 class RemoveRuleNotesAndActiveRuleNotes < ActiveRecord::Migration

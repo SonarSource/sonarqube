@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.2
+# SonarQube 4.2
 #
 class AddRuleTags < ActiveRecord::Migration
 
@@ -32,11 +32,7 @@ class AddRuleTags < ActiveRecord::Migration
       t.column :rule_tag_id,        :integer,     :null => false
       t.column :tag_type,           :string,      :null => true,    :limit => 20
     end
-    begin
-      add_index 'rules_rule_tags', ['rule_id', 'rule_tag_id'], :unique => true, :name => 'uniq_rule_tags'
-    rescue
-      # ignore
-    end
+    add_index 'rules_rule_tags', ['rule_id', 'rule_tag_id'], :unique => true, :name => 'uniq_rule_tags'
   end
 
 end

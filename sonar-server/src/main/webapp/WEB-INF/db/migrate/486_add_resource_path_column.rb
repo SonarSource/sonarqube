@@ -25,6 +25,6 @@
 class AddResourcePathColumn < ActiveRecord::Migration
 
   def self.up
-      add_column 'projects', :path, :string, :null => true, :limit => 2000
+    add_column 'projects', :path, :string, :null => true, :limit => 2000
   end
 end

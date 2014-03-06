@@ -23,7 +23,8 @@ package org.sonar.server.db.migrations.debt;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.util.SqlUtil;
+import org.sonar.server.db.migrations.MassUpdater;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,20 +33,13 @@ import java.sql.Types;
 
 /**
  * Used in the Active Record Migration 515
+ * @since 4.3
  */
 public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
 
-  private static final String ID = "id";
-  private static final String VALUE = "value";
-  private static final String VAR1 = "var1";
-  private static final String VAR2 = "var2";
-  private static final String VAR3 = "var3";
-  private static final String VAR4 = "var4";
-  private static final String VAR5 = "var5";
-
-  private static final String SELECT_SQL = "SELECT pm.id AS " + ID + ", pm.value AS " + VALUE +
-    ", pm.variation_value_1 AS " + VAR1 + ", pm.variation_value_2 AS " + VAR2 + ", pm.variation_value_3 AS " + VAR3 +
-    ", pm.variation_value_4 AS " + VAR4 + ", pm.variation_value_5 AS " + VAR5 +
+  private static final String SELECT_SQL = "SELECT pm.id, pm.value " +
+    ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +
+    ", pm.variation_value_4 , pm.variation_value_5 " +
     " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
     " WHERE (m.name='sqale_index' or m.name='new_technical_debt' " +
     // SQALE measures
@@ -77,13 +71,13 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
-          row.id = SqlUtil.getLong(rs, ID);
-          row.value = SqlUtil.getDouble(rs, VALUE);
-          row.var1 = SqlUtil.getDouble(rs, VAR1);
-          row.var2 = SqlUtil.getDouble(rs, VAR2);
-          row.var3 = SqlUtil.getDouble(rs, VAR3);
-          row.var4 = SqlUtil.getDouble(rs, VAR4);
-          row.var5 = SqlUtil.getDouble(rs, VAR5);
+          row.id = SqlUtil.getLong(rs, 1);
+          row.value = SqlUtil.getDouble(rs, 2);
+          row.var1 = SqlUtil.getDouble(rs, 3);
+          row.var2 = SqlUtil.getDouble(rs, 4);
+          row.var3 = SqlUtil.getDouble(rs, 5);
+          row.var4 = SqlUtil.getDouble(rs, 6);
+          row.var5 = SqlUtil.getDouble(rs, 7);
           return row;
         }
       },
@@ -94,14 +88,14 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement statement) throws SQLException {
-          setDouble(statement, 1, row.value);
-          setDouble(statement, 2, row.var1);
-          setDouble(statement, 3, row.var2);
-          setDouble(statement, 4, row.var3);
-          setDouble(statement, 5, row.var4);
-          setDouble(statement, 6, row.var5);
-          statement.setLong(7, row.id);
+        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          setDouble(updateStatement, 1, row.value);
+          setDouble(updateStatement, 2, row.var1);
+          setDouble(updateStatement, 3, row.var2);
+          setDouble(updateStatement, 4, row.var3);
+          setDouble(updateStatement, 5, row.var4);
+          setDouble(updateStatement, 6, row.var5);
+          updateStatement.setLong(7, row.id);
         }
       }
     );

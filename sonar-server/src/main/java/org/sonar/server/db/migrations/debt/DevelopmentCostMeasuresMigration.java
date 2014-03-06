@@ -23,27 +23,19 @@ package org.sonar.server.db.migrations.debt;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.util.SqlUtil;
+import org.sonar.server.db.migrations.MassUpdater;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 516
+ * @since 4.3
  */
 public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
-
-  private static final String ID = "id";
-  private static final String VALUE = "value";
-
-  private static final String SELECT_SQL = "SELECT pm.id AS " + ID + ", pm.value AS " + VALUE +
-    " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
-    " WHERE m.name='development_cost' AND pm.value IS NOT NULL";
-
-  private static final String UPDATE_SQL = "UPDATE project_measures SET value=NULL,text_value=? WHERE id=?";
 
   private final WorkDurationConvertor workDurationConvertor;
   private final Database db;
@@ -59,27 +51,29 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return SELECT_SQL;
+          return "SELECT pm.id, pm.value " +
+            " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
+            " WHERE m.name='development_cost' AND pm.value IS NOT NULL";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
-          row.id = SqlUtil.getLong(rs, ID);
-          row.value = SqlUtil.getDouble(rs, VALUE);
+          row.id = SqlUtil.getLong(rs, 1);
+          row.value = SqlUtil.getDouble(rs, 2);
           return row;
         }
       },
       new MassUpdater.InputConverter<Row>() {
         @Override
         public String updateSql() {
-          return UPDATE_SQL;
+          return "UPDATE project_measures SET value=NULL,text_value=? WHERE id=?";
         }
 
         @Override
-        public void convert(Row row, PreparedStatement statement) throws SQLException {
-          statement.setString(1, convertDebtForDays(row.value));
-          statement.setLong(2, row.id);
+        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          updateStatement.setString(1, convertDebtForDays(row.value));
+          updateStatement.setLong(2, row.id);
         }
       }
     );

@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.2
+# SonarQube 4.2
 # SONAR-926
 # The property sonar.language must not be set in global settings
 #

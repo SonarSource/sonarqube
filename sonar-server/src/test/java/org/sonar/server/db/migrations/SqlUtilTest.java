@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.util;
+package org.sonar.server.db.migrations;
 
 import org.junit.Test;
 import org.slf4j.Logger;
+import org.sonar.server.db.migrations.SqlUtil;
 
 import java.sql.SQLException;
 
