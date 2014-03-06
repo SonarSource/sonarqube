@@ -48,11 +48,11 @@
       QualityGateDetailConditionView.prototype.populateMetric = function() {
         var metric, metricKey;
         metricKey = this.model.get('metric');
-        metric = this.options.app.metrics.findWhere({
+        metric = _.findWhere(this.options.app.metrics, {
           key: metricKey
         });
         return this.model.set({
-          metric: metric.toJSON()
+          metric: metric
         }, {
           silent: true
         });

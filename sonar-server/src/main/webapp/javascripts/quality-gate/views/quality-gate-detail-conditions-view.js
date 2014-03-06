@@ -61,13 +61,15 @@
 
       QualityGateDetailConditionsView.prototype.groupedMetrics = function() {
         var metrics;
-        metrics = this.options.app.metrics.toJSON();
-        return _.sortBy(_.map(_.groupBy(metrics, 'domain'), function(metrics, domain) {
+        metrics = this.options.app.metrics;
+        metrics = _.groupBy(metrics, 'domain');
+        metrics = _.map(metrics, function(metrics, domain) {
           return {
             domain: domain,
             metrics: _.sortBy(metrics, 'short_name')
           };
-        }), 'domain');
+        });
+        return _.sortBy(metrics, 'domain');
       };
 
       QualityGateDetailConditionsView.prototype.serializeData = function() {

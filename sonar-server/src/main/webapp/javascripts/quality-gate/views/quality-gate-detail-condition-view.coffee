@@ -40,8 +40,8 @@ define [
 
     populateMetric: ->
       metricKey = @model.get('metric')
-      metric = @options.app.metrics.findWhere key: metricKey
-      @model.set { metric: metric.toJSON() }, { silent: true }
+      metric = _.findWhere @options.app.metrics, key: metricKey
+      @model.set { metric: metric }, { silent: true }
 
 
     onRender: ->

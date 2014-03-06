@@ -53,8 +53,11 @@ define [
 
 
     groupedMetrics: ->
-      metrics = @options.app.metrics.toJSON()
-      _.sortBy(_.map(_.groupBy(metrics, 'domain'), (metrics, domain) -> return { domain: domain, metrics: _.sortBy(metrics, 'short_name') }), 'domain')
+      metrics = @options.app.metrics
+      metrics = _.groupBy metrics, 'domain'
+      metrics = _.map metrics, (metrics, domain) ->
+        domain: domain, metrics: _.sortBy metrics, 'short_name'
+      _.sortBy metrics, 'domain'
 
 
     serializeData: ->

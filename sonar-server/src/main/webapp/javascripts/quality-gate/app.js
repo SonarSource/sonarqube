@@ -30,7 +30,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/collections/metrics', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'quality-gate/layout', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, Metrics, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter, QualityGateLayout) {
+  requirejs(['backbone', 'backbone.marionette', 'handlebars', 'quality-gate/collections/quality-gates', 'quality-gate/views/quality-gate-sidebar-list-view', 'quality-gate/views/quality-gate-actions-view', 'quality-gate/views/quality-gate-edit-view', 'quality-gate/router', 'quality-gate/layout', 'common/handlebars-extensions'], function(Backbone, Marionette, Handlebars, QualityGates, QualityGateSidebarListItemView, QualityGateActionsView, QualityGateEditView, QualityGateRouter, QualityGateLayout) {
     var App, appXHR, qualityGatesXHR,
       _this = this;
     jQuery.ajaxSetup({
@@ -50,7 +50,6 @@
     });
     jQuery('html').addClass('navigator-page quality-gates-page');
     App = new Marionette.Application;
-    App.metrics = new Metrics;
     App.qualityGates = new QualityGates;
     App.openFirstQualityGate = function() {
       if (this.qualityGates.length > 0) {
@@ -115,10 +114,11 @@
     }).done(function(r) {
       App.canEdit = r.edit;
       App.periods = r.periods;
+      App.metrics = r.metrics;
       return window.messages = r.messages;
     });
     qualityGatesXHR = App.qualityGates.fetch();
-    return jQuery.when(App.metrics.fetch(), qualityGatesXHR, appXHR).done(function() {
+    return jQuery.when(qualityGatesXHR, appXHR).done(function() {
       jQuery('.quality-gate-page-loader').remove();
       return App.start();
     });

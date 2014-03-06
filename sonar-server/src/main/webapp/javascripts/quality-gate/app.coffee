@@ -26,7 +26,6 @@ requirejs.config
 requirejs [
   'backbone', 'backbone.marionette', 'handlebars',
   'quality-gate/collections/quality-gates',
-  'quality-gate/collections/metrics',
   'quality-gate/views/quality-gate-sidebar-list-view',
   'quality-gate/views/quality-gate-actions-view',
   'quality-gate/views/quality-gate-edit-view',
@@ -36,7 +35,6 @@ requirejs [
 ], (
   Backbone, Marionette, Handlebars,
   QualityGates,
-  Metrics,
   QualityGateSidebarListItemView,
   QualityGateActionsView,
   QualityGateEditView,
@@ -65,7 +63,6 @@ requirejs [
   App = new Marionette.Application
 
 
-  App.metrics = new Metrics
   App.qualityGates = new QualityGates
 
 
@@ -131,11 +128,12 @@ requirejs [
   .done (r) =>
       App.canEdit = r.edit
       App.periods = r.periods
+      App.metrics = r.metrics
       window.messages = r.messages
 
   qualityGatesXHR = App.qualityGates.fetch()
 
-  jQuery.when(App.metrics.fetch(), qualityGatesXHR, appXHR)
+  jQuery.when(qualityGatesXHR, appXHR)
     .done ->
       # Remove the initial spinner
       jQuery('.quality-gate-page-loader').remove()
