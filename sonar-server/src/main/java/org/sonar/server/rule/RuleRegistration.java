@@ -538,6 +538,9 @@ public class RuleRegistration implements Startable {
   @CheckForNull
   private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RuleDefinitions.Rule ruleDef) {
     final String key = ruleDef.characteristicKey();
+    if (key == null) {
+      return null;
+    }
     CharacteristicDto characteristicDto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(CharacteristicDto input) {
@@ -547,7 +550,8 @@ public class RuleRegistration implements Startable {
     }, null);
     // TODO check not root characteristic
     if (characteristicDto == null) {
-      LOG.warn(String.format("Characteristic : '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored", key, ruleDef.repository(), ruleDef.key()));
+      LOG.warn(String.format("Characteristic : '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored", key,
+        ruleDef.repository().name(), ruleDef.key()));
     }
     return characteristicDto;
   }
