@@ -24,23 +24,7 @@
 #
 class UpdateIssueMessageByRuleNameWhenNoMessage < ActiveRecord::Migration
 
-  class Rule < ActiveRecord::Base
-  end
-
-  class Issue < ActiveRecord::Base
-    belongs_to :rule, :class_name => 'Rule', :foreign_key => 'rule_id'
-  end
-
   def self.up
-    issuesWithoutMessage = Issue.all(
-        :include => :rule,
-        :conditions => 'message IS NULL'
-    )
-    issuesWithoutMessage.each do |issue|
-      if issue.rule
-        issue.message = issue.rule.name
-        issue.save!
-      end
-    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.issueMessage42.IssueWithoutMessageMigration')
   end
 end

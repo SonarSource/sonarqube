@@ -20,14 +20,17 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.server.db.migrations.issueMessage42.IssueWithoutMessageMigration;
+import org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration;
 import org.sonar.server.db.migrations.violation.ViolationMigration;
 
 import java.util.List;
 
 public interface DatabaseMigrations {
 
-  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.<Class<? extends DatabaseMigration>>of(
-    ViolationMigration.class
+  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
+    ViolationMigration.class,
+    PackageKeysMigration.class, IssueWithoutMessageMigration.class
   );
 
 }
