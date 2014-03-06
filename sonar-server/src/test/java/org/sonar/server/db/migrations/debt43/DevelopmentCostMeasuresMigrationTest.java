@@ -18,50 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.debt;
+package org.sonar.server.db.migrations.debt43;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
-public class IssueMigrationTest {
+public class DevelopmentCostMeasuresMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(IssueMigrationTest.class, "schema.sql");
-
-  @Mock
-  System2 system2;
+  public static TestDatabase db = new TestDatabase().schema(DevelopmentCostMeasuresMigrationTest.class, "schema.sql");
 
   Settings settings;
 
-  IssueMigration migration;
+  DevelopmentCostMeasuresMigration migration;
 
   @Before
   public void setUp() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
     settings = new Settings();
     settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
-    migration = new IssueMigration(db.database(), settings, system2);
+    migration = new DevelopmentCostMeasuresMigration(db.database(), settings);
   }
 
   @Test
-  public void migrate_issues_debt() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
+  public void migrate_dev_cost_measures() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_dev_cost_measures.xml");
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", "issues");
+    db.assertDbUnit(getClass(), "migrate_dev_cost_measures_result.xml", "project_measures");
   }
 
 }

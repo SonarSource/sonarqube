@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.debt;
+package org.sonar.server.db.migrations.debt43;
 
 import org.junit.Before;
 import org.junit.ClassRule;

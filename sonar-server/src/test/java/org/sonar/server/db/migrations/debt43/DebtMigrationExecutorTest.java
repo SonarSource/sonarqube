@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.debt;
+package org.sonar.server.db.migrations.debt43;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.server.db.migrations.debt43.WorkDurationConvertor;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;

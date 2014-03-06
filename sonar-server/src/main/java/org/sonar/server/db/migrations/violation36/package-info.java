@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.server.db.migrations.violation;
+package org.sonar.server.db.migrations.violation36;
 
 import javax.annotation.ParametersAreNonnullByDefault;

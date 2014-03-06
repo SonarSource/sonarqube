@@ -20,11 +20,11 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.debt.DevelopmentCostMeasuresMigration;
-import org.sonar.server.db.migrations.debt.IssueChangelogMigration;
-import org.sonar.server.db.migrations.debt.IssueMigration;
-import org.sonar.server.db.migrations.debt.TechnicalDebtMeasuresMigration;
-import org.sonar.server.db.migrations.violation.ViolationMigration;
+import org.sonar.server.db.migrations.debt43.DevelopmentCostMeasuresMigration;
+import org.sonar.server.db.migrations.debt43.IssueChangelogMigration;
+import org.sonar.server.db.migrations.debt43.IssueMigration;
+import org.sonar.server.db.migrations.debt43.TechnicalDebtMeasuresMigration;
+import org.sonar.server.db.migrations.violation36.ViolationMigration;
 
 import java.util.List;
 

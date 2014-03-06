@@ -32,7 +32,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     # Required for MSSQL to unlock the table RULE_FAILURES
     ActiveRecord::Base.connection.commit_db_transaction
 
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.violation.ViolationMigration')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.violation36.ViolationMigration')
 
     # Currently not possible in Java because of Oracle (triggers and sequences must be dropped)
     drop_table('rule_failures')

@@ -18,59 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.debt;
+package org.sonar.server.db.migrations.debt43;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtMeasuresMigrationTest {
+public class IssueMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(TechnicalDebtMeasuresMigrationTest.class, "schema.sql");
+  public static TestDatabase db = new TestDatabase().schema(IssueMigrationTest.class, "schema.sql");
+
+  @Mock
+  System2 system2;
 
   Settings settings;
 
-  TechnicalDebtMeasuresMigration migration;
+  IssueMigration migration;
 
   @Before
   public void setUp() throws Exception {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
     settings = new Settings();
     settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
-    migration = new TechnicalDebtMeasuresMigration(db.database(), settings);
+    migration = new IssueMigration(db.database(), settings, system2);
   }
 
   @Test
-  public void migrate_technical_debt_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_technical_debt_measures.xml");
+  public void migrate_issues_debt() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_issues_debt.xml");
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_technical_debt_measures_result.xml", "project_measures");
-  }
-
-  @Test
-  public void migrate_added_technical_debt_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_new_technical_debt_measures.xml");
-
-    migration.execute();
-
-    db.assertDbUnit(getClass(), "migrate_new_technical_debt_measures_result.xml", "project_measures");
-  }
-
-  @Test
-  public void migrate_sqale_measures() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_sqale_measures.xml");
-
-    migration.execute();
-
-    db.assertDbUnit(getClass(), "migrate_sqale_measures_result.xml", "project_measures");
+    db.assertDbUnit(getClass(), "migrate_issues_debt_result.xml", "issues");
   }
 
 }
