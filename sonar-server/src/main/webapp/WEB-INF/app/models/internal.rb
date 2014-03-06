@@ -54,7 +54,7 @@ class Internal
     component(Java::OrgSonarServerPermission::InternalPermissionTemplateService.java_class)
   end
 
-  def self.technical_debt
+  def self.debt
     component(Java::OrgSonarServerTechnicaldebt::DebtService.java_class)
   end
 
@@ -84,6 +84,10 @@ class Internal
 
   def self.rule_tags
     component(Java::OrgSonarServerRule::RuleTags.java_class)
+  end
+
+  def self.durations
+    component(Java::OrgSonarApiUtils::Durations.java_class)
   end
 
   def self.i18n

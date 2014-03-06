@@ -96,7 +96,7 @@
       <% end %>
     <% end %>
     <% if issue.debt %>
-      <li><%= message('issue.debt') -%>&nbsp;<%= Internal.i18n.formatWorkDuration(issue.debt) -%></li>
+      <li><%= message('issue.debt') -%>&nbsp;<%= Internal.i18n.formatDuration(issue.debt, 'SHORT') -%></li>
     <% end %>
     <% if issue.authorLogin %>
       <li><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></li>

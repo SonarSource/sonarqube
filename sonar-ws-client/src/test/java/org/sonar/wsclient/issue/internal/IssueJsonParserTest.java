@@ -52,7 +52,7 @@ public class IssueJsonParserTest {
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
-    assertThat(first.technicalDebt()).isNull();
+    assertThat(first.debt()).isNull();
     assertThat(first.reporter()).isEqualTo("perceval");
     assertThat(first.author()).isEqualTo("pirlouis");
     assertThat(first.actionPlan()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
@@ -68,7 +68,7 @@ public class IssueJsonParserTest {
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.line()).isNull();
     assertThat(second.effortToFix()).isNull();
-    assertThat(second.technicalDebt()).isNull();
+    assertThat(second.debt()).isNull();
     assertThat(second.reporter()).isNull();
     assertThat(second.author()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
@@ -207,9 +207,7 @@ public class IssueJsonParserTest {
     assertThat(issues.size()).isEqualTo(1);
 
     Issue issue = issues.list().get(0);
-    assertThat(issue.technicalDebt().days()).isEqualTo(3);
-    assertThat(issue.technicalDebt().hours()).isEqualTo(0);
-    assertThat(issue.technicalDebt().minutes()).isEqualTo(10);
+    assertThat(issue.debt()).isEqualTo("3d10min");
   }
 
 
@@ -255,16 +253,8 @@ public class IssueJsonParserTest {
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
     assertThat(changeDiff.key()).isEqualTo("technicalDebt");
-
-    WorkDayDuration newTechnicalDebt = (WorkDayDuration) changeDiff.newValue();
-    assertThat(newTechnicalDebt.days()).isEqualTo(2);
-    assertThat(newTechnicalDebt.hours()).isEqualTo(1);
-    assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
-
-    WorkDayDuration oldTechnicalDebt = (WorkDayDuration) changeDiff.oldValue();
-    assertThat(oldTechnicalDebt.days()).isEqualTo(3);
-    assertThat(oldTechnicalDebt.hours()).isEqualTo(0);
-    assertThat(oldTechnicalDebt.minutes()).isEqualTo(10);
+    assertThat(changeDiff.newValue()).isEqualTo("2d1h");
+    assertThat(changeDiff.oldValue()).isEqualTo("3d10min");
   }
 
   @Test
@@ -280,14 +270,8 @@ public class IssueJsonParserTest {
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
     assertThat(changeDiff.key()).isEqualTo("technicalDebt");
-
-    WorkDayDuration newTechnicalDebt = (WorkDayDuration) changeDiff.newValue();
-    assertThat(newTechnicalDebt.days()).isEqualTo(2);
-    assertThat(newTechnicalDebt.hours()).isEqualTo(1);
-    assertThat(newTechnicalDebt.minutes()).isEqualTo(0);
-
-    WorkDayDuration oldTechnicalDebt = (WorkDayDuration) changeDiff.oldValue();
-    assertThat(oldTechnicalDebt).isNull();
+    assertThat(changeDiff.newValue()).isEqualTo("2d1h");
+    assertThat(changeDiff.oldValue()).isNull();
   }
 
   @Test

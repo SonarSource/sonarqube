@@ -22,8 +22,6 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.technicaldebt.server.Characteristic;
-import org.sonar.api.utils.internal.WorkDuration;
-import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
 import javax.annotation.CheckForNull;
@@ -31,20 +29,14 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 
 /**
- * Used through ruby code <pre>Internal.technical_debt</pre>
+ * Used through ruby code <pre>Internal.debt</pre>
  */
 public class DebtService implements ServerComponent {
 
   private final DefaultTechnicalDebtManager finder;
-  private final WorkDurationFactory workDurationFactory;
 
-  public DebtService(DefaultTechnicalDebtManager finder, WorkDurationFactory workDurationFactory) {
+  public DebtService(DefaultTechnicalDebtManager finder) {
     this.finder = finder;
-    this.workDurationFactory = workDurationFactory;
-  }
-
-  public WorkDuration toWorkDuration(long debt) {
-    return workDurationFactory.createFromMinutes(debt);
   }
 
   public List<Characteristic> findRootCharacteristics() {

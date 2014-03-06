@@ -164,7 +164,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def work_duration_formatted_value(value)
-    Internal.i18n.formatLongWorkDuration(value.to_i)
+    Internal.i18n.formatLongDuration(value.to_i, 'SHORT')
   end
 
   def color

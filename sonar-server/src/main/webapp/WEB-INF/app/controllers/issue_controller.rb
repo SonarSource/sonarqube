@@ -187,11 +187,11 @@ class IssueController < ApplicationController
     require_parameters :id
     rule_key = params[:id].split(':')
     @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]])
-    @requirement = Internal.technical_debt.findRequirementByRuleId(@rule.id)
+    @requirement = Internal.debt.findRequirementByRuleId(@rule.id)
     # Requirement can be null if it's disabled or if there's no requirement on this rule
     if @requirement
-      @characteristic = Internal.technical_debt.findCharacteristic(@requirement.parentId)
-      @root_characteristic = Internal.technical_debt.findCharacteristic(@requirement.rootId)
+      @characteristic = Internal.debt.findCharacteristic(@requirement.parentId)
+      @root_characteristic = Internal.debt.findCharacteristic(@requirement.rootId)
     end
     render :partial => 'issue/rule'
   end

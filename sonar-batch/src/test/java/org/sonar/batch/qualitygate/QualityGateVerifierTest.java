@@ -38,6 +38,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.timemachine.Periods;
 
 import java.util.Locale;
@@ -62,12 +63,14 @@ public class QualityGateVerifierTest {
   Snapshot snapshot;
   Periods periods;
   I18n i18n;
+  Durations durations;
 
   @Before
   public void before() {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
     i18n = mock(I18n.class);
+    durations = mock(Durations.class);
     when(i18n.message(any(Locale.class), eq("variation"), eq("variation"))).thenReturn("variation");
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
@@ -80,7 +83,7 @@ public class QualityGateVerifierTest {
 
     snapshot = mock(Snapshot.class);
     projectAlerts = new ProjectAlerts();
-    verifier = new QualityGateVerifier(snapshot, projectAlerts, periods, i18n);
+    verifier = new QualityGateVerifier(snapshot, projectAlerts, periods, i18n, durations);
     project = new Project("foo");
   }
 
@@ -351,7 +354,7 @@ public class QualityGateVerifierTest {
 
     // metric name is declared in l10n bundle
     when(i18n.message(any(Locale.class), eq("metric.tech_debt.name"), anyString())).thenReturn("The Debt");
-    when(i18n.formatWorkDuration(any(Locale.class), eq(Duration.create(3600L)))).thenReturn("1h");
+    when(durations.format(any(Locale.class), eq(Duration.create(3600L)), eq(Durations.DurationFormat.SHORT))).thenReturn("1h");
 
     when(context.getMeasure(metric)).thenReturn(new Measure(metric, 1800d));
     projectAlerts.addAll(Lists.newArrayList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "3600", null)));

@@ -23,6 +23,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
@@ -38,9 +39,11 @@ public class IssueChangelogFormatter implements ServerComponent {
   private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
 
   private final I18n i18n;
+  private final Durations durations;
 
-  public IssueChangelogFormatter(I18n i18n) {
+  public IssueChangelogFormatter(I18n i18n, Durations durations) {
     this.i18n = i18n;
+    this.durations = durations;
   }
 
   public List<String> format(Locale locale, FieldDiffs diffs) {
@@ -72,10 +75,10 @@ public class IssueChangelogFormatter implements ServerComponent {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = i18n.formatWorkDuration(UserSession.get().locale(), Duration.create(Long.parseLong(newValueString)));
+        newValueString = durations.format(UserSession.get().locale(), Duration.create(Long.parseLong(newValueString)), Durations.DurationFormat.SHORT);
       }
       if (oldValueString != null) {
-        oldValueString = i18n.formatWorkDuration(UserSession.get().locale(), Duration.create(Long.parseLong(oldValueString)));
+        oldValueString = durations.format(UserSession.get().locale(), Duration.create(Long.parseLong(oldValueString)), Durations.DurationFormat.SHORT);
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

@@ -33,6 +33,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.timemachine.Periods;
 
 import java.util.Collection;
@@ -48,13 +49,15 @@ public class QualityGateVerifier implements Decorator {
   private final Snapshot snapshot;
   private final Periods periods;
   private final I18n i18n;
+  private final Durations durations;
   private ProjectAlerts projectAlerts;
 
-  public QualityGateVerifier(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n) {
+  public QualityGateVerifier(Snapshot snapshot, ProjectAlerts projectAlerts, Periods periods, I18n i18n, Durations durations) {
     this.snapshot = snapshot;
     this.projectAlerts = projectAlerts;
     this.periods = periods;
     this.i18n = i18n;
+    this.durations = durations;
   }
 
   @DependedUpon
@@ -149,10 +152,10 @@ public class QualityGateVerifier implements Decorator {
     return stringBuilder.toString();
   }
 
-  private String alertValue(Alert alert, Metric.Level level){
+  private String alertValue(Alert alert, Metric.Level level) {
     String value = level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning();
     if (alert.getMetric().getType().equals(Metric.ValueType.WORK_DUR)) {
-      return i18n.formatWorkDuration(Locale.ENGLISH, Duration.create(Long.parseLong(value)));
+      return durations.format(Locale.ENGLISH, Duration.create(Long.parseLong(value)), Durations.DurationFormat.SHORT);
     } else {
       return value;
     }

@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.i18n.GwtI18n;
 
 import java.util.Date;
@@ -45,12 +46,15 @@ public class JRubyI18nTest {
   @Mock
   GwtI18n gwtI18n;
 
+  @Mock
+  Durations durations;
+
   JRubyI18n jRubyI18n;
 
 
   @Before
   public void setUp() throws Exception {
-    jRubyI18n = new JRubyI18n(i18n, gwtI18n);
+    jRubyI18n = new JRubyI18n(i18n, durations, gwtI18n);
   }
 
   @Test
@@ -95,14 +99,14 @@ public class JRubyI18nTest {
 
   @Test
   public void format_work_duration() throws Exception {
-    jRubyI18n.formatWorkDuration(Duration.create(10L));
-    verify(i18n).formatWorkDuration(any(Locale.class), eq(Duration.create(10L)));
+    jRubyI18n.formatDuration(Duration.create(10L), "SHORT");
+    verify(durations).format(any(Locale.class), eq(Duration.create(10L)), eq(Durations.DurationFormat.SHORT));
   }
 
   @Test
   public void format_long_work_duration() throws Exception {
-    jRubyI18n.formatLongWorkDuration(10L);
-    verify(i18n).formatWorkDuration(any(Locale.class), eq(Duration.create(10L)));
+    jRubyI18n.formatLongDuration(10L, "SHORT");
+    verify(durations).format(any(Locale.class), eq(Duration.create(10L)), eq(Durations.DurationFormat.SHORT));
   }
 
 }

@@ -6,11 +6,7 @@
       "diffs": [
         {
           "key": "technicalDebt",
-          "newValue": {
-            "days": 2,
-            "hours": 1,
-            "minutes": 0
-          }
+          "newValue": "2d1h"
         }
       ]
     }

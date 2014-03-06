@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.server.user.UserSession;
 
@@ -39,11 +40,13 @@ import java.util.Map;
 public class JRubyI18n implements ServerComponent {
 
   private I18n i18n;
+  private Durations durations;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
   private GwtI18n gwtI18n;
 
-  public JRubyI18n(I18n i18n, GwtI18n gwtI18n) {
+  public JRubyI18n(I18n i18n, Durations durations, GwtI18n gwtI18n) {
     this.i18n = i18n;
+    this.durations = durations;
     this.gwtI18n = gwtI18n;
   }
 
@@ -87,12 +90,12 @@ public class JRubyI18n implements ServerComponent {
     return i18n.ageFromNow(UserSession.get().locale(), date);
   }
 
-  public String formatWorkDuration(Duration duration) {
-    return i18n.formatWorkDuration(UserSession.get().locale(), duration);
+  public String formatDuration(Duration duration, String format) {
+    return durations.format(UserSession.get().locale(), duration, Durations.DurationFormat.valueOf(format));
   }
 
-  public String formatLongWorkDuration(long duration) {
-    return formatWorkDuration(Duration.create(duration));
+  public String formatLongDuration(long duration, String format) {
+    return formatDuration(Duration.create(duration), format);
   }
 
 }

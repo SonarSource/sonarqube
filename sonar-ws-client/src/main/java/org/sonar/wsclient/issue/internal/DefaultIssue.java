@@ -21,7 +21,6 @@ package org.sonar.wsclient.issue.internal;
 
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueComment;
-import org.sonar.wsclient.issue.WorkDayDuration;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
@@ -82,12 +81,8 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public WorkDayDuration technicalDebt() {
-    Map technicalDebt = (Map) json.get("technicalDebt");
-    if (technicalDebt != null) {
-      return new DefaultWorkDayDuration(technicalDebt);
-    }
-    return null;
+  public String debt() {
+    return JsonUtils.getString(json, "debt");
   }
 
   public String status() {
@@ -147,7 +142,7 @@ public class DefaultIssue implements Issue {
   }
 
   public Map<String, String> attributes() {
-    Map<String, String> attr = (Map<String,String>) json.get("attr");
+    Map<String, String> attr = (Map<String, String>) json.get("attr");
     if (attr == null) {
       return Collections.emptyMap();
     }

@@ -43,6 +43,7 @@ import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -89,6 +90,9 @@ public class IssueShowWsHandlerTest {
   @Mock
   I18n i18n;
 
+  @Mock
+  Durations durations;
+
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
@@ -110,7 +114,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtManager, i18n)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtManager, i18n, durations)));
   }
 
   @Test
@@ -307,7 +311,7 @@ public class IssueShowWsHandlerTest {
     Issue issue = createStandardIssue().setDebt(debt);
     issues.add(issue);
 
-    when(i18n.formatWorkDuration(any(Locale.class), eq(debt))).thenReturn("2 hours 1 minutes");
+    when(durations.format(any(Locale.class), eq(debt), eq(Durations.DurationFormat.SHORT))).thenReturn("2 hours 1 minutes");
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());

@@ -34,6 +34,7 @@ import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -64,15 +65,17 @@ public class IssueShowWsHandler implements RequestHandler {
   private final ActionService actionService;
   private final DefaultTechnicalDebtManager technicalDebtManager;
   private final I18n i18n;
+  private final Durations durations;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            DefaultTechnicalDebtManager technicalDebtManager, I18n i18n) {
+                            DefaultTechnicalDebtManager technicalDebtManager, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
     this.technicalDebtManager = technicalDebtManager;
     this.i18n = i18n;
+    this.durations = durations;
   }
 
   @Override
@@ -115,7 +118,7 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", debt != null ? i18n.formatWorkDuration(UserSession.get().locale(), debt) : null)
+      .prop("debt", debt != null ? durations.format(UserSession.get().locale(), debt, Durations.DurationFormat.SHORT) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)

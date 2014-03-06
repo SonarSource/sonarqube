@@ -53,19 +53,7 @@ public class DefaultIssueChangeDiff implements IssueChangeDiff {
   }
 
   private Object parseValue(String attribute) {
-    if ("technicalDebt".equals(key())) {
-      return parseDefaultTechnicalDebt(attribute);
-    } else {
-      return JsonUtils.getString(json, attribute);
-    }
-  }
-
-  private DefaultWorkDayDuration parseDefaultTechnicalDebt(String attribute){
-    Map technicalDebt = (Map) json.get(attribute);
-    if (technicalDebt != null) {
-      return new DefaultWorkDayDuration(technicalDebt);
-    }
-    return null;
+    return JsonUtils.getString(json, attribute);
   }
 
 }

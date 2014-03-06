@@ -7,11 +7,7 @@
             "rule": "squid:CycleBetweenPackages",
             "severity": "CRITICAL",
             "status": "OPEN",
-            "technicalDebt": {
-                    "days": 3,
-                    "hours": 0,
-                    "minutes": 10
-             }
+            "debt": "3d10min"
         }
     ],
     "rules": [

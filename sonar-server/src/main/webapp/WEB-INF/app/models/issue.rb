@@ -34,7 +34,7 @@ class Issue
     hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:technicalDebt] = debt_to_hash(issue.debt) if issue.debt
+    hash[:debt] = Internal.durations.encode(issue.debt) if issue.debt
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
@@ -75,8 +75,8 @@ class Issue
         hash_diff = {}
         hash_diff[:key] = key
         if key == 'technicalDebt'
-          hash_diff[:newValue] = long_debt_to_hash(diff.newValue()) if diff.newValue.present?
-          hash_diff[:oldValue] = long_debt_to_hash(diff.oldValue()) if diff.oldValue.present?
+          hash_diff[:newValue] = Internal.durations.encode(Internal.durations.create(diff.newValue().to_i)) if diff.newValue.present?
+          hash_diff[:oldValue] = Internal.durations.encode(Internal.durations.create(diff.oldValue().to_i)) if diff.oldValue.present?
         else
           hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
           hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
@@ -87,23 +87,6 @@ class Issue
       hash << hash_change
     end
     hash
-  end
-
-
-  private
-
-  def self.debt_to_hash(debt)
-    long_debt_to_hash(debt.toMinutes)
-  end
-
-  def self.long_debt_to_hash(debt)
-    # TODO do not use toWorkDuration() but calculate days, hours and minutes from the duration and from hoursInDay property
-    work_duration = Internal.technical_debt.toWorkDuration(debt.to_i)
-    {
-        :days => work_duration.days(),
-        :hours => work_duration.hours(),
-        :minutes => work_duration.minutes()
-    }
   end
 
 end

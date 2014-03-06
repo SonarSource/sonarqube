@@ -21,7 +21,6 @@ package org.sonar.api.i18n;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
 
@@ -71,16 +70,16 @@ public interface I18n extends ServerComponent, BatchComponent {
 
   /**
    * Return the distance in time between two dates.
-   * @see I18n#age(java.util.Locale, long durationInMillis)
    *
+   * @see I18n#age(java.util.Locale, long durationInMillis)
    * @since 4.2
    */
   String age(Locale locale, Date fromDate, Date toDate);
 
   /**
    * Reports the distance in time a date and now.
-   * @see I18n#age(java.util.Locale, java.util.Date, java.util.Date)
    *
+   * @see I18n#age(java.util.Locale, java.util.Date, java.util.Date)
    * @since 4.2
    */
   String ageFromNow(Locale locale, Date date);
@@ -102,14 +101,5 @@ public interface I18n extends ServerComponent, BatchComponent {
    * @since 4.2
    */
   String formatDate(Locale locale, Date date);
-
-  /**
-   * Return the formatted work duration.
-   * <br>
-   * Example : format(Locale.ENGLISH, Duration.create(10 * 24 * 60 + 2 * 60)) -> 10d 2h
-   *
-   * @since 4.3
-   */
-  String formatWorkDuration(Locale locale, Duration duration);
 
 }
