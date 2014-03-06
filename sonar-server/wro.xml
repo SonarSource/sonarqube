@@ -16,6 +16,7 @@
     <css>/stylesheets/select-list.css</css>
     <css>/stylesheets/navigator.css</css>
     <css>/stylesheets/quality-gates.css</css>
+    <css>/stylesheets/coding-rules.css</css>
 
     <js>/javascripts/third-party/jquery.js</js>
     <js>/javascripts/third-party/jquery-ui.js</js>

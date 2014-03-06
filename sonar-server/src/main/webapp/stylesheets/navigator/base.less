@@ -120,6 +120,11 @@
 }
 
 
+.navigator-page-loader {
+  padding: @navigatorPadding 0 0 @navigatorPadding;
+}
+
+
 
 // Header
 .navigator-header {
@@ -263,9 +268,11 @@
   }
 }
 
-.navigator-results-no-issues {
-  padding-top: 20%;
+.navigator-results-no-results {
+  padding-top: 20% !important;
+  background: #fff !important;
   color: #999;
+  cursor: default !important;
   text-align: center;
 }
 
@@ -273,9 +280,14 @@
 
 // Details
 .navigator-details {
-  padding: 62px 0 @navigatorPadding @navigatorPadding;
+  padding: @navigatorPadding;
   background-color: @white;
   overflow: auto;
+
+  .issues-page & {
+    padding-top: 62px;
+    padding-right: 0;
+  }
 
   &.loading {
     background: @white url("../images/loading.gif") no-repeat 4px 2px;

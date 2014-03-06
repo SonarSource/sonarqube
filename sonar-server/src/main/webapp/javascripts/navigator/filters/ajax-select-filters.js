@@ -192,6 +192,13 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
 
   var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
+    initialize: function() {
+      ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
+        detailsView: AjaxSelectDetailsFilterView
+      });
+    },
+
+
     isDefaultValue: function() {
       return this.getSelected().length === 0;
     },

@@ -44,13 +44,15 @@ define(
 
         addMoreCriteriaFilter: function() {
           var disabledFilters = this.collection.where({ enabled: false });
-          this.moreCriteriaFilter = new BaseFilters.Filter({
-            type: require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView,
-            enabled: true,
-            optional: false,
-            filters: disabledFilters
-          });
-          this.collection.add(this.moreCriteriaFilter);
+          if (disabledFilters.length > 0) {
+            this.moreCriteriaFilter = new BaseFilters.Filter({
+              type: require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView,
+              enabled: true,
+              optional: false,
+              filters: disabledFilters
+            });
+            this.collection.add(this.moreCriteriaFilter);
+          }
         },
 
 

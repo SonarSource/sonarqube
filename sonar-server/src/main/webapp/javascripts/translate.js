@@ -25,16 +25,20 @@
           return prev.concat(current.split('.'));
         }, []),
         key = tokens.join('.'),
-        start = window.SS.phrases,
-        found = true;
+        start = window.SS && window.SS.phrases,
+        found = !!start;
 
-    var result = tokens.reduce(function(prev, current) {
-      if (!current || !prev[current]) {
-        warn('No translation for "' + key + '"');
-        found = false;
-      }
-      return current ? prev[current] : prev;
-    }, start);
+    if (found) {
+      var result = tokens.reduce(function(prev, current) {
+        if (!current || !prev[current]) {
+          warn('No translation for "' + key + '"');
+          found = false;
+        }
+        return current ? prev[current] : prev;
+      }, start);
+    } else {
+      warn('No translation for "' + key + '"');
+    }
 
     return found ? result : key;
   };

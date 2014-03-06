@@ -115,6 +115,9 @@
   z-index: 3;
   background-color: #E4ECF3;
 }
+.navigator-page-loader {
+  padding: 10px 0 0 10px;
+}
 .navigator-header {
   padding: 0 10px;
   border-bottom: 1px solid #cdcdcd;
@@ -221,15 +224,21 @@
   left: 0;
   width: 319px;
 }
-.navigator-results-no-issues {
-  padding-top: 20%;
+.navigator-results-no-results {
+  padding-top: 20% !important;
+  background: #fff !important;
   color: #999;
+  cursor: default !important;
   text-align: center;
 }
 .navigator-details {
-  padding: 62px 0 10px 10px;
+  padding: 10px;
   background-color: #ffffff;
   overflow: auto;
+}
+.issues-page .navigator-details {
+  padding-top: 62px;
+  padding-right: 0;
 }
 .navigator-details.loading {
   background: #ffffff url("../images/loading.gif") no-repeat 4px 2px;

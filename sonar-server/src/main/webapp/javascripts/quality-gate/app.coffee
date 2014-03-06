@@ -91,9 +91,9 @@ requirejs [
 
   # Construct actions bar
   App.addInitializer ->
-    @qualityGateActionsView = new QualityGateActionsView
+    @codingRulesHeaderView = new QualityGateActionsView
       app: @
-    @layout.actionsRegion.show @qualityGateActionsView
+    @layout.actionsRegion.show @codingRulesHeaderView
 
 
   # Construct sidebar
@@ -101,7 +101,7 @@ requirejs [
     @qualityGateSidebarListView = new QualityGateSidebarListItemView
       collection: @qualityGates
       app: @
-    @layout.listRegion.show @qualityGateSidebarListView
+    @layout.resultsRegion.show @qualityGateSidebarListView
 
 
   # Construct edit view
@@ -136,7 +136,7 @@ requirejs [
   jQuery.when(qualityGatesXHR, appXHR)
     .done ->
       # Remove the initial spinner
-      jQuery('.quality-gate-page-loader').remove()
+      jQuery('#quality-gate-page-loader').remove()
 
       # Start the application
       App.start()

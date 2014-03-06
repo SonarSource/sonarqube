@@ -78,17 +78,17 @@
       return jQuery('body').append(this.layout.render().el);
     });
     App.addInitializer(function() {
-      this.qualityGateActionsView = new QualityGateActionsView({
+      this.codingRulesHeaderView = new QualityGateActionsView({
         app: this
       });
-      return this.layout.actionsRegion.show(this.qualityGateActionsView);
+      return this.layout.actionsRegion.show(this.codingRulesHeaderView);
     });
     App.addInitializer(function() {
       this.qualityGateSidebarListView = new QualityGateSidebarListItemView({
         collection: this.qualityGates,
         app: this
       });
-      return this.layout.listRegion.show(this.qualityGateSidebarListView);
+      return this.layout.resultsRegion.show(this.qualityGateSidebarListView);
     });
     App.addInitializer(function() {
       this.qualityGateEditView = new QualityGateEditView({
@@ -119,7 +119,7 @@
     });
     qualityGatesXHR = App.qualityGates.fetch();
     return jQuery.when(qualityGatesXHR, appXHR).done(function() {
-      jQuery('.quality-gate-page-loader').remove();
+      jQuery('#quality-gate-page-loader').remove();
       return App.start();
     });
   });

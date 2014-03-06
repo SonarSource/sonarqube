@@ -68,3 +68,8 @@ describe 'translation "translate" suite', ->
   it 'returns the key when no translation', ->
     expect(translate('something_another')).toBe 'something_another'
 
+
+  it 'does not fail when there is no dictionary', ->
+    window.SS = undefined
+    expect(translate('something_another')).toBe 'something_another'
+

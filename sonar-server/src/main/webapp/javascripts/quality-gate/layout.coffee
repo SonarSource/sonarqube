@@ -13,7 +13,7 @@ define [
     regions:
       headerRegion: '.navigator-header'
       actionsRegion: '.navigator-actions'
-      listRegion: '.navigator-results'
+      resultsRegion: '.navigator-results'
       detailsRegion: '.navigator-details'
 
 

@@ -1,0 +1,67 @@
+/*
+ * Fonts
+ */
+/*
+ * Colors
+ */
+/*
+ * Icons
+ */
+/*
+ * Transitions
+ */
+.coding-rules-page .navigator-results .spinner {
+  margin: 10px;
+}
+/*
+ * Detail
+ */
+.coding-rules-detail-header {
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.coding-rules-detail-language {
+  margin-bottom: 10px;
+}
+.coding-rules-detail-description {
+  padding: 10px;
+  background-color: #efefef;
+}
+.coding-rules-detail-description *:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+.coding-rules-detail-description *:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.coding-rules-detail-quality-profiles-header {
+  margin-top: 20px;
+}
+.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
+  margin-top: 10px;
+}
+.coding-rules-detail-quality-profile-severity,
+.coding-rules-detail-quality-profile-name,
+.coding-rules-detail-quality-profile-actions {
+  display: inline-block;
+  vertical-align: middle;
+}
+.coding-rules-detail-quality-profile-parameters {
+  padding-left: 30px;
+}
+.coding-rules-detail-quality-profile-parameter {
+  margin: 5px;
+}
+.coding-rules-detail-quality-profile-parameter-key,
+.coding-rules-detail-quality-profile-parameter-value,
+.coding-rules-detail-quality-profile-parameter-actions {
+  vertical-align: middle;
+}
+.coding-rules-detail-quality-profile-parameter-key:after {
+  content: ":";
+}
+.coding-rules-detail-quality-profiles-activation {
+  margin-top: 10px;
+}

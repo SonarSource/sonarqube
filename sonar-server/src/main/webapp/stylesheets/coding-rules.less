@@ -1,0 +1,82 @@
+@import 'mixins';
+@import 'variables';
+@import 'navigator/config';
+
+
+.coding-rules-page {
+
+  .navigator-results .spinner {
+    margin: @navigatorPadding;
+  }
+
+}
+
+
+
+/*
+ * Detail
+ */
+
+.coding-rules-detail-header {
+  margin-bottom: @navigatorPadding;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.coding-rules-detail-language {
+  margin-bottom: @navigatorPadding;
+}
+
+.coding-rules-detail-description {
+  padding: @navigatorPadding;
+  background-color: @navigatorBarBackground;
+
+  *:first-child {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  *:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.coding-rules-detail-quality-profiles-header {
+  margin-top: 2 * @navigatorPadding;
+}
+
+.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
+  margin-top: @navigatorPadding;
+}
+
+.coding-rules-detail-quality-profile-severity,
+.coding-rules-detail-quality-profile-name,
+.coding-rules-detail-quality-profile-actions {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.coding-rules-detail-quality-profile-parameters {
+  padding-left: 3 * @navigatorPadding;
+}
+
+.coding-rules-detail-quality-profile-parameter {
+  margin: @navigatorPadding / 2;
+}
+
+.coding-rules-detail-quality-profile-parameter-key,
+.coding-rules-detail-quality-profile-parameter-value,
+.coding-rules-detail-quality-profile-parameter-actions {
+  vertical-align: middle;
+}
+
+.coding-rules-detail-quality-profile-parameter-key {
+  &:after {
+    content: ":";
+  }
+}
+
+.coding-rules-detail-quality-profiles-activation {
+  margin-top: @navigatorPadding;
+}

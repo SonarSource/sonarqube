@@ -229,6 +229,8 @@ define(
 
 
       var NoIssuesView = Marionette.ItemView.extend({
+        tagName: 'li',
+        className: 'navigator-results-no-results',
         template: Handlebars.compile(jQuery('#no-issues-template').html() || '')
       });
 

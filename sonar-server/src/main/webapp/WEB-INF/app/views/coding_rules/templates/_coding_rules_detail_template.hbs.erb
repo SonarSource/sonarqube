@@ -1,0 +1,38 @@
+<script id="coding-rules-detail-template" type="text/x-handlebars-template">
+  <h3 class="coding-rules-detail-header">{{name}}</h3>
+  <div class="coding-rules-detail-language">{{language}}</div>
+  <div class="coding-rules-detail-description rule-desc">{{{description}}}</div>
+
+  <h3 class="coding-rules-detail-header coding-rules-detail-quality-profiles-header">{{t 'coding_rules.quality_profiles'}}</h3>
+  <ul class="coding-rules-detail-quality-profiles">
+    {{#each qualityProfiles}}
+      <li class="coding-rules-detail-quality-profile">
+        <div class="coding-rules-detail-quality-profile-severity">{{severityIcon severity}}</div>
+        <div class="coding-rules-detail-quality-profile-name">{{name}}</div>
+        {{#if canDeactivate}}
+          <div class="button-group coding-rules-detail-quality-profile-actions">
+            <button class="button-red">{{t 'coding_rules.deactivate_quality_profile'}}</button>
+          </div>
+        {{/if}}
+        <ul class="coding-rules-detail-quality-profile-parameters">
+          {{#each parameters}}
+            <li class="coding-rules-detail-quality-profile-parameter">
+              {{#if ../canUpdate}}
+                <label class="coding-rules-detail-quality-profile-parameter-key">{{key}}</label>
+                <input class="coding-rules-detail-quality-profile-parameter-value" type="text" value="{{value}}">
+                 <div class="button-group coding-rules-detail-quality-profile-parameter-actions">
+                   <button class="coding-rules-detail-quality-profile-parameter-update">{{t 'update'}}</button>
+                 </div>
+              {{else}}
+                {{key}}: {{value}}
+              {{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      </li>
+    {{/each}}
+  </ul>
+  <div class="button-group coding-rules-detail-quality-profiles-activation">
+    <button>{{t 'coding_rules.activate_quality_profile'}}</button>
+  </div>
+</script>

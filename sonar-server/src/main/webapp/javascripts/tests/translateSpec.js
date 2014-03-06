@@ -60,7 +60,11 @@
     it('translates with braces', function() {
       return expect(translate('something_with{braces}')).toBe('SOMETHING_WITH{braces}');
     });
-    return it('returns the key when no translation', function() {
+    it('returns the key when no translation', function() {
+      return expect(translate('something_another')).toBe('something_another');
+    });
+    return it('does not fail when there is no dictionary', function() {
+      window.SS = void 0;
       return expect(translate('something_another')).toBe('something_another');
     });
   });

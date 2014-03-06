@@ -240,7 +240,7 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
           }),
           defaultValue = this.model.has('defaultValue') ?
               this.model.get('defaultValue') :
-              this.model.get('multiple') ? window.SS.phrases.all : window.SS.phrases.any;
+              this.model.get('multiple') ? t('all') : t('any');
 
       return this.isDefaultValue() ? defaultValue : value.join(', ');
     },

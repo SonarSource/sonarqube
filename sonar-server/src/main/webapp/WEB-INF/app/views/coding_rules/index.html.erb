@@ -1,0 +1,18 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/javascripts/coding-rules/app" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+<% end %>
+
+
+<div id="coding-rules-page-loader" class="navigator-page-loader">
+  <i class="spinner"></i>
+</div>
+
+
+<%= render :partial => '/navigator/filter_templates' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_layout.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_header_template.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_actions_template.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_filter_bar_template.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_list_item_template.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_list_empty_template.hbs' -%>
+<%= render :partial => '/coding_rules/templates/coding_rules_detail_template.hbs' -%>
