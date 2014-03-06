@@ -21,10 +21,7 @@ package org.sonar.wsclient.qualitygate.internal;
 
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.HttpRequestFactory;
-import org.sonar.wsclient.qualitygate.QualityGate;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
-import org.sonar.wsclient.qualitygate.QualityGates;
+import org.sonar.wsclient.qualitygate.*;
 
 import java.util.*;
 
@@ -67,9 +64,15 @@ public class DefaultQualityGateClient implements QualityGateClient {
   }
 
   @Override
-  public Collection<QualityGateCondition> conditions(long qGateId) {
+  public QualityGateDetails show(long qGateId) {
     String json = requestFactory.get(SHOW_URL, Collections.singletonMap("id", (Object) qGateId));
-    return jsonToConditions(json);
+    return jsonToDetails(json);
+  }
+
+  @Override
+  public QualityGateDetails show(String qGateName) {
+    String json = requestFactory.get(SHOW_URL, Collections.singletonMap("name", (Object) qGateName));
+    return jsonToDetails(json);
   }
 
   @Override
@@ -100,6 +103,12 @@ public class DefaultQualityGateClient implements QualityGateClient {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
+  private QualityGateDetails jsonToDetails(String json) {
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    return new DefaultQualityGateDetails((Map) jsonRoot, jsonToConditions(json));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Collection<QualityGateCondition> jsonToConditions(String json) {
     Map jsonRoot = (Map) JSONValue.parse(json);
     Collection<Map> conditionArray = (Collection<Map>) jsonRoot.get("conditions");
@@ -109,4 +118,6 @@ public class DefaultQualityGateClient implements QualityGateClient {
     }
     return conditions;
   }
+
+
 }

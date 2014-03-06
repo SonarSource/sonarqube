@@ -197,7 +197,8 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         show(request, response);
       }
-    }).newParam(PARAM_ID).setDescription("The ID of the quality gate.");
+    }).newParam(PARAM_ID, "The ID of the quality gate; either this or name must be provided.")
+    .newParam(PARAM_NAME, "The name of the quality gate; either this or id must be provided.");
 
     controller.newAction("destroy")
     .setDescription("Destroy a quality gate, given its id.")
@@ -280,8 +281,19 @@ public class QualityGatesWs implements WebService {
   }
 
   protected void show(Request request, Response response) {
-    final Long qGateId = parseId(request, PARAM_ID);
-    QualityGateDto qGate = qualityGates.get(qGateId);
+    Long qGateId = request.paramAsLong(PARAM_ID);
+    String qGateName = request.param(PARAM_NAME);
+    if (qGateId == null && qGateName == null) {
+      throw new BadRequestException("Either one of 'id' or 'name' is required.");
+    } else if (qGateId != null && qGateName != null) {
+      throw new BadRequestException("Only one of 'id' or 'name' must be provided.");
+    }
+
+    QualityGateDto qGate = qGateId == null ? qualityGates.get(qGateName) : qualityGates.get(qGateId);
+    if (qGateId == null) {
+      qGateId = qGate.getId();
+    }
+
     JsonWriter writer = response.newJsonWriter().beginObject()
       .prop(PARAM_ID, qGate.getId())
       .prop(PARAM_NAME, qGate.getName());

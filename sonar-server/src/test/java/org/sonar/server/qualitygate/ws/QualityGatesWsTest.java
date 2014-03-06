@@ -278,7 +278,7 @@ public class QualityGatesWsTest {
   }
 
   @Test
-  public void show_nominal() throws Exception {
+  public void show_by_id_nominal() throws Exception {
     long gateId = 12345L;
     when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
     when(qGates.listConditions(gateId)).thenReturn(ImmutableList.of(
@@ -290,6 +290,32 @@ public class QualityGatesWsTest {
         + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
         + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
     + "]}");
+  }
+
+  @Test
+  public void show_by_name_nominal() throws Exception {
+    long qGateId = 12345L;
+    String gateName = "Golden";
+    when(qGates.get(gateName)).thenReturn(new QualityGateDto().setId(qGateId).setName(gateName));
+    when(qGates.listConditions(qGateId)).thenReturn(ImmutableList.of(
+        new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
+        new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
+    ));
+    tester.newRequest("show").setParam("name", gateName).execute().assertJson(
+      "{'id':12345,'name':'Golden','conditions':["
+        + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
+        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
+    + "]}");
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void show_without_parameters() throws Exception {
+    tester.newRequest("show").execute();
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void show_with_both_parameters() throws Exception {
+    tester.newRequest("show").setParam("id", "12345").setParam("name", "Polop").execute();
   }
 
   @Test

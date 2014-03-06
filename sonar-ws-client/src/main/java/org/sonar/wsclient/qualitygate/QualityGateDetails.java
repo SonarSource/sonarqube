@@ -19,25 +19,12 @@
  */
 package org.sonar.wsclient.qualitygate;
 
+import java.util.Collection;
 
 /**
  * @since 4.3
  */
-public interface QualityGateClient {
+public interface QualityGateDetails extends QualityGate {
 
-  QualityGates list();
-
-  QualityGate create(String qGateName);
-
-  QualityGate rename(long qGateId, String qGateName);
-
-  QualityGateDetails show(long qGateId);
-
-  QualityGateDetails show(String qGateName);
-
-  void destroy(long qGateId);
-
-  void setDefault(long qGateId);
-
-  void unsetDefault();
+  Collection<QualityGateCondition> conditions();
 }

@@ -144,13 +144,28 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_get_qgate() throws Exception {
+  public void should_get_qgate_by_id() throws Exception {
     long id = 42L;
     final String name = "Golden";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
     when(dao.selectById(id)).thenReturn(existing);
     assertThat(qGates.get(id)).isEqualTo(existing);
     verify(dao).selectById(id);
+  }
+
+  @Test
+  public void should_get_qgate_by_name() throws Exception {
+    long id = 42L;
+    final String name = "Golden";
+    QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
+    when(dao.selectByName(name)).thenReturn(existing);
+    assertThat(qGates.get(name)).isEqualTo(existing);
+    verify(dao).selectByName(name);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_fail_to_find_qgate_by_name() throws Exception {
+    qGates.get("Does not exist");
   }
 
   @Test

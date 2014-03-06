@@ -93,8 +93,12 @@ public class QualityGates {
     return newQualityGate;
   }
 
-  public QualityGateDto get(Long parseId) {
-    return getNonNullQgate(parseId);
+  public QualityGateDto get(Long qGateId) {
+    return getNonNullQgate(qGateId);
+  }
+
+  public QualityGateDto get(String qGateName) {
+    return getNonNullQgate(qGateName);
   }
 
   public QualityGateDto rename(long idToRename, String name) {
@@ -300,6 +304,14 @@ public class QualityGates {
     QualityGateDto qGate = dao.selectById(id);
     if (qGate == null) {
       throw new NotFoundException("There is no quality gate with id=" + id);
+    }
+    return qGate;
+  }
+
+  private QualityGateDto getNonNullQgate(String name) {
+    QualityGateDto qGate = dao.selectByName(name);
+    if (qGate == null) {
+      throw new NotFoundException("There is no quality gate with name=" + name);
     }
     return qGate;
   }

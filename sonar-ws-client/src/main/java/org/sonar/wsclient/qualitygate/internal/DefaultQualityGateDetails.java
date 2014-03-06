@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.qualitygate;
+package org.sonar.wsclient.qualitygate.internal;
 
+import org.sonar.wsclient.qualitygate.QualityGateCondition;
+import org.sonar.wsclient.qualitygate.QualityGateDetails;
 
-/**
- * @since 4.3
- */
-public interface QualityGateClient {
+import java.util.Collection;
+import java.util.Map;
 
-  QualityGates list();
+public class DefaultQualityGateDetails extends DefaultQualityGate implements QualityGateDetails {
 
-  QualityGate create(String qGateName);
+  private final Collection<QualityGateCondition> conditions;
 
-  QualityGate rename(long qGateId, String qGateName);
+  DefaultQualityGateDetails(Map<String, String> json, Collection<QualityGateCondition> conditions) {
+    super(json);
+    this.conditions = conditions;
+  }
 
-  QualityGateDetails show(long qGateId);
+  @Override
+  public Collection<QualityGateCondition> conditions() {
+    return conditions;
+  }
 
-  QualityGateDetails show(String qGateName);
-
-  void destroy(long qGateId);
-
-  void setDefault(long qGateId);
-
-  void unsetDefault();
 }
