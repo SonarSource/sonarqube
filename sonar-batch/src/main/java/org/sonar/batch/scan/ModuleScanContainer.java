@@ -19,13 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.issue.ignore.EnforceIssuesFilter;
-import org.sonar.batch.issue.ignore.IgnoreIssuesFilter;
-import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -35,12 +28,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultSensorContext;
-import org.sonar.batch.DefaultTimeMachine;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.*;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -52,17 +40,20 @@ import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.issue.ignore.EnforceIssuesFilter;
+import org.sonar.batch.issue.ignore.IgnoreIssuesFilter;
+import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.qualitygate.LegacyQualityGateLoader;
 import org.sonar.batch.qualitygate.LegacyQualityGateVerifier;
-import org.sonar.batch.rule.ActiveRulesProvider;
-import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.QProfileSensor;
-import org.sonar.batch.rule.RulesProfileProvider;
+import org.sonar.batch.qualitygate.QualityGateProvider;
+import org.sonar.batch.qualitygate.QualityGateVerifier;
+import org.sonar.batch.rule.*;
 import org.sonar.batch.scan.filesystem.*;
-import org.sonar.batch.scan.filesystem.FileIndexer;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
@@ -134,6 +125,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ResourceFilters.class,
 
       // quality gates
+      new QualityGateProvider(),
+      QualityGateVerifier.class,
       LegacyQualityGateLoader.class,
       LegacyQualityGateVerifier.class,
 
