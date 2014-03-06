@@ -20,12 +20,13 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.debt43.DevelopmentCostMeasuresMigration;
-import org.sonar.server.db.migrations.debt43.IssueChangelogMigration;
-import org.sonar.server.db.migrations.debt43.IssueMigration;
-import org.sonar.server.db.migrations.debt43.TechnicalDebtMeasuresMigration;
-import org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration;
-import org.sonar.server.db.migrations.violation36.ViolationMigration;
+import org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigration;
+import org.sonar.server.db.migrations.v43.IssueChangelogMigration;
+import org.sonar.server.db.migrations.v43.IssueMigration;
+import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
+import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
+import org.sonar.server.db.migrations.v42.PackageKeysMigration;
+import org.sonar.server.db.migrations.v36.ViolationMigration;
 
 import java.util.List;
 
@@ -37,7 +38,9 @@ public interface DatabaseMigrations {
     IssueChangelogMigration.class,
     TechnicalDebtMeasuresMigration.class,
     DevelopmentCostMeasuresMigration.class,
-    PackageKeysMigration.class
+
+    // 4.2
+    PackageKeysMigration.class, CompleteIssueMessageMigration.class
   );
 
 }

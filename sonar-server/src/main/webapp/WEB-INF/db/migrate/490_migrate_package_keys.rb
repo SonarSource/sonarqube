@@ -25,7 +25,7 @@
 class MigratePackageKeys < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v42.PackageKeysMigration')
   end
 
 end

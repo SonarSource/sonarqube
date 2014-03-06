@@ -25,6 +25,6 @@
 class UpdateDevelopmentCostToMinutes < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.debt43.DevelopmentCostMeasuresMigration')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigration')
   end
 end
