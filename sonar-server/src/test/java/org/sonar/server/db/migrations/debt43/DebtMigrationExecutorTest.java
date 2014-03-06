@@ -20,10 +20,8 @@
 
 package org.sonar.server.db.migrations.debt43;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.server.db.migrations.debt43.WorkDurationConvertor;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -31,19 +29,12 @@ import static org.fest.assertions.Fail.fail;
 public class DebtMigrationExecutorTest {
 
   static final int HOURS_IN_DAY = 8;
-
   static final Long ONE_MINUTE = 1L;
   static final Long ONE_HOUR_IN_MINUTES = ONE_MINUTE * 60;
   static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
   Settings settings = new Settings();
-
-  WorkDurationConvertor convertor;
-
-  @Before
-  public void setUp() throws Exception {
-    convertor = new WorkDurationConvertor(settings);
-  }
+  WorkDurationConvertor convertor = new WorkDurationConvertor(settings);
 
   @Test
   public void convert_from_long() throws Exception {

@@ -17,27 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.debt43.DevelopmentCostMeasuresMigration;
-import org.sonar.server.db.migrations.debt43.IssueChangelogMigration;
-import org.sonar.server.db.migrations.debt43.IssueMigration;
-import org.sonar.server.db.migrations.debt43.TechnicalDebtMeasuresMigration;
-import org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration;
-import org.sonar.server.db.migrations.violation36.ViolationMigration;
+@ParametersAreNonnullByDefault
+package org.sonar.server.db.migrations.packageKeys42;
 
-import java.util.List;
-
-public interface DatabaseMigrations {
-
-  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
-    ViolationMigration.class,
-    IssueMigration.class,
-    IssueChangelogMigration.class,
-    TechnicalDebtMeasuresMigration.class,
-    DevelopmentCostMeasuresMigration.class,
-    PackageKeysMigration.class
-  );
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

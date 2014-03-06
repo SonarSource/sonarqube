@@ -22,24 +22,10 @@
 # SonarQube 4.2
 # SONAR-926
 #
-class MigratePackageResources < ActiveRecord::Migration
-
-  class Project < ActiveRecord::Base
-  end
+class MigratePackageKeys < ActiveRecord::Migration
 
   def self.up
-    packages = Project.find(:all, :conditions => {:qualifier => 'PAC'})
-    packages.each do |package|
-      key = package.kee.split(":").last
-      prefix = package.kee.chomp(key)
-      if key == '[default]'
-        package.kee = prefix + '[root]'
-      else
-        package.kee = prefix + key.gsub('.', '/')
-      end
-      package.qualifier = 'DIR'
-      package.save
-    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration')
   end
 
 end

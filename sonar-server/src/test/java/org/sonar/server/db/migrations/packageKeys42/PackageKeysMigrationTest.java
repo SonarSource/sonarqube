@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
+package org.sonar.server.db.migrations.packageKeys42;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.debt43.DevelopmentCostMeasuresMigration;
-import org.sonar.server.db.migrations.debt43.IssueChangelogMigration;
-import org.sonar.server.db.migrations.debt43.IssueMigration;
-import org.sonar.server.db.migrations.debt43.TechnicalDebtMeasuresMigration;
-import org.sonar.server.db.migrations.packageKeys42.PackageKeysMigration;
-import org.sonar.server.db.migrations.violation36.ViolationMigration;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.core.persistence.TestDatabase;
+import org.sonar.server.db.migrations.DatabaseMigration;
 
-import java.util.List;
+public class PackageKeysMigrationTest {
 
-public interface DatabaseMigrations {
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(PackageKeysMigrationTest.class, "schema.sql");
 
-  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
-    ViolationMigration.class,
-    IssueMigration.class,
-    IssueChangelogMigration.class,
-    TechnicalDebtMeasuresMigration.class,
-    DevelopmentCostMeasuresMigration.class,
-    PackageKeysMigration.class
-  );
+  DatabaseMigration migration = new PackageKeysMigration(db.database());
 
+  @Test
+  public void execute() throws Exception {
+    db.prepareDbUnit(getClass(), "convert_package_keys.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "convert_package_keys-result.xml", "projects");
+  }
 }
