@@ -32,6 +32,7 @@ import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
@@ -555,9 +556,8 @@ public class RuleRegistration implements Startable {
       LOG.warn(String.format("Characteristic '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored",
         key, ruleDef.repository().name(), ruleDef.key()));
     } else if (characteristicDto.getParentId() == null) {
-      LOG.error(String.format("Rule '%s:%s' should not be linked on the root characteristic '%s'. Technical debt definitions on this rule wll be ignored", key,
-        ruleDef.repository().name(), ruleDef.key()));
-      return null;
+      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'",
+        ruleDef.repository().name(), ruleDef.key(), key));
     }
     return characteristicDto;
   }

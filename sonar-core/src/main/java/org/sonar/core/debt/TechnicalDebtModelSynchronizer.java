@@ -35,6 +35,8 @@ import org.sonar.core.debt.db.CharacteristicDao;
 import org.sonar.core.debt.db.CharacteristicDto;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
@@ -124,12 +126,14 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
         Rule rule = rulesCache.getByRuleKey(pluginRequirement.ruleKey());
         if (!isRequirementExists(existingModel, rule)) {
           CharacteristicDto characteristicDto = findCharacteristic(existingModel, pluginRequirement.characteristic().key());
-          Integer rootId = characteristicDto.getRootId();
-          if (rootId == null) {
-            throw new IllegalArgumentException("Requirement on rule '" + pluginRequirement.ruleKey() + "' should not be linked on a root characteristic.");
+          if (characteristicDto != null) {
+            Integer rootId = characteristicDto.getRootId();
+            if (rootId == null) {
+              throw new IllegalArgumentException("Requirement on rule '" + pluginRequirement.ruleKey() + "' should not be linked on a root characteristic.");
+            }
+            CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(), rootId, rule.getId());
+            dao.insert(requirementDto, session);
           }
-          CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(), rootId, rule.getId());
-          dao.insert(requirementDto, session);
         }
       }
     }
@@ -169,6 +173,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return pluginList;
   }
 
+  @CheckForNull
   private CharacteristicDto findCharacteristic(List<CharacteristicDto> existingModel, final String key) {
     return Iterables.find(existingModel, new Predicate<CharacteristicDto>() {
       @Override
@@ -176,7 +181,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
         String characteristicKey = input.getKey();
         return input.getRuleId() == null && characteristicKey != null && characteristicKey.equals(key);
       }
-    });
+    }, null);
   }
 
   private boolean isRequirementExists(List<CharacteristicDto> existingModel, final Rule rule) {

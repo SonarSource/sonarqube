@@ -26,6 +26,7 @@ import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.debt.db.CharacteristicDao;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -36,6 +37,7 @@ import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtCharacteristicModel;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.*;
 
 public class RuleRegistrationTest extends AbstractDaoTestCase {
@@ -174,11 +176,15 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic() {
+  public void fail_when_rule_is_linked_on_root_characteristic() {
     setupData("ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic");
-    task.start();
 
-    checkTables("ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic", EXCLUDED_COLUMN_NAMES, "rules");
+    try {
+      task.start();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage("Rule 'fake:rule1' cannot be linked on the root characteristic 'MEMORY_EFFICIENCY'");
+    }
   }
 
   @Test
