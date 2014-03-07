@@ -176,6 +176,7 @@ class ProfilesController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
       @parent = Internal.quality_profiles.parent(@profile) if @profile.parent
       @ancestors = Internal.quality_profiles.ancestors(@profile).to_a
       @children = Internal.quality_profiles.children(@profile).to_a
@@ -319,6 +320,7 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
     end
     render :partial => 'profiles/rename_form'
   end
