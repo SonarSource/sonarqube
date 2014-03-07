@@ -20,12 +20,11 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.server.paging.Paging;
-
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.paging.Paging;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -168,14 +167,17 @@ public class QProfiles implements ServerComponent {
 
   // PROFILE RULES
 
+  @CheckForNull
   public QProfileRule findByRule(int ruleId) {
     return rules.findByRuleId(ruleId);
   }
 
+  @CheckForNull
   public QProfileRule findByActiveRuleId(int activeRuleId) {
     return rules.findByActiveRuleId(activeRuleId);
   }
 
+  @CheckForNull
   public QProfileRule findByProfileAndRule(int profileId, int ruleId) {
     return rules.findByProfileIdAndRuleId(profileId, ruleId);
   }
