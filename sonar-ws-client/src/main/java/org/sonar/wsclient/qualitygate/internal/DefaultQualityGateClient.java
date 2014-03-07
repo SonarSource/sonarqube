@@ -113,8 +113,10 @@ public class DefaultQualityGateClient implements QualityGateClient {
     Map jsonRoot = (Map) JSONValue.parse(json);
     Collection<Map> conditionArray = (Collection<Map>) jsonRoot.get("conditions");
     Collection<QualityGateCondition> conditions = new ArrayList<QualityGateCondition>();
-    for (Map conditionJson: conditionArray) {
-      conditions.add(new DefaultQualityGateCondition(conditionJson));
+    if (conditionArray != null) {
+      for (Map conditionJson: conditionArray) {
+        conditions.add(new DefaultQualityGateCondition(conditionJson));
+      }
     }
     return conditions;
   }

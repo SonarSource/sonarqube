@@ -168,6 +168,22 @@ public class DefaultQualityGateClientTest {
     assertThat(sixth.warningThreshold()).isEqualTo("0");
   }
 
+  @Test
+  public void should_show_empty_qualitygate_by_id() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubResponseBody("{\"id\":5,\"name\":\"Sonar way\"}");
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+
+    QualityGateDetails qGate = client.show(5L);
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/show?id=5");
+    assertThat(qGate.id()).isEqualTo(5L);
+    assertThat(qGate.name()).isEqualTo("Sonar way");
+
+    Collection<QualityGateCondition> conditions = qGate.conditions();
+    assertThat(conditions).isEmpty();
+  }
 
   @Test
   public void should_destroy_qualitygate() {
