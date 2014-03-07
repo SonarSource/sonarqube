@@ -86,6 +86,7 @@
 .measures-page .navigator-results {
   top: 104px;
   left: 0;
+  bottom: 36px;
   width: 100%;
 }
 .navigator-with-notes .navigator-actions,
@@ -421,6 +422,9 @@
 }
 .navigator-page #ftlinks {
   margin-top: 0;
+}
+.measures-page #footer {
+  left: 0;
 }
 .navigator-filters {
   border-bottom: 1px solid #cdcdcd;
