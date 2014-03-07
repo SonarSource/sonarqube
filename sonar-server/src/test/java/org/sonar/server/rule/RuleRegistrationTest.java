@@ -174,6 +174,14 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic() {
+    setupData("ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic");
+    task.start();
+
+    checkTables("ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic", EXCLUDED_COLUMN_NAMES, "rules");
+  }
+
+  @Test
   public void not_disable_template_rules_if_parent_is_enabled() {
     setupData("not_disable_template_rules_if_parent_is_enabled");
     task.start();

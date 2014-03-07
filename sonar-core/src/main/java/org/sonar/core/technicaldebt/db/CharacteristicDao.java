@@ -39,18 +39,34 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   /**
    * @return enabled root characteristics, characteristics and requirements
+   *
+   * @deprecated since 4.3
    */
+  @Deprecated
   public List<CharacteristicDto> selectEnabledCharacteristics() {
     SqlSession session = mybatis.openSession();
     try {
-      return selectEnabledCharacteristics(session);
+      return session.getMapper(CharacteristicMapper.class).selectEnabledCharacteristics();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<CharacteristicDto> selectEnabledCharacteristics(SqlSession session) {
-    return session.getMapper(CharacteristicMapper.class).selectEnabledCharacteristics();
+  /**
+   * @return enabled root characteristics, and characteristics
+   *
+   */
+  public List<CharacteristicDto> selectCharacteristics() {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectCharacteristics(session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<CharacteristicDto> selectCharacteristics(SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectCharacteristics();
   }
 
   /**

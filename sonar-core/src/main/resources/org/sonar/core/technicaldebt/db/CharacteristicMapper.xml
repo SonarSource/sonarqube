@@ -30,6 +30,15 @@
     </where>
   </select>
 
+  <select id="selectCharacteristics" parameterType="map" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.rule_id is null
+      and c.enabled=${_true}
+    </where>
+  </select>
+
   <select id="selectEnabledRootCharacteristics" parameterType="map" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c

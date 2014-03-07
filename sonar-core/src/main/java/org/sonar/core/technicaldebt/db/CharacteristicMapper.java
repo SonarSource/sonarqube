@@ -26,6 +26,8 @@ public interface CharacteristicMapper {
 
   List<CharacteristicDto> selectEnabledCharacteristics();
 
+  List<CharacteristicDto> selectCharacteristics();
+
   List<CharacteristicDto> selectEnabledRootCharacteristics();
 
   CharacteristicDto selectByKey(String key);

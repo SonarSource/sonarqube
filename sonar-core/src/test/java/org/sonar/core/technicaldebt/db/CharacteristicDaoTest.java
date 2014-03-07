@@ -91,6 +91,37 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_characteristics() {
+    setupData("shared");
+
+    List<CharacteristicDto> dtos = dao.selectCharacteristics();
+
+    assertThat(dtos).hasSize(2);
+
+    CharacteristicDto rootCharacteristic = dtos.get(0);
+    assertThat(rootCharacteristic.getId()).isEqualTo(1);
+    assertThat(rootCharacteristic.getKey()).isEqualTo("PORTABILITY");
+    assertThat(rootCharacteristic.getName()).isEqualTo("Portability");
+    assertThat(rootCharacteristic.getParentId()).isNull();
+    assertThat(rootCharacteristic.getRootId()).isNull();
+    assertThat(rootCharacteristic.getOrder()).isEqualTo(1);
+    assertThat(rootCharacteristic.isEnabled()).isTrue();
+    assertThat(rootCharacteristic.getCreatedAt()).isNotNull();
+    assertThat(rootCharacteristic.getUpdatedAt()).isNotNull();
+
+    CharacteristicDto characteristic = dtos.get(1);
+    assertThat(characteristic.getId()).isEqualTo(2);
+    assertThat(characteristic.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(characteristic.getName()).isEqualTo("Compiler related portability");
+    assertThat(characteristic.getParentId()).isEqualTo(1);
+    assertThat(characteristic.getRootId()).isEqualTo(1);
+    assertThat(characteristic.getOrder()).isNull();
+    assertThat(characteristic.isEnabled()).isTrue();
+    assertThat(characteristic.getCreatedAt()).isNotNull();
+    assertThat(characteristic.getUpdatedAt()).isNotNull();
+  }
+
+  @Test
   public void select_enabled_root_characteristics() {
     setupData("select_enabled_root_characteristics");
 

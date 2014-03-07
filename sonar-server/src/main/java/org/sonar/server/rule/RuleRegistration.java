@@ -96,7 +96,7 @@ public class RuleRegistration implements Startable {
     try {
       RuleDefinitions.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
-      List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
+      List<CharacteristicDto> characteristicDtos = characteristicDao.selectCharacteristics();
       selectRulesFromDb(buffer, sqlSession);
       enableRuleDefinitions(context, buffer, characteristicDtos, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
@@ -546,14 +546,17 @@ public class RuleRegistration implements Startable {
       @Override
       public boolean apply(CharacteristicDto input) {
         String characteristicKey = input.getKey();
-        // TODO remove check on null rule id when only characteristics without requirements will be returned
-        return input.getRuleId() == null && characteristicKey != null && characteristicKey.equals(key);
+        return characteristicKey != null && characteristicKey.equals(key);
       }
     }, null);
-    // TODO check not root characteristic
+
     if (characteristicDto == null) {
-      LOG.warn(String.format("Characteristic : '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored", key,
+      LOG.warn(String.format("Characteristic '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored",
+        key, ruleDef.repository().name(), ruleDef.key()));
+    } else if (characteristicDto.getParentId() == null) {
+      LOG.error(String.format("Rule '%s:%s' should not be linked on the root characteristic '%s'. Technical debt definitions on this rule wll be ignored", key,
         ruleDef.repository().name(), ruleDef.key()));
+      return null;
     }
     return characteristicDto;
   }
