@@ -34,7 +34,7 @@ class Issue
     hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:v43] = Internal.durations.encode(issue.debt) if issue.debt
+    hash[:debt] = Internal.durations.encode(issue.debt) if issue.debt
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
@@ -75,6 +75,7 @@ class Issue
         hash_diff = {}
         hash_diff[:key] = key
         if key == 'technicalDebt'
+          # debt is store as a number of minutes in the changelog, so we first create a Duration from the value then we decode it
           hash_diff[:newValue] = Internal.durations.encode(Internal.durations.create(diff.newValue().to_i)) if diff.newValue.present?
           hash_diff[:oldValue] = Internal.durations.encode(Internal.durations.create(diff.oldValue().to_i)) if diff.oldValue.present?
         else
