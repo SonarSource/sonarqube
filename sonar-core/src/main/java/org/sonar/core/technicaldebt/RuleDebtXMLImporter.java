@@ -84,11 +84,7 @@ public class RuleDebtXMLImporter implements ServerExtension {
       }
 
       cursor.getStreamReader().closeCompletely();
-    } catch (
-      XMLStreamException e
-      )
-
-    {
+    } catch (XMLStreamException e) {
       LOG.error("XML is not valid", e);
     }
 

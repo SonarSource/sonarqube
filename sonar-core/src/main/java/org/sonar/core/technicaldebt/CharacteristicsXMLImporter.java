@@ -81,7 +81,8 @@ public class CharacteristicsXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private DefaultCharacteristic processCharacteristic(DefaultTechnicalDebtModel model, DefaultCharacteristic parent, SMInputCursor chcCursor, ValidationMessages messages) throws XMLStreamException {
+  private DefaultCharacteristic processCharacteristic(DefaultTechnicalDebtModel model, DefaultCharacteristic parent, SMInputCursor chcCursor,
+                                                      ValidationMessages messages) throws XMLStreamException {
     DefaultCharacteristic characteristic = new DefaultCharacteristic();
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {

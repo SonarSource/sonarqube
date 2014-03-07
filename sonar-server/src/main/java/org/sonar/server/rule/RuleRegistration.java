@@ -539,13 +539,15 @@ public class RuleRegistration implements Startable {
   private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RuleDefinitions.Rule ruleDef) {
     final String key = ruleDef.characteristicKey();
     if (key == null) {
+      // Rule is not linked to a characteristic, nothing to do
       return null;
     }
     CharacteristicDto characteristicDto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(CharacteristicDto input) {
+        String characteristicKey = input.getKey();
         // TODO remove check on null rule id when only characteristics without requirements will be returned
-        return input.getRuleId() == null && input.getKey().equals(key);
+        return input.getRuleId() == null && characteristicKey != null && characteristicKey.equals(key);
       }
     }, null);
     // TODO check not root characteristic
