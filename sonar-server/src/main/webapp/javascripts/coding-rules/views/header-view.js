@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'common/handlebars-extensions'], function(Marionette) {
+  define(['backbone.marionette', 'coding-rules/views/header-quality-profiles-view', 'common/handlebars-extensions'], function(Marionette, HeaderQualityProfilesView) {
     var CodingRulesHeaderView, _ref;
     return CodingRulesHeaderView = (function(_super) {
       __extends(CodingRulesHeaderView, _super);
@@ -14,6 +14,50 @@
       }
 
       CodingRulesHeaderView.prototype.template = getTemplate('#coding-rules-header-template');
+
+      CodingRulesHeaderView.prototype.ui = {
+        menuToggle: '.navigator-header-menu-toggle'
+      };
+
+      CodingRulesHeaderView.prototype.events = {
+        'click @ui.menuToggle': 'toggleQualityProfiles'
+      };
+
+      CodingRulesHeaderView.prototype.initialize = function() {
+        var _this = this;
+        this.qualityProfilesView = new HeaderQualityProfilesView({
+          app: this.options.app,
+          collection: new Backbone.Collection(this.options.app.qualityProfiles),
+          headerView: this
+        });
+        return jQuery('body').on('click', function() {
+          _this.qualityProfilesView.$el.hide();
+          return _this.ui.menuToggle.removeClass('active');
+        });
+      };
+
+      CodingRulesHeaderView.prototype.onRender = function() {
+        return this.qualityProfilesView.render().$el.detach().appendTo(jQuery('body'));
+      };
+
+      CodingRulesHeaderView.prototype.onDomRefresh = function() {
+        return this.qualityProfilesView.$el.css({
+          top: this.$el.offset().top + this.$el.outerHeight(),
+          left: this.$el.offset().left + this.ui.menuToggle.css('margin-left')
+        });
+      };
+
+      CodingRulesHeaderView.prototype.toggleQualityProfiles = function(e) {
+        e.stopPropagation();
+        this.qualityProfilesView.$el.toggle();
+        return this.ui.menuToggle.toggleClass('active');
+      };
+
+      CodingRulesHeaderView.prototype.serializeData = function() {
+        return _.extend(CodingRulesHeaderView.__super__.serializeData.apply(this, arguments), {
+          header: this.options.app.header
+        });
+      };
 
       return CodingRulesHeaderView;
 

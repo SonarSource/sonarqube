@@ -27,6 +27,13 @@
   .size(100%, @navigatorFiltersHeight);
 }
 
+.navigator-facets {
+  .navigator-element;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
+  left: 0;
+  .size(100%, @navigatorFacetsHeight);
+}
+
 .navigator-results {
   .navigator-element;
   .box-sizing(content-box);
@@ -154,12 +161,38 @@
 }
 
 .navigator-header-actions {
-  margin-left: 16px;
+  margin-left: 20px;
 
   & > a {
     vertical-align: middle;
     margin: 0 8px;
     font-size: @smallFontSize;
+  }
+}
+
+.navigator-header-menu-toggle {
+  display: inline-block;
+  vertical-align: top;
+  height: 36px;
+  margin-right: 10px;
+  margin-left: -10px;
+  padding: 10px;
+  border-right: 1px solid transparent;
+  .box-sizing(border-box);
+  cursor: pointer;
+  .trans;
+
+  &:hover {
+    background-color: @navigatorHover;
+  }
+
+  &.active {
+    border-color: #cdcdcd;
+    background-color: #fff;
+  }
+
+  [class^="icon-"], [class*=" icon-"] {
+    font-size: 16px;
   }
 }
 
@@ -178,6 +211,67 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+
+
+// Facets
+.navigator-facets {
+  padding: @navigatorPadding;
+  border-bottom: 1px solid @navigatorBorderColor;
+  background-color: @navigatorBarBackground;
+}
+
+.navigator-facets-list {
+  display: table;
+  height: 100%;
+}
+
+.navigator-facets-list-item {
+  display: table-cell;
+}
+
+.navigator-facets-list-item {
+  padding-right: 2 * @navigatorPadding;
+}
+
+.navigator-facets-list-item + .navigator-facets-list-item {
+  padding-left: 2 * @navigatorPadding;
+  border-left: 1px solid @navigatorBorderLightColor;
+}
+
+.navigator-facets-list-item-name {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.navigator-facets-list-item-options {
+  margin-top: @navigatorPadding / 3 * 2;
+}
+
+.navigator-facets-list-item-option {
+  margin-bottom: -1em;
+  padding: @navigatorPadding / 3 0;
+  cursor: pointer;
+  text-align: justify;
+
+  &:hover .navigator-facets-list-item-option-name {
+    text-decoration: underline;
+  }
+
+  &:after {
+    content: '';
+    display: inline-block;
+    width: 100%;
+  }
+}
+
+.navigator-facets-list-item-option-name {
+  padding-right: @navigatorPadding;
+}
+
+.navigator-facets-list-item-option-stat {
+
 }
 
 

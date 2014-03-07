@@ -23,14 +23,12 @@ requirejs [
   'coding-rules/layout',
   'coding-rules/router',
 
-  # models & collections
-  'coding-rules/collections/coding-rules',
-
   # views
   'coding-rules/views/header-view',
   'coding-rules/views/actions-view',
   'coding-rules/views/filter-bar-view',
   'coding-rules/views/coding-rules-list-view',
+  'coding-rules/views/coding-rules-facets-view',
 
   # filters
   'navigator/filters/base-filters',
@@ -45,14 +43,12 @@ requirejs [
   CodingRulesLayout,
   CodingRulesRouter,
 
-  # models & collections
-  CodingRules,
-
   # views
   CodingRulesHeaderView,
   CodingRulesActionsView,
   CodingRulesFilterBarView,
   CodingRulesListView,
+  CodingRulesFacetsView,
 
   # filters
   BaseFilters,
@@ -112,12 +108,28 @@ requirejs [
     @storeQuery query, @codingRules.sorting
 
     @layout.showSpinner 'resultsRegion'
-    @codingRules.fetch(data: fetchQuery, remove: !!firstPage).done =>
+    @layout.showSpinner 'facetsRegion'
+    jQuery.ajax
+      url: "#{baseUrl}/api/codingrules/search"
+      data: fetchQuery
+    .done (r) =>
+      if firstPage
+        @codingRules.reset r.codingrules
+      else
+        @codingRules.add r.codingrules
+      @codingRules.paging = r.paging
       @codingRulesListView = new CodingRulesListView
         app: @
         collection: @codingRules
       @layout.resultsRegion.show @codingRulesListView
       @codingRulesListView.selectFirst()
+
+      @facets.reset r.facets
+      @codingRulesFacetsView = new CodingRulesFacetsView
+        app: @
+        collection: @facets
+      @layout.facetsRegion.show @codingRulesFacetsView
+
 
 
   App.fetchFirstPage = ->
@@ -145,7 +157,8 @@ requirejs [
 
   # Define coding rules
   App.addInitializer ->
-    @codingRules = new CodingRules
+    @codingRules = new Backbone.Collection
+    @facets = new Backbone.Collection
 
 
   # Construct status bar
@@ -268,6 +281,7 @@ requirejs [
   .done (r) ->
       App.appState = new Backbone.Model
       App.state = new Backbone.Model
+      App.qualityProfiles = r.qualityprofiles
       window.messages = r.messages
 
       # Remove the initial spinner

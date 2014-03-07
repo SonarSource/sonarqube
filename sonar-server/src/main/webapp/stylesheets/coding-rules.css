@@ -13,6 +13,13 @@
 .coding-rules-page .navigator-results .spinner {
   margin: 10px;
 }
+.coding-rules-page .navigator-actions,
+.coding-rules-page .navigator-details {
+  top: 324px;
+}
+.coding-rules-page .navigator-results {
+  top: 354px;
+}
 /*
  * Detail
  */
@@ -64,4 +71,20 @@
 }
 .coding-rules-detail-quality-profiles-activation {
   margin-top: 10px;
+}
+.coding-rules-header-quality-profiles {
+  position: absolute;
+  z-index: 1200;
+  display: none;
+  max-width: 300px;
+  border-right: 1px solid #cdcdcd;
+  border-bottom: 1px solid #cdcdcd;
+  background: #fff;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+}
+.coding-rules-header-quality-profiles .navigator-filter-select-list {
+  max-width: 600px;
+}
+.coding-rules-header-quality-profiles .navigator-filter-select-list label > span {
+  width: auto;
 }

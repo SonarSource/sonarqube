@@ -7,6 +7,11 @@ define ['jquery.mockjax'], ->
   jQuery.mockjax
     url: "#{baseUrl}/api/codingrules/app"
     responseText: JSON.stringify
+      qualityprofiles: [
+        { name: 'Sonar Way', lang: 'Java' }
+        { name: 'Sonar Way', lang: 'JavaScript' }
+        { name: 'Quality Profile 1', lang: 'Java' }
+      ]
       messages:
         'all': 'All'
         'bulk_change': 'Bulk Change'
@@ -66,6 +71,12 @@ define ['jquery.mockjax'], ->
       paging:
         total: 5
         fTotal: '5'
+      facets: [
+        { name: 'Language', options: ['Java', 'JavaScript'] }
+        { name: 'Repository', options: ['PMD', 'PMD Unit Tests', 'Checkstyle'] }
+        { name: 'Tags', options: ['brain-overload', 'bug', 'comment', 'convention', 'error-handling', 'formatting', 'java8'] }
+      ]
+
 
 
   # GET /api/codingrules/show
@@ -96,28 +107,28 @@ define ['jquery.mockjax'], ->
             public int[][] getMatrix() { /* ... */ }  // Compliant
             </pre>'''
 
-      qualityprofiles: [
-        {
-          name: 'SonarWay'
-          severity: 'MINOR'
-          canDeactivate: false
-          canUpdate: false
-          parameters: [
-            { key: 'max', value: 8 }
-          ]
+        qualityProfiles: [
+          {
+            name: 'SonarWay'
+            severity: 'MINOR'
+            canDeactivate: false
+            canUpdate: false
+            parameters: [
+              { key: 'max', value: 8 }
+            ]
 
-        },
-        {
-          name: 'Quality Profile 1'
-          severity: 'MAJOR'
-          canDeactivate: true
-          canUpdate: true
-          parameters: [
-            { key: 'max', value: 6 }
-          ]
+          },
+          {
+            name: 'Quality Profile 1'
+            severity: 'MAJOR'
+            canDeactivate: true
+            canUpdate: true
+            parameters: [
+              { key: 'max', value: 6 }
+            ]
 
-        }
-      ]
+          }
+        ]
 
 
 

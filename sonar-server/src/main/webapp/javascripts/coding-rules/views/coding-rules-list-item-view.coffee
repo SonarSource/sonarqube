@@ -22,6 +22,9 @@ define [
       @$el.addClass @activeClass
 
       @options.app.layout.showSpinner 'detailsRegion'
-      @model.fetch().done =>
+      jQuery.ajax
+        url: "#{baseUrl}/api/codingrules/show"
+      .done (r) =>
+        @model.set r.codingrule
         detailView = new CodingRulesDetailView model: @model
         @options.app.layout.detailsRegion.show detailView

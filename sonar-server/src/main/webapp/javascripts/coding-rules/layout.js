@@ -24,7 +24,8 @@
         actionsRegion: '.navigator-actions',
         resultsRegion: '.navigator-results',
         detailsRegion: '.navigator-details',
-        filtersRegion: '.navigator-filters'
+        filtersRegion: '.navigator-filters',
+        facetsRegion: '.navigator-facets'
       };
 
       AppLayout.prototype.onRender = function() {

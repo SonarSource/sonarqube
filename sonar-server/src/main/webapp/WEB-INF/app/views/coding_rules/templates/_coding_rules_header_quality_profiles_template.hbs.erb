@@ -1,0 +1,17 @@
+<script id="coding-rules-header-quality-profiles-template" type="text/x-handlebars-template">
+  <ul class="navigator-filter-select-list">
+    <li>
+      <label title="{{t 'coding_rules.page'}}">
+          <span>{{t 'coding_rules.page'}}</span>
+      </label>
+    </li>
+    {{#each items}}
+      <li>
+        <label title="{{name}}">
+          <span>{{name}} <span class="subtitle">{{lang}}</span>
+        </span>
+        </label>
+      </li>
+    {{/each}}
+  </ul>
+</script>

@@ -17,6 +17,7 @@ define [
       resultsRegion: '.navigator-results'
       detailsRegion: '.navigator-details'
       filtersRegion: '.navigator-filters'
+      facetsRegion: '.navigator-facets'
 
 
     onRender: ->

@@ -9,6 +9,16 @@
     margin: @navigatorPadding;
   }
 
+  .navigator-actions,
+  .navigator-details {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorFacetsHeight;
+  }
+
+  .navigator-results {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorFacetsHeight +
+         @navigatorStatusHeight;
+  }
+
 }
 
 
@@ -79,4 +89,25 @@
 
 .coding-rules-detail-quality-profiles-activation {
   margin-top: @navigatorPadding;
+}
+
+
+
+.coding-rules-header-quality-profiles {
+  position: absolute;
+  z-index: 1200;
+  display: none;
+  max-width: 300px;
+  border-right: 1px solid @darkGrey;
+  border-bottom: 1px solid @darkGrey;
+  background: #fff;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+
+  .navigator-filter-select-list {
+    max-width: 600px;
+  }
+
+  .navigator-filter-select-list label > span {
+    width: auto;
+  }
 }

@@ -30,8 +30,11 @@
         this.$el.siblings().removeClass(this.activeClass);
         this.$el.addClass(this.activeClass);
         this.options.app.layout.showSpinner('detailsRegion');
-        return this.model.fetch().done(function() {
+        return jQuery.ajax({
+          url: "" + baseUrl + "/api/codingrules/show"
+        }).done(function(r) {
           var detailView;
+          _this.model.set(r.codingrule);
           detailView = new CodingRulesDetailView({
             model: _this.model
           });

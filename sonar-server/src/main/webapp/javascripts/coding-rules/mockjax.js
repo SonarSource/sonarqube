@@ -6,6 +6,18 @@
     jQuery.mockjax({
       url: "" + baseUrl + "/api/codingrules/app",
       responseText: JSON.stringify({
+        qualityprofiles: [
+          {
+            name: 'Sonar Way',
+            lang: 'Java'
+          }, {
+            name: 'Sonar Way',
+            lang: 'JavaScript'
+          }, {
+            name: 'Quality Profile 1',
+            lang: 'Java'
+          }
+        ],
         messages: {
           'all': 'All',
           'bulk_change': 'Bulk Change',
@@ -58,7 +70,19 @@
         paging: {
           total: 5,
           fTotal: '5'
-        }
+        },
+        facets: [
+          {
+            name: 'Language',
+            options: ['Java', 'JavaScript']
+          }, {
+            name: 'Repository',
+            options: ['PMD', 'PMD Unit Tests', 'Checkstyle']
+          }, {
+            name: 'Tags',
+            options: ['brain-overload', 'bug', 'comment', 'convention', 'error-handling', 'formatting', 'java8']
+          }
+        ]
       })
     });
     jQuery.mockjax({
@@ -67,33 +91,33 @@
         codingrule: {
           name: 'Array designators "[]" should be located after the type in method signatures',
           language: 'Java',
-          description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of) the empty bracket pairs that form the declaration of the array type after the formal parameter list.\nThis obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>'
-        },
-        qualityprofiles: [
-          {
-            name: 'SonarWay',
-            severity: 'MINOR',
-            canDeactivate: false,
-            canUpdate: false,
-            parameters: [
-              {
-                key: 'max',
-                value: 8
-              }
-            ]
-          }, {
-            name: 'Quality Profile 1',
-            severity: 'MAJOR',
-            canDeactivate: true,
-            canUpdate: true,
-            parameters: [
-              {
-                key: 'max',
-                value: 6
-              }
-            ]
-          }
-        ]
+          description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of) the empty bracket pairs that form the declaration of the array type after the formal parameter list.\nThis obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>',
+          qualityProfiles: [
+            {
+              name: 'SonarWay',
+              severity: 'MINOR',
+              canDeactivate: false,
+              canUpdate: false,
+              parameters: [
+                {
+                  key: 'max',
+                  value: 8
+                }
+              ]
+            }, {
+              name: 'Quality Profile 1',
+              severity: 'MAJOR',
+              canDeactivate: true,
+              canUpdate: true,
+              parameters: [
+                {
+                  key: 'max',
+                  value: 6
+                }
+              ]
+            }
+          ]
+        }
       })
     });
     return jQuery.mockjax({
