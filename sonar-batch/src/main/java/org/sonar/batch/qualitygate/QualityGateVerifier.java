@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.qualitygate;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
@@ -33,17 +34,20 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class QualityGateVerifier implements Decorator {
 
   private static final String VARIATION_METRIC_PREFIX = "new_";
   private static final String VARIATION = "variation";
+  private static final Map<String, String> OPERATOR_LABELS = ImmutableMap.of(
+    QualityGateConditionDto.OPERATOR_EQUALS, "=",
+    QualityGateConditionDto.OPERATOR_NOT_EQUALS, "!=",
+    QualityGateConditionDto.OPERATOR_GREATER_THAN, ">",
+    QualityGateConditionDto.OPERATOR_LESS_THAN, "<");
 
   private QualityGate qualityGate;
 
@@ -147,7 +151,7 @@ public class QualityGateVerifier implements Decorator {
     }
 
     stringBuilder
-      .append(" ").append(condition.operator()).append(" ")
+      .append(" ").append(operatorLabel(condition.operator())).append(" ")
       .append(alertValue(condition, level));
 
     if (alertPeriod != null) {
@@ -164,6 +168,10 @@ public class QualityGateVerifier implements Decorator {
     } else {
       return value;
     }
+  }
+
+  private String operatorLabel(String operator) {
+    return OPERATOR_LABELS.get(operator);
   }
 
   @Override

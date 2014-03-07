@@ -188,7 +188,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes LT 10000, Coverages LT 50.0")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
   }
 
   @Test
@@ -203,7 +203,7 @@ public class QualityGateVerifierTest {
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "THE RATING LT 10")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "THE RATING < 10")));
   }
 
   @Test
@@ -218,7 +218,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes LT 10000")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes < 10000")));
   }
 
   @Test
@@ -343,7 +343,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "Classes variation GT 30 since someday")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
   }
 
   @Test
@@ -365,7 +365,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "New Measure GT 30 since someday")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
   }
 
   @Test
@@ -381,7 +381,7 @@ public class QualityGateVerifierTest {
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "The Debt LT 1h")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
