@@ -258,6 +258,7 @@ public class RuleRegistration implements Startable {
     boolean changed = false;
 
     CharacteristicDto characteristic = findCharacteristic(characteristicDtos, def);
+    // Debt definitions are set to null if the characteristic is null or unknown
     Integer characteristicId = characteristic != null ? characteristic.getId() : null;
     RemediationFunction remediationFunction = characteristic != null ? def.remediationFunction() : null;
     String remediationFactor = characteristic != null ? def.remediationFactor() : null;
