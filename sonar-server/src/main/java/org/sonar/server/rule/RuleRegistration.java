@@ -553,7 +553,7 @@ public class RuleRegistration implements Startable {
     }, null);
 
     if (characteristicDto == null) {
-      LOG.warn(String.format("Characteristic '%s' has not been found, Technical debt definitions on rule '%s:%s' will be ignored",
+      LOG.warn(String.format("Characteristic '%s' has not been found, technical debt definitions on rule '%s:%s' will be ignored",
         key, ruleDef.repository().name(), ruleDef.key()));
     } else if (characteristicDto.getParentId() == null) {
       throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'",
