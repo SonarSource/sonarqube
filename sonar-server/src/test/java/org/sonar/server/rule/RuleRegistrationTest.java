@@ -26,12 +26,12 @@ import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.core.debt.db.CharacteristicDao;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtCharacteristicModel;
 

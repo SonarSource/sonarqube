@@ -31,9 +31,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.core.debt.DebtModelPluginRepository;
+import org.sonar.core.debt.RulesDebtModelXMLImporter;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.RuleDebtXMLImporter;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -52,10 +52,10 @@ public class DeprecatedRuleDefinitionsTest {
   RuleI18nManager i18n;
 
   @Mock
-  TechnicalDebtModelRepository debtModelRepository;
+  DebtModelPluginRepository debtModelRepository;
 
   @Mock
-  RuleDebtXMLImporter importer;
+  RulesDebtModelXMLImporter importer;
 
   static class CheckstyleRules extends RuleRepository {
     public CheckstyleRules() {
@@ -154,8 +154,8 @@ public class DeprecatedRuleDefinitionsTest {
   public void define_rule_debt() throws Exception {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
 
-    List<RuleDebtXMLImporter.RuleDebt> ruleDebts = newArrayList(
-      new RuleDebtXMLImporter.RuleDebt()
+    List<RulesDebtModelXMLImporter.RuleDebt> ruleDebts = newArrayList(
+      new RulesDebtModelXMLImporter.RuleDebt()
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(RemediationFunction.LINEAR_OFFSET)

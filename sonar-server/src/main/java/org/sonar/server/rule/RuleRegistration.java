@@ -35,11 +35,11 @@ import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
+import org.sonar.core.debt.db.CharacteristicDao;
+import org.sonar.core.debt.db.CharacteristicDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.*;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtCharacteristicModel;
 

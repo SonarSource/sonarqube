@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
+import org.sonar.core.debt.db.CharacteristicDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.issue.db.*;
@@ -41,7 +42,6 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotSourceDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.*;
 

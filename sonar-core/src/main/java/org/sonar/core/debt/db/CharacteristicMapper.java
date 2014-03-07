@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
 
-import org.junit.Test;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.debt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.debt.TechnicalDebtRuleCache;
+package org.sonar.core.debt.db;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import java.util.List;
 
-public class RegisterTechnicalDebtModelTest {
+public interface CharacteristicMapper {
 
-  @Test
-  public void create_model() throws Exception {
-    TechnicalDebtModelSynchronizer manger = mock(TechnicalDebtModelSynchronizer.class);
-    RuleFinder ruleFinder = mock(RuleFinder.class);
-    RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(manger, ruleFinder, null);
+  List<CharacteristicDto> selectEnabledCharacteristics();
 
-    sqaleDefinition.start();
+  List<CharacteristicDto> selectCharacteristics();
 
-    verify(manger, times(1)).synchronize(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
-  }
+  List<CharacteristicDto> selectEnabledRootCharacteristics();
+
+  CharacteristicDto selectByKey(String key);
+
+  CharacteristicDto selectById(int id);
+
+  CharacteristicDto selectByRuleId(Integer ruleId);
+
+  void insert(CharacteristicDto characteristic);
+
+  int update(CharacteristicDto characteristic);
+
+  int disable(Integer id);
+
 }

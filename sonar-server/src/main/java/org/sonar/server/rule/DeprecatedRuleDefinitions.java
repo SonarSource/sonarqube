@@ -30,9 +30,9 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
+import org.sonar.core.debt.DebtModelPluginRepository;
+import org.sonar.core.debt.RulesDebtModelXMLImporter;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.RuleDebtXMLImporter;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
 import javax.annotation.CheckForNull;
 
@@ -52,24 +52,24 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
 
-  private final TechnicalDebtModelRepository languageModelFinder;
-  private final RuleDebtXMLImporter importer;
+  private final DebtModelPluginRepository languageModelFinder;
+  private final RulesDebtModelXMLImporter importer;
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, RuleDebtXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, DebtModelPluginRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, RuleDebtXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
     this(i18n, new RuleRepository[0], languageModelFinder, importer);
   }
 
   @Override
   public void define(Context context) {
     // Load rule debt definitions from xml files provided by plugin
-    List<RuleDebtXMLImporter.RuleDebt> ruleDebts = loadRuleDebtList();
+    List<RulesDebtModelXMLImporter.RuleDebt> ruleDebts = loadRuleDebtList();
 
     for (RuleRepository repository : repositories) {
       // RuleRepository API does not handle difference between new and extended repositories,
@@ -101,8 +101,8 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebtXMLImporter.RuleDebt> ruleDebts){
-    RuleDebtXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
+  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RulesDebtModelXMLImporter.RuleDebt> ruleDebts){
+    RulesDebtModelXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setCharacteristicKey(ruleDebt.characteristicKey());
       newRule.setRemediationFunction(ruleDebt.function());
@@ -138,15 +138,15 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
     return StringUtils.defaultIfBlank(desc, null);
   }
 
-  public List<RuleDebtXMLImporter.RuleDebt> loadRuleDebtList() {
-    List<RuleDebtXMLImporter.RuleDebt> ruleDebtList = newArrayList();
+  public List<RulesDebtModelXMLImporter.RuleDebt> loadRuleDebtList() {
+    List<RulesDebtModelXMLImporter.RuleDebt> ruleDebtList = newArrayList();
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
       ruleDebtList.addAll(loadRuleDebtsFromXml(pluginKey));
     }
     return ruleDebtList;
   }
 
-  public List<RuleDebtXMLImporter.RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
+  public List<RulesDebtModelXMLImporter.RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
@@ -158,15 +158,15 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
 
   private Collection<String> getContributingPluginListWithoutSqale() {
     Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
-    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
+    pluginList.remove(DebtModelPluginRepository.DEFAULT_MODEL);
     return pluginList;
   }
 
   @CheckForNull
-  private RuleDebtXMLImporter.RuleDebt findRequirement(List<RuleDebtXMLImporter.RuleDebt> requirements, final String repoKey, final String ruleKey) {
-    return Iterables.find(requirements, new Predicate<RuleDebtXMLImporter.RuleDebt>() {
+  private RulesDebtModelXMLImporter.RuleDebt findRequirement(List<RulesDebtModelXMLImporter.RuleDebt> requirements, final String repoKey, final String ruleKey) {
+    return Iterables.find(requirements, new Predicate<RulesDebtModelXMLImporter.RuleDebt>() {
       @Override
-      public boolean apply(RuleDebtXMLImporter.RuleDebt input) {
+      public boolean apply(RulesDebtModelXMLImporter.RuleDebt input) {
         return input.ruleKey().equals(RuleKey.of(repoKey, ruleKey));
       }
     }, null);

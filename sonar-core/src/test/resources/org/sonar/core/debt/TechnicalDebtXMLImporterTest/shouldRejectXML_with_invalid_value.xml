@@ -1,0 +1,28 @@
+<sqale>
+  <chc>
+    <key>USABILITY</key>
+    <name>Usability</name>
+    <desc>Estimate usability</desc>
+  </chc>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+    <chc>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>Regexp</rule-key>
+        <prop>
+          <key>factor</key>
+          <val>abc</val>
+        </prop>
+        <prop>
+          <key>function</key>
+          <txt>linear</txt>
+        </prop>
+      </chc>
+    </chc>
+  </chc>
+
+</sqale>

@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 
 import org.junit.Test;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.DebtCharacteristicsSynchronizer;
+import org.sonar.core.debt.CharacteristicsDebtModelSynchronizer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -31,7 +31,7 @@ public class RegisterDebtCharacteristicModelTest {
 
   @Test
   public void create_model() throws Exception {
-    DebtCharacteristicsSynchronizer synchronizer = mock(DebtCharacteristicsSynchronizer.class);
+    CharacteristicsDebtModelSynchronizer synchronizer = mock(CharacteristicsDebtModelSynchronizer.class);
     RegisterDebtCharacteristicModel sqaleDefinition = new RegisterDebtCharacteristicModel(synchronizer);
 
     sqaleDefinition.start();

@@ -40,6 +40,7 @@ import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.config.Logback;
+import org.sonar.core.debt.*;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -63,7 +64,6 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.technicaldebt.*;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -384,11 +384,11 @@ public final class Platform {
     // technical debt
     servicesContainer.addSingleton(DebtService.class);
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
-    servicesContainer.addSingleton(DebtCharacteristicsSynchronizer.class);
-    servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
+    servicesContainer.addSingleton(CharacteristicsDebtModelSynchronizer.class);
+    servicesContainer.addSingleton(DebtModelPluginRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
-    servicesContainer.addSingleton(RuleDebtXMLImporter.class);
-    servicesContainer.addSingleton(CharacteristicsXMLImporter.class);
+    servicesContainer.addSingleton(RulesDebtModelXMLImporter.class);
+    servicesContainer.addSingleton(CharacteristicsDebtModelXMLImporter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
     // source

@@ -1,0 +1,25 @@
+<sqale>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+    <chc>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <!-- Should be ignored -->
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>Regexp</rule-key>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.0</val>
+          <txt>h</txt>
+        </prop>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_resource</txt>
+        </prop>
+      </chc>
+    </chc>
+  </chc>
+
+</sqale>

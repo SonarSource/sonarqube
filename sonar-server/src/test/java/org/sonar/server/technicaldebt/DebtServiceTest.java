@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
+import org.sonar.core.debt.DefaultTechnicalDebtManager;
 
 import java.util.List;
 
