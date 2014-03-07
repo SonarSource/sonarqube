@@ -52,6 +52,7 @@ public class RuleSearchWsHandler implements RequestHandler {
     final String ruleKeyParam = request.param("k");
     Collection<Rule> foundRules = Collections.emptyList();
     boolean hasMore = false;
+    long total = 0L;
     if (ruleKeyParam == null) {
       final String ruleSearchParam = request.param("s");
       final int pageSize = request.paramAsInt("ps", 25);
@@ -63,11 +64,13 @@ public class RuleSearchWsHandler implements RequestHandler {
           .build());
       foundRules = searchResult.results();
       hasMore = searchResult.paging().hasNextPage();
+      total = searchResult.paging().total();
     } else {
       RuleKey ruleKey = RuleKey.parse(ruleKeyParam);
       Rule rule = findRule(ruleKey);
       if (rule != null) {
         foundRules = Collections.singleton(rule);
+        total = 1L;
       }
       hasMore = false;
     }
@@ -79,7 +82,7 @@ public class RuleSearchWsHandler implements RequestHandler {
       writeRule(rule, json);
       json.endObject();
     }
-    json.endArray().prop("more", hasMore).endObject().close();
+    json.endArray().prop("more", hasMore).prop("total", total).endObject().close();
   }
 
   @CheckForNull

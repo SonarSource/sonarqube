@@ -78,7 +78,7 @@ public class RuleSearchWsHandlerTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("list").setParam("ps", "10").setParam("p", "2");
-    request.execute().assertJson("{'more':false,'results':["
+    request.execute().assertJson("{'more':false,'total':1,'results':["
       + "{'key':'squid:AvoidCycle','name':'Avoid cycle','language':'Java'}"
       + "]}");
   }
@@ -95,7 +95,7 @@ public class RuleSearchWsHandlerTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("list").setParam("k", ruleKey);
-    request.execute().assertJson("{'more':false,'results':["
+    request.execute().assertJson("{'more':false,'total':1,'results':["
       + "{'key':'squid:AvoidCycle','name':'Avoid cycle','language':'Java'}"
       + "]}");
   }
