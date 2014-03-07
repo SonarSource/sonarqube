@@ -283,6 +283,10 @@ public class RuleRegistryTest {
 
     // Search is ngram based
     assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("with param").build()).results()).hasSize(1);
+
+    // Search works also with key
+    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+
   }
 
   private String testFileAsString(String testFile) throws Exception {

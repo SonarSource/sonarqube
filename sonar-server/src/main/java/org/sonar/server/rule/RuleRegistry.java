@@ -130,7 +130,7 @@ public class RuleRegistry {
     BoolFilterBuilder mainFilter = FilterBuilders.boolFilter().mustNot(FilterBuilders.termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
     if (StringUtils.isNotBlank(query.query())) {
       mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.matchQuery(RuleDocument.FIELD_NAME+".search", query.query()).operator(Operator.AND)));
+        QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME+".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
     SearchHits hits = searchIndex.executeRequest(
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
