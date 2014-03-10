@@ -31,8 +31,8 @@ import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.DebtModelPluginRepository;
 import org.sonar.core.technicaldebt.RulesDebtModelXMLImporter;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
 import javax.annotation.CheckForNull;
 
@@ -52,17 +52,17 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
 
-  private final DebtModelPluginRepository languageModelFinder;
+  private final TechnicalDebtModelRepository languageModelFinder;
   private final RulesDebtModelXMLImporter importer;
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, DebtModelPluginRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
     this(i18n, new RuleRepository[0], languageModelFinder, importer);
   }
 
@@ -158,7 +158,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
 
   private Collection<String> getContributingPluginListWithoutSqale() {
     Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
-    pluginList.remove(DebtModelPluginRepository.DEFAULT_MODEL);
+    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
     return pluginList;
   }
 

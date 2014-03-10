@@ -32,8 +32,8 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.DebtModelPluginRepository;
 import org.sonar.core.technicaldebt.RulesDebtModelXMLImporter;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class DeprecatedRuleDefinitionsTest {
   RuleI18nManager i18n;
 
   @Mock
-  DebtModelPluginRepository debtModelRepository;
+  TechnicalDebtModelRepository debtModelRepository;
 
   @Mock
   RulesDebtModelXMLImporter importer;

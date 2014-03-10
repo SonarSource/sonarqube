@@ -385,7 +385,7 @@ public final class Platform {
     servicesContainer.addSingleton(DebtService.class);
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
     servicesContainer.addSingleton(CharacteristicsDebtModelSynchronizer.class);
-    servicesContainer.addSingleton(DebtModelPluginRepository.class);
+    servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
     servicesContainer.addSingleton(RulesDebtModelXMLImporter.class);
     servicesContainer.addSingleton(CharacteristicsDebtModelXMLImporter.class);

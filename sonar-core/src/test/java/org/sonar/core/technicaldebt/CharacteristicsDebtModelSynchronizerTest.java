@@ -55,7 +55,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
   SqlSession session;
 
   @Mock
-  DebtModelPluginRepository debtModelPluginRepository;
+  TechnicalDebtModelRepository technicalDebtModelRepository;
 
   @Mock
   CharacteristicDao dao;
@@ -75,7 +75,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
 
     defaultModel = new DefaultTechnicalDebtModel();
     Reader defaultModelReader = mock(Reader.class);
-    when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
+    when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(xmlImporter.importXML(eq(defaultModelReader), any(ValidationMessages.class))).thenReturn(defaultModel);
 
     doAnswer(new Answer() {
@@ -88,7 +88,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
 
-    manager = new CharacteristicsDebtModelSynchronizer(myBatis, dao, debtModelPluginRepository, xmlImporter);
+    manager = new CharacteristicsDebtModelSynchronizer(myBatis, dao, technicalDebtModelRepository, xmlImporter);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
     new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
     defaultModel.addRootCharacteristic(rootCharacteristic);
 
-    when(debtModelPluginRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
 
     manager.synchronize(ValidationMessages.create());
@@ -118,7 +118,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
     new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
     defaultModel.addRootCharacteristic(rootCharacteristic);
 
-    when(debtModelPluginRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.newArrayList(new CharacteristicDto()));
 
     manager.synchronize(ValidationMessages.create());

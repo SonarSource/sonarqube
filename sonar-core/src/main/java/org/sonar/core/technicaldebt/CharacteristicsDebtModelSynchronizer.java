@@ -42,10 +42,10 @@ public class CharacteristicsDebtModelSynchronizer implements ServerExtension {
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
-  private final DebtModelPluginRepository languageModelFinder;
+  private final TechnicalDebtModelRepository languageModelFinder;
   private final CharacteristicsDebtModelXMLImporter importer;
 
-  public CharacteristicsDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao, DebtModelPluginRepository modelRepository, CharacteristicsDebtModelXMLImporter importer) {
+  public CharacteristicsDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao, TechnicalDebtModelRepository modelRepository, CharacteristicsDebtModelXMLImporter importer) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.languageModelFinder = modelRepository;
@@ -66,7 +66,7 @@ public class CharacteristicsDebtModelSynchronizer implements ServerExtension {
   }
 
   public List<CharacteristicDto> synchronize(ValidationMessages messages, SqlSession session) {
-    DefaultTechnicalDebtModel defaultModel = loadModelFromXml(DebtModelPluginRepository.DEFAULT_MODEL, messages);
+    DefaultTechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages);
     List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
     messages.log(LOG);
     return model;

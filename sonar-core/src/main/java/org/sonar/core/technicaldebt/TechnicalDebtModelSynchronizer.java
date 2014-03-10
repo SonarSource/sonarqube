@@ -49,11 +49,11 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
-  private final DebtModelPluginRepository languageModelFinder;
+  private final TechnicalDebtModelRepository languageModelFinder;
   private final TechnicalDebtXMLImporter importer;
 
   public TechnicalDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao,
-                                        DebtModelPluginRepository modelRepository, TechnicalDebtXMLImporter importer) {
+                                        TechnicalDebtModelRepository modelRepository, TechnicalDebtXMLImporter importer) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.languageModelFinder = modelRepository;
@@ -74,7 +74,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
   }
 
   public List<CharacteristicDto> synchronize(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
-    DefaultTechnicalDebtModel defaultModel = loadModelFromXml(DebtModelPluginRepository.DEFAULT_MODEL, messages, rulesCache);
+    DefaultTechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
     List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
     disableRequirementsOnRemovedRules(model, rulesCache, session);
     mergePlugins(model, defaultModel, messages, rulesCache, session);
@@ -169,7 +169,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
 
   private Collection<String> getContributingPluginListWithoutSqale() {
     Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
-    pluginList.remove(DebtModelPluginRepository.DEFAULT_MODEL);
+    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
     return pluginList;
   }
 

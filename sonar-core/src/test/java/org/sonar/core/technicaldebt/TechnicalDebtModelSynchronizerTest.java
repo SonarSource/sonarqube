@@ -61,7 +61,7 @@ public class TechnicalDebtModelSynchronizerTest {
   SqlSession session;
 
   @Mock
-  DebtModelPluginRepository debtModelPluginRepository;
+  TechnicalDebtModelRepository technicalDebtModelRepository;
 
   @Mock
   TechnicalDebtRuleCache ruleCache;
@@ -84,7 +84,7 @@ public class TechnicalDebtModelSynchronizerTest {
 
     defaultModel = new DefaultTechnicalDebtModel();
     Reader defaultModelReader = mock(Reader.class);
-    when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
+    when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(xmlImporter.importXML(eq(defaultModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(defaultModel);
 
     doAnswer(new Answer() {
@@ -97,7 +97,7 @@ public class TechnicalDebtModelSynchronizerTest {
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
 
-    manager = new TechnicalDebtModelSynchronizer(myBatis, dao, debtModelPluginRepository, xmlImporter);
+    manager = new TechnicalDebtModelSynchronizer(myBatis, dao, technicalDebtModelRepository, xmlImporter);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class TechnicalDebtModelSynchronizerTest {
     new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
     defaultModel.addRootCharacteristic(rootCharacteristic);
 
-    when(debtModelPluginRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
 
     manager.synchronize(ValidationMessages.create(), ruleCache);
@@ -150,8 +150,8 @@ public class TechnicalDebtModelSynchronizerTest {
 
     Reader javaModelReader = mock(Reader.class);
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-    when(debtModelPluginRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
-    when(debtModelPluginRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+    when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
     manager.synchronize(ValidationMessages.create(), ruleCache);
 
@@ -206,9 +206,9 @@ public class TechnicalDebtModelSynchronizerTest {
       .setRootCharacteristic(javaRootCharacteristic);
 
     Reader javaModelReader = mock(Reader.class);
-    when(debtModelPluginRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+    when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
     when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-    when(debtModelPluginRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
     manager.synchronize(ValidationMessages.create(), ruleCache);
 
@@ -264,9 +264,9 @@ public class TechnicalDebtModelSynchronizerTest {
       javaModel.addRootCharacteristic(javaRootCharacteristic);
 
       Reader javaModelReader = mock(Reader.class);
-      when(debtModelPluginRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+      when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
       when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-      when(debtModelPluginRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+      when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
 
       manager.synchronize(ValidationMessages.create(), ruleCache);
       fail();
