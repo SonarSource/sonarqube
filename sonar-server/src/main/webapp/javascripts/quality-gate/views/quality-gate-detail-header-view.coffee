@@ -33,6 +33,7 @@ define [
 
     copyQualityGate: ->
       copiedModel = new QualityGate @model.toJSON()
+      copiedModel.set 'default', false
       @options.app.qualityGateEditView.method = 'copy'
       @options.app.qualityGateEditView.model = copiedModel
       @options.app.qualityGateEditView.show()

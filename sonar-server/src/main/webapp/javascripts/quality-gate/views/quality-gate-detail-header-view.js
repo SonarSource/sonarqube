@@ -38,6 +38,7 @@
       QualityGateDetailHeaderView.prototype.copyQualityGate = function() {
         var copiedModel;
         copiedModel = new QualityGate(this.model.toJSON());
+        copiedModel.set('default', false);
         this.options.app.qualityGateEditView.method = 'copy';
         this.options.app.qualityGateEditView.model = copiedModel;
         return this.options.app.qualityGateEditView.show();
