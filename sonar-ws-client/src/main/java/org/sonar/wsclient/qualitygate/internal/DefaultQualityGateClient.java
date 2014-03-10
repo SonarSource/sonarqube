@@ -31,6 +31,9 @@ public class DefaultQualityGateClient implements QualityGateClient {
   private static final String LIST_URL = ROOT_URL + "/list";
   private static final String SHOW_URL = ROOT_URL + "/show";
   private static final String CREATE_URL = ROOT_URL + "/create";
+  private static final String CREATE_CONDITION_URL = ROOT_URL + "/create_condition";
+  private static final String UPDATE_CONDITION_URL = ROOT_URL + "/update_condition";
+  private static final String DELETE_CONDITION_URL = ROOT_URL + "/delete_condition";
   private static final String RENAME_URL = ROOT_URL + "/rename";
   private static final String DESTROY_URL = ROOT_URL + "/destroy";
   private static final String SET_DEFAULT_URL = ROOT_URL + "/set_as_default";
@@ -73,6 +76,23 @@ public class DefaultQualityGateClient implements QualityGateClient {
   public QualityGateDetails show(String qGateName) {
     String json = requestFactory.get(SHOW_URL, Collections.singletonMap("name", (Object) qGateName));
     return jsonToDetails(json);
+  }
+
+  @Override
+  public QualityGateCondition createCondition(NewCondition condition) {
+    String json = requestFactory.post(CREATE_CONDITION_URL, condition.urlParams());
+    return jsonToCondition(json);
+  }
+
+  @Override
+  public QualityGateCondition updateCondition(UpdateCondition condition) {
+    String json = requestFactory.post(UPDATE_CONDITION_URL, condition.urlParams());
+    return jsonToCondition(json);
+  }
+
+  @Override
+  public void deleteCondition(long conditionId) {
+    requestFactory.post(DELETE_CONDITION_URL, Collections.singletonMap("id", (Object) conditionId));
   }
 
   @Override
@@ -121,5 +141,8 @@ public class DefaultQualityGateClient implements QualityGateClient {
     return conditions;
   }
 
-
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private DefaultQualityGateCondition jsonToCondition(String json) {
+    return new DefaultQualityGateCondition((Map) JSONValue.parse(json));
+  }
 }

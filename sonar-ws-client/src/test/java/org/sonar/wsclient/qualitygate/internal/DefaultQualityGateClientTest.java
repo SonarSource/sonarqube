@@ -227,4 +227,65 @@ public class DefaultQualityGateClientTest {
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/unset_default");
     assertThat(httpServer.requestParams()).isEmpty();
   }
+
+  @Test
+  public void should_create_condition_on_qualitygate() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubResponseBody("{\"id\":42,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"error\":\"80\",\"period\":3}");
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    QualityGateCondition result = client.createCondition(NewCondition.create(12345L)
+      .metricKey("new_coverage").operator("LT").warningThreshold("90").errorThreshold("80").period(3));
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/create_condition");
+    assertThat(httpServer.requestParams()).includes(
+        entry("gateId", "12345"),
+        entry("metric", "new_coverage"),
+        entry("op", "LT"),
+        entry("warning", "90"),
+        entry("error", "80"),
+        entry("period", "3")
+        );
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(42L);
+  }
+
+  @Test
+  public void should_update_condition() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubResponseBody("{\"id\":12345,\"metric\":\"ncloc\",\"op\":\"GT\",\"warning\":\"1000\",\"error\":\"2000\",\"period\":1}");
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    QualityGateCondition result = client.updateCondition(UpdateCondition.create(12345L)
+      .metricKey("ncloc").operator("GT").warningThreshold("1000").errorThreshold("2000").period(1));
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/update_condition");
+    assertThat(httpServer.requestParams()).includes(
+        entry("id", "12345"),
+        entry("metric", "ncloc"),
+        entry("op", "GT"),
+        entry("warning", "1000"),
+        entry("error", "2000"),
+        entry("period", "1")
+        );
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(12345L);
+  }
+
+  @Test
+  public void should_delete_condition() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    client.deleteCondition(666L);;
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/delete_condition");
+    assertThat(httpServer.requestParams()).includes(
+        entry("id", "666")
+        );
+  }
 }

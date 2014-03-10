@@ -35,6 +35,12 @@ public interface QualityGateClient {
 
   QualityGateDetails show(String qGateName);
 
+  QualityGateCondition createCondition(NewCondition condition);
+
+  QualityGateCondition updateCondition(UpdateCondition condition);
+
+  void deleteCondition(long conditionId);
+
   void destroy(long qGateId);
 
   void setDefault(long qGateId);
