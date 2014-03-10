@@ -30,23 +30,27 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.qualitygate.QualityGate;
 
 import java.util.List;
 
 public class GenerateAlertEvents implements Decorator {
 
   private final RulesProfile profile;
+  private final QualityGate qualityGate;
   private final TimeMachine timeMachine;
   private NotificationManager notificationManager;
 
-  public GenerateAlertEvents(RulesProfile profile, TimeMachine timeMachine, NotificationManager notificationManager) {
+  public GenerateAlertEvents(RulesProfile profile, QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
     this.profile = profile;
+    this.qualityGate = qualityGate;
     this.timeMachine = timeMachine;
     this.notificationManager = notificationManager;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return profile != null && profile.getAlerts() != null && !profile.getAlerts().isEmpty();
+    return profile != null && profile.getAlerts() != null && !profile.getAlerts().isEmpty()
+      || qualityGate.isEnabled();
   }
 
   @DependsUpon

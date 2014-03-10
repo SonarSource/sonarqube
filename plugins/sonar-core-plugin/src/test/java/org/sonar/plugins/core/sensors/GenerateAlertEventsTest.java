@@ -35,6 +35,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.ProjectTestBuilder;
+import org.sonar.batch.qualitygate.QualityGate;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -50,6 +51,7 @@ public class GenerateAlertEventsTest {
   private GenerateAlertEvents decorator;
   private DecoratorContext context;
   private RulesProfile profile;
+  private QualityGate qualityGate;
   private TimeMachine timeMachine;
   private NotificationManager notificationManager;
   private Project project;
@@ -59,8 +61,9 @@ public class GenerateAlertEventsTest {
     context = mock(DecoratorContext.class);
     timeMachine = mock(TimeMachine.class);
     profile = mock(RulesProfile.class);
+    qualityGate = mock(QualityGate.class);
     notificationManager = mock(NotificationManager.class);
-    decorator = new GenerateAlertEvents(profile, timeMachine, notificationManager);
+    decorator = new GenerateAlertEvents(profile, qualityGate, timeMachine, notificationManager);
     project = new ProjectTestBuilder().build();
   }
 
@@ -72,6 +75,12 @@ public class GenerateAlertEventsTest {
   @Test
   public void shouldNotDecorateIfNoThresholds() {
     assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
+  }
+
+  @Test
+  public void shouldDecorateIfQualityGateEnabled() {
+    when(qualityGate.isEnabled()).thenReturn(true);
+    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
