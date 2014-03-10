@@ -106,7 +106,7 @@ public class QualityGateVerifierTest {
 
   @Test
   public void generates_quality_gates_status() {
-    assertThat(verifier.generatesQualityGateStatus()).isEqualTo(CoreMetrics.QUALITY_GATE_STATUS);
+    assertThat(verifier.generatesQualityGateStatus()).isEqualTo(CoreMetrics.ALERT_STATUS);
   }
 
   @Test
@@ -129,9 +129,9 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.OK.toString())));
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
   }
 
   @Test
@@ -155,10 +155,10 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, null)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
 
   }
 
@@ -171,10 +171,10 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, null)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, null)));
 
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.ERROR)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.ERROR)));
   }
 
   @Test
@@ -188,7 +188,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
   }
 
   @Test
@@ -203,7 +203,7 @@ public class QualityGateVerifierTest {
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "THE RATING < 10")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "THE RATING < 10")));
   }
 
   @Test
@@ -218,7 +218,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "Classes < 10000")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000")));
   }
 
   @Test
@@ -238,11 +238,11 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.OK, null)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
 
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.OK)));
   }
 
   @Test
@@ -263,11 +263,11 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, null)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.WARN)));
   }
 
   @Test
@@ -280,8 +280,8 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.OK, null)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
   }
 
   @Test
@@ -298,8 +298,8 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.OK, null)));
-    //verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -343,7 +343,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
   }
 
   @Test
@@ -365,7 +365,7 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
   }
 
   @Test
@@ -381,7 +381,7 @@ public class QualityGateVerifierTest {
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.QUALITY_GATE_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {

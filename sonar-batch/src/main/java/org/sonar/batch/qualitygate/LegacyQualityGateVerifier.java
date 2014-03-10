@@ -84,7 +84,7 @@ public class LegacyQualityGateVerifier implements Decorator {
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
-    if (ResourceUtils.isRootProject(resource) && !projectAlerts.all().isEmpty()) {
+    if (ResourceUtils.isRootProject(resource) && !projectAlerts.all().isEmpty() && context.getMeasure(CoreMetrics.ALERT_STATUS) == null) {
       checkProjectAlerts(context);
     }
   }

@@ -66,7 +66,7 @@ public class QualityGateVerifier implements Decorator {
 
   @DependedUpon
   public Metric generatesQualityGateStatus() {
-    return CoreMetrics.QUALITY_GATE_STATUS;
+    return CoreMetrics.ALERT_STATUS;
   }
 
   @DependsUpon
@@ -107,14 +107,14 @@ public class QualityGateVerifier implements Decorator {
         /*
          * This should probably be done only after migration from alerts
          */
-        //measure.setAlertStatus(level);
+        measure.setAlertStatus(level);
         String text = getText(condition, level);
         if (!StringUtils.isBlank(text)) {
-          //measure.setAlertText(text);
+          measure.setAlertText(text);
           labels.add(text);
         }
 
-        //context.saveMeasure(measure);
+        context.saveMeasure(measure);
 
         if (Metric.Level.WARN == level && globalLevel != Metric.Level.ERROR) {
           globalLevel = Metric.Level.WARN;
@@ -125,7 +125,7 @@ public class QualityGateVerifier implements Decorator {
       }
     }
 
-    Measure globalMeasure = new Measure(CoreMetrics.QUALITY_GATE_STATUS, globalLevel);
+    Measure globalMeasure = new Measure(CoreMetrics.ALERT_STATUS, globalLevel);
     globalMeasure.setAlertStatus(globalLevel);
     globalMeasure.setAlertText(StringUtils.join(labels, ", "));
     context.saveMeasure(globalMeasure);

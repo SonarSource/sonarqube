@@ -130,6 +130,20 @@ public class LegacyQualityGateVerifierTest {
   }
 
   @Test
+  public void not_run_when_alert_status_already_set() {
+    projectAlerts.addAll(Lists.newArrayList(
+      new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
+      new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
+    when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(mock(Measure.class));
+
+    verifier.decorate(project, context);
+
+    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
+    verify(context, never()).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context, never()).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+  }
+
+  @Test
   public void check_root_modules_only() {
     projectAlerts.addAll(Lists.newArrayList(
       new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
