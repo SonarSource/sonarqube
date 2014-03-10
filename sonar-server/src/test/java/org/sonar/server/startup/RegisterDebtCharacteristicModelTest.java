@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 
 import org.junit.Test;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.debt.CharacteristicsDebtModelSynchronizer;
+import org.sonar.core.technicaldebt.CharacteristicsDebtModelSynchronizer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;

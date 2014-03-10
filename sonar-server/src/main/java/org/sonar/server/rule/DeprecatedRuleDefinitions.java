@@ -30,9 +30,9 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
-import org.sonar.core.debt.DebtModelPluginRepository;
-import org.sonar.core.debt.RulesDebtModelXMLImporter;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.technicaldebt.DebtModelPluginRepository;
+import org.sonar.core.technicaldebt.RulesDebtModelXMLImporter;
 
 import javax.annotation.CheckForNull;
 

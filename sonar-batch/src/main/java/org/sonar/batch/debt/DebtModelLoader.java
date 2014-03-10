@@ -27,9 +27,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.core.debt.DefaultTechnicalDebtModel;
-import org.sonar.core.debt.db.CharacteristicDao;
-import org.sonar.core.debt.db.CharacteristicDto;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import java.util.Collection;
 import java.util.List;

@@ -22,7 +22,7 @@ package org.sonar.server.technicaldebt;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.technicaldebt.server.Characteristic;
-import org.sonar.core.debt.DefaultTechnicalDebtManager;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 
 import javax.annotation.CheckForNull;
 

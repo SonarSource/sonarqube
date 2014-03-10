@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.debt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.debt.TechnicalDebtRuleCache;
+import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
+import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
 import org.sonar.server.rule.RuleRegistration;
 
 public final class RegisterTechnicalDebtModel {
