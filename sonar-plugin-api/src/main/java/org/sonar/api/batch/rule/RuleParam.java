@@ -22,7 +22,6 @@ package org.sonar.api.batch.rule;
 import com.google.common.annotations.Beta;
 
 /**
- * Not used
  * @since 4.2
  */
 @Beta

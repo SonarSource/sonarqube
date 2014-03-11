@@ -22,11 +22,14 @@ package org.sonar.api.batch.rule.internal;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -35,8 +38,11 @@ public class DefaultRule implements Rule {
 
   private final RuleKey key;
   private final Integer id;
-  private final String name, severity, description, metadata;
+  private final String name, severity, description, metadata, characteristic;
   private final RuleStatus status;
+  RemediationFunction function;
+  Duration factor, offset;
+
   private final Map<String, RuleParam> params;
 
   DefaultRule(NewRule newRule) {
@@ -47,6 +53,10 @@ public class DefaultRule implements Rule {
     this.description = newRule.description;
     this.metadata = newRule.metadata;
     this.status = newRule.status;
+    this.characteristic = newRule.characteristic;
+    this.function = newRule.function;
+    this.factor = newRule.factor;
+    this.offset = newRule.offset;
 
     ImmutableMap.Builder<String, RuleParam> builder = ImmutableMap.builder();
     for (NewRuleParam newRuleParam : newRule.params.values()) {
@@ -88,6 +98,26 @@ public class DefaultRule implements Rule {
   @Override
   public RuleStatus status() {
     return status;
+  }
+
+  @Override
+  public String characteristic() {
+    return characteristic;
+  }
+
+  @Override
+  public RemediationFunction function() {
+    return function;
+  }
+
+  @Override
+  public Duration factor() {
+    return factor;
+  }
+
+  @Override
+  public Duration offset() {
+    return offset;
   }
 
   @Override

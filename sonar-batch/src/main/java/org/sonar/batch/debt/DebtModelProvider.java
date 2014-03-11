@@ -24,7 +24,16 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class DebtModelProvider extends ProviderAdapter {
 
@@ -32,12 +41,42 @@ public class DebtModelProvider extends ProviderAdapter {
 
   private TechnicalDebtModel model;
 
-  public TechnicalDebtModel provide(DebtModelLoader loader) {
+  public TechnicalDebtModel provide(CharacteristicDao dao) {
     if (model == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
-      model = loader.load();
+      model = load(dao);
       profiler.stop();
     }
     return model;
+  }
+
+  private TechnicalDebtModel load(CharacteristicDao dao) {
+    DefaultTechnicalDebtModel model = new DefaultTechnicalDebtModel();
+    List<CharacteristicDto> dtos = dao.selectCharacteristics();
+    Map<Integer, DefaultCharacteristic> characteristicsById = newHashMap();
+
+    addRootCharacteristics(model, dtos, characteristicsById);
+    addCharacteristics(dtos, characteristicsById);
+    return model;
+  }
+
+  private void addRootCharacteristics(DefaultTechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
+    for (CharacteristicDto dto : dtos) {
+      if (dto.getParentId() == null) {
+        DefaultCharacteristic rootCharacteristic = dto.toCharacteristic(null);
+        model.addRootCharacteristic(rootCharacteristic);
+        characteristicsById.put(dto.getId(), rootCharacteristic);
+      }
+    }
+  }
+
+  private void addCharacteristics(List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
+    for (CharacteristicDto dto : dtos) {
+      if (dto.getParentId() != null && dto.getRuleId() == null) {
+        DefaultCharacteristic parent = characteristicsById.get(dto.getParentId());
+        DefaultCharacteristic characteristic = dto.toCharacteristic(parent);
+        characteristicsById.put(dto.getId(), characteristic);
+      }
+    }
   }
 }

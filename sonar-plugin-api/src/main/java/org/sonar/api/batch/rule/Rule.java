@@ -20,14 +20,16 @@
 package org.sonar.api.batch.rule;
 
 import com.google.common.annotations.Beta;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 
 /**
- * Not used
  * @since 4.2
  */
 @Beta
@@ -51,5 +53,37 @@ public interface Rule {
   Collection<RuleParam> params();
 
   RuleStatus status();
+
+  /**
+   * Characteristic key.
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  String characteristic();
+
+  /**
+   * Remediation function : one of LINEAR, LINEAR_OFFSET or CONSTANT_ISSUE.
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  RemediationFunction function();
+
+  /**
+   * Remediation factor duration (used for LINEAR function).
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  Duration factor();
+
+  /**
+   * Remediation offset duration (used for LINEAR_OFFSET or CONSTANT_ISSUE function).
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  Duration offset();
 
 }

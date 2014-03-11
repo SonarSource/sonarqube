@@ -37,15 +37,14 @@ import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.*;
 import org.sonar.batch.components.PeriodsDefinition;
-import org.sonar.batch.debt.DebtModelLoader;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.RuleDebtCalculator;
 import org.sonar.batch.index.*;
 import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.qualitygate.ProjectAlerts;
+import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -156,17 +155,19 @@ public class ProjectScanContainer extends ComponentContainer {
       SymbolizableBuilder.class,
 
       // technical debt
-      DebtModelLoader.class,
-      RuleDebtCalculator.class,
       new DebtModelProvider(),
+
+      // quality gates
+      ProjectAlerts.class,
+
+      // rules
+      new RulesProvider(),
 
       // Differential periods
       PeriodsDefinition.class,
 
-      ProjectSettingsReady.class,
-
-      // quality gates
-      ProjectAlerts.class);
+      ProjectSettingsReady.class
+    );
   }
 
   private void fixMavenExecutor() {

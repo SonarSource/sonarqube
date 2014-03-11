@@ -21,11 +21,14 @@ package org.sonar.api.batch.rule.internal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +38,9 @@ public class NewRule {
 
   final RuleKey key;
   Integer id;
-  String name, description, severity = DEFAULT_SEVERITY, metadata;
+  String name, description, severity = DEFAULT_SEVERITY, metadata, characteristic;
+  RemediationFunction function;
+  Duration factor, offset;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<String, NewRuleParam>();
 
@@ -70,6 +75,26 @@ public class NewRule {
 
   public NewRule setMetadata(@Nullable String metadata) {
     this.metadata = metadata;
+    return this;
+  }
+
+  public NewRule setCharacteristic(@Nullable String c) {
+    this.characteristic = c;
+    return this;
+  }
+
+  public NewRule setFunction(@Nullable RemediationFunction f) {
+    this.function = f;
+    return this;
+  }
+
+  public NewRule setFactor(@Nullable Duration f) {
+    this.factor = f;
+    return this;
+  }
+
+  public NewRule setOffset(@Nullable Duration o) {
+    this.offset = o;
     return this;
   }
 

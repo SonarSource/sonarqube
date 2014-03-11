@@ -32,7 +32,6 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.DefaultIndex;
 
@@ -65,8 +64,7 @@ public class DefaultTimeMachine implements TimeMachine {
       MeasureModel model = (MeasureModel) object[0];
       Integer characteristicId = model.getCharacteristicId();
       Characteristic characteristic = techDebtModel.characteristicById(characteristicId);
-      Requirement requirement = techDebtModel.requirementsById(characteristicId);
-      Measure measure = toMeasure(model, metricById.get(model.getMetricId()), characteristic != null ? characteristic : null, requirement != null ? requirement : null);
+      Measure measure = toMeasure(model, metricById.get(model.getMetricId()), characteristic);
       measure.setDate((Date) object[1]);
       result.add(measure);
     }
@@ -154,7 +152,7 @@ public class DefaultTimeMachine implements TimeMachine {
     return result;
   }
 
-  static Measure toMeasure(MeasureModel model, Metric metric, @Nullable Characteristic characteristic, @Nullable Requirement requirement) {
+  static Measure toMeasure(MeasureModel model, Metric metric, @Nullable Characteristic characteristic) {
     // NOTE: measures on rule are not supported
     Measure measure = new Measure(metric);
     measure.setId(model.getId());
@@ -171,7 +169,6 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation5(model.getVariationValue5());
     measure.setUrl(model.getUrl());
     measure.setCharacteristic(characteristic);
-    measure.setRequirement(requirement);
     measure.setPersonId(model.getPersonId());
     return measure;
   }

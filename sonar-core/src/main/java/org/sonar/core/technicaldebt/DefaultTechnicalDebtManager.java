@@ -68,6 +68,10 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     return null;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   @CheckForNull
   public Characteristic findRequirementByRuleId(int ruleId) {
     CharacteristicDto requirementDto = dao.selectByRuleId(ruleId);
@@ -81,6 +85,10 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     return null;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   @CheckForNull
   public Characteristic findRequirementByRule(Rule rule) {
     CharacteristicDto requirementDto = dao.selectByRuleId(rule.getId());

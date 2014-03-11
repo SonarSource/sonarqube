@@ -24,10 +24,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.*;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.internal.DefaultRule;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.issue.Issuable;
@@ -37,9 +39,12 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
+
+import javax.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,10 +62,12 @@ public final class TechnicalDebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TechnicalDebtModel model;
+  private final Rules rules;
 
-  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model) {
+  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, Rules rules) {
     this.perspectives = perspectives;
     this.model = model;
+    this.rules = rules;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -81,25 +88,29 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private void saveMeasures(DecoratorContext context, List<Issue> issues) {
-    // group issues by requirement
-    ListMultimap<Requirement, Issue> issuesByRequirement = issuesByRequirement(issues);
+    // group issues by rules
+    ListMultimap<Rule, Issue> issuesByRule = issuesByRule(issues);
 
     double total = 0.0;
     Map<Characteristic, Double> characteristicCosts = newHashMap();
-    Map<Requirement, Double> requirementCosts = newHashMap();
+    Map<Rule, Double> ruleDebtCosts = newHashMap();
 
-    for (Requirement requirement : model.requirements()) {
-      List<Issue> requirementIssues = issuesByRequirement.get(requirement);
-      double value = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, requirement, requirementIssues);
+    for (Rule rule : rules.findAll()) {
+      String characteristicKey = rule.characteristic();
+      if (characteristicKey != null) {
+        List<Issue> requirementIssues = issuesByRule.get(rule);
+        double value = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, rule, requirementIssues);
 
-      requirementCosts.put(requirement, value);
-      total += value;
-      propagateTechnicalDebtInParents(requirement.characteristic(), value, characteristicCosts);
+        ruleDebtCosts.put(rule, value);
+        total += value;
+        Characteristic characteristic = model.characteristicByKey(characteristicKey);
+        propagateTechnicalDebtInParents(characteristic, value, characteristicCosts);
+      }
     }
 
     context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total);
     saveOnCharacteristic(context, characteristicCosts);
-    saveOnRequirement(context, requirementCosts);
+    saveOnRequirement(context, ruleDebtCosts);
   }
 
   private void saveOnCharacteristic(DecoratorContext context, Map<Characteristic, Double> characteristicCosts) {
@@ -108,8 +119,8 @@ public final class TechnicalDebtDecorator implements Decorator {
     }
   }
 
-  private void saveOnRequirement(DecoratorContext context, Map<Requirement, Double> requirementCosts) {
-    for (Map.Entry<Requirement, Double> entry : requirementCosts.entrySet()) {
+  private void saveOnRequirement(DecoratorContext context, Map<Rule, Double> requirementCosts) {
+    for (Map.Entry<Rule, Double> entry : requirementCosts.entrySet()) {
       saveTechnicalDebt(context, entry.getKey(), entry.getValue(), ResourceUtils.isEntity(context.getResource()));
     }
   }
@@ -126,17 +137,17 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  void saveTechnicalDebt(DecoratorContext context, Requirement requirement, Double value, boolean inMemory) {
+  void saveTechnicalDebt(DecoratorContext context, Rule rule, Double value, boolean inMemory) {
     // we need the value on projects (root or module) even if value==0 in order to display correctly the SQALE history chart (see SQALE-122)
     // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
     if (value > 0.0) {
-      Measure measure = new Measure(CoreMetrics.TECHNICAL_DEBT);
-      measure.setRequirement(requirement);
+      org.sonar.api.rules.Rule oldRule = toOldRule(rule);
+      RuleMeasure measure = new RuleMeasure(CoreMetrics.TECHNICAL_DEBT, oldRule, oldRule.getSeverity(), null);
       saveMeasure(context, measure, value, inMemory);
     }
   }
 
-  private void saveMeasure(DecoratorContext context, Measure measure, Double value, boolean inMemory){
+  private void saveMeasure(DecoratorContext context, Measure measure, Double value, boolean inMemory) {
     measure.setValue(value);
     if (inMemory) {
       measure.setPersistenceMode(PersistenceMode.MEMORY);
@@ -145,22 +156,17 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  ListMultimap<Requirement, Issue> issuesByRequirement(List<Issue> issues) {
-    ListMultimap<Requirement, Issue> issuesByRequirement = ArrayListMultimap.create();
+  ListMultimap<Rule, Issue> issuesByRule(List<Issue> issues) {
+    ListMultimap<Rule, Issue> result = ArrayListMultimap.create();
     for (Issue issue : issues) {
-      String repositoryKey = issue.ruleKey().repository();
-      String key = issue.ruleKey().rule();
-      Requirement requirement = model.requirementsByRule(issue.ruleKey());
-      if (requirement == null) {
-        LoggerFactory.getLogger(getClass()).debug("No technical debt requirement for: " + repositoryKey + "/" + key);
-      } else {
-        issuesByRequirement.put(requirement, issue);
-      }
+      RuleKey key = issue.ruleKey();
+      Rule rule = rules.find(key);
+      result.put(rule, issue);
     }
-    return issuesByRequirement;
+    return result;
   }
 
-  private double computeTechnicalDebt(Metric metric, DecoratorContext context, Requirement requirement, Collection<Issue> issues) {
+  private double computeTechnicalDebt(Metric metric, DecoratorContext context, Rule rule, Collection<Issue> issues) {
     long debt = 0L;
     if (issues != null) {
       for (Issue issue : issues) {
@@ -171,16 +177,18 @@ public final class TechnicalDebtDecorator implements Decorator {
       }
     }
 
-    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.requirement(metric, requirement))) {
-      Requirement measureRequirement = measure.getRequirement();
-      if (measureRequirement != null && measureRequirement.equals(requirement) && measure.getValue() != null) {
+    org.sonar.api.rules.Rule oldRule = toOldRule(rule);
+    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.rule(metric, oldRule))) {
+      // Comparison on rule is only used for unit test, otherwise no need to do this check
+      RuleMeasure ruleMeasure = (RuleMeasure) measure;
+      if (measure != null && ruleMeasure.getRule().equals(oldRule) && measure.getValue() != null) {
         debt += measure.getValue();
       }
     }
     return debt;
   }
 
-  private void propagateTechnicalDebtInParents(Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {
+  private void propagateTechnicalDebtInParents(@Nullable Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {
     if (characteristic != null) {
       Double parentCost = characteristicCosts.get(characteristic);
       if (parentCost == null) {
@@ -207,4 +215,13 @@ public final class TechnicalDebtDecorator implements Decorator {
         .build()
     );
   }
+
+  private org.sonar.api.rules.Rule toOldRule(Rule rule) {
+    DefaultRule defaultRule = (DefaultRule) rule;
+    org.sonar.api.rules.Rule oldRule = org.sonar.api.rules.Rule.create(rule.key().repository(), rule.key().rule());
+    oldRule.setSeverity(RulePriority.valueOf(rule.severity()));
+    oldRule.setId(defaultRule.id());
+    return oldRule;
+  }
+
 }

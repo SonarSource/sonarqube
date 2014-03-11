@@ -76,6 +76,21 @@ public class DurationTest {
   }
 
   @Test
+  public void add() throws Exception {
+    assertThat(Duration.decode("1h", HOURS_IN_DAY).add(Duration.decode("1min", HOURS_IN_DAY))).isEqualTo(Duration.decode("1h1min", HOURS_IN_DAY));
+  }
+
+  @Test
+  public void subtract() throws Exception {
+    assertThat(Duration.decode("1h", HOURS_IN_DAY).subtract(Duration.decode("1min", HOURS_IN_DAY))).isEqualTo(Duration.decode("59min", HOURS_IN_DAY));
+  }
+
+  @Test
+  public void multiply() throws Exception {
+    assertThat(Duration.decode("1h", HOURS_IN_DAY).multiply(2)).isEqualTo(Duration.decode("2h", HOURS_IN_DAY));
+  }
+
+  @Test
   public void test_equals_and_hashcode() throws Exception {
     Duration duration = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
     Duration durationWithSameValue = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);

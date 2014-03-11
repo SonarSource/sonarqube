@@ -36,6 +36,14 @@
     select <include refid="selectColumns"/> from rules
   </select>
 
+  <select id="selectEnablesAndNonManual" resultType="Rule">
+    select <include refid="selectColumns"/> from rules
+    <where>
+      and status != 'REMOVED'
+      and plugin_name != 'manual'
+    </where>
+  </select>
+
   <select id="selectById" parameterType="Integer" resultType="Rule">
     select <include refid="selectColumns"/> from rules WHERE id=#{id}
   </select>

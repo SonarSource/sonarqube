@@ -21,6 +21,8 @@
 package org.sonar.api.rule;
 
 /**
+ * List of availables remediation function
+ *
  * @since 4.3
  */
 public enum RemediationFunction {

@@ -43,8 +43,6 @@ public interface Characteristic {
 
   List<? extends Characteristic> children();
 
-  List<? extends Requirement> requirements();
-
   boolean isRoot();
 
   Date createdAt();

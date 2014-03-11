@@ -28,7 +28,9 @@ import java.util.Date;
 
 /**
  * @since 4.1
+ * @deprecated since 4.3
  */
+@Deprecated
 public interface Requirement {
 
   Integer id();

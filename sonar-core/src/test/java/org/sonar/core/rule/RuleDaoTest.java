@@ -67,6 +67,30 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_enables_and_non_manual() throws Exception {
+    setupData("select_enables_and_non_manual");
+    List<RuleDto> ruleDtos = dao.selectEnablesAndNonManual();
+
+    assertThat(ruleDtos.size()).isEqualTo(1);
+    RuleDto ruleDto = ruleDtos.get(0);
+    assertThat(ruleDto.getId()).isEqualTo(1);
+    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
+    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+    assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
+    assertThat(ruleDto.getCharacteristicId()).isEqualTo(100);
+    assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(101);
+    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationFactor()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
+    assertThat(ruleDto.getEffortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+  }
+
+  @Test
   public void select_by_id() throws Exception {
     setupData("selectById");
     RuleDto ruleDto = dao.selectById(2);

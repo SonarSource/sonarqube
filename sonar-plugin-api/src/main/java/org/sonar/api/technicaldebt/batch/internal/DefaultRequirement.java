@@ -32,6 +32,10 @@ import javax.annotation.CheckForNull;
 
 import java.util.Date;
 
+/**
+ * @deprecated since 4.3
+ */
+@Deprecated
 public class DefaultRequirement implements Requirement {
 
   public static final String FUNCTION_LINEAR = "linear";

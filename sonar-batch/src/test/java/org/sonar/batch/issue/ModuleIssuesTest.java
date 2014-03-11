@@ -26,17 +26,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.debt.RuleDebtCalculator;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -44,7 +46,6 @@ import java.util.Date;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -52,13 +53,10 @@ import static org.mockito.Mockito.*;
 public class ModuleIssuesTest {
 
   static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
-  static final Rule SQUID_RULE = Rule.create("squid", "AvoidCycle").setName("Avoid Cycle");
+  static final String SQUID_RULE_NAME = "Avoid Cycle";
 
   @Mock
   IssueCache cache;
-
-  @Mock
-  RulesProfile qProfile;
 
   @Mock
   Project project;
@@ -66,11 +64,8 @@ public class ModuleIssuesTest {
   @Mock
   IssueFilters filters;
 
-  @Mock
-  RuleDebtCalculator technicalDebtCalculator;
-
-  @Mock
-  RuleFinder ruleFinder;
+  ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
+  RulesBuilder ruleBuilder = new RulesBuilder();
 
   ModuleIssues moduleIssues;
 
@@ -78,13 +73,11 @@ public class ModuleIssuesTest {
   public void setUp() {
     when(project.getAnalysisDate()).thenReturn(new Date());
     when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
-
-    moduleIssues = new ModuleIssues(qProfile, cache, project, filters, technicalDebtCalculator, ruleFinder);
   }
 
   @Test
   public void fail_on_unknown_rule() throws Exception {
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(null);
+    initModuleIssues();
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
 
     try {
@@ -99,7 +92,8 @@ public class ModuleIssuesTest {
 
   @Test
   public void fail_if_rule_has_no_name_and_issue_has_no_message() throws Exception {
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(Rule.create("squid", "AvoidCycle"));
+    ruleBuilder.add(RuleKey.of("squid", "AvoidCycle"));
+    initModuleIssues();
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setMessage("");
 
     try {
@@ -114,8 +108,8 @@ public class ModuleIssuesTest {
 
   @Test
   public void ignore_null_active_rule() throws Exception {
-    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(SQUID_RULE);
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -126,10 +120,9 @@ public class ModuleIssuesTest {
 
   @Test
   public void ignore_null_rule_of_active_rule() throws Exception {
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(null);
-    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(SQUID_RULE);
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY);
+    initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -140,12 +133,9 @@ public class ModuleIssuesTest {
 
   @Test
   public void add_issue_to_cache() throws Exception {
-    Rule rule = SQUID_RULE;
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -166,13 +156,10 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void use_severity_from_active_rule_if_no_severity() throws Exception {
-    Rule rule = SQUID_RULE;
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
+  public void use_severity_from_active_rule_if_no_severity_on_issue() throws Exception {
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -189,12 +176,9 @@ public class ModuleIssuesTest {
 
   @Test
   public void use_rule_name_if_no_message() throws Exception {
-    Rule rule = SQUID_RULE;
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -216,18 +200,17 @@ public class ModuleIssuesTest {
 
   @Test
   public void add_deprecated_violation() throws Exception {
-    Rule rule = SQUID_RULE;
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
+
+    org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
     Resource resource = new JavaFile("org.struts.Action").setEffectiveKey("struts:org.struts.Action");
     Violation violation = new Violation(rule, resource);
     violation.setLineId(42);
     violation.setSeverity(RulePriority.CRITICAL);
     violation.setMessage("the message");
 
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
     when(filters.accept(any(DefaultIssue.class), eq(violation))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddViolation(violation);
@@ -241,17 +224,14 @@ public class ModuleIssuesTest {
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
-    assertThat(issue.componentKey().toString()).isEqualTo("struts:org.struts.Action");
+    assertThat(issue.componentKey()).isEqualTo("struts:org.struts.Action");
   }
 
   @Test
   public void filter_issue() throws Exception {
-    Rule rule = SQUID_RULE;
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -267,13 +247,14 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void set_remediation_cost() throws Exception {
-    Rule rule = SQUID_RULE;
-    ActiveRule activeRule = mock(ActiveRule.class);
-    when(activeRule.getRule()).thenReturn(rule);
-    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
-    when(ruleFinder.findByKey(SQUID_RULE_KEY)).thenReturn(rule);
+  public void set_debt_with_linear_function() throws Exception {
+    ruleBuilder.add(SQUID_RULE_KEY)
+      .setName(SQUID_RULE_NAME)
+      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setFunction(RemediationFunction.LINEAR)
+      .setFactor(Duration.create(10L));
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -281,17 +262,104 @@ public class ModuleIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL);
+      .setSeverity(Severity.CRITICAL)
+      .setEffortToFix(2d);
 
-    Long debt = 10L;
-    when(technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix())).thenReturn(debt);
     when(filters.accept(issue, null)).thenReturn(true);
-
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(debt));
+    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(20L));
+  }
+
+  @Test
+  public void set_debt_with_linear_with_offset_function() throws Exception {
+    ruleBuilder.add(SQUID_RULE_KEY)
+      .setName(SQUID_RULE_NAME)
+      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setFunction(RemediationFunction.LINEAR_OFFSET)
+      .setFactor(Duration.create(10L))
+      .setOffset(Duration.create(25L));
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.CRITICAL)
+      .setEffortToFix(2d);
+
+    when(filters.accept(issue, null)).thenReturn(true);
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(cache).put(argument.capture());
+    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(45L));
+  }
+
+  @Test
+  public void set_debt_with_constant_issue_function() throws Exception {
+    ruleBuilder.add(SQUID_RULE_KEY)
+      .setName(SQUID_RULE_NAME)
+      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setFunction(RemediationFunction.CONSTANT_ISSUE)
+      .setOffset(Duration.create(10L));
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.CRITICAL)
+      .setEffortToFix(null);
+
+    when(filters.accept(issue, null)).thenReturn(true);
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(cache).put(argument.capture());
+    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(10L));
+  }
+
+  @Test
+  public void fail_to_set_debt_with_constant_issue_function_when_effort_to_fix_is_set() throws Exception {
+    ruleBuilder.add(SQUID_RULE_KEY)
+      .setName(SQUID_RULE_NAME)
+      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setFunction(RemediationFunction.CONSTANT_ISSUE)
+      .setOffset(Duration.create(25L));
+    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.CRITICAL)
+      .setEffortToFix(2d);
+
+    when(filters.accept(issue, null)).thenReturn(true);
+
+    try {
+      moduleIssues.initAndAddIssue(issue);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Rule 'squid:AvoidCycle' can not use 'Constant/issue' remediation function because this rule does not have a fixed remediation cost.");
+    }
+  }
+
+  /**
+   * Every rules and active rules has to be added in builders before creating ModuleIssues
+   */
+  private void initModuleIssues() {
+    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), cache, project, filters);
   }
 
 }

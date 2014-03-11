@@ -27,34 +27,27 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DebtModelLoaderTest {
+public class DebtModelProviderTest {
 
   @Mock
   CharacteristicDao dao;
 
-  @Mock
-  RuleFinder ruleFinder;
+  DebtModelProvider provider;
 
-  DebtModelLoader loader;
 
   @Before
   public void before() {
-    loader = new DebtModelLoader(dao, ruleFinder);
+    provider = new DebtModelProvider();
   }
 
   @Test
@@ -83,17 +76,15 @@ public class DebtModelLoaderTest {
     RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
     Rule rule = Rule.create(ruleKey.repository(), ruleKey.rule());
     rule.setId(100);
-    when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(newArrayList(rule));
-    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto, requirementDto));
+    when(dao.selectCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto, requirementDto));
 
-    DefaultTechnicalDebtModel result = (DefaultTechnicalDebtModel) loader.load();
+    DefaultTechnicalDebtModel result = (DefaultTechnicalDebtModel) provider.provide(dao);
     assertThat(result.rootCharacteristics()).hasSize(1);
 
     DefaultCharacteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
     assertThat(rootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
     assertThat(rootCharacteristic.parent()).isNull();
-    assertThat(rootCharacteristic.requirements()).isEmpty();
     assertThat(rootCharacteristic.children()).hasSize(1);
     assertThat(rootCharacteristic.children().get(0).key()).isEqualTo("EFFICIENCY");
 
@@ -102,16 +93,6 @@ public class DebtModelLoaderTest {
     assertThat(characteristic.name()).isEqualTo("Efficiency");
     assertThat(characteristic.parent().key()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(characteristic.children()).isEmpty();
-    assertThat(characteristic.requirements()).hasSize(1);
-    assertThat(characteristic.requirements().get(0).ruleKey()).isEqualTo(ruleKey);
-
-    DefaultRequirement requirement = result.requirementsByRule(ruleKey);
-    assertThat(requirement.ruleKey()).isEqualTo(ruleKey);
-    assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factorValue()).isEqualTo(2);
-    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
-    assertThat(requirement.offsetValue()).isEqualTo(0);
-    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
   }
 
 }

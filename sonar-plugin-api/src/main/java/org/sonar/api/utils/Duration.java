@@ -97,8 +97,20 @@ public class Duration implements Serializable {
     return durationInMinutes;
   }
 
-  public boolean isGreaterThan(Duration other){
+  public boolean isGreaterThan(Duration other) {
     return toMinutes() > other.toMinutes();
+  }
+
+  public Duration add(Duration with) {
+    return Duration.create(durationInMinutes + with.durationInMinutes);
+  }
+
+  public Duration subtract(Duration with) {
+    return Duration.create(durationInMinutes - with.durationInMinutes);
+  }
+
+  public Duration multiply(int factor) {
+    return Duration.create(durationInMinutes * factor);
   }
 
   @Override

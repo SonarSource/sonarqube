@@ -27,6 +27,7 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -44,7 +45,6 @@ class DefaultRules implements Rules {
     }
     rulesByRepository = builder.build();
   }
-
 
   @Override
   public Rule find(RuleKey ruleKey) {

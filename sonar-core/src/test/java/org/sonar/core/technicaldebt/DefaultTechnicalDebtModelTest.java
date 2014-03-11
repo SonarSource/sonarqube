@@ -22,10 +22,7 @@ package org.sonar.core.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.internal.WorkDuration;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -76,30 +73,4 @@ public class DefaultTechnicalDebtModelTest {
     assertThat(sqaleModel.characteristicByKey("UNKNOWN")).isNull();
   }
 
-  @Test
-  public void get_requirement_by_rule_key() throws Exception {
-    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
-      .setKey("MEMORY_EFFICIENCY")
-      .setName("Memory use");
-
-    DefaultCharacteristic characteristic = new DefaultCharacteristic()
-      .setKey("EFFICIENCY")
-      .setName("Efficiency")
-      .setParent(rootCharacteristic);
-
-    RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
-    DefaultRequirement requirement = new DefaultRequirement()
-      .setCharacteristic(characteristic)
-      .setRuleKey(ruleKey)
-      .setFunction("linear")
-      .setFactorValue(2)
-      .setFactorUnit(WorkDuration.UNIT.HOURS)
-      .setOffsetValue(0)
-      .setOffsetUnit(WorkDuration.UNIT.HOURS);
-
-    sqaleModel.addRootCharacteristic(rootCharacteristic);
-
-    assertThat(sqaleModel.requirementsByRule(ruleKey)).isEqualTo(requirement);
-    assertThat(sqaleModel.requirementsByRule(RuleKey.of("not", "found"))).isNull();
-  }
 }

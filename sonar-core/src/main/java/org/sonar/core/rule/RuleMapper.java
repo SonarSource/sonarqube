@@ -26,6 +26,8 @@ import java.util.List;
 public interface RuleMapper {
   List<RuleDto> selectAll();
 
+  List<RuleDto> selectEnablesAndNonManual();
+
   List<RuleDto> selectNonManual();
 
   RuleDto selectById(Integer id);

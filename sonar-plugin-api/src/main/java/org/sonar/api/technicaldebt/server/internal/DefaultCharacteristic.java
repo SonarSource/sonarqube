@@ -151,11 +151,19 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   @CheckForNull
   public Integer factorValue() {
     return factorValue;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public DefaultCharacteristic setFactorValue(@Nullable Integer factorValue) {
     this.factorValue = factorValue;
     return this;
@@ -166,6 +174,10 @@ public class DefaultCharacteristic implements Characteristic {
     return factorUnit;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public DefaultCharacteristic setFactorUnit(@Nullable WorkDuration.UNIT factorUnit) {
     this.factorUnit = factorUnit;
     return this;
@@ -194,26 +206,46 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   @CheckForNull
   public Integer offsetValue() {
     return offsetValue;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public DefaultCharacteristic setOffsetValue(@Nullable Integer offsetValue) {
     this.offsetValue = offsetValue;
     return this;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   @CheckForNull
   public WorkDuration.UNIT offsetUnit() {
     return offsetUnit;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public DefaultCharacteristic setOffsetUnit(@Nullable WorkDuration.UNIT offsetUnit) {
     this.offsetUnit = offsetUnit;
     return this;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public static WorkDuration.UNIT toUnit(@Nullable String requirementUnit) {
     if (requirementUnit != null) {
       if (WorkUnit.DAYS.equals(requirementUnit)) {
@@ -243,6 +275,10 @@ public class DefaultCharacteristic implements Characteristic {
     return parentId == null;
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public boolean isRequirement() {
     return ruleKey != null;
   }

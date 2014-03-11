@@ -33,6 +33,10 @@ public interface TechnicalDebtManager extends ServerComponent {
 
   List<Characteristic> findRootCharacteristics();
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   Characteristic findRequirementByRule(Rule rule);
 
   Characteristic findCharacteristicById(Integer id);

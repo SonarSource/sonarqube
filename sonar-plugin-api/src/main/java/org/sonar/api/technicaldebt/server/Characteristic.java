@@ -89,6 +89,10 @@ public interface Characteristic {
 
   boolean isRoot();
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   boolean isRequirement();
 
 }

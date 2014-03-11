@@ -19,18 +19,19 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.debt.RuleDebtCalculator;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import javax.annotation.Nullable;
@@ -40,20 +41,18 @@ import javax.annotation.Nullable;
  */
 public class ModuleIssues {
 
-  private final RulesProfile qProfile;
+  private final ActiveRules activeRules;
+  private final Rules rules;
   private final IssueCache cache;
   private final Project project;
   private final IssueFilters filters;
-  private final RuleDebtCalculator technicalDebtCalculator;
-  private final RuleFinder ruleFinder;
 
-  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, RuleDebtCalculator technicalDebtCalculator, RuleFinder ruleFinder) {
-    this.qProfile = qProfile;
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, Project project, IssueFilters filters) {
+    this.activeRules = activeRules;
+    this.rules = rules;
     this.cache = cache;
     this.project = project;
     this.filters = filters;
-    this.technicalDebtCalculator = technicalDebtCalculator;
-    this.ruleFinder = ruleFinder;
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
@@ -78,10 +77,10 @@ public class ModuleIssues {
 
   private boolean initAndAddIssue(DefaultIssue issue, @Nullable Violation violation) {
     RuleKey ruleKey = issue.ruleKey();
-    Rule rule = ruleFinder.findByKey(ruleKey);
+    Rule rule = rules.find(ruleKey);
     validateRule(issue, rule);
-    ActiveRule activeRule = qProfile.getActiveRule(ruleKey.repository(), ruleKey.rule());
-    if (activeRule == null || activeRule.getRule() == null) {
+    ActiveRule activeRule = activeRules.find(ruleKey);
+    if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
@@ -93,27 +92,48 @@ public class ModuleIssues {
     return false;
   }
 
-  private void validateRule(DefaultIssue issue, Rule rule){
+  private void validateRule(DefaultIssue issue, Rule rule) {
     RuleKey ruleKey = issue.ruleKey();
     if (rule == null) {
       throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
     }
-    if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(issue.message())) {
+    if (Strings.isNullOrEmpty(rule.name()) && Strings.isNullOrEmpty(issue.message())) {
       throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
     }
   }
 
-  private void updateIssue(DefaultIssue issue, Rule rule, ActiveRule activeRule ){
+  private void updateIssue(DefaultIssue issue, Rule rule, ActiveRule activeRule) {
     if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(rule.getName());
+      issue.setMessage(rule.name());
     }
     issue.setCreationDate(project.getAnalysisDate());
     issue.setUpdateDate(project.getAnalysisDate());
     if (issue.severity() == null) {
-      issue.setSeverity(activeRule.getSeverity().name());
+      issue.setSeverity(activeRule.severity());
     }
-    Long debt = technicalDebtCalculator.calculateTechnicalDebt(issue.ruleKey(), issue.effortToFix());
-    issue.setDebt(debt != null ? Duration.create(debt) : null);
+    if (rule.characteristic() != null) {
+      issue.setDebt(calculateDebt(rule, issue.effortToFix()));
+    }
+  }
+
+  private Duration calculateDebt(Rule rule, @Nullable Double effortToFix) {
+    if (RemediationFunction.CONSTANT_ISSUE.equals(rule.function()) && effortToFix != null) {
+      throw new IllegalArgumentException("Rule '" + rule.key() + "' can not use 'Constant/issue' remediation function " +
+        "because this rule does not have a fixed remediation cost.");
+    }
+    Duration result = Duration.create(0);
+    Duration factor = rule.factor();
+    Duration offset = rule.offset();
+
+    if (factor != null) {
+      int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
+      result = rule.factor().multiply(effortToFixValue);
+    }
+
+    if (offset != null) {
+      result = result.add(offset);
+    }
+    return result;
   }
 
 }
