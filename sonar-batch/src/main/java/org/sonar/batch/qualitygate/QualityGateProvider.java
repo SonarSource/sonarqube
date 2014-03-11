@@ -40,8 +40,13 @@ public class QualityGateProvider extends ProviderAdapter {
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
 
+  private QualityGate instance;
+
   public QualityGate provide(Settings settings, ServerClient client, MetricFinder metricFinder) {
-    return init(settings, client, metricFinder, LOG);
+    if (instance == null) {
+      instance = init(settings, client, metricFinder, LOG);
+    }
+    return instance;
   }
 
   @VisibleForTesting
@@ -52,8 +57,8 @@ public class QualityGateProvider extends ProviderAdapter {
       logger.info("No quality gate is configured.");
     } else {
       result = load(qualityGateSetting, client.wsClient().qualityGateClient(), metricFinder);
+      logger.info("Loaded quality gate '{}'", result.name());
     }
-    logger.info("Loaded quality gate '{}'", result.name());
     return result;
   }
 

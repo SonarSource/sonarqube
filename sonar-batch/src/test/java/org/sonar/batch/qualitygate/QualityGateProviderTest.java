@@ -40,9 +40,7 @@ import java.net.HttpURLConnection;
 import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGateProviderTest {
@@ -71,9 +69,11 @@ public class QualityGateProviderTest {
 
   @Test
   public void should_load_empty_quality_gate_from_default_settings() {
-    assertThat(new QualityGateProvider().provide(settings, client, metricFinder).conditions()).isEmpty();
-    assertThat(new QualityGateProvider().init(settings, client, metricFinder, logger).isEnabled()).isFalse();
-    verify(logger).info("No quality gate is configured.");
+    QualityGateProvider provider = new QualityGateProvider();
+    assertThat(provider.provide(settings, client, metricFinder).conditions()).isEmpty();
+    assertThat(provider.init(settings, client, metricFinder, logger).isEnabled()).isFalse();
+    verify(logger, times(1)).info("No quality gate is configured.");
+    verify(settings, times(2)).getString("sonar.qualitygate");
   }
 
   @Test
