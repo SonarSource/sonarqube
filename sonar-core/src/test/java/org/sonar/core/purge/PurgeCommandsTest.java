@@ -88,7 +88,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
+  public void delete_wasted_measures_when_purging_snapshot() {
     setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
 
     SqlSession session = getMyBatis().openSession();

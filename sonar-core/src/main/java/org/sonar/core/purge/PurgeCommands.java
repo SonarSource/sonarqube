@@ -222,12 +222,10 @@ class PurgeCommands {
 
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
-    if (!metricIdsWithoutHistoricalData.isEmpty()) {
-      for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-        purgeMapper.deleteSnapshotWastedMeasures(partSnapshotIds, metricIdsWithoutHistoricalData);
-      }
-      session.commit();
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotWastedMeasures(partSnapshotIds, metricIdsWithoutHistoricalData);
     }
+    session.commit();
     profiler.stop();
 
     profiler.start("updatePurgeStatusToOne (snapshots)");

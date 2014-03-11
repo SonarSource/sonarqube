@@ -161,14 +161,18 @@
   </delete>
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="map">
-    delete from project_measures where snapshot_id in
+    delete from project_measures
+    <where>
+    snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
         #{snapshotId}
     </foreach>
-    and
-    (rule_id is not null or person_id is not null or metric_id in
-    <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
-    )
+    and (rule_id is not null or person_id is not null
+    <if test="mids.size()>0">
+      or metric_id in
+      <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
+    </if>)
+    </where>
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">
