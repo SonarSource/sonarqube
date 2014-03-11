@@ -82,10 +82,6 @@
     select id from metrics where delete_historical_data=${_true}
   </select>
 
-  <select id="selectCharacteristicIdsToPurge" resultType="long">
-    select id from characteristics where rule_id is not null
-  </select>
-
   <select id="selectProjectIdsByRootId" resultType="long" parameterType="long">
     select id from projects where root_id=#{id} and scope='PRJ'
   </select>
@@ -172,16 +168,6 @@
     and
     (rule_id is not null or person_id is not null or metric_id in
     <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
-    )
-  </delete>
-
-  <delete id="deleteSnapshotMeasuresOnCharacteristics" parameterType="map">
-    delete from project_measures where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
-    </foreach>
-    and (
-    <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
     )
   </delete>
 

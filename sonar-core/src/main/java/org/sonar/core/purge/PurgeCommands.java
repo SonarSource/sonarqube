@@ -20,14 +20,13 @@
 package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
 
 class PurgeCommands {
-  private static final int MAX_CHARACTERISTICS_PER_QUERY = 1000;
+
   private static final int MAX_SNAPSHOTS_PER_QUERY = 1000;
   private static final int MAX_RESOURCES_PER_QUERY = 1000;
 
@@ -226,19 +225,6 @@ class PurgeCommands {
     if (!metricIdsWithoutHistoricalData.isEmpty()) {
       for (List<Long> partSnapshotIds : snapshotIdsPartition) {
         purgeMapper.deleteSnapshotWastedMeasures(partSnapshotIds, metricIdsWithoutHistoricalData);
-      }
-      session.commit();
-    }
-    profiler.stop();
-
-    profiler.start("deleteSnapshotMeasuresOnCharacteristics (project_measures)");
-    List<Long> characteristicIds = purgeMapper.selectCharacteristicIdsToPurge();
-    if (!characteristicIds.isEmpty()) {
-      for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-        // SONAR-3641 We cannot process all characteristics at once
-        for (List<Long> ids : Iterables.partition(characteristicIds, MAX_CHARACTERISTICS_PER_QUERY)) {
-          purgeMapper.deleteSnapshotMeasuresOnCharacteristics(partSnapshotIds, ids);
-        }
       }
       session.commit();
     }
