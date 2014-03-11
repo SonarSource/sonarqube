@@ -20,10 +20,7 @@
 
 package org.sonar.core.technicaldebt.db;
 
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.internal.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,14 +38,7 @@ public class CharacteristicDto implements Serializable {
   private String kee;
   private String name;
   private Integer parentId;
-  private Integer rootId;
   private Integer characteristicOrder;
-  private Integer ruleId;
-  private String functionKey;
-  private Double factorValue;
-  private String factorUnit;
-  private Double offsetValue;
-  private String offsetUnit;
   private Date createdAt;
   private Date updatedAt;
   private boolean enabled;
@@ -93,82 +83,12 @@ public class CharacteristicDto implements Serializable {
   }
 
   @CheckForNull
-  public Integer getRootId() {
-    return rootId;
-  }
-
-  public CharacteristicDto setRootId(@Nullable Integer rootId) {
-    this.rootId = rootId;
-    return this;
-  }
-
-  @CheckForNull
   public Integer getOrder() {
     return characteristicOrder;
   }
 
   public CharacteristicDto setOrder(@Nullable Integer i) {
     this.characteristicOrder = i;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getRuleId() {
-    return ruleId;
-  }
-
-  public CharacteristicDto setRuleId(@Nullable Integer ruleId) {
-    this.ruleId = ruleId;
-    return this;
-  }
-
-  @CheckForNull
-  public String getFunction() {
-    return functionKey;
-  }
-
-  public CharacteristicDto setFunction(@Nullable String function) {
-    this.functionKey = function;
-    return this;
-  }
-
-  @CheckForNull
-  public Double getFactorValue() {
-    return factorValue;
-  }
-
-  public CharacteristicDto setFactorValue(Double factor) {
-    this.factorValue = factor;
-    return this;
-  }
-
-  @CheckForNull
-  public String getFactorUnit() {
-    return factorUnit;
-  }
-
-  public CharacteristicDto setFactorUnit(@Nullable String factorUnit) {
-    this.factorUnit = factorUnit;
-    return this;
-  }
-
-  @CheckForNull
-  public Double getOffsetValue() {
-    return offsetValue;
-  }
-
-  public CharacteristicDto setOffsetValue(@Nullable Double offset) {
-    this.offsetValue = offset;
-    return this;
-  }
-
-  @CheckForNull
-  public String getOffsetUnit() {
-    return offsetUnit;
-  }
-
-  public CharacteristicDto setOffsetUnit(@Nullable String offsetUnit) {
-    this.offsetUnit = offsetUnit;
     return this;
   }
 
@@ -218,68 +138,9 @@ public class CharacteristicDto implements Serializable {
       .setName(characteristic.name())
       .setOrder(characteristic.order())
       .setParentId(parentId)
-      .setRootId(parentId)
       .setEnabled(true)
       .setCreatedAt(characteristic.createdAt())
       .setUpdatedAt(characteristic.updatedAt());
-  }
-
-  public DefaultRequirement toRequirement(RuleKey ruleKey, DefaultCharacteristic characteristic, DefaultCharacteristic rootCharacteristic) {
-    return new DefaultRequirement()
-      .setId(id)
-      .setRuleKey(ruleKey)
-      .setCharacteristic(characteristic)
-      .setRootCharacteristic(rootCharacteristic)
-      .setFunction(functionKey)
-      .setFactorValue(factorValue.intValue())
-      .setFactorUnit(toUnit(factorUnit))
-      .setOffsetValue(offsetValue.intValue())
-      .setOffsetUnit(toUnit(offsetUnit))
-      .setCreatedAt(createdAt)
-      .setUpdatedAt(updatedAt);
-  }
-
-  public static CharacteristicDto toDto(DefaultRequirement requirement, Integer characteristicId, Integer rootCharacteristicId, Integer ruleId) {
-    return new CharacteristicDto()
-      .setRuleId(ruleId)
-      .setParentId(characteristicId)
-      .setRootId(rootCharacteristicId)
-      .setFunction(requirement.function())
-      .setFactorValue((double) requirement.factorValue())
-      .setFactorUnit(fromUnit(requirement.factorUnit()))
-      .setOffsetValue((double) requirement.offsetValue())
-      .setOffsetUnit(fromUnit(requirement.offsetUnit()))
-      .setEnabled(true)
-      .setCreatedAt(requirement.createdAt())
-      .setUpdatedAt(requirement.updatedAt());
-  }
-
-  private static WorkDuration.UNIT toUnit(@Nullable String requirementUnit) {
-    if (requirementUnit != null) {
-      if (DAYS.equals(requirementUnit)) {
-        return WorkDuration.UNIT.DAYS;
-      } else if (HOURS.equals(requirementUnit)) {
-        return WorkDuration.UNIT.HOURS;
-      } else if (MINUTES.equals(requirementUnit)) {
-        return WorkDuration.UNIT.MINUTES;
-      }
-      throw new IllegalStateException("Invalid unit : " + requirementUnit);
-    }
-    return null;
-  }
-
-  private static String fromUnit(@Nullable WorkDuration.UNIT unit) {
-    if (unit != null) {
-      if (WorkDuration.UNIT.DAYS.equals(unit)) {
-        return DAYS;
-      } else if (WorkDuration.UNIT.HOURS.equals(unit)) {
-        return HOURS;
-      } else if (WorkDuration.UNIT.MINUTES.equals(unit)) {
-        return MINUTES;
-      }
-      throw new IllegalStateException("Invalid unit : " + unit);
-    }
-    return null;
   }
 
 }

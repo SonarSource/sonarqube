@@ -287,12 +287,6 @@ public class TechnicalDebtDecoratorTest {
       this.value = value;
     }
 
-    public IsCharacteristicMeasure(Metric metric, Double value) {
-      this.metric = metric;
-      this.characteristic = null;
-      this.value = value;
-    }
-
     @Override
     public boolean matches(Object o) {
       if (!(o instanceof Measure)) {

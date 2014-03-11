@@ -1,6 +1,6 @@
 <dataset>
 
-  <characteristics id="200" kee="MEMORY_EFFICIENCY" name="Memory Efficiency" root_id="1" parent_id="1" characteristic_order="1" enabled="[true]"/>
+  <characteristics id="200" kee="MEMORY_EFFICIENCY" name="Memory Efficiency" parent_id="1" characteristic_order="1" enabled="[true]"/>
 
   <rules id="1" plugin_rule_key="rule1" plugin_name="fake" plugin_config_key="old_config_key" name="old name" description="old description"
          status="READY" priority="2" cardinality="SINGLE" parent_id="[null]"

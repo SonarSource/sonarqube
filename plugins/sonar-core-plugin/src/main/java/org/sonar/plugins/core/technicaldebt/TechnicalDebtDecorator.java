@@ -142,7 +142,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
     if (value > 0.0) {
       org.sonar.api.rules.Rule oldRule = toOldRule(rule);
-      RuleMeasure measure = new RuleMeasure(CoreMetrics.TECHNICAL_DEBT, oldRule, oldRule.getSeverity(), null);
+      RuleMeasure measure = new RuleMeasure(CoreMetrics.TECHNICAL_DEBT, oldRule, null, null);
       saveMeasure(context, measure, value, inMemory);
     }
   }

@@ -34,8 +34,6 @@ public interface CharacteristicMapper {
 
   CharacteristicDto selectById(int id);
 
-  CharacteristicDto selectByRuleId(Integer ruleId);
-
   void insert(CharacteristicDto characteristic);
 
   int update(CharacteristicDto characteristic);

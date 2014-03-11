@@ -10,9 +10,9 @@
            worst_value="0" optimized_best_value="[true]" best_value="100"
            direction="1" hidden="[false]"/>
 
-  <characteristics id="1" kee="M1C1" name="M1C1" parent_id="[null]" root_id="[null]" rule_id="[null]" characteristic_order="1" enabled="[true]"/>
-  <characteristics id="2" kee="M1C2" name="M1C1" parent_id="1" root_id="1" rule_id="[null]" characteristic_order="[null]" enabled="[true]"/>
-  <characteristics id="3" kee="M1C3" name="M1C3" parent_id="2" root_id="1" rule_id="333" characteristic_order="[null]" enabled="[true]"/>
+  <characteristics id="1" kee="M1C1" name="M1C1" parent_id="[null]" characteristic_order="1" enabled="[true]"/>
+  <characteristics id="2" kee="M1C2" name="M1C1" parent_id="1" characteristic_order="[null]" enabled="[true]"/>
+  <characteristics id="3" kee="M1C3" name="M1C3" parent_id="2" characteristic_order="[null]" enabled="[true]"/>
 
   <snapshots id="1"
              project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"

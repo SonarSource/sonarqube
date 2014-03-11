@@ -52,7 +52,7 @@ public class DebtModelProvider extends ProviderAdapter {
 
   private TechnicalDebtModel load(CharacteristicDao dao) {
     DefaultTechnicalDebtModel model = new DefaultTechnicalDebtModel();
-    List<CharacteristicDto> dtos = dao.selectCharacteristics();
+    List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
     Map<Integer, DefaultCharacteristic> characteristicsById = newHashMap();
 
     addRootCharacteristics(model, dtos, characteristicsById);
@@ -72,7 +72,7 @@ public class DebtModelProvider extends ProviderAdapter {
 
   private void addCharacteristics(List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
     for (CharacteristicDto dto : dtos) {
-      if (dto.getParentId() != null && dto.getRuleId() == null) {
+      if (dto.getParentId() != null) {
         DefaultCharacteristic parent = characteristicsById.get(dto.getParentId());
         DefaultCharacteristic characteristic = dto.toCharacteristic(parent);
         characteristicsById.put(dto.getId(), characteristic);

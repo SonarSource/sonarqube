@@ -40,20 +40,22 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   /**
    * @return enabled root characteristics, characteristics and requirements
    *
-   * @deprecated since 4.3 (used by SQALE plugin)
    */
-  @Deprecated
   public List<CharacteristicDto> selectEnabledCharacteristics() {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(CharacteristicMapper.class).selectEnabledCharacteristics();
+      return selectEnabledCharacteristics(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public List<CharacteristicDto> selectEnabledCharacteristics(SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectEnabledCharacteristics();
+  }
+
   /**
-   * @return enabled root characteristics, and characteristics
+   * @return all characteristics
    *
    */
   public List<CharacteristicDto> selectCharacteristics() {
@@ -99,17 +101,6 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
     CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
       return mapper.selectById(id);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  public CharacteristicDto selectByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
-    CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
-    try {
-      return mapper.selectByRuleId(ruleId);
     } finally {
       MyBatis.closeQuietly(session);
     }

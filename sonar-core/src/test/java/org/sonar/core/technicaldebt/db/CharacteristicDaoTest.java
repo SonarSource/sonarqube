@@ -31,7 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
-  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "depth", "description", "quality_model_id", "created_at", "updated_at"};
+  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "created_at", "updated_at"};
 
   CharacteristicDao dao;
 
@@ -46,56 +46,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
 
-    assertThat(dtos).hasSize(3);
-
-    CharacteristicDto rootCharacteristic = dtos.get(0);
-    assertThat(rootCharacteristic.getId()).isEqualTo(1);
-    assertThat(rootCharacteristic.getKey()).isEqualTo("PORTABILITY");
-    assertThat(rootCharacteristic.getName()).isEqualTo("Portability");
-    assertThat(rootCharacteristic.getParentId()).isNull();
-    assertThat(rootCharacteristic.getRootId()).isNull();
-    assertThat(rootCharacteristic.getRuleId()).isNull();
-    assertThat(rootCharacteristic.getOrder()).isEqualTo(1);
-    assertThat(rootCharacteristic.isEnabled()).isTrue();
-    assertThat(rootCharacteristic.getCreatedAt()).isNotNull();
-    assertThat(rootCharacteristic.getUpdatedAt()).isNotNull();
-
-    CharacteristicDto characteristic = dtos.get(1);
-    assertThat(characteristic.getId()).isEqualTo(2);
-    assertThat(characteristic.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(characteristic.getName()).isEqualTo("Compiler related portability");
-    assertThat(characteristic.getParentId()).isEqualTo(1);
-    assertThat(characteristic.getRootId()).isEqualTo(1);
-    assertThat(characteristic.getRuleId()).isNull();
-    assertThat(characteristic.getOrder()).isNull();
-    assertThat(characteristic.isEnabled()).isTrue();
-    assertThat(characteristic.getCreatedAt()).isNotNull();
-    assertThat(characteristic.getUpdatedAt()).isNotNull();
-
-    CharacteristicDto requirement = dtos.get(2);
-    assertThat(requirement.getId()).isEqualTo(3);
-    assertThat(requirement.getKey()).isNull();
-    assertThat(requirement.getName()).isNull();
-    assertThat(requirement.getParentId()).isEqualTo(2);
-    assertThat(requirement.getRootId()).isEqualTo(1);
-    assertThat(requirement.getRuleId()).isEqualTo(1);
-    assertThat(requirement.getOrder()).isNull();
-    assertThat(requirement.getFunction()).isEqualTo("linear_offset");
-    assertThat(requirement.getFactorValue()).isEqualTo(20.0);
-    assertThat(requirement.getFactorUnit()).isEqualTo("mn");
-    assertThat(requirement.getOffsetValue()).isEqualTo(30.0);
-    assertThat(requirement.getOffsetUnit()).isEqualTo("h");
-    assertThat(requirement.isEnabled()).isTrue();
-    assertThat(requirement.getCreatedAt()).isNotNull();
-    assertThat(requirement.getUpdatedAt()).isNull();
-  }
-
-  @Test
-  public void select_characteristics() {
-    setupData("shared");
-
-    List<CharacteristicDto> dtos = dao.selectCharacteristics();
-
     assertThat(dtos).hasSize(2);
 
     CharacteristicDto rootCharacteristic = dtos.get(0);
@@ -103,7 +53,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(rootCharacteristic.getKey()).isEqualTo("PORTABILITY");
     assertThat(rootCharacteristic.getName()).isEqualTo("Portability");
     assertThat(rootCharacteristic.getParentId()).isNull();
-    assertThat(rootCharacteristic.getRootId()).isNull();
     assertThat(rootCharacteristic.getOrder()).isEqualTo(1);
     assertThat(rootCharacteristic.isEnabled()).isTrue();
     assertThat(rootCharacteristic.getCreatedAt()).isNotNull();
@@ -114,11 +63,17 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(characteristic.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
     assertThat(characteristic.getName()).isEqualTo("Compiler related portability");
     assertThat(characteristic.getParentId()).isEqualTo(1);
-    assertThat(characteristic.getRootId()).isEqualTo(1);
     assertThat(characteristic.getOrder()).isNull();
     assertThat(characteristic.isEnabled()).isTrue();
     assertThat(characteristic.getCreatedAt()).isNotNull();
     assertThat(characteristic.getUpdatedAt()).isNotNull();
+  }
+
+  @Test
+  public void select_characteristics() {
+    setupData("shared");
+
+    assertThat(dao.selectCharacteristics()).hasSize(4);
   }
 
   @Test
@@ -147,18 +102,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_requirement() {
-    setupData("shared");
-
-    CharacteristicDto dto = dao.selectByRuleId(1);
-
-    assertThat(dto).isNotNull();
-    assertThat(dto.getId()).isEqualTo(3);
-    assertThat(dto.getParentId()).isEqualTo(2);
-    assertThat(dto.getRootId()).isEqualTo(1);
-  }
-
-  @Test
   public void select_characteristic_by_key() {
     setupData("shared");
 
@@ -166,13 +109,11 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(dto).isNotNull();
     assertThat(dto.getId()).isEqualTo(2);
     assertThat(dto.getParentId()).isEqualTo(1);
-    assertThat(dto.getRootId()).isEqualTo(1);
 
     dto = dao.selectByKey("PORTABILITY");
     assertThat(dto).isNotNull();
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getParentId()).isNull();
-    assertThat(dto.getRootId()).isNull();
 
     assertThat(dao.selectByKey("UNKNOWN")).isNull();
   }
@@ -202,25 +143,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_requirement() throws Exception {
-    CharacteristicDto dto = new CharacteristicDto()
-      .setParentId(2)
-      .setRootId(1)
-      .setRuleId(1)
-      .setFunction("linear_offset")
-      .setFactorValue(20.0)
-      .setFactorUnit("mn")
-      .setOffsetValue(30.0)
-      .setOffsetUnit("h")
-      .setCreatedAt(DateUtils.parseDate("2013-11-20"))
-      .setEnabled(true);
-
-    dao.insert(dto);
-
-    checkTables("insert_requirement", EXCLUDED_COLUMNS, "characteristics");
-  }
-
-  @Test
   public void update_characteristic() throws Exception {
     setupData("update_characteristic");
 
@@ -237,29 +159,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     dao.update(dto);
 
     checkTables("update_characteristic", new String[]{"id", "depth", "description", "quality_model_id", "updated_at"}, "characteristics");
-  }
-
-  @Test
-  public void update_requirement() throws Exception {
-    setupData("update_requirement");
-
-    CharacteristicDto dto = new CharacteristicDto()
-      .setId(1)
-      .setParentId(3)
-      .setRootId(1)
-      .setRuleId(2)
-      .setFunction("linear")
-      .setFactorValue(21.0)
-      .setFactorUnit("h")
-      .setOffsetValue(null)
-      .setOffsetUnit(null)
-        // Created date should not changed
-      .setCreatedAt(DateUtils.parseDate("2013-11-22"))
-      .setEnabled(false);
-
-    dao.update(dto);
-
-    checkTables("update_requirement", EXCLUDED_COLUMNS, "characteristics");
   }
 
   @Test

@@ -73,13 +73,12 @@ public class DefaultTechnicalDebtManagerTest {
     rule.setId(1);
 
     when(dao.selectById(2)).thenReturn(
-      new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setName("Compiler").setParentId(1).setRootId(1));
+      new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setName("Compiler").setParentId(1));
 
     Characteristic result = finder.findCharacteristicById(2);
 
     assertThat(result.id()).isEqualTo(2);
     assertThat(result.parentId()).isEqualTo(1);
-    assertThat(result.rootId()).isEqualTo(1);
     assertThat(result.key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
     assertThat(result.name()).isEqualTo("Compiler");
   }

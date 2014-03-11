@@ -83,8 +83,7 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
       .setKey(dto.getKey())
       .setName(dto.getName())
       .setOrder(dto.getOrder())
-      .setParentId(dto.getParentId())
-      .setRootId(dto.getRootId());
+      .setParentId(dto.getParentId());
   }
 
 }

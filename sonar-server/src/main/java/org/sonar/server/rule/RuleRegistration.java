@@ -97,7 +97,7 @@ public class RuleRegistration implements Startable {
     try {
       RuleDefinitions.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
-      List<CharacteristicDto> characteristicDtos = characteristicDao.selectCharacteristics();
+      List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
       selectRulesFromDb(buffer, sqlSession);
       enableRuleDefinitions(context, buffer, characteristicDtos, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);

@@ -21,10 +21,7 @@
 package org.sonar.core.technicaldebt.db;
 
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
-import org.sonar.api.utils.internal.WorkDuration;
 
 import java.util.Date;
 
@@ -33,64 +30,57 @@ import static org.fest.assertions.Assertions.assertThat;
 public class CharacteristicDtoTest {
 
   @Test
-  public void to_dto_from_requirement() throws Exception {
-    DefaultRequirement requirement = new DefaultRequirement()
-      .setFunction("constant_issue")
-      .setFactorValue(10)
-      .setFactorUnit(WorkDuration.UNIT.DAYS)
-      .setOffsetValue(5)
-      .setOffsetUnit(WorkDuration.UNIT.MINUTES)
+  public void to_dto_from_characteristic() throws Exception {
+    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
+      .setId(1)
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use");
+
+    DefaultCharacteristic characteristic = new DefaultCharacteristic()
+      .setId(2)
+      .setKey("EFFICIENCY")
+      .setName("Efficiency")
+      .setParent(rootCharacteristic)
+      .setOrder(5)
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
 
-    CharacteristicDto dto = CharacteristicDto.toDto(requirement, 2, 1, 10);
-    assertThat(dto.getRuleId()).isEqualTo(10);
-    assertThat(dto.getParentId()).isEqualTo(2);
-    assertThat(dto.getRootId()).isEqualTo(1);
-    assertThat(dto.getFunction()).isEqualTo("constant_issue");
-    assertThat(dto.getFactorValue()).isEqualTo(10d);
-    assertThat(dto.getFactorUnit()).isEqualTo(CharacteristicDto.DAYS);
-    assertThat(dto.getOffsetValue()).isEqualTo(5d);
-    assertThat(dto.getOffsetUnit()).isEqualTo(CharacteristicDto.MINUTES);
+    CharacteristicDto dto = CharacteristicDto.toDto(characteristic, 1);
+    assertThat(dto.getId()).isNull();
+    assertThat(dto.getParentId()).isEqualTo(1);
+    assertThat(dto.getKey()).isEqualTo("EFFICIENCY");
+    assertThat(dto.getName()).isEqualTo("Efficiency");
+    assertThat(dto.getOrder()).isEqualTo(5);
     assertThat(dto.isEnabled()).isTrue();
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
   }
 
   @Test
-  public void to_requirement() throws Exception {
-    CharacteristicDto requirementDto = new CharacteristicDto()
-      .setId(3)
-      .setParentId(2)
-      .setRuleId(100)
-      .setFunction("linear")
-      .setFactorValue(2d)
-      .setFactorUnit(CharacteristicDto.DAYS)
-      .setOffsetValue(0d)
-      .setOffsetUnit(CharacteristicDto.MINUTES)
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
-
+  public void to_characteristic() throws Exception {
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
+      .setId(1)
       .setKey("MEMORY_EFFICIENCY")
       .setName("Memory use");
 
-    DefaultCharacteristic characteristic = new DefaultCharacteristic()
+
+    CharacteristicDto dto = new CharacteristicDto()
+      .setId(2)
+      .setParentId(1)
       .setKey("EFFICIENCY")
       .setName("Efficiency")
-      .setParent(rootCharacteristic);
+      .setOrder(5)
+      .setEnabled(false)
+      .setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
 
-    DefaultRequirement requirement =  requirementDto.toRequirement(RuleKey.of("squid", "S106"), characteristic, rootCharacteristic);
-    assertThat(requirement.ruleKey()).isEqualTo(RuleKey.of("squid", "S106"));
-    assertThat(requirement.characteristic()).isEqualTo(characteristic);
-    assertThat(requirement.rootCharacteristic()).isEqualTo(rootCharacteristic);
-    assertThat(requirement.function()).isEqualTo("linear");
-    assertThat(requirement.factorValue()).isEqualTo(2);
-    assertThat(requirement.factorUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
-    assertThat(requirement.offsetValue()).isEqualTo(0);
-    assertThat(requirement.offsetUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
-    assertThat(requirement.createdAt()).isNotNull();
-    assertThat(requirement.updatedAt()).isNotNull();
-
+    DefaultCharacteristic characteristic = dto.toCharacteristic(rootCharacteristic);
+    assertThat(characteristic.id()).isEqualTo(2);
+    assertThat(characteristic.parent()).isEqualTo(rootCharacteristic);
+    assertThat(characteristic.key()).isEqualTo("EFFICIENCY");
+    assertThat(characteristic.name()).isEqualTo("Efficiency");
+    assertThat(characteristic.order()).isEqualTo(5);
+    assertThat(characteristic.createdAt()).isNotNull();
+    assertThat(characteristic.updatedAt()).isNotNull();
   }
 }

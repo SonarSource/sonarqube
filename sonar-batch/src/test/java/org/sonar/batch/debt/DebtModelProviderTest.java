@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -63,20 +61,7 @@ public class DebtModelProviderTest {
       .setName("Efficiency")
       .setParentId(1);
 
-    CharacteristicDto requirementDto = new CharacteristicDto()
-      .setId(3)
-      .setParentId(2)
-      .setRuleId(100)
-      .setFunction("linear")
-      .setFactorValue(2d)
-      .setFactorUnit(CharacteristicDto.DAYS)
-      .setOffsetValue(0d)
-      .setOffsetUnit(CharacteristicDto.MINUTES);
-
-    RuleKey ruleKey = RuleKey.of("checkstyle", "Regexp");
-    Rule rule = Rule.create(ruleKey.repository(), ruleKey.rule());
-    rule.setId(100);
-    when(dao.selectCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto, requirementDto));
+    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto));
 
     DefaultTechnicalDebtModel result = (DefaultTechnicalDebtModel) provider.provide(dao);
     assertThat(result.rootCharacteristics()).hasSize(1);
