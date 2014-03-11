@@ -20,25 +20,18 @@
 
 package org.sonar.core.technicaldebt;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
-import javax.annotation.CheckForNull;
-
 import java.io.Reader;
-import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -76,8 +69,6 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
   public List<CharacteristicDto> synchronize(ValidationMessages messages, TechnicalDebtRuleCache rulesCache, SqlSession session) {
     DefaultTechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages, rulesCache);
     List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
-    disableRequirementsOnRemovedRules(model, rulesCache, session);
-    mergePlugins(model, defaultModel, messages, rulesCache, session);
     messages.log(LOG);
 
     return model;
@@ -110,35 +101,6 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     return characteristics;
   }
 
-  private void mergePlugins(List<CharacteristicDto> existingModel, DefaultTechnicalDebtModel defaultModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache,
-                            SqlSession session) {
-    for (String pluginKey : getContributingPluginListWithoutSqale()) {
-      DefaultTechnicalDebtModel pluginModel = loadModelFromXml(pluginKey, messages, rulesCache);
-      checkPluginDoNotAddNewCharacteristic(pluginModel, defaultModel);
-      mergePlugin(pluginModel, existingModel, messages, rulesCache, session);
-    }
-  }
-
-  private void mergePlugin(DefaultTechnicalDebtModel pluginModel, List<CharacteristicDto> existingModel, ValidationMessages messages, TechnicalDebtRuleCache rulesCache,
-                           SqlSession session) {
-    if (!messages.hasErrors()) {
-      for (DefaultRequirement pluginRequirement : pluginModel.requirements()) {
-        Rule rule = rulesCache.getByRuleKey(pluginRequirement.ruleKey());
-        if (!isRequirementExists(existingModel, rule)) {
-          CharacteristicDto characteristicDto = findCharacteristic(existingModel, pluginRequirement.characteristic().key());
-          if (characteristicDto != null) {
-            Integer rootId = characteristicDto.getRootId();
-            if (rootId == null) {
-              throw new IllegalArgumentException("Requirement on rule '" + pluginRequirement.ruleKey() + "' should not be linked on a root characteristic.");
-            }
-            CharacteristicDto requirementDto = CharacteristicDto.toDto(pluginRequirement, characteristicDto.getId(), rootId, rule.getId());
-            dao.insert(requirementDto, session);
-          }
-        }
-      }
-    }
-  }
-
   public DefaultTechnicalDebtModel loadModelFromXml(String pluginKey, ValidationMessages messages, TechnicalDebtRuleCache rulesCache) {
     Reader xmlFileReader = null;
     try {
@@ -147,51 +109,6 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
     }
-  }
-
-  private void checkPluginDoNotAddNewCharacteristic(DefaultTechnicalDebtModel pluginModel, DefaultTechnicalDebtModel defaultModel) {
-    List<DefaultCharacteristic> characteristics = defaultModel.characteristics();
-    for (DefaultCharacteristic characteristic : pluginModel.characteristics()) {
-      if (!characteristics.contains(characteristic)) {
-        throw new IllegalArgumentException("The characteristic : " + characteristic.key() + " cannot be used as it's not available in default characteristics.");
-      }
-    }
-  }
-
-  private void disableRequirementsOnRemovedRules(List<CharacteristicDto> existingModel, TechnicalDebtRuleCache rulesCache, SqlSession session) {
-    for (CharacteristicDto characteristicDto : existingModel) {
-      Integer ruleId = characteristicDto.getRuleId();
-      if (ruleId != null && !rulesCache.exists(ruleId)) {
-        dao.disable(characteristicDto.getId(), session);
-      }
-    }
-  }
-
-  private Collection<String> getContributingPluginListWithoutSqale() {
-    Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
-    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
-    return pluginList;
-  }
-
-  @CheckForNull
-  private CharacteristicDto findCharacteristic(List<CharacteristicDto> existingModel, final String key) {
-    return Iterables.find(existingModel, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(CharacteristicDto input) {
-        String characteristicKey = input.getKey();
-        return input.getRuleId() == null && characteristicKey != null && characteristicKey.equals(key);
-      }
-    }, null);
-  }
-
-  private boolean isRequirementExists(List<CharacteristicDto> existingModel, final Rule rule) {
-    return Iterables.any(existingModel, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(CharacteristicDto input) {
-        Integer ruleId = input.getRuleId();
-        return ruleId != null && ruleId.equals(rule.getId());
-      }
-    });
   }
 
 }

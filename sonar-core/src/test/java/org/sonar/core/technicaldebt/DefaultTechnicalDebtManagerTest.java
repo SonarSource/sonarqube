@@ -25,11 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
-import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -37,7 +34,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,14 +42,11 @@ public class DefaultTechnicalDebtManagerTest {
   @Mock
   CharacteristicDao dao;
 
-  @Mock
-  RuleFinder ruleFinder;
-
   DefaultTechnicalDebtManager finder;
 
   @Before
   public void setUp() throws Exception {
-    finder = new DefaultTechnicalDebtManager(dao, ruleFinder);
+    finder = new DefaultTechnicalDebtManager(dao);
   }
 
   @Test
@@ -72,41 +65,6 @@ public class DefaultTechnicalDebtManagerTest {
     assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
     assertThat(rootCharacteristic.parentId()).isNull();
     assertThat(rootCharacteristic.rootId()).isNull();
-  }
-
-  @Test
-  public void find_requirement() throws Exception {
-    Rule rule = Rule.create("repo", "key");
-    rule.setId(1);
-
-    when(dao.selectByRuleId(rule.getId())).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear")
-        .setFactorValue(30.0).setFactorUnit("mn")
-        .setOffsetValue(0.0).setOffsetUnit("d")
-    );
-
-    Characteristic result = finder.findRequirementByRule(rule);
-
-    assertThat(result.id()).isEqualTo(3);
-    assertThat(result.parentId()).isEqualTo(2);
-    assertThat(result.rootId()).isEqualTo(1);
-    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
-    assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factorValue()).isEqualTo(30);
-    assertThat(result.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
-    assertThat(result.offsetValue()).isEqualTo(0);
-    assertThat(result.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
-  }
-
-  @Test
-  public void not_find_requirement() throws Exception {
-    Rule rule = Rule.create("repo", "key");
-    rule.setId(1);
-
-    when(dao.selectByRuleId(rule.getId())).thenReturn(null);
-
-    Characteristic result = finder.findRequirementByRule(rule);
-    assertThat(result).isNull();
   }
 
   @Test
@@ -138,54 +96,13 @@ public class DefaultTechnicalDebtManagerTest {
   }
 
   @Test
-  public void find_requirement_by_rule_id() throws Exception {
-    Rule rule = Rule.create("repo", "key");
-    rule.setId(1);
-
-    when(ruleFinder.findById(1)).thenReturn(rule);
-
-    when(dao.selectByRuleId(rule.getId())).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear")
-        .setFactorValue(30.0).setFactorUnit("mn")
-        .setOffsetValue(0.0).setOffsetUnit("d")
-    );
-
-    Characteristic result = finder.findRequirementByRuleId(1);
-
-    assertThat(result.id()).isEqualTo(3);
-    assertThat(result.parentId()).isEqualTo(2);
-    assertThat(result.rootId()).isEqualTo(1);
-    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("repo", "key"));
-    assertThat(result.function()).isEqualTo("linear");
-    assertThat(result.factorValue()).isEqualTo(30);
-    assertThat(result.factorUnit()).isEqualTo(WorkDuration.UNIT.MINUTES);
-    assertThat(result.offsetValue()).isEqualTo(0);
-    assertThat(result.offsetUnit()).isEqualTo(WorkDuration.UNIT.DAYS);
-
+  public void find_requirement_always_return_null() throws Exception {
+    assertThat(finder.findRequirementByRule(Rule.create("repo", "key"))).isNull();
   }
 
   @Test
-  public void not_find_requirement_by_rule_id_on_unknown_requirement() throws Exception {
-    Rule rule = Rule.create("repo", "key");
-    rule.setId(1);
-
-    when(ruleFinder.findById(1)).thenReturn(rule);
-
-    when(dao.selectByRuleId(rule.getId())).thenReturn(null);
-
+  public void find_requirement_by_rule_id_always_return_null() throws Exception {
     assertThat(finder.findRequirementByRuleId(1)).isNull();
   }
 
-  @Test
-  public void fail_to_find_requirement_by_rule_id_if_unknown_rule_id() throws Exception {
-    when(dao.selectByRuleId(1)).thenReturn(
-      new CharacteristicDto().setId(3).setRuleId(10).setParentId(2).setRootId(1).setFunction("linear").setFactorValue(30.0).setFactorUnit("mn"));
-    when(ruleFinder.findById(1)).thenReturn(null);
-    try {
-      finder.findRequirementByRuleId(1);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class);
-    }
-  }
 }

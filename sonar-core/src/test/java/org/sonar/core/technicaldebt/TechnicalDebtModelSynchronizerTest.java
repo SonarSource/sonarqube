@@ -30,12 +30,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -44,9 +40,7 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -119,163 +113,6 @@ public class TechnicalDebtModelSynchronizerTest {
     assertThat(result.get(0).getKey()).isEqualTo("PORTABILITY");
     assertThat(result.get(1).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
     verifyNoMoreInteractions(dao);
-  }
-
-  @Test
-  public void create_model_with_requirements_from_plugin_on_first_execution() throws Exception {
-    // Default model
-    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic).setRoot(defaultRootCharacteristic);
-    defaultModel.addRootCharacteristic(defaultRootCharacteristic);
-
-    // No db model
-    when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
-
-    // Java model
-    DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
-    DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic).setRoot(javaRootCharacteristic);
-    javaModel.addRootCharacteristic(javaRootCharacteristic);
-
-    Rule rule = Rule.create();
-    rule.setId(10);
-    RuleKey ruleKey = RuleKey.of("checkstyle", "import");
-    when(ruleCache.getByRuleKey(ruleKey)).thenReturn(rule);
-    new DefaultRequirement().setRuleKey(ruleKey)
-      .setFunction("linear")
-      .setFactorValue(30)
-      .setFactorUnit(WorkDuration.UNIT.MINUTES)
-      .setCharacteristic(javaCharacteristic)
-      .setRootCharacteristic(javaRootCharacteristic);
-
-    Reader javaModelReader = mock(Reader.class);
-    when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-    when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
-    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
-
-    manager.synchronize(ValidationMessages.create(), ruleCache);
-
-    verify(dao).selectEnabledCharacteristics();
-    ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao, times(3)).insert(characteristicCaptor.capture(), eq(session));
-
-    List<CharacteristicDto> result = characteristicCaptor.getAllValues();
-    assertThat(result.get(0).getKey()).isEqualTo("PORTABILITY");
-    assertThat(result.get(1).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(result.get(2).getRuleId()).isEqualTo(10);
-    verifyNoMoreInteractions(dao);
-  }
-
-  @Test
-  public void add_new_requirements_from_plugin() throws Exception {
-    // Default model
-    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic).setRoot(defaultRootCharacteristic);
-    defaultModel.addRootCharacteristic(defaultRootCharacteristic);
-
-    // Db model
-    CharacteristicDto dbRootCharacteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY");
-    CharacteristicDto dbCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1).setRootId(1);
-    CharacteristicDto requirement = new CharacteristicDto().setId(3)
-      .setRuleId(10).setParentId(2).setRootId(1).setFactorValue(30.0).setFactorUnit("mn");
-
-    RuleKey ruleKey1 = RuleKey.of("checkstyle", "import");
-    Rule rule1 = Rule.create();
-    rule1.setId(10);
-    when(ruleCache.getByRuleKey(ruleKey1)).thenReturn(rule1);
-    when(ruleCache.exists(10)).thenReturn(true);
-    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(requirement, dbCharacteristic, dbRootCharacteristic));
-
-    // Java model
-    DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
-    DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    DefaultCharacteristic javaCharacteristic = new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(javaRootCharacteristic).setRoot(javaRootCharacteristic);
-    javaModel.addRootCharacteristic(javaRootCharacteristic);
-
-    RuleKey ruleKey2 = RuleKey.of("checkstyle", "export");
-    Rule rule2 = Rule.create();
-    rule2.setId(11);
-    when(ruleCache.getByRuleKey(ruleKey2)).thenReturn(rule2);
-
-    // New requirement
-    new DefaultRequirement().setRuleKey(ruleKey2)
-      .setFunction("linear")
-      .setFactorValue(1)
-      .setFactorUnit(WorkDuration.UNIT.HOURS)
-      .setCharacteristic(javaCharacteristic)
-      .setRootCharacteristic(javaRootCharacteristic);
-
-    Reader javaModelReader = mock(Reader.class);
-    when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
-    when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-    when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
-
-    manager.synchronize(ValidationMessages.create(), ruleCache);
-
-    verify(dao).selectEnabledCharacteristics();
-    ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao).insert(characteristicCaptor.capture(), eq(session));
-    assertThat(characteristicCaptor.getValue().getRuleId()).isEqualTo(11);
-    verifyNoMoreInteractions(dao);
-  }
-
-  @Test
-  public void disable_requirements_on_not_existing_rules() throws Exception {
-    // Default model
-    DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
-    defaultModel.addRootCharacteristic(defaultRootCharacteristic);
-
-    // Db model
-    CharacteristicDto dbRootCharacteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY");
-    CharacteristicDto dbCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1);
-    // To be disabled as rule does not exists
-    CharacteristicDto requirement = new CharacteristicDto().setId(3)
-      .setRuleId(10).setParentId(2).setFactorValue(30.0).setFactorUnit("mn");
-
-    when(ruleCache.exists(10)).thenReturn(false);
-
-    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(dbRootCharacteristic, dbCharacteristic, requirement));
-
-    manager.synchronize(ValidationMessages.create(), ruleCache);
-
-    verify(dao).selectEnabledCharacteristics();
-    verify(dao).disable(eq(3), eq(session));
-    verifyNoMoreInteractions(dao);
-  }
-
-  @Test
-  public void fail_when_plugin_defines_characteristics_not_defined_in_default_model() throws Exception {
-    try {
-      // Default model
-      DefaultCharacteristic defaultRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-      new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(defaultRootCharacteristic);
-      defaultModel.addRootCharacteristic(defaultRootCharacteristic);
-
-      // Db model
-      CharacteristicDto dbRootCharacteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY");
-      CharacteristicDto dbCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setParentId(1);
-      when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(dbRootCharacteristic, dbCharacteristic));
-
-      // Java model
-      DefaultTechnicalDebtModel javaModel = new DefaultTechnicalDebtModel();
-      DefaultCharacteristic javaRootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-      new DefaultCharacteristic().setKey("NEW_CHARACTERISTIC").setParent(javaRootCharacteristic);
-      javaModel.addRootCharacteristic(javaRootCharacteristic);
-
-      Reader javaModelReader = mock(Reader.class);
-      when(technicalDebtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
-      when(xmlImporter.importXML(eq(javaModelReader), any(ValidationMessages.class), eq(ruleCache))).thenReturn(javaModel);
-      when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
-
-      manager.synchronize(ValidationMessages.create(), ruleCache);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The characteristic : NEW_CHARACTERISTIC cannot be used as it's not available in default characteristics.");
-    } finally {
-      verify(dao).selectEnabledCharacteristics();
-      verifyNoMoreInteractions(dao);
-    }
   }
 
 }

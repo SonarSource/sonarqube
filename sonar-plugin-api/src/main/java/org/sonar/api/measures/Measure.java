@@ -604,7 +604,9 @@ public class Measure {
 
   /**
    * @since 4.1
+   * @deprecated since 4.3.
    */
+  @Deprecated
   @CheckForNull
   public final Requirement getRequirement() {
     return requirement;
@@ -612,7 +614,9 @@ public class Measure {
 
   /**
    * @since 4.1
+   * @deprecated since 4.3
    */
+  @Deprecated
   public final Measure setRequirement(@Nullable Requirement requirement) {
     this.requirement = requirement;
     return this;

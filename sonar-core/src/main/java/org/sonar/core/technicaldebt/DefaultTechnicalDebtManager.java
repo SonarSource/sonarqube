@@ -21,9 +21,7 @@
 package org.sonar.core.technicaldebt;
 
 
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.TechnicalDebtManager;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
@@ -31,7 +29,6 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -43,18 +40,16 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
 
   private final CharacteristicDao dao;
-  private final RuleFinder ruleFinder;
 
-  public DefaultTechnicalDebtManager(CharacteristicDao dao, RuleFinder ruleFinder) {
+  public DefaultTechnicalDebtManager(CharacteristicDao dao) {
     this.dao = dao;
-    this.ruleFinder = ruleFinder;
   }
 
   public List<Characteristic> findRootCharacteristics() {
     List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
     List<Characteristic> characteristics = newArrayList();
     for (CharacteristicDto dto : dtos) {
-      characteristics.add(toCharacteristic(dto, null));
+      characteristics.add(toCharacteristic(dto));
     }
     return characteristics;
   }
@@ -63,57 +58,33 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
   public Characteristic findCharacteristicById(Integer id) {
     CharacteristicDto dto = dao.selectById(id);
     if (dto != null) {
-      return toCharacteristic(dto, null);
+      return toCharacteristic(dto);
     }
     return null;
   }
 
   /**
-   * @deprecated since 4.3
+   * @deprecated since 4.3. Always return null
    */
   @Deprecated
   @CheckForNull
   public Characteristic findRequirementByRuleId(int ruleId) {
-    CharacteristicDto requirementDto = dao.selectByRuleId(ruleId);
-    if (requirementDto != null) {
-      Rule rule = ruleFinder.findById(ruleId);
-      if (rule == null) {
-        throw new IllegalArgumentException(String.format("Rule with id '%s' do not exists.", ruleId));
-      }
-      return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
-    }
     return null;
   }
 
-  /**
-   * @deprecated since 4.3
-   */
-  @Deprecated
   @CheckForNull
   public Characteristic findRequirementByRule(Rule rule) {
-    CharacteristicDto requirementDto = dao.selectByRuleId(rule.getId());
-    if (requirementDto != null) {
-      return toCharacteristic(requirementDto, RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
-    }
     return null;
   }
 
-  private static Characteristic toCharacteristic(CharacteristicDto dto, @Nullable RuleKey ruleKey) {
-    Double factorValue = dto.getFactorValue();
-    Double offsetValue = dto.getOffsetValue();
+  private static Characteristic toCharacteristic(CharacteristicDto dto) {
     return new DefaultCharacteristic()
       .setId(dto.getId())
       .setKey(dto.getKey())
       .setName(dto.getName())
       .setOrder(dto.getOrder())
       .setParentId(dto.getParentId())
-      .setRootId(dto.getRootId())
-      .setRuleKey(ruleKey)
-      .setFunction(dto.getFunction())
-      .setFactorValue(factorValue != null ? factorValue.intValue() : null)
-      .setFactorUnit(DefaultCharacteristic.toUnit(dto.getFactorUnit()))
-      .setOffsetValue(offsetValue != null ? offsetValue.intValue() : null)
-      .setOffsetUnit(DefaultCharacteristic.toUnit(dto.getOffsetUnit()));
+      .setRootId(dto.getRootId());
   }
 
 }

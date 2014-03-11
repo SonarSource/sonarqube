@@ -38,21 +38,21 @@ public interface TechnicalDebtModel {
   Characteristic characteristicByKey(String key);
 
   /**
-   * @deprecated since 4.3
+   * @deprecated since 4.3. Always return null
    */
   @CheckForNull
   @Deprecated
   Requirement requirementsByRule(RuleKey ruleKey);
 
   /**
-   * @deprecated since 4.3
+   * @deprecated since 4.3. Always return null
    */
   @CheckForNull
   @Deprecated
   Requirement requirementsById(Integer id);
 
   /**
-   * @deprecated since 4.3
+   * @deprecated since 4.3. Always return empty list
    */
   @Deprecated
   List<? extends Requirement> requirements();

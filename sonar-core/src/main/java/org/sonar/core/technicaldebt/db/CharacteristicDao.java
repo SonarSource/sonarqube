@@ -40,7 +40,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   /**
    * @return enabled root characteristics, characteristics and requirements
    *
-   * @deprecated since 4.3
+   * @deprecated since 4.3 (used by SQALE plugin)
    */
   @Deprecated
   public List<CharacteristicDto> selectEnabledCharacteristics() {

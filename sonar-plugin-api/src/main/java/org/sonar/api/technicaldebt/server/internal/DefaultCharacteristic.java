@@ -107,21 +107,37 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   @CheckForNull
   public RuleKey ruleKey() {
     return ruleKey;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public DefaultCharacteristic setRuleKey(@Nullable RuleKey ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   @CheckForNull
   public String function() {
     return function;
   }
 
+  /**
+   * @deprecated since 4.2
+   */
+  @Deprecated
   public DefaultCharacteristic setFunction(@Nullable String function) {
     this.function = function;
     return this;

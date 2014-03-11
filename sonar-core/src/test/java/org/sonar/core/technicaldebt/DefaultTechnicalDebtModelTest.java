@@ -22,6 +22,7 @@ package org.sonar.core.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -71,6 +72,21 @@ public class DefaultTechnicalDebtModelTest {
     assertThat(sqaleModel.characteristicByKey("EFFICIENCY").parent()).isEqualTo(rootCharacteristic);
 
     assertThat(sqaleModel.characteristicByKey("UNKNOWN")).isNull();
+  }
+
+  @Test
+  public void get_requirement_by_rule_key_always_return_null() throws Exception {
+    assertThat(sqaleModel.requirementsByRule(RuleKey.of("checkstyle", "Regexp"))).isNull();
+  }
+
+  @Test
+  public void get_requirement_by_id_always_return_null() throws Exception {
+    assertThat(sqaleModel.requirementsById(1)).isNull();
+  }
+
+  @Test
+  public void get_requirements_always_return_empty_list() throws Exception {
+    assertThat(sqaleModel.requirements()).isEmpty();
   }
 
 }

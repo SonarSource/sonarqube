@@ -30,6 +30,7 @@ import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -78,22 +79,12 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
 
   @CheckForNull
   public DefaultRequirement requirementsByRule(final RuleKey ruleKey) {
-    return Iterables.find(requirements(), new Predicate<DefaultRequirement>() {
-      @Override
-      public boolean apply(DefaultRequirement input) {
-        return input.ruleKey().equals(ruleKey);
-      }
-    }, null);
+    return null;
   }
 
   @CheckForNull
   public DefaultRequirement requirementsById(final Integer id){
-    return Iterables.find(requirements(), new Predicate<DefaultRequirement>() {
-      @Override
-      public boolean apply(DefaultRequirement input) {
-        return input.id().equals(id);
-      }
-    }, null);
+    return null;
   }
 
   public List<DefaultCharacteristic> characteristics() {
@@ -108,13 +99,7 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
   }
 
   public List<DefaultRequirement> requirements() {
-    List<DefaultRequirement> allRequirements = newArrayList();
-    for (DefaultCharacteristic characteristic : characteristics()) {
-      for (DefaultRequirement requirement : characteristic.requirements()) {
-        allRequirements.add(requirement);
-      }
-    }
-    return allRequirements;
+    return Collections.emptyList();
   }
 
   public boolean isEmpty(){
