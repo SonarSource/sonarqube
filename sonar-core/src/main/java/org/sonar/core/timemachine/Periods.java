@@ -27,6 +27,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 
+import javax.annotation.Nullable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,10 +76,13 @@ public class Periods implements BatchExtension, ServerComponent {
     return label(mode, param, convertDate(date), true);
   }
 
-  private String label(String mode, String param, String date, boolean shortLabel) {
+  private String label(String mode, @Nullable String param, @Nullable String date, boolean shortLabel) {
     String label;
     if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
-      label = label("over_x_days", shortLabel, param, date);
+      label = label("over_x_days", shortLabel, param);
+      if (date != null) {
+        label = label("over_x_days_detailed", shortLabel, param, date);
+      }
     } else if (CoreProperties.TIMEMACHINE_MODE_VERSION.equals(mode)) {
       label = label("since_version", shortLabel, param);
       if (date != null) {
