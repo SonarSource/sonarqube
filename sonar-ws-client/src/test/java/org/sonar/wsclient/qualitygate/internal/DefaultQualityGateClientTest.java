@@ -288,4 +288,36 @@ public class DefaultQualityGateClientTest {
         entry("id", "666")
         );
   }
+
+  @Test
+  public void should_select_project() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    client.selectProject(666L, 999L);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/select");
+    assertThat(httpServer.requestParams()).includes(
+        entry("gateId", "666"),
+        entry("projectId", "999")
+        );
+  }
+
+  @Test
+  public void should_deselect_project() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    client.deselectProject(666L, 999L);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/deselect");
+    assertThat(httpServer.requestParams()).includes(
+        entry("gateId", "666"),
+        entry("projectId", "999")
+        );
+  }
 }

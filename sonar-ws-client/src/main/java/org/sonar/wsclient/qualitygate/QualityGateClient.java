@@ -46,4 +46,8 @@ public interface QualityGateClient {
   void setDefault(long qGateId);
 
   void unsetDefault();
+
+  void selectProject(long qGateId, long projectId);
+
+  void deselectProject(long qGateId, long projectId);
 }

@@ -38,6 +38,8 @@ public class DefaultQualityGateClient implements QualityGateClient {
   private static final String DESTROY_URL = ROOT_URL + "/destroy";
   private static final String SET_DEFAULT_URL = ROOT_URL + "/set_as_default";
   private static final String UNSET_DEFAULT_URL = ROOT_URL + "/unset_default";
+  private static final String SELECT_URL = ROOT_URL + "/select";
+  private static final String DESELECT_URL = ROOT_URL + "/deselect";
 
   private final HttpRequestFactory requestFactory;
 
@@ -109,6 +111,24 @@ public class DefaultQualityGateClient implements QualityGateClient {
   public void unsetDefault() {
     requestFactory.post(UNSET_DEFAULT_URL, Collections.<String, Object> emptyMap());
   }
+
+  @Override
+  public void selectProject(long qGateId, long projectId) {
+    requestFactory.post(SELECT_URL, selectionParams(qGateId, projectId));
+  }
+
+  @Override
+  public void deselectProject(long qGateId, long projectId) {
+    requestFactory.post(DESELECT_URL, selectionParams(qGateId, projectId));
+  }
+
+  private Map<String, Object> selectionParams(long qGateId, long projectId) {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("gateId", Long.toString(qGateId));
+    params.put("projectId", Long.toString(projectId));
+    return params;
+  }
+
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private QualityGate jsonToQualityGate(String json) {
