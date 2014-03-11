@@ -52,19 +52,24 @@
         codingrules: [
           {
             name: 'Array designators "[]" should be located after the type in method signatures',
-            language: 'Java'
+            language: 'Java',
+            severity: 'MAJOR'
           }, {
             name: 'Avoid Array Loops',
-            language: 'Java'
+            language: 'Java',
+            severity: 'CRITICAL'
           }, {
             name: 'Bad practice - Abstract class defines covariant compareTo() method',
-            language: 'Java'
+            language: 'Java',
+            severity: 'MAJOR'
           }, {
             name: 'Correctness - Use of class without a hashCode() method in a hashed data structure',
-            language: 'Java'
+            language: 'Java',
+            severity: 'MINOR'
           }, {
             name: 'Useless Operation On Immutable',
-            language: 'Java'
+            language: 'Java',
+            severity: 'MAJOR'
           }
         ],
         paging: {
@@ -91,13 +96,13 @@
         codingrule: {
           name: 'Array designators "[]" should be located after the type in method signatures',
           language: 'Java',
-          description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of) the empty bracket pairs that form the declaration of the array type after the formal parameter list.\nThis obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>',
+          description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of)\nthe empty bracket pairs that form the declaration of the array type after\nthe formal parameter list. This obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>',
           qualityProfiles: [
             {
               name: 'SonarWay',
               severity: 'MINOR',
-              canDeactivate: false,
-              canUpdate: false,
+              canDeactivate: true,
+              canUpdate: true,
               parameters: [
                 {
                   key: 'max',
@@ -107,8 +112,8 @@
             }, {
               name: 'Quality Profile 1',
               severity: 'MAJOR',
-              canDeactivate: true,
-              canUpdate: true,
+              canDeactivate: false,
+              canUpdate: false,
               parameters: [
                 {
                   key: 'max',

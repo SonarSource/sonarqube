@@ -50,22 +50,27 @@ define ['jquery.mockjax'], ->
         {
           name: 'Array designators "[]" should be located after the type in method signatures'
           language: 'Java'
+          severity: 'MAJOR'
         },
         {
           name: 'Avoid Array Loops'
           language: 'Java'
+          severity: 'CRITICAL'
         },
         {
           name: 'Bad practice - Abstract class defines covariant compareTo() method'
           language: 'Java'
+          severity: 'MAJOR'
         },
         {
           name: 'Correctness - Use of class without a hashCode() method in a hashed data structure'
           language: 'Java'
+          severity: 'MINOR'
         },
         {
           name: 'Useless Operation On Immutable'
           language: 'Java'
+          severity: 'MAJOR'
         }
       ]
       paging:
@@ -92,8 +97,9 @@ define ['jquery.mockjax'], ->
             </p>
 
             <pre>For compatibility with older versions of the Java SE platform,
-            the declaration of a method that returns an array is allowed to place (some or all of) the empty bracket pairs that form the declaration of the array type after the formal parameter list.
-            This obsolescent syntax should not be used in new code.
+            the declaration of a method that returns an array is allowed to place (some or all of)
+            the empty bracket pairs that form the declaration of the array type after
+            the formal parameter list. This obsolescent syntax should not be used in new code.
             </pre>
 
             <p>The following code snippet illustrates this rule:</p>
@@ -111,8 +117,8 @@ define ['jquery.mockjax'], ->
           {
             name: 'SonarWay'
             severity: 'MINOR'
-            canDeactivate: false
-            canUpdate: false
+            canDeactivate: true
+            canUpdate: true
             parameters: [
               { key: 'max', value: 8 }
             ]
@@ -121,8 +127,8 @@ define ['jquery.mockjax'], ->
           {
             name: 'Quality Profile 1'
             severity: 'MAJOR'
-            canDeactivate: true
-            canUpdate: true
+            canDeactivate: false
+            canUpdate: false
             parameters: [
               { key: 'max', value: 6 }
             ]

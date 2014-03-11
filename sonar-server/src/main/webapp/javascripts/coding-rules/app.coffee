@@ -143,6 +143,11 @@ requirejs [
       App.fetchList false
 
 
+  App.getActiveQualityProfile = ->
+    value = @activeInFilter.get('value')
+    if value? && value.length == 1 then value[0] else null
+
+
   # Construct layout
   App.addInitializer ->
     @layout = new CodingRulesLayout app: @
@@ -246,19 +251,23 @@ requirejs [
         'unused': 'unused'
         'unused-code': 'unused-code'
 
-    @filters.add new BaseFilters.Filter
+    @activeInFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.active_in'
       property: 'active_in'
       type: QualityProfileFilterView
-      enabled: false,
-      optional: true
+      single: true
+      enabled: true
+      optional: false
+    @filters.add @activeInFilter
 
-    @filters.add new BaseFilters.Filter
+    @inactiveInFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.inactive_in'
       property: 'inactive_in'
       type: QualityProfileFilterView
-      enabled: false,
-      optional: true
+      single: true
+      enabled: true
+      optional: false
+    @filters.add @inactiveInFilter
 
     @filterBarView = new CodingRulesFilterBarView
       app: @

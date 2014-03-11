@@ -15,10 +15,10 @@
 }
 .coding-rules-page .navigator-actions,
 .coding-rules-page .navigator-details {
-  top: 324px;
+  top: 194px;
 }
 .coding-rules-page .navigator-results {
-  top: 354px;
+  top: 224px;
 }
 /*
  * Detail
@@ -44,22 +44,46 @@
   padding-bottom: 0;
 }
 .coding-rules-detail-quality-profiles-header {
-  margin-top: 20px;
+  margin-top: 30px;
 }
-.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
-  margin-top: 10px;
+.coding-rules-detail-quality-profiles {
+  font-size: 0;
 }
-.coding-rules-detail-quality-profile-severity,
-.coding-rules-detail-quality-profile-name,
-.coding-rules-detail-quality-profile-actions {
+.coding-rules-detail-quality-profile {
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: top;
+  width: 240px;
+  margin-right: 20px;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 13px;
+}
+.coding-rules-detail-quality-profile.active {
+  background-color: #CAE3F2;
+  border-color: #4b9fd5;
+}
+.coding-rules-detail-quality-profile.active .coding-rules-detail-quality-profile-name {
+  background-color: #4b9fd5;
+  color: #fff;
+}
+.coding-rules-detail-quality-profile-severity {
+  padding: 5px;
+  font-size: 11px;
+}
+.coding-rules-detail-quality-profile-name {
+  padding: 5px;
+  background-color: #efefef;
+  line-height: 1;
+  font-weight: bold;
+}
+.coding-rules-detail-quality-profile-actions {
+  padding: 5px;
 }
 .coding-rules-detail-quality-profile-parameters {
-  padding-left: 30px;
+  padding: 5px;
 }
 .coding-rules-detail-quality-profile-parameter {
-  margin: 5px;
+  white-space: nowrap;
 }
 .coding-rules-detail-quality-profile-parameter-key,
 .coding-rules-detail-quality-profile-parameter-value,
@@ -69,22 +93,13 @@
 .coding-rules-detail-quality-profile-parameter-key:after {
   content: ":";
 }
+.coding-rules-detail-quality-profile-parameter-value {
+  width: 110px;
+}
+.coding-rules-detail-quality-profile-parameter-actions {
+  float: right;
+}
 .coding-rules-detail-quality-profiles-activation {
-  margin-top: 10px;
-}
-.coding-rules-header-quality-profiles {
-  position: absolute;
-  z-index: 1200;
-  display: none;
-  max-width: 300px;
-  border-right: 1px solid #cdcdcd;
-  border-bottom: 1px solid #cdcdcd;
-  background: #fff;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
-}
-.coding-rules-header-quality-profiles .navigator-filter-select-list {
-  max-width: 600px;
-}
-.coding-rules-header-quality-profiles .navigator-filter-select-list label > span {
-  width: auto;
+  margin-top: -3px;
+  margin-left: 10px;
 }

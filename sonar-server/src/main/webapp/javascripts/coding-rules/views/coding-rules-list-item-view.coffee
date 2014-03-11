@@ -26,5 +26,11 @@ define [
         url: "#{baseUrl}/api/codingrules/show"
       .done (r) =>
         @model.set r.codingrule
-        detailView = new CodingRulesDetailView model: @model
+        detailView = new CodingRulesDetailView
+          app: @options.app
+          model: @model
         @options.app.layout.detailsRegion.show detailView
+
+
+    serializeData: ->
+      _.extend super, qualityProfile: @options.app.getActiveQualityProfile()

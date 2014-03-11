@@ -36,9 +36,16 @@
           var detailView;
           _this.model.set(r.codingrule);
           detailView = new CodingRulesDetailView({
+            app: _this.options.app,
             model: _this.model
           });
           return _this.options.app.layout.detailsRegion.show(detailView);
+        });
+      };
+
+      CodingRulesListItemView.prototype.serializeData = function() {
+        return _.extend(CodingRulesListItemView.__super__.serializeData.apply(this, arguments), {
+          qualityProfile: this.options.app.getActiveQualityProfile()
         });
       };
 

@@ -110,6 +110,15 @@
         return App.fetchList(false);
       }
     };
+    App.getActiveQualityProfile = function() {
+      var value;
+      value = this.activeInFilter.get('value');
+      if ((value != null) && value.length === 1) {
+        return value[0];
+      } else {
+        return null;
+      }
+    };
     App.addInitializer(function() {
       this.layout = new CodingRulesLayout({
         app: this
@@ -213,20 +222,24 @@
           'unused-code': 'unused-code'
         }
       }));
-      this.filters.add(new BaseFilters.Filter({
+      this.activeInFilter = new BaseFilters.Filter({
         name: t('coding_rules.filters.active_in'),
         property: 'active_in',
         type: QualityProfileFilterView,
-        enabled: false,
-        optional: true
-      }));
-      this.filters.add(new BaseFilters.Filter({
+        single: true,
+        enabled: true,
+        optional: false
+      });
+      this.filters.add(this.activeInFilter);
+      this.inactiveInFilter = new BaseFilters.Filter({
         name: t('coding_rules.filters.inactive_in'),
         property: 'inactive_in',
         type: QualityProfileFilterView,
-        enabled: false,
-        optional: true
-      }));
+        single: true,
+        enabled: true,
+        optional: false
+      });
+      this.filters.add(this.inactiveInFilter);
       this.filterBarView = new CodingRulesFilterBarView({
         app: this,
         collection: this.filters,

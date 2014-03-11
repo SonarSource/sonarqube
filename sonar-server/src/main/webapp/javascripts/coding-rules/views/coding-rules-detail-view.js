@@ -15,6 +15,14 @@
 
       CodingRulesDetailView.prototype.template = getTemplate('#coding-rules-detail-template');
 
+      CodingRulesDetailView.prototype.onRender = function() {
+        var qp;
+        qp = this.options.app.getActiveQualityProfile();
+        if (qp != null) {
+          return this.$('.coding-rules-detail-quality-profile').first().addClass('active');
+        }
+      };
+
       return CodingRulesDetailView;
 
     })(Marionette.ItemView);

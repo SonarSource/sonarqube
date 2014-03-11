@@ -38,7 +38,7 @@
   top: 104px;
   left: 0;
   width: 100%;
-  height: 220px;
+  height: 90px;
 }
 .navigator-results {
   position: fixed;
@@ -199,43 +199,39 @@
   border-bottom: 1px solid #cdcdcd;
   background-color: #efefef;
 }
-.navigator-facets-list {
-  display: table;
-  height: 100%;
-}
 .navigator-facets-list-item {
-  display: table-cell;
-}
-.navigator-facets-list-item {
-  padding-right: 20px;
+  font-size: 0;
 }
 .navigator-facets-list-item + .navigator-facets-list-item {
-  padding-left: 20px;
-  border-left: 1px solid #e1e1e1;
+  margin-top: 10px;
 }
 .navigator-facets-list-item-name {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+  font-size: 13px;
   font-weight: bold;
   text-transform: uppercase;
 }
 .navigator-facets-list-item-options {
-  margin-top: 6.666666666666667px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .navigator-facets-list-item-option {
-  margin-bottom: -1em;
-  padding: 3.3333333333333335px 0;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 10px;
+  font-size: 13px;
   cursor: pointer;
-  text-align: justify;
 }
 .navigator-facets-list-item-option:hover .navigator-facets-list-item-option-name {
   text-decoration: underline;
 }
-.navigator-facets-list-item-option:after {
-  content: '';
-  display: inline-block;
-  width: 100%;
+.navigator-facets-list-item-option-stat:before {
+  content: "(";
 }
-.navigator-facets-list-item-option-name {
-  padding-right: 10px;
+.navigator-facets-list-item-option-stat:after {
+  content: ")";
 }
 .navigator-results {
   border-right: 1px solid #e1e1e1;
