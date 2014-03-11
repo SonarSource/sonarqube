@@ -1,6 +1,6 @@
 #
 # Sonar, entreprise quality control tool.
-# Copyright (C) 2008-2013 SonarSource
+# Copyright (C) 2008-2014 SonarSource
 # mailto:contact AT sonarsource DOT com
 #
 # SonarQube is free software; you can redistribute it and/or
