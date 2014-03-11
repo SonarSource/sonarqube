@@ -60,9 +60,12 @@
         replace: true
       });
     };
-    App.fetchList = function(firstPage) {
+    App.fetchList = function(firstPage, fetchFacets) {
       var fetchQuery, query,
         _this = this;
+      if (fetchFacets == null) {
+        fetchFacets = true;
+      }
       query = this.getQuery();
       fetchQuery = _.extend({
         pageIndex: this.pageIndex
@@ -73,9 +76,16 @@
           asc: this.codingRules.sorting.asc
         });
       }
+      if (!fetchFacets) {
+        _.extend(fetchQuery, {
+          facets: false
+        });
+      }
       this.storeQuery(query, this.codingRules.sorting);
       this.layout.showSpinner('resultsRegion');
-      this.layout.showSpinner('facetsRegion');
+      if (fetchFacets) {
+        this.layout.showSpinner('facetsRegion');
+      }
       return jQuery.ajax({
         url: "" + baseUrl + "/api/codingrules/search",
         data: fetchQuery
@@ -92,17 +102,22 @@
         });
         _this.layout.resultsRegion.show(_this.codingRulesListView);
         _this.codingRulesListView.selectFirst();
-        _this.facets.reset(r.facets);
-        _this.codingRulesFacetsView = new CodingRulesFacetsView({
-          app: _this,
-          collection: _this.facets
-        });
-        return _this.layout.facetsRegion.show(_this.codingRulesFacetsView);
+        if (fetchFacets) {
+          _this.facets.reset(r.facets);
+          _this.codingRulesFacetsView = new CodingRulesFacetsView({
+            app: _this,
+            collection: _this.facets
+          });
+          return _this.layout.facetsRegion.show(_this.codingRulesFacetsView);
+        }
       });
     };
-    App.fetchFirstPage = function() {
+    App.fetchFirstPage = function(fetchFacets) {
+      if (fetchFacets == null) {
+        fetchFacets = true;
+      }
       this.pageIndex = 1;
-      return App.fetchList(true);
+      return App.fetchList(true, fetchFacets);
     };
     App.fetchNextPage = function() {
       if (this.pageIndex < this.codingRules.paging.pages) {

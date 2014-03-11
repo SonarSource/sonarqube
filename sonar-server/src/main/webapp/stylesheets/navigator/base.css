@@ -227,6 +227,10 @@
 .navigator-facets-list-item-option:hover .navigator-facets-list-item-option-name {
   text-decoration: underline;
 }
+.navigator-facets-list-item-option.active .navigator-facets-list-item-option-name {
+  font-weight: bold;
+  text-decoration: underline;
+}
 .navigator-facets-list-item-option-stat:before {
   content: "(";
 }

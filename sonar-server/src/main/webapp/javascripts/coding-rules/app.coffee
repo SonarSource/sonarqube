@@ -96,7 +96,7 @@ requirejs [
 
 
 
-  App.fetchList = (firstPage) ->
+  App.fetchList = (firstPage, fetchFacets = true) ->
     query = @getQuery()
     fetchQuery = _.extend { pageIndex: @pageIndex }, query
 
@@ -105,10 +105,13 @@ requirejs [
           sort: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
+    unless fetchFacets
+      _.extend fetchQuery, facets: false
+
     @storeQuery query, @codingRules.sorting
 
     @layout.showSpinner 'resultsRegion'
-    @layout.showSpinner 'facetsRegion'
+    @layout.showSpinner 'facetsRegion' if fetchFacets
     jQuery.ajax
       url: "#{baseUrl}/api/codingrules/search"
       data: fetchQuery
@@ -124,17 +127,18 @@ requirejs [
       @layout.resultsRegion.show @codingRulesListView
       @codingRulesListView.selectFirst()
 
-      @facets.reset r.facets
-      @codingRulesFacetsView = new CodingRulesFacetsView
-        app: @
-        collection: @facets
-      @layout.facetsRegion.show @codingRulesFacetsView
+      if fetchFacets
+        @facets.reset r.facets
+        @codingRulesFacetsView = new CodingRulesFacetsView
+          app: @
+          collection: @facets
+        @layout.facetsRegion.show @codingRulesFacetsView
 
 
 
-  App.fetchFirstPage = ->
+  App.fetchFirstPage = (fetchFacets = true) ->
     @pageIndex = 1
-    App.fetchList true
+    App.fetchList true, fetchFacets
 
 
   App.fetchNextPage = ->

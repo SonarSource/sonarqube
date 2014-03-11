@@ -19,6 +19,19 @@
 
       CodingRulesFacetsView.prototype.itemView = CodingRulesFacetsItemView;
 
+      CodingRulesFacetsView.prototype.ui = {
+        options: '.navigator-facets-list-item-option'
+      };
+
+      CodingRulesFacetsView.prototype.events = {
+        'click @ui.options': 'toggleOption'
+      };
+
+      CodingRulesFacetsView.prototype.toggleOption = function(e) {
+        jQuery(e.currentTarget).toggleClass('active');
+        return this.options.app.fetchFirstPage(false);
+      };
+
       return CodingRulesFacetsView;
 
     })(Marionette.CollectionView);

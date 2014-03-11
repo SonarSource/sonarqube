@@ -10,3 +10,16 @@ define [
     tagName: 'ul'
     className: 'navigator-facets-list'
     itemView: CodingRulesFacetsItemView
+
+
+    ui:
+      options: '.navigator-facets-list-item-option'
+
+
+    events:
+      'click @ui.options': 'toggleOption'
+
+
+    toggleOption: (e) ->
+      jQuery(e.currentTarget).toggleClass 'active'
+      @options.app.fetchFirstPage false
