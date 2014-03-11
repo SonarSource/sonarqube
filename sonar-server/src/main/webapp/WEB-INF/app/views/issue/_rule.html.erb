@@ -17,7 +17,7 @@
 <p class="note">
   <span class="spacer-right"><%= h @rule.plugin_name -%>:<%= h @rule.plugin_rule_key -%></span>
   <%= image_tag 'sep12.png', :class => 'spacer-right' -%>
-  <% if @requirement %>
+  <% if @characteristic %>
     <%= @root_characteristic.name -%>&nbsp;&gt;&nbsp;<%= @characteristic.name -%>
   <% else %>
     <%= message 'issue.technical_debt_deleted' %>

@@ -38,7 +38,6 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.WsTester;
-import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
@@ -319,16 +318,45 @@ public class IssueShowWsHandlerTest {
   }
 
   @Test
-  public void show_issue_with_characteristics() throws Exception {
+  public void show_issue_with_user_characteristics() throws Exception {
     Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
     issues.add(issue);
 
-    Characteristic requirement = new DefaultCharacteristic().setId(5).setParentId(2).setRootId(1);
-    Characteristic characteristic = new DefaultCharacteristic().setId(1).setName("Maintainability");
-    Characteristic subCharacteristic = new DefaultCharacteristic().setId(2).setName("Readability");
-    when(technicalDebtManager.findRequirementByRule(result.rule(issue))).thenReturn(requirement);
-    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(characteristic);
-    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(subCharacteristic);
+    result.rule(issue).setCharacteristicId(2);
+    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
+    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
+  }
+
+  @Test
+  public void show_issue_with_default_characteristics() throws Exception {
+    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
+    issues.add(issue);
+
+    result.rule(issue).setDefaultCharacteristicId(2);
+    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
+    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
+    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
+  }
+
+  @Test
+  public void use_user_characteristic_if_both_characteristic_ids_are_defined() throws Exception {
+    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
+    issues.add(issue);
+
+    result.rule(issue).setCharacteristicId(2);
+    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
+    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+
+    result.rule(issue).setDefaultCharacteristicId(20);
+    when(technicalDebtManager.findCharacteristicById(10)).thenReturn(new DefaultCharacteristic().setId(10).setName("Default Maintainability"));
+    when(technicalDebtManager.findCharacteristicById(20)).thenReturn(new DefaultCharacteristic().setId(20).setName("Default Readability").setParentId(10));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());

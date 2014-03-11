@@ -72,6 +72,10 @@ public class DefaultTechnicalDebtManager implements TechnicalDebtManager {
     return null;
   }
 
+  /**
+   * @deprecated since 4.3. Always return null
+   */
+  @Deprecated
   @CheckForNull
   public Characteristic findRequirementByRule(Rule rule) {
     return null;

@@ -36,7 +36,10 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "rules")
@@ -116,6 +119,12 @@ public class Rule {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
+
+  @Column(name = "characteristic_id", updatable = true, nullable = true)
+  private Integer characteristicId;
+
+  @Column(name = "default_characteristic_id", updatable = true, nullable = true)
+  private Integer defaultCharacteristicId;
 
   @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
   @OneToMany(mappedBy = "rule")
@@ -437,6 +446,47 @@ public class Rule {
    */
   public void setTags(String[] tags) {
     this.tags = tags;
+  }
+
+  /**
+   * For internal use only.
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  public Integer getCharacteristicId() {
+    return characteristicId;
+  }
+
+  /**
+   * For internal use only.
+   *
+   * @since 4.3
+   */
+  public Rule setCharacteristicId(@Nullable Integer characteristicId) {
+    this.characteristicId = characteristicId;
+    return this;
+  }
+
+
+  /**
+   * For internal use only.
+   *
+   * @since 4.3
+   */
+  @CheckForNull
+  public Integer getDefaultCharacteristicId() {
+    return defaultCharacteristicId;
+  }
+
+  /**
+   * For internal use only.
+   *
+   * @since 4.3
+   */
+  public Rule setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
+    this.defaultCharacteristicId = defaultCharacteristicId;
+    return this;
   }
 
   @Override

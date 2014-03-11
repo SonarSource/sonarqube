@@ -42,11 +42,23 @@ public interface Characteristic {
   @CheckForNull
   Integer parentId();
 
+  /**
+   * @deprecated since 4.3. return null
+   */
+  @Deprecated
   @CheckForNull
   Integer rootId();
 
+  /**
+   * @deprecated since 4.3. return null
+   */
+  @Deprecated
   RuleKey ruleKey();
 
+  /**
+   * @deprecated since 4.3. return null
+   */
+  @Deprecated
   String function();
 
   /**
