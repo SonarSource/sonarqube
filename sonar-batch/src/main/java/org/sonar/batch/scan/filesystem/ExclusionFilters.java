@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -35,8 +36,8 @@ import java.util.List;
 public class ExclusionFilters implements BatchComponent {
   private final FileExclusions exclusionSettings;
 
-  private PathPattern[] sourceInclusions;
-  private PathPattern[] sourceExclusions;
+  private PathPattern[] mainInclusions;
+  private PathPattern[] mainExclusions;
   private PathPattern[] testInclusions;
   private PathPattern[] testExclusions;
 
@@ -45,12 +46,12 @@ public class ExclusionFilters implements BatchComponent {
   }
 
   public void prepare(ModuleFileSystem fs) {
-    sourceInclusions = computeSourceInclusions(fs);
-    sourceExclusions = computeSourceExclusions();
-    testInclusions = computeTestInclusions(fs);
-    testExclusions = computeTestExclusions();
-    log("Included sources: ", sourceInclusions);
-    log("Excluded sources: ", sourceExclusions);
+    mainInclusions = prepareMainInclusions(fs);
+    mainExclusions = prepareMainExclusions(fs);
+    testInclusions = prepareTestInclusions(fs);
+    testExclusions = prepareTestExclusions();
+    log("Included sources: ", mainInclusions);
+    log("Excluded sources: ", mainExclusions);
     log("Included tests: ", testInclusions);
     log("Excluded tests: ", testExclusions);
   }
@@ -68,10 +69,10 @@ public class ExclusionFilters implements BatchComponent {
   public boolean accept(InputFile inputFile, InputFile.Type type) {
     PathPattern[] inclusionPatterns = null;
     PathPattern[] exclusionPatterns = null;
-    if (InputFile.Type.MAIN==type) {
-      inclusionPatterns = sourceInclusions;
-      exclusionPatterns = sourceExclusions;
-    } else if (InputFile.Type.TEST==type) {
+    if (InputFile.Type.MAIN == type) {
+      inclusionPatterns = mainInclusions;
+      exclusionPatterns = mainExclusions;
+    } else if (InputFile.Type.TEST == type) {
       inclusionPatterns = testInclusions;
       exclusionPatterns = testExclusions;
     }
@@ -94,7 +95,7 @@ public class ExclusionFilters implements BatchComponent {
     return matchInclusion;
   }
 
-  PathPattern[] computeSourceInclusions(ModuleFileSystem fs) {
+  PathPattern[] prepareMainInclusions(ModuleFileSystem fs) {
     if (exclusionSettings.sourceInclusions().length > 0) {
       // User defined params
       return PathPattern.create(exclusionSettings.sourceInclusions());
@@ -108,10 +109,14 @@ public class ExclusionFilters implements BatchComponent {
     return PathPattern.create(sourcePattern.toArray(new String[sourcePattern.size()]));
   }
 
-  PathPattern[] computeTestInclusions(ModuleFileSystem fs) {
+  PathPattern[] prepareTestInclusions(ModuleFileSystem fs) {
+    return PathPattern.create(computeTestInclusions(fs));
+  }
+
+  private String[] computeTestInclusions(ModuleFileSystem fs) {
     if (exclusionSettings.testInclusions().length > 0) {
       // User defined params
-      return PathPattern.create(exclusionSettings.testInclusions());
+      return exclusionSettings.testInclusions();
     }
     // Convert source directories to inclusions
     List<String> testPatterns = new ArrayList<String>();
@@ -119,14 +124,16 @@ public class ExclusionFilters implements BatchComponent {
       String path = new PathResolver().relativePath(fs.baseDir(), test);
       testPatterns.add(path + "/**");
     }
-    return PathPattern.create(testPatterns.toArray(new String[testPatterns.size()]));
+    return testPatterns.toArray(new String[testPatterns.size()]);
   }
 
-  PathPattern[] computeSourceExclusions() {
-    return PathPattern.create(exclusionSettings.sourceExclusions());
+  PathPattern[] prepareMainExclusions(ModuleFileSystem fs) {
+    String[] patterns = (String[]) ArrayUtils.addAll(
+        exclusionSettings.sourceExclusions(), computeTestInclusions(fs));
+    return PathPattern.create(patterns);
   }
 
-  PathPattern[] computeTestExclusions() {
+  PathPattern[] prepareTestExclusions() {
     return PathPattern.create(exclusionSettings.testExclusions());
   }
 }
