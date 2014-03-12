@@ -28,9 +28,7 @@ import java.util.List;
 
 /**
  * @since 2.3
- * @deprecated in 4.2. Replaced by org.sonar.api.rule.RuleDefinitions
  */
-@Deprecated
 public abstract class RuleRepository implements ServerExtension {
 
   private String key;

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -38,13 +39,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * WARNING - DO NOT USE IN 4.2. THIS API WILL BE CHANGED IN 4.3.
+ * <p/>
  * Defines the coding rules. For example the Java Findbugs plugin provides an implementation of
  * this extension point in order to define the rules that it supports.
  * <p/>
  * This interface replaces the deprecated class org.sonar.api.rules.RuleRepository.
- *
- * @since 4.2
  */
+@Beta
 public interface RuleDefinitions extends ServerExtension {
 
   /**
