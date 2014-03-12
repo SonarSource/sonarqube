@@ -533,9 +533,24 @@ function openPopup(url, popupId) {
 
 
 jQuery(function() {
+
+  // Initialize top search
   jQuery('#searchInput').topSearch({
     minLength: 2,
     results: '#searchResourcesResults',
     spinner: '#searchingResources'
   });
+
+
+  // Process login link in order to add the anchor
+  jQuery('#login-link').on('click', function(e) {
+    e.preventDefault();
+    var href = jQuery(this).prop('href'),
+        hash = window.location.hash;
+    if (hash.length > 0) {
+      href += decodeURIComponent(hash);
+    }
+    window.location = href;
+  });
 });
+

@@ -24,7 +24,9 @@ import org.sonar.api.resources.Project;
 
 /**
  * @since 2.6
+ * @deprecated in 4.2. See API provided by Java plugins.
  */
+@Deprecated
 public final class JavaUtils {
 
   public static final String PACKAGE_SEPARATOR = ".";

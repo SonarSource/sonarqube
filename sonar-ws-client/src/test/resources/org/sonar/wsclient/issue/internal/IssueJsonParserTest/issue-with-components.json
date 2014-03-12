@@ -3,6 +3,7 @@
     {
       "key": "ABCDE",
       "component": "struts:Action.java",
+      "componentId": 10,
       "project": "struts",
       "rule": "squid:CycleBetweenPackages",
       "severity": "CRITICAL",
@@ -35,9 +36,12 @@
   "components": [
     {
       "key": "struts:Action.java",
+      "id": 10,
       "name": "Action",
       "qualifier": "CLA",
-      "longName": "org.struts.Action"
+      "longName": "org.struts.Action",
+      "subProjectId" : 2,
+      "projectId" : 1
     }
   ],
   "paging": {

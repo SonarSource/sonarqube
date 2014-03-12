@@ -106,11 +106,12 @@ public class FileTest {
 
   @Test
   public void setLanguage() {
-    File file = new File(Java.INSTANCE, "Foo.java");
-    assertThat(file.getLanguage(), is((Language) Java.INSTANCE));
+    Language lang = mock(Language.class);
+    File file = new File(lang, "Foo.java");
+    assertThat(file.getLanguage(), is(lang));
 
-    file = new File(Java.INSTANCE, "org/sonar", "Foo.java");
-    assertThat(file.getLanguage(), is((Language) Java.INSTANCE));
+    file = new File(lang, "org/sonar", "Foo.java");
+    assertThat(file.getLanguage(), is(lang));
     assertThat(file.getParent().getLanguage(), nullValue());
   }
 

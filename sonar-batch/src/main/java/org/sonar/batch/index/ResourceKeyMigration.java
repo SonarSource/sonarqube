@@ -62,32 +62,32 @@ public class ResourceKeyMigration implements BatchComponent {
   }
 
   public void migrateIfNeeded(Project module, FileSystem fs) {
-    migrateIfNeeded(module, fs.inputFiles(FilePredicates.all()));
+    if (migrationNeeded) {
+      migrateIfNeeded(module, fs.inputFiles(FilePredicates.all()));
+    }
   }
 
   void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles) {
-    if (migrationNeeded) {
-      logger.info("Update component keys");
-      Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
-      Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
-      Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
-      for (InputFile inputFile : inputFiles) {
-        String deprecatedKey = ((DefaultInputFile) inputFile).deprecatedKey();
-        if (deprecatedKey != null) {
-          if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
-            deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
-          } else if (InputFile.Type.MAIN == inputFile.type() && !deprecatedFileKeyMapper.containsKey(deprecatedKey)) {
-            deprecatedFileKeyMapper.put(deprecatedKey, inputFile);
-          }
+    logger.info("Update component keys");
+    Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
+    Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
+    Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
+    for (InputFile inputFile : inputFiles) {
+      String deprecatedKey = ((DefaultInputFile) inputFile).deprecatedKey();
+      if (deprecatedKey != null) {
+        if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
+          deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
+        } else if (InputFile.Type.MAIN == inputFile.type() && !deprecatedFileKeyMapper.containsKey(deprecatedKey)) {
+          deprecatedFileKeyMapper.put(deprecatedKey, inputFile);
         }
       }
-
-      ResourceModel moduleModel = session.getSingleResult(ResourceModel.class, "key", module.getEffectiveKey());
-      int moduleId = moduleModel.getId();
-      migrateFiles(module, deprecatedFileKeyMapper, deprecatedTestKeyMapper, deprecatedDirectoryKeyMapper, moduleId);
-      migrateDirectories(deprecatedDirectoryKeyMapper, moduleId);
-      session.commit();
     }
+
+    ResourceModel moduleModel = session.getSingleResult(ResourceModel.class, "key", module.getEffectiveKey());
+    int moduleId = moduleModel.getId();
+    migrateFiles(module, deprecatedFileKeyMapper, deprecatedTestKeyMapper, deprecatedDirectoryKeyMapper, moduleId);
+    migrateDirectories(deprecatedDirectoryKeyMapper, moduleId);
+    session.commit();
   }
 
   private void migrateFiles(Project module, Map<String, InputFile> deprecatedFileKeyMapper, Map<String, InputFile> deprecatedTestKeyMapper,
@@ -109,7 +109,7 @@ public class ResourceKeyMigration implements BatchComponent {
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
         Resource sonarFile;
-        if (Java.KEY.equals(resourceModel.getLanguageKey())) {
+        if ("java".equals(resourceModel.getLanguageKey())) {
           sonarFile = new JavaFile(oldKey);
         } else {
           sonarFile = new File(oldKey);

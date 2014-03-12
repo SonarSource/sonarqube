@@ -19,17 +19,16 @@
  */
 package org.sonar.batch.rule;
 
-import java.util.Collections;
 import org.junit.Test;
-import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -37,14 +36,14 @@ import static org.mockito.Mockito.*;
 public class QProfileSensorTest extends AbstractDaoTestCase {
 
   ModuleQProfiles moduleQProfiles = mock(ModuleQProfiles.class);
-  ModuleLanguages moduleLanguages = mock(ModuleLanguages.class);
   Project project = mock(Project.class);
   SensorContext sensorContext = mock(SensorContext.class);
+  DefaultFileSystem fs = new DefaultFileSystem();
 
   @Test
   public void to_string() throws Exception {
     QualityProfileDao dao = mock(QualityProfileDao.class);
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
     assertThat(sensor.toString()).isEqualTo("QProfileSensor");
   }
 
@@ -54,7 +53,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
     when(moduleQProfiles.findAll()).thenReturn(Collections.<ModuleQProfiles.QProfile>emptyList());
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 
@@ -70,9 +69,9 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
     when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
-    when(moduleLanguages.keys()).thenReturn(Arrays.asList("java", "php", "abap"));
+    fs.addLanguages("java", "php", "abap");
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 
@@ -90,9 +89,9 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
     when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
-    when(moduleLanguages.keys()).thenReturn(Arrays.asList("java"));
+    fs.addLanguages("java");
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, moduleLanguages, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 

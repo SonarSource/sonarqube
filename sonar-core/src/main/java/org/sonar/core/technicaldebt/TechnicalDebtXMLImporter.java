@@ -37,7 +37,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
@@ -228,9 +228,9 @@ public class TechnicalDebtXMLImporter implements ServerExtension {
         function.setTextValue(DefaultRequirement.FUNCTION_LINEAR);
         offset.setValue(0);
         offset.setTextValue(CharacteristicDto.DAYS);
-        messages.addWarningText(String.format("Linear with threshold function is no more used, function of the requirement '%s' is replaced by linear.", requirement.ruleKey()));
+        messages.addWarningText(String.format("Linear with threshold function is no longer used, function of the requirement '%s' is replaced by linear.", requirement.ruleKey()));
       } else if ("constant_resource".equals(functionKey)) {
-        messages.addWarningText(String.format("Constant/file function is no more used, requirements '%s' are ignored.", requirement.ruleKey()));
+        messages.addWarningText(String.format("Constant/file function is no longer used, requirements '%s' are ignored.", requirement.ruleKey()));
         return null;
       }
 

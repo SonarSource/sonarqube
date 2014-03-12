@@ -17,40 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.rule;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.ModuleLanguages;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.Alert;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.ModuleQProfiles.QProfile;
-import org.sonar.batch.rule.ProjectAlerts;
-import org.sonar.batch.rule.RulesProfileWrapper;
 
-public class ProfileLogger implements BatchComponent {
+public class QProfileVerifier implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProfileLogger.class);
+  private static final Logger LOG = LoggerFactory.getLogger(QProfileVerifier.class);
 
   private final Settings settings;
-  private final ModuleLanguages languages;
+  private final FileSystem fs;
   private final ModuleQProfiles profiles;
-  private final ProjectAlerts projectAlerts;
 
-  private final RulesProfile rulesProfile;
-
-  public ProfileLogger(Settings settings, ModuleLanguages languages, ModuleQProfiles profiles, ProjectAlerts projectAlerts, RulesProfile rulesProfile) {
+  public QProfileVerifier(Settings settings, FileSystem fs, ModuleQProfiles profiles) {
     this.settings = settings;
-    this.languages = languages;
+    this.fs = fs;
     this.profiles = profiles;
-    this.projectAlerts = projectAlerts;
-    this.rulesProfile = rulesProfile;
   }
 
   public void execute() {
@@ -61,7 +51,7 @@ public class ProfileLogger implements BatchComponent {
   void execute(Logger logger) {
     String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
-    for (String lang : languages.keys()) {
+    for (String lang : fs.languages()) {
       QProfile profile = profiles.findByLanguage(lang);
       if (profile == null) {
         logger.warn("No Quality profile found for language " + lang);
@@ -72,21 +62,8 @@ public class ProfileLogger implements BatchComponent {
         }
       }
     }
-    if (!defaultNameUsed && !languages.keys().isEmpty()) {
+    if (!defaultNameUsed && !fs.languages().isEmpty()) {
       throw MessageException.of("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
     }
-
-    addModuleAlertsToProjectAlerts();
   }
-
-  private void addModuleAlertsToProjectAlerts() {
-    RulesProfileWrapper profileWrapper = (RulesProfileWrapper) rulesProfile;
-    for (String lang : languages.keys()) {
-      RulesProfile profile = profileWrapper.getProfileByLanguage(lang);
-      for (Alert alert : profile.getAlerts()) {
-        projectAlerts.add(alert);
-      }
-    }
-  }
-
 }

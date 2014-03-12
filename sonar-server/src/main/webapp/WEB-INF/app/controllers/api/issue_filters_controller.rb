@@ -21,28 +21,6 @@
 # since 4.2
 class Api::IssueFiltersController < Api::ApiController
 
-  # Detail of an issue filter
-  # GET /api/issue_filters/show/<id>
-  def show
-    require_parameters :id
-    filter = Internal.issues.findIssueFilter(params[:id].to_i)
-
-    hash = {
-      :filter => {
-        :id => filter.id().to_i,
-        :name => filter.name(),
-        :user => filter.user(),
-        :shared => filter.shared(),
-        :description => filter.description(),
-        :query => filter.data()
-      }
-    }
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash), :status => 200 }
-    end
-  end
-
   # GET /api/issue_filters/favorites/<id>
   def favorites
     if logged_in?

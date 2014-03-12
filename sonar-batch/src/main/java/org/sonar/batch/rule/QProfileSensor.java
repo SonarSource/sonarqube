@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.ModuleLanguages;
+import com.google.common.collect.Iterables;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
@@ -33,12 +34,12 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 public class QProfileSensor implements Sensor {
 
   private final ModuleQProfiles moduleQProfiles;
-  private final ModuleLanguages moduleLanguages;
+  private final FileSystem fs;
   private final QualityProfileDao dao;
 
-  public QProfileSensor(ModuleQProfiles moduleQProfiles, ModuleLanguages moduleLanguages, QualityProfileDao dao) {
+  public QProfileSensor(ModuleQProfiles moduleQProfiles, FileSystem fs, QualityProfileDao dao) {
     this.moduleQProfiles = moduleQProfiles;
-    this.moduleLanguages = moduleLanguages;
+    this.fs = fs;
     this.dao = dao;
   }
 
@@ -47,14 +48,14 @@ public class QProfileSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    for (String language : moduleLanguages.keys()) {
+    for (String language : fs.languages()) {
       ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
       if (qProfile != null) {
         dao.updateUsedColumn(qProfile.id(), true);
       }
     }
-    if (moduleLanguages.keys().size() == 1) {
-      String language = moduleLanguages.keys().iterator().next();
+    if (fs.languages().size() == 1) {
+      String language = Iterables.getOnlyElement(fs.languages());
       ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
       if (qProfile != null) {
         Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double)qProfile.id());

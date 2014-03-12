@@ -26,7 +26,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.Charsets;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,7 +35,10 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
 
 /**
  * @since 4.2
@@ -44,10 +46,9 @@ import java.util.*;
 public class DefaultFileSystem implements FileSystem {
 
   private final Cache cache;
-  private final Set<String> languages = Sets.newTreeSet();
+  private final SortedSet<String> languages = Sets.newTreeSet();
   private File baseDir, workDir;
-  private Charset encoding = Charsets.UTF_8;
-  private boolean isDefaultJvmEncoding = false;
+  private Charset encoding;
 
   /**
    * Only for testing
@@ -71,22 +72,18 @@ public class DefaultFileSystem implements FileSystem {
     return baseDir;
   }
 
-  public DefaultFileSystem setEncoding(Charset e) {
+  public DefaultFileSystem setEncoding(@Nullable Charset e) {
     this.encoding = e;
     return this;
   }
 
   @Override
   public Charset encoding() {
-    return encoding;
+    return encoding == null ? Charset.defaultCharset() : encoding;
   }
 
   public boolean isDefaultJvmEncoding() {
-    return isDefaultJvmEncoding;
-  }
-
-  public void setIsDefaultJvmEncoding(boolean b) {
-    this.isDefaultJvmEncoding = b;
+    return encoding == null;
   }
 
   public DefaultFileSystem setWorkDir(File d) {
@@ -137,15 +134,31 @@ public class DefaultFileSystem implements FileSystem {
     });
   }
 
-  public void add(InputFile inputFile) {
+  /**
+   * Adds InputFile to the list and registers its language, if present.
+   */
+  public DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
     if (inputFile.language() != null) {
       languages.add(inputFile.language());
     }
+    return this;
+  }
+
+  /**
+   * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
+   * using {@link #add(org.sonar.api.batch.fs.InputFile)}.
+   */
+  public DefaultFileSystem addLanguages(String language, String... others) {
+    languages.add(language);
+    for (String other : others) {
+      languages.add(other);
+    }
+    return this;
   }
 
   @Override
-  public Set<String> languages() {
+  public SortedSet<String> languages() {
     doPreloadFiles();
     return languages;
   }

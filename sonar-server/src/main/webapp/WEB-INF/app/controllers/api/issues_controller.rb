@@ -338,12 +338,15 @@ class Api::IssuesController < Api::ApiController
   def component_to_hash(component)
     hash = {
       :key => component.key,
+      :id => component.id,
       :qualifier => component.qualifier
     }
     hash[:name] = component.name if component.name
     hash[:longName] = component.longName if component.longName
     hash[:path] = component.path if component.path
-    hash[:moduleKey] = component.moduleKey if component.moduleKey
+    # On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
+    hash[:projectId] = component.projectId if component.subProjectId && component.projectId
+    hash[:subProjectId] = component.subProjectId if component.subProjectId
     hash
   end
 
@@ -352,6 +355,7 @@ class Api::IssuesController < Api::ApiController
       :pageIndex => paging.pageIndex,
       :pageSize => paging.pageSize,
       :total => paging.total,
+      :fTotal => ActionController::Base.helpers.number_with_precision(paging.total, :precision => 0),
       :pages => paging.pages
     }
   end

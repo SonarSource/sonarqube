@@ -49,8 +49,8 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDuration;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 
 import java.util.List;
 

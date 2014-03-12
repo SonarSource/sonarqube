@@ -17,30 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.rule;
 
-import com.google.common.collect.Lists;
+package org.sonar.api.utils.internal;
+
 import org.sonar.api.BatchComponent;
-import org.sonar.api.profiles.Alert;
-
-import java.util.List;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 
 /**
- * Lists the alerts enabled on the current project.
+ * Please do not use this class, it will be refactored in 4.3
+ *
+ * @since 4.2
  */
-public class ProjectAlerts implements BatchComponent {
+public final class WorkDurationFactory implements BatchComponent, ServerComponent {
 
-  private final List<Alert> alerts = Lists.newArrayList();
+  private final Settings settings;
 
-  public ProjectAlerts() {
+  public WorkDurationFactory(Settings settings) {
+    this.settings = settings;
   }
 
-  public void add(Alert alert) {
-    alerts.add(alert);
+  public WorkDuration createFromWorkingValue(int value, WorkDuration.UNIT unit) {
+    return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay());
   }
 
-  public List<Alert> all() {
-    return alerts;
+  public WorkDuration createFromWorkingLong(long duration) {
+    return WorkDuration.createFromLong(duration, hoursInDay());
+  }
+
+  private int hoursInDay(){
+    return settings.getInt(CoreProperties.HOURS_IN_DAY);
   }
 
 }

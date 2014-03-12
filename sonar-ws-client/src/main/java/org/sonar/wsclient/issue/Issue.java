@@ -37,6 +37,8 @@ public interface Issue {
 
   String componentKey();
 
+  Long componentId();
+
   String projectKey();
 
   String ruleKey();

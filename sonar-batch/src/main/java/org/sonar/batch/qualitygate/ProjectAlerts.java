@@ -17,11 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.batch.qualitygate;
+
+import com.google.common.collect.Sets;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.profiles.Alert;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
- * This package is a part of bootstrap process, so we should take care about backward compatibility.
+ * Lists the alerts enabled on the current project.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.batch.fs;
+public class ProjectAlerts implements BatchComponent {
 
-import javax.annotation.ParametersAreNonnullByDefault;
+  private final Set<Alert> alerts = Sets.newHashSet();
+
+  void addAll(Collection<Alert> alerts) {
+    this.alerts.addAll(alerts);
+  }
+
+  Set<Alert> all() {
+    return alerts;
+  }
+
+}

@@ -43,9 +43,9 @@ public class SourcesShowWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String componentKey = request.requiredParam("key");
-    Integer fromParam = request.intParam("from");
-    Integer toParam = request.intParam("to");
+    String componentKey = request.mandatoryParam("key");
+    Integer fromParam = request.paramAsInt("from");
+    Integer toParam = request.paramAsInt("to");
     int from = (fromParam != null && fromParam > 0) ? fromParam : 1;
     List<String> sourceHtml = sourceService.getSourcesByComponent(componentKey, from, toParam);
     if (sourceHtml.isEmpty()) {

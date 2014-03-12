@@ -276,6 +276,7 @@
 }
 .navigator-details .scm .author {
   display: inline-block;
+  vertical-align: middle;
   max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
@@ -312,7 +313,7 @@
   background-color: #fff;
   border-bottom: 1px solid #e1e1e1;
   border-right: 1px solid #e1e1e1;
-  overflow: scroll;
+  overflow: hidden;
   display: none;
 }
 .navigator-actions-order-choices > li {
@@ -486,6 +487,36 @@
   max-height: 182px;
   padding: 5px 0;
   overflow-y: auto;
+}
+.navigator-filter-select-list::-webkit-scrollbar {
+  width: 11px;
+  background-color: transparent;
+  background-clip: content-box;
+}
+.navigator-filter-select-list::-webkit-scrollbar-button {
+  background-color: transparent;
+}
+.navigator-filter-select-list::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+.navigator-filter-select-list::-webkit-scrollbar-thumb {
+  border: solid transparent;
+  border-width: 1px 1px 1px 2px;
+  background-color: #c5c5c5;
+  background-clip: content-box;
+}
+.navigator-filter-select-list::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf;
+}
+.navigator-filter-select-list::-webkit-scrollbar-track {
+  border: solid #fff;
+  border-width: 1px 1px 1px 2px;
+  background-color: #fff;
+  background-clip: content-box;
+}
+.navigator-filter-select-list::-webkit-scrollbar-track-piece {
+  border-left: 1px solid #ccc;
+  background-color: transparent;
 }
 .navigator-filter-select-list label {
   display: block;

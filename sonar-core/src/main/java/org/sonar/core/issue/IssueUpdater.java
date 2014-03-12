@@ -29,7 +29,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 
 import javax.annotation.Nullable;
 

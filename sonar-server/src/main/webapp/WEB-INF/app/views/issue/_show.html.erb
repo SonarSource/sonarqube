@@ -5,7 +5,7 @@
       component = @issue_results.component(@issue)
     %>
 
-    <% if @issue.componentKey() != project.key() %>
+    <% if project && @issue.componentKey() != project.key() %>
     <div class="subtitle">
       <%= h project.longName() -%>
     </div>

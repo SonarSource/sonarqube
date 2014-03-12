@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -431,6 +431,7 @@ public final class IssueDto implements Serializable {
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
+    issue.setComponentId(componentId);
     issue.setProjectKey(rootComponentKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));

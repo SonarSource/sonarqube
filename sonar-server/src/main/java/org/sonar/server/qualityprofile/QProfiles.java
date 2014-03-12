@@ -166,14 +166,17 @@ public class QProfiles implements ServerComponent {
 
   // PROFILE RULES
 
+  @CheckForNull
   public QProfileRule findByRule(int ruleId) {
     return rules.findByRuleId(ruleId);
   }
 
+  @CheckForNull
   public QProfileRule findByActiveRuleId(int activeRuleId) {
     return rules.findByActiveRuleId(activeRuleId);
   }
 
+  @CheckForNull
   public QProfileRule findByProfileAndRule(int profileId, int ruleId) {
     return rules.findByProfileIdAndRuleId(profileId, ruleId);
   }

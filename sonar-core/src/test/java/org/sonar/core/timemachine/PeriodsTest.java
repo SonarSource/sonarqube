@@ -62,13 +62,12 @@ public class PeriodsTest {
 
   @Test
   public void label_of_duration_in_days() {
-    Date date = new Date();
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDate(periodIndex)).thenReturn(date);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(param), anyString());
+    verify(i18n).message(any(Locale.class), eq("over_x_days_detailed"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -78,7 +77,7 @@ public class PeriodsTest {
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("over_x_days.short"), isNull(String.class), eq(param), anyString());
+    verify(i18n).message(any(Locale.class), eq("over_x_days_detailed.short"), isNull(String.class), eq(param), anyString());
   }
 
   @Test
@@ -191,7 +190,7 @@ public class PeriodsTest {
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, days);
 
     periods.label(periodIndex);
-    verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(days), anyString());
+    verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(days));
   }
 
   @Test

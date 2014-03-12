@@ -21,7 +21,7 @@
 package org.sonar.server.technicaldebt;
 
 import org.junit.Test;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.core.i18n.DefaultI18n;
 
 import java.util.Locale;

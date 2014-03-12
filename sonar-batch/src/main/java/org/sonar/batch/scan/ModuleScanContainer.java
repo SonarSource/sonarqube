@@ -54,14 +54,15 @@ import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.phases.ProfileLogger;
+import org.sonar.batch.rule.QProfileVerifier;
+import org.sonar.batch.qualitygate.QualityGateLoader;
+import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.RulesProfileProvider;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.filesystem.FileIndexer;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
@@ -112,13 +113,13 @@ public class ModuleScanContainer extends ComponentContainer {
       PreviousFileHashLoader.class,
       FileIndexer.class,
       ComponentIndexer.class,
-      DefaultModuleLanguages.class,
+      LanguageVerifier.class,
       FileSystemLogger.class,
       DefaultProjectClasspath.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
       ProjectFileSystemAdapter.class,
-      ProfileLogger.class,
+      QProfileVerifier.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),
@@ -131,6 +132,10 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueFilters.class,
       MeasurementFilters.class,
       ResourceFilters.class,
+
+      // quality gates
+      QualityGateLoader.class,
+      QualityGateVerifier.class,
 
       // rules
       ModuleQProfiles.class,

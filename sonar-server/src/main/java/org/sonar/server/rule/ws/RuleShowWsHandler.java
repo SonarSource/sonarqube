@@ -58,7 +58,7 @@ public class RuleShowWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    final String ruleKeyParam = request.requiredParam("key");
+    final String ruleKeyParam = request.mandatoryParam("key");
     RuleKey ruleKey = RuleKey.parse(ruleKeyParam);
     Rule rule = findRule(ruleKey);
     if (rule == null) {

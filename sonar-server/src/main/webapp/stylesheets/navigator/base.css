@@ -276,6 +276,7 @@
 }
 .navigator-details .scm .author {
   display: inline-block;
+  vertical-align: middle;
   max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
@@ -312,7 +313,7 @@
   background-color: #fff;
   border-bottom: 1px solid #e1e1e1;
   border-right: 1px solid #e1e1e1;
-  overflow: scroll;
+  overflow: hidden;
   display: none;
 }
 .navigator-actions-order-choices > li {

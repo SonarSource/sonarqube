@@ -27,7 +27,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;

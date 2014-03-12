@@ -154,7 +154,7 @@
             {{#if updatable}}
               &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
               <a class="link-action issue-comment-edit"><%= message('edit') -%></a>
-              <a class="link-action spacer-right issue-comment-delete"
+              <a class="link-action link-red spacer-right issue-comment-delete"
                  data-confirm-msg="<%= h message('issue.comment.delete_confirm_message') -%>"><%= message('delete') -%></a>
             {{/if}}
           </h4>

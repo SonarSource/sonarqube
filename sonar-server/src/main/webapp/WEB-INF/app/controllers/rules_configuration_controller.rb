@@ -35,6 +35,7 @@ class RulesConfigurationController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
       @parent_profile = Internal.quality_profiles.parent(@profile) if @profile.parent()
 
       add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
@@ -145,6 +146,7 @@ class RulesConfigurationController < ApplicationController
     # form to duplicate a rule
     require_parameters :id, :rule_id
     @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    not_found('Profile not found') unless @profile
     add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
                     {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
@@ -192,6 +194,7 @@ class RulesConfigurationController < ApplicationController
 
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
       @rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
       if @rule.templateId().nil?
         redirect_to :action => 'index', :id => params[:id]
@@ -259,6 +262,7 @@ class RulesConfigurationController < ApplicationController
 
     stop_watch = Internal.profiling.start("rules", "BASIC")
     @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    not_found('Profile not found') unless @profile
     init_params
     criteria = init_criteria
     query = Java::OrgSonarServerQualityprofile::ProfileRuleQuery::parse(criteria.to_java)

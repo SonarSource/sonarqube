@@ -215,9 +215,9 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (initialized) {
       throw new SonarException("Module filesystem can only be indexed once");
     }
+    initialized = true;
     indexer.index(this);
     componentIndexer.execute(this);
-    initialized = true;
   }
 
   private List<File> existingDirs(List<File> dirs) {
@@ -259,7 +259,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new FilePredicateAdapters.KeyPredicate(s);
+          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.KeyPredicate(s);
         }
       }));
     }
@@ -267,7 +267,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new FilePredicateAdapters.DeprecatedKeyPredicate(s);
+          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.DeprecatedKeyPredicate(s);
         }
       }));
     }
@@ -275,7 +275,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new FilePredicateAdapters.SourceRelativePathPredicate(s);
+          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.SourceRelativePathPredicate(s);
         }
       }));
     }
@@ -283,7 +283,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
       return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new FilePredicateAdapters.SourceDirPredicate(s);
+          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.SourceDirPredicate(s);
         }
       }));
     }

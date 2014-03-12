@@ -31,11 +31,6 @@ class RemoveDuplicateActiveRules < ActiveRecord::Migration
   end
 
   def self.up
-    remove_active_rules_duplication
-    add_unique_index_on_active_rule
-  end
-
-  def self.remove_active_rules_duplication
     # Search for all rules activated many times on a same profile
     rule_actived_many_times_on_same_profile = ActiveRule.all(
         :select => 'rule_id,profile_id',
@@ -56,11 +51,4 @@ class RemoveDuplicateActiveRules < ActiveRecord::Migration
     end
   end
 
-  def self.add_unique_index_on_active_rule
-    begin
-      add_index :active_rules, [:rule_id, :profile_id], :unique => true, :name => 'active_rules_unique'
-    rescue
-      # already exists
-    end
-  end
 end

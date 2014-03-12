@@ -43,7 +43,7 @@ public class SourcesWsTest {
     assertThat(show.handler()).isNotNull();
     assertThat(show.since()).isEqualTo("4.2");
     assertThat(show.isPost()).isFalse();
-    assertThat(show.isPrivate()).isTrue();
+    assertThat(show.isInternal()).isTrue();
     assertThat(show.handler()).isSameAs(showHandler);
   }
 }

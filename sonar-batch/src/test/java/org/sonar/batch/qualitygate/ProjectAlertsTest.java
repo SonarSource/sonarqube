@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.batch.qualitygate;
 
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.api.profiles.Alert;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.internal.PathPattern;
+import static org.fest.assertions.Assertions.assertThat;
 
-class InclusionFilter implements InputFileFilter {
-  private final PathPattern pattern;
+public class ProjectAlertsTest {
+  @Test
+  public void test() throws Exception {
+    ProjectAlerts alerts = new ProjectAlerts();
+    assertThat(alerts.all()).isEmpty();
 
-  InclusionFilter(String s) {
-    this.pattern = PathPattern.create(s);
-  }
-
-  @Override
-  public boolean accept(InputFile inputFile) {
-    return pattern.match(inputFile);
-  }
-
-  @Override
-  public String toString() {
-    return "Includes: " + pattern;
+    alerts.addAll(Lists.newArrayList(new Alert()));
+    assertThat(alerts.all()).hasSize(1);
   }
 }

@@ -23,9 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.ModuleLanguages;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
@@ -36,13 +36,13 @@ public class CpdSensor implements Sensor {
   private CpdEngine sonarEngine;
   private CpdEngine sonarBridgeEngine;
   private Settings settings;
-  private ModuleLanguages moduleLanguages;
+  private FileSystem fs;
 
-  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings, ModuleLanguages moduleLanguages) {
+  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings, FileSystem fs) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
     this.settings = settings;
-    this.moduleLanguages = moduleLanguages;
+    this.fs = fs;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -67,7 +67,7 @@ public class CpdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    for (String language : moduleLanguages.keys()) {
+    for (String language : fs.languages()) {
       if (isSkipped(language)) {
         LOG.info("Detection of duplicated code is skipped for {}", language);
         continue;

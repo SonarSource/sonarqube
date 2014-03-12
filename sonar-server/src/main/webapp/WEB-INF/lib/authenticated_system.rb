@@ -103,6 +103,8 @@ module AuthenticatedSystem
     rescue
       url
     end
+    anchor=params[:return_to_anchor]
+    url += anchor if anchor && anchor.start_with?('#')
     redirect_to(url)
     session[:return_to] = nil
   end

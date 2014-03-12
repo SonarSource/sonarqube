@@ -3,6 +3,7 @@
     <td align="center">
       <div id="login_form">
         <form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
+          <input type="hidden" name="return_to_anchor" value="">
         <% if flash[:notice] %>
           <div class="notice"><%= flash[:notice] %></div>
         <% end %>
@@ -32,4 +33,7 @@
     </td>
   </tr>
 </table>
-<script>$j('#login').focus();</script>
+<script>
+  $j('#login').focus();
+  $j('[name=return_to_anchor]').val(window.location.hash);
+</script>

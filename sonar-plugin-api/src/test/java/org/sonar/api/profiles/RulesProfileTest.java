@@ -22,10 +22,11 @@ package org.sonar.api.profiles;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.MessageException;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
+
 
 public class RulesProfileTest {
 
@@ -35,8 +36,8 @@ public class RulesProfileTest {
     profile.activateRule(Rule.create("repo", "key1", "name1"), null);
     profile.activateRule(Rule.create("repo", "key2", "name2").setConfigKey("config2"), null);
 
-    assertNull(profile.getActiveRuleByConfigKey("repo", "unknown"));
-    assertThat(profile.getActiveRuleByConfigKey("repo", "config2").getRuleKey(), is("key2"));
+    assertThat(profile.getActiveRuleByConfigKey("repo", "unknown")).isNull();
+    assertThat(profile.getActiveRuleByConfigKey("repo", "config2").getRuleKey()).isEqualTo("key2");
   }
 
   @Test
@@ -44,7 +45,7 @@ public class RulesProfileTest {
     RulesProfile profile = RulesProfile.create();
     Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
     profile.activateRule(rule, null);
-    assertThat(profile.getActiveRule("repo", "key1").getSeverity(), is(RulePriority.CRITICAL));
+    assertThat(profile.getActiveRule("repo", "key1").getSeverity()).isEqualTo(RulePriority.CRITICAL);
   }
 
   @Test
@@ -52,12 +53,27 @@ public class RulesProfileTest {
     RulesProfile profile = RulesProfile.create();
     Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
     profile.activateRule(rule, RulePriority.MINOR);
-    assertThat(profile.getActiveRule("repo", "key1").getSeverity(), is(RulePriority.MINOR));
+    assertThat(profile.getActiveRule("repo", "key1").getSeverity()).isEqualTo(RulePriority.MINOR);
   }
 
   @Test
   public void defaultVersionIs1() {
-    RulesProfile profile = RulesProfile.create();    
-    assertThat(profile.getVersion(), is(1));
+    RulesProfile profile = RulesProfile.create();
+    assertThat(profile.getVersion()).isEqualTo(1);
+  }
+
+  @Test
+  public void fail_to_activate_already_activated_rule() {
+    RulesProfile profile = RulesProfile.create("Default", "java");
+    Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
+    profile.activateRule(rule, null);
+
+    try {
+      profile.activateRule(rule, null);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class)
+        .hasMessage("The definition of the profile 'Default' (language 'java') contains multiple occurrences of the 'repo:key1' rule. The plugin which declares this profile should fix this.");
+    }
   }
 }

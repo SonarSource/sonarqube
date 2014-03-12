@@ -19,6 +19,8 @@
  */
 package org.sonar.api.profiles;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -28,9 +30,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,17 +47,23 @@ public class RulesProfile implements Cloneable {
 
   /**
    * Name of the default profile "Sonar Way"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SONAR_WAY_NAME = "Sonar way";
 
   /**
    * Name of the default java profile "Sonar way with Findbugs"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SONAR_WAY_FINDBUGS_NAME = "Sonar way with Findbugs";
 
   /**
    * Name of the default java profile "Sun checks"
+   * @deprecated in 4.2. Use your own constant.
    */
+  @Deprecated
   public static final String SUN_CONVENTIONS_NAME = "Sun checks";
 
   @Id
@@ -367,7 +377,17 @@ public class RulesProfile implements Cloneable {
   /**
    * @param optionalSeverity if null, then the default rule severity is used
    */
-  public ActiveRule activateRule(Rule rule, RulePriority optionalSeverity) {
+  public ActiveRule activateRule(final Rule rule, RulePriority optionalSeverity) {
+    if (Iterables.any(activeRules, new Predicate<ActiveRule>() {
+      @Override
+      public boolean apply(ActiveRule input) {
+        return input.getRule().equals(rule);
+      }
+    })) {
+      throw MessageException.of(String.format(
+        "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
+        getName(), getLanguage(), rule.getRepositoryKey(), rule.getKey()));
+    }
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);
     activeRule.setRulesProfile(this);

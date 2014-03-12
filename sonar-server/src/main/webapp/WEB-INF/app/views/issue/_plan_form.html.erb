@@ -28,9 +28,8 @@
 
     <%= dropdown_tag('plan', plan_options, {:show_search_box => false}, {:id => plans_select_box_id}) -%>
 
-    <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">
-    &nbsp;
-    <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+    <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">&nbsp;
+    <%= link_to_function message('cancel'), 'closeIssueForm(this)', :class => 'action' -%>
     <span class="loading hidden"></span>
 
   </form>

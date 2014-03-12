@@ -40,8 +40,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.utils.WorkDuration;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDuration;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 
 import java.util.Arrays;
 import java.util.Collection;

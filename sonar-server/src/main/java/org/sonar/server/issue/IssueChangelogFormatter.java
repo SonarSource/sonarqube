@@ -21,7 +21,7 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.utils.WorkDurationFactory;
+import org.sonar.api.utils.internal.WorkDurationFactory;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.technicaldebt.DebtFormatter;

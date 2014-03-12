@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
@@ -31,9 +33,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.markdown.Markdown;
@@ -77,7 +80,7 @@ public class IssueShowWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String issueKey = request.requiredParam("key");
+    String issueKey = request.mandatoryParam("key");
     IssueQueryResult queryResult = issueFinder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).build());
     if (queryResult.issues().size() != 1) {
       throw new NotFoundException("Issue not found: " + issueKey);
@@ -97,8 +100,6 @@ public class IssueShowWsHandler implements RequestHandler {
   }
 
   private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    Component component = result.component(issue);
-    Component project = result.project(issue);
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = result.actionPlan(issue);
     WorkDuration technicalDebt = issue.technicalDebt();
@@ -107,11 +108,6 @@ public class IssueShowWsHandler implements RequestHandler {
 
     json
       .prop("key", issue.key())
-      .prop("component", issue.componentKey())
-      .prop("componentLongName", component != null ? component.longName() : null)
-      .prop("componentQualifier", component != null ? component.qualifier() : null)
-      .prop("project", issue.projectKey())
-      .prop("projectLongName", project != null ? project.longName() : null)
       .prop("rule", issue.ruleKey().toString())
       .prop("ruleName", result.rule(issue).getName())
       .prop("line", issue.line())
@@ -131,9 +127,66 @@ public class IssueShowWsHandler implements RequestHandler {
       .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
       .prop("fCloseDate", formatDate(issue.closeDate()));
 
+    addComponents(result, issue, json);
     addUserWithLabel(result, issue.assignee(), "assignee", json);
     addUserWithLabel(result, issue.reporter(), "reporter", json);
     addCharacteristics(result, issue, json);
+  }
+
+  private void addComponents(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    // component, module and project can be null if they were removed
+    ComponentDto component = (ComponentDto) result.component(issue);
+    ComponentDto subProject = (ComponentDto) getSubProject(result, component);
+    ComponentDto project = (ComponentDto) geProject(result, component);
+
+    String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
+    // Do not display sub project long name if sub project and project are the same
+    String subProjectName = subProject != null && project != null && !subProject.getId().equals(project.getId()) ?
+      subProject.longName() != null ? subProject.longName() : subProject.name() :
+      null;
+
+    json
+      .prop("component", issue.componentKey())
+      .prop("componentLongName", component != null ? component.longName() : null)
+      .prop("componentQualifier", component != null ? component.qualifier() : null)
+      .prop("project", issue.projectKey())
+      .prop("projectName", projectName)
+        // Do not display sub project long name if sub project and project are the same
+      .prop("subProjectName", subProjectName)
+    ;
+  }
+
+  /**
+   * Can be null on project or on removed component
+   */
+  @CheckForNull
+  private Component getSubProject(IssueQueryResult result, @Nullable final ComponentDto component) {
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          Long groupId = component.subProjectId();
+          return groupId != null && groupId.equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
+  }
+
+  /**
+   * Can be null on removed component
+   */
+  @CheckForNull
+  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component) {
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          return component.projectId().equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
   }
 
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -43,6 +43,7 @@ public class DefaultIssueTest {
   public void test_setters_and_getters() throws Exception {
     issue.setKey("ABCD")
       .setComponentKey("org.sample.Sample")
+      .setComponentId(1L)
       .setProjectKey("Sample")
       .setRuleKey(RuleKey.of("squid", "S100"))
       .setSeverity("MINOR")
@@ -71,6 +72,7 @@ public class DefaultIssueTest {
 
     assertThat(issue.key()).isEqualTo("ABCD");
     assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
+    assertThat(issue.componentId()).isEqualTo(1L);
     assertThat(issue.projectKey()).isEqualTo("Sample");
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "S100"));
     assertThat(issue.severity()).isEqualTo("MINOR");

@@ -5,7 +5,7 @@
     "componentLongName": "SonarQube :: Issue Client",
     "componentQualifier": "FIL",
     "project": "org.sonar.Sonar",
-    "projectLongName": "SonarQube",
+    "projectName": "SonarQube",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
     "debt": "2 hours 1 minutes",

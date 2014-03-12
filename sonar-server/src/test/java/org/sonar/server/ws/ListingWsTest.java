@@ -44,7 +44,7 @@ public class ListingWsTest {
     assertThat(index.handler()).isNotNull();
     assertThat(index.since()).isEqualTo("4.2");
     assertThat(index.isPost()).isFalse();
-    assertThat(index.isPrivate()).isFalse();
+    assertThat(index.isInternal()).isFalse();
   }
 
   @Test
@@ -74,6 +74,7 @@ public class ListingWsTest {
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
+        .setInternal(true)
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {

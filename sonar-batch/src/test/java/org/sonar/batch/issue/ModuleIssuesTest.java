@@ -35,7 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.*;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.WorkDuration;
+import org.sonar.api.utils.internal.WorkDuration;
 import org.sonar.batch.debt.RuleDebtCalculator;
 
 import java.util.Calendar;

@@ -152,7 +152,7 @@ public interface WebService extends ServerExtension {
   class NewAction {
     private final String key;
     private String description, since;
-    private boolean post = false, isPrivate = false;
+    private boolean post = false, isInternal = false;
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
 
@@ -175,8 +175,8 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
-    public NewAction setPrivate(boolean b) {
-      this.isPrivate = b;
+    public NewAction setInternal(boolean b) {
+      this.isInternal = b;
       return this;
     }
 
@@ -205,7 +205,7 @@ public interface WebService extends ServerExtension {
   @Immutable
   class Action {
     private final String key, path, description, since;
-    private final boolean post, isPrivate;
+    private final boolean post, isInternal;
     private final RequestHandler handler;
     private final Map<String, Param> params;
 
@@ -215,7 +215,7 @@ public interface WebService extends ServerExtension {
       this.description = newAction.description;
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
-      this.isPrivate = newAction.isPrivate;
+      this.isInternal = newAction.isInternal;
 
       if (newAction.handler == null) {
         throw new IllegalStateException("RequestHandler is not set on action " + path);
@@ -254,8 +254,8 @@ public interface WebService extends ServerExtension {
       return post;
     }
 
-    public boolean isPrivate() {
-      return isPrivate;
+    public boolean isInternal() {
+      return isInternal;
     }
 
     public RequestHandler handler() {

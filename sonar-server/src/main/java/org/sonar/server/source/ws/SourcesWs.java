@@ -37,7 +37,7 @@ public class SourcesWs implements WebService {
     controller.newAction("show")
       .setDescription("Show source of a component")
       .setSince("4.2")
-      .setPrivate(true)
+      .setInternal(true)
       .setHandler(showHandler)
       .newParam("key", "Component key");
 

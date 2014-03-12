@@ -43,6 +43,38 @@ public class Component {
   /**
    * @since 4.2
    */
+  public Long id() {
+    return JsonUtils.getLong(json, "id");
+  }
+
+  public String name() {
+    return JsonUtils.getString(json, "name");
+  }
+
+  @CheckForNull
+  public String longName() {
+    return JsonUtils.getString(json, "longName");
+  }
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  public Long subProjectId() {
+    return JsonUtils.getLong(json, "subProjectId");
+  }
+
+  /**
+   * @since 4.2
+   */
+  @CheckForNull
+  public Long projectId() {
+    return JsonUtils.getLong(json, "projectId");
+  }
+
+  /**
+   * @since 4.2
+   */
   @CheckForNull
   public String path() {
     return JsonUtils.getString(json, "path");
@@ -56,12 +88,4 @@ public class Component {
     return JsonUtils.getString(json, "moduleKey");
   }
 
-  public String name() {
-    return JsonUtils.getString(json, "name");
-  }
-
-  @CheckForNull
-  public String longName() {
-    return JsonUtils.getString(json, "longName");
-  }
 }

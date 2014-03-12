@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.*;
 import org.sonar.batch.index.ResourceKeyMigration;
-import org.sonar.batch.scan.language.DefaultModuleLanguages;
+import org.sonar.batch.scan.LanguageVerifier;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,8 +84,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
     fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
-      mock(InputFileCache.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), mock(InputFileCache.class));
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
@@ -94,7 +93,7 @@ public class ComponentIndexerTest {
       @Override
       public boolean matches(Object arg0) {
         org.sonar.api.resources.File javaFile = (org.sonar.api.resources.File) arg0;
-        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java") && javaFile.getDeprecatedKey().equals("foo.bar.FooTest")
+        return javaFile.getKey().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getPath().equals("src/test/java/foo/bar/FooTest.java")
           && javaFile.getQualifier().equals(Qualifiers.UNIT_TEST_FILE);
       }
@@ -108,7 +107,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true));
 
     Languages languages = new Languages(cobolLanguage);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class),
       mock(InputFileCache.class));
     indexer.execute(fs);
 
@@ -123,7 +122,7 @@ public class ComponentIndexerTest {
 
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class),
       mock(InputFileCache.class));
     indexer.execute(fs);
 
@@ -163,7 +162,7 @@ public class ComponentIndexerTest {
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class),
       mock(InputFileCache.class));
     indexer.execute(fs);
 
@@ -189,7 +188,7 @@ public class ComponentIndexerTest {
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class), new DefaultModuleLanguages(settings, languages),
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class),
       mock(InputFileCache.class));
     indexer.execute(fs);
 

@@ -17,35 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.qualitygate;
 
-package org.sonar.api.utils;
-
-import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
-
-/**
- * @since 4.2
- */
-public final class WorkDurationFactory implements BatchComponent, ServerComponent {
-
-  private final Settings settings;
-
-  public WorkDurationFactory(Settings settings) {
-    this.settings = settings;
-  }
-
-  public WorkDuration createFromWorkingValue(int value, WorkDuration.UNIT unit) {
-    return WorkDuration.createFromValueAndUnit(value, unit, hoursInDay());
-  }
-
-  public WorkDuration createFromWorkingLong(long duration) {
-    return WorkDuration.createFromLong(duration, hoursInDay());
-  }
-
-  private int hoursInDay(){
-    return settings.getInt(CoreProperties.HOURS_IN_DAY);
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
