@@ -43,7 +43,6 @@ import org.sonar.batch.index.*;
 import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.qualitygate.ProjectAlerts;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
@@ -156,9 +155,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // technical debt
       new DebtModelProvider(),
-
-      // quality gates
-      ProjectAlerts.class,
 
       // rules
       new RulesProvider(),
