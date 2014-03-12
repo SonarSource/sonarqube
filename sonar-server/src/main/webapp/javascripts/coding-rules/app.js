@@ -22,7 +22,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/views/filters/inheritance-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, QualityProfileFilterView, InheritanceFilterView) {
+  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'navigator/filters/date-filter-view', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/views/filters/inheritance-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, DateFilterView, QualityProfileFilterView, InheritanceFilterView) {
     var App, appXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
@@ -139,46 +139,18 @@
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.name'),
         property: 'name',
-        type: StringFilterView,
-        enabled: true,
-        optional: false
-      }));
-      this.filters.add(new BaseFilters.Filter({
-        name: t('coding_rules.filters.key'),
-        property: 'key',
-        type: StringFilterView,
-        enabled: true,
-        optional: false
-      }));
-      this.filters.add(new BaseFilters.Filter({
-        name: t('coding_rules.filters.description'),
-        property: 'description',
-        type: StringFilterView,
-        enabled: true,
-        optional: false
+        type: StringFilterView
       }));
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.language'),
         property: 'languages',
         type: ChoiceFilters.ChoiceFilterView,
-        enabled: true,
-        optional: false,
         choices: this.languages
-      }));
-      this.filters.add(new BaseFilters.Filter({
-        name: t('coding_rules.filters.repository'),
-        property: 'repositories',
-        type: ChoiceFilters.ChoiceFilterView,
-        enabled: true,
-        optional: false,
-        choices: this.repositories
       }));
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.severity'),
         property: 'severities',
         type: ChoiceFilters.ChoiceFilterView,
-        enabled: true,
-        optional: false,
         choices: {
           'BLOCKER': t('severity.BLOCKER'),
           'CRITICAL': t('severity.CRITICAL'),
@@ -195,49 +167,77 @@
         }
       }));
       this.filters.add(new BaseFilters.Filter({
-        name: t('coding_rules.filters.status'),
-        property: 'statuses',
-        type: ChoiceFilters.ChoiceFilterView,
-        enabled: true,
-        optional: false,
-        choices: this.statuses
-      }));
-      this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.tag'),
         property: 'tags',
         type: ChoiceFilters.ChoiceFilterView,
-        enabled: true,
-        optional: false,
         choices: this.tags
       }));
       this.activeInFilter = new BaseFilters.Filter({
         name: t('coding_rules.filters.in_quality_profile'),
         property: 'in_quality_profile',
         type: QualityProfileFilterView,
-        multiple: false,
-        enabled: true,
-        optional: false
+        multiple: false
       });
       this.filters.add(this.activeInFilter);
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.key'),
+        property: 'key',
+        type: StringFilterView,
+        enabled: false,
+        optional: true
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.description'),
+        property: 'description',
+        type: StringFilterView,
+        enabled: false,
+        optional: true
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.repository'),
+        property: 'repositories',
+        type: ChoiceFilters.ChoiceFilterView,
+        enabled: false,
+        optional: true,
+        choices: this.repositories
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.status'),
+        property: 'statuses',
+        type: ChoiceFilters.ChoiceFilterView,
+        enabled: false,
+        optional: true,
+        choices: this.statuses
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.availableSince'),
+        property: 'availableSince',
+        type: DateFilterView,
+        enabled: false,
+        optional: true
+      }));
       this.inactiveInFilter = new BaseFilters.Filter({
         name: t('coding_rules.filters.out_of_quality_profile'),
         property: 'out_of_quality_profile',
         type: QualityProfileFilterView,
         multiple: false,
-        enabled: true,
-        optional: false
+        enabled: false,
+        optional: true
       });
       this.filters.add(this.inactiveInFilter);
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.inheritance'),
         property: 'inheritance',
         type: InheritanceFilterView,
-        enabled: true,
-        optional: false,
+        enabled: false,
+        optional: true,
+        multiple: false,
         qualityProfileFilter: this.activeInFilter,
         choices: {
-          'option1': 'Option 1',
-          'option2': 'Option 2'
+          'any': t('coding_rules.filters.inheritance.any'),
+          'not_inhertited': t('coding_rules.filters.inheritance.not_inherited'),
+          'inhertited': t('coding_rules.filters.inheritance.inherited'),
+          'overriden': t('coding_rules.filters.inheritance.overriden')
         }
       }));
       this.filterBarView = new CodingRulesFilterBarView({

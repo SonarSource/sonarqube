@@ -33,6 +33,7 @@ requirejs [
   'navigator/filters/base-filters',
   'navigator/filters/choice-filters',
   'navigator/filters/string-filters',
+  'navigator/filters/date-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
 
@@ -53,6 +54,7 @@ requirejs [
   BaseFilters,
   ChoiceFilters,
   StringFilterView,
+  DateFilterView,
   QualityProfileFilterView,
   InheritanceFilterView
 ) ->
@@ -174,45 +176,17 @@ requirejs [
       name: t 'coding_rules.filters.name'
       property: 'name'
       type: StringFilterView
-      enabled: true
-      optional: false
-
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.key'
-      property: 'key'
-      type: StringFilterView
-      enabled: true
-      optional: false
-
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.description'
-      property: 'description'
-      type: StringFilterView
-      enabled: true
-      optional: false
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.language'
       property: 'languages'
       type: ChoiceFilters.ChoiceFilterView
-      enabled: true
-      optional: false
       choices: @languages
-
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.repository'
-      property: 'repositories'
-      type: ChoiceFilters.ChoiceFilterView
-      enabled: true
-      optional: false
-      choices: @repositories
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.severity'
       property: 'severities'
       type: ChoiceFilters.ChoiceFilterView
-      enabled: true
-      optional: false
       choices:
         'BLOCKER': t 'severity.BLOCKER'
         'CRITICAL': t 'severity.CRITICAL'
@@ -227,19 +201,9 @@ requirejs [
         'INFO': 'severity-info'
 
     @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.status'
-      property: 'statuses'
-      type: ChoiceFilters.ChoiceFilterView
-      enabled: true
-      optional: false
-      choices: @statuses
-
-    @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.tag'
       property: 'tags'
       type: ChoiceFilters.ChoiceFilterView
-      enabled: true
-      optional: false
       choices: @tags
 
     @activeInFilter = new BaseFilters.Filter
@@ -247,29 +211,68 @@ requirejs [
       property: 'in_quality_profile'
       type: QualityProfileFilterView
       multiple: false
-      enabled: true
-      optional: false
     @filters.add @activeInFilter
+
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.key'
+      property: 'key'
+      type: StringFilterView
+      enabled: false
+      optional: true
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.description'
+      property: 'description'
+      type: StringFilterView
+      enabled: false
+      optional: true
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.repository'
+      property: 'repositories'
+      type: ChoiceFilters.ChoiceFilterView
+      enabled: false
+      optional: true
+      choices: @repositories
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.status'
+      property: 'statuses'
+      type: ChoiceFilters.ChoiceFilterView
+      enabled: false
+      optional: true
+      choices: @statuses
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.availableSince'
+      property: 'availableSince'
+      type: DateFilterView
+      enabled: false
+      optional: true
 
     @inactiveInFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.out_of_quality_profile'
       property: 'out_of_quality_profile'
       type: QualityProfileFilterView
       multiple: false
-      enabled: true
-      optional: false
+      enabled: false
+      optional: true
     @filters.add @inactiveInFilter
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.inheritance'
       property: 'inheritance'
       type: InheritanceFilterView
-      enabled: true
-      optional: false
+      enabled: false
+      optional: true
+      multiple: false
       qualityProfileFilter: @activeInFilter
       choices:
-        'option1': 'Option 1'
-        'option2': 'Option 2'
+        'any': t 'coding_rules.filters.inheritance.any'
+        'not_inhertited': t 'coding_rules.filters.inheritance.not_inherited'
+        'inhertited': t 'coding_rules.filters.inheritance.inherited'
+        'overriden': t 'coding_rules.filters.inheritance.overriden'
 
     @filterBarView = new CodingRulesFilterBarView
       app: @

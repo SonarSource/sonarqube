@@ -15,7 +15,8 @@ define [
 
     onChangeQualityProfile: ->
       qualityProfile = @qualityProfileFilter.get 'value'
-      if _.isArray(qualityProfile) && qualityProfile.length == 1
+      parentQualityProfile = @qualityProfileFilter.get 'parentQualityProfile'
+      if _.isArray(qualityProfile) && qualityProfile.length == 1 && parentQualityProfile
         @makeActive()
       else
         @makeInactive()

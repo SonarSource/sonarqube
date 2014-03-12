@@ -30,7 +30,18 @@
 
       QualityProfileFilterView.prototype.initialize = function() {
         QualityProfileFilterView.__super__.initialize.apply(this, arguments);
-        return this.choices = new QualityProfileSuggestions;
+        this.choices = new QualityProfileSuggestions;
+        return this.listenTo(this.model, 'change:value', this.updateParentQualityProfile);
+      };
+
+      QualityProfileFilterView.prototype.updateParentQualityProfile = function() {
+        var selected;
+        selected = this.getSelected();
+        if (selected.length === 1) {
+          return this.model.set('parentQualityProfile', selected[0].get('parent'));
+        } else {
+          return this.model.unset('parentQualityProfile');
+        }
       };
 
       return QualityProfileFilterView;

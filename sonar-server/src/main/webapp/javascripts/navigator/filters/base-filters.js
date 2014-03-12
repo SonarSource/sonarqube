@@ -3,6 +3,8 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
   var Filter = Backbone.Model.extend({
 
     defaults: {
+      enabled: true,
+      optional: false,
       multiple: true,
       placeholder: ''
     }

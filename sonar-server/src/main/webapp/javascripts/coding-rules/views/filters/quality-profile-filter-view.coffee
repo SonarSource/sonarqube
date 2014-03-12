@@ -16,4 +16,13 @@ define [
     initialize: ->
       super
       @choices = new QualityProfileSuggestions
+      @listenTo @model, 'change:value', @updateParentQualityProfile
+
+
+    updateParentQualityProfile: ->
+      selected = @getSelected()
+      if selected.length == 1
+        @model.set 'parentQualityProfile', selected[0].get('parent')
+      else
+        @model.unset 'parentQualityProfile'
 

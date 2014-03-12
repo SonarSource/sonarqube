@@ -63,10 +63,15 @@ define ['jquery.mockjax'], ->
         'coding_rules.activate_quality_profile': 'Activate Quality Profile'
         'coding_rules.deactivate_quality_profile': 'Deactivate'
 
+        'coding_rules.filters.availableSince': 'Available Since'
         'coding_rules.filters.description': 'Description'
         'coding_rules.filters.in_quality_profile': 'In Quality Profile'
         'coding_rules.filters.inheritance': 'Inheritance'
-        'coding_rules.filters.inheritance.inactive': 'Inheritance criteria is available when a quality profile is selected'
+        'coding_rules.filters.inheritance.inactive': 'Inheritance criteria is available when an inherited quality profile is selected'
+        'coding_rules.filters.inheritance.any': 'Any'
+        'coding_rules.filters.inheritance.not_inherited': 'Not Inherited'
+        'coding_rules.filters.inheritance.inherited': 'Inherited'
+        'coding_rules.filters.inheritance.overriden': 'Overriden'
         'coding_rules.filters.key': 'Key'
         'coding_rules.filters.language': 'Language'
         'coding_rules.filters.name': 'Name'
@@ -174,9 +179,9 @@ define ['jquery.mockjax'], ->
     responseText: JSON.stringify
       more: false
       results: [
-        { id: 'sonarway', text: 'Sonar Way' },
-        { id: 'qp1', text: 'Quality Profile 1' },
-        { id: 'qp2', text: 'Quality Profile 2' },
-        { id: 'qp3', text: 'Quality Profile 3' },
+        { id: 'sonarway', text: 'Sonar Way', parent: null },
+        { id: 'qp1', text: 'Quality Profile 1', parent: 'sonarway' },
+        { id: 'qp2', text: 'Quality Profile 2', parent: 'sonarway' },
+        { id: 'qp3', text: 'Quality Profile 3', parent: null },
       ]
 
