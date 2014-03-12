@@ -51,13 +51,13 @@ public class DebtModelProvider extends ProviderAdapter {
   }
 
   private TechnicalDebtModel load(CharacteristicDao dao) {
-    DefaultTechnicalDebtModel model = new DefaultTechnicalDebtModel();
+    DefaultTechnicalDebtModel debtModel = new DefaultTechnicalDebtModel();
     List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
     Map<Integer, DefaultCharacteristic> characteristicsById = newHashMap();
 
-    addRootCharacteristics(model, dtos, characteristicsById);
+    addRootCharacteristics(debtModel, dtos, characteristicsById);
     addCharacteristics(dtos, characteristicsById);
-    return model;
+    return debtModel;
   }
 
   private void addRootCharacteristics(DefaultTechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {

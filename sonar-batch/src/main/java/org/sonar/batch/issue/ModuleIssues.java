@@ -127,7 +127,7 @@ public class ModuleIssues {
 
     if (factor != null) {
       int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
-      result = rule.factor().multiply(effortToFixValue);
+      result = factor.multiply(effortToFixValue);
     }
 
     if (offset != null) {

@@ -40,8 +40,8 @@ public class DefaultRule implements Rule {
   private final Integer id;
   private final String name, severity, description, metadata, characteristic;
   private final RuleStatus status;
-  RemediationFunction function;
-  Duration factor, offset;
+  private final RemediationFunction function;
+  private final Duration factor, offset;
 
   private final Map<String, RuleParam> params;
 
