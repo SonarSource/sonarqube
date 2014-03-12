@@ -196,24 +196,6 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
     return this;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    DefaultInputFile that = (DefaultInputFile) o;
-    return relativePath.equals(that.relativePath);
-  }
-
-  @Override
-  public int hashCode() {
-    return relativePath.hashCode();
-  }
-
   /**
    * @deprecated in 4.2. Replaced by {@link org.sonar.api.batch.fs.FileSystem#baseDir()}
    */
@@ -248,6 +230,29 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   @Override
   public InputStream getInputStream() throws FileNotFoundException {
     return new BufferedInputStream(new FileInputStream(file()));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    DefaultInputFile that = (DefaultInputFile) o;
+    return relativePath.equals(that.relativePath);
+  }
+
+  @Override
+  public int hashCode() {
+    return relativePath.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "[relative=" + relativePath + ", abs=" + absolutePath + "]";
   }
 }
 

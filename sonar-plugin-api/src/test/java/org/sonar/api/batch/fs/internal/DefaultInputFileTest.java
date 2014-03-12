@@ -74,4 +74,10 @@ public class DefaultInputFileTest {
     assertThat(f1.hashCode()).isEqualTo(f1.hashCode());
     assertThat(f1.hashCode()).isEqualTo(f1a.hashCode());
   }
+
+  @Test
+  public void test_toString() throws Exception {
+    DefaultInputFile file = new DefaultInputFile("src/Foo.php").setAbsolutePath("/path/to/src/Foo.php");
+    assertThat(file.toString()).isEqualTo("[relative=src/Foo.php, abs=/path/to/src/Foo.php]");
+  }
 }
