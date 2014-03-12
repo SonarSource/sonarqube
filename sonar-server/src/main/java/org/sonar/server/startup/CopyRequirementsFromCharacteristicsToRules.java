@@ -25,6 +25,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,13 +215,18 @@ public class CopyRequirementsFromCharacteristicsToRules {
   }
 
 
-  private void removeRequirementsDataFromCharacteristics(){
+  private void removeRequirementsDataFromCharacteristics() {
+    Connection connection = null;
+    Statement stmt = null;
     try {
-      Connection connection = db.getDataSource().getConnection();
-      Statement stmt = connection.createStatement();
+      connection = db.getDataSource().getConnection();
+      stmt = connection.createStatement();
       stmt.executeUpdate("DELETE FROM characteristics WHERE rule_id IS NOT NULL");
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to remove requirements data from characteristics");
+      throw new IllegalStateException("Fail to remove requirements data from characteristics", e);
+    } finally {
+      DbUtils.closeQuietly(stmt);
+      DbUtils.closeQuietly(connection);
     }
   }
 
