@@ -35,7 +35,6 @@
     <tr>
       <th class="left"><%= message('name') -%></th>
       <th class="right"><%= message('rules') -%></th>
-      <th class="right"><%= message('alerts') -%></th>
       <th class="right"><%= message('projects') -%></th>
       <th class="right"><%= message('default') -%></th>
       <% if profiles_administrator? %>
@@ -46,7 +45,6 @@
     <tbody>
     <% @profiles.select { |p| p.language == language.getKey() }.each do |profile| 
        key = profile_key(profile)
-       alerts_count = alerts_count(profile)
        projects_count = projects_count(profile)
        profile_rules_count = profile_rules_count(profile)
        is_default_profile = !default_profile.nil? && (default_profile.name() == profile.name())
@@ -60,8 +58,6 @@
         <td align="right" width="10%">
           <span id="activated_rules_<%= u key -%>"><%= profile_rules_count -%></span>
         </td>
-
-        <td align="right" width="10%"><span id="alerts_<%= u key -%>"><%= alerts_count -%></span></td>
 
         <td align="right" width="10%" nowrap>
           <% unless is_default_profile %>
