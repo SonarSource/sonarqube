@@ -13,13 +13,6 @@
 .coding-rules-page .navigator-results .spinner {
   margin: 10px;
 }
-.coding-rules-page .navigator-actions,
-.coding-rules-page .navigator-details {
-  top: 194px;
-}
-.coding-rules-page .navigator-results {
-  top: 224px;
-}
 /*
  * Detail
  */

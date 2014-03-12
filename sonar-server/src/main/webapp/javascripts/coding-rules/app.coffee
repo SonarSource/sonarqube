@@ -28,7 +28,6 @@ requirejs [
   'coding-rules/views/actions-view',
   'coding-rules/views/filter-bar-view',
   'coding-rules/views/coding-rules-list-view',
-  'coding-rules/views/coding-rules-facets-view',
 
   # filters
   'navigator/filters/base-filters',
@@ -48,7 +47,6 @@ requirejs [
   CodingRulesActionsView,
   CodingRulesFilterBarView,
   CodingRulesListView,
-  CodingRulesFacetsView,
 
   # filters
   BaseFilters,
@@ -96,7 +94,7 @@ requirejs [
 
 
 
-  App.fetchList = (firstPage, fetchFacets = true) ->
+  App.fetchList = (firstPage) ->
     query = @getQuery()
     fetchQuery = _.extend { pageIndex: @pageIndex }, query
 
@@ -105,13 +103,10 @@ requirejs [
           sort: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
-    unless fetchFacets
-      _.extend fetchQuery, facets: false
-
     @storeQuery query, @codingRules.sorting
 
     @layout.showSpinner 'resultsRegion'
-    @layout.showSpinner 'facetsRegion' if fetchFacets
+    @layout.showSpinner 'facetsRegion'
     jQuery.ajax
       url: "#{baseUrl}/api/codingrules/search"
       data: fetchQuery
@@ -127,18 +122,11 @@ requirejs [
       @layout.resultsRegion.show @codingRulesListView
       @codingRulesListView.selectFirst()
 
-      if fetchFacets
-        @facets.reset r.facets
-        @codingRulesFacetsView = new CodingRulesFacetsView
-          app: @
-          collection: @facets
-        @layout.facetsRegion.show @codingRulesFacetsView
 
 
-
-  App.fetchFirstPage = (fetchFacets = true) ->
+  App.fetchFirstPage = ->
     @pageIndex = 1
-    App.fetchList true, fetchFacets
+    App.fetchList true
 
 
   App.fetchNextPage = ->
@@ -167,7 +155,6 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
-    @facets = new Backbone.Collection
 
 
   # Construct status bar

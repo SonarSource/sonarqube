@@ -75,19 +75,7 @@
         paging: {
           total: 5,
           fTotal: '5'
-        },
-        facets: [
-          {
-            name: 'Language',
-            options: ['Java', 'JavaScript']
-          }, {
-            name: 'Repository',
-            options: ['PMD', 'PMD Unit Tests', 'Checkstyle']
-          }, {
-            name: 'Tags',
-            options: ['brain-overload', 'bug', 'comment', 'convention', 'error-handling', 'formatting', 'java8']
-          }
-        ]
+        }
       })
     });
     jQuery.mockjax({

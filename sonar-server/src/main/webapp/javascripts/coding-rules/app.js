@@ -22,7 +22,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'coding-rules/views/coding-rules-facets-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, CodingRulesFacetsView, BaseFilters, ChoiceFilters, StringFilterView, QualityProfileFilterView) {
+  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, QualityProfileFilterView) {
     var App, appXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
@@ -60,12 +60,9 @@
         replace: true
       });
     };
-    App.fetchList = function(firstPage, fetchFacets) {
+    App.fetchList = function(firstPage) {
       var fetchQuery, query,
         _this = this;
-      if (fetchFacets == null) {
-        fetchFacets = true;
-      }
       query = this.getQuery();
       fetchQuery = _.extend({
         pageIndex: this.pageIndex
@@ -76,16 +73,9 @@
           asc: this.codingRules.sorting.asc
         });
       }
-      if (!fetchFacets) {
-        _.extend(fetchQuery, {
-          facets: false
-        });
-      }
       this.storeQuery(query, this.codingRules.sorting);
       this.layout.showSpinner('resultsRegion');
-      if (fetchFacets) {
-        this.layout.showSpinner('facetsRegion');
-      }
+      this.layout.showSpinner('facetsRegion');
       return jQuery.ajax({
         url: "" + baseUrl + "/api/codingrules/search",
         data: fetchQuery
@@ -101,23 +91,12 @@
           collection: _this.codingRules
         });
         _this.layout.resultsRegion.show(_this.codingRulesListView);
-        _this.codingRulesListView.selectFirst();
-        if (fetchFacets) {
-          _this.facets.reset(r.facets);
-          _this.codingRulesFacetsView = new CodingRulesFacetsView({
-            app: _this,
-            collection: _this.facets
-          });
-          return _this.layout.facetsRegion.show(_this.codingRulesFacetsView);
-        }
+        return _this.codingRulesListView.selectFirst();
       });
     };
-    App.fetchFirstPage = function(fetchFacets) {
-      if (fetchFacets == null) {
-        fetchFacets = true;
-      }
+    App.fetchFirstPage = function() {
       this.pageIndex = 1;
-      return App.fetchList(true, fetchFacets);
+      return App.fetchList(true);
     };
     App.fetchNextPage = function() {
       if (this.pageIndex < this.codingRules.paging.pages) {
@@ -147,8 +126,7 @@
       return this.layout.headerRegion.show(this.codingRulesHeaderView);
     });
     App.addInitializer(function() {
-      this.codingRules = new Backbone.Collection;
-      return this.facets = new Backbone.Collection;
+      return this.codingRules = new Backbone.Collection;
     });
     App.addInitializer(function() {
       this.codingRulesActionsView = new CodingRulesActionsView({
