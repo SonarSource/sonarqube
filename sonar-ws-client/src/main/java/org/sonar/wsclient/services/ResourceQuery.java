@@ -38,6 +38,7 @@ public class ResourceQuery extends Query<Resource> {
   private boolean excludeRules = true;
   private boolean excludeRuleSeverities = true;
   private Boolean includeTrends = null;
+  private Boolean includeAlerts = null;
   private Boolean verbose = Boolean.FALSE;
 
   public ResourceQuery() {
@@ -260,6 +261,15 @@ public class ResourceQuery extends Query<Resource> {
     return this;
   }
 
+  public Boolean isIncludeAlerts() {
+    return includeAlerts;
+  }
+
+  public ResourceQuery setIncludeAlerts(Boolean includeAlerts) {
+    this.includeAlerts = includeAlerts;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -275,6 +285,7 @@ public class ResourceQuery extends Query<Resource> {
     appendUrlParameter(url, "includetrends", includeTrends);
     appendUrlParameter(url, "characteristics", characteristicKeys);
     appendUrlParameter(url, "languages", languages);
+    appendUrlParameter(url, "includealerts", includeAlerts);
     appendUrlParameter(url, "verbose", verbose);
     return url.toString();
   }

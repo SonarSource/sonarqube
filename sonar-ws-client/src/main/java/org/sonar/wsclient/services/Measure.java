@@ -30,6 +30,8 @@ public class Measure extends Model {
   private String metricName;
   private Double value;
   private String formattedValue;
+  private String alertStatus;
+  private String alertText;
   private String data;
   private String characteristicKey;
   private String characteristicName;
@@ -110,6 +112,26 @@ public class Measure extends Model {
 
   public Measure setFormattedValue(@Nullable String formattedValue) {
     this.formattedValue = formattedValue;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlertStatus() {
+    return alertStatus;
+  }
+
+  public Measure setAlertStatus(@Nullable String alertStatus) {
+    this.alertStatus = alertStatus;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlertText() {
+    return alertText;
+  }
+
+  public Measure setAlertText(@Nullable String alertText) {
+    this.alertText = alertText;
     return this;
   }
 

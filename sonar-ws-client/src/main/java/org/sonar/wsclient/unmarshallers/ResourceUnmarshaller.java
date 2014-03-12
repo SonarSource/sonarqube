@@ -98,6 +98,8 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setMetricName(utils.getString(json, "name"))
         .setValue(utils.getDouble(json, "val"))
         .setFormattedValue(utils.getString(json, "frmt_val"))
+        .setAlertStatus(utils.getString(json, "alert"))
+        .setAlertText(utils.getString(json, "alert_text"))
         .setTrend(utils.getInteger(json, "trend"))
         .setVar(utils.getInteger(json, "var"))
         .setData(utils.getString(json, "data"))

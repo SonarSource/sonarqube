@@ -58,6 +58,14 @@ public class ResourceQueryTest extends QueryTestCase {
   }
 
   @Test
+  public void measuresWithAlerts() {
+    ResourceQuery query = new ResourceQuery();
+    query.setIncludeAlerts(true);
+
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?includealerts=true&verbose=false&"));
+  }
+
+  @Test
   public void measuresOnRules() {
     ResourceQuery query = new ResourceQuery().setMetrics("violations");
     query.setRules("ruleA", "ruleB");
