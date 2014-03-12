@@ -42,6 +42,7 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.*;
 
@@ -80,6 +81,7 @@ public final class DaoUtils {
       QualityProfileDao.class,
       PurgeDao.class,
       CharacteristicDao.class,
+      RequirementDao.class,
       ResourceIndexerDao.class,
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,

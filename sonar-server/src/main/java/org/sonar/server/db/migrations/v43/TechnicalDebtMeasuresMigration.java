@@ -88,7 +88,7 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           setDouble(updateStatement, 1, row.value);
           setDouble(updateStatement, 2, row.var1);
           setDouble(updateStatement, 3, row.var2);
@@ -96,6 +96,7 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
           setDouble(updateStatement, 5, row.var4);
           setDouble(updateStatement, 6, row.var5);
           updateStatement.setLong(7, row.id);
+          return true;
         }
       }
     );

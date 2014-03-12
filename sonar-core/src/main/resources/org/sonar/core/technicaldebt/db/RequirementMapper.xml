@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.technicaldebt.db.RequirementMapper">
+
+  <sql id="requirementsColumns">
+    c.id,
+    c.parent_id as parentId,
+    c.root_id as rootId,
+    c.rule_id as ruleId,
+    c.function_key as functionKey,
+    c.factor_value as factorValue,
+    c.factor_unit as factorUnit,
+    c.offset_value as offsetValue,
+    c.offset_unit as offsetUnit,
+    c.enabled as enabled,
+    c.created_at as createdAt,
+    c.updated_at as updatedAt
+  </sql>
+
+  <select id="selectRequirements" parameterType="map" resultType="Requirement">
+    select <include refid="requirementsColumns"/>
+    from characteristics c
+    <where>
+      and c.rule_id IS NOT NULL
+    </where>
+  </select>
+
+</mapper>
+

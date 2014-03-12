@@ -78,10 +78,11 @@ public class IssueMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setLong(1, workDurationConvertor.createFromLong(row.debt));
           updateStatement.setDate(2, new Date(system2.now()));
           updateStatement.setLong(3, row.id);
+          return true;
         }
       }
     );

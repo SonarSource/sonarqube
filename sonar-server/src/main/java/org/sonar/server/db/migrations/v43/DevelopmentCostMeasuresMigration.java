@@ -27,6 +27,7 @@ import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -71,9 +72,10 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setString(1, convertDebtForDays(row.value));
           updateStatement.setLong(2, row.id);
+          return true;
         }
       }
     );

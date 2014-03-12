@@ -1,0 +1,13 @@
+<dataset>
+
+  <!-- Requirement -->
+  <characteristics id="3" kee="[null]" name="[null]" parent_id="2" root_id="1" rule_id="10" characteristic_order="[null]"
+                   function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <!-- Disabled requirement -->
+  <characteristics id="6" kee="[null]" name="[null]" parent_id="5" root_id="4" rule_id="10" characteristic_order="[null]"
+                   function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+</dataset>

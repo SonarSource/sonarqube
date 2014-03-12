@@ -31,6 +31,9 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 public final class RuleDto {
+
+  public final static Integer DISABLED_CHARACTERISTIC_ID = -1;
+
   private Integer id;
   private String repositoryKey;
   private String ruleKey;
@@ -309,6 +312,10 @@ public final class RuleDto {
   public RuleDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  public boolean isCharacteristicOverridden(){
+    return !DISABLED_CHARACTERISTIC_ID.equals(characteristicId);
   }
 
   @Override

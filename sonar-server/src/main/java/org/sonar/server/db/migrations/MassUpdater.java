@@ -53,7 +53,10 @@ public class MassUpdater {
   public static interface InputConverter<S> {
     String updateSql();
 
-    void convert(S input, PreparedStatement updateStatement) throws SQLException;
+    /**
+     * Return false if you do not want to update this statement
+     */
+    boolean convert(S input, PreparedStatement updateStatement) throws SQLException;
   }
 
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
@@ -79,11 +82,12 @@ public class MassUpdater {
 
         int cursor = 0;
         while (rs.next()) {
-          converter.convert(inputLoader.load(rs), writeStatement);
-          writeStatement.addBatch();
+          if (converter.convert(inputLoader.load(rs), writeStatement)) {
+            writeStatement.addBatch();
+            cursor++;
+            count++;
+          }
 
-          cursor++;
-          count++;
           if (cursor == GROUP_SIZE) {
             writeStatement.executeBatch();
             writeConnection.commit();

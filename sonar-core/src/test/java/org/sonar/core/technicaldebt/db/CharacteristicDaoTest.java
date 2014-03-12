@@ -31,7 +31,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
-  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "created_at", "updated_at"};
+  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value",
+    "created_at", "updated_at"};
 
   CharacteristicDao dao;
 
@@ -158,7 +159,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     dao.update(dto);
 
-    checkTables("update_characteristic", new String[]{"id", "depth", "description", "quality_model_id", "updated_at"}, "characteristics");
+    checkTables("update_characteristic", EXCLUDED_COLUMNS, "characteristics");
   }
 
   @Test

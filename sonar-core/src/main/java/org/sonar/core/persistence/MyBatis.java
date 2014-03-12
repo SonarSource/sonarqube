@@ -65,6 +65,8 @@ import org.sonar.core.source.db.SnapshotDataMapper;
 import org.sonar.core.source.db.SnapshotSourceMapper;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
+import org.sonar.core.technicaldebt.db.RequirementDto;
+import org.sonar.core.technicaldebt.db.RequirementMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
 import org.sonar.core.user.*;
@@ -144,6 +146,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "QualityProfile", QualityProfileDto.class);
     loadAlias(conf, "ActiveRule", ActiveRuleDto.class);
     loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
+    loadAlias(conf, "Requirement", RequirementDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -160,7 +163,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class
+      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class,
+      RequirementMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

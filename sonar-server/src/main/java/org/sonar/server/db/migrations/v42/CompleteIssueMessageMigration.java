@@ -65,9 +65,10 @@ public class CompleteIssueMessageMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setString(1, row.ruleName);
           updateStatement.setLong(2, row.issueId);
+          return true;
         }
       }
     );

@@ -66,9 +66,10 @@ public class PackageKeysMigration implements DatabaseMigration {
         }
 
         @Override
-        public void convert(Row row, PreparedStatement updateStatement) throws SQLException {
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setString(1, convertKey(row.key));
           updateStatement.setLong(2, row.id);
+          return true;
         }
       }
     );

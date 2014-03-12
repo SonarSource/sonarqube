@@ -1,0 +1,38 @@
+<dataset>
+
+  <!-- Rule not linked to a requirement -> Nothing to do -->
+  <rules id="1" plugin_rule_key="UselessImportCheck" plugin_name="squid" name="UselessImportCheck" description="Useless imports should be removed" status="READY"
+         characteristic_id="[null]" default_characteristic_id="10"
+         remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
+         remediation_factor="[null]" default_remediation_factor="5d"
+         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to a disabled requirement -> Update rule to disable characteristic -->
+  <rules id="2" plugin_rule_key="LeftCurlyBraceStartLineCheck" plugin_name="squid" name="LeftCurlyBraceStartLineCheck" description="Left curly braces should be located at the beginning of lines of code" status="READY"
+         characteristic_id="[null]" default_characteristic_id="10"
+         remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
+         remediation_factor="[null]" default_remediation_factor="5d"
+         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-02-19"/>
+
+  <!-- Removed rule linked to a disabled requirement -> Do nothing -->
+  <rules id="3" plugin_rule_key="CallToFileDeleteOnExitMethod" plugin_name="squid" name="CallToFileDeleteOnExitMethod" description="CallToFileDeleteOnExitMethod" status="REMOVED"
+         characteristic_id="[null]" default_characteristic_id="10"
+         remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
+         remediation_factor="[null]" default_remediation_factor="5d"
+         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to one enable requirement, with same value of debt -> Nothing to do -->
+  <rules id="4" plugin_rule_key="ObjectFinalizeOverridenCallsSuperFinalizeCheck" plugin_name="squid" name="ObjectFinalizeOverridenCallsSuperFinalizeCheck" description="super.finalize() should be called at the end of Object.finalize() implementations" status="READY"
+         characteristic_id="[null]" default_characteristic_id="10"
+         remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
+         remediation_factor="[null]" default_remediation_factor="5min"
+         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to one enable requirement, with different value of debt -> Update rule -->
+  <rules id="5" plugin_rule_key="RightCurlyBraceStartLineCheck" plugin_name="squid" name="RightCurlyBraceStartLineCheck" description="Right curly braces should be located at the beginning of lines of code" status="READY"
+         characteristic_id="[null]" default_characteristic_id="20"
+         remediation_function="[null]" default_remediation_function="LINEAR"
+         remediation_factor="[null]" default_remediation_factor="5d"
+         remediation_offset="[null]" default_remediation_offset="[null]" updated_at="2014-02-19"/>
+
+</dataset>

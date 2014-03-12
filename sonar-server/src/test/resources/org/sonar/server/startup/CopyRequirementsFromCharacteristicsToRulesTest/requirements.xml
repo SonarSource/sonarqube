@@ -1,0 +1,41 @@
+<dataset>
+
+  <!-- No requirement for rule 1 -->
+
+  <!-- Requirement of rule 2 -->
+  <characteristics id="1" parent_id="10" rule_id="2"
+                   function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <characteristics id="2" parent_id="10" rule_id="2"
+                   function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Requirement of rule 3 -->
+  <characteristics id="3" parent_id="10" rule_id="3"
+                   function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <characteristics id="4" parent_id="10" rule_id="3"
+                   function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Requirement of rule 4 -->
+  <characteristics id="5" parent_id="10" rule_id="4"
+                   function_key="linear_offset" factor_value="5.0" factor_unit="mn" offset_value="9.8" offset_unit="h" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <characteristics id="6" parent_id="10" rule_id="4"
+                   function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Requirement of rule 5 -->
+  <characteristics id="7" parent_id="10" rule_id="5"
+                   function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <characteristics id="8" parent_id="10" rule_id="5"
+                   function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+</dataset>
