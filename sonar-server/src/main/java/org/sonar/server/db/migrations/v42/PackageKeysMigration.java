@@ -77,7 +77,7 @@ public class PackageKeysMigration implements DatabaseMigration {
   String convertKey(String packageKey) {
     String prefix = StringUtils.substringBeforeLast(packageKey, ":") + ":";
     String key = StringUtils.substringAfterLast(packageKey, ":");
-    if (key.equals("[default]")) {
+    if ("[default]".equals(key)) {
       return prefix + "[root]";
     }
     return prefix + StringUtils.replace(key, ".", "/");
