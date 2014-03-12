@@ -94,6 +94,10 @@ public final class MeasuresFilters {
       measureCharacteristic.equals(characteristic);
   }
 
+  /**
+   * @deprecated since 4.3
+   */
+  @Deprecated
   public static MeasuresFilter<Measure> requirement(final Metric metric, final Requirement requirement) {
     return new MetricFilter<Measure>(metric) {
 

@@ -35,7 +35,6 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.MyBatis;
 
@@ -112,9 +111,9 @@ public final class MeasurePersister {
       !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
   }
 
-  private static boolean isMeasureNotEmpty(Measure measure){
+  private static boolean isMeasureNotEmpty(Measure measure) {
     boolean isNotEmpty = false;
-    for (int i = 1; i<=5; i++) {
+    for (int i = 1; i <= 5; i++) {
       isNotEmpty = isNotEmpty || measure.getVariation(i) != null;
     }
     return measure.getValue() != null || measure.getData() != null
@@ -155,16 +154,13 @@ public final class MeasurePersister {
     model.setVariationValue5(measure.getVariation5());
     model.setUrl(measure.getUrl());
     Characteristic characteristic = measure.getCharacteristic();
-    Requirement requirement = measure.getRequirement();
     if (characteristic != null) {
       model.setCharacteristicId(characteristic.id());
-    } else if (requirement != null) {
-      model.setCharacteristicId(requirement.id());
     }
     model.setPersonId(measure.getPersonId());
     Double value = measure.getValue();
     if (value != null) {
-      model.setValue(value.doubleValue());
+      model.setValue(value);
     } else {
       model.setValue(null);
     }

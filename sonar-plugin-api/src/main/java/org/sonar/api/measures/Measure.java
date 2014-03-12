@@ -652,7 +652,7 @@ public class Measure {
 
   private static boolean isZeroVariation(Double... variations) {
     for (Double variation : variations) {
-      if (!((variation == null) || NumberUtils.compare(variation.doubleValue(), 0.0) == 0)) {
+      if (!((variation == null) || NumberUtils.compare(variation, 0.0) == 0)) {
         return false;
       }
     }
@@ -684,9 +684,6 @@ public class Measure {
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
       return false;
     }
-    if (requirement != null ? !requirement.equals(measure.requirement) : measure.requirement != null) {
-      return false;
-    }
     if (personId != null ? !personId.equals(measure.personId) : measure.personId != null) {
       return false;
     }
@@ -697,7 +694,6 @@ public class Measure {
   public int hashCode() {
     int result = metricKey != null ? metricKey.hashCode() : 0;
     result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
-    result = 31 * result + (requirement != null ? requirement.hashCode() : 0);
     result = 31 * result + (personId != null ? personId.hashCode() : 0);
     return result;
   }
