@@ -31,7 +31,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.wsclient.SonarClient;
 
 import javax.annotation.Nullable;
 
@@ -50,12 +49,10 @@ public class ServerClient implements BatchComponent {
 
   private BootstrapSettings settings;
   private HttpDownloader.BaseHttpDownloader downloader;
-  private SonarClient wsClient;
 
   public ServerClient(BootstrapSettings settings, EnvironmentInformation env) {
     this.settings = settings;
     this.downloader = new HttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
-    this.wsClient = SonarClient.create(getURL());
   }
 
   public String getURL() {
@@ -94,10 +91,6 @@ public class ServerClient implements BatchComponent {
     } catch (IOException e) {
       throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
-  }
-
-  public SonarClient wsClient() {
-    return wsClient;
   }
 
   private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, @Nullable Integer timeoutMillis) {

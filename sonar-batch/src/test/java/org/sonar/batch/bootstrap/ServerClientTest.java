@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.wsclient.SonarClient;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -135,15 +134,6 @@ public class ServerClientTest {
 
     thrown.expectMessage("Fail to execute request [code=500, url=http://localhost:" + server.getPort() + "/foo]");
     newServerClient().request("/foo");
-  }
-
-  @Test
-  public void should_give_access_to_ws_client() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-
-    SonarClient wsClient = newServerClient().wsClient();
-    assertThat(wsClient).isNotNull();
   }
 
   private ServerClient newServerClient() {

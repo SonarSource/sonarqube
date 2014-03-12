@@ -19,51 +19,53 @@
  */
 package org.sonar.batch.qualitygate;
 
+import javax.annotation.CheckForNull;
+
+import com.google.gson.JsonObject;
 import org.sonar.api.measures.Metric;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
 
-public class ResolvedCondition implements QualityGateCondition {
+public class ResolvedCondition {
 
-  private QualityGateCondition wrapped;
+  private static final String ATTRIBUTE_PERIOD = "period";
+
+  private static final String ATTRIBUTE_ERROR = "error";
+
+  private static final String ATTRIBUTE_WARNING = "warning";
+
+  private JsonObject json;
 
   private Metric metric;
 
-  public ResolvedCondition(QualityGateCondition condition, Metric metric) {
-    this.wrapped = condition;
+  public ResolvedCondition(JsonObject jsonObject, Metric metric) {
+    this.json = jsonObject;
     this.metric = metric;
+  }
+
+  public Long id() {
+    return json.get("id").getAsLong();
+  }
+
+  public String metricKey() {
+    return json.get("metric").getAsString();
   }
 
   public Metric metric() {
     return metric;
   }
 
-  @Override
-  public Long id() {
-    return wrapped.id();
-  }
-
-  @Override
-  public String metricKey() {
-    return wrapped.metricKey();
-  }
-
-  @Override
   public String operator() {
-    return wrapped.operator();
+    return json.get("op").getAsString();
   }
 
-  @Override
-  public String warningThreshold() {
-    return wrapped.warningThreshold();
+  public @CheckForNull String warningThreshold() {
+    return json.has(ATTRIBUTE_WARNING) ? json.get(ATTRIBUTE_WARNING).getAsString() : null;
   }
 
-  @Override
-  public String errorThreshold() {
-    return wrapped.errorThreshold();
+  public @CheckForNull String errorThreshold() {
+    return json.has(ATTRIBUTE_ERROR) ? json.get(ATTRIBUTE_ERROR).getAsString() : null;
   }
 
-  @Override
-  public Integer period() {
-    return wrapped.period();
+  public @CheckForNull Integer period() {
+    return json.has(ATTRIBUTE_PERIOD) ? json.get(ATTRIBUTE_PERIOD).getAsInt() : null;
   }
 }

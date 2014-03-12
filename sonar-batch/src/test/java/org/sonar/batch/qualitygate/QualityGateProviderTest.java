@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.qualitygate;
 
-import com.google.common.collect.ImmutableList;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,16 +26,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
-import org.sonar.wsclient.qualitygate.QualityGateDetails;
 
 import java.net.HttpURLConnection;
-import java.util.Collection;
+import java.net.URI;
+import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -55,17 +50,7 @@ public class QualityGateProviderTest {
   private MetricFinder metricFinder;
 
   @Mock
-  private QualityGateClient qualityGateClient;
-
-  @Mock
   private Logger logger;
-
-  @Before
-  public void initMocks() {
-    SonarClient wsClient = mock(SonarClient.class);
-    when(client.wsClient()).thenReturn(wsClient);
-    when(wsClient.qualityGateClient()).thenReturn(qualityGateClient);
-  }
 
   @Test
   public void should_load_empty_quality_gate_from_default_settings() {
@@ -77,15 +62,14 @@ public class QualityGateProviderTest {
   }
 
   @Test
-  public void should_load_quality_gate_using_name() {
+  public void should_load_empty_quality_gate_using_name() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    QualityGateDetails qGate = mock(QualityGateDetails.class);
-    when(qualityGateClient.show(qGateName)).thenReturn(qGate);
-    when(qGate.name()).thenReturn(qGateName);
-    QualityGate actualGate = new QualityGateProvider().init(settings, client, metricFinder, logger);
-    assertThat(actualGate.name()).isEqualTo(qGateName);
-    assertThat(actualGate.isEnabled()).isTrue();
+    when(client.request("/api/qualitygates/show?name=Sonar way")).thenReturn("{'id':12345,'name':'Sonar way'}");
+    QualityGate qGate = new QualityGateProvider().init(settings, client, metricFinder, logger);
+    assertThat(qGate.name()).isEqualTo(qGateName);
+    assertThat(qGate.isEnabled()).isTrue();
+    assertThat(qGate.conditions()).isEmpty();
     verify(logger).info("Loaded quality gate '{}'", qGateName);
   }
 
@@ -94,36 +78,45 @@ public class QualityGateProviderTest {
     long qGateId = 12345L;
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(Long.toString(qGateId));
-    QualityGateDetails qGate = mock(QualityGateDetails.class);
-    when(qualityGateClient.show(qGateId)).thenReturn(qGate);
-    when(qGate.name()).thenReturn(qGateName);
-    String metricKey1 = "metric1";
-    QualityGateCondition serverCondition1 = mock(QualityGateCondition.class);
-    when(serverCondition1.metricKey()).thenReturn(metricKey1);
-    String metricKey2 = "metric2";
-    QualityGateCondition serverCondition2 = mock(QualityGateCondition.class);
-    when(serverCondition2.metricKey()).thenReturn(metricKey2);
-    Collection<QualityGateCondition> conditions = ImmutableList.of(serverCondition1, serverCondition2);
-    when(qGate.conditions()).thenReturn(conditions);
-    assertThat(new QualityGateProvider().init(settings, client, metricFinder, logger).name()).isEqualTo(qGateName);
+    when(client.request("/api/qualitygates/show?id=12345")).thenReturn("{'id':12345,'name':'Sonar way','conditions':["
+      + "{'id':1,'metric':'metric1','op':'EQ','warning':'POLOP'},"
+      + "{'id':2,'metric':'metric2','op':'NE','error':'PALAP','period':3}"
+      + "]}");
+
+    QualityGate qGate = new QualityGateProvider().init(settings, client, metricFinder, logger);
+
+    assertThat(qGate.name()).isEqualTo(qGateName);
+    assertThat(qGate.conditions()).hasSize(2);
+    Iterator<ResolvedCondition> conditions = qGate.conditions().iterator();
+    ResolvedCondition cond1 = conditions.next();
+    assertThat(cond1.warningThreshold()).isEqualTo("POLOP");
+    assertThat(cond1.errorThreshold()).isNull();
+    assertThat(cond1.period()).isNull();
+    ResolvedCondition cond2 = conditions.next();
+    assertThat(cond2.warningThreshold()).isNull();
+    assertThat(cond2.errorThreshold()).isEqualTo("PALAP");
+    assertThat(cond2.period()).isEqualTo(3);
+
     verify(logger).info("Loaded quality gate '{}'", qGateName);
-    verify(metricFinder).findByKey(metricKey1);
-    verify(metricFinder).findByKey(metricKey2);
+    verify(metricFinder).findByKey("metric1");
+    verify(metricFinder).findByKey("metric2");
   }
 
   @Test(expected = MessageException.class)
   public void should_stop_analysis_if_gate_not_found() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    when(qualityGateClient.show(qGateName)).thenThrow(new HttpException("http://server/api/qualitygates/show?name=Sonar%20way", HttpURLConnection.HTTP_NOT_FOUND));
+    when(client.request("/api/qualitygates/show?name=Sonar way")).thenThrow(
+        new HttpDownloader.HttpException(URI.create("/api/qualitygates/show?name=Sonar%20way"), HttpURLConnection.HTTP_NOT_FOUND));
     new QualityGateProvider().provide(settings, client, metricFinder);
   }
 
-  @Test(expected = HttpException.class)
+  @Test(expected = HttpDownloader.HttpException.class)
   public void should_stop_analysis_if_server_error() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    when(qualityGateClient.show(qGateName)).thenThrow(new HttpException("http://server/api/qualitygates/show?name=Sonar%20way", HttpURLConnection.HTTP_NOT_ACCEPTABLE));
+    when(client.request("/api/qualitygates/show?name=Sonar way")).thenThrow(
+        new HttpDownloader.HttpException(URI.create("/api/qualitygates/show?name=Sonar%20way"), HttpURLConnection.HTTP_NOT_ACCEPTABLE));
     new QualityGateProvider().provide(settings, client, metricFinder);
   }
 

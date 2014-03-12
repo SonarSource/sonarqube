@@ -20,17 +20,17 @@
 package org.sonar.batch.qualitygate;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
-import org.sonar.wsclient.qualitygate.QualityGateDetails;
 
 import java.net.HttpURLConnection;
 
@@ -39,6 +39,8 @@ public class QualityGateProvider extends ProviderAdapter {
   private static final Logger LOG = LoggerFactory.getLogger(QualityGateProvider.class);
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
+
+  private static final String SHOW_URL = "/api/qualitygates/show";
 
   private QualityGate instance;
 
@@ -56,41 +58,48 @@ public class QualityGateProvider extends ProviderAdapter {
     if (qualityGateSetting == null) {
       logger.info("No quality gate is configured.");
     } else {
-      result = load(qualityGateSetting, client.wsClient().qualityGateClient(), metricFinder);
+      result = load(qualityGateSetting, client, metricFinder);
       logger.info("Loaded quality gate '{}'", result.name());
     }
     return result;
   }
 
-  private QualityGate load(String qualityGateSetting, QualityGateClient qualityGateClient, MetricFinder metricFinder) {
-    QualityGateDetails definitionFromServer = null;
+  private QualityGate load(String qualityGateSetting, ServerClient client, MetricFinder metricFinder) {
+    QualityGate configuredGate = null;
     try {
-      definitionFromServer = fetch(qualityGateSetting, qualityGateClient);
-    } catch (HttpException serverError) {
-      if (serverError.status() == HttpURLConnection.HTTP_NOT_FOUND) {
+      configuredGate = fetch(qualityGateSetting, client, metricFinder);
+    } catch (HttpDownloader.HttpException serverError) {
+      if (serverError.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
         throw MessageException.of("No quality gate found with configured value '" + qualityGateSetting + "'. Please check your configuration.");
       } else {
         throw serverError;
       }
     }
 
-    QualityGate configuredGate = new QualityGate(definitionFromServer.name());
-
-    for (QualityGateCondition condition: definitionFromServer.conditions()) {
-      configuredGate.add(new ResolvedCondition(condition, metricFinder.findByKey(condition.metricKey())));
-    }
-
     return configuredGate;
   }
 
-  private QualityGateDetails fetch(String qualityGateSetting, QualityGateClient qualityGateClient) {
-    QualityGateDetails definitionFromServer = null;
+  private QualityGate fetch(String qualityGateSetting, ServerClient client, MetricFinder metricFinder) {
+    String jsonText = null;
     try {
       long qGateId = Long.valueOf(qualityGateSetting);
-      definitionFromServer = qualityGateClient.show(qGateId);
+      jsonText = client.request(SHOW_URL + "?id="+qGateId);
     } catch(NumberFormatException configIsNameInsteadOfId) {
-      definitionFromServer = qualityGateClient.show(qualityGateSetting);
+      jsonText = client.request(SHOW_URL + "?name="+qualityGateSetting);
     }
-    return definitionFromServer;
+
+    JsonParser parser = new JsonParser();
+    JsonObject root = parser.parse(jsonText).getAsJsonObject();
+
+    QualityGate configuredGate = new QualityGate(root.get("name").getAsString());
+
+    if (root.has("conditions")) {
+      for (JsonElement condition: root.get("conditions").getAsJsonArray()) {
+        JsonObject conditionObject = condition.getAsJsonObject();
+        configuredGate.add(new ResolvedCondition(conditionObject, metricFinder.findByKey(conditionObject.get("metric").getAsString())));
+      }
+    }
+
+    return configuredGate;
   }
 }
