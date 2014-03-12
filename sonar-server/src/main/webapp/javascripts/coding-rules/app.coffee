@@ -34,6 +34,7 @@ requirejs [
   'navigator/filters/choice-filters',
   'navigator/filters/string-filters',
   'coding-rules/views/filters/quality-profile-filter-view',
+  'coding-rules/views/filters/inheritance-filter-view',
 
   'coding-rules/mockjax'
 ], (
@@ -52,7 +53,8 @@ requirejs [
   BaseFilters,
   ChoiceFilters,
   StringFilterView,
-  QualityProfileFilterView
+  QualityProfileFilterView,
+  InheritanceFilterView
 ) ->
 
   # Create a generic error handler for ajax requests
@@ -106,7 +108,6 @@ requirejs [
     @storeQuery query, @codingRules.sorting
 
     @layout.showSpinner 'resultsRegion'
-    @layout.showSpinner 'facetsRegion'
     jQuery.ajax
       url: "#{baseUrl}/api/codingrules/search"
       data: fetchQuery
@@ -170,11 +171,33 @@ requirejs [
     @filters = new BaseFilters.Filters
 
     @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.name_key'
-      property: 'searchtext'
+      name: t 'coding_rules.filters.name'
+      property: 'name'
       type: StringFilterView
       enabled: true
       optional: false
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.key'
+      property: 'key'
+      type: StringFilterView
+      enabled: true
+      optional: false
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.description'
+      property: 'description'
+      type: StringFilterView
+      enabled: true
+      optional: false
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.language'
+      property: 'languages'
+      type: ChoiceFilters.ChoiceFilterView
+      enabled: true
+      optional: false
+      choices: @languages
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.repository'
@@ -182,13 +205,7 @@ requirejs [
       type: ChoiceFilters.ChoiceFilterView
       enabled: true
       optional: false
-      choices:
-        'checkstyle': 'Checkstyle'
-        'common-java': 'Common SonarQube'
-        'findbugs': 'FindBugs'
-        'pmd': 'PMD'
-        'pmd-unit-tests': 'PMD Unit Tests'
-        'squid': 'SonarQube'
+      choices: @repositories
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.severity'
@@ -215,10 +232,7 @@ requirejs [
       type: ChoiceFilters.ChoiceFilterView
       enabled: true
       optional: false
-      choices:
-        'BETA': 'Beta'
-        'DEPRECATED': 'Deprecated'
-        'READY': 'Ready'
+      choices: @statuses
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.tag'
@@ -226,39 +240,36 @@ requirejs [
       type: ChoiceFilters.ChoiceFilterView
       enabled: true
       optional: false
-      choices:
-        'brain-overload': 'brain-overload'
-        'bug': 'bug'
-        'comment': 'comment'
-        'convention': 'convention'
-        'error-handling': 'error-handling'
-        'formatting': 'formatting'
-        'java8': 'java8'
-        'multithreading': 'multithreading'
-        'naming': 'naming'
-        'pitfall': 'pitfall'
-        'security': 'security'
-        'size': 'size'
-        'unused': 'unused'
-        'unused-code': 'unused-code'
+      choices: @tags
 
     @activeInFilter = new BaseFilters.Filter
-      name: t 'coding_rules.filters.active_in'
-      property: 'active_in'
+      name: t 'coding_rules.filters.in_quality_profile'
+      property: 'in_quality_profile'
       type: QualityProfileFilterView
-      single: true
+      multiple: false
       enabled: true
       optional: false
     @filters.add @activeInFilter
 
     @inactiveInFilter = new BaseFilters.Filter
-      name: t 'coding_rules.filters.inactive_in'
-      property: 'inactive_in'
+      name: t 'coding_rules.filters.out_of_quality_profile'
+      property: 'out_of_quality_profile'
       type: QualityProfileFilterView
-      single: true
+      multiple: false
       enabled: true
       optional: false
     @filters.add @inactiveInFilter
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.inheritance'
+      property: 'inheritance'
+      type: InheritanceFilterView
+      enabled: true
+      optional: false
+      qualityProfileFilter: @activeInFilter
+      choices:
+        'option1': 'Option 1'
+        'option2': 'Option 2'
 
     @filterBarView = new CodingRulesFilterBarView
       app: @
@@ -282,6 +293,10 @@ requirejs [
       App.appState = new Backbone.Model
       App.state = new Backbone.Model
       App.qualityProfiles = r.qualityprofiles
+      App.languages = r.languages
+      App.repositories = r.repositories
+      App.statuses = r.statuses
+      App.tags = r.tags
       window.messages = r.messages
 
       # Remove the initial spinner

@@ -22,7 +22,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, QualityProfileFilterView) {
+  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/views/filters/inheritance-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, QualityProfileFilterView, InheritanceFilterView) {
     var App, appXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
@@ -75,7 +75,6 @@
       }
       this.storeQuery(query, this.codingRules.sorting);
       this.layout.showSpinner('resultsRegion');
-      this.layout.showSpinner('facetsRegion');
       return jQuery.ajax({
         url: "" + baseUrl + "/api/codingrules/search",
         data: fetchQuery
@@ -138,11 +137,33 @@
     App.addInitializer(function() {
       this.filters = new BaseFilters.Filters;
       this.filters.add(new BaseFilters.Filter({
-        name: t('coding_rules.filters.name_key'),
-        property: 'searchtext',
+        name: t('coding_rules.filters.name'),
+        property: 'name',
         type: StringFilterView,
         enabled: true,
         optional: false
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.key'),
+        property: 'key',
+        type: StringFilterView,
+        enabled: true,
+        optional: false
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.description'),
+        property: 'description',
+        type: StringFilterView,
+        enabled: true,
+        optional: false
+      }));
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.language'),
+        property: 'languages',
+        type: ChoiceFilters.ChoiceFilterView,
+        enabled: true,
+        optional: false,
+        choices: this.languages
       }));
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.repository'),
@@ -150,14 +171,7 @@
         type: ChoiceFilters.ChoiceFilterView,
         enabled: true,
         optional: false,
-        choices: {
-          'checkstyle': 'Checkstyle',
-          'common-java': 'Common SonarQube',
-          'findbugs': 'FindBugs',
-          'pmd': 'PMD',
-          'pmd-unit-tests': 'PMD Unit Tests',
-          'squid': 'SonarQube'
-        }
+        choices: this.repositories
       }));
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.severity'),
@@ -186,11 +200,7 @@
         type: ChoiceFilters.ChoiceFilterView,
         enabled: true,
         optional: false,
-        choices: {
-          'BETA': 'Beta',
-          'DEPRECATED': 'Deprecated',
-          'READY': 'Ready'
-        }
+        choices: this.statuses
       }));
       this.filters.add(new BaseFilters.Filter({
         name: t('coding_rules.filters.tag'),
@@ -198,41 +208,38 @@
         type: ChoiceFilters.ChoiceFilterView,
         enabled: true,
         optional: false,
-        choices: {
-          'brain-overload': 'brain-overload',
-          'bug': 'bug',
-          'comment': 'comment',
-          'convention': 'convention',
-          'error-handling': 'error-handling',
-          'formatting': 'formatting',
-          'java8': 'java8',
-          'multithreading': 'multithreading',
-          'naming': 'naming',
-          'pitfall': 'pitfall',
-          'security': 'security',
-          'size': 'size',
-          'unused': 'unused',
-          'unused-code': 'unused-code'
-        }
+        choices: this.tags
       }));
       this.activeInFilter = new BaseFilters.Filter({
-        name: t('coding_rules.filters.active_in'),
-        property: 'active_in',
+        name: t('coding_rules.filters.in_quality_profile'),
+        property: 'in_quality_profile',
         type: QualityProfileFilterView,
-        single: true,
+        multiple: false,
         enabled: true,
         optional: false
       });
       this.filters.add(this.activeInFilter);
       this.inactiveInFilter = new BaseFilters.Filter({
-        name: t('coding_rules.filters.inactive_in'),
-        property: 'inactive_in',
+        name: t('coding_rules.filters.out_of_quality_profile'),
+        property: 'out_of_quality_profile',
         type: QualityProfileFilterView,
-        single: true,
+        multiple: false,
         enabled: true,
         optional: false
       });
       this.filters.add(this.inactiveInFilter);
+      this.filters.add(new BaseFilters.Filter({
+        name: t('coding_rules.filters.inheritance'),
+        property: 'inheritance',
+        type: InheritanceFilterView,
+        enabled: true,
+        optional: false,
+        qualityProfileFilter: this.activeInFilter,
+        choices: {
+          'option1': 'Option 1',
+          'option2': 'Option 2'
+        }
+      }));
       this.filterBarView = new CodingRulesFilterBarView({
         app: this,
         collection: this.filters,
@@ -256,6 +263,10 @@
       App.appState = new Backbone.Model;
       App.state = new Backbone.Model;
       App.qualityProfiles = r.qualityprofiles;
+      App.languages = r.languages;
+      App.repositories = r.repositories;
+      App.statuses = r.statuses;
+      App.tags = r.tags;
       window.messages = r.messages;
       jQuery('#coding-rules-page-loader').remove();
       return App.start();

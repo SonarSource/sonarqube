@@ -12,8 +12,38 @@ define ['jquery.mockjax'], ->
         { name: 'Sonar Way', lang: 'JavaScript' }
         { name: 'Quality Profile 1', lang: 'Java' }
       ]
+      languages:
+        java: 'Java'
+        javascript: 'JavaScript'
+      repositories:
+        'checkstyle': 'Checkstyle'
+        'common-java': 'Common SonarQube'
+        'findbugs': 'FindBugs'
+        'pmd': 'PMD'
+        'pmd-unit-tests': 'PMD Unit Tests'
+        'squid': 'SonarQube'
+      statuses:
+        'BETA': 'Beta'
+        'DEPRECATED': 'Deprecated'
+        'READY': 'Ready'
+      tags:
+        'brain-overload': 'brain-overload'
+        'bug': 'bug'
+        'comment': 'comment'
+        'convention': 'convention'
+        'error-handling': 'error-handling'
+        'formatting': 'formatting'
+        'java8': 'java8'
+        'multithreading': 'multithreading'
+        'naming': 'naming'
+        'pitfall': 'pitfall'
+        'security': 'security'
+        'size': 'size'
+        'unused': 'unused'
+        'unused-code': 'unused-code'
       messages:
         'all': 'All'
+        'any': 'Any'
         'bulk_change': 'Bulk Change'
         'moreCriteria': '+ More Criteria'
         'search_verb': 'Search'
@@ -33,9 +63,14 @@ define ['jquery.mockjax'], ->
         'coding_rules.activate_quality_profile': 'Activate Quality Profile'
         'coding_rules.deactivate_quality_profile': 'Deactivate'
 
-        'coding_rules.filters.active_in': 'Active In'
-        'coding_rules.filters.inactive_in': 'Inactive In'
-        'coding_rules.filters.name_key': 'Name/Key'
+        'coding_rules.filters.description': 'Description'
+        'coding_rules.filters.in_quality_profile': 'In Quality Profile'
+        'coding_rules.filters.inheritance': 'Inheritance'
+        'coding_rules.filters.inheritance.inactive': 'Inheritance criteria is available when a quality profile is selected'
+        'coding_rules.filters.key': 'Key'
+        'coding_rules.filters.language': 'Language'
+        'coding_rules.filters.name': 'Name'
+        'coding_rules.filters.out_of_quality_profile': 'Out of Quality Profile'
         'coding_rules.filters.repository': 'Repository'
         'coding_rules.filters.severity': 'Severity'
         'coding_rules.filters.status': 'Status'

@@ -44,16 +44,17 @@ define [
 
 
     changeEnabled: ->
-      disabledFilters = _.reject @collection.where(enabled: false), (filter) ->
-        filter.get('type') == MoreCriteriaFilters.MoreCriteriaFilterView
+      if @moreCriteriaFilter?
+        disabledFilters = _.reject @collection.where(enabled: false), (filter) ->
+          filter.get('type') == MoreCriteriaFilters.MoreCriteriaFilterView
 
-      if disabledFilters.length == 0
-        @moreCriteriaFilter.set { enabled: false }, { silent: true }
-      else
-        @moreCriteriaFilter.set { enabled: true }, { silent: true }
+        if disabledFilters.length == 0
+          @moreCriteriaFilter.set { enabled: false }, { silent: true }
+        else
+          @moreCriteriaFilter.set { enabled: true }, { silent: true }
 
-      @moreCriteriaFilter.set { filters: disabledFilters }, { silent: true }
-      @moreCriteriaFilter.trigger 'change:filters'
+        @moreCriteriaFilter.set { filters: disabledFilters }, { silent: true }
+        @moreCriteriaFilter.trigger 'change:filters'
 
 
     search: ->

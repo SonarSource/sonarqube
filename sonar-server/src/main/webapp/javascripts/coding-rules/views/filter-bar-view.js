@@ -54,30 +54,32 @@
 
       CodingRulesFilterBarView.prototype.changeEnabled = function() {
         var disabledFilters;
-        disabledFilters = _.reject(this.collection.where({
-          enabled: false
-        }), function(filter) {
-          return filter.get('type') === MoreCriteriaFilters.MoreCriteriaFilterView;
-        });
-        if (disabledFilters.length === 0) {
-          this.moreCriteriaFilter.set({
+        if (this.moreCriteriaFilter != null) {
+          disabledFilters = _.reject(this.collection.where({
             enabled: false
-          }, {
-            silent: true
+          }), function(filter) {
+            return filter.get('type') === MoreCriteriaFilters.MoreCriteriaFilterView;
           });
-        } else {
+          if (disabledFilters.length === 0) {
+            this.moreCriteriaFilter.set({
+              enabled: false
+            }, {
+              silent: true
+            });
+          } else {
+            this.moreCriteriaFilter.set({
+              enabled: true
+            }, {
+              silent: true
+            });
+          }
           this.moreCriteriaFilter.set({
-            enabled: true
+            filters: disabledFilters
           }, {
             silent: true
           });
+          return this.moreCriteriaFilter.trigger('change:filters');
         }
-        this.moreCriteriaFilter.set({
-          filters: disabledFilters
-        }, {
-          silent: true
-        });
-        return this.moreCriteriaFilter.trigger('change:filters');
       };
 
       CodingRulesFilterBarView.prototype.search = function() {
