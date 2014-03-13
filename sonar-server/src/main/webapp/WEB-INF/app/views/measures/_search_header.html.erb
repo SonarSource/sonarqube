@@ -21,7 +21,7 @@
   </h1>
 
   <div class="navigator-header-actions button-group">
-    <button onclick="window.location='<%= ApplicationController.root_context -%>/measures';"><%= message 'measure_filter.new_search' -%></button>
+    <button onclick="window.location='<%= ApplicationController.root_context -%>/measures/search?qualifiers[]=TRK';"><%= message 'measure_filter.new_search' -%></button>
 
     <% unless edit_mode %>
       <% if logged_in? %>
