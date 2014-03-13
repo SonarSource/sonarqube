@@ -31,11 +31,15 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 @Immutable
 class DefaultRules implements Rules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
   private final ListMultimap<String, Rule> rulesByRepository;
+
+  private final Collection<Rule> rulesWithDebt;
 
   DefaultRules(Collection<NewRule> newRules) {
     ImmutableListMultimap.Builder<String, Rule> builder = ImmutableListMultimap.builder();
@@ -44,6 +48,13 @@ class DefaultRules implements Rules {
       builder.put(r.key().repository(), r);
     }
     rulesByRepository = builder.build();
+
+    rulesWithDebt = newArrayList();
+    for (Rule rule : rulesByRepository.values()) {
+      if (rule.characteristic() != null) {
+        rulesWithDebt.add(rule);
+      }
+    }
   }
 
   @Override
@@ -65,5 +76,10 @@ class DefaultRules implements Rules {
   @Override
   public Collection<Rule> findByRepository(String repository) {
     return rulesByRepository.get(repository);
+  }
+
+  @Override
+  public Collection<Rule> findWithDebt() {
+    return rulesWithDebt;
   }
 }

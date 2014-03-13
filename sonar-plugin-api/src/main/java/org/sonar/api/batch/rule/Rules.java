@@ -39,4 +39,6 @@ public interface Rules {
 
   Collection<Rule> findByRepository(String repository);
 
+  Collection<Rule> findWithDebt();
+
 }

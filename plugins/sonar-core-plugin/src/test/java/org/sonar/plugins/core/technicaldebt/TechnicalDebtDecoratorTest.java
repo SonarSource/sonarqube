@@ -32,7 +32,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.component.ResourcePerspectives;
@@ -44,6 +43,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
@@ -79,6 +79,9 @@ public class TechnicalDebtDecoratorTest {
   @Mock
   ResourcePerspectives perspectives;
 
+  @Mock
+  RuleFinder ruleFinder;
+
   RuleKey ruleKey1 = RuleKey.of("repo1", "rule1");
   RuleKey ruleKey2 = RuleKey.of("repo2", "rule2");
   Rules rules;
@@ -93,7 +96,10 @@ public class TechnicalDebtDecoratorTest {
     rulesBuilder.add(ruleKey2).setName("rule2").setCharacteristic("MODULARITY");
     rules = rulesBuilder.build();
 
-    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, rules);
+    when(ruleFinder.findByKey(ruleKey1)).thenReturn(org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule()));
+    when(ruleFinder.findByKey(ruleKey2)).thenReturn(org.sonar.api.rules.Rule.create(ruleKey2.repository(), ruleKey2.rule()));
+
+    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, rules, ruleFinder);
   }
 
   @Test
@@ -123,11 +129,11 @@ public class TechnicalDebtDecoratorTest {
 
     List<Issue> issues = newArrayList(issue1, issue2, issue3);
 
-    ListMultimap<Rule, Issue> result = decorator.issuesByRule(issues);
+    ListMultimap<RuleKey, Issue> result = decorator.issuesByRule(issues);
 
     assertThat(result.keySet().size()).isEqualTo(2);
-    assertThat(result.get(rules.find(ruleKey1))).containsExactly(issue1, issue2);
-    assertThat(result.get(rules.find(ruleKey2))).containsExactly(issue3);
+    assertThat(result.get(ruleKey1)).containsExactly(issue1, issue2);
+    assertThat(result.get(ruleKey2)).containsExactly(issue3);
   }
 
   @Test
