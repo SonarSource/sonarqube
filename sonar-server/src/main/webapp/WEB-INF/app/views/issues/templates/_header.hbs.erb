@@ -1,5 +1,24 @@
 <script id="issues-header-template" type="text/x-handlebars-template">
-  <h1 class="navigator-header-title">{{#if name}}{{name}}{{else}}<%= message ('issues') -%>{{/if}}</h1>
+  <h1 class="navigator-header-title">
+    {{#if name}}
+      {{name}}
+      <span class="navigator-header-title-note">
+        {{#unless shared}}
+          [<%= message 'issue_filter.private' -%>]
+        {{else}}
+          {{#eq user currentUser}}
+            [<%= message 'issue_filter.shared_with_all_users' -%>]
+          {{else}}
+            {{#if user}}
+              [<%= message 'issue_filter.shared' -%>]
+            {{/if}}
+          {{/eq}}
+        {{/unless}}
+      </span>
+    {{else}}
+      <%= message ('issues') -%>
+    {{/if}}
+  </h1>
 
     <div class="navigator-header-actions button-group">
       <button id="issues-new-search"><%= message ('issue_filter.new_search') -%></button>

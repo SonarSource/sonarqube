@@ -497,7 +497,8 @@ define(
         serializeData: function () {
           return _.extend({
             canSave: this.model.id && this.options.app.state.get('search'),
-            appState: window.SS.appState.toJSON()
+            appState: window.SS.appState.toJSON(),
+            currentUser: window.SS.currentUser
           }, this.model.toJSON());
         }
 

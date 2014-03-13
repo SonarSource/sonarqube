@@ -6,15 +6,17 @@
   <h1 id="filter-title" class="navigator-header-title">
     <% if @filter.id && @filter.name.present? %>
       <%= h @filter.name -%>
-      <% if !@filter.shared %>
-        [<%= message 'measure_filter.private' -%>]
-      <% elsif logged_in? && @filter.user_id==current_user.id %>
-        [<%= message 'measure_filter.shared_with_all_users' -%>]
-      <% elsif @filter.user_id %>
-        [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
-      <% else %>
-        [<%= message 'shared_by' -%> Sonar]
-      <% end %>
+      <span class="navigator-header-title-note">
+        <% if !@filter.shared %>
+          [<%= message 'measure_filter.private' -%>]
+        <% elsif logged_in? && @filter.user_id==current_user.id %>
+          [<%= message 'measure_filter.shared_with_all_users' -%>]
+        <% elsif @filter.user_id %>
+          [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
+        <% else %>
+          [<%= message 'shared_by' -%> Sonar]
+        <% end %>
+      </span>
     <% else %>
       <%= message('layout.measures') -%>
     <% end %>

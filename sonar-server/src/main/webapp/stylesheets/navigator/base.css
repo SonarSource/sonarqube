@@ -144,6 +144,11 @@
   font-size: 20px;
   line-height: 37px;
 }
+.navigator-header-title-note {
+  vertical-align: middle;
+  color: #777;
+  font-size: 11px;
+}
 .navigator-header-description {
   display: inline-block;
   vertical-align: middle;
