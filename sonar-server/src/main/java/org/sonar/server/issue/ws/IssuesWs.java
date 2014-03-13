@@ -31,15 +31,15 @@ public class IssuesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.newController("api/issues");
+    NewController controller = context.createController("api/issues");
     controller.setDescription("Coding rule issues");
 
-    controller.newAction("show")
+    controller.createAction("show")
       .setDescription("Detail of issue")
       .setSince("4.2")
       .setInternal(true)
       .setHandler(showHandler)
-      .newParam("key", "Issue key");
+      .createParam("key", "Issue key");
 
     controller.done();
   }

@@ -41,11 +41,11 @@ public class IssueFilterWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.newController("api/issue_filters")
+    NewController controller = context.createController("api/issue_filters")
       .setSince("4.2")
       .setDescription("Issue Filters");
 
-    NewAction app = controller.newAction("app");
+    NewAction app = controller.createAction("app");
     app
       .setDescription("Data required for rendering the page 'Issues'")
       .setInternal(true)
@@ -56,7 +56,7 @@ public class IssueFilterWs implements WebService {
         }
       });
 
-    NewAction show = controller.newAction("show");
+    NewAction show = controller.createAction("show");
     show
       .setDescription("Get detail of issue filter")
       .setSince("4.2")
@@ -66,9 +66,9 @@ public class IssueFilterWs implements WebService {
           show(request, response);
         }
       })
-      .newParam("id");
+      .createParam("id");
 
-    NewAction fav = controller.newAction("favorites");
+    NewAction fav = controller.createAction("favorites");
     fav
       .setDescription("The issue filters marked as favorite by request user")
       .setSince("4.2")
@@ -78,7 +78,7 @@ public class IssueFilterWs implements WebService {
           favorites(request, response);
         }
       })
-      .newParam("id");
+      .createParam("id");
 
     controller.done();
   }

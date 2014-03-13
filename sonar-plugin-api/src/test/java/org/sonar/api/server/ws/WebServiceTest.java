@@ -32,11 +32,11 @@ public class WebServiceTest {
 
     @Override
     public void define(Context context) {
-      NewController newController = context.newController("api/metric")
+      NewController newController = context.createController("api/metric")
         .setDescription("Metrics")
         .setSince("3.2");
 
-      newController.newAction("show")
+      newController.createAction("show")
         .setDescription("Show metric")
         .setHandler(new RequestHandler() {
           @Override
@@ -45,7 +45,7 @@ public class WebServiceTest {
           }
         });
 
-      newController.newAction("create")
+      newController.createAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
@@ -119,8 +119,8 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          NewController newController = context.newController("api/metric");
-          newController.newAction("delete");
+          NewController newController = context.createController("api/metric");
+          newController.createAction("delete");
           newController.done();
         }
       }.define(context);
@@ -136,8 +136,8 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          NewController controller = context.newController("rule");
-          controller.newAction("show");
+          NewController controller = context.createController("rule");
+          controller.createAction("show");
           controller.done();
         }
       }.define(context);
@@ -153,10 +153,10 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          NewController newController = context.newController("rule");
-          newController.newAction("create");
-          newController.newAction("delete");
-          newController.newAction("delete");
+          NewController newController = context.createController("rule");
+          newController.createAction("create");
+          newController.createAction("delete");
+          newController.createAction("delete");
           newController.done();
         }
       }.define(context);
@@ -172,7 +172,7 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          context.newController("rule").done();
+          context.createController("rule").done();
         }
       }.define(context);
       fail();
@@ -182,17 +182,47 @@ public class WebServiceTest {
   }
 
   @Test
-  public void fail_if_no_ws_path() {
+  public void fail_if_no_controller_path() {
     try {
       new WebService() {
         @Override
         public void define(Context context) {
-          context.newController(null).done();
+          context.createController(null).done();
         }
       }.define(context);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Web service path can't be empty");
+      assertThat(e).hasMessage("WS controller path must not be empty");
+    }
+  }
+
+  @Test
+  public void controller_path_must_not_start_with_slash() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          context.createController("/hello").done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("WS controller path must not start or end with slash: /hello");
+    }
+  }
+
+  @Test
+  public void controller_path_must_not_end_with_slash() {
+    try {
+      new WebService() {
+        @Override
+        public void define(Context context) {
+          context.createController("hello/").done();
+        }
+      }.define(context);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("WS controller path must not start or end with slash: hello/");
     }
   }
 
@@ -215,10 +245,10 @@ public class WebServiceTest {
     new WebService() {
       @Override
       public void define(Context context) {
-        NewController newController = context.newController("api/rule");
-        NewAction create = newController.newAction("create").setHandler(mock(RequestHandler.class));
-        create.newParam("key").setDescription("Key of the new rule");
-        create.newParam("severity");
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("key").setDescription("Key of the new rule");
+        create.createParam("severity");
         newController.done();
       }
     }.define(context);
@@ -240,10 +270,10 @@ public class WebServiceTest {
       new WebService() {
         @Override
         public void define(Context context) {
-          NewController controller = context.newController("api/rule");
-          NewAction action = controller.newAction("create").setHandler(mock(RequestHandler.class));
-          action.newParam("key");
-          action.newParam("key");
+          NewController controller = context.createController("api/rule");
+          NewAction action = controller.createAction("create").setHandler(mock(RequestHandler.class));
+          action.createParam("key");
+          action.createParam("key");
           controller.done();
         }
       }.define(context);
@@ -258,9 +288,9 @@ public class WebServiceTest {
     new WebService() {
       @Override
       public void define(Context context) {
-        NewController newController = context.newController("api/rule");
-        newController.newAction("create").setInternal(true).setHandler(mock(RequestHandler.class));
-        newController.newAction("update").setInternal(true).setHandler(mock(RequestHandler.class));
+        NewController newController = context.createController("api/rule");
+        newController.createAction("create").setInternal(true).setHandler(mock(RequestHandler.class));
+        newController.createAction("update").setInternal(true).setHandler(mock(RequestHandler.class));
         newController.done();
       }
     }.define(context);

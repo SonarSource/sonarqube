@@ -56,12 +56,12 @@ public class ListingWsTest {
   static class MetricWebService implements WebService {
     @Override
     public void define(Context context) {
-      NewController newController = context.newController("api/metric")
+      NewController newController = context.createController("api/metric")
         .setDescription("Metrics")
         .setSince("3.2");
 
       // action with default values
-      newController.newAction("show")
+      newController.createAction("show")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -70,7 +70,7 @@ public class ListingWsTest {
 
 
       // action with a lot of overridden values
-      NewAction create = newController.newAction("create")
+      NewAction create = newController.createAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
@@ -80,8 +80,8 @@ public class ListingWsTest {
           public void handle(Request request, Response response) {
           }
         });
-      create.newParam("key").setDescription("Key of new metric");
-      create.newParam("name");
+      create.createParam("key").setDescription("Key of new metric");
+      create.createParam("name");
       newController.done();
     }
   }

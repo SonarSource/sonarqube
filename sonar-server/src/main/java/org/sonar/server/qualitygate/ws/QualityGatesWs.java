@@ -65,7 +65,7 @@ public class QualityGatesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.newController("api/qualitygates")
+    NewController controller = context.createController("api/qualitygates")
       .setSince("4.3")
       .setDescription("This service can be used to manage quality gates, including requirements and project association.");
 
@@ -73,7 +73,7 @@ public class QualityGatesWs implements WebService {
 
     defineConditionActions(controller);
 
-    controller.newAction("app")
+    controller.createAction("app")
       .setInternal(true)
       .setDescription("Get initialization items for the admin UI")
       .setSince("4.3")
@@ -83,7 +83,7 @@ public class QualityGatesWs implements WebService {
   }
 
   private void defineConditionActions(NewController controller) {
-    NewAction createCondition = controller.newAction("create_condition")
+    NewAction createCondition = controller.createAction("create_condition")
     .setDescription("Add a new condition to a quality gate.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -92,10 +92,10 @@ public class QualityGatesWs implements WebService {
         createCondition(request, response);
       }
     });
-    createCondition.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate for which the condition will be created.");
+    createCondition.createParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate for which the condition will be created.");
     addConditionParams(createCondition);
 
-    NewAction updateCondition = controller.newAction("update_condition")
+    NewAction updateCondition = controller.createAction("update_condition")
     .setDescription("Update a condition attached to a quality gate.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -104,10 +104,10 @@ public class QualityGatesWs implements WebService {
         updateCondition(request, response);
       }
     });
-    updateCondition.newParam(PARAM_ID).setDescription("The numerical ID of the condition to update.");
+    updateCondition.createParam(PARAM_ID).setDescription("The numerical ID of the condition to update.");
     addConditionParams(updateCondition);
 
-    controller.newAction("delete_condition")
+    controller.createAction("delete_condition")
     .setDescription("Remove a condition from a quality gate.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -115,19 +115,19 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         deleteCondition(request, response);
       }
-    }).newParam(PARAM_ID).setDescription("The numerical ID of the condition to delete.");
+    }).createParam(PARAM_ID).setDescription("The numerical ID of the condition to delete.");
   }
 
   private void addConditionParams(NewAction createCondition) {
-    createCondition.newParam(PARAM_METRIC).setDescription("The key for the metric tested by this condition.");
-    createCondition.newParam(PARAM_OPERATOR).setDescription("The operator used for the test, one of 'EQ', 'NE', 'LT', 'GT'.");
-    createCondition.newParam(PARAM_PERIOD).setDescription("The optional period to use (for differential measures).");
-    createCondition.newParam(PARAM_WARNING).setDescription("An optional value for the warning threshold.");
-    createCondition.newParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
+    createCondition.createParam(PARAM_METRIC).setDescription("The key for the metric tested by this condition.");
+    createCondition.createParam(PARAM_OPERATOR).setDescription("The operator used for the test, one of 'EQ', 'NE', 'LT', 'GT'.");
+    createCondition.createParam(PARAM_PERIOD).setDescription("The optional period to use (for differential measures).");
+    createCondition.createParam(PARAM_WARNING).setDescription("An optional value for the warning threshold.");
+    createCondition.createParam(PARAM_ERROR).setDescription("An optional value for the error threshold.");
   }
 
   private void defineQualityGateActions(NewController controller) {
-    controller.newAction("create")
+    controller.createAction("create")
       .setDescription("Create a quality gate, given its name.")
       .setPost(true)
       .setHandler(new RequestHandler() {
@@ -135,9 +135,9 @@ public class QualityGatesWs implements WebService {
         public void handle(Request request, Response response) {
           create(request, response);
         }
-    }).newParam(PARAM_NAME).setDescription("The name of the quality gate to create.");
+    }).createParam(PARAM_NAME).setDescription("The name of the quality gate to create.");
 
-    NewAction copy = controller.newAction("copy")
+    NewAction copy = controller.createAction("copy")
       .setDescription("Copy a quality gate, given its ID and the name for the new quality gate.")
       .setPost(true)
       .setHandler(new RequestHandler() {
@@ -146,10 +146,10 @@ public class QualityGatesWs implements WebService {
           copy(request, response);
         }
     });
-    copy.newParam(PARAM_ID).setDescription("The ID of the source quality gate.");
-    copy.newParam(PARAM_NAME).setDescription("The name of the destination quality gate.");
+    copy.createParam(PARAM_ID).setDescription("The ID of the source quality gate.");
+    copy.createParam(PARAM_NAME).setDescription("The name of the destination quality gate.");
 
-    controller.newAction("set_as_default")
+    controller.createAction("set_as_default")
     .setDescription("Select the default quality gate.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -157,9 +157,9 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         setDefault(request, response);
       }
-    }).newParam(PARAM_ID).setDescription("The ID of the quality gate to use as default.");
+    }).createParam(PARAM_ID).setDescription("The ID of the quality gate to use as default.");
 
-    controller.newAction("unset_default")
+    controller.createAction("unset_default")
     .setDescription("Unselect the default quality gate.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -169,7 +169,7 @@ public class QualityGatesWs implements WebService {
       }
     });
 
-    NewAction rename = controller.newAction("rename")
+    NewAction rename = controller.createAction("rename")
     .setDescription("Rename a quality gate, given its id and new name.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -178,10 +178,10 @@ public class QualityGatesWs implements WebService {
         rename(request, response);
       }
     });
-    rename.newParam(PARAM_ID).setDescription("The ID of the quality gate to rename.");
-    rename.newParam(PARAM_NAME).setDescription("The new name for the quality gate.");
+    rename.createParam(PARAM_ID).setDescription("The ID of the quality gate to rename.");
+    rename.createParam(PARAM_NAME).setDescription("The new name for the quality gate.");
 
-    controller.newAction("list")
+    controller.createAction("list")
     .setDescription("List all quality gates.")
     .setHandler(new RequestHandler() {
       @Override
@@ -190,17 +190,17 @@ public class QualityGatesWs implements WebService {
       }
     });
 
-    controller.newAction("show")
+    controller.createAction("show")
     .setDescription("Show a quality gate in details, with associated conditions.")
     .setHandler(new RequestHandler() {
       @Override
       public void handle(Request request, Response response) {
         show(request, response);
       }
-    }).newParam(PARAM_ID, "The ID of the quality gate; either this or name must be provided.")
-    .newParam(PARAM_NAME, "The name of the quality gate; either this or id must be provided.");
+    }).createParam(PARAM_ID, "The ID of the quality gate; either this or name must be provided.")
+    .createParam(PARAM_NAME, "The name of the quality gate; either this or id must be provided.");
 
-    controller.newAction("destroy")
+    controller.createAction("destroy")
     .setDescription("Destroy a quality gate, given its id.")
     .setPost(true)
     .setHandler(new RequestHandler() {
@@ -208,9 +208,9 @@ public class QualityGatesWs implements WebService {
       public void handle(Request request, Response response) {
         destroy(request, response);
       }
-    }).newParam(PARAM_ID).setDescription("The numerical ID of the quality gate to destroy.");
+    }).createParam(PARAM_ID).setDescription("The numerical ID of the quality gate to destroy.");
 
-    NewAction search = controller.newAction("search")
+    NewAction search = controller.createAction("search")
     .setDescription("Search projects associated (or not) with a quality gate.")
     .setHandler(new RequestHandler() {
       @Override
@@ -218,13 +218,13 @@ public class QualityGatesWs implements WebService {
         search(request, response);
       }
     });
-    search.newParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate considered for association.");
-    search.newParam(PARAM_SELECTED).setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
-    search.newParam(PARAM_QUERY).setDescription("Optionally, part of the name of the projects to search for.");
-    search.newParam(PARAM_PAGE);
-    search.newParam(PARAM_PAGE_SIZE);
+    search.createParam(PARAM_GATE_ID).setDescription("The numerical ID of the quality gate considered for association.");
+    search.createParam(PARAM_SELECTED).setDescription("Optionally, to search for projects associated (selected=selected) or not (selected=deselected).");
+    search.createParam(PARAM_QUERY).setDescription("Optionally, part of the name of the projects to search for.");
+    search.createParam(PARAM_PAGE);
+    search.createParam(PARAM_PAGE_SIZE);
 
-    NewAction select = controller.newAction("select")
+    NewAction select = controller.createAction("select")
       .setPost(true)
       .setHandler(new RequestHandler() {
         @Override
@@ -232,10 +232,10 @@ public class QualityGatesWs implements WebService {
           select(request, response);
         }
       });
-    select.newParam(PARAM_GATE_ID);
-    select.newParam(PARAM_PROJECT_ID);
+    select.createParam(PARAM_GATE_ID);
+    select.createParam(PARAM_PROJECT_ID);
 
-    NewAction deselect = controller.newAction("deselect")
+    NewAction deselect = controller.createAction("deselect")
       .setPost(true)
       .setHandler(new RequestHandler() {
         @Override
@@ -243,8 +243,8 @@ public class QualityGatesWs implements WebService {
           deselect(request, response);
         }
       });
-    deselect.newParam(PARAM_GATE_ID);
-    deselect.newParam(PARAM_PROJECT_ID);
+    deselect.createParam(PARAM_GATE_ID);
+    deselect.createParam(PARAM_PROJECT_ID);
   }
 
   protected void copy(Request request, Response response) {

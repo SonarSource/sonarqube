@@ -32,14 +32,14 @@ public class SourcesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.newController("api/sources");
+    NewController controller = context.createController("api/sources");
 
-    controller.newAction("show")
+    controller.createAction("show")
       .setDescription("Show source of a component")
       .setSince("4.2")
       .setInternal(true)
       .setHandler(showHandler)
-      .newParam("key", "Component key");
+      .createParam("key", "Component key");
 
     controller.done();
   }
