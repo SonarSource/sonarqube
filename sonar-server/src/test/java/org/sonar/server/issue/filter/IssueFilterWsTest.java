@@ -105,7 +105,7 @@ public class IssueFilterWsTest {
     // logged-in user is 'eric' but filter is owned by 'simon'
     MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(13L, session)).thenReturn(
-      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setDescription("All Blocker Issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
     );
 
     tester.newRequest("show").setParam("id", "13").execute()
