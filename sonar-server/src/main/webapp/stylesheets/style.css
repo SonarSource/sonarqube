@@ -2466,6 +2466,10 @@ ul.modal-head-metadata li {
   width: 250px;
 }
 
+.modal-field .text {
+  line-height: 20px;
+}
+
 .modal-foot {
   text-align: right;
   padding: 2px 10px;

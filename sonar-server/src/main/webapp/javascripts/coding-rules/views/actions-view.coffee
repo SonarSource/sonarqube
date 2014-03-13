@@ -20,6 +20,7 @@ define [
     events:
       'click .navigator-actions-order': 'toggleOrderChoices'
       'click @ui.orderChoices': 'sort'
+      'click .navigator-actions-bulk': 'bulkChange'
 
 
     onRender: ->
@@ -46,6 +47,10 @@ define [
       if sort != null && asc != null
         @collection.sorting = sort: sort, sortText: el.text(), asc: asc
         @options.app.fetchFirstPage()
+
+
+    bulkChange: ->
+      @options.app.codingRulesBulkChangeView.show()
 
 
     serializeData: ->

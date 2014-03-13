@@ -22,7 +22,7 @@
     }
   });
 
-  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'navigator/filters/date-filter-view', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/views/filters/inheritance-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, BaseFilters, ChoiceFilters, StringFilterView, DateFilterView, QualityProfileFilterView, InheritanceFilterView) {
+  requirejs(['backbone', 'backbone.marionette', 'coding-rules/layout', 'coding-rules/router', 'coding-rules/views/header-view', 'coding-rules/views/actions-view', 'coding-rules/views/filter-bar-view', 'coding-rules/views/coding-rules-list-view', 'coding-rules/views/coding-rules-bulk-change-view', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'navigator/filters/string-filters', 'navigator/filters/date-filter-view', 'coding-rules/views/filters/quality-profile-filter-view', 'coding-rules/views/filters/inheritance-filter-view', 'coding-rules/mockjax'], function(Backbone, Marionette, CodingRulesLayout, CodingRulesRouter, CodingRulesHeaderView, CodingRulesActionsView, CodingRulesFilterBarView, CodingRulesListView, CodingRulesBulkChangeView, BaseFilters, ChoiceFilters, StringFilterView, DateFilterView, QualityProfileFilterView, InheritanceFilterView) {
     var App, appXHR;
     jQuery.ajaxSetup({
       error: function(jqXHR) {
@@ -112,6 +112,15 @@
         return null;
       }
     };
+    App.getInactiveQualityProfile = function() {
+      var value;
+      value = this.inactiveInFilter.get('value');
+      if ((value != null) && value.length === 1) {
+        return value[0];
+      } else {
+        return null;
+      }
+    };
     App.addInitializer(function() {
       this.layout = new CodingRulesLayout({
         app: this
@@ -137,6 +146,11 @@
         collection: this.codingRules
       });
       return this.layout.actionsRegion.show(this.codingRulesActionsView);
+    });
+    App.addInitializer(function() {
+      return this.codingRulesBulkChangeView = new CodingRulesBulkChangeView({
+        app: this
+      });
     });
     App.addInitializer(function() {
       this.filters = new BaseFilters.Filters;

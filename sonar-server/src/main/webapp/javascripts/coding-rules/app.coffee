@@ -28,6 +28,7 @@ requirejs [
   'coding-rules/views/actions-view',
   'coding-rules/views/filter-bar-view',
   'coding-rules/views/coding-rules-list-view',
+  'coding-rules/views/coding-rules-bulk-change-view',
 
   # filters
   'navigator/filters/base-filters',
@@ -49,6 +50,7 @@ requirejs [
   CodingRulesActionsView,
   CodingRulesFilterBarView,
   CodingRulesListView,
+  CodingRulesBulkChangeView,
 
   # filters
   BaseFilters,
@@ -143,6 +145,11 @@ requirejs [
     if value? && value.length == 1 then value[0] else null
 
 
+  App.getInactiveQualityProfile = ->
+    value = @inactiveInFilter.get('value')
+    if value? && value.length == 1 then value[0] else null
+
+
   # Construct layout
   App.addInitializer ->
     @layout = new CodingRulesLayout app: @
@@ -167,6 +174,11 @@ requirejs [
       app: @
       collection: @codingRules
     @layout.actionsRegion.show @codingRulesActionsView
+
+
+  # Construct bulk change view
+  App.addInitializer ->
+    @codingRulesBulkChangeView = new CodingRulesBulkChangeView app: @
 
 
   # Define filters

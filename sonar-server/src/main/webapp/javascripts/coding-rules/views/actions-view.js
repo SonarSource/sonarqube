@@ -25,7 +25,8 @@
 
       CodingRulesStatusView.prototype.events = {
         'click .navigator-actions-order': 'toggleOrderChoices',
-        'click @ui.orderChoices': 'sort'
+        'click @ui.orderChoices': 'sort',
+        'click .navigator-actions-bulk': 'bulkChange'
       };
 
       CodingRulesStatusView.prototype.onRender = function() {
@@ -62,6 +63,10 @@
           };
           return this.options.app.fetchFirstPage();
         }
+      };
+
+      CodingRulesStatusView.prototype.bulkChange = function() {
+        return this.options.app.codingRulesBulkChangeView.show();
       };
 
       CodingRulesStatusView.prototype.serializeData = function() {

@@ -8,14 +8,21 @@
       responseText: JSON.stringify({
         qualityprofiles: [
           {
+            key: 'sonarway',
             name: 'Sonar Way',
-            lang: 'Java'
+            parent: null
           }, {
-            name: 'Sonar Way',
-            lang: 'JavaScript'
-          }, {
+            key: 'qp1',
             name: 'Quality Profile 1',
-            lang: 'Java'
+            parent: 'sonarway'
+          }, {
+            key: 'qp2',
+            name: 'Quality Profile 2',
+            parent: 'sonarway'
+          }, {
+            key: 'qp3',
+            name: 'Quality Profile 3',
+            parent: null
           }
         ],
         languages: {
@@ -54,7 +61,9 @@
         messages: {
           'all': 'All',
           'any': 'Any',
+          'apply': 'Apply',
           'bulk_change': 'Bulk Change',
+          'cancel': 'Cancel',
           'moreCriteria': '+ More Criteria',
           'search_verb': 'Search',
           'update': 'Update',
@@ -64,6 +73,7 @@
           'severity.MINOR': 'Minor',
           'severity.INFO': 'Info',
           'coding_rules.activate_quality_profile': 'Activate Quality Profile',
+          'coding_rules.bulk_change': 'Bulk Change',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
           'coding_rules.found': 'Found',
           'coding_rules.new_search': 'New Search',
@@ -160,6 +170,9 @@
           ]
         }
       })
+    });
+    jQuery.mockjax({
+      url: "" + baseUrl + "/api/codingrules/bulk_change"
     });
     jQuery.mockjax({
       url: "" + baseUrl + "/api/qualityprofiles/list",
