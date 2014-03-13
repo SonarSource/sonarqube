@@ -28,10 +28,10 @@ import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * Used in the Active Record Migration 513
@@ -80,7 +80,7 @@ public class IssueMigration implements DatabaseMigration {
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setLong(1, workDurationConvertor.createFromLong(row.debt));
-          updateStatement.setDate(2, new Date(system2.now()));
+          updateStatement.setTimestamp(2, new Timestamp(system2.now()));
           updateStatement.setLong(3, row.id);
           return true;
         }

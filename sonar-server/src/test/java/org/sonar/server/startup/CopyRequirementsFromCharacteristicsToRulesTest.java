@@ -51,7 +51,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
 
   @Before
   public void setUp() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-12").getTime());
+    when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-03-13T19:10:03+0100").getTime());
     service = new CopyRequirementsFromCharacteristicsToRules(db.database(), new RequirementDao(getMyBatis()), status, system2);
   }
 

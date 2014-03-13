@@ -176,7 +176,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
         updateStatement.setNull(2, Types.VARCHAR);
         updateStatement.setNull(3, Types.VARCHAR);
         updateStatement.setNull(4, Types.VARCHAR);
-        updateStatement.setDate(5, new Date(system2.now()));
+        updateStatement.setTimestamp(5, new Timestamp(system2.now()));
         updateStatement.setInt(6, ruleRow.getId());
         return true;
 
@@ -194,7 +194,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
           updateStatement.setString(2, ruleRow.getFunction());
           updateStatement.setString(3, ruleRow.getFactor());
           updateStatement.setString(4, ruleRow.getOffset());
-          updateStatement.setDate(5, new Date(system2.now()));
+          updateStatement.setTimestamp(5, new Timestamp(system2.now()));
           updateStatement.setInt(6, ruleRow.getId());
           return true;
         }

@@ -29,10 +29,10 @@ import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,7 +84,7 @@ public class IssueChangelogMigration implements DatabaseMigration {
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           updateStatement.setString(1, convertChangelog(row.changeData));
-          updateStatement.setDate(2, new Date(system2.now()));
+          updateStatement.setTimestamp(2, new Timestamp(system2.now()));
           updateStatement.setLong(3, row.id);
           return true;
         }

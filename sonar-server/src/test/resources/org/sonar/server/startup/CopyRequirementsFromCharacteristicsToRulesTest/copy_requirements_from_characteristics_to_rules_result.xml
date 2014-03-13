@@ -12,7 +12,7 @@
          characteristic_id="-1" default_characteristic_id="10"
          remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
          remediation_factor="[null]" default_remediation_factor="5d"
-         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-03-12"/>
+         remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-03-13 19:10:03.0"/>
 
   <!-- Removed rule linked to a disabled requirement -> Do nothing -->
   <rules id="3" plugin_rule_key="CallToFileDeleteOnExitMethod" plugin_name="squid" name="CallToFileDeleteOnExitMethod" description="CallToFileDeleteOnExitMethod" status="REMOVED"
@@ -33,6 +33,6 @@
          characteristic_id="10" default_characteristic_id="20"
          remediation_function="LINEAR_OFFSET" default_remediation_function="LINEAR"
          remediation_factor="20min" default_remediation_factor="5d"
-         remediation_offset="30h" default_remediation_offset="[null]" updated_at="2014-03-12"/>
+         remediation_offset="30h" default_remediation_offset="[null]" updated_at="2014-03-13 19:10:03.0"/>
 
 </dataset>

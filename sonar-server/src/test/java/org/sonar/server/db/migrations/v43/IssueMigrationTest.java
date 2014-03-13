@@ -48,7 +48,7 @@ public class IssueMigrationTest {
 
   @Before
   public void setUp() throws Exception {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-02-19").getTime());
+    when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
     settings = new Settings();
     settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
 
