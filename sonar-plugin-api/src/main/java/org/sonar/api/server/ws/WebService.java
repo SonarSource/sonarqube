@@ -33,7 +33,63 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Defines a web service implemented in Java (no Ruby on Rails at all).
+ * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
+ * the ws is fully implemented in Java and does not require any Ruby on Rails code.
+ *
+ * <p/>
+ * The classes implementing this extension point must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
+ *
+ * <h2>How to use</h2>
+ * <pre>
+ * public class HelloWs implements WebService {
+ *   @Override
+ *   public void define(Context context) {
+ *     NewController controller = context.createController("api/hello");
+ *     controller.setDescription("Web service example");
+ *
+ *     // create the URL /api/hello/show
+ *     controller.createAction("show")
+ *       .setDescription("Entry point")
+ *       .setHandler(new RequestHandler() {
+ *         @Override
+ *         public void handle(Request request, Response response) {
+ *           // read request parameters and generates response output
+ *           response.newJsonWriter()
+ *             .prop("hello", request.mandatoryParam("key"))
+ *             .close();
+ *         }
+ *      })
+ *      .createParam("key", "Example key");
+ *
+ *    // important to apply changes
+ *    controller.done();
+ *   }
+ * }
+ * </pre>
+ * <h2>How to unit test</h2>
+ * <pre>
+ * public class HelloWsTest {
+ *   WebService ws = new HelloWs();
+ *
+ *   @Test
+ *   public void should_define_ws() throws Exception {
+ *     // WsTester is available in the Maven artifact org.codehaus.sonar:sonar-plugin-api
+ *     // with type "test-jar"
+ *     WsTester tester = new WsTester(ws);
+ *     WebService.Controller controller = tester.controller("api/hello");
+ *     assertThat(controller).isNotNull();
+ *     assertThat(controller.path()).isEqualTo("api/hello");
+ *     assertThat(controller.description()).isNotEmpty();
+ *     assertThat(controller.actions()).hasSize(1);
+ *
+ *     WebService.Action show = controller.action("show");
+ *     assertThat(show).isNotNull();
+ *     assertThat(show.key()).isEqualTo("show");
+ *     assertThat(index.handler()).isNotNull();
+ *   }
+ * }
+ * </pre>
+ *
  * @since 4.2
  */
 public interface WebService extends ServerExtension {
@@ -41,7 +97,14 @@ public interface WebService extends ServerExtension {
   class Context {
     private final Map<String, Controller> controllers = Maps.newHashMap();
 
-    public NewController newController(String path) {
+    /**
+     * Create a new controller.
+     * <p/>
+     * Structure of request URL is <code>http://&lt;server&gt;/&lt>controller path&gt;/&lt;action path&gt;?&lt;parameters&gt;</code>.
+     *
+     * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
+     */
+    public NewController createController(String path) {
       return new NewController(this, path);
     }
 
@@ -72,27 +135,40 @@ public interface WebService extends ServerExtension {
 
     private NewController(Context context, String path) {
       if (StringUtils.isBlank(path)) {
-        throw new IllegalArgumentException("Web service path can't be empty");
+        throw new IllegalArgumentException("WS controller path must not be empty");
+      }
+      if (StringUtils.startsWith(path, "/") || StringUtils.endsWith(path, "/")) {
+        throw new IllegalArgumentException("WS controller path must not start or end with slash: " + path);
       }
       this.context = context;
       this.path = path;
     }
 
+    /**
+     * Important - this method must be called in order to apply changes and make the
+     * controller available in {@link org.sonar.api.server.ws.WebService.Context#controllers()}
+     */
     public void done() {
       context.register(this);
     }
 
+    /**
+     * Optional plain-text description
+     */
     public NewController setDescription(@Nullable String s) {
       this.description = s;
       return this;
     }
 
+    /**
+     * Optional version when the controller was created
+     */
     public NewController setSince(@Nullable String s) {
       this.since = s;
       return this;
     }
 
-    public NewAction newAction(String actionKey) {
+    public NewAction createAction(String actionKey) {
       if (actions.containsKey(actionKey)) {
         throw new IllegalStateException(
           String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path)
@@ -185,7 +261,7 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
-    public NewParam newParam(String paramKey) {
+    public NewParam createParam(String paramKey) {
       if (newParams.containsKey(paramKey)) {
         throw new IllegalStateException(
           String.format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key)
@@ -196,8 +272,8 @@ public interface WebService extends ServerExtension {
       return newParam;
     }
 
-    public NewAction newParam(String paramKey, @Nullable String description) {
-      newParam(paramKey).setDescription(description);
+    public NewAction createParam(String paramKey, @Nullable String description) {
+      createParam(paramKey).setDescription(description);
       return this;
     }
   }

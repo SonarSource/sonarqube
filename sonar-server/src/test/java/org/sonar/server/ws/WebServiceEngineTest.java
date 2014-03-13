@@ -188,8 +188,8 @@ public class WebServiceEngineTest {
   static class SystemWebService implements WebService {
     @Override
     public void define(Context context) {
-      NewController newController = context.newController("api/system");
-      newController.newAction("health")
+      NewController newController = context.createController("api/system");
+      newController.createAction("health")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -200,7 +200,7 @@ public class WebServiceEngineTest {
             }
           }
         });
-      newController.newAction("ping")
+      newController.createAction("ping")
         .setPost(true)
         .setHandler(new RequestHandler() {
           @Override
@@ -212,14 +212,14 @@ public class WebServiceEngineTest {
             }
           }
         });
-      newController.newAction("fail")
+      newController.createAction("fail")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
             throw new IllegalStateException("Unexpected");
           }
         });
-      newController.newAction("alive")
+      newController.createAction("alive")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
@@ -228,9 +228,9 @@ public class WebServiceEngineTest {
       });
 
       // parameter "message" is required but not "author"
-      newController.newAction("print")
-        .newParam("message", "required message")
-        .newParam("author", "optional author")
+      newController.createAction("print")
+        .createParam("message", "required message")
+        .createParam("author", "optional author")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {

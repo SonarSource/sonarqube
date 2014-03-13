@@ -35,21 +35,21 @@ public class RulesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.newController("api/rules")
+    NewController controller = context.createController("api/rules")
       .setDescription("Coding rules");
 
-    controller.newAction("show")
+    controller.createAction("show")
       .setDescription("Detail of rule")
       .setSince("4.2")
       .setHandler(showHandler);
 
-    addTagParams(controller.newAction("add_tags")
+    addTagParams(controller.createAction("add_tags")
       .setDescription("Add tags to a rule")
       .setSince("4.2")
       .setPost(true)
       .setHandler(addTagsWsHandler));
 
-    addTagParams(controller.newAction("remove_tags")
+    addTagParams(controller.createAction("remove_tags")
       .setDescription("Remove tags from a rule")
       .setSince("4.2")
       .setPost(true)
@@ -59,7 +59,7 @@ public class RulesWs implements WebService {
   }
 
   private void addTagParams(final NewAction action) {
-    action.newParam("key", "Full key of the rule");
-    action.newParam("tags", "Comma separated list of tags");
+    action.createParam("key", "Full key of the rule");
+    action.createParam("tags", "Comma separated list of tags");
   }
 }
