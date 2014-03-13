@@ -51,7 +51,7 @@ public class MavenProjectConverterTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  MavenProjectConverter mavenProjectConverter = new MavenProjectConverter();
+  MavenProjectConverter converter = new MavenProjectConverter();
 
   /**
    * See SONAR-2681
@@ -64,7 +64,7 @@ public class MavenProjectConverterTest {
     root.getModules().add("module/pom.xml");
 
     try {
-      mavenProjectConverter.configure(Arrays.asList(root), root);
+      converter.configure(Arrays.asList(root), root);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage(), containsString("Advanced Reactor Options"));
@@ -84,7 +84,7 @@ public class MavenProjectConverterTest {
     module.setFile(new File(basedir, "module/pom.xml"));
     module.getBuild().setDirectory("target");
     module.getBuild().setOutputDirectory("target/classes");
-    ProjectDefinition project = mavenProjectConverter.configure(Arrays.asList(root, module), root);
+    ProjectDefinition project = converter.configure(Arrays.asList(root, module), root);
 
     assertThat(project.getSubProjects().size(), is(1));
   }
@@ -108,7 +108,7 @@ public class MavenProjectConverterTest {
     pom.setFile(new File("/foo/pom.xml"));
     pom.getBuild().setDirectory("target");
     ProjectDefinition project = ProjectDefinition.create();
-    MavenProjectConverter.merge(pom, project);
+    converter.merge(pom, project);
 
     Properties properties = project.getProperties();
     assertThat(properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY), is("foo:bar"));
@@ -124,7 +124,7 @@ public class MavenProjectConverterTest {
     MavenProject module1 = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module1/pom.xml", false);
     MavenProject module2 = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module2/pom.xml", false);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(parent, module1, module2), parent);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(parent, module1, module2), parent);
 
     assertThat(rootDef.getSubProjects().size(), Is.is(2));
     assertThat(rootDef.getKey(), Is.is("org.test:parent"));
@@ -145,7 +145,7 @@ public class MavenProjectConverterTest {
     MavenProject module1 = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path1/pom.xml", false);
     MavenProject module2 = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path2/pom.xml", false);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(parent, module1, module2), parent);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(parent, module1, module2), parent);
 
     assertThat(rootDef.getSubProjects().size(), is(2));
     assertThat(rootDef.getKey(), is("org.test:parent"));
@@ -165,7 +165,7 @@ public class MavenProjectConverterTest {
     MavenProject parent = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
     MavenProject module = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/module/pom_having_different_name.xml", false);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(parent, module), parent);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(parent, module), parent);
 
     assertThat(rootDef.getSubProjects().size(), Is.is(1));
     assertThat(rootDef.getKey(), Is.is("org.test:parent"));
@@ -184,7 +184,7 @@ public class MavenProjectConverterTest {
     File rootDir = TestUtils.getResource("/org/sonar/plugins/maven/MavenProjectConverterTest/singleProjectWithoutModules/");
     MavenProject pom = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(pom), pom);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(pom), pom);
 
     assertThat(rootDef.getKey(), is("org.test:parent"));
     assertThat(rootDef.getSubProjects().size(), is(0));
@@ -196,7 +196,7 @@ public class MavenProjectConverterTest {
   public void shouldConvertLinksToProperties() throws Exception {
     MavenProject pom = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/projectWithLinks/pom.xml", true);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(pom), pom);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(pom), pom);
 
     Properties props = rootDef.getProperties();
     assertThat(props.getProperty(CoreProperties.LINKS_HOME_PAGE)).isEqualTo("http://home.com");
@@ -210,7 +210,7 @@ public class MavenProjectConverterTest {
   public void shouldNotConvertLinksToPropertiesIfPropertyAlreadyDefined() throws Exception {
     MavenProject pom = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/projectWithLinksAndProperties/pom.xml", true);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(pom), pom);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(pom), pom);
 
     Properties props = rootDef.getProperties();
 
@@ -228,7 +228,7 @@ public class MavenProjectConverterTest {
   public void shouldLoadSourceEncoding() throws Exception {
     MavenProject pom = loadPom("/org/sonar/plugins/maven/MavenProjectConverterTest/sourceEncoding/pom.xml", true);
 
-    ProjectDefinition rootDef = mavenProjectConverter.configure(Arrays.asList(pom), pom);
+    ProjectDefinition rootDef = converter.configure(Arrays.asList(pom), pom);
 
     assertThat(rootDef.getProperties().getProperty(CoreProperties.ENCODING_PROPERTY)).isEqualTo("Shift_JIS");
   }

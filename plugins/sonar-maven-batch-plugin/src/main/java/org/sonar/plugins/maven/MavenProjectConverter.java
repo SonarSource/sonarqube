@@ -20,6 +20,7 @@
 package org.sonar.plugins.maven;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -37,10 +38,10 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +114,7 @@ public class MavenProjectConverter implements TaskExtension {
   }
 
   @VisibleForTesting
-  static void merge(MavenProject pom, ProjectDefinition definition) {
+  void merge(MavenProject pom, ProjectDefinition definition) {
     String key = getSonarKey(pom);
     // IMPORTANT NOTE : reference on properties from POM model must not be saved,
     // instead they should be copied explicitly - see SONAR-2896
@@ -130,7 +131,7 @@ public class MavenProjectConverter implements TaskExtension {
     synchronizeFileSystem(pom, definition);
   }
 
-  public static String getSonarKey(MavenProject pom) {
+  private static String getSonarKey(MavenProject pom) {
     return new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
   }
 
@@ -187,17 +188,15 @@ public class MavenProjectConverter implements TaskExtension {
     }
   }
 
-  public static void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
+  public void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
     into.setBaseDir(pom.getBasedir());
     File buildDir = getBuildDir(pom);
     if (buildDir != null) {
       into.setBuildDir(buildDir);
       into.setWorkDir(getSonarWorkDir(pom));
     }
-    List<String> filteredCompileSourceRoots = filterExisting(pom.getCompileSourceRoots(), pom.getBasedir());
-    List<String> filteredTestCompileSourceRoots = filterExisting(pom.getTestCompileSourceRoots(), pom.getBasedir());
-    into.setSourceDirs((String[]) filteredCompileSourceRoots.toArray(new String[filteredCompileSourceRoots.size()]));
-    into.setTestDirs((String[]) filteredTestCompileSourceRoots.toArray(new String[filteredTestCompileSourceRoots.size()]));
+    into.setSourceDirs(filterExisting(sourceDirs(pom)));
+    into.setTestDirs(filterExisting(testDirs(pom)));
     File binaryDir = resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir());
     if (binaryDir != null) {
       into.addBinaryDir(binaryDir);
@@ -212,22 +211,28 @@ public class MavenProjectConverter implements TaskExtension {
     return resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
   }
 
-  private static List<String> filterExisting(List<String> filePaths, final File baseDir) {
-    return Lists.newArrayList(Collections2.filter(filePaths, new Predicate<String>() {
+  private static String[] filterExisting(List<File> files) {
+    Collection<File> filtered = Collections2.filter(files, new Predicate<File>() {
       @Override
-      public boolean apply(String filePath) {
-        File file = resolvePath(filePath, baseDir);
+      public boolean apply(File file) {
         return file != null && file.exists();
       }
-    }));
+    });
+    Collection<String> paths = Collections2.transform(filtered, new Function<File, String>() {
+      @Override
+      public String apply(File file) {
+        return file.getAbsolutePath();
+      }
+    });
+    return paths.toArray(new String[paths.size()]);
   }
 
-  public static void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
+  public void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
     into.resetDirs(
       pom.getBasedir(),
       getBuildDir(pom),
-      resolvePaths(pom.getCompileSourceRoots(), pom.getBasedir()),
-      resolvePaths(pom.getTestCompileSourceRoots(), pom.getBasedir()),
+      sourceDirs(pom),
+      testDirs(pom),
       Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 
@@ -255,5 +260,27 @@ public class MavenProjectConverter implements TaskExtension {
       }
     }
     return result;
+  }
+
+  List<File> sourceDirs(MavenProject pom) {
+    List<String> paths;
+    String prop = pom.getProperties().getProperty(ProjectDefinition.SOURCE_DIRS_PROPERTY);
+    if (prop != null) {
+      paths = Arrays.asList(StringUtils.split(prop, ","));
+    } else {
+      paths = pom.getCompileSourceRoots();
+    }
+    return resolvePaths(paths, pom.getBasedir());
+  }
+
+  List<File> testDirs(MavenProject pom) {
+    List<String> paths;
+    String prop = pom.getProperties().getProperty(ProjectDefinition.TEST_DIRS_PROPERTY);
+    if (prop != null) {
+      paths = Arrays.asList(StringUtils.split(prop, ","));
+    } else {
+      paths = pom.getTestCompileSourceRoots();
+    }
+    return resolvePaths(paths, pom.getBasedir());
   }
 }

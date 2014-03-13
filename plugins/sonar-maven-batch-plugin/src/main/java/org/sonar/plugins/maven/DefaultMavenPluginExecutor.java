@@ -40,12 +40,14 @@ import java.util.Arrays;
 @SupportedEnvironment("maven")
 public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
 
+  private final MavenProjectConverter pomConverter;
   private LifecycleExecutor lifecycleExecutor;
   private MavenSession mavenSession;
 
-  public DefaultMavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession) {
+  public DefaultMavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession, MavenProjectConverter pomConverter) {
     this.lifecycleExecutor = le;
     this.mavenSession = mavenSession;
+    this.pomConverter = pomConverter;
   }
 
   @Override
@@ -77,7 +79,7 @@ public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
         profiler.stop();
       }
       if (!fs.isInitialized()) {
-        MavenProjectConverter.synchronizeFileSystem(project.getPom(), fs);
+        pomConverter.synchronizeFileSystem(project.getPom(), fs);
       }
     }
   }
