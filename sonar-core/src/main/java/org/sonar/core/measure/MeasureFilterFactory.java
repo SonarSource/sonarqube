@@ -48,7 +48,6 @@ public class MeasureFilterFactory implements ServerComponent {
     filter.setBaseResourceKey((String) properties.get("base"));
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
-    filter.setResourceLanguages(toList(properties.get("languages")));
     MeasureFilterCondition condition = alertToCondition(toList(properties.get("alertLevels")));
     if (condition != null) {
       filter.addCondition(condition);

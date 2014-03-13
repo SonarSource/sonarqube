@@ -43,7 +43,6 @@ public class MeasureFilter {
 
   private List<String> resourceScopes = Collections.emptyList();
   private List<String> resourceQualifiers = Collections.emptyList();
-  private List<String> resourceLanguages = Collections.emptyList();
   private String resourceKey = null;
   private String resourceName = null;
   private Date fromDate = null, toDate = null;
@@ -86,11 +85,6 @@ public class MeasureFilter {
     if (resourceQualifiers.contains(Qualifiers.DIRECTORY)) {
       resourceQualifiers.add(Qualifiers.PACKAGE);
     }
-    return this;
-  }
-
-  public MeasureFilter setResourceLanguages(@Nullable List<String> list) {
-    this.resourceLanguages = sanitize(list);
     return this;
   }
 
@@ -171,10 +165,6 @@ public class MeasureFilter {
 
   public List<String> getResourceQualifiers() {
     return resourceQualifiers;
-  }
-
-  public List<String> getResourceLanguages() {
-    return resourceLanguages;
   }
 
   public List<MeasureFilterCondition> getMeasureConditions() {
