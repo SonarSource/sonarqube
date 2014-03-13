@@ -19,6 +19,8 @@
  */
 package org.sonar.server.startup;
 
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -47,11 +49,13 @@ public class RegisterMetrics {
   private final MeasuresDao measuresDao;
   private final Metrics[] metricsRepositories;
   private final DatabaseSession session;
+  private final QualityGateConditionDao conditionDao;
 
-  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, Metrics[] metricsRepositories) {
+  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, QualityGateConditionDao conditionDao, Metrics[] metricsRepositories) {
     this.session = session;
     this.measuresDao = measuresDao;
     this.metricsRepositories = metricsRepositories;
+    this.conditionDao = conditionDao;
   }
 
   public void start() {
@@ -105,6 +109,8 @@ public class RegisterMetrics {
 
   protected void cleanAlerts() {
     LOG.info("cleaning alert thresholds...");
+    conditionDao.deleteConditionsWithInvalidMetrics();
+/*
     Query query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric))");
     query.executeUpdate();
 
@@ -112,6 +118,7 @@ public class RegisterMetrics {
     query.setParameter("enabled", Boolean.TRUE);
     query.executeUpdate();
     session.commit();
+*/
   }
 
   protected void register(List<Metric> metrics) {

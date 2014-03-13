@@ -104,6 +104,20 @@ public class QualityGateConditionDao {
     getMapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
+  public void deleteConditionsWithInvalidMetrics() {
+    SqlSession session = myBatis.openSession();
+    try {
+      deleteConditionsWithInvalidMetrics(session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteConditionsWithInvalidMetrics(SqlSession session) {
+    getMapper(session).deleteConditionsWithInvalidMetrics();
+  }
+
   private QualityGateConditionMapper getMapper(SqlSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }

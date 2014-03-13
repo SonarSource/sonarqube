@@ -6,17 +6,14 @@
   <metrics delete_historical_data="false" id="2" name="disabledkey2" val_type="INT" description="description"  domain="domain"
            short_name="name2" qualitative="false" user_managed="false" enabled="false" origin="JAV" worst_value="[null]" optimized_best_value="false" best_value="[null]" direction="1" hidden="false"/>
 
-  <rules_profiles id="1" version="1" used_profile="true" name="profile1" language="JAV" />
-  <rules_profiles id="2" version="1" used_profile="true" name="profile2" language="JAV" />
-
   <!-- ok -->
-  <alerts id="1" profile_id="1" metric_id="1" operator=">" value_error="30" value_warning="[null]" period="[null]"/>
-  <alerts id="2" profile_id="2" metric_id="1" operator=">" value_error="[null]" value_warning="150" period="[null]"/>
+  <quality_gate_conditions id="1" qgate_id="1" metric_id="1" operator="GT" value_error="30" value_warning="[null]" period="[null]"/>
+  <quality_gate_conditions id="2" qgate_id="2" metric_id="1" operator="GT" value_error="[null]" value_warning="150" period="[null]"/>
 
   <!-- disabled metric -->
-  <!--<alerts id="3" profile_id="1" metric_id="2" operator=">" value_error="30" value_warning="[null]" period="[null]"/>-->
+  <!--<quality_gate_conditions id="3" qgate_id="1" metric_id="2" operator="GT" value_error="30" value_warning="[null]" period="[null]"/>-->
 
   <!-- unknown metric -->
-  <!--<alerts id="4" profile_id="1" metric_id="999" operator=">" value_error="30" value_warning="[null]" period="[null]"/>-->
+  <!--<quality_gate_conditions id="4" qgate_id="1" metric_id="999" operator="GT" value_error="30" value_warning="[null]" period="[null]"/>-->
 
 </dataset>

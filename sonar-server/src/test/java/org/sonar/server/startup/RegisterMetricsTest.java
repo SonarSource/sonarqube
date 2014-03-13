@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -31,8 +32,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
@@ -55,7 +55,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
         .setUserManaged(false)
         .create();
 
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), null);
     synchronizer.register(Arrays.asList(metric1, metric2));
     checkTables("shouldSaveIfNew", "metrics");
   }
@@ -64,7 +64,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void shouldUpdateIfAlreadyExists() {
     setupData("shouldUpdateIfAlreadyExists");
 
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), null);
     synchronizer.register(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
         .setDescription("new description")
         .setDirection(-1)
@@ -88,7 +88,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
         .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).hasSize(1);
@@ -108,7 +108,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
         .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).isEmpty();
@@ -119,7 +119,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     setupData("shouldEnableOnlyLoadedMetrics");
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, null);
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), null);
     loader.start();
 
     assertThat(measuresDao.getMetric("deprecated").getEnabled()).isFalse();
@@ -128,11 +128,9 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldCleanAlerts() {
-    setupData("shouldCleanAlerts");
-
-    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
+    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), conditionDao, null);
     loader.cleanAlerts();
-
-    checkTables("shouldCleanAlerts", "metrics", "alerts");
+    verify(conditionDao).deleteConditionsWithInvalidMetrics();
   }
 }

@@ -37,5 +37,10 @@
     where id=#{id}
   </update>
 
+  <delete id="deleteConditionsWithInvalidMetrics">
+    delete from quality_gate_conditions
+    where metric_id not in (select id from metrics where enabled=true)
+  </delete>
+
 </mapper>
 
