@@ -34,6 +34,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.task.TaskExtension;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
@@ -195,8 +196,8 @@ public class MavenProjectConverter implements TaskExtension {
       into.setBuildDir(buildDir);
       into.setWorkDir(getSonarWorkDir(pom));
     }
-    into.setSourceDirs(filterExisting(sourceDirs(pom)));
-    into.setTestDirs(filterExisting(testDirs(pom)));
+    into.setSourceDirs(toPaths(mainDirs(pom)));
+    into.setTestDirs(toPaths(testDirs(pom)));
     File binaryDir = resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir());
     if (binaryDir != null) {
       into.addBinaryDir(binaryDir);
@@ -211,34 +212,18 @@ public class MavenProjectConverter implements TaskExtension {
     return resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
   }
 
-  private static String[] filterExisting(List<File> files) {
-    Collection<File> filtered = Collections2.filter(files, new Predicate<File>() {
-      @Override
-      public boolean apply(File file) {
-        return file != null && file.exists();
-      }
-    });
-    Collection<String> paths = Collections2.transform(filtered, new Function<File, String>() {
-      @Override
-      public String apply(File file) {
-        return file.getAbsolutePath();
-      }
-    });
-    return paths.toArray(new String[paths.size()]);
-  }
-
   public void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
     into.resetDirs(
       pom.getBasedir(),
       getBuildDir(pom),
-      sourceDirs(pom),
+      mainDirs(pom),
       testDirs(pom),
       Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 
   static File resolvePath(@Nullable String path, File basedir) {
     if (path != null) {
-      File file = new File(path);
+      File file = new File(StringUtils.trim(path));
       if (!file.isAbsolute()) {
         try {
           file = new File(basedir, path).getCanonicalFile();
@@ -262,25 +247,58 @@ public class MavenProjectConverter implements TaskExtension {
     return result;
   }
 
-  List<File> sourceDirs(MavenProject pom) {
-    List<String> paths;
-    String prop = pom.getProperties().getProperty(ProjectDefinition.SOURCE_DIRS_PROPERTY);
-    if (prop != null) {
-      paths = Arrays.asList(StringUtils.split(prop, ","));
-    } else {
-      paths = pom.getCompileSourceRoots();
-    }
-    return resolvePaths(paths, pom.getBasedir());
+  private List<File> mainDirs(MavenProject pom) {
+    return sourceDirs(pom, ProjectDefinition.SOURCE_DIRS_PROPERTY, pom.getCompileSourceRoots());
   }
 
-  List<File> testDirs(MavenProject pom) {
+  private List<File> testDirs(MavenProject pom) {
+    return sourceDirs(pom, ProjectDefinition.TEST_DIRS_PROPERTY, pom.getTestCompileSourceRoots());
+  }
+
+  private List<File> sourceDirs(MavenProject pom, String propertyKey, List mavenDirs) {
     List<String> paths;
-    String prop = pom.getProperties().getProperty(ProjectDefinition.TEST_DIRS_PROPERTY);
+    String prop = pom.getProperties().getProperty(propertyKey);
     if (prop != null) {
       paths = Arrays.asList(StringUtils.split(prop, ","));
-    } else {
-      paths = pom.getTestCompileSourceRoots();
+      // do not remove dirs that do not exist. They must be kept in order to
+      // notify users that value of sonar.sources has a typo.
+      return existingDirsOrFail(resolvePaths(paths, pom.getBasedir()), pom, propertyKey);
     }
-    return resolvePaths(paths, pom.getBasedir());
+
+    List<File> dirs = resolvePaths(mavenDirs, pom.getBasedir());
+
+    // Maven provides some directories that do not exist. They
+    // should be removed
+    return keepExistingDirs(dirs);
+  }
+
+  private List<File> existingDirsOrFail(List<File> dirs, MavenProject pom, String propertyKey) {
+    for (File dir : dirs) {
+      if (!dir.isDirectory() || !dir.exists()) {
+        throw MessageException.of(String.format(
+          "The directory '%s' does not exist for Maven module %s. Please check the property %s",
+          dir.getAbsolutePath(), pom.getId(), propertyKey));
+      }
+    }
+    return dirs;
+  }
+
+  private static List<File> keepExistingDirs(List<File> files) {
+    return Lists.newArrayList(Collections2.filter(files, new Predicate<File>() {
+      @Override
+      public boolean apply(File dir) {
+        return dir != null && dir.exists() && dir.isDirectory();
+      }
+    }));
+  }
+
+  private static String[] toPaths(Collection<File> dirs) {
+    Collection<String> paths = Collections2.transform(dirs, new Function<File, String>() {
+      @Override
+      public String apply(File dir) {
+        return dir.getAbsolutePath();
+      }
+    });
+    return paths.toArray(new String[paths.size()]);
   }
 }
