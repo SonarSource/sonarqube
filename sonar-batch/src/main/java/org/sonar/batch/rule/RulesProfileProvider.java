@@ -78,7 +78,6 @@ public class RulesProfileProvider extends ProviderAdapter {
       activeRule.getActiveRuleParams().size();
       activeRule.getRule().getParams().size();
     }
-    profile.getAlerts().size();
     return profile;
   }
 }

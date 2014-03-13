@@ -95,7 +95,6 @@ public class PreviewDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "rules")
       .copyTable(source, dest, "rules_parameters")
       .copyTable(source, dest, "rules_profiles")
-      .copyTable(source, dest, "alerts")
       .copyTableColumns(source, dest, "users", new String[] {"id", "login", "name", "active"});
     if (projectId != null) {
       template.copyTable(source, dest, "projects", projectQuery(projectId, false));

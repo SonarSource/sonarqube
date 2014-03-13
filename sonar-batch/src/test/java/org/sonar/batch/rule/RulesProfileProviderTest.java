@@ -51,7 +51,6 @@ public class RulesProfileProviderTest {
     assertThat(profile).isNotNull().isInstanceOf(RulesProfileWrapper.class);
     assertThat(profile.getLanguage()).isEqualTo("");
     assertThat(profile.getName()).isEqualTo("SonarQube");
-    assertThat(profile.getAlerts()).isEmpty();
     assertThat(profile.getActiveRules()).isEmpty();
     try {
       profile.getId();

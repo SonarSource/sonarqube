@@ -22,7 +22,6 @@ package org.sonar.batch.rule;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -92,15 +91,6 @@ public class RulesProfileWrapper extends RulesProfile {
       }
     }
     return null;
-  }
-
-  @Override
-  public List<Alert> getAlerts() {
-    List<Alert> result = new ArrayList<Alert>();
-    for (RulesProfile profile : profiles) {
-      result.addAll(profile.getAlerts());
-    }
-    return result;
   }
 
   @Override

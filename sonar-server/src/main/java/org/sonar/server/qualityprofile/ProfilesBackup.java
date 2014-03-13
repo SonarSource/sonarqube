@@ -25,11 +25,8 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
@@ -63,7 +60,6 @@ public class ProfilesBackup {
     String defaultProfile = "defaultProfile";
 
     xStream.alias("profile", RulesProfile.class);
-    xStream.alias("alert", Alert.class);
     xStream.alias("active-rule", ActiveRule.class);
     xStream.aliasField("active-rules", RulesProfile.class, "activeRules");
     xStream.aliasField("default-profile", RulesProfile.class, defaultProfile);
@@ -73,7 +69,6 @@ public class ProfilesBackup {
     xStream.omitField(RulesProfile.class, defaultProfile);
     xStream.omitField(RulesProfile.class, "enabled");
     xStream.registerConverter(getActiveRuleConverter());
-    xStream.registerConverter(getAlertsConverter());
   }
 
   public void importProfile(RulesDao rulesDao, RulesProfile toImport) {
@@ -86,27 +81,8 @@ public class ProfilesBackup {
       toImport.setUsed(false);
     }
     importActiveRules(rulesDao, toImport);
-    importAlerts(toImport);
     session.save(toImport);
     dryRunCache.reportGlobalModification();
-  }
-
-  private void importAlerts(RulesProfile profile) {
-    if (profile.getAlerts() != null) {
-      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext(); ) {
-        Alert alert = ia.next();
-        Metric unMarshalledMetric = alert.getMetric();
-        String validKey = unMarshalledMetric.getKey();
-        Metric matchingMetricInDb = session.getSingleResult(Metric.class, KEY, validKey);
-        if (matchingMetricInDb == null) {
-          LoggerFactory.getLogger(getClass()).error("Unable to find metric " + validKey);
-          ia.remove();
-          continue;
-        }
-        alert.setMetric(matchingMetricInDb);
-        alert.setRulesProfile(profile);
-      }
-    }
   }
 
   private void importActiveRules(RulesDao rulesDao, RulesProfile profile) {
@@ -136,37 +112,6 @@ public class ProfilesBackup {
         }
       }
     }
-  }
-
-  private Converter getAlertsConverter() {
-    return new Converter() {
-
-      public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-        Alert alert = (Alert) source;
-        writeNode(writer, OPERATOR, alert.getOperator());
-        writeNode(writer, VALUE_ERROR, alert.getValueError());
-        writeNode(writer, VALUE_WARNING, alert.getValueWarning());
-        if (alert.getPeriod() != null) {
-          writeNode(writer, PERIOD, Integer.toString(alert.getPeriod()));
-        }
-        writeNode(writer, METRIC_KEY, alert.getMetric().getKey());
-      }
-
-      public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Map<String, String> values = readNode(reader);
-        Alert alert = new Alert(null, new Metric(values.get(METRIC_KEY)), values.get(OPERATOR), values.get(VALUE_ERROR),
-          values.get(VALUE_WARNING));
-        String periodText = values.get(PERIOD);
-        if (StringUtils.isNotEmpty(periodText)) {
-          alert.setPeriod(Integer.parseInt(periodText));
-        }
-        return alert;
-      }
-
-      public boolean canConvert(Class type) {
-        return type.equals(Alert.class);
-      }
-    };
   }
 
   private Converter getActiveRuleConverter() {

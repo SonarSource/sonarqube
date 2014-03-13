@@ -92,9 +92,6 @@ public class RulesProfile implements Cloneable {
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   private List<ActiveRule> activeRules = Lists.newArrayList();
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
-  private List<Alert> alerts = Lists.newArrayList();
-
   /**
    * @deprecated use the factory method create()
    */
@@ -110,7 +107,6 @@ public class RulesProfile implements Cloneable {
     this.name = name;
     this.language = language;
     this.activeRules = Lists.newArrayList();
-    this.alerts = Lists.newArrayList();
   }
 
   /**
@@ -288,20 +284,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return the list of alerts defined in the profile
-   */
-  public List<Alert> getAlerts() {
-    return alerts;
-  }
-
-  /**
-   * Sets the list of alerts for the profile
-   */
-  public void setAlerts(List<Alert> alerts) {
-    this.alerts = alerts;
-  }
-
-  /**
    * Note: disabled rules are excluded.
    *
    * @return the list of active rules for a given severity
@@ -422,13 +404,6 @@ public class RulesProfile implements Cloneable {
       clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {
         public Object transform(Object input) {
           return ((ActiveRule) input).clone();
-        }
-      })));
-    }
-    if (CollectionUtils.isNotEmpty(getAlerts())) {
-      clone.setAlerts(new ArrayList<Alert>(CollectionUtils.collect(getAlerts(), new Transformer() {
-        public Object transform(Object input) {
-          return ((Alert) input).clone();
         }
       })));
     }

@@ -24,7 +24,6 @@
     <class>org.sonar.api.rules.ActiveRule</class>
     <class>org.sonar.api.rules.ActiveRuleParam</class>
     <class>org.sonar.api.batch.Event</class>
-    <class>org.sonar.api.profiles.Alert</class>
     <class>org.sonar.api.rules.ActiveRuleChange</class>
     <class>org.sonar.api.rules.ActiveRuleParamChange</class>
 

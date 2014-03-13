@@ -36,21 +36,18 @@ import java.util.List;
 
 public class GenerateAlertEvents implements Decorator {
 
-  private final RulesProfile profile;
   private final QualityGate qualityGate;
   private final TimeMachine timeMachine;
   private NotificationManager notificationManager;
 
-  public GenerateAlertEvents(RulesProfile profile, QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
-    this.profile = profile;
+  public GenerateAlertEvents(QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
     this.qualityGate = qualityGate;
     this.timeMachine = timeMachine;
     this.notificationManager = notificationManager;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return profile != null && profile.getAlerts() != null && !profile.getAlerts().isEmpty()
-      || qualityGate.isEnabled();
+    return qualityGate.isEnabled();
   }
 
   @DependsUpon

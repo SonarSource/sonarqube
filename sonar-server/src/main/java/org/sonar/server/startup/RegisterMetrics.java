@@ -19,8 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import org.sonar.core.qualitygate.db.QualityGateConditionDao;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -31,11 +29,9 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.profiles.Alert;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.jpa.dao.MeasuresDao;
-
-import javax.persistence.Query;
 
 import java.util.List;
 import java.util.Map;

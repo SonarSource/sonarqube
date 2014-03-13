@@ -82,37 +82,6 @@ public class XMLProfileParserTest {
     assertThat(rule.getParameter("unknown")).isNull();
   }
 
-  @Test
-  public void importProfileWithAlerts() {
-    ValidationMessages validation = ValidationMessages.create();
-    RulesProfile profile = parse("importProfileWithAlerts.xml", validation);
-
-    assertThat(profile.getAlerts()).hasSize(2);
-
-    Alert alert = profile.getAlerts().get(0);
-    assertThat(alert.getMetric().getKey()).isEqualTo("lines");
-    assertThat(alert.getOperator()).isEqualTo(Alert.OPERATOR_SMALLER);
-    assertThat(alert.getValueWarning()).isEqualTo("0");
-    assertThat(alert.getValueError()).isEqualTo("10");
-    assertThat(alert.getPeriod()).isNull();
-
-    alert = profile.getAlerts().get(1);
-    assertThat(alert.getMetric().getKey()).isEqualTo("complexity");
-    assertThat(alert.getOperator()).isEqualTo(Alert.OPERATOR_GREATER);
-    assertThat(alert.getValueWarning()).isEqualTo("10");
-    assertThat(alert.getValueError()).isEqualTo("12");
-    assertThat(alert.getPeriod()).isEqualTo(1);
-  }
-
-  @Test
-  public void shouldNotFailWhenNoMetricFinder() {
-    ValidationMessages validation = ValidationMessages.create();
-    RulesProfile profile = new XMLProfileParser(newRuleFinder(), null)
-        .parseResource(getClass().getClassLoader(), getResourcePath("importProfileWithAlerts.xml"), validation);
-
-    assertThat(profile.getAlerts()).isEmpty();
-  }
-
   private RulesProfile parse(String resource, ValidationMessages validation) {
     return new XMLProfileParser(newRuleFinder(), newMetricFinder())
         .parseResource(getClass().getClassLoader(), getResourcePath(resource), validation);

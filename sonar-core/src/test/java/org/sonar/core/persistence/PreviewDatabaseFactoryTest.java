@@ -70,7 +70,6 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
 
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
-    assertThat(rowCount("alerts")).isEqualTo(1);
     assertThat(rowCount("events")).isZero();
     assertThat(rowCount("users")).isEqualTo(3);
     // Verify that password column was not exported into dryRun DB

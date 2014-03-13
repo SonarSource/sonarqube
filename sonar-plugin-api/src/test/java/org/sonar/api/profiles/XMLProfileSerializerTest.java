@@ -77,20 +77,6 @@ public class XMLProfileSerializerTest {
     assertSimilarXml("exportRuleParameters.xml", writer.toString());
   }
 
-  @Test
-  public void exportAlerts() throws Exception {
-    Writer writer = new StringWriter();
-    RulesProfile profile = RulesProfile.create("sonar way", "java");
-    List<Alert> alerts = profile.getAlerts();
-    Alert alert1 = new Alert(profile, new Metric("coverage"), Alert.OPERATOR_SMALLER, "60", "80");
-    alerts.add(alert1);
-    Alert alert2 = new Alert(profile, new Metric("complexity"), Alert.OPERATOR_GREATER, "12", "10", 1);
-    alerts.add(alert2);
-    new XMLProfileSerializer().write(profile, writer);
-
-    assertSimilarXml("exportAlerts.xml", writer.toString());
-  }
-
   public static void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException, SAXException {
     String pathToExpectedXml = "/org/sonar/api/profiles/XMLProfileSerializerTest/" + fileWithExpectedXml;
     InputStream stream = XMLProfileSerializerTest.class.getResourceAsStream(pathToExpectedXml);

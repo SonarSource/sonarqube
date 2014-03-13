@@ -38,7 +38,6 @@ public class XMLProfileSerializer implements ServerComponent {
     try {
       appendHeader(profile, writer);
       appendRules(profile, writer);
-      appendAlerts(profile, writer);
       appendFooter(writer);
 
     } catch (IOException e) {
@@ -100,36 +99,6 @@ public class XMLProfileSerializer implements ServerComponent {
       writer.append("</value>");
       writer.append("</parameter>");
     }
-  }
-
-  private void appendAlerts(RulesProfile profile, Writer writer) throws IOException {
-    if (!profile.getAlerts().isEmpty()) {
-      writer.append("<alerts>");
-      for (Alert alert : profile.getAlerts()) {
-        appendAlert(alert, writer);
-      }
-      writer.append("</alerts>");
-    }
-  }
-
-  private void appendAlert(Alert alert, Writer writer) throws IOException {
-    writer.append("<alert><metric>");
-    StringEscapeUtils.escapeXml(writer, alert.getMetric().getKey());
-    writer.append("</metric>");
-    if (alert.getPeriod() !=null) {
-      writer.append("<period>");
-      StringEscapeUtils.escapeXml(writer, Integer.toString(alert.getPeriod()));
-      writer.append("</period>");
-    }
-    writer.append("<operator>");
-    StringEscapeUtils.escapeXml(writer, alert.getOperator());
-    writer.append("</operator>");
-    writer.append("<warning>");
-    StringEscapeUtils.escapeXml(writer, alert.getValueWarning());
-    writer.append("</warning>");
-    writer.append("<error>");
-    StringEscapeUtils.escapeXml(writer, alert.getValueError());
-    writer.append("</error></alert>");
   }
 
   private void appendFooter(Writer writer) throws IOException {

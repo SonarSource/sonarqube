@@ -26,13 +26,11 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
@@ -96,10 +94,6 @@ public class XMLProfileParser implements ServerComponent {
         if (StringUtils.equals("rules", nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
           processRules(rulesCursor, profile, messages);
-
-        } else if (StringUtils.equals("alerts", nodeName)) {
-          SMInputCursor alertsCursor = cursor.childElementCursor("alert");
-          processAlerts(alertsCursor, profile, messages);
 
         } else if (StringUtils.equals("name", nodeName)) {
           profile.setName(StringUtils.trim(cursor.collectDescendantText(false)));
@@ -198,50 +192,6 @@ public class XMLProfileParser implements ServerComponent {
       }
       if (key != null) {
         parameters.put(key, value);
-      }
-    }
-  }
-
-  private void processAlerts(SMInputCursor alertsCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
-    if (metricFinder == null) {
-      // TODO remove when constructor without MetricFinder would be removed
-      Logs.INFO.error("Unable to parse alerts, because MetricFinder not available.");
-      return;
-    }
-    while (alertsCursor.getNext() != null) {
-      SMInputCursor alertCursor = alertsCursor.childElementCursor();
-
-      String metricKey = null, operator = "", valueError = "", valueWarning = "";
-      Integer period = null;
-
-      while (alertCursor.getNext() != null) {
-        String nodeName = alertCursor.getLocalName();
-
-        if (StringUtils.equals("metric", nodeName)) {
-          metricKey = StringUtils.trim(alertCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("period", nodeName)) {
-          String periodParameter = StringUtils.trim(alertCursor.collectDescendantText(false));
-          if (StringUtils.isNotBlank(periodParameter)) {
-            period = Integer.parseInt(periodParameter);
-          }
-        } else if (StringUtils.equals("operator", nodeName)) {
-          operator = StringUtils.trim(alertCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("warning", nodeName)) {
-          valueWarning = StringUtils.trim(alertCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("error", nodeName)) {
-          valueError = StringUtils.trim(alertCursor.collectDescendantText(false));
-        }
-      }
-
-      Metric metric = metricFinder.findByKey(metricKey);
-      if (metric == null) {
-        messages.addWarningText("Metric '" + metricKey + "' does not exist");
-      } else {
-        Alert alert = new Alert(profile, metric, operator, valueError, valueWarning, period);
-        profile.getAlerts().add(alert);
       }
     }
   }
