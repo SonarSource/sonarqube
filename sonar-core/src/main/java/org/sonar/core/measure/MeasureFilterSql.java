@@ -120,10 +120,6 @@ class MeasureFilterSql {
       sb.append(" AND s.scope IN ");
       appendInStatement(filter.getResourceScopes(), sb);
     }
-    if (!filter.getResourceLanguages().isEmpty()) {
-      sb.append(" AND p.language IN ");
-      appendInStatement(filter.getResourceLanguages(), sb);
-    }
     appendDateConditions(sb);
     appendFavouritesCondition(sb);
     appendResourceNameCondition(sb);

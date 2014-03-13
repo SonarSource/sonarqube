@@ -132,7 +132,6 @@ public class MeasureFilterExecutorTest {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter()
       .setResourceQualifiers(Arrays.asList("'"))
-      .setResourceLanguages(Arrays.asList("'"))
       .setBaseResourceKey("'")
       .setResourceKey("'")
       .setResourceName("'")
@@ -426,16 +425,6 @@ public class MeasureFilterExecutorTest {
 
     assertThat(rows).hasSize(1);
     verifyJavaTinyFile(rows.get(0));
-  }
-
-  @Test
-  public void filter_by_language() throws SQLException {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceLanguages(Arrays.asList("java", "cobol"));
-    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
-
-    assertThat(rows).hasSize(1);
-    verifyJavaProject(rows.get(0));
   }
 
   @Test
