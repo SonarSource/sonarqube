@@ -377,7 +377,6 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     public NewRule setCharacteristicKey(@Nullable String characteristicKey) {
-      // TODO validate characteristic exists and it's a sub characteristic
       this.characteristicKey = characteristicKey;
       return this;
     }

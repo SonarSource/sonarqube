@@ -97,6 +97,10 @@ public class Durations implements BatchComponent, ServerComponent {
     remainingDuration = remainingDuration - (hours * 60);
     int minutes = remainingDuration.intValue();
 
+    return format(locale, days, hours, minutes, isNegative);
+  }
+
+  private String format(Locale locale, int days, int hours, int minutes, boolean isNegative){
     StringBuilder message = new StringBuilder();
     if (days > 0) {
       message.append(message(locale, "work_duration.x_days", isNegative ? -1 * days : days));

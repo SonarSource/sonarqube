@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -106,98 +107,110 @@ public class CopyRequirementsFromCharacteristicsToRules {
     }
 
     new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT r.id,r.characteristic_id,r.remediation_function,r.remediation_factor,r.remediation_offset," +
-            "r.default_characteristic_id,r.default_remediation_function,r.default_remediation_factor,r.default_remediation_offset,r.status " +
-            "FROM rules r";
-        }
-
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getInt(rs, 1);
-          row.characteristicId = SqlUtil.getInt(rs, 2);
-          row.function = rs.getString(3);
-          row.factor = rs.getString(4);
-          row.offset = rs.getString(5);
-          row.defaultCharacteristicId = SqlUtil.getInt(rs, 6);
-          row.defaultFunction = rs.getString(7);
-          row.defaultFactor = rs.getString(8);
-          row.defaultOffset = rs.getString(9);
-          row.status = rs.getString(10);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE rules SET characteristic_id=?,remediation_function=?,remediation_factor=?,remediation_offset=?,updated_at=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          Collection<RequirementDto> requirementsForCurrentRule = requirementsByRuleId.get(row.id);
-
-          if (requirementsForCurrentRule.isEmpty()) {
-            // Nothing to do, there's no requirement on this rule
-            return false;
-
-          } else {
-            RequirementDto enabledRequirement = Iterables.find(requirementsForCurrentRule, new Predicate<RequirementDto>() {
-              @Override
-              public boolean apply(RequirementDto input) {
-                return input.isEnabled();
-              }
-            }, null);
-
-            if (enabledRequirement == null && !"REMOVED".equals(row.getStatus())) {
-              // If no requirements are enable, it means that the requirement has been disabled for this rule
-              updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
-              updateStatement.setNull(2, Types.VARCHAR);
-              updateStatement.setNull(3, Types.VARCHAR);
-              updateStatement.setNull(4, Types.VARCHAR);
-              updateStatement.setDate(5, new Date(system2.now()));
-              updateStatement.setInt(6, row.getId());
-              return true;
-
-            } else if (enabledRequirement != null) {
-              // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model definition
-
-              row.setCharacteristicId(enabledRequirement.getParentId());
-              row.setFunction(enabledRequirement.getFunction().toUpperCase());
-              row.setFactor(convertDuration(enabledRequirement.getFactorValue(), enabledRequirement.getFactorUnit()));
-              row.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
-
-              if (isDebtDefaultValuesSameAsOverriddenValues(row)) {
-                // Default values on debt are the same that ones set by SQALE, nothing to do
-                return false;
-              } else {
-                // Default values on debt are not the same that ones set by SQALE, update the rule
-                updateStatement.setInt(1, row.getCharacteristicId());
-                updateStatement.setString(2, row.getFunction());
-                updateStatement.setString(3, row.getFactor());
-                updateStatement.setString(4, row.getOffset());
-                updateStatement.setDate(5, new Date(system2.now()));
-                updateStatement.setInt(6, row.getId());
-                return true;
-              }
-            }
-          }
-          return false;
-        }
-      }
+      new RuleInputLoader(),
+      new RuleInputConvertor(requirementsByRuleId, system2)
     );
+  }
+
+  private static class RuleInputLoader implements MassUpdater.InputLoader<RuleRow>{
+    @Override
+    public String selectSql() {
+      return "SELECT r.id,r.characteristic_id,r.remediation_function,r.remediation_factor,r.remediation_offset," +
+        "r.default_characteristic_id,r.default_remediation_function,r.default_remediation_factor,r.default_remediation_offset,r.status " +
+        "FROM rules r";
+    }
+
+    @Override
+    public RuleRow load(ResultSet rs) throws SQLException {
+      RuleRow ruleRow = new RuleRow();
+      ruleRow.setId(SqlUtil.getInt(rs, 1));
+      ruleRow.setCharacteristicId(SqlUtil.getInt(rs, 2));
+      ruleRow.setFunction(rs.getString(3));
+      ruleRow.setFactor(rs.getString(4));
+      ruleRow.setOffset(rs.getString(5));
+      ruleRow.setDefaultCharacteristicId(SqlUtil.getInt(rs, 6));
+      ruleRow.setDefaultFunction(rs.getString(7));
+      ruleRow.setDefaultFactor(rs.getString(8));
+      ruleRow.setDefaultOffset(rs.getString(9));
+      ruleRow.setStatus(rs.getString(10));
+      return ruleRow;
+    }
+  }
+
+  private static class RuleInputConvertor implements MassUpdater.InputConverter<RuleRow>{
+
+    private final Multimap<Integer, RequirementDto> requirementsByRuleId;
+    private final System2 system2;
+
+    private RuleInputConvertor(Multimap<Integer, RequirementDto> requirementsByRuleId, System2 system2) {
+      this.requirementsByRuleId = requirementsByRuleId;
+      this.system2 = system2;
+    }
+
+    @Override
+    public String updateSql() {
+      return "UPDATE rules SET characteristic_id=?,remediation_function=?,remediation_factor=?,remediation_offset=?,updated_at=? WHERE id=?";
+    }
+
+    @Override
+    public boolean convert(RuleRow ruleRow, PreparedStatement updateStatement) throws SQLException {
+      Collection<RequirementDto> requirementsForRule = requirementsByRuleId.get(ruleRow.id);
+      if (!requirementsForRule.isEmpty()) {
+        return convert(ruleRow, updateStatement, requirementsForRule);
+      }
+      // Nothing to do when no requirements for current rule
+      return false;
+    }
+
+    private boolean convert(RuleRow ruleRow, PreparedStatement updateStatement, Collection<RequirementDto> requirementsForRule) throws SQLException {
+      RequirementDto enabledRequirement = Iterables.find(requirementsForRule, new Predicate<RequirementDto>() {
+        @Override
+        public boolean apply(RequirementDto input) {
+          return input.isEnabled();
+        }
+      }, null);
+
+      if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(ruleRow.getStatus())) {
+        // If no requirements are enable, it means that the requirement has been disabled for this rule
+        updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
+        updateStatement.setNull(2, Types.VARCHAR);
+        updateStatement.setNull(3, Types.VARCHAR);
+        updateStatement.setNull(4, Types.VARCHAR);
+        updateStatement.setDate(5, new Date(system2.now()));
+        updateStatement.setInt(6, ruleRow.getId());
+        return true;
+
+      } else if (enabledRequirement != null) {
+        // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model definition
+
+        ruleRow.setCharacteristicId(enabledRequirement.getParentId());
+        ruleRow.setFunction(enabledRequirement.getFunction().toUpperCase());
+        ruleRow.setFactor(convertDuration(enabledRequirement.getFactorValue(), enabledRequirement.getFactorUnit()));
+        ruleRow.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
+
+        if (!isDebtDefaultValuesSameAsOverriddenValues(ruleRow)) {
+          // Default values on debt are not the same that ones set by SQALE, update the rule
+          updateStatement.setInt(1, ruleRow.getCharacteristicId());
+          updateStatement.setString(2, ruleRow.getFunction());
+          updateStatement.setString(3, ruleRow.getFactor());
+          updateStatement.setString(4, ruleRow.getOffset());
+          updateStatement.setDate(5, new Date(system2.now()));
+          updateStatement.setInt(6, ruleRow.getId());
+          return true;
+        }
+        // When default values on debt are the same that ones set by SQALE, nothing to do
+      }
+      return false;
+    }
   }
 
   @CheckForNull
   @VisibleForTesting
-  String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
+  static String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
     if (oldValue != null) {
-      String unit = oldUnit != null ? oldUnit : RequirementDto.DAYS;
+      String unit = oldUnit != null ? oldUnit : Duration.DAY;
       // min is replaced by mn
-      unit = RequirementDto.MINUTES.equals(unit) ? Duration.MINUTE : unit;
+      unit = "mn".equals(unit) ? Duration.MINUTE : unit;
       // As value is stored in double, we have to round it in order to have an integer (for instance, if it was 1.6, we'll use 2)
       return Integer.toString((int) Math.round(oldValue)) + unit;
     }
@@ -205,15 +218,14 @@ public class CopyRequirementsFromCharacteristicsToRules {
   }
 
   @VisibleForTesting
-  boolean isDebtDefaultValuesSameAsOverriddenValues(Row row) {
+  static boolean isDebtDefaultValuesSameAsOverriddenValues(RuleRow ruleRow) {
     return new EqualsBuilder()
-      .append(row.getDefaultCharacteristicId(), row.getCharacteristicId())
-      .append(row.getDefaultFunction(), row.getFunction())
-      .append(row.getDefaultFactor(), row.getFactor())
-      .append(row.getDefaultOffset(), row.getOffset())
+      .append(ruleRow.getDefaultCharacteristicId(), ruleRow.getCharacteristicId())
+      .append(ruleRow.getDefaultFunction(), ruleRow.getFunction())
+      .append(ruleRow.getDefaultFactor(), ruleRow.getFactor())
+      .append(ruleRow.getDefaultOffset(), ruleRow.getOffset())
       .isEquals();
   }
-
 
   private void removeRequirementsDataFromCharacteristics() {
     Connection connection = null;
@@ -231,7 +243,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
   }
 
   @VisibleForTesting
-  static class Row {
+  static class RuleRow {
     private Integer id;
     private Integer characteristicId;
     private Integer defaultCharacteristicId;
@@ -243,92 +255,100 @@ public class CopyRequirementsFromCharacteristicsToRules {
     private String defaultOffset;
     private String status;
 
-    public Integer getId() {
+    Integer getId() {
       return id;
     }
 
-    public Row setId(Integer id) {
+    RuleRow setId(Integer id) {
       this.id = id;
       return this;
     }
 
-    public Integer getCharacteristicId() {
+    @CheckForNull
+    Integer getCharacteristicId() {
       return characteristicId;
     }
 
-    public Row setCharacteristicId(Integer characteristicId) {
+    RuleRow setCharacteristicId(@Nullable Integer characteristicId) {
       this.characteristicId = characteristicId;
       return this;
     }
 
-    public Integer getDefaultCharacteristicId() {
+    @CheckForNull
+    Integer getDefaultCharacteristicId() {
       return defaultCharacteristicId;
     }
 
-    public Row setDefaultCharacteristicId(Integer defaultCharacteristicId) {
+    RuleRow setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
       this.defaultCharacteristicId = defaultCharacteristicId;
       return this;
     }
 
-    public String getFunction() {
+    @CheckForNull
+    String getFunction() {
       return function;
     }
 
-    public Row setFunction(String function) {
+    RuleRow setFunction(@Nullable String function) {
       this.function = function;
       return this;
     }
 
-    public String getDefaultFunction() {
+    @CheckForNull
+    String getDefaultFunction() {
       return defaultFunction;
     }
 
-    public Row setDefaultFunction(String defaultFunction) {
+    RuleRow setDefaultFunction(@Nullable String defaultFunction) {
       this.defaultFunction = defaultFunction;
       return this;
     }
 
-    public String getFactor() {
+    @CheckForNull
+    String getFactor() {
       return factor;
     }
 
-    public Row setFactor(String factor) {
+    RuleRow setFactor(@Nullable String factor) {
       this.factor = factor;
       return this;
     }
 
-    public String getDefaultFactor() {
+    @CheckForNull
+    String getDefaultFactor() {
       return defaultFactor;
     }
 
-    public Row setDefaultFactor(String defaultFactor) {
+    RuleRow setDefaultFactor(@Nullable String defaultFactor) {
       this.defaultFactor = defaultFactor;
       return this;
     }
 
-    public String getOffset() {
+    @CheckForNull
+    String getOffset() {
       return offset;
     }
 
-    public Row setOffset(String offset) {
+    RuleRow setOffset(@Nullable String offset) {
       this.offset = offset;
       return this;
     }
 
-    public String getDefaultOffset() {
+    @CheckForNull
+    String getDefaultOffset() {
       return defaultOffset;
     }
 
-    public Row setDefaultOffset(String defaultOffset) {
+    RuleRow setDefaultOffset(@Nullable String defaultOffset) {
       this.defaultOffset = defaultOffset;
       return this;
     }
 
-    public String getStatus() {
+    String getStatus() {
       return status;
     }
 
-    public Row setStatus(String status) {
+    RuleRow setStatus(String status) {
       this.status = status;
       return this;
     }

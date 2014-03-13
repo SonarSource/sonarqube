@@ -25,11 +25,10 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Only used in {@link org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules}
+ */
 public class RequirementDto implements Serializable {
-
-  public static final String DAYS = "d";
-  public static final String MINUTES = "mn";
-  public static final String HOURS = "h";
 
   private Integer id;
   private Integer parentId;

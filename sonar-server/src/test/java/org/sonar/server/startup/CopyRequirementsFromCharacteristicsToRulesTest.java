@@ -82,42 +82,42 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
 
   @Test
   public void convert_duration() throws Exception {
-    assertThat(service.convertDuration(1.0, "h")).isEqualTo("1h");
-    assertThat(service.convertDuration(15.0, "d")).isEqualTo("15d");
-    assertThat(service.convertDuration(5.0, "min")).isEqualTo("5min");
-    assertThat(service.convertDuration(5.0, "mn")).isEqualTo("5min");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.0, "h")).isEqualTo("1h");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(15.0, "d")).isEqualTo("15d");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(5.0, "min")).isEqualTo("5min");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(5.0, "mn")).isEqualTo("5min");
 
-    assertThat(service.convertDuration(0.9, "h")).isEqualTo("1h");
-    assertThat(service.convertDuration(1.4, "h")).isEqualTo("1h");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(0.9, "h")).isEqualTo("1h");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.4, "h")).isEqualTo("1h");
 
-    assertThat(service.convertDuration(1.0, null)).isEqualTo("1d");
-    assertThat(service.convertDuration(null, "d")).isNull();
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.0, null)).isEqualTo("1d");
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(null, "d")).isNull();
   }
 
   @Test
   public void is_debt_default_values_same_as_overridden_values() throws Exception {
-    assertThat(service.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.Row()
+    assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
       .setDefaultFactor("5h").setFactor("5h")
       .setDefaultOffset("10min").setOffset("10min")
     )).isTrue();
 
-    assertThat(service.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.Row()
+    assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(2)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
       .setDefaultFactor("5h").setFactor("5h")
       .setDefaultOffset("10min").setOffset("10min")
     )).isFalse();
 
-    assertThat(service.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.Row()
+    assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
       .setDefaultFactor("5h").setFactor("4h")
       .setDefaultOffset("10min").setOffset("5min")
     )).isFalse();
 
-    assertThat(service.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.Row()
+    assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("CONSTANT_ISSUE").setFunction("LINEAR")
       .setDefaultFactor(null).setFactor("5h")
