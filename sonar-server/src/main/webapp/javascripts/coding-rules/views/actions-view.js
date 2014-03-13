@@ -19,9 +19,55 @@
         'all': 'render'
       };
 
+      CodingRulesStatusView.prototype.ui = {
+        orderChoices: '.navigator-actions-order-choices'
+      };
+
+      CodingRulesStatusView.prototype.events = {
+        'click .navigator-actions-order': 'toggleOrderChoices',
+        'click @ui.orderChoices': 'sort'
+      };
+
+      CodingRulesStatusView.prototype.onRender = function() {
+        if (!this.collection.sorting.sortText) {
+          this.collection.sorting.sortText = this.$('[data-sort=' + this.collection.sorting.sort + ']:first').text();
+          return this.render();
+        }
+      };
+
+      CodingRulesStatusView.prototype.toggleOrderChoices = function(e) {
+        var _this = this;
+        e.stopPropagation();
+        this.ui.orderChoices.toggleClass('open');
+        if (this.ui.orderChoices.is('.open')) {
+          return jQuery('body').on('click.coding_rules_actions', function() {
+            return _this.ui.orderChoices.removeClass('open');
+          });
+        }
+      };
+
+      CodingRulesStatusView.prototype.sort = function(e) {
+        var asc, el, sort;
+        e.stopPropagation();
+        this.ui.orderChoices.removeClass('open');
+        jQuery('body').off('click.coding_rules_actions');
+        el = jQuery(e.target);
+        sort = el.data('sort');
+        asc = el.data('asc');
+        if (sort !== null && asc !== null) {
+          this.collection.sorting = {
+            sort: sort,
+            sortText: el.text(),
+            asc: asc
+          };
+          return this.options.app.fetchFirstPage();
+        }
+      };
+
       CodingRulesStatusView.prototype.serializeData = function() {
         return _.extend(CodingRulesStatusView.__super__.serializeData.apply(this, arguments), {
-          paging: this.collection.paging
+          paging: this.collection.paging,
+          sorting: this.collection.sorting
         });
       };
 

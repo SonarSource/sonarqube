@@ -63,13 +63,15 @@
           'severity.MAJOR': 'Major',
           'severity.MINOR': 'Minor',
           'severity.INFO': 'Info',
-          'coding_rules.page': 'Coding Rules',
-          'coding_rules.new_search': 'New Search',
-          'coding_rules.no_results': 'No Coding Rules',
-          'coding_rules.found': 'Found',
-          'coding_rules.quality_profiles': 'Quality Profiles',
           'coding_rules.activate_quality_profile': 'Activate Quality Profile',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
+          'coding_rules.found': 'Found',
+          'coding_rules.new_search': 'New Search',
+          'coding_rules.no_results': 'No Coding Rules',
+          'coding_rules.order': 'Order',
+          'coding_rules.ordered_by': 'Ordered By',
+          'coding_rules.page': 'Coding Rules',
+          'coding_rules.quality_profiles': 'Quality Profiles',
           'coding_rules.filters.availableSince': 'Available Since',
           'coding_rules.filters.description': 'Description',
           'coding_rules.filters.in_quality_profile': 'In Quality Profile',
@@ -86,7 +88,9 @@
           'coding_rules.filters.repository': 'Repository',
           'coding_rules.filters.severity': 'Severity',
           'coding_rules.filters.status': 'Status',
-          'coding_rules.filters.tag': 'Tag'
+          'coding_rules.filters.tag': 'Tag',
+          'coding_rules.sort.creation_date': 'Creation Date',
+          'coding_rules.sort.name': 'Name'
         }
       })
     });
@@ -157,7 +161,7 @@
         }
       })
     });
-    return jQuery.mockjax({
+    jQuery.mockjax({
       url: "" + baseUrl + "/api/qualityprofiles/list",
       responseText: JSON.stringify({
         more: false,
@@ -180,6 +184,16 @@
             parent: null
           }
         ]
+      })
+    });
+    return jQuery.mockjax({
+      url: "" + baseUrl + "/api/qualityprofiles/show",
+      responseText: JSON.stringify({
+        qualityprofile: {
+          id: 'sonarway',
+          text: 'Sonar Way',
+          parent: null
+        }
       })
     });
   });

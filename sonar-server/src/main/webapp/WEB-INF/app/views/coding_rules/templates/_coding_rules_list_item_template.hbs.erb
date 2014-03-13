@@ -1,7 +1,10 @@
 <script id="coding-rules-list-item-template" type="text/x-handlebars-template">
-  <div class="line line-nowrap" title="{{name}}">{{name}}</div>
   <div class="line line-small">
-    {{#if qualityProfile}}{{severityIcon severity}}{{t "severity" severity}} |{{/if}}
-    {{language}}
+    {{#if qualityProfile}}
+      <i class="icon-quality-profile"></i>&nbsp;{{qualityProfileName}}&nbsp;
+    {{/if}}
+    {{severityIcon severity}}{{t "severity" severity}}&nbsp;
+    <i class="icon-lang"></i>&nbsp;{{language}}
   </div>
+  <div class="line line-nowrap" title="{{name}}">{{name}}</div>
 </script>

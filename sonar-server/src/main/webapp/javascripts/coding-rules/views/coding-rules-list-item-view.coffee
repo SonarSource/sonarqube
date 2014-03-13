@@ -33,4 +33,6 @@ define [
 
 
     serializeData: ->
-      _.extend super, qualityProfile: @options.app.getActiveQualityProfile()
+      _.extend super,
+        qualityProfile: @options.app.getActiveQualityProfile()
+        qualityProfileName: @options.app.activeInFilter.view.renderValue()

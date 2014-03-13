@@ -44,6 +44,24 @@
         }
       };
 
+      QualityProfileFilterView.prototype.createRequest = function(v) {
+        var _this = this;
+        return jQuery.ajax({
+          url: baseUrl + '/api/qualityprofiles/show',
+          type: 'GET',
+          data: {
+            key: v
+          }
+        }).done(function(r) {
+          return _this.choices.add(new Backbone.Model({
+            id: r.qualityprofile.id,
+            text: r.qualityprofile.text,
+            parent: r.qualityprofile.parent,
+            checked: true
+          }));
+        });
+      };
+
       return QualityProfileFilterView;
 
     })(AjaxSelectFilters.AjaxSelectFilterView);

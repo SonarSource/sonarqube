@@ -45,7 +45,8 @@
 
       CodingRulesListItemView.prototype.serializeData = function() {
         return _.extend(CodingRulesListItemView.__super__.serializeData.apply(this, arguments), {
-          qualityProfile: this.options.app.getActiveQualityProfile()
+          qualityProfile: this.options.app.getActiveQualityProfile(),
+          qualityProfileName: this.options.app.activeInFilter.view.renderValue()
         });
       };
 

@@ -158,6 +158,7 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
+    @codingRules.sorting = sort: 'CREATION_DATE', asc: false
 
 
   # Construct status bar

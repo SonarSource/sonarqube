@@ -125,7 +125,11 @@
       return this.layout.headerRegion.show(this.codingRulesHeaderView);
     });
     App.addInitializer(function() {
-      return this.codingRules = new Backbone.Collection;
+      this.codingRules = new Backbone.Collection;
+      return this.codingRules.sorting = {
+        sort: 'CREATION_DATE',
+        asc: false
+      };
     });
     App.addInitializer(function() {
       this.codingRulesActionsView = new CodingRulesActionsView({

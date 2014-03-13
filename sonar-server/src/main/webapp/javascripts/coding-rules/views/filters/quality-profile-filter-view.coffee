@@ -26,3 +26,16 @@ define [
       else
         @model.unset 'parentQualityProfile'
 
+
+    createRequest: (v) ->
+      jQuery.ajax
+        url: baseUrl + '/api/qualityprofiles/show'
+        type: 'GET'
+        data: key: v
+      .done (r) =>
+        @choices.add new Backbone.Model
+          id: r.qualityprofile.id,
+          text: r.qualityprofile.text,
+          parent: r.qualityprofile.parent,
+          checked: true
+

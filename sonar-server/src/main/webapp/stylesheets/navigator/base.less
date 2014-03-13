@@ -299,24 +299,9 @@
 
   & > li {
     padding: @navigatorPadding / 2 0;
+    border-top: 1px solid transparent;
     cursor: pointer;
     .trans;
-
-    &:first-child {
-      border-top: 1px solid transparent;
-
-      &.active {
-        border-top-color: #4B9FD5;
-      }
-    }
-
-    &:last-child {
-      border-bottom: 1px solid transparent;
-
-      &.active {
-        border-bottom-color: #4B9FD5;
-      }
-    }
 
     .line {
       padding: @navigatorPadding / 2 @navigatorPadding;
@@ -346,10 +331,22 @@
       background-color: #CAE3F2;
       border-color: #4B9FD5;
     }
+
+    &.with-context {
+      border-right: 6px solid @navigatorBorderLightColor;
+    }
+
+    &:last-child {
+      border-bottom: 1px solid transparent;
+
+      &.active {
+        border-bottom-color: #4B9FD5;
+      }
+    }
   }
 
   & > li + li {
-    border-top: 1px solid @navigatorBorderLightColor;
+    border-top-color: @navigatorBorderLightColor;
   }
 
   & > li.active + li {

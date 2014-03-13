@@ -55,13 +55,15 @@ define ['jquery.mockjax'], ->
         'severity.MINOR': 'Minor'
         'severity.INFO': 'Info'
 
-        'coding_rules.page': 'Coding Rules'
-        'coding_rules.new_search': 'New Search'
-        'coding_rules.no_results': 'No Coding Rules'
-        'coding_rules.found': 'Found'
-        'coding_rules.quality_profiles': 'Quality Profiles'
         'coding_rules.activate_quality_profile': 'Activate Quality Profile'
         'coding_rules.deactivate_quality_profile': 'Deactivate'
+        'coding_rules.found': 'Found'
+        'coding_rules.new_search': 'New Search'
+        'coding_rules.no_results': 'No Coding Rules'
+        'coding_rules.order': 'Order'
+        'coding_rules.ordered_by': 'Ordered By'
+        'coding_rules.page': 'Coding Rules'
+        'coding_rules.quality_profiles': 'Quality Profiles'
 
         'coding_rules.filters.availableSince': 'Available Since'
         'coding_rules.filters.description': 'Description'
@@ -80,6 +82,9 @@ define ['jquery.mockjax'], ->
         'coding_rules.filters.severity': 'Severity'
         'coding_rules.filters.status': 'Status'
         'coding_rules.filters.tag': 'Tag'
+
+        'coding_rules.sort.creation_date': 'Creation Date'
+        'coding_rules.sort.name': 'Name'
 
 
   # GET /api/codingrules/search
@@ -184,4 +189,12 @@ define ['jquery.mockjax'], ->
         { id: 'qp2', text: 'Quality Profile 2', parent: 'sonarway' },
         { id: 'qp3', text: 'Quality Profile 3', parent: null },
       ]
+
+
+  # GET /api/qualityprofiles/show
+  jQuery.mockjax
+    url: "#{baseUrl}/api/qualityprofiles/show"
+    responseText: JSON.stringify
+      qualityprofile:
+        id: 'sonarway', text: 'Sonar Way', parent: null
 
