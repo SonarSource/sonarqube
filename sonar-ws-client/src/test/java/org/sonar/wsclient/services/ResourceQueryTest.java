@@ -34,13 +34,6 @@ public class ResourceQueryTest extends QueryTestCase {
   }
 
   @Test
-  public void resourceByLanguages() {
-    ResourceQuery query = new ResourceQuery("org.foo:bar").setLanguages("java,php");
-    assertThat(query.getUrl()).isEqualTo(("/api/resources?resource=org.foo%3Abar&languages=java%2Cphp&verbose=false&"));
-    assertThat(query.getResourceKeyOrId()).isEqualTo(("org.foo:bar"));
-  }
-
-  @Test
   public void measures() {
     ResourceQuery query = new ResourceQuery();
     query.setMetrics("loc", "coverage", "lines");
