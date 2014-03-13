@@ -131,6 +131,7 @@ public class IssueFilterWs implements WebService {
     return json.beginObject()
       .prop("id", filter.id())
       .prop("name", filter.name())
+      .prop("description", filter.description())
       .prop("user", filter.user())
       .prop("shared", filter.shared())
       .prop("query", filter.data())

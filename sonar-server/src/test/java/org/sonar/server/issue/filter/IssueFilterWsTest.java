@@ -23,11 +23,13 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,4 +99,30 @@ public class IssueFilterWsTest {
     tester.newRequest("page").setParam("id", "13").execute()
       .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
   }
+
+  @Test
+  public void show_filter() throws Exception {
+    // logged-in user is 'eric' but filter is owned by 'simon'
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(13L, session)).thenReturn(
+      new DefaultIssueFilter().setId(13L).setName("Blocker issues").setDescription("All Blocker Issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
+    );
+
+    tester.newRequest("show").setParam("id", "13").execute()
+      .assertJson(getClass(), "show_filter.json");
+  }
+
+  @Test
+  public void show_unknown_filter() throws Exception {
+    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(42L, session)).thenThrow(new NotFoundException("Filter 42 does not exist"));
+
+    try {
+      tester.newRequest("show").setParam("id", "42").execute();
+      fail();
+    } catch (NotFoundException e) {
+      assertThat(e).hasMessage("Filter 42 does not exist");
+    }
+  }
+
 }
