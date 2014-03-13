@@ -1,0 +1,11 @@
+{
+  "filter": {
+    "id": 13,
+    "name": "Blocker issues",
+    "description": "All Blocker Issues",
+    "shared": true,
+    "query": "severity=BLOCKER",
+    "user": "simon",
+    "canModify": false
+  }
+}
