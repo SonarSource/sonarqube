@@ -51,10 +51,6 @@ module ProfilesHelper
     "#{qProfile.language().to_s}_#{qProfile.name().to_s}"
   end
 
-  def alerts_count(qProfile)
-    Alert.count(:all, :conditions => ['profile_id=?', qProfile.id()])
-  end
-
   def projects_count(qProfile)
     Internal.quality_profiles.countProjects(qProfile).to_i
   end

@@ -20,7 +20,6 @@
 class Profile < ActiveRecord::Base
   set_table_name 'rules_profiles'
 
-  has_many :alerts, :dependent => :delete_all
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters']
   has_many :changes, :class_name => 'ActiveRuleChange', :dependent => :destroy
@@ -182,10 +181,6 @@ class Profile < ActiveRecord::Base
   def remove_projects
     Property.clear_for_resources("sonar.profile.#{language}", name)
     @projects = nil
-  end
-
-  def valid_alerts
-    alerts.reject {|alert| alert.metric.nil? || !alert.metric.enabled }
   end
 
   def to_hash_json

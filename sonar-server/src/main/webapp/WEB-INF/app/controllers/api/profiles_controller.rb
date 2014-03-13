@@ -84,7 +84,6 @@ class Api::ProfilesController < Api::ApiController
     profile = Internal.quality_profiles.profile(params[:name], params[:language])
     if profile
       Internal.quality_profiles.deleteProfile(profile.id())
-      Alert.delete_all(['profile_id=?', profile.id()])
     end
 
     render_success(profile ? 'Profile destroyed' : 'Profile did not exist')
@@ -213,14 +212,6 @@ class Api::ProfilesController < Api::ApiController
     end
     result[:rules]=rules unless rules.empty?
 
-    alerts=[]
-    @profile.valid_alerts.each do |alert|
-      alert_hash={:metric => alert.metric.key, :operator => alert.operator}
-      alert_hash[:error]=alert.value_error if alert.value_error.present?
-      alert_hash[:warning]=alert.value_warning if alert.value_warning.present?
-      alerts<<alert_hash
-    end
-    result[:alerts]=alerts unless alerts.empty?
     [result]
   end
 
@@ -246,15 +237,6 @@ class Api::ProfilesController < Api::ApiController
               xml.value(param.value)
             end
           end
-        end
-      end
-
-      @profile.valid_alerts.each do |alert|
-        xml.alert do
-          xml.metric(alert.metric.key)
-          xml.operator(alert.operator)
-          xml.error(alert.value_error) if alert.value_error.present?
-          xml.warning(alert.value_warning) if alert.value_warning.present?
         end
       end
     end

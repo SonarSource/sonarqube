@@ -67,7 +67,6 @@ class ProfilesController < ApplicationController
     profile_id = params[:id].to_i
     call_backend do
       Internal.quality_profiles.deleteProfile(profile_id)
-      Alert.delete_all(['profile_id=?', profile_id])
     end
 
     redirect_to(:controller => 'profiles', :action => 'index')
