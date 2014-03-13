@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.server.db.migrations.v36.ViolationMigration;
-import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
-import org.sonar.server.db.migrations.v42.PackageKeysMigration;
-import org.sonar.server.db.migrations.v43.*;
+package org.sonar.server.db.migrations.v43;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.core.persistence.TestDatabase;
 
-public interface DatabaseMigrations {
+public class RequirementMeasuresMigrationTest {
 
-  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
-    ViolationMigration.class,
-    IssueMigration.class,
-    IssueChangelogMigration.class,
-    TechnicalDebtMeasuresMigration.class,
-    DevelopmentCostMeasuresMigration.class,
-    RequirementMeasuresMigration.class,
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(RequirementMeasuresMigrationTest.class, "schema.sql");
 
-    // 4.2
-    PackageKeysMigration.class, CompleteIssueMessageMigration.class
-  );
+  RequirementMeasuresMigration migration;
 
+  @Before
+  public void setUp() throws Exception {
+    migration = new RequirementMeasuresMigration(db.database());
+  }
+
+  @Test
+  public void migrate_measures_on_requirements() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_measures_on_requirements.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "migrate_measures_on_requirements_result.xml", "project_measures");
+  }
 }
