@@ -32,7 +32,7 @@ import java.util.Date;
 
 public final class RuleDto {
 
-  public final static Integer DISABLED_CHARACTERISTIC_ID = -1;
+  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
   private Integer id;
   private String repositoryKey;
@@ -314,8 +314,8 @@ public final class RuleDto {
     return this;
   }
 
-  public boolean isCharacteristicOverridden(){
-    return !DISABLED_CHARACTERISTIC_ID.equals(characteristicId);
+  public boolean isCharacteristicDisabled(){
+    return DISABLED_CHARACTERISTIC_ID.equals(characteristicId);
   }
 
   @Override

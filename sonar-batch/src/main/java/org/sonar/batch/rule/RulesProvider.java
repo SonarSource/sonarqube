@@ -78,15 +78,17 @@ public class RulesProvider extends ProviderAdapter {
         .setDescription(ruleDto.getDescription())
         .setStatus(RuleStatus.valueOf(ruleDto.getStatus()));
       // TODO should we set metadata ?
-      Integer characteristicId = ruleDto.getCharacteristicId();
-      Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
-      if (characteristicId != null) {
-        Characteristic characteristic = characteristic(characteristicId, ruleKey, debtModel);
-        updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getRemediationFunction(), ruleDto.getRemediationFactor(), ruleDto.getRemediationOffset(), durations);
-      } else if (defaultCharacteristicId != null) {
-        Characteristic characteristic = characteristic(defaultCharacteristicId, ruleKey, debtModel);
-        updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationFactor(),
-          ruleDto.getDefaultRemediationOffset(), durations);
+      if (!ruleDto.isCharacteristicDisabled()) {
+        Integer characteristicId = ruleDto.getCharacteristicId();
+        Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
+        if (characteristicId != null) {
+          Characteristic characteristic = characteristic(characteristicId, ruleKey, debtModel);
+          updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getRemediationFunction(), ruleDto.getRemediationFactor(), ruleDto.getRemediationOffset(), durations);
+        } else if (defaultCharacteristicId != null) {
+          Characteristic characteristic = characteristic(defaultCharacteristicId, ruleKey, debtModel);
+          updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationFactor(),
+            ruleDto.getDefaultRemediationOffset(), durations);
+        }
       }
       for (RuleParamDto ruleParamDto : paramDtosByRuleId.get(ruleDto.getId())) {
         newRule.addParam(ruleParamDto.getName())
