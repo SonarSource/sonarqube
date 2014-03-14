@@ -95,6 +95,9 @@
 .navigator-with-notes .navigator-details .source_title {
   top: 124px;
 }
+.navigator-with-notes .navigator-fetching.navigator-results-list:before {
+  top: 154px;
+}
 .navigator-fetching:before {
   content: " ";
   position: absolute;
