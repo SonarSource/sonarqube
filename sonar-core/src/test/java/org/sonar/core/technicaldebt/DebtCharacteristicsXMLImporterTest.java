@@ -30,14 +30,14 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class CharacteristicsDebtModelXMLImporterTest {
+public class DebtCharacteristicsXMLImporterTest {
 
   @Test
   public void import_characteristics() {
     String xml = getFileContent("import_characteristics.xml");
 
     ValidationMessages messages = ValidationMessages.create();
-    DefaultTechnicalDebtModel debtModel = new CharacteristicsDebtModelXMLImporter().importXML(xml, messages);
+    DefaultTechnicalDebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml, messages);
 
     assertThat(debtModel.rootCharacteristics()).hasSize(2);
     assertThat(debtModel.rootCharacteristics().get(0).key()).isEqualTo("PORTABILITY");
@@ -63,7 +63,7 @@ public class CharacteristicsDebtModelXMLImporterTest {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
     ValidationMessages messages = ValidationMessages.create();
-    DefaultTechnicalDebtModel debtModel = new CharacteristicsDebtModelXMLImporter().importXML(xml, messages);
+    DefaultTechnicalDebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml, messages);
 
     checkXmlCorrectlyImported(debtModel, messages);
   }
@@ -84,7 +84,7 @@ public class CharacteristicsDebtModelXMLImporterTest {
 
   private String getFileContent(String file) {
     try {
-      return Resources.toString(Resources.getResource(CharacteristicsDebtModelXMLImporterTest.class, "CharacteristicsDebtModelXMLImporterTest/" + file), Charsets.UTF_8);
+      return Resources.toString(Resources.getResource(DebtCharacteristicsXMLImporterTest.class, "DebtCharacteristicsXMLImporterTest/" + file), Charsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

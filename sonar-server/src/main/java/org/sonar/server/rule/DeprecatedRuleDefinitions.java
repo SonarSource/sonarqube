@@ -31,7 +31,7 @@ import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.RulesDebtModelXMLImporter;
+import org.sonar.core.technicaldebt.DebtRulesXMLImporter;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 
 import javax.annotation.CheckForNull;
@@ -53,23 +53,23 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
   private final RuleRepository[] repositories;
 
   private final TechnicalDebtModelRepository languageModelFinder;
-  private final RulesDebtModelXMLImporter importer;
+  private final DebtRulesXMLImporter importer;
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, RulesDebtModelXMLImporter importer) {
+  public DeprecatedRuleDefinitions(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this(i18n, new RuleRepository[0], languageModelFinder, importer);
   }
 
   @Override
   public void define(Context context) {
     // Load rule debt definitions from xml files provided by plugin
-    List<RulesDebtModelXMLImporter.RuleDebt> ruleDebts = loadRuleDebtList();
+    List<DebtRulesXMLImporter.RuleDebt> ruleDebts = loadRuleDebtList();
 
     for (RuleRepository repository : repositories) {
       // RuleRepository API does not handle difference between new and extended repositories,
@@ -101,8 +101,8 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RulesDebtModelXMLImporter.RuleDebt> ruleDebts){
-    RulesDebtModelXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
+  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<DebtRulesXMLImporter.RuleDebt> ruleDebts){
+    DebtRulesXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setCharacteristicKey(ruleDebt.characteristicKey());
       newRule.setRemediationFunction(ruleDebt.function());
@@ -138,15 +138,15 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
     return StringUtils.defaultIfBlank(desc, null);
   }
 
-  public List<RulesDebtModelXMLImporter.RuleDebt> loadRuleDebtList() {
-    List<RulesDebtModelXMLImporter.RuleDebt> ruleDebtList = newArrayList();
+  public List<DebtRulesXMLImporter.RuleDebt> loadRuleDebtList() {
+    List<DebtRulesXMLImporter.RuleDebt> ruleDebtList = newArrayList();
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
       ruleDebtList.addAll(loadRuleDebtsFromXml(pluginKey));
     }
     return ruleDebtList;
   }
 
-  public List<RulesDebtModelXMLImporter.RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
+  public List<DebtRulesXMLImporter.RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
@@ -163,10 +163,10 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
   }
 
   @CheckForNull
-  private RulesDebtModelXMLImporter.RuleDebt findRequirement(List<RulesDebtModelXMLImporter.RuleDebt> requirements, final String repoKey, final String ruleKey) {
-    return Iterables.find(requirements, new Predicate<RulesDebtModelXMLImporter.RuleDebt>() {
+  private DebtRulesXMLImporter.RuleDebt findRequirement(List<DebtRulesXMLImporter.RuleDebt> requirements, final String repoKey, final String ruleKey) {
+    return Iterables.find(requirements, new Predicate<DebtRulesXMLImporter.RuleDebt>() {
       @Override
-      public boolean apply(RulesDebtModelXMLImporter.RuleDebt input) {
+      public boolean apply(DebtRulesXMLImporter.RuleDebt input) {
         return input.ruleKey().equals(RuleKey.of(repoKey, ruleKey));
       }
     }, null);

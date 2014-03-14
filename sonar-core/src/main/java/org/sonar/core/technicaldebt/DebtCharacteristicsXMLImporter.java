@@ -37,9 +37,9 @@ import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class CharacteristicsDebtModelXMLImporter implements ServerExtension {
+public class DebtCharacteristicsXMLImporter implements ServerExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CharacteristicsDebtModelXMLImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DebtCharacteristicsXMLImporter.class);
 
   public static final String CHARACTERISTIC = "chc";
   public static final String CHARACTERISTIC_KEY = "key";

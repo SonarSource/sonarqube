@@ -384,11 +384,11 @@ public final class Platform {
     // technical debt
     servicesContainer.addSingleton(DebtService.class);
     servicesContainer.addSingleton(TechnicalDebtModelSynchronizer.class);
-    servicesContainer.addSingleton(CharacteristicsDebtModelSynchronizer.class);
+    servicesContainer.addSingleton(DebtModelSynchronizer.class);
     servicesContainer.addSingleton(TechnicalDebtModelRepository.class);
     servicesContainer.addSingleton(TechnicalDebtXMLImporter.class);
-    servicesContainer.addSingleton(RulesDebtModelXMLImporter.class);
-    servicesContainer.addSingleton(CharacteristicsDebtModelXMLImporter.class);
+    servicesContainer.addSingleton(DebtRulesXMLImporter.class);
+    servicesContainer.addSingleton(DebtCharacteristicsXMLImporter.class);
     servicesContainer.addSingleton(DefaultTechnicalDebtManager.class);
 
     // source
@@ -437,8 +437,7 @@ public final class Platform {
     startupContainer.addSingleton(RuleRegistration.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
-    startupContainer.addSingleton(RegisterDebtCharacteristicModel.class);
-    startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
+    startupContainer.addSingleton(RegisterDebtModel.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(GenerateBootstrapIndex.class);
     startupContainer.addSingleton(RegisterNewMeasureFilters.class);

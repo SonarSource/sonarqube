@@ -42,7 +42,7 @@ import org.sonar.core.rule.*;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.qualityprofile.ProfilesManager;
-import org.sonar.server.startup.RegisterDebtCharacteristicModel;
+import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 
@@ -77,7 +77,7 @@ public class RuleRegistration implements Startable {
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
                           RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
                           MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao,
-                          RegisterDebtCharacteristicModel registerTechnicalDebtModel) {
+                          RegisterDebtModel registerTechnicalDebtModel) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;

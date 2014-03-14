@@ -46,7 +46,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CharacteristicsDebtModelSynchronizerTest {
+public class DebtModelSynchronizerTest {
 
   @Mock
   MyBatis myBatis;
@@ -61,13 +61,13 @@ public class CharacteristicsDebtModelSynchronizerTest {
   CharacteristicDao dao;
 
   @Mock
-  CharacteristicsDebtModelXMLImporter xmlImporter;
+  DebtCharacteristicsXMLImporter xmlImporter;
 
   Integer currentId = 1;
 
   private DefaultTechnicalDebtModel defaultModel;
 
-  private CharacteristicsDebtModelSynchronizer manager;
+  private DebtModelSynchronizer manager;
 
   @Before
   public void initAndMerge() throws Exception {
@@ -88,7 +88,7 @@ public class CharacteristicsDebtModelSynchronizerTest {
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
 
-    manager = new CharacteristicsDebtModelSynchronizer(myBatis, dao, technicalDebtModelRepository, xmlImporter);
+    manager = new DebtModelSynchronizer(myBatis, dao, technicalDebtModelRepository, xmlImporter);
   }
 
   @Test

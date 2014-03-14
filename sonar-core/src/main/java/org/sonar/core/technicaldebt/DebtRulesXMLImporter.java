@@ -47,9 +47,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RulesDebtModelXMLImporter implements ServerExtension {
+public class DebtRulesXMLImporter implements ServerExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RulesDebtModelXMLImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DebtRulesXMLImporter.class);
 
   public static final String CHARACTERISTIC = "chc";
   public static final String CHARACTERISTIC_KEY = "key";

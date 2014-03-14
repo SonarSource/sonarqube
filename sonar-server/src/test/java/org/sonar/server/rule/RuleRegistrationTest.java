@@ -34,7 +34,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
-import org.sonar.server.startup.RegisterDebtCharacteristicModel;
+import org.sonar.server.startup.RegisterDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -68,7 +68,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
   }
 
   @Test
@@ -215,7 +215,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
 
     setupData("shared");
     task.start();
@@ -230,7 +230,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
       new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtCharacteristicModel.class));
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
 
     setupData("empty");
     task.start();

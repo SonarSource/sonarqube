@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.startup;
 
-import org.junit.Test;
-import org.sonar.api.rules.RuleFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.technicaldebt.TechnicalDebtRuleCache;
+import org.sonar.core.technicaldebt.DebtModelSynchronizer;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+public class RegisterDebtModel {
 
-public class RegisterTechnicalDebtModelTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterDebtModel.class);
 
-  @Test
-  public void create_model() throws Exception {
-    TechnicalDebtModelSynchronizer manger = mock(TechnicalDebtModelSynchronizer.class);
-    RuleFinder ruleFinder = mock(RuleFinder.class);
-    RegisterTechnicalDebtModel sqaleDefinition = new RegisterTechnicalDebtModel(manger, ruleFinder, null);
+  private final DebtModelSynchronizer manager;
 
-    sqaleDefinition.start();
-
-    verify(manger, times(1)).synchronize(any(ValidationMessages.class), any(TechnicalDebtRuleCache.class));
+  public RegisterDebtModel(DebtModelSynchronizer manager) {
+    this.manager = manager;
   }
+
+  public void start() {
+    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register technical debt model");
+    manager.synchronize(ValidationMessages.create());
+    profiler.stop();
+  }
+
 }

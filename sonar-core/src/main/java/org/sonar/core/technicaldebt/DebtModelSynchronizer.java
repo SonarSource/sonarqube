@@ -36,16 +36,16 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class CharacteristicsDebtModelSynchronizer implements ServerExtension {
+public class DebtModelSynchronizer implements ServerExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CharacteristicsDebtModelSynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DebtModelSynchronizer.class);
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
   private final TechnicalDebtModelRepository languageModelFinder;
-  private final CharacteristicsDebtModelXMLImporter importer;
+  private final DebtCharacteristicsXMLImporter importer;
 
-  public CharacteristicsDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao, TechnicalDebtModelRepository modelRepository, CharacteristicsDebtModelXMLImporter importer) {
+  public DebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao, TechnicalDebtModelRepository modelRepository, DebtCharacteristicsXMLImporter importer) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.languageModelFinder = modelRepository;
