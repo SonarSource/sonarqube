@@ -143,7 +143,14 @@
         codingrule: {
           name: 'Array designators "[]" should be located after the type in method signatures',
           language: 'Java',
+          tags: ['bug', 'comment', 'java8'],
+          creationDate: '2013-10-15',
+          fCreationDate: 'Oct 15, 2013',
+          status: 'DEPRECATED',
+          repository: 'squid',
+          key: 'S1190',
           description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of)\nthe empty bracket pairs that form the declaration of the array type after\nthe formal parameter list. This obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>',
+          extra: '<p>This note is here <b>only for test purposes</b>.</p>',
           qualityProfiles: [
             {
               name: 'SonarWay',

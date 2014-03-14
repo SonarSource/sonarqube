@@ -1,7 +1,21 @@
 <script id="coding-rules-detail-template" type="text/x-handlebars-template">
-  <h3 class="coding-rules-detail-header">{{name}}</h3>
-  <div class="coding-rules-detail-language">{{language}}</div>
+  <h3 class="coding-rules-detail-header">
+    {{#notEq status 'READY'}}
+      <span class="coding-rules-detail-status">{{status}}</span>
+    {{/notEq}}
+    {{name}}
+  </h3>
+  <ul class="coding-rules-detail-properties">
+    <li class="coding-rules-detail-property"><i class="icon-lang"></i> {{language}}</li>
+    <li class="coding-rules-detail-property"><i class="icon-calendar"></i> {{fCreationDate}}</li>
+    <li class="coding-rules-detail-property"><i class="icon-tags"></i> {{join tags ', '}}</li>
+  </ul>
+
   <div class="coding-rules-detail-description rule-desc">{{{description}}}</div>
+  {{#if extra}}
+    <div class="coding-rules-detail-description coding-rules-detail-description-extra rule-desc">{{{extra}}}</div>
+  {{/if}}
+
 
   <h3 class="coding-rules-detail-header coding-rules-detail-quality-profiles-header">
     {{t 'coding_rules.quality_profiles'}}

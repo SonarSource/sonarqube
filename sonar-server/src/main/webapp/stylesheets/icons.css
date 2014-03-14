@@ -207,6 +207,16 @@
   content: "\f022";
   font-size: 14px;
 }
+.icon-tags:before {
+  content: "\f02c";
+  font-size: 14px;
+}
+.icon-calendar:before {
+  position: relative;
+  top: -0.1em;
+  content: "\f073";
+  font-size: 14px;
+}
 /*
  * Spinner
  */

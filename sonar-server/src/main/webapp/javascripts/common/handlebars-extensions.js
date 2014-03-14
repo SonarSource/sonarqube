@@ -74,6 +74,10 @@ define(['handlebars'], function (Handlebars) {
     return notEmpty ? options.fn(this) : '';
   });
 
+  Handlebars.registerHelper('join', function(array, separator) {
+    return array.join(separator);
+  });
+
   Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
     var url = '/dashboard/index/' + decodeURIComponent(componentKey);
     if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {

@@ -136,6 +136,12 @@ define ['jquery.mockjax'], ->
       codingrule:
         name: 'Array designators "[]" should be located after the type in method signatures'
         language: 'Java'
+        tags: ['bug', 'comment', 'java8']
+        creationDate: '2013-10-15'
+        fCreationDate: 'Oct 15, 2013'
+        status: 'DEPRECATED'
+        repository: 'squid'
+        key: 'S1190'
         description: '''
             <p>
             According to the Java Language Specification:
@@ -157,6 +163,7 @@ define ['jquery.mockjax'], ->
 
             public int[][] getMatrix() { /* ... */ }  // Compliant
             </pre>'''
+        extra: '''<p>This note is here <b>only for test purposes</b>.</p>'''
 
         qualityProfiles: [
           {

@@ -23,13 +23,33 @@
   text-transform: uppercase;
 }
 
-.coding-rules-detail-language {
-  margin-bottom: @navigatorPadding;
+.coding-rules-detail-status {
+  padding: 3px 4px;
+  background-color: @navigatorBarBackground;
+  color: #777;
+  font-size: @smallFontSize;
+  text-transform: uppercase;
+}
+
+.coding-rules-detail-properties {
+  margin: @navigatorPadding 0;
+  font-size: 0;
+}
+
+.coding-rules-detail-property {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: @baseFontSize;
+}
+
+.coding-rules-detail-property + .coding-rules-detail-property {
+  margin-left: 2 * @navigatorPadding;
 }
 
 .coding-rules-detail-description {
-  padding: @navigatorPadding;
-  background-color: @navigatorBarBackground;
+  margin: 2 * @navigatorPadding 0;
+  padding-left: @navigatorPadding;
+  border-left: 5px solid @blue;
 
   *:first-child {
     margin-top: 0;
@@ -40,6 +60,11 @@
     margin-bottom: 0;
     padding-bottom: 0;
   }
+}
+
+.coding-rules-detail-description-extra {
+  margin-top: -10px;
+  border-left-color: @darkGrey;
 }
 
 
