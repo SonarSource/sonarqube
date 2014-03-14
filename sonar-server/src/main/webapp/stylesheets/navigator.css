@@ -362,7 +362,6 @@
 .navigator-filters-list {
   display: inline-block;
   vertical-align: middle;
-  margin-bottom: -1px;
   font-size: 0;
 }
 .navigator-filter-submit,
@@ -387,9 +386,9 @@
   vertical-align: top;
   height: 36px;
   line-height: 36px;
-  margin: -1px 0 0;
   padding: 0 10px;
   border: 1px solid transparent;
+  border-top: none;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.3s ease;
