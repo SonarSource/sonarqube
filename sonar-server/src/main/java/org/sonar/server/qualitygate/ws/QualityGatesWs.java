@@ -67,7 +67,7 @@ public class QualityGatesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/qualitygates")
       .setSince("4.3")
-      .setDescription("This service can be used to manage quality gates, including requirements and project association.");
+      .setDescription("This service manages quality gates, including conditions and project association");
 
     defineQualityGateActions(controller);
 
@@ -75,7 +75,7 @@ public class QualityGatesWs implements WebService {
 
     controller.createAction("app")
       .setInternal(true)
-      .setDescription("Get initialization items for the admin UI")
+      .setDescription("Get initialization items for the admin UI. For internal use.")
       .setSince("4.3")
       .setHandler(appHandler);
 
@@ -84,7 +84,7 @@ public class QualityGatesWs implements WebService {
 
   private void defineConditionActions(NewController controller) {
     NewAction createCondition = controller.createAction("create_condition")
-    .setDescription("Add a new condition to a quality gate.")
+    .setDescription("Add a new condition to a quality gate")
     .setPost(true)
     .setHandler(new RequestHandler() {
       @Override
@@ -96,7 +96,7 @@ public class QualityGatesWs implements WebService {
     addConditionParams(createCondition);
 
     NewAction updateCondition = controller.createAction("update_condition")
-    .setDescription("Update a condition attached to a quality gate.")
+    .setDescription("Update a condition attached to a quality gate")
     .setPost(true)
     .setHandler(new RequestHandler() {
       @Override
@@ -108,7 +108,7 @@ public class QualityGatesWs implements WebService {
     addConditionParams(updateCondition);
 
     controller.createAction("delete_condition")
-    .setDescription("Remove a condition from a quality gate.")
+    .setDescription("Remove a condition from a quality gate")
     .setPost(true)
     .setHandler(new RequestHandler() {
       @Override
@@ -186,7 +186,7 @@ public class QualityGatesWs implements WebService {
     .setHandler(new RequestHandler() {
       @Override
       public void handle(Request request, Response response) {
-        list(request, response);
+        list(response);
       }
     });
 
@@ -359,7 +359,7 @@ public class QualityGatesWs implements WebService {
     response.noContent();
   }
 
-  protected void list(Request request, Response response) {
+  protected void list(Response response) {
     JsonWriter writer = response.newJsonWriter().beginObject().name("qualitygates").beginArray();
     for (QualityGateDto qgate: qualityGates.list()) {
       writeQualityGate(qgate, writer);

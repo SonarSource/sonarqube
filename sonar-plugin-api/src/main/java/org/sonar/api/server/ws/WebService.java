@@ -103,6 +103,8 @@ public interface WebService extends ServerExtension {
      * Structure of request URL is <code>http://&lt;server&gt;/&lt>controller path&gt;/&lt;action path&gt;?&lt;parameters&gt;</code>.
      *
      * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
+     *             and to use lower-case format with underscores, for example "api/coding_rules". Usual actions
+     *             are "list", "show", "create" and "delete"
      */
     public NewController createController(String path) {
       return new NewController(this, path);
