@@ -303,6 +303,14 @@ jQuery(function() {
     },
 
 
+    onRender: function() {
+      if (!this.collection.sorting.sortText) {
+        this.collection.sorting.sortText = this.$('[data-sort=' + this.collection.sorting.sort + ']:first').text();
+        this.$('.navigator-actions-ordered-by').text(this.collection.sorting.sortText);
+      }
+    },
+
+
     toggleOrderChoices: function(e) {
       e.stopPropagation();
       this.ui.orderChoices.toggleClass('open');
