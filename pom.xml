@@ -30,7 +30,6 @@
     <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
     <module>sonar-server</module>
-    <module>sonar-squid</module>
     <module>sonar-testing-harness</module>
     <module>sonar-ws-client</module>
     <module>plugins/sonar-core-plugin</module>
@@ -594,7 +593,7 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-squid</artifactId>
-        <version>${project.version}</version>
+        <version>4.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
@@ -1297,7 +1296,7 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
               <excludePackageNames>
-                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
+                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
               </excludePackageNames>
               <author>false</author>
               <linksource>true</linksource>
