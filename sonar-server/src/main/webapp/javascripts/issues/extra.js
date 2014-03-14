@@ -304,8 +304,7 @@ define(
         onRender: function () {
           if (!this.collection.sorting.sortText) {
             this.collection.sorting.sortText = this.$('[data-sort=' + this.collection.sorting.sort + ']:first').text();
-            this.render();
-            return;
+            this.$('.navigator-actions-ordered-by').text(this.collection.sorting.sortText);
           }
         },
 
