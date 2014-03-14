@@ -124,7 +124,8 @@ public class ConnectorsTest {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443;
+        return c.getScheme().equals("https") && c.getPort() == 9443
+        		&& c.getProperty("clientAuth").equals("false");
       }
     }));
   }
@@ -255,6 +256,52 @@ public class ConnectorsTest {
     verify(tomcat.getServer(), never()).setPort(anyInt());
     verify(tomcat.getServer(), never()).setShutdown(anyString());
   }
+
+  @Test
+  public void enable_client_auth() throws Exception {
+	  
+    Properties p = new Properties();
+
+    p.setProperty("sonar.web.port", "-1");
+    p.setProperty("sonar.web.https.port", "9443");
+    p.setProperty("sonar.web.https.clientAuth", "want");
+    
+    Props props = new Props(p);
+
+    Connectors.configure(tomcat, props);
+
+    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
+        @Override
+        public boolean matches(Object o) {
+          Connector c = (Connector) o;
+          return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("want");
+        }
+      }));
+  }
+
+  @Test
+  public void require_client_auth() throws Exception {
+	  
+    Properties p = new Properties();
+
+    p.setProperty("sonar.web.port", "-1");
+    p.setProperty("sonar.web.https.port", "9443");
+    p.setProperty("sonar.web.https.clientAuth", "true");
+    
+    Props props = new Props(p);
+
+    Connectors.configure(tomcat, props);
+
+    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
+        @Override
+        public boolean matches(Object o) {
+          Connector c = (Connector) o;
+          return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("true");
+        }
+      }));
+  }
+ 
+  
 
   private static class PropertiesMatcher extends ArgumentMatcher<Connector> {
     private final Map<String, Object> expected;
