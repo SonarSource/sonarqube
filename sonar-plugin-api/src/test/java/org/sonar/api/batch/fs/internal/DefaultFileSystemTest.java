@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.FilePredicates;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -80,7 +79,7 @@ public class DefaultFileSystemTest {
   public void files() throws Exception {
     DefaultFileSystem fs = new DefaultFileSystem();
 
-    assertThat(fs.inputFiles(FilePredicates.all())).isEmpty();
+    assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
     fs.add(new DefaultInputFile("src/Foo.php").setLanguage("php").setFile(temp.newFile()));
     fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
@@ -89,21 +88,21 @@ public class DefaultFileSystemTest {
     // no language
     fs.add(new DefaultInputFile("src/readme.txt").setFile(temp.newFile()));
 
-    assertThat(fs.inputFile(FilePredicates.hasRelativePath("src/Bar.java"))).isNotNull();
-    assertThat(fs.inputFile(FilePredicates.hasRelativePath("does/not/exist"))).isNull();
+    assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
+    assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
 
-    assertThat(fs.files(FilePredicates.all())).hasSize(4);
-    assertThat(fs.files(FilePredicates.hasLanguage("java"))).hasSize(2);
-    assertThat(fs.files(FilePredicates.hasLanguage("cobol"))).isEmpty();
+    assertThat(fs.files(fs.predicates().all())).hasSize(4);
+    assertThat(fs.files(fs.predicates().hasLanguage("java"))).hasSize(2);
+    assertThat(fs.files(fs.predicates().hasLanguage("cobol"))).isEmpty();
 
-    assertThat(fs.hasFiles(FilePredicates.all())).isTrue();
-    assertThat(fs.hasFiles(FilePredicates.hasLanguage("java"))).isTrue();
-    assertThat(fs.hasFiles(FilePredicates.hasLanguage("cobol"))).isFalse();
+    assertThat(fs.hasFiles(fs.predicates().all())).isTrue();
+    assertThat(fs.hasFiles(fs.predicates().hasLanguage("java"))).isTrue();
+    assertThat(fs.hasFiles(fs.predicates().hasLanguage("cobol"))).isFalse();
 
-    assertThat(fs.inputFiles(FilePredicates.all())).hasSize(4);
-    assertThat(fs.inputFiles(FilePredicates.hasLanguage("php"))).hasSize(1);
-    assertThat(fs.inputFiles(FilePredicates.hasLanguage("java"))).hasSize(2);
-    assertThat(fs.inputFiles(FilePredicates.hasLanguage("cobol"))).isEmpty();
+    assertThat(fs.inputFiles(fs.predicates().all())).hasSize(4);
+    assertThat(fs.inputFiles(fs.predicates().hasLanguage("php"))).hasSize(1);
+    assertThat(fs.inputFiles(fs.predicates().hasLanguage("java"))).hasSize(2);
+    assertThat(fs.inputFiles(fs.predicates().hasLanguage("cobol"))).isEmpty();
 
     assertThat(fs.languages()).containsOnly("java", "php");
   }
@@ -111,7 +110,8 @@ public class DefaultFileSystemTest {
   @Test
   public void input_file_returns_null_if_file_not_found() throws Exception {
     DefaultFileSystem fs = new DefaultFileSystem();
-    assertThat(fs.inputFile(FilePredicates.hasRelativePath("src/Bar.java"))).isNull();
+    assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNull();
+    assertThat(fs.inputFile(fs.predicates().hasLanguage("cobol"))).isNull();
   }
 
   @Test
@@ -123,7 +123,7 @@ public class DefaultFileSystemTest {
     fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
     fs.add(new DefaultInputFile("src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
-    fs.inputFile(FilePredicates.all());
+    fs.inputFile(fs.predicates().all());
   }
 
   @Test
@@ -132,6 +132,6 @@ public class DefaultFileSystemTest {
     fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
 
     // it would fail if more than one java file
-    assertThat(fs.inputFile(FilePredicates.hasLanguage("java"))).isNotNull();
+    assertThat(fs.inputFile(fs.predicates().hasLanguage("java"))).isNotNull();
   }
 }

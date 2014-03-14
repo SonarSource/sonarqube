@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.PathPattern;
 
 /**
  * @since 4.2
  */
-class StatusPredicate implements FilePredicate {
+class PathPatternPredicate implements FilePredicate {
 
-  private final InputFile.Status status;
+  private final PathPattern pattern;
 
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
+  PathPatternPredicate(PathPattern pattern) {
+    this.pattern = pattern;
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return status == f.status();
+    return pattern.match(f);
   }
 
 }

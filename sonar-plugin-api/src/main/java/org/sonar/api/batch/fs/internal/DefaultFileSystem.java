@@ -27,14 +27,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.UniqueIndexPredicate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -49,6 +50,7 @@ public class DefaultFileSystem implements FileSystem {
   private final SortedSet<String> languages = Sets.newTreeSet();
   private File baseDir, workDir;
   private Charset encoding;
+  private final FilePredicates predicates = new DefaultFilePredicates();
 
   /**
    * Only for testing
@@ -151,9 +153,7 @@ public class DefaultFileSystem implements FileSystem {
    */
   public DefaultFileSystem addLanguages(String language, String... others) {
     languages.add(language);
-    for (String other : others) {
-      languages.add(other);
-    }
+    Collections.addAll(languages, others);
     return this;
   }
 
@@ -161,6 +161,11 @@ public class DefaultFileSystem implements FileSystem {
   public SortedSet<String> languages() {
     doPreloadFiles();
     return languages;
+  }
+
+  @Override
+  public FilePredicates predicates() {
+    return predicates;
   }
 
   /**

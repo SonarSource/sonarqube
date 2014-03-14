@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
@@ -38,7 +37,10 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class DefaultModuleFileSystemTest {
 
@@ -163,10 +165,10 @@ public class DefaultModuleFileSystemTest {
     when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput));
 
     fs.index();
-    Iterable<InputFile> inputFiles = fs.inputFiles(FilePredicates.hasType(InputFile.Type.MAIN));
+    Iterable<InputFile> inputFiles = fs.inputFiles(fs.predicates().hasType(InputFile.Type.MAIN));
     assertThat(inputFiles).containsOnly(mainInput);
 
-    Iterable<File> files = fs.files(FilePredicates.hasType(InputFile.Type.MAIN));
+    Iterable<File> files = fs.files(fs.predicates().hasType(InputFile.Type.MAIN));
     assertThat(files).containsOnly(mainFile);
   }
 

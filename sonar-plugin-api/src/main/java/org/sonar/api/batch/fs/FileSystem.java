@@ -27,11 +27,27 @@ import java.nio.charset.Charset;
 import java.util.SortedSet;
 
 /**
- * <p>The unit tests needing an instance of FileSystem can use the implementation
- * {@link org.sonar.api.batch.fs.internal.DefaultFileSystem} and the related {@link org.sonar.api.scan.filesystem.internal.DefaultInputFile}:</p>
+ * The {@link FileSystem} manages all the source files to be analyzed.
+ * <p/>
+ * This is not an extension point so it must not be implemented by plugins. It must be injected as a
+ * constructor parameter :
  * <pre>
- *   DefaultFileSystem fs = new DefaultFileSystem();
- *   fs.add(new DefaultInputFile("src/foo/bar.php"));
+ * public class MySensor implements Sensor {
+ *   private final FileSystem fs;
+ *
+ *   public MySensor(FileSystem fs) {
+ *     this.fs = fs;
+ *   }
+ * }
+ * </pre>
+ *
+ * <h2>How to use in unit tests</h2>
+ * The unit tests needing an instance of FileSystem can use the implementation
+ * {@link org.sonar.api.batch.fs.internal.DefaultFileSystem} and the related {@link org.sonar.api.batch.fs.internal.DefaultInputFile},
+ * for example :
+ * <pre>
+ * DefaultFileSystem fs = new DefaultFileSystem();
+ * fs.add(new DefaultInputFile("src/foo/bar.php"));
  * </pre>
  *
  * @since 4.2
@@ -58,10 +74,15 @@ public interface FileSystem extends BatchComponent {
   File workDir();
 
   /**
+   * Factory of {@link FilePredicate}
+   */
+  FilePredicates predicates();
+
+  /**
    * Returns the single element matching the predicate. If more than one elements match
    * the predicate, then {@link IllegalArgumentException} is thrown. Returns {@code null}
    * if no files match.
-   * @see org.sonar.api.batch.fs.FilePredicates
+   * @see #predicates()
    */
   @CheckForNull
   InputFile inputFile(FilePredicate predicate);
@@ -73,21 +94,21 @@ public interface FileSystem extends BatchComponent {
    * Important - result is an {@link java.lang.Iterable} to benefit from streaming and decreasing
    * memory consumption. It should be iterated only once, else copy it into a list :
    * {@code com.google.common.collect.Lists.newArrayList(inputFiles(predicate))}
-   * @see org.sonar.api.batch.fs.FilePredicates
+   * @see #predicates()
    */
   Iterable<InputFile> inputFiles(FilePredicate predicate);
 
   /**
    * Returns true if at least one {@link org.sonar.api.batch.fs.InputFile} matches
-   * the given predicate. This method can be faster than checking if {@link #inputFiles(org.sonar.api.batch.fs.FilePredicate...)}
+   * the given predicate. This method can be faster than checking if {@link #inputFiles(org.sonar.api.batch.fs.FilePredicate)}
    * has elements.
-   * @see org.sonar.api.batch.fs.FilePredicates
+   * @see #predicates()
    */
   boolean hasFiles(FilePredicate predicate);
 
   /**
    * Files matching the given predicate.
-   * @see org.sonar.api.batch.fs.FilePredicates
+   * @see #predicates()
    */
   Iterable<File> files(FilePredicate predicate);
 

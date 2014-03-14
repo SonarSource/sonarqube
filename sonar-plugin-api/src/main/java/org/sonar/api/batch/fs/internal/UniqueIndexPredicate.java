@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
-
-import org.sonar.api.batch.fs.internal.PathPattern;
+package org.sonar.api.batch.fs.internal;
 
 /**
  * @since 4.2
  */
-class PathPatternPredicate implements FilePredicate {
+public interface UniqueIndexPredicate {
 
-  private final PathPattern pattern;
+  String indexId();
 
-  PathPatternPredicate(PathPattern pattern) {
-    this.pattern = pattern;
-  }
-
-  @Override
-  public boolean apply(InputFile f) {
-    return pattern.match(f);
-  }
+  Object value();
 
 }

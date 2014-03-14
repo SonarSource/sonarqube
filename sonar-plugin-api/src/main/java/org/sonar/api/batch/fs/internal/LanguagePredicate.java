@@ -17,15 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-public interface UniqueIndexPredicate {
+class LanguagePredicate implements FilePredicate {
+  private final String language;
 
-  String indexId();
+  LanguagePredicate(String language) {
+    this.language = language;
+  }
 
-  Object value();
-
+  @Override
+  public boolean apply(InputFile f) {
+    return language.equals(f.language());
+  }
 }

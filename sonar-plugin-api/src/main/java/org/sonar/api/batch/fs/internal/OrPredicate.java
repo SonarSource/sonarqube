@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.InputFile;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +35,7 @@ class OrPredicate implements FilePredicate {
 
   OrPredicate(Collection<FilePredicate> predicates) {
     if (predicates.isEmpty()) {
-      this.predicates = Arrays.asList(FilePredicates.all());
+      this.predicates = Arrays.asList(TruePredicate.TRUE);
     } else {
       this.predicates = predicates;
     }

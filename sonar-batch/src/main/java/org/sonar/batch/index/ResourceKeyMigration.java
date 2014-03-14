@@ -63,7 +63,7 @@ public class ResourceKeyMigration implements BatchComponent {
 
   public void migrateIfNeeded(Project module, FileSystem fs) {
     if (migrationNeeded) {
-      migrateIfNeeded(module, fs.inputFiles(FilePredicates.all()));
+      migrateIfNeeded(module, fs.inputFiles(fs.predicates().all()));
     }
   }
 

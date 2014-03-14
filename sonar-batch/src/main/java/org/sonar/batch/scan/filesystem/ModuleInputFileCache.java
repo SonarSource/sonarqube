@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.UniqueIndexPredicate;
+import org.sonar.api.batch.fs.internal.UniqueIndexPredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.resources.Project;
 
