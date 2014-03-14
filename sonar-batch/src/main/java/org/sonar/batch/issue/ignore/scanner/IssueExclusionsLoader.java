@@ -20,7 +20,6 @@
 
 package org.sonar.batch.issue.ignore.scanner;
 
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -58,7 +57,7 @@ public final class IssueExclusionsLoader {
   public void execute() {
     Charset sourcesEncoding = fileSystem.encoding();
 
-    for (InputFile inputFile : fileSystem.inputFiles(FilePredicates.all())) {
+    for (InputFile inputFile : fileSystem.inputFiles(fileSystem.predicates().all())) {
       try {
         String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
         if (componentEffectiveKey != null) {

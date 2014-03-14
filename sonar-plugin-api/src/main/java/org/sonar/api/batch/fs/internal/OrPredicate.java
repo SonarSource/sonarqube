@@ -17,22 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.InputFile;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @since 4.2
  */
-class StatusPredicate implements FilePredicate {
+class OrPredicate implements FilePredicate {
 
-  private final InputFile.Status status;
+  private final Collection<FilePredicate> predicates;
 
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
+  OrPredicate(Collection<FilePredicate> predicates) {
+    if (predicates.isEmpty()) {
+      this.predicates = Arrays.asList(TruePredicate.TRUE);
+    } else {
+      this.predicates = predicates;
+    }
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return status == f.status();
+    for (FilePredicate predicate : predicates) {
+      if (predicate.apply(f)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

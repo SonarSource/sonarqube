@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -38,7 +37,6 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -69,7 +67,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private boolean initialized;
 
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
-    ComponentIndexer componentIndexer) {
+                                 ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
@@ -147,6 +145,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   /**
    * Should not be used - only for old plugins
+   *
    * @deprecated since 4.0
    */
   @Deprecated
@@ -156,6 +155,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   /**
    * Should not be used - only for old plugins
+   *
    * @deprecated since 4.0
    */
   @Deprecated
@@ -189,7 +189,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     for (Map.Entry<String, Collection<String>> entry : query.attributes().entrySet()) {
       predicates.add(fromDeprecatedAttribute(entry.getKey(), entry.getValue()));
     }
-    return ImmutableList.copyOf(files(FilePredicates.and(predicates)));
+    return ImmutableList.copyOf(files(predicates().and(predicates)));
   }
 
   @Override
@@ -230,60 +230,60 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     return builder.build();
   }
 
-  static FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {
+  private FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {
     if ("TYPE".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : FilePredicates.hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
+          return s == null ? predicates().all() : predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
         }
       }));
     }
     if ("STATUS".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : FilePredicates.hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
+          return s == null ? predicates().all() : predicates().hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
         }
       }));
     }
     if ("LANG".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : FilePredicates.hasLanguage(s);
+          return s == null ? predicates().all() : predicates().hasLanguage(s);
         }
       }));
     }
     if ("CMP_KEY".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.KeyPredicate(s);
+          return s == null ? predicates().all() : new AdditionalFilePredicates.KeyPredicate(s);
         }
       }));
     }
     if ("CMP_DEPRECATED_KEY".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.DeprecatedKeyPredicate(s);
+          return s == null ? predicates().all() : new AdditionalFilePredicates.DeprecatedKeyPredicate(s);
         }
       }));
     }
     if ("SRC_REL_PATH".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.SourceRelativePathPredicate(s);
+          return s == null ? predicates().all() : new AdditionalFilePredicates.SourceRelativePathPredicate(s);
         }
       }));
     }
     if ("SRC_DIR_PATH".equals(key)) {
-      return FilePredicates.or(Collections2.transform(value, new Function<String, FilePredicate>() {
+      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
         @Override
         public FilePredicate apply(@Nullable String s) {
-          return s == null ? FilePredicates.all() : new AdditionalFilePredicates.SourceDirPredicate(s);
+          return s == null ? predicates().all() : new AdditionalFilePredicates.SourceDirPredicate(s);
         }
       }));
     }

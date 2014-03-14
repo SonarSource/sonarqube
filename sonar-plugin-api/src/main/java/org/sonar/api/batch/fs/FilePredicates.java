@@ -19,148 +19,67 @@
  */
 package org.sonar.api.batch.fs;
 
-import com.google.common.collect.Lists;
-import org.sonar.api.batch.fs.internal.PathPattern;
-
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Factory of {@link org.sonar.api.batch.fs.FilePredicate}
  *
  * @since 4.2
  */
-public class FilePredicates {
-  private static final FilePredicate ALWAYS_TRUE = new AlwaysTruePredicate();
-  private static final FilePredicate ALWAYS_FALSE = not(ALWAYS_TRUE);
-
-  private FilePredicates() {
-    // only static stuff
-  }
-
+public interface FilePredicates {
   /**
    * Returns a predicate that always evaluates to true
    */
-  public static FilePredicate all() {
-    return ALWAYS_TRUE;
-  }
+  FilePredicate all();
 
   /**
    * Returns a predicate that always evaluates to false
    */
-  public static FilePredicate none() {
-    return ALWAYS_FALSE;
-  }
+  FilePredicate none();
 
   /**
    * Warning - not efficient because absolute path is not indexed yet.
    */
-  public static FilePredicate hasAbsolutePath(String s) {
-    return new AbsolutePathPredicate(s);
-  }
+  FilePredicate hasAbsolutePath(String s);
 
   /**
    * TODO document that non-normalized path and Windows-style path are supported
    */
-  public static FilePredicate hasRelativePath(String s) {
-    return new RelativePathPredicate(s);
-  }
+  FilePredicate hasRelativePath(String s);
 
-  public static FilePredicate matchesPathPattern(String inclusionPattern) {
-    return new PathPatternPredicate(PathPattern.create(inclusionPattern));
-  }
+  FilePredicate matchesPathPattern(String inclusionPattern);
 
-  public static FilePredicate matchesPathPatterns(String[] inclusionPatterns) {
-    if (inclusionPatterns.length == 0) {
-      return ALWAYS_TRUE;
-    }
-    FilePredicate[] predicates = new FilePredicate[inclusionPatterns.length];
-    for (int i = 0; i < inclusionPatterns.length; i++) {
-      predicates[i] = new PathPatternPredicate(PathPattern.create(inclusionPatterns[i]));
-    }
-    return or(predicates);
-  }
+  FilePredicate matchesPathPatterns(String[] inclusionPatterns);
 
-  public static FilePredicate doesNotMatchPathPattern(String exclusionPattern) {
-    return not(matchesPathPattern(exclusionPattern));
-  }
+  FilePredicate doesNotMatchPathPattern(String exclusionPattern);
 
-  public static FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns) {
-    if (exclusionPatterns.length == 0) {
-      return ALWAYS_TRUE;
-    }
-    return not(matchesPathPatterns(exclusionPatterns));
-  }
+  FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns);
 
-  public static FilePredicate hasPath(String s) {
-    File file = new File(s);
-    if (file.isAbsolute()) {
-      return hasAbsolutePath(s);
-    }
-    return hasRelativePath(s);
-  }
+  FilePredicate hasPath(String s);
 
-  public static FilePredicate is(File ioFile) {
-    if (ioFile.isAbsolute()) {
-      return hasAbsolutePath(ioFile.getAbsolutePath());
-    }
-    return hasRelativePath(ioFile.getPath());
-  }
+  FilePredicate is(File ioFile);
 
-  public static FilePredicate hasLanguage(String language) {
-    return new LanguagePredicate(language);
-  }
+  FilePredicate hasLanguage(String language);
 
-  public static FilePredicate hasLanguages(Collection<String> languages) {
-    List<FilePredicate> list = Lists.newArrayList();
-    for (String language : languages) {
-      list.add(hasLanguage(language));
-    }
-    return or(list);
-  }
+  FilePredicate hasLanguages(Collection<String> languages);
 
-  public static FilePredicate hasStatus(InputFile.Status status) {
-    return new StatusPredicate(status);
-  }
+  FilePredicate hasStatus(InputFile.Status status);
 
-  public static FilePredicate hasType(InputFile.Type type) {
-    return new TypePredicate(type);
-  }
+  FilePredicate hasType(InputFile.Type type);
 
-  public static FilePredicate not(FilePredicate p) {
-    return new NotPredicate(p);
-  }
+  FilePredicate not(FilePredicate p);
 
-  public static FilePredicate or(Collection<FilePredicate> or) {
-    return new OrPredicate(or);
-  }
+  FilePredicate or(Collection<FilePredicate> or);
 
-  public static FilePredicate or(FilePredicate... or) {
-    return new OrPredicate(Arrays.asList(or));
-  }
+  FilePredicate or(FilePredicate... or);
 
-  public static FilePredicate or(FilePredicate first, FilePredicate second) {
-    return new OrPredicate(Arrays.asList(first, second));
-  }
+  FilePredicate or(FilePredicate first, FilePredicate second);
 
-  public static FilePredicate and(Collection<FilePredicate> and) {
-    return new AndPredicate(and);
-  }
+  FilePredicate and(Collection<FilePredicate> and);
 
-  public static FilePredicate and(FilePredicate... and) {
-    return new AndPredicate(Arrays.asList(and));
-  }
+  FilePredicate and(FilePredicate... and);
 
-  public static FilePredicate and(FilePredicate first, FilePredicate second) {
-    return new AndPredicate(Arrays.asList(first, second));
-  }
+  FilePredicate and(FilePredicate first, FilePredicate second);
 
-  private static class AlwaysTruePredicate implements FilePredicate {
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return true;
-    }
-  }
 }

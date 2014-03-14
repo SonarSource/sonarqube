@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
-import java.util.Collection;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class AndPredicate implements FilePredicate {
+class LanguagePredicate implements FilePredicate {
+  private final String language;
 
-  private final Collection<FilePredicate> predicates;
-
-  AndPredicate(Collection<FilePredicate> predicates) {
-    this.predicates = predicates;
+  LanguagePredicate(String language) {
+    this.language = language;
   }
 
   @Override
   public boolean apply(InputFile f) {
-    for (FilePredicate predicate : predicates) {
-      if (!predicate.apply(f)) {
-        return false;
-      }
-    }
-    return true;
+    return language.equals(f.language());
   }
-
 }

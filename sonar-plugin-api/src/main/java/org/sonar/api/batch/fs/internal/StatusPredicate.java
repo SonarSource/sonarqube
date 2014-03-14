@@ -17,35 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
-import org.apache.commons.io.FilenameUtils;
-import org.sonar.api.batch.fs.internal.RelativePathIndex;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class RelativePathPredicate implements FilePredicate, UniqueIndexPredicate {
+class StatusPredicate implements FilePredicate {
 
-  private final String path;
+  private final InputFile.Status status;
 
-  RelativePathPredicate(String path) {
-    this.path = FilenameUtils.normalize(path, true);
+  StatusPredicate(InputFile.Status status) {
+    this.status = status;
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return path.equals(f.relativePath());
-  }
-
-  @Override
-  public Object value() {
-    return path;
-  }
-
-  @Override
-  public String indexId() {
-    return RelativePathIndex.ID;
+    return status == f.status();
   }
 
 }

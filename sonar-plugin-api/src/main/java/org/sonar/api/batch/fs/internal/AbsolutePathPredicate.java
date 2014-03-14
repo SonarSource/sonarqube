@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.apache.commons.io.FilenameUtils;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class TypePredicate implements FilePredicate {
+class AbsolutePathPredicate implements FilePredicate {
 
-  private final InputFile.Type type;
+  private final String path;
 
-  TypePredicate(InputFile.Type type) {
-    this.type = type;
+  AbsolutePathPredicate(String path) {
+    this.path = FilenameUtils.normalize(path, true);
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return type == f.type();
+    return path.equals(f.absolutePath());
   }
-
 }
-

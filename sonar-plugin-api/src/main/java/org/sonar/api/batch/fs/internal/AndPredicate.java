@@ -17,22 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
+
+import java.util.Collection;
 
 /**
  * @since 4.2
  */
-class NotPredicate implements FilePredicate {
+class AndPredicate implements FilePredicate {
 
-  private final FilePredicate predicate;
+  private final Collection<FilePredicate> predicates;
 
-  NotPredicate(FilePredicate predicate) {
-    this.predicate = predicate;
+  AndPredicate(Collection<FilePredicate> predicates) {
+    this.predicates = predicates;
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return !predicate.apply(f);
+    for (FilePredicate predicate : predicates) {
+      if (!predicate.apply(f)) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

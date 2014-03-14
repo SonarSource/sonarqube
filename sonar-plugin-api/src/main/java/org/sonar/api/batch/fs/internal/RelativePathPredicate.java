@@ -17,15 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
+
+import org.apache.commons.io.FilenameUtils;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-public interface UniqueIndexPredicate {
+class RelativePathPredicate implements FilePredicate, UniqueIndexPredicate {
 
-  String indexId();
+  private final String path;
 
-  Object value();
+  RelativePathPredicate(String path) {
+    this.path = FilenameUtils.normalize(path, true);
+  }
+
+  @Override
+  public boolean apply(InputFile f) {
+    return path.equals(f.relativePath());
+  }
+
+  @Override
+  public Object value() {
+    return path;
+  }
+
+  @Override
+  public String indexId() {
+    return RelativePathIndex.ID;
+  }
 
 }

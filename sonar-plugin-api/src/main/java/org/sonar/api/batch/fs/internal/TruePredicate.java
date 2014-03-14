@@ -17,20 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
-/**
- * @since 4.2
- */
-class LanguagePredicate implements FilePredicate {
-  private final String language;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
-  LanguagePredicate(String language) {
-    this.language = language;
-  }
+class TruePredicate implements FilePredicate {
+
+  static final FilePredicate TRUE = new TruePredicate();
 
   @Override
-  public boolean apply(InputFile f) {
-    return language.equals(f.language());
+  public boolean apply(InputFile inputFile) {
+    return true;
   }
 }

@@ -25,17 +25,21 @@ import com.google.common.io.Files;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
+ *
  * @since 4.2
  */
 public class ComponentIndexer implements BatchComponent {
@@ -61,7 +65,7 @@ public class ComponentIndexer implements BatchComponent {
     migration.migrateIfNeeded(module, fs);
 
     boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-    for (InputFile inputFile : fs.inputFiles(FilePredicates.all())) {
+    for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       String pathFromSourceDir = ((DefaultInputFile) inputFile).pathRelativeToSourceDir();
