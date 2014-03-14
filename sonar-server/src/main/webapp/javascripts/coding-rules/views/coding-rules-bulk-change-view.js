@@ -131,6 +131,7 @@
       CodingRulesBulkChangeView.prototype.serializeData = function() {
         var _this = this;
         return {
+          paging: this.options.app.codingRules.paging,
           qualityProfiles: this.options.app.qualityProfiles,
           activeQualityProfile: this.options.app.getActiveQualityProfile(),
           activeQualityProfileName: this.options.app.activeInFilter.view.renderValue(),

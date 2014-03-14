@@ -68,6 +68,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.ordered_by': 'Ordered By'
         'coding_rules.page': 'Coding Rules'
         'coding_rules.quality_profiles': 'Quality Profiles'
+        'coding_rules._rules': 'rule(s)'
 
         'coding_rules.filters.availableSince': 'Available Since'
         'coding_rules.filters.description': 'Description'

@@ -96,6 +96,7 @@ define [
 
 
     serializeData: ->
+      paging: @options.app.codingRules.paging
       qualityProfiles: @options.app.qualityProfiles
 
       activeQualityProfile: @options.app.getActiveQualityProfile()
