@@ -20,14 +20,14 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleRepositoriesTest {
   @Test
   public void should_register_repositories() {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RulesDefinition.Context context = new RulesDefinition.Context();
     new SquidDefinitions().define(context);
     new FindbugsDefinitions().define(context);
 
@@ -60,7 +60,7 @@ public class RuleRepositoriesTest {
     assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(squid).isNotEqualTo("findbugs").isNotEqualTo(null);
   }
 
-  static class FindbugsDefinitions implements RuleDefinitions {
+  static class FindbugsDefinitions implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("findbugs", "java");
@@ -72,7 +72,7 @@ public class RuleRepositoriesTest {
     }
   }
 
-  static class SquidDefinitions implements RuleDefinitions {
+  static class SquidDefinitions implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("squid", "java");

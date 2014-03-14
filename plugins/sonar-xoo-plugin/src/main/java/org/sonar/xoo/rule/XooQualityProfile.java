@@ -32,7 +32,7 @@ public class XooQualityProfile extends ProfileDefinition {
   public RulesProfile createProfile(ValidationMessages validation) {
     final RulesProfile profile = RulesProfile.create("Basic", Xoo.KEY);
 
-    profile.activateRule(Rule.create(XooRuleDefinitions.XOO_REPOSITORY, "x1"), RulePriority.MAJOR);
+    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, "x1"), RulePriority.MAJOR);
 
     return profile;
   }

@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Read definitions of rules based on the annotations provided by sonar-check-api.
  * </p>
- * It is internally used by {@link RuleDefinitions} and can't be directly
+ * It is internally used by {@link RulesDefinition} and can't be directly
  * used by plugins.
  *
  * @since 4.2
@@ -48,14 +48,14 @@ class RuleDefinitionsFromAnnotations {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleDefinitionsFromAnnotations.class);
 
-  void loadRules(RuleDefinitions.NewRepository repo, Class... annotatedClasses) {
+  void loadRules(RulesDefinition.NewRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {
       loadRule(repo, annotatedClass);
     }
   }
 
   @CheckForNull
-  RuleDefinitions.NewRule loadRule(RuleDefinitions.NewRepository repo, Class clazz) {
+  RulesDefinition.NewRule loadRule(RulesDefinition.NewRepository repo, Class clazz) {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(clazz, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       return loadRule(repo, clazz, ruleAnnotation);
@@ -65,12 +65,12 @@ class RuleDefinitionsFromAnnotations {
     }
   }
 
-  private RuleDefinitions.NewRule loadRule(RuleDefinitions.NewRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+  private RulesDefinition.NewRule loadRule(RulesDefinition.NewRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);
 
-    RuleDefinitions.NewRule rule = repo.createRule(ruleKey);
+    RulesDefinition.NewRule rule = repo.createRule(ruleKey);
     rule.setName(ruleName).setHtmlDescription(description);
     rule.setSeverity(ruleAnnotation.priority().name());
     rule.setTemplate(ruleAnnotation.cardinality() == Cardinality.MULTIPLE);
@@ -85,11 +85,11 @@ class RuleDefinitionsFromAnnotations {
     return rule;
   }
 
-  private void loadParameters(RuleDefinitions.NewRule rule, Field field) {
+  private void loadParameters(RulesDefinition.NewRule rule, Field field) {
     org.sonar.check.RuleProperty propertyAnnotation = field.getAnnotation(org.sonar.check.RuleProperty.class);
     if (propertyAnnotation != null) {
       String fieldKey = StringUtils.defaultIfEmpty(propertyAnnotation.key(), field.getName());
-      RuleDefinitions.NewParam param = rule.createParam(fieldKey)
+      RulesDefinition.NewParam param = rule.createParam(fieldKey)
         .setDescription(propertyAnnotation.description())
         .setDefaultValue(propertyAnnotation.defaultValue());
 

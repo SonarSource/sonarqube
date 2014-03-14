@@ -432,7 +432,7 @@ public final class Platform {
     ComponentContainer startupContainer = servicesContainer.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
-    startupContainer.addSingleton(DeprecatedRuleDefinitions.class);
+    startupContainer.addSingleton(DeprecatedRulesDefinition.class);
     startupContainer.addSingleton(RuleDefinitionsLoader.class);
     startupContainer.addSingleton(RuleRegistration.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);

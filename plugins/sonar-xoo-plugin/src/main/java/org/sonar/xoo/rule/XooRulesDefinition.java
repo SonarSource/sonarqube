@@ -21,14 +21,14 @@ package org.sonar.xoo.rule;
 
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.xoo.Xoo;
 
 /**
  * Define all the coding rules that are supported on the repository named "xoo".
  */
-public class XooRuleDefinitions implements RuleDefinitions {
+public class XooRulesDefinition implements RulesDefinition {
 
   public static final String XOO_REPOSITORY = "xoo";
 

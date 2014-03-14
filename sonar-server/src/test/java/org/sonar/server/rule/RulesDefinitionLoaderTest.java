@@ -20,16 +20,16 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleDefinitionsLoaderTest {
+public class RulesDefinitionLoaderTest {
   @Test
   public void no_definitions() {
     RuleRepositories repositories = new RuleRepositories();
 
-    RuleDefinitions.Context context = new RuleDefinitionsLoader(repositories).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(repositories).load();
 
     assertThat(context.repositories()).isEmpty();
     assertThat(repositories.repositories()).isEmpty();
@@ -39,7 +39,7 @@ public class RuleDefinitionsLoaderTest {
   public void load_definitions() {
     RuleRepositories repositories = new RuleRepositories();
 
-    RuleDefinitions.Context context = new RuleDefinitionsLoader(repositories, new RuleDefinitions[]{
+    RulesDefinition.Context context = new RuleDefinitionsLoader(repositories, new RulesDefinition[]{
         new FindbugsDefinitions(), new SquidDefinitions()
     }).load();
 
@@ -51,7 +51,7 @@ public class RuleDefinitionsLoaderTest {
     assertThat(repositories.repository("squid")).isNotNull();
   }
 
-  static class FindbugsDefinitions implements RuleDefinitions {
+  static class FindbugsDefinitions implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("findbugs", "java");
@@ -63,7 +63,7 @@ public class RuleDefinitionsLoaderTest {
     }
   }
 
-  static class SquidDefinitions implements RuleDefinitions {
+  static class SquidDefinitions implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("squid", "java");

@@ -47,7 +47,7 @@ import java.util.Set;
  *
  * @since 4.3
  */
-public interface RuleDefinitions extends ServerExtension {
+public interface RulesDefinition extends ServerExtension {
 
   /**
    * Instantiated by core but not by plugins
@@ -208,7 +208,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
-    public RuleDefinitions.NewRule loadAnnotatedClass(Class clazz) {
+    public RulesDefinition.NewRule loadAnnotatedClass(Class clazz) {
       return new RuleDefinitionsFromAnnotations().loadRule(this, clazz);
     }
 
@@ -567,7 +567,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     /**
-     * @see RuleDefinitions.NewRule#setInternalKey(String)
+     * @see RulesDefinition.NewRule#setInternalKey(String)
      */
     @CheckForNull
     public String internalKey() {

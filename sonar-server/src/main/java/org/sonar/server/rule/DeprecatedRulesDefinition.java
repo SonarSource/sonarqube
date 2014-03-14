@@ -27,8 +27,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.server.rule.RuleDefinitions;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.technicaldebt.DebtRulesXMLImporter;
@@ -47,7 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 4.2
  */
-public class DeprecatedRuleDefinitions implements RuleDefinitions {
+public class DeprecatedRulesDefinition implements RulesDefinition {
 
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
@@ -55,14 +55,14 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
   private final TechnicalDebtModelRepository languageModelFinder;
   private final DebtRulesXMLImporter importer;
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
+  public DeprecatedRulesDefinition(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRuleDefinitions(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
+  public DeprecatedRulesDefinition(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this(i18n, new RuleRepository[0], languageModelFinder, importer);
   }
 

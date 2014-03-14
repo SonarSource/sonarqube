@@ -21,7 +21,7 @@ package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
 import org.sonar.xoo.rule.XooQualityProfile;
-import org.sonar.xoo.rule.XooRuleDefinitions;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class XooPlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
       Xoo.class,
-      XooRuleDefinitions.class,
+      XooRulesDefinition.class,
       XooQualityProfile.class);
   }
 

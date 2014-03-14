@@ -20,25 +20,25 @@
 package org.sonar.xoo.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class XooRuleDefinitionsTest {
+public class XooRulesDefinitionTest {
 
   @Test
   public void define_xoo_rules() {
-    XooRuleDefinitions def = new XooRuleDefinitions();
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    XooRulesDefinition def = new XooRulesDefinition();
+    RulesDefinition.Context context = new RulesDefinition.Context();
     def.define(context);
 
-    RuleDefinitions.Repository repo = context.repository("xoo");
+    RulesDefinition.Repository repo = context.repository("xoo");
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
     assertThat(repo.rules()).hasSize(1);
 
-    RuleDefinitions.Rule x1 = repo.rule("x1");
+    RulesDefinition.Rule x1 = repo.rule("x1");
     assertThat(x1.key()).isEqualTo("x1");
     assertThat(x1.tags()).containsOnly("style", "security");
     assertThat(x1.htmlDescription()).isNotEmpty();

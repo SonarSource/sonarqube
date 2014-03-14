@@ -22,8 +22,8 @@ package org.sonar.api.server.rule;
 import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -32,14 +32,14 @@ import java.io.UnsupportedEncodingException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleDefinitionsFromXmlTest {
+public class RulesDefinitionFromXmlTest {
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
 
-  private RuleDefinitions.Repository load(Reader reader) {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewRepository newRepository = context.createRepository("squid", "java");
+  private RulesDefinition.Repository load(Reader reader) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
     new RuleDefinitionsFromXml().loadRules(newRepository, reader);
     newRepository.done();
     return context.repository("squid");
@@ -48,10 +48,10 @@ public class RuleDefinitionsFromXmlTest {
   @Test
   public void should_parse_xml() throws Exception {
     InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/rules.xml"), Charsets.UTF_8.name());
-    RuleDefinitions.Repository repository = load(reader);
+    RulesDefinition.Repository repository = load(reader);
     assertThat(repository.rules()).hasSize(2);
 
-    RuleDefinitions.Rule rule = repository.rule("complete");
+    RulesDefinition.Rule rule = repository.rule("complete");
     assertThat(rule.key()).isEqualTo("complete");
     assertThat(rule.name()).isEqualTo("Complete");
     assertThat(rule.htmlDescription()).isEqualTo("Description of Complete");
@@ -62,7 +62,7 @@ public class RuleDefinitionsFromXmlTest {
     assertThat(rule.tags()).containsOnly("style", "security");
 
     assertThat(rule.params()).hasSize(2);
-    RuleDefinitions.Param ignore = rule.param("ignore");
+    RulesDefinition.Param ignore = rule.param("ignore");
     assertThat(ignore.key()).isEqualTo("ignore");
     assertThat(ignore.description()).isEqualTo("Ignore ?");
     assertThat(ignore.defaultValue()).isEqualTo("false");
@@ -97,10 +97,10 @@ public class RuleDefinitionsFromXmlTest {
   @Test
   public void test_utf8_encoding() throws UnsupportedEncodingException {
     InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/utf8.xml"), Charsets.UTF_8.name());
-    RuleDefinitions.Repository repository = load(reader);
+    RulesDefinition.Repository repository = load(reader);
 
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck");
     assertThat(rule.name()).isEqualTo("M & M");
     assertThat(rule.htmlDescription().charAt(0)).isEqualTo('\u00E9');
@@ -112,10 +112,10 @@ public class RuleDefinitionsFromXmlTest {
   public void should_support_deprecated_format() throws UnsupportedEncodingException {
     // the deprecated format uses some attributes instead of nodes
     InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/deprecated.xml"), Charsets.UTF_8.name());
-    RuleDefinitions.Repository repository = load(reader);
+    RulesDefinition.Repository repository = load(reader);
 
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("org.sonar.it.checkstyle.MethodsCountCheck");
     assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/org.sonar.it.checkstyle.MethodsCountCheck");
     assertThat(rule.severity()).isEqualTo(Severity.CRITICAL);

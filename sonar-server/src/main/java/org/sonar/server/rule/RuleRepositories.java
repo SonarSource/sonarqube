@@ -24,9 +24,10 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
@@ -44,7 +45,7 @@ public class RuleRepositories implements ServerComponent {
   public static class Repository implements Comparable<Repository> {
     private final String key, name, language;
 
-    private Repository(RuleDefinitions.Repository repoDef) {
+    private Repository(RulesDefinition.Repository repoDef) {
       this.key = repoDef.key();
       this.name = repoDef.name();
       this.language = repoDef.language();
@@ -117,11 +118,11 @@ public class RuleRepositories implements ServerComponent {
   private Map<String, Repository> repositoriesByKey;
   private SetMultimap<String, Repository> repositoriesByLang;
 
-  void register(RuleDefinitions.Context context) {
+  void register(RulesDefinition.Context context) {
     ImmutableSortedSet.Builder<Repository> listBuilder = ImmutableSortedSet.naturalOrder();
     ImmutableSetMultimap.Builder<String, Repository> langBuilder = ImmutableSetMultimap.builder();
     ImmutableMap.Builder<String, Repository> keyBuilder = ImmutableMap.builder();
-    for (RuleDefinitions.Repository repoDef : context.repositories()) {
+    for (RulesDefinition.Repository repoDef : context.repositories()) {
       Repository repository = new Repository(repoDef);
       listBuilder.add(repository);
       langBuilder.put(repository.language(), repository);

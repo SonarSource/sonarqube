@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -67,7 +67,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
+    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
   }
 
@@ -214,7 +214,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
 
   @Test
   public void test_high_number_of_rules() {
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new BigRepository()}),
+    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
 
     setupData("shared");
@@ -228,7 +228,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_extended_repositories() {
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{
+    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
       new FindbugsRepository(), new FbContribRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
 
@@ -238,7 +238,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     checkTables("insert_extended_repositories", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
-  static class FakeRepository implements RuleDefinitions {
+  static class FakeRepository implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("fake", "java");
@@ -266,7 +266,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     }
   }
 
-  static class BigRepository implements RuleDefinitions {
+  static class BigRepository implements RulesDefinition {
     static final int SIZE = 500;
 
     @Override
@@ -288,7 +288,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     }
   }
 
-  static class FindbugsRepository implements RuleDefinitions {
+  static class FindbugsRepository implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("findbugs", "java");
@@ -299,7 +299,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     }
   }
 
-  static class FbContribRepository implements RuleDefinitions {
+  static class FbContribRepository implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewExtendedRepository repo = context.extendRepository("findbugs", "java");

@@ -30,7 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.technicaldebt.DebtRulesXMLImporter;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeprecatedRuleDefinitionsTest {
+public class DeprecatedRulesDefinitionTest {
 
   @Mock
   RuleI18nManager i18n;
@@ -92,17 +92,17 @@ public class DeprecatedRuleDefinitionsTest {
 
   @Test
   public void wrap_deprecated_rule_repositories() throws Exception {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
-    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
+    RulesDefinition.Repository checkstyle = context.repository("checkstyle");
     assertThat(checkstyle).isNotNull();
     assertThat(checkstyle.key()).isEqualTo("checkstyle");
     assertThat(checkstyle.name()).isEqualTo("Checkstyle");
     assertThat(checkstyle.language()).isEqualTo("java");
     assertThat(checkstyle.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = checkstyle.rule("ConstantName");
+    RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.name()).isEqualTo("Constant Name");
@@ -112,7 +112,7 @@ public class DeprecatedRuleDefinitionsTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.tags()).containsOnly("style", "security");
     assertThat(rule.params()).hasSize(1);
-    RuleDefinitions.Param param = rule.param("format");
+    RulesDefinition.Param param = rule.param("format");
     assertThat(param).isNotNull();
     assertThat(param.key()).isEqualTo("format");
     assertThat(param.name()).isEqualTo("format");
@@ -122,29 +122,29 @@ public class DeprecatedRuleDefinitionsTest {
 
   @Test
   public void emulate_the_day_deprecated_api_can_be_dropped() throws Exception {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RulesDefinition.Context context = new RulesDefinition.Context();
 
     // no more RuleRepository !
-    new DeprecatedRuleDefinitions(i18n, debtModelRepository, importer);
+    new DeprecatedRulesDefinition(i18n, debtModelRepository, importer);
 
     assertThat(context.repositories()).isEmpty();
   }
 
   @Test
   public void use_l10n_bundles() throws Exception {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RulesDefinition.Context context = new RulesDefinition.Context();
     when(i18n.getName("checkstyle", "ConstantName")).thenReturn("Constant Name");
     when(i18n.getDescription("checkstyle", "ConstantName")).thenReturn("Checks that constant names conform to the specified format");
     when(i18n.getParamDescription("checkstyle", "ConstantName", "format")).thenReturn("Regular expression");
 
-    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new UseBundles()}, debtModelRepository, importer).define(context);
+    new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new UseBundles()}, debtModelRepository, importer).define(context);
 
-    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
-    RuleDefinitions.Rule rule = checkstyle.rule("ConstantName");
+    RulesDefinition.Repository checkstyle = context.repository("checkstyle");
+    RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.name()).isEqualTo("Constant Name");
     assertThat(rule.htmlDescription()).isEqualTo("Checks that constant names conform to the specified format");
-    RuleDefinitions.Param param = rule.param("format");
+    RulesDefinition.Param param = rule.param("format");
     assertThat(param.key()).isEqualTo("format");
     assertThat(param.name()).isEqualTo("format");
     assertThat(param.description()).isEqualTo("Regular expression");
@@ -152,7 +152,7 @@ public class DeprecatedRuleDefinitionsTest {
 
   @Test
   public void define_rule_debt() throws Exception {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
+    RulesDefinition.Context context = new RulesDefinition.Context();
 
     List<DebtRulesXMLImporter.RuleDebt> ruleDebts = newArrayList(
       new DebtRulesXMLImporter.RuleDebt()
@@ -168,13 +168,13 @@ public class DeprecatedRuleDefinitionsTest {
     when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
     when(importer.importXML(eq(javaModelReader))).thenReturn(ruleDebts);
 
-    new DeprecatedRuleDefinitions(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
+    new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
+    RulesDefinition.Repository checkstyle = context.repository("checkstyle");
     assertThat(checkstyle.rules()).hasSize(1);
 
-    RuleDefinitions.Rule rule = checkstyle.rule("ConstantName");
+    RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");

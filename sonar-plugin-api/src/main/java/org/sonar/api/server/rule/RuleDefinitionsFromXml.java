@@ -24,12 +24,13 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,7 +43,7 @@ import java.util.List;
  */
 class RuleDefinitionsFromXml {
 
-  void loadRules(RuleDefinitions.NewRepository repo, InputStream input, String encoding) {
+  void loadRules(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(input, encoding);
@@ -56,7 +57,7 @@ class RuleDefinitionsFromXml {
     }
   }
 
-  void loadRules(RuleDefinitions.NewRepository repo, Reader reader) {
+  void loadRules(RulesDefinition.NewRepository repo, Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
@@ -79,7 +80,7 @@ class RuleDefinitionsFromXml {
     }
   }
 
-  private void processRule(RuleDefinitions.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
+  private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
     String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<ParamStruct>();
@@ -135,7 +136,7 @@ class RuleDefinitionsFromXml {
         tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
-    RuleDefinitions.NewRule rule = repo.createRule(key)
+    RulesDefinition.NewRule rule = repo.createRule(key)
       .setHtmlDescription(description)
       .setSeverity(severity)
       .setName(name)

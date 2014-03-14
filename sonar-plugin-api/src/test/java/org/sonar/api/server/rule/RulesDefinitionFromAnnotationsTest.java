@@ -23,21 +23,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RuleDefinitions.NewRule;
+import org.sonar.api.server.rule.RulesDefinition.NewRule;
 import org.sonar.check.Priority;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleDefinitionsFromAnnotationsTest {
+public class RulesDefinitionFromAnnotationsTest {
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void rule_with_property() {
-    RuleDefinitions.Repository repository = load(RuleWithProperty.class);
+    RulesDefinition.Repository repository = load(RuleWithProperty.class);
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("foo");
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.name()).isEqualTo("bar");
@@ -46,7 +46,7 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(rule.params()).hasSize(1);
     assertThat(rule.tags()).isEmpty();
 
-    RuleDefinitions.Param prop = rule.param("property");
+    RulesDefinition.Param prop = rule.param("property");
     assertThat(prop.key()).isEqualTo("property");
     assertThat(prop.description()).isEqualTo("Ignore ?");
     assertThat(prop.defaultValue()).isEqualTo("false");
@@ -55,17 +55,17 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   @Test
   public void override_annotation_programmatically() {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewRepository newRepository = context.createRepository("squid", "java");
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
     NewRule newRule = newRepository.loadAnnotatedClass(RuleWithProperty.class);
     newRule.setName("Overriden name");
     newRule.param("property").setDefaultValue("true");
     newRule.param("property").setDescription("Overriden");
     newRepository.done();
 
-    RuleDefinitions.Repository repository = context.repository("squid");
+    RulesDefinition.Repository repository = context.repository("squid");
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("foo");
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.name()).isEqualTo("Overriden name");
@@ -73,7 +73,7 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.params()).hasSize(1);
 
-    RuleDefinitions.Param prop = rule.param("property");
+    RulesDefinition.Param prop = rule.param("property");
     assertThat(prop.key()).isEqualTo("property");
     assertThat(prop.description()).isEqualTo("Overriden");
     assertThat(prop.defaultValue()).isEqualTo("true");
@@ -82,9 +82,9 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   @Test
   public void rule_with_integer_property() {
-    RuleDefinitions.Repository repository = load(RuleWithIntegerProperty.class);
+    RulesDefinition.Repository repository = load(RuleWithIntegerProperty.class);
 
-    RuleDefinitions.Param prop = repository.rules().get(0).param("property");
+    RulesDefinition.Param prop = repository.rules().get(0).param("property");
     assertThat(prop.description()).isEqualTo("Max");
     assertThat(prop.defaultValue()).isEqualTo("12");
     assertThat(prop.type()).isEqualTo(RuleParamType.INTEGER);
@@ -92,9 +92,9 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   @Test
   public void rule_with_text_property() {
-    RuleDefinitions.Repository repository = load(RuleWithTextProperty.class);
+    RulesDefinition.Repository repository = load(RuleWithTextProperty.class);
 
-    RuleDefinitions.Param prop = repository.rules().get(0).param("property");
+    RulesDefinition.Param prop = repository.rules().get(0).param("property");
     assertThat(prop.description()).isEqualTo("text");
     assertThat(prop.defaultValue()).isEqualTo("Long text");
     assertThat(prop.type()).isEqualTo(RuleParamType.TEXT);
@@ -114,26 +114,26 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   @Test
   public void use_classname_when_missing_key() {
-    RuleDefinitions.Repository repository = load(RuleWithoutKey.class);
+    RulesDefinition.Repository repository = load(RuleWithoutKey.class);
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo(RuleWithoutKey.class.getCanonicalName());
     assertThat(rule.name()).isEqualTo("foo");
   }
 
   @Test
   public void rule_with_tags() {
-    RuleDefinitions.Repository repository = load(RuleWithTags.class);
+    RulesDefinition.Repository repository = load(RuleWithTags.class);
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.tags()).containsOnly("style", "security");
   }
 
   @Test
   public void overridden_class() {
-    RuleDefinitions.Repository repository = load(OverridingRule.class);
+    RulesDefinition.Repository repository = load(OverridingRule.class);
     assertThat(repository.rules()).hasSize(1);
-    RuleDefinitions.Rule rule = repository.rules().get(0);
+    RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("overriding_foo");
     assertThat(rule.name()).isEqualTo("Overriding Foo");
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
@@ -141,9 +141,9 @@ public class RuleDefinitionsFromAnnotationsTest {
     assertThat(rule.params()).hasSize(2);
   }
 
-  private RuleDefinitions.Repository load(Class annotatedClass) {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewExtendedRepository newRepository = context.createRepository("squid", "java")
+  private RulesDefinition.Repository load(Class annotatedClass) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewExtendedRepository newRepository = context.createRepository("squid", "java")
       .loadAnnotatedClasses(annotatedClass);
     newRepository.done();
     return context.repository("squid");

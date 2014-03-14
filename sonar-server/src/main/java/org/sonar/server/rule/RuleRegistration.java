@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
@@ -95,7 +95,7 @@ public class RuleRegistration implements Startable {
     TimeProfiler profiler = new TimeProfiler().start("Register rules");
     SqlSession sqlSession = myBatis.openSession();
     try {
-      RuleDefinitions.Context context = defLoader.load();
+      RulesDefinition.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
       List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
       selectRulesFromDb(buffer, sqlSession);
@@ -133,11 +133,11 @@ public class RuleRegistration implements Startable {
     }
   }
 
-  private void enableRuleDefinitions(RuleDefinitions.Context context, Buffer buffer, List<CharacteristicDto> characteristicDtos, SqlSession sqlSession) {
-    for (RuleDefinitions.Repository repoDef : context.repositories()) {
+  private void enableRuleDefinitions(RulesDefinition.Context context, Buffer buffer, List<CharacteristicDto> characteristicDtos, SqlSession sqlSession) {
+    for (RulesDefinition.Repository repoDef : context.repositories()) {
       enableRepository(buffer, sqlSession, repoDef, characteristicDtos);
     }
-    for (RuleDefinitions.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
+    for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
       if (context.repository(extendedRepoDef.key()) == null) {
         LOG.warn(String.format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
       } else {
@@ -146,9 +146,9 @@ public class RuleRegistration implements Startable {
     }
   }
 
-  private void enableRepository(Buffer buffer, SqlSession sqlSession, RuleDefinitions.ExtendedRepository repoDef, List<CharacteristicDto> characteristicDtos) {
+  private void enableRepository(Buffer buffer, SqlSession sqlSession, RulesDefinition.ExtendedRepository repoDef, List<CharacteristicDto> characteristicDtos) {
     int count = 0;
-    for (RuleDefinitions.Rule ruleDef : repoDef.rules()) {
+    for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
       RuleDto dto = buffer.rule(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
       if (dto == null) {
         dto = enableAndInsert(buffer, sqlSession, ruleDef, characteristicDtos);
@@ -164,7 +164,7 @@ public class RuleRegistration implements Startable {
     sqlSession.commit();
   }
 
-  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, List<CharacteristicDto> characteristicDtos) {
+  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, List<CharacteristicDto> characteristicDtos) {
     RemediationFunction remediationFunction = ruleDef.remediationFunction();
 
     RuleDto ruleDto = new RuleDto()
@@ -192,7 +192,7 @@ public class RuleRegistration implements Startable {
     ruleDao.insert(ruleDto, sqlSession);
     buffer.add(ruleDto);
 
-    for (RuleDefinitions.Param param : ruleDef.params()) {
+    for (RulesDefinition.Param param : ruleDef.params()) {
       RuleParamDto paramDto = new RuleParamDto()
         .setRuleId(ruleDto.getId())
         .setDefaultValue(param.defaultValue())
@@ -206,7 +206,7 @@ public class RuleRegistration implements Startable {
     return ruleDto;
   }
 
-  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     if (mergeRule(buffer, ruleDef, dto, characteristicDtos)) {
       ruleDao.update(dto);
     }
@@ -215,7 +215,7 @@ public class RuleRegistration implements Startable {
     buffer.markProcessed(dto);
   }
 
-  private boolean mergeRule(Buffer buffer, RuleDefinitions.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+  private boolean mergeRule(Buffer buffer, RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
     if (!StringUtils.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -255,7 +255,7 @@ public class RuleRegistration implements Startable {
     return changed;
   }
 
-  private boolean mergeDebtDefinitions(RuleDefinitions.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
 
     CharacteristicDto characteristic = findCharacteristic(characteristicDtos, def);
@@ -290,11 +290,11 @@ public class RuleRegistration implements Startable {
     return changed;
   }
 
-  private void mergeParams(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto) {
+  private void mergeParams(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     Collection<RuleParamDto> paramDtos = buffer.paramsForRuleId(dto.getId());
     Set<String> persistedParamKeys = Sets.newHashSet();
     for (RuleParamDto paramDto : paramDtos) {
-      RuleDefinitions.Param paramDef = ruleDef.param(paramDto.getName());
+      RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         activeRuleDao.deleteParametersWithParamId(paramDto.getId(), sqlSession);
         ruleDao.deleteParam(paramDto, sqlSession);
@@ -307,7 +307,7 @@ public class RuleRegistration implements Startable {
         persistedParamKeys.add(paramDto.getName());
       }
     }
-    for (RuleDefinitions.Param param : ruleDef.params()) {
+    for (RulesDefinition.Param param : ruleDef.params()) {
       if (!persistedParamKeys.contains(param.key())) {
         RuleParamDto paramDto = new RuleParamDto()
           .setRuleId(dto.getId())
@@ -321,7 +321,7 @@ public class RuleRegistration implements Startable {
     }
   }
 
-  private boolean mergeParam(RuleParamDto paramDto, RuleDefinitions.Param paramDef) {
+  private boolean mergeParam(RuleParamDto paramDto, RulesDefinition.Param paramDef) {
     boolean changed = false;
     if (!StringUtils.equals(paramDto.getType(), paramDef.type().toString())) {
       paramDto.setType(paramDef.type().toString());
@@ -338,7 +338,7 @@ public class RuleRegistration implements Startable {
     return changed;
   }
 
-  private void mergeTags(Buffer buffer, SqlSession sqlSession, RuleDefinitions.Rule ruleDef, RuleDto dto) {
+  private void mergeTags(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     Set<String> existingSystemTags = Sets.newHashSet();
 
     Collection<RuleRuleTagDto> tagDtos = ImmutableList.copyOf(buffer.tagsForRuleId(dto.getId()));
@@ -447,10 +447,10 @@ public class RuleRegistration implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private void removeActiveRulesOnStillExistingRepositories(List<RuleDto> removedRules, RuleDefinitions.Context context) {
-    List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RuleDefinitions.Repository, String>() {
+  private void removeActiveRulesOnStillExistingRepositories(List<RuleDto> removedRules, RulesDefinition.Context context) {
+    List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
       @Override
-      public String apply(RuleDefinitions.Repository input) {
+      public String apply(RulesDefinition.Repository input) {
         return input.key();
       }
     }
@@ -538,7 +538,7 @@ public class RuleRegistration implements Startable {
   }
 
   @CheckForNull
-  private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RuleDefinitions.Rule ruleDef) {
+  private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RulesDefinition.Rule ruleDef) {
     final String key = ruleDef.characteristicKey();
     if (key == null) {
       // Rule is not linked to a characteristic, nothing to do

@@ -20,27 +20,27 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.server.rule.RulesDefinition;
 
 /**
  * Loads all instances of RuleDefinitions and initializes RuleRepositories. Used at server startup.
  */
 public class RuleDefinitionsLoader implements ServerComponent {
-  private final RuleDefinitions[] definitions;
+  private final RulesDefinition[] definitions;
   private final RuleRepositories repositories;
 
-  public RuleDefinitionsLoader(RuleRepositories repositories, RuleDefinitions[] definitions) {
+  public RuleDefinitionsLoader(RuleRepositories repositories, RulesDefinition[] definitions) {
     this.repositories = repositories;
     this.definitions = definitions;
   }
 
   public RuleDefinitionsLoader(RuleRepositories repositories) {
-    this(repositories, new RuleDefinitions[0]);
+    this(repositories, new RulesDefinition[0]);
   }
 
-  public RuleDefinitions.Context load() {
-    RuleDefinitions.Context context = new RuleDefinitions.Context();
-    for (RuleDefinitions definition : definitions) {
+  public RulesDefinition.Context load() {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    for (RulesDefinition definition : definitions) {
       definition.define(context);
     }
     repositories.register(context);

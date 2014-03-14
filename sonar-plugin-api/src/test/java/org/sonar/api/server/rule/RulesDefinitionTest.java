@@ -30,9 +30,9 @@ import java.net.URL;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class RuleDefinitionsTest {
+public class RulesDefinitionTest {
 
-  RuleDefinitions.Context context = new RuleDefinitions.Context();
+  RulesDefinition.Context context = new RulesDefinition.Context();
 
   @Test
   public void define_repositories() throws Exception {
@@ -42,13 +42,13 @@ public class RuleDefinitionsTest {
     context.createRepository("checkstyle", "java").done();
 
     assertThat(context.repositories()).hasSize(2);
-    RuleDefinitions.Repository findbugs = context.repository("findbugs");
+    RulesDefinition.Repository findbugs = context.repository("findbugs");
     assertThat(findbugs).isNotNull();
     assertThat(findbugs.key()).isEqualTo("findbugs");
     assertThat(findbugs.language()).isEqualTo("java");
     assertThat(findbugs.name()).isEqualTo("Findbugs");
     assertThat(findbugs.rules()).isEmpty();
-    RuleDefinitions.Repository checkstyle = context.repository("checkstyle");
+    RulesDefinition.Repository checkstyle = context.repository("checkstyle");
     assertThat(checkstyle).isNotNull();
     assertThat(checkstyle.key()).isEqualTo("checkstyle");
     assertThat(checkstyle.language()).isEqualTo("java");
@@ -65,7 +65,7 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_rules() {
-    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
     newFindbugs.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
@@ -82,10 +82,10 @@ public class RuleDefinitionsTest {
     newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
     newFindbugs.done();
 
-    RuleDefinitions.Repository findbugs = context.repository("findbugs");
+    RulesDefinition.Repository findbugs = context.repository("findbugs");
     assertThat(findbugs.rules()).hasSize(2);
 
-    RuleDefinitions.Rule npeRule = findbugs.rule("NPE");
+    RulesDefinition.Rule npeRule = findbugs.rule("NPE");
     assertThat(npeRule.key()).isEqualTo("NPE");
     assertThat(npeRule.name()).isEqualTo("Detect NPE");
     assertThat(npeRule.severity()).isEqualTo(Severity.BLOCKER);
@@ -104,18 +104,18 @@ public class RuleDefinitionsTest {
     assertThat(npeRule.repository()).isSameAs(findbugs);
 
     // test equals() and hashCode()
-    RuleDefinitions.Rule otherRule = findbugs.rule("ABC");
+    RulesDefinition.Rule otherRule = findbugs.rule("ABC");
     assertThat(npeRule).isEqualTo(npeRule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
     assertThat(npeRule.hashCode()).isEqualTo(npeRule.hashCode());
   }
 
   @Test
   public void define_rule_with_default_fields() {
-    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
     newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
-    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.params()).isEmpty();
@@ -130,23 +130,23 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_rule_parameters() {
-    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
-    RuleDefinitions.NewRule newNpe = newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRule newNpe = newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newNpe.createParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level").setType(RuleParamType.INTEGER);
     newNpe.createParam("effort");
     newFindbugs.done();
 
-    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.params()).hasSize(2);
 
-    RuleDefinitions.Param level = rule.param("level");
+    RulesDefinition.Param level = rule.param("level");
     assertThat(level.key()).isEqualTo("level");
     assertThat(level.name()).isEqualTo("Level");
     assertThat(level.description()).isEqualTo("The level");
     assertThat(level.defaultValue()).isEqualTo("LOW");
     assertThat(level.type()).isEqualTo(RuleParamType.INTEGER);
 
-    RuleDefinitions.Param effort = rule.param("effort");
+    RulesDefinition.Param effort = rule.param("effort");
     assertThat(effort.key()).isEqualTo("effort").isEqualTo(effort.name());
     assertThat(effort.description()).isNull();
     assertThat(effort.defaultValue()).isNull();
@@ -159,17 +159,17 @@ public class RuleDefinitionsTest {
 
   @Test
   public void sanitize_rule_name() {
-    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
     newFindbugs.createRule("NPE").setName("   \n  NullPointer   \n   ").setHtmlDescription("NPE");
     newFindbugs.done();
 
-    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.name()).isEqualTo("NullPointer");
   }
 
   @Test
   public void sanitize_remediation_factor_and_offset() {
-    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
     newFindbugs.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("NPE")
@@ -177,7 +177,7 @@ public class RuleDefinitionsTest {
       .setRemediationOffset(" 10  mi n ");
     newFindbugs.done();
 
-    RuleDefinitions.Rule npeRule = context.repository("findbugs").rule("NPE");
+    RulesDefinition.Rule npeRule = context.repository("findbugs").rule("NPE");
     assertThat(npeRule.remediationFactor()).isEqualTo("1h");
     assertThat(npeRule.remediationOffset()).isEqualTo("10min");
   }
@@ -187,7 +187,7 @@ public class RuleDefinitionsTest {
     assertThat(context.extendedRepositories()).isEmpty();
 
     // for example fb-contrib
-    RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs", "java");
+    RulesDefinition.NewExtendedRepository newFindbugs = context.extendRepository("findbugs", "java");
     newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
@@ -196,7 +196,7 @@ public class RuleDefinitionsTest {
     assertThat(context.extendedRepositories("other")).isEmpty();
     assertThat(context.extendedRepositories("findbugs")).hasSize(1);
 
-    RuleDefinitions.ExtendedRepository findbugs = context.extendedRepositories("findbugs").get(0);
+    RulesDefinition.ExtendedRepository findbugs = context.extendedRepositories("findbugs").get(0);
     assertThat(findbugs.language()).isEqualTo("java");
     assertThat(findbugs.rule("NPE")).isNotNull();
   }
@@ -221,7 +221,7 @@ public class RuleDefinitionsTest {
 
   @Test
   public void warning_if_duplicated_rule_keys() {
-    RuleDefinitions.NewRepository findbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository findbugs = context.createRepository("findbugs", "java");
     findbugs.createRule("NPE");
     findbugs.createRule("NPE");
     // do not fail as long as http://jira.codehaus.org/browse/SONARJAVA-428 is not fixed
@@ -229,7 +229,7 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_duplicated_rule_param_keys() {
-    RuleDefinitions.NewRule rule = context.createRepository("findbugs", "java").createRule("NPE");
+    RulesDefinition.NewRule rule = context.createRepository("findbugs", "java").createRule("NPE");
     rule.createParam("level");
     try {
       rule.createParam("level");
@@ -241,7 +241,7 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_name() {
-    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName(null).setHtmlDescription("NPE");
     try {
       newRepository.done();
@@ -265,17 +265,17 @@ public class RuleDefinitionsTest {
 
   @Test
   public void load_rule_description_from_file() {
-    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RuleDefinitionsTest/sample.html"));
     newRepository.done();
 
-    RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.htmlDescription()).isEqualTo("description of rule loaded from file");
   }
 
   @Test
   public void fail_to_load_rule_description_from_file() {
-    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription((URL)null);
     try {
       newRepository.done();
@@ -287,7 +287,7 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_html_description() {
-    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription((String)null);
     try {
       newRepository.done();
