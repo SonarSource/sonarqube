@@ -82,6 +82,13 @@ public interface FileSystem extends BatchComponent {
    * Returns the single element matching the predicate. If more than one elements match
    * the predicate, then {@link IllegalArgumentException} is thrown. Returns {@code null}
    * if no files match.
+   *
+   * <p/>
+   * How to use :
+   * <pre>
+   * InputFile file = fs.inputFile(fs.predicates().hasRelativePath("src/Foo.php"));
+   * </pre>
+   *
    * @see #predicates()
    */
   @CheckForNull
@@ -91,9 +98,16 @@ public interface FileSystem extends BatchComponent {
    * Input files matching the given attributes. Return all the files if the parameter
    * <code>attributes</code> is empty.
    * <p/>
-   * Important - result is an {@link java.lang.Iterable} to benefit from streaming and decreasing
+   * <b>Important</b> - result is an {@link java.lang.Iterable} to benefit from streaming and decreasing
    * memory consumption. It should be iterated only once, else copy it into a list :
    * {@code com.google.common.collect.Lists.newArrayList(inputFiles(predicate))}
+   * <p/>
+   * How to use :
+   * <pre>
+   * FilePredicates p = fs.predicates();
+   * Iterable<InputFile> files = fs.inputFiles(p.and(p.hasLanguage("java"), p.hasType(InputFile.Type.MAIN)));
+   * </pre>
+   *
    * @see #predicates()
    */
   Iterable<InputFile> inputFiles(FilePredicate predicate);

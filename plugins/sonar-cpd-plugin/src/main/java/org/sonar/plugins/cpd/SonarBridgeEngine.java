@@ -45,7 +45,11 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SonarBridgeEngine extends CpdEngine {
 
@@ -81,10 +85,11 @@ public class SonarBridgeEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(fs.predicates().and(
-      fs.predicates().hasType(InputFile.Type.MAIN),
-      fs.predicates().hasLanguage(languageKey),
-      fs.predicates().doesNotMatchPathPatterns(cpdExclusions)
+    FilePredicates p = fs.predicates();
+    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.hasLanguage(languageKey),
+      p.doesNotMatchPathPatterns(cpdExclusions)
     )));
     if (sourceFiles.isEmpty()) {
       return;

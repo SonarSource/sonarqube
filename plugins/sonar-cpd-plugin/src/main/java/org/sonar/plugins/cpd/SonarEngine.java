@@ -93,10 +93,11 @@ public class SonarEngine extends CpdEngine {
   public void analyse(Project project, String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
-    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(fs.predicates().and(
-      fs.predicates().hasType(InputFile.Type.MAIN),
-      fs.predicates().hasLanguage(languageKey),
-      fs.predicates().doesNotMatchPathPatterns(cpdExclusions)
+    FilePredicates p = fs.predicates();
+    List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.hasLanguage(languageKey),
+      p.doesNotMatchPathPatterns(cpdExclusions)
     )));
     if (sourceFiles.isEmpty()) {
       return;
