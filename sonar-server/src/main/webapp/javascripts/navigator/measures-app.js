@@ -88,19 +88,6 @@ window.SS = typeof window.SS === 'object' ? window.SS : {};
       })
     ]);
 
-    if (_.isObject(window.SS.languages) && _.size(window.SS.languages) > 1) {
-      this.filters.add([
-        new window.SS.Filter({
-          name: window.SS.phrases.language,
-          property: 'languages[]',
-          type: window.SS.SelectFilterView,
-          enabled: false,
-          optional: true,
-          choices: window.SS.languages
-        })
-      ]);
-    }
-
     this.filters.add([
       new window.SS.Filter({
         name: window.SS.phrases.lastAnalysis,
