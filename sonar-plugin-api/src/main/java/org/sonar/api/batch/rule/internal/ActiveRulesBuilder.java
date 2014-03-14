@@ -23,12 +23,12 @@ import com.google.common.collect.Maps;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
  * <b>For unit testing and internal use only</b>.
+ *
  * @since 4.2
  */
 public class ActiveRulesBuilder {
