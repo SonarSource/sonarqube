@@ -54,9 +54,9 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NewTechnicalDebtDecoratorTest {
+public class NewDebtDecoratorTest {
 
-  NewTechnicalDebtDecorator decorator;
+  NewDebtDecorator decorator;
 
   @Mock
   TimeMachineConfiguration timeMachineConfiguration;
@@ -100,7 +100,7 @@ public class NewTechnicalDebtDecoratorTest {
 
     when(timeMachineConfiguration.periods()).thenReturn(newArrayList(new Period(1, fiveDaysAgo), new Period(2, tenDaysAgo)));
 
-    decorator = new NewTechnicalDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator());
+    decorator = new NewDebtDecorator(perspectives, timeMachineConfiguration, new IssueChangelogDebtCalculator());
   }
 
   @Test

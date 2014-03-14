@@ -56,7 +56,7 @@ import static com.google.common.collect.Maps.newHashMap;
  * Decorator that computes the technical debt metric
  */
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
-public final class TechnicalDebtDecorator implements Decorator {
+public final class DebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TechnicalDebtModel model;
@@ -67,7 +67,7 @@ public final class TechnicalDebtDecorator implements Decorator {
    */
   private final RuleFinder ruleFinder;
 
-  public TechnicalDebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, Rules rules, RuleFinder ruleFinder) {
+  public DebtDecorator(ResourcePerspectives perspectives, TechnicalDebtModel model, Rules rules, RuleFinder ruleFinder) {
     this.perspectives = perspectives;
     this.model = model;
     this.rules = rules;

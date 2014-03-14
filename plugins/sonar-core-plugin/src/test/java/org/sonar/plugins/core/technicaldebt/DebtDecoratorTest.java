@@ -58,7 +58,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtDecoratorTest {
+public class DebtDecoratorTest {
 
   static final int HOURS_IN_DAY = 8;
 
@@ -92,7 +92,7 @@ public class TechnicalDebtDecoratorTest {
   DefaultCharacteristic reusability = new DefaultCharacteristic().setKey("REUSABILITY");
   DefaultCharacteristic modularity = new DefaultCharacteristic().setKey("MODULARITY").setParent(reusability);
 
-  TechnicalDebtDecorator decorator;
+  DebtDecorator decorator;
 
   @Before
   public void before() throws Exception {
@@ -111,7 +111,7 @@ public class TechnicalDebtDecoratorTest {
     when(debtModel.characteristicByKey("REUSABILITY")).thenReturn(reusability);
     when(debtModel.characteristicByKey("MODULARITY")).thenReturn(modularity);
 
-    decorator = new TechnicalDebtDecorator(perspectives, debtModel, rules, ruleFinder);
+    decorator = new DebtDecorator(perspectives, debtModel, rules, ruleFinder);
   }
 
   @Test
@@ -281,7 +281,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void check_definitions() {
-    assertThat(TechnicalDebtDecorator.definitions()).hasSize(1);
+    assertThat(DebtDecorator.definitions()).hasSize(1);
   }
 
   private DefaultIssue createIssue(String ruleKey, String repositoryKey) {

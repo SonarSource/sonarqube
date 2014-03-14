@@ -36,6 +36,7 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -46,14 +47,14 @@ import static com.google.common.collect.Lists.newArrayList;
  * Decorator that computes the technical debt metric
  */
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
-public final class NewTechnicalDebtDecorator implements Decorator {
+public final class NewDebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final TimeMachineConfiguration timeMachineConfiguration;
   private final IssueChangelogDebtCalculator issueChangelogDebtCalculator;
 
-  public NewTechnicalDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration,
-                                   IssueChangelogDebtCalculator issueChangelogDebtCalculator) {
+  public NewDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration,
+                          IssueChangelogDebtCalculator issueChangelogDebtCalculator) {
     this.perspectives = perspectives;
     this.timeMachineConfiguration = timeMachineConfiguration;
     this.issueChangelogDebtCalculator = issueChangelogDebtCalculator;

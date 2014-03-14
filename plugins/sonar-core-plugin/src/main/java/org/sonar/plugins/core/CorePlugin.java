@@ -41,8 +41,8 @@ import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
-import org.sonar.plugins.core.technicaldebt.NewTechnicalDebtDecorator;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtDecorator;
+import org.sonar.plugins.core.technicaldebt.DebtDecorator;
+import org.sonar.plugins.core.technicaldebt.NewDebtDecorator;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
@@ -291,8 +291,8 @@ public final class CorePlugin extends SonarPlugin {
       NewFalsePositiveNotificationDispatcher.newMetadata(),
 
       // technical debt
-      TechnicalDebtDecorator.class,
-      NewTechnicalDebtDecorator.class,
+      DebtDecorator.class,
+      NewDebtDecorator.class,
       IssueChangelogDebtCalculator.class,
 
       // batch
@@ -337,7 +337,7 @@ public final class CorePlugin extends SonarPlugin {
     extensions.addAll(IssueExclusionsConfiguration.getPropertyDefinitions());
     extensions.addAll(CoverageMeasurementFilter.getPropertyDefinitions());
     extensions.addAll(PastSnapshotFinder.getPropertyDefinitions());
-    extensions.addAll(TechnicalDebtDecorator.definitions());
+    extensions.addAll(DebtDecorator.definitions());
     extensions.addAll(propertyDefinitions());
 
     return extensions.build();

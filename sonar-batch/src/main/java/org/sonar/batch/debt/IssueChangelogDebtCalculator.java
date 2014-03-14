@@ -36,6 +36,9 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Warning, before modifying this class, please do not forget that it's used by the Dev Cockpit plugin
+ */
 public class IssueChangelogDebtCalculator implements BatchComponent {
 
   @CheckForNull
