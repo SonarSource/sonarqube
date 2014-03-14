@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -91,8 +90,8 @@ public class ResourceKeyMigration implements BatchComponent {
   }
 
   private void migrateFiles(Project module, Map<String, InputFile> deprecatedFileKeyMapper, Map<String, InputFile> deprecatedTestKeyMapper,
-    Map<String, String> deprecatedDirectoryKeyMapper,
-    int moduleId) {
+                            Map<String, String> deprecatedDirectoryKeyMapper,
+                            int moduleId) {
     // Find all FIL or CLA resources for this module
     StringBuilder hql = new StringBuilder().append("from ")
       .append(ResourceModel.class.getSimpleName())
