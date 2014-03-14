@@ -3,9 +3,11 @@
     {{#notEq status 'READY'}}
       <span class="coding-rules-detail-status">{{status}}</span>
     {{/notEq}}
-    {{name}}
+    <span class="coding-rules-detail-key">{{key}}</span> : {{name}}
   </h3>
+
   <ul class="coding-rules-detail-properties">
+    <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
     <li class="coding-rules-detail-property"><i class="icon-lang"></i> {{language}}</li>
     <li class="coding-rules-detail-property"><i class="icon-calendar"></i> {{fCreationDate}}</li>
     <li class="coding-rules-detail-property"><i class="icon-tags"></i> {{join tags ', '}}</li>
@@ -16,7 +18,27 @@
     <div class="coding-rules-detail-description coding-rules-detail-description-extra rule-desc">{{{extra}}}</div>
   {{/if}}
 
+  <table class="data zebra coding-rules-detail-parameters">
+    <thead>
+      <tr>
+        <th>{{t 'coding_rules.parameters.key'}}</th>
+        <th>{{t 'coding_rules.parameters.default_value'}}</th>
+        <th>{{t 'coding_rules.parameters.description'}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each parameters}}
+        <tr class="coding-rules-detail-parameter">
+          <td>{{key}}</td>
+          <td>{{#if default}}{{default}}{{else}}—{{/if}}</td>
+          <td>{{description}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
 
+
+  {{!--
   <h3 class="coding-rules-detail-header coding-rules-detail-quality-profiles-header">
     {{t 'coding_rules.quality_profiles'}}
 
@@ -53,4 +75,5 @@
       </li>
     {{/each}}
   </ul>
+  --}}
 </script>

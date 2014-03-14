@@ -88,6 +88,10 @@ define ['jquery.mockjax'], ->
         'coding_rules.filters.status': 'Status'
         'coding_rules.filters.tag': 'Tag'
 
+        'coding_rules.parameters.key': 'Key'
+        'coding_rules.parameters.default_value': 'Default Value'
+        'coding_rules.parameters.description': 'Description'
+
         'coding_rules.sort.creation_date': 'Creation Date'
         'coding_rules.sort.name': 'Name'
 
@@ -142,6 +146,10 @@ define ['jquery.mockjax'], ->
         status: 'DEPRECATED'
         repository: 'squid'
         key: 'S1190'
+        parameters: [
+          { key: 'someParameterName', type: 'INT', default: '', description: 'Some parameter description' }
+          { key: 'boolParameter', type: 'BOOL', default: true, description: 'Bool parameter description' }
+        ]
         description: '''
             <p>
             According to the Java Language Specification:

@@ -18,7 +18,8 @@
  */
 
 .coding-rules-detail-header {
-  margin-bottom: @navigatorPadding;
+  margin-bottom: 2 * @navigatorPadding;
+  line-height: 1.5;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -31,8 +32,12 @@
   text-transform: uppercase;
 }
 
+.coding-rules-detail-key {
+
+}
+
 .coding-rules-detail-properties {
-  margin: @navigatorPadding 0;
+  margin: 2 * @navigatorPadding 0;
   font-size: 0;
 }
 
@@ -63,8 +68,16 @@
 }
 
 .coding-rules-detail-description-extra {
-  margin-top: -10px;
+  margin-top: -@navigatorPadding;
   border-left-color: @darkGrey;
+}
+
+.coding-rules-detail-parameters {
+  margin: 2 * @navigatorPadding 0;
+}
+
+.coding-rules-detail-parameter {
+  margin: @navigatorPadding 0;
 }
 
 

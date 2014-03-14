@@ -406,7 +406,7 @@ table.data th img, table.data td img {
   vertical-align: sub;
 }
 
-table.data.zebra tr:nth-child(odd) {
+table.data.zebra tbody tr:nth-child(odd) {
   background-color: #EFEFEF;
 }
 
