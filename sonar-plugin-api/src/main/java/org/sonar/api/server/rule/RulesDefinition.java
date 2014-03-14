@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
@@ -312,10 +311,8 @@ public interface RulesDefinition extends ServerExtension {
     private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
-    private String characteristicKey;
-    private RemediationFunction remediationFunction;
-    private String remediationFactor;
-    private String remediationOffset;
+    private String debtCharacteristic;
+    private DebtRemediationFunction debtRemediationFunction;
     private String effortToFixL10nKey;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
@@ -376,25 +373,13 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
-    public NewRule setCharacteristicKey(@Nullable String characteristicKey) {
-      this.characteristicKey = characteristicKey;
+    public NewRule setDebtCharacteristic(@Nullable String debtCharacteristic) {
+      this.debtCharacteristic = debtCharacteristic;
       return this;
     }
 
-    public NewRule setRemediationFunction(@Nullable RemediationFunction remediationFunction) {
-      this.remediationFunction = remediationFunction;
-      return this;
-    }
-
-    public NewRule setRemediationFactor(@Nullable String remediationFactor) {
-      // TODO validate format
-      this.remediationFactor = StringUtils.deleteWhitespace(remediationFactor);
-      return this;
-    }
-
-    public NewRule setRemediationOffset(@Nullable String remediationOffset) {
-      // TODO validate format
-      this.remediationOffset = StringUtils.deleteWhitespace(remediationOffset);
+    public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction debtRemediationFunction) {
+      this.debtRemediationFunction = debtRemediationFunction;
       return this;
     }
 
@@ -467,10 +452,8 @@ public interface RulesDefinition extends ServerExtension {
     private final Repository repository;
     private final String repoKey, key, name, htmlDescription, internalKey, severity;
     private final boolean template;
-    private final String characteristicKey;
-    private final RemediationFunction remediationFunction;
-    private final String remediationFactor;
-    private final String remediationOffset;
+    private final String debtCharacteristic;
+    private final DebtRemediationFunction debtRemediationFunction;
     private final String effortToFixL10nKey;
     private final Set<String> tags;
     private final Map<String, Param> params;
@@ -486,10 +469,8 @@ public interface RulesDefinition extends ServerExtension {
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
-      this.characteristicKey = newRule.characteristicKey;
-      this.remediationFunction = newRule.remediationFunction;
-      this.remediationFactor = newRule.remediationFactor;
-      this.remediationOffset = newRule.remediationOffset;
+      this.debtCharacteristic = newRule.debtCharacteristic;
+      this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.effortToFixL10nKey = newRule.effortToFixL10nKey;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
@@ -529,23 +510,13 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     @CheckForNull
-    public String characteristicKey() {
-      return characteristicKey;
+    public String debtCharacteristic() {
+      return debtCharacteristic;
     }
 
     @CheckForNull
-    public RemediationFunction remediationFunction() {
-      return remediationFunction;
-    }
-
-    @CheckForNull
-    public String remediationFactor() {
-      return remediationFactor;
-    }
-
-    @CheckForNull
-    public String remediationOffset() {
-      return remediationOffset;
+    public DebtRemediationFunction debtRemediationFunction() {
+      return debtRemediationFunction;
     }
 
     @CheckForNull

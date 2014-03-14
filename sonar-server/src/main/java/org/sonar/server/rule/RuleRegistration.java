@@ -28,9 +28,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -165,8 +165,6 @@ public class RuleRegistration implements Startable {
   }
 
   private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, List<CharacteristicDto> characteristicDtos) {
-    RemediationFunction remediationFunction = ruleDef.remediationFunction();
-
     RuleDto ruleDto = new RuleDto()
       .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
       .setConfigKey(ruleDef.internalKey())
@@ -181,12 +179,14 @@ public class RuleRegistration implements Startable {
       .setStatus(ruleDef.status().name());
 
     CharacteristicDto characteristic = findCharacteristic(characteristicDtos, ruleDef);
-    if (characteristic != null) {
-      ruleDto.setDefaultCharacteristicId(characteristic.getId())
-        .setDefaultRemediationFunction(remediationFunction != null ? remediationFunction.name() : null)
-        .setDefaultRemediationFactor(ruleDef.remediationFactor())
-        .setDefaultRemediationOffset(ruleDef.remediationOffset())
-        .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
+    ruleDto.setDefaultCharacteristicId(characteristic != null ? characteristic.getId() : null)
+      .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
+
+    DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
+    if (remediationFunction != null) {
+      ruleDto.setDefaultRemediationFunction(remediationFunction.type().name());
+      ruleDto.setDefaultRemediationFactor(remediationFunction.factor());
+      ruleDto.setDefaultRemediationOffset(remediationFunction.offset());
     }
 
     ruleDao.insert(ruleDto, sqlSession);
@@ -261,16 +261,16 @@ public class RuleRegistration implements Startable {
     CharacteristicDto characteristic = findCharacteristic(characteristicDtos, def);
     // Debt definitions are set to null if the characteristic is null or unknown
     Integer characteristicId = characteristic != null ? characteristic.getId() : null;
-    RemediationFunction remediationFunction = characteristic != null ? def.remediationFunction() : null;
-    String remediationFactor = characteristic != null ? def.remediationFactor() : null;
-    String remediationOffset = characteristic != null ? def.remediationOffset() : null;
-    String effortToFixL10nKey = characteristic != null ? def.effortToFixL10nKey() : null;
+    DebtRemediationFunction debtRemediationFunction = def.debtRemediationFunction();
+    String remediationFactor = debtRemediationFunction != null ? debtRemediationFunction.factor() : null;
+    String remediationOffset = debtRemediationFunction != null ? debtRemediationFunction.offset() : null;
+    String effortToFixL10nKey = def.effortToFixL10nKey();
 
     if (!ObjectUtils.equals(dto.getDefaultCharacteristicId(), characteristicId)) {
       dto.setDefaultCharacteristicId(characteristicId);
       changed = true;
     }
-    String remediationFunctionString = remediationFunction != null ? remediationFunction.name() : null;
+    String remediationFunctionString = debtRemediationFunction != null ? debtRemediationFunction.type().name() : null;
     if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunctionString)) {
       dto.setDefaultRemediationFunction(remediationFunctionString);
       changed = true;
@@ -539,7 +539,7 @@ public class RuleRegistration implements Startable {
 
   @CheckForNull
   private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RulesDefinition.Rule ruleDef) {
-    final String key = ruleDef.characteristicKey();
+    final String key = ruleDef.debtCharacteristic();
     if (key == null) {
       // Rule is not linked to a characteristic, nothing to do
       return null;
@@ -553,7 +553,7 @@ public class RuleRegistration implements Startable {
     }, null);
 
     if (characteristicDto == null) {
-      LOG.warn(String.format("Characteristic '%s' has not been found, technical debt definitions on rule '%s:%s' will be ignored",
+      LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'",
         key, ruleDef.repository().name(), ruleDef.key()));
     } else if (characteristicDto.getParentId() == null) {
       throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'",

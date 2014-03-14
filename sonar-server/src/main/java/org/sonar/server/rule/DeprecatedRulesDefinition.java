@@ -31,8 +31,8 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.DebtRulesXMLImporter;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
+import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
 
@@ -104,10 +104,8 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
   private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<DebtRulesXMLImporter.RuleDebt> ruleDebts){
     DebtRulesXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
-      newRule.setCharacteristicKey(ruleDebt.characteristicKey());
-      newRule.setRemediationFunction(ruleDebt.function());
-      newRule.setRemediationFactor(ruleDebt.factor());
-      newRule.setRemediationOffset(ruleDebt.offset());
+      newRule.setDebtCharacteristic(ruleDebt.characteristicKey());
+      newRule.setDebtRemediationFunction(ruleDebt.function());
     }
   }
 

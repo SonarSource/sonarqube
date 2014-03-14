@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -28,6 +28,8 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
+import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 

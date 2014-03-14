@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -32,9 +32,10 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -123,10 +124,9 @@ public class DebtRulesXMLImporter implements ServerExtension {
     }
   }
 
-  private RuleDebt processRule(SMInputCursor cursor)
-    throws XMLStreamException {
+  @CheckForNull
+  private RuleDebt processRule(SMInputCursor cursor) throws XMLStreamException {
 
-    RuleDebt ruleDebt = new RuleDebt();
     String ruleRepositoryKey = cursor.collectDescendantText().trim();
     String ruleKey = null;
     Properties properties = new Properties();
@@ -139,11 +139,9 @@ public class DebtRulesXMLImporter implements ServerExtension {
       }
     }
     if (StringUtils.isNotBlank(ruleRepositoryKey) && StringUtils.isNotBlank(ruleKey)) {
-      ruleDebt.ruleKey = RuleKey.of(ruleRepositoryKey, ruleKey);
-    } else {
-      return null;
+      return processRule(RuleKey.of(ruleRepositoryKey, ruleKey), properties);
     }
-    return processFunctionsOnRequirement(ruleDebt, properties);
+    return null;
   }
 
   private Property processProperty(SMInputCursor cursor) throws XMLStreamException {
@@ -166,43 +164,42 @@ public class DebtRulesXMLImporter implements ServerExtension {
         }
       } else if (StringUtils.equals(node, PROPERTY_TEXT_VALUE)) {
         textValue = c.collectDescendantText().trim();
+        textValue = "mn".equals(textValue) ? Duration.MINUTE : textValue;
       }
     }
     return new Property(key, value, textValue);
   }
 
   @CheckForNull
-  private RuleDebt processFunctionsOnRequirement(RuleDebt requirement, Properties properties) {
-    Property function = properties.function();
-    Property factor = properties.factor();
-    Property offset = properties.offset();
+  private RuleDebt processRule(RuleKey ruleKey, Properties properties){
+    try {
+      return createRule(ruleKey, properties);
+    } catch (DebtRemediationFunction.ValidationException e) {
+      throw MessageException.of(String.format("Rule '%s' is invalid : %s", ruleKey, e.getMessage()));
+    }
+  }
 
+  @CheckForNull
+  private RuleDebt createRule(RuleKey ruleKey, Properties properties) {
+    Property function = properties.function();
     if (function != null) {
-      // Init with default values
-      requirement.factor = "0" + Duration.DAY;
-      requirement.offset = "0" + Duration.DAY;
+
+      Property factorProperty = properties.factor();
+      String factor = factorProperty != null ? factorProperty.toDuration() : null;
+      Property offsetProperty = properties.offset();
+      String offset = offsetProperty != null ? offsetProperty.toDuration() : null;
 
       String functionKey = function.getTextValue();
-      if ("linear_threshold".equals(functionKey)) {
-        function.setTextValue(RemediationFunction.LINEAR.name().toLowerCase());
-        offset.setValue(0);
-        offset.setTextValue(Duration.DAY);
-        LOG.warn(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", requirement.ruleKey));
+      if ("linear_threshold".equals(functionKey) && factor != null) {
+        LOG.warn(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
+        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createLinear(factor));
       } else if ("constant_resource".equals(functionKey)) {
-        LOG.warn(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", requirement.ruleKey));
-        return null;
+        LOG.warn(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
+      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().toLowerCase().equals(functionKey) && factor != null && offset == null) {
+        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createConstantPerIssue(factor));
+      } else {
+        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(functionKey.toUpperCase()), factor, offset));
       }
-
-      requirement.function = RemediationFunction.valueOf(function.getTextValue().toUpperCase());
-      if (factor != null) {
-        requirement.factor = Integer.toString(factor.getValue());
-        requirement.factor += !Strings.isNullOrEmpty(factor.getTextValue()) ? factor.getTextValue() : Duration.DAY;
-      }
-      if (offset != null) {
-        requirement.offset = Integer.toString(offset.getValue());
-        requirement.offset += !Strings.isNullOrEmpty(offset.getTextValue()) ? offset.getTextValue() : Duration.DAY;
-      }
-      return requirement;
     }
     return null;
   }
@@ -252,16 +249,6 @@ public class DebtRulesXMLImporter implements ServerExtension {
       this.textValue = textValue;
     }
 
-    private Property setValue(int value) {
-      this.value = value;
-      return this;
-    }
-
-    private Property setTextValue(String textValue) {
-      this.textValue = textValue;
-      return this;
-    }
-
     private String getKey() {
       return key;
     }
@@ -271,16 +258,24 @@ public class DebtRulesXMLImporter implements ServerExtension {
     }
 
     private String getTextValue() {
-      return "mn".equals(textValue) ? Duration.MINUTE : textValue;
+      return textValue;
+    }
+
+    @CheckForNull
+    public String toDuration() {
+      if (key != null && getValue() > 0) {
+        String duration = Integer.toString(getValue());
+        duration += !Strings.isNullOrEmpty(getTextValue()) ? getTextValue() : Duration.DAY;
+        return duration;
+      }
+      return null;
     }
   }
 
   public static class RuleDebt {
     private RuleKey ruleKey;
     private String characteristicKey;
-    private RemediationFunction function;
-    private String factor;
-    private String offset;
+    private DebtRemediationFunction function;
 
     public RuleKey ruleKey() {
       return ruleKey;
@@ -300,30 +295,12 @@ public class DebtRulesXMLImporter implements ServerExtension {
       return this;
     }
 
-    public RemediationFunction function() {
+    public DebtRemediationFunction function() {
       return function;
     }
 
-    public RuleDebt setFunction(RemediationFunction function) {
+    public RuleDebt setFunction(DebtRemediationFunction function) {
       this.function = function;
-      return this;
-    }
-
-    public String factor() {
-      return factor;
-    }
-
-    public RuleDebt setFactor(String factor) {
-      this.factor = factor;
-      return this;
-    }
-
-    public String offset() {
-      return offset;
-    }
-
-    public RuleDebt setOffset(String offset) {
-      this.offset = offset;
       return this;
     }
   }

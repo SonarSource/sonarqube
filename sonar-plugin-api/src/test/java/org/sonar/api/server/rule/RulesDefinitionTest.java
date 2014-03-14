@@ -19,9 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
@@ -72,10 +70,8 @@ public class RulesDefinitionTest {
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
-      .setCharacteristicKey("COMPILER")
-      .setRemediationFunction(RemediationFunction.LINEAR_OFFSET)
-      .setRemediationFactor("1h")
-      .setRemediationOffset("10min")
+      .setDebtCharacteristic("COMPILER")
+      .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
       .setEffortToFixL10nKey("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
@@ -95,10 +91,8 @@ public class RulesDefinitionTest {
     assertThat(npeRule.internalKey()).isEqualTo("/something");
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(npeRule.characteristicKey()).isEqualTo("COMPILER");
-    assertThat(npeRule.remediationFunction()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
-    assertThat(npeRule.remediationFactor()).isEqualTo("1h");
-    assertThat(npeRule.remediationOffset()).isEqualTo("10min");
+    assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
+    assertThat(npeRule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
     assertThat(npeRule.effortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
@@ -122,10 +116,8 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
-    assertThat(rule.characteristicKey()).isNull();
-    assertThat(rule.remediationFunction()).isNull();
-    assertThat(rule.remediationFactor()).isNull();
-    assertThat(rule.remediationOffset()).isNull();
+    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtRemediationFunction()).isNull();
   }
 
   @Test
@@ -165,21 +157,6 @@ public class RulesDefinitionTest {
 
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.name()).isEqualTo("NullPointer");
-  }
-
-  @Test
-  public void sanitize_remediation_factor_and_offset() {
-    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
-    newFindbugs.createRule("NPE")
-      .setName("Detect NPE")
-      .setHtmlDescription("NPE")
-      .setRemediationFactor("   1   h   ")
-      .setRemediationOffset(" 10  mi n ");
-    newFindbugs.done();
-
-    RulesDefinition.Rule npeRule = context.repository("findbugs").rule("NPE");
-    assertThat(npeRule.remediationFactor()).isEqualTo("1h");
-    assertThat(npeRule.remediationOffset()).isEqualTo("10min");
   }
 
   @Test
@@ -276,7 +253,7 @@ public class RulesDefinitionTest {
   @Test
   public void fail_to_load_rule_description_from_file() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((URL)null);
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((URL) null);
     try {
       newRepository.done();
       fail();
@@ -288,7 +265,7 @@ public class RulesDefinitionTest {
   @Test
   public void fail_if_blank_rule_html_description() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((String)null);
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((String) null);
     try {
       newRepository.done();
       fail();
@@ -314,24 +291,6 @@ public class RulesDefinitionTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
-    }
-  }
-
-  @Test
-  @Ignore("TODO")
-  public void fail_if_bad_remediation_factor_or_offset() {
-    try {
-      context.createRepository("findbugs", "java").createRule("NPE").setRemediationFactor("ten hours");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");
-    }
-
-    try {
-      context.createRepository("findbugs", "java").createRule("NPE").setRemediationOffset("ten hours");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");
     }
   }
 

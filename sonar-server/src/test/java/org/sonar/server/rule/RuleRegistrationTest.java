@@ -22,9 +22,9 @@ package org.sonar.server.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -168,11 +168,11 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void remove_rule_debt_definitions_if_characteristic_not_found() {
-    setupData("remove_rule_debt_definitions_if_characteristic_not_found");
+  public void set_no_characteristic_when_characteristic_not_found() {
+    setupData("set_no_characteristic_when_characteristic_not_found");
     task.start();
 
-    checkTables("remove_rule_debt_definitions_if_characteristic_not_found", EXCLUDED_COLUMN_NAMES, "rules");
+    checkTables("set_no_characteristic_when_characteristic_not_found", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test
@@ -247,10 +247,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setName("One")
         .setHtmlDescription("Description of One")
         .setSeverity(Severity.BLOCKER)
-        .setCharacteristicKey("MEMORY_EFFICIENCY")
-        .setRemediationFunction(RemediationFunction.LINEAR_OFFSET)
-        .setRemediationFactor("5d")
-        .setRemediationOffset("10h")
+        .setDebtCharacteristic("MEMORY_EFFICIENCY")
+        .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset("5d", "10h"))
         .setEffortToFixL10nKey("squid.S115.effortToFix")
         .setInternalKey("config1")
         .setTags("tag1", "tag3", "tag5");

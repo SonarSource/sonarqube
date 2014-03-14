@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -98,7 +99,6 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
         // <chc> can contain characteristics or requirements
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
         processCharacteristic(model, characteristic, cursor, messages);
-
       }
     }
 

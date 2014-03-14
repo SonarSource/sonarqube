@@ -45,7 +45,7 @@
         </prop>
         <prop>
           <key>remediationFunction</key>
-          <txt>linear</txt>
+          <txt>linear_offset</txt>
         </prop>
         <prop>
           <key>offset</key>

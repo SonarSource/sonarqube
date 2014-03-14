@@ -16,6 +16,7 @@
         <prop>
           <key>remediationFactor</key>
           <val>3.0</val>
+          <txt>h</txt>
         </prop>
         <prop>
           <key>remediationFunction</key>
@@ -23,7 +24,8 @@
         </prop>
         <prop>
           <key>offset</key>
-          <val>1.0</val>
+          <val>0.0</val>
+          <txt>min</txt>
         </prop>
       </chc>
     </chc>

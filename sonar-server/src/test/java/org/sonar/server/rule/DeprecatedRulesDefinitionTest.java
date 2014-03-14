@@ -23,17 +23,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.DebtRulesXMLImporter;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
+import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -158,10 +158,8 @@ public class DeprecatedRulesDefinitionTest {
       new DebtRulesXMLImporter.RuleDebt()
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
-        .setFunction(RemediationFunction.LINEAR_OFFSET)
-        .setFactor("1d")
-        .setOffset("10min")
-    );
+        .setFunction(DebtRemediationFunction.createLinearWithOffset("1d", "10min")
+        ));
 
     Reader javaModelReader = mock(Reader.class);
     when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
@@ -177,10 +175,8 @@ public class DeprecatedRulesDefinitionTest {
     RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
-    assertThat(rule.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(rule.remediationFunction()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
-    assertThat(rule.remediationFactor()).isEqualTo("1d");
-    assertThat(rule.remediationOffset()).isEqualTo("10min");
+    assertThat(rule.debtCharacteristic()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinearWithOffset("1d", "10min"));
   }
 
 }

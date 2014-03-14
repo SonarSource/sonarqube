@@ -18,18 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.utils.MessageException;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class DebtRulesXMLImporterTest {
 
@@ -53,9 +55,20 @@ public class DebtRulesXMLImporterTest {
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(ruleDebt.factor()).isEqualTo("3h");
-    assertThat(ruleDebt.offset()).isEqualTo("0d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinear("3h"));
+  }
+
+  @Test
+  public void import_linear_having_offset_to_zero() {
+    String xml = getFileContent("import_linear_having_offset_to_zero.xml");
+
+    List<DebtRulesXMLImporter.RuleDebt> results = importer.importXML(xml);
+    assertThat(results).hasSize(1);
+
+    DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
+    assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinear("3h"));
   }
 
   @Test
@@ -67,9 +80,7 @@ public class DebtRulesXMLImporterTest {
 
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
-    assertThat(ruleDebt.factor()).isEqualTo("3h");
-    assertThat(ruleDebt.offset()).isEqualTo("1min");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinearWithOffset("3h", "1min"));
   }
 
   @Test
@@ -81,9 +92,7 @@ public class DebtRulesXMLImporterTest {
 
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.CONSTANT_ISSUE);
-    assertThat(ruleDebt.factor()).isEqualTo("0d");
-    assertThat(ruleDebt.offset()).isEqualTo("3d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createConstantPerIssue("3d"));
   }
 
   @Test
@@ -95,9 +104,7 @@ public class DebtRulesXMLImporterTest {
 
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(ruleDebt.factor()).isEqualTo("3d");
-    assertThat(ruleDebt.offset()).isEqualTo("1d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinearWithOffset("3d", "1d"));
   }
 
   @Test
@@ -109,9 +116,7 @@ public class DebtRulesXMLImporterTest {
 
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(ruleDebt.factor()).isEqualTo("3min");
-    assertThat(ruleDebt.offset()).isEqualTo("0d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinear("3min"));
   }
 
   @Test
@@ -123,9 +128,19 @@ public class DebtRulesXMLImporterTest {
 
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(ruleDebt.factor()).isEqualTo("3h");
-    assertThat(ruleDebt.offset()).isEqualTo("0d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinear("3h"));
+  }
+
+  @Test
+  public void convert_constant_per_issue_with_factor_by_constant_by_issue_with_offset() {
+    String xml = getFileContent("convert_constant_per_issue_with_factor_by_constant_by_issue_with_offset.xml");
+
+    List<DebtRulesXMLImporter.RuleDebt> results = importer.importXML(xml);
+    assertThat(results).hasSize(1);
+
+    DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
+    assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createConstantPerIssue("3h"));
   }
 
   @Test
@@ -154,9 +169,7 @@ public class DebtRulesXMLImporterTest {
     DebtRulesXMLImporter.RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(ruleDebt.factor()).isEqualTo("3h");
-    assertThat(ruleDebt.offset()).isEqualTo("0d");
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.createLinear("3h"));
   }
 
   @Test
@@ -164,6 +177,17 @@ public class DebtRulesXMLImporterTest {
     String xml = getFileContent("ignore_invalid_value.xml");
     List<DebtRulesXMLImporter.RuleDebt> results = importer.importXML(xml);
     assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void fail_to_import_linear_having_offset() throws Exception {
+    String xml = getFileContent("fail_to_import_linear_having_offset.xml");
+    try {
+      importer.importXML(xml);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class);
+    }
   }
 
   private String getFileContent(String file) {

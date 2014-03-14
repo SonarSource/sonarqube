@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.DebtModelSynchronizer;
+import org.sonar.server.debt.DebtModelSynchronizer;
 
 public class RegisterDebtModel {
 

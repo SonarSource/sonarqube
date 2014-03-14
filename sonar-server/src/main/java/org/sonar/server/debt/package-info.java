@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.server.debt;
 
-package org.sonar.server.startup;
-
-import org.junit.Test;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.debt.DebtModelSynchronizer;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-public class RegisterDebtModelTest {
-
-  @Test
-  public void create_model() throws Exception {
-    DebtModelSynchronizer synchronizer = mock(DebtModelSynchronizer.class);
-    RegisterDebtModel sqaleDefinition = new RegisterDebtModel(synchronizer);
-
-    sqaleDefinition.start();
-
-    verify(synchronizer, times(1)).synchronize(any(ValidationMessages.class));
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
