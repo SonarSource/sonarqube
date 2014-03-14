@@ -303,15 +303,6 @@ jQuery(function() {
     },
 
 
-    onRender: function() {
-      if (!this.collection.sorting.sortText) {
-        this.collection.sorting.sortText = this.$('[data-sort=' + this.collection.sorting.sort + ']:first').text();
-        this.render();
-        return;
-      }
-    },
-
-
     toggleOrderChoices: function(e) {
       e.stopPropagation();
       this.ui.orderChoices.toggleClass('open');
