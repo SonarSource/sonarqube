@@ -25,7 +25,6 @@ import org.sonar.api.technicaldebt.batch.Requirement;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -88,7 +87,7 @@ public final class MeasuresFilters {
     };
   }
 
-  private static boolean isSameCharacteristic(Measure measure, final Characteristic characteristic){
+  private static boolean isSameCharacteristic(Measure measure, final Characteristic characteristic) {
     Characteristic measureCharacteristic = measure.getCharacteristic();
     return measureCharacteristic != null &&
       measureCharacteristic.equals(characteristic);
@@ -118,7 +117,7 @@ public final class MeasuresFilters {
     };
   }
 
-  private static boolean isSameRequirement(Measure measure, final Requirement requirement){
+  private static boolean isSameRequirement(Measure measure, final Requirement requirement) {
     Requirement measureRequirement = measure.getRequirement();
     return measureRequirement != null &&
       measureRequirement.equals(requirement);
@@ -143,29 +142,8 @@ public final class MeasuresFilters {
     };
   }
 
-  /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public static MeasuresFilter<RuleMeasure> ruleCategory(final Metric metric, final Integer category) {
-    return new RuleCategoryFilter(metric, category);
-  }
-
   public static MeasuresFilter<RuleMeasure> rule(final Metric metric, final Rule rule) {
     return new RuleFilter(metric, rule);
-  }
-
-  /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public static MeasuresFilter<Collection<RuleMeasure>> ruleCategories(final Metric metric) {
-    return new MetricFilter<Collection<RuleMeasure>>(metric) {
-
-      public Collection<RuleMeasure> filter(Collection<Measure> measures) {
-        return Collections.emptyList();
-      }
-    };
   }
 
   public static MeasuresFilter<Collection<RuleMeasure>> rules(final Metric metric) {
@@ -236,23 +214,6 @@ public final class MeasuresFilters {
       return null;
     }
   }
-
-  /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  private static class RuleCategoryFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
-
-    protected RuleCategoryFilter(Metric metric, Integer categ) {
-      super(metric);
-    }
-
-    @Override
-    boolean doApply(RuleMeasure measure) {
-      return false;
-    }
-  }
-
 
   private static class RuleFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
     private Rule rule;
