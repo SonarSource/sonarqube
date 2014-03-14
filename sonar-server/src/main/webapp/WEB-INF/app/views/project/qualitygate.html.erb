@@ -1,0 +1,23 @@
+<h1 class="admin-page-title"><%= message('project_quality_gate.page') -%></h1>
+<p class="admin-page-description"><%= message('project_quality_gate.page.description') -%></p>
+
+<form method="POST" action="<%= ApplicationController.root_context -%>/project/set_qualitygate">
+  <input type="hidden" name="id" value="<%= @project_id -%>"/>
+  <input type="hidden" name="previous_qgate_id" value="<%= @selected_qgate -%>"/>
+
+  <select id="select-qgate" name="qgate_id">
+    <option value="" <%= "selected='selected'" unless @selected_qgate -%>><%= message 'project_quality_gate.default_qgate' -%></option>
+    <% puts @selected_qgate %>
+    <optgroup>
+      <%
+         qgates = Api::Utils.insensitive_sort(@all_quality_gates) { |qgate| qgate.name }
+         qgates.each do |qgate|
+      %>
+        <option value="<%= qgate.id -%>" <%= "selected='selected'" if @selected_qgate && (@selected_qgate == qgate.id) -%>><%= h qgate.name -%></option>
+        <% puts qgate.name, qgate.id == @selected_qgate %>
+      <% end %>
+    </optgroup>
+  </select>
+
+  <%= submit_tag message('update_verb'), :id => "submit", :disable_with => message('updating') %>
+</form>

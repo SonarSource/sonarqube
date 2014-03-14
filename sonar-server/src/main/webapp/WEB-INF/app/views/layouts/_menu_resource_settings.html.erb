@@ -10,6 +10,9 @@
       <% if (@project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
       <% end %>
+      <% if (@project.project?) %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/qualitygate/<%= @project.id -%>"><%= message('project_quality_gate.page') -%></a></li>
+      <% end %>
       <% if is_admin %>
       <li><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
       <% end %>

@@ -107,6 +107,41 @@ class ProjectController < ApplicationController
     redirect_to :action => 'profile', :id => project
   end
 
+  # GET /project/qualitygate?id=<project id>
+  def qualitygate
+    require_parameters :id
+    @project_id = Api::Utils.project_id(params[:id])
+    access_denied unless (is_admin?(@project_id) || has_role?(:profileadmin))
+    # Need to display breadcrumb
+    @project = Project.by_key(@project_id)
+
+    call_backend do
+      @all_quality_gates = Internal.quality_gates.list().to_a
+      @selected_qgate = Property.value('sonar.qualitygate', @project, '').to_i
+    end
+  end
+
+  # POST /project/set_qualitygate?id=<project id>[&qgate_id=<qgate id>]
+  def set_qualitygate
+    verify_post_request
+
+    project_id = params[:id].to_i
+    qgate_id = params[:qgate_id].to_i
+    previous_qgate_id = params[:previous_qgate_id].to_i
+
+    ### TODO pass previous qgate to be able to dissociate
+
+    call_backend do
+      if qgate_id == 0
+        Internal.quality_gates.dissociateProject(previous_qgate_id, project_id)
+      else
+        Internal.quality_gates.associateProject(qgate_id, project_id)
+      end
+    end
+
+    redirect_to :action => 'qualitygate', :id => project_id
+  end
+
   def key
     @project = get_current_project(params[:id])
     @snapshot = @project.last_snapshot
