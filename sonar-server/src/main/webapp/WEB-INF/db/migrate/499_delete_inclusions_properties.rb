@@ -25,11 +25,11 @@
 class DeleteInclusionsProperties < ActiveRecord::Migration
 
   class Property < ActiveRecord::Base
-    end
+  end
 
-    def self.up
-      Property.delete_all("prop_key = 'sonar.inclusions'")
-      Property.delete_all("prop_key = 'sonar.test.inclusions'")
-    end
+  def self.up
+    Property.delete_all("prop_key = 'sonar.inclusions'")
+    Property.delete_all("prop_key = 'sonar.test.inclusions'")
+  end
 
 end
