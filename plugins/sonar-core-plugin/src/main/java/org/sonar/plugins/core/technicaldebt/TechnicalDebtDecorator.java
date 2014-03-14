@@ -99,30 +99,25 @@ public final class TechnicalDebtDecorator implements Decorator {
     // Aggregate rules debt from current issues (and populate current characteristic debt)
     for (Issue issue : issues) {
       Long debt = ((DefaultIssue) issue).debtInMinutes();
-      if (computeDebt(debt, issue.ruleKey(), ruleDebts, characteristicDebts)) {
-        total += debt;
-      }
+      total += computeDebt(debt, issue.ruleKey(), ruleDebts, characteristicDebts);
     }
 
     // Aggregate rules debt from children (and populate children characteristics debt)
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.TECHNICAL_DEBT))) {
       Long debt = measure.getValue().longValue();
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      if (computeDebt(debt, ruleMeasure.getRule().ruleKey(), ruleDebts, characteristicDebts)) {
-        total += debt;
-      }
+      total += computeDebt(debt, ruleMeasure.getRule().ruleKey(), ruleDebts, characteristicDebts);
     }
 
     context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total.doubleValue());
     saveOnRule(context, ruleDebts);
-
     for (Characteristic characteristic : model.characteristics()) {
       Long debt = characteristicDebts.get(characteristic);
-      saveTechnicalDebt(context, characteristic, debt != null ? debt.doubleValue() : 0d, false);
+      saveCharacteristicMeasure(context, characteristic, debt != null ? debt.doubleValue() : 0d, false);
     }
   }
 
-  private boolean computeDebt(@Nullable Long debt, RuleKey ruleKey, SumMap<RuleKey> ruleDebts, SumMap<Characteristic> characteristicDebts) {
+  private Long computeDebt(@Nullable Long debt, RuleKey ruleKey, SumMap<RuleKey> ruleDebts, SumMap<Characteristic> characteristicDebts) {
     if (debt != null) {
       Rule rule = rules.find(ruleKey);
       if (rule != null) {
@@ -133,12 +128,12 @@ public final class TechnicalDebtDecorator implements Decorator {
             ruleDebts.add(ruleKey, debt);
             characteristicDebts.add(characteristic, debt);
             propagateTechnicalDebtInParents(characteristic.parent(), debt, characteristicDebts);
-            return true;
+            return debt;
           }
         }
       }
     }
-    return false;
+    return 0L;
   }
 
   private void propagateTechnicalDebtInParents(@Nullable Characteristic characteristic, long value, SumMap<Characteristic> characteristicDebts) {
@@ -152,13 +147,13 @@ public final class TechnicalDebtDecorator implements Decorator {
     for (Map.Entry<RuleKey, Long> entry : ruleDebts.entrySet()) {
       org.sonar.api.rules.Rule oldRule = ruleFinder.findByKey(entry.getKey());
       if (oldRule != null) {
-        saveTechnicalDebt(context, oldRule, entry.getValue().doubleValue(), ResourceUtils.isEntity(context.getResource()));
+        saveRuleMeasure(context, oldRule, entry.getValue().doubleValue(), ResourceUtils.isEntity(context.getResource()));
       }
     }
   }
 
   @VisibleForTesting
-  void saveTechnicalDebt(DecoratorContext context, Characteristic characteristic, Double value, boolean inMemory) {
+  void saveCharacteristicMeasure(DecoratorContext context, Characteristic characteristic, Double value, boolean inMemory) {
     // we need the value on projects (root or module) even if value==0 in order to display correctly the SQALE history chart (see SQALE-122)
     // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
     if (value > 0.0 || (ResourceUtils.isProject(context.getResource()) && characteristic.isRoot())) {
@@ -169,7 +164,7 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  void saveTechnicalDebt(DecoratorContext context, org.sonar.api.rules.Rule rule, Double value, boolean inMemory) {
+  void saveRuleMeasure(DecoratorContext context, org.sonar.api.rules.Rule rule, Double value, boolean inMemory) {
     // we need the value on projects (root or module) even if value==0 in order to display correctly the SQALE history chart (see SQALE-122)
     // BUT we don't want to save zero-values for non top-characteristics (see SQALE-147)
     if (value > 0.0) {

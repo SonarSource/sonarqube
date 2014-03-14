@@ -21,7 +21,6 @@
 package org.sonar.plugins.core.technicaldebt;
 
 import com.google.common.collect.Lists;
-import java.util.Collections;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -50,6 +49,8 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
+
+import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -232,13 +233,13 @@ public class TechnicalDebtDecoratorTest {
     // for a project
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
-    decorator.saveTechnicalDebt(context, (Characteristic) null, 12.0, false);
+    decorator.saveCharacteristicMeasure(context, (Characteristic) null, 12.0, false);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
 
     // or for a file
     context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new File("foo"));
-    decorator.saveTechnicalDebt(context, (Characteristic) null, 12.0, false);
+    decorator.saveCharacteristicMeasure(context, (Characteristic) null, 12.0, false);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
   }
 
@@ -250,7 +251,7 @@ public class TechnicalDebtDecoratorTest {
     // this is a top characteristic
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("root");
 
-    decorator.saveTechnicalDebt(context, rootCharacteristic, 0.0, true);
+    decorator.saveCharacteristicMeasure(context, rootCharacteristic, 0.0, true);
     verify(context, times(1)).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT).setCharacteristic(rootCharacteristic));
   }
 
@@ -265,7 +266,7 @@ public class TechnicalDebtDecoratorTest {
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("EFFICIENCY");
     DefaultCharacteristic characteristic = new DefaultCharacteristic().setKey("MEMORY_EFFICIENCY").setParent(rootCharacteristic);
 
-    decorator.saveTechnicalDebt(context, characteristic, 0.0, true);
+    decorator.saveCharacteristicMeasure(context, characteristic, 0.0, true);
     verify(context, never()).saveMeasure(any(Measure.class));
   }
 
@@ -274,7 +275,7 @@ public class TechnicalDebtDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new File("foo"));
 
-    decorator.saveTechnicalDebt(context, (Characteristic) null, 0.0, true);
+    decorator.saveCharacteristicMeasure(context, (Characteristic) null, 0.0, true);
     verify(context, never()).saveMeasure(new Measure(CoreMetrics.TECHNICAL_DEBT));
   }
 
