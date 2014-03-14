@@ -21,7 +21,7 @@
 package org.sonar.plugins.core.technicaldebt;
 
 import com.google.common.collect.Lists;
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
