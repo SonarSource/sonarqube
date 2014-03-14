@@ -20,7 +20,8 @@
 
 package org.sonar.plugins.core.technicaldebt;
 
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -50,8 +51,6 @@ import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,7 +70,7 @@ public class TechnicalDebtDecoratorTest {
   Resource resource;
 
   @Mock
-  TechnicalDebtModel defaultTechnicalDebtModel;
+  TechnicalDebtModel debtModel;
 
   @Mock
   Issuable issuable;
@@ -86,6 +85,12 @@ public class TechnicalDebtDecoratorTest {
   RuleKey ruleKey2 = RuleKey.of("repo2", "rule2");
   Rules rules;
 
+  DefaultCharacteristic efficiency = new DefaultCharacteristic().setKey("EFFICIENCY");
+  DefaultCharacteristic memoryEfficiency = new DefaultCharacteristic().setKey("MEMORY_EFFICIENCY").setParent(efficiency);
+
+  DefaultCharacteristic reusability = new DefaultCharacteristic().setKey("REUSABILITY");
+  DefaultCharacteristic modularity = new DefaultCharacteristic().setKey("MODULARITY").setParent(reusability);
+
   TechnicalDebtDecorator decorator;
 
   @Before
@@ -99,7 +104,13 @@ public class TechnicalDebtDecoratorTest {
     when(ruleFinder.findByKey(ruleKey1)).thenReturn(org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule()));
     when(ruleFinder.findByKey(ruleKey2)).thenReturn(org.sonar.api.rules.Rule.create(ruleKey2.repository(), ruleKey2.rule()));
 
-    decorator = new TechnicalDebtDecorator(perspectives, defaultTechnicalDebtModel, rules, ruleFinder);
+    when(debtModel.characteristics()).thenReturn(newArrayList(efficiency, memoryEfficiency, reusability, modularity));
+    when(debtModel.characteristicByKey("EFFICIENCY")).thenReturn(efficiency);
+    when(debtModel.characteristicByKey("MEMORY_EFFICIENCY")).thenReturn(memoryEfficiency);
+    when(debtModel.characteristicByKey("REUSABILITY")).thenReturn(reusability);
+    when(debtModel.characteristicByKey("MODULARITY")).thenReturn(modularity);
+
+    decorator = new TechnicalDebtDecorator(perspectives, debtModel, rules, ruleFinder);
   }
 
   @Test
@@ -119,21 +130,6 @@ public class TechnicalDebtDecoratorTest {
     decorator.decorate(resource, context);
 
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.TECHNICAL_DEBT)));
-  }
-
-  @Test
-  public void group_issues_by_requirement() throws Exception {
-    Issue issue1 = createIssue("rule1", "repo1");
-    Issue issue2 = createIssue("rule1", "repo1");
-    Issue issue3 = createIssue("rule2", "repo2");
-
-    List<Issue> issues = newArrayList(issue1, issue2, issue3);
-
-    ListMultimap<RuleKey, Issue> result = decorator.issuesByRule(issues);
-
-    assertThat(result.keySet().size()).isEqualTo(2);
-    assertThat(result.get(ruleKey1)).containsExactly(issue1, issue2);
-    assertThat(result.get(ruleKey2)).containsExactly(issue3);
   }
 
   @Test
@@ -162,16 +158,12 @@ public class TechnicalDebtDecoratorTest {
     Issue issue = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
-    DefaultCharacteristic parentCharacteristic = new DefaultCharacteristic().setKey("EFFICIENCY");
-    DefaultCharacteristic characteristic = new DefaultCharacteristic().setKey("MEMORY_EFFICIENCY").setParent(parentCharacteristic);
-    when(defaultTechnicalDebtModel.characteristicByKey("MEMORY_EFFICIENCY")).thenReturn(characteristic);
-
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, ONE_DAY_IN_MINUTES.doubleValue());
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, parentCharacteristic, ONE_DAY_IN_MINUTES.doubleValue())));
-    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, characteristic, ONE_DAY_IN_MINUTES.doubleValue())));
     verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.TECHNICAL_DEBT, ruleKey1, ONE_DAY_IN_MINUTES.doubleValue())));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, efficiency, ONE_DAY_IN_MINUTES.doubleValue())));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, memoryEfficiency, ONE_DAY_IN_MINUTES.doubleValue())));
   }
 
   @Test
@@ -185,15 +177,6 @@ public class TechnicalDebtDecoratorTest {
     Issue issue4 = createIssue("rule2", "repo2").setDebt(Duration.create(technicalDebt2));
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2, issue3, issue4));
 
-    when(defaultTechnicalDebtModel.characteristicByKey("MEMORY_EFFICIENCY")).thenReturn(
-      new DefaultCharacteristic().setKey("MEMORY_EFFICIENCY").setParent(
-        new DefaultCharacteristic().setKey("EFFICIENCY")
-      ),
-      new DefaultCharacteristic().setKey("MODULARITY").setParent(
-        new DefaultCharacteristic().setKey("REUSABILITY")
-      )
-    );
-
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 6d * ONE_DAY_IN_MINUTES);
@@ -202,25 +185,46 @@ public class TechnicalDebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_children_measures() throws Exception {
+  public void add_technical_debt_from_current_and_children_measures() throws Exception {
     Issue issue1 = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     Issue issue2 = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
 
-    when(defaultTechnicalDebtModel.characteristicByKey("MEMORY_EFFICIENCY")).thenReturn(
-      new DefaultCharacteristic().setKey("MEMORY_EFFICIENCY").setParent(
-        new DefaultCharacteristic().setKey("EFFICIENCY")
-      )
-    );
-
-    org.sonar.api.rules.Rule oldRule = org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule());
-    Measure measure = new RuleMeasure(CoreMetrics.TECHNICAL_DEBT, oldRule, null, null).setValue(5d * ONE_DAY_IN_MINUTES);
-    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(newArrayList(measure));
-
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Lists.<Measure>newArrayList(
+      new RuleMeasure(CoreMetrics.TECHNICAL_DEBT,
+        org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule()), null, null)
+        .setValue(5d * ONE_DAY_IN_MINUTES)
+    ));
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 7d * ONE_DAY_IN_MINUTES);
     verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.TECHNICAL_DEBT, ruleKey1, 7d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, memoryEfficiency, 7d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, efficiency, 7d * ONE_DAY_IN_MINUTES)));
+  }
+
+  @Test
+  public void add_technical_debt_only_from_children_measures() throws Exception {
+    when(issuable.issues()).thenReturn(Collections.<Issue>emptyList());
+
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Lists.<Measure>newArrayList(
+      new RuleMeasure(CoreMetrics.TECHNICAL_DEBT,
+        org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule())
+        , null, null).setValue(5d * ONE_DAY_IN_MINUTES),
+
+      new RuleMeasure(CoreMetrics.TECHNICAL_DEBT,
+        org.sonar.api.rules.Rule.create(ruleKey2.repository(), ruleKey2.rule())
+        , null, null).setValue(10d * ONE_DAY_IN_MINUTES)
+    ));
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 15d * ONE_DAY_IN_MINUTES);
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.TECHNICAL_DEBT, ruleKey1, 5d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.TECHNICAL_DEBT, ruleKey2, 10d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, memoryEfficiency, 5d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, efficiency, 5d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, reusability, 10d * ONE_DAY_IN_MINUTES)));
+    verify(context).saveMeasure(argThat(new IsCharacteristicMeasure(CoreMetrics.TECHNICAL_DEBT, modularity, 10d * ONE_DAY_IN_MINUTES)));
   }
 
   @Test
@@ -242,6 +246,7 @@ public class TechnicalDebtDecoratorTest {
   public void always_save_technical_debt_for_project_if_top_characteristic() throws Exception {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
+
     // this is a top characteristic
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("root");
 
@@ -306,7 +311,11 @@ public class TechnicalDebtDecoratorTest {
 
     @Override
     public void describeTo(Description description) {
-      description.appendText(ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
+      description.appendText(new StringBuilder()
+        .append("value=").append(value).append(",")
+        .append("characteristic=").append(characteristic.key()).append(",")
+        .append("metric=").append(metric.getKey()).toString())
+      ;
     }
   }
 

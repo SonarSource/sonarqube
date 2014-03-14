@@ -21,9 +21,7 @@
 package org.sonar.plugins.core.technicaldebt;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.*;
@@ -43,12 +41,13 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -93,39 +92,68 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private void saveMeasures(DecoratorContext context, List<Issue> issues) {
-    // group issues by rule keys
-    ListMultimap<RuleKey, Issue> issuesByRule = issuesByRule(issues);
+    Long total = 0L;
+    SumMap<RuleKey> ruleDebts = new SumMap<RuleKey>();
+    SumMap<Characteristic> characteristicDebts = new SumMap<Characteristic>();
 
-    double total = 0.0;
-    Map<Characteristic, Double> characteristicCosts = newHashMap();
-    Map<org.sonar.api.rules.Rule, Double> ruleDebtCosts = newHashMap();
-
-    for (Rule newRule : rules.findWithDebt()) {
-      String characteristicKey = newRule.characteristic();
-      if (characteristicKey != null) {
-        org.sonar.api.rules.Rule rule = ruleFinder.findByKey(newRule.key());
-        double value = computeTechnicalDebt(CoreMetrics.TECHNICAL_DEBT, context, rule, issuesByRule.get(newRule.key()));
-        ruleDebtCosts.put(rule, value);
-        total += value;
-        Characteristic characteristic = model.characteristicByKey(characteristicKey);
-        propagateTechnicalDebtInParents(characteristic, value, characteristicCosts);
+    // Aggregate rules debt from current issues (and populate current characteristic debt)
+    for (Issue issue : issues) {
+      Long debt = ((DefaultIssue) issue).debtInMinutes();
+      if (computeDebt(debt, issue.ruleKey(), ruleDebts, characteristicDebts)) {
+        total += debt;
       }
     }
 
-    context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total);
-    saveOnCharacteristic(context, characteristicCosts);
-    saveOnRule(context, ruleDebtCosts);
-  }
+    // Aggregate rules debt from children (and populate children characteristics debt)
+    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.TECHNICAL_DEBT))) {
+      Long debt = measure.getValue().longValue();
+      RuleMeasure ruleMeasure = (RuleMeasure) measure;
+      if (computeDebt(debt, ruleMeasure.getRule().ruleKey(), ruleDebts, characteristicDebts)) {
+        total += debt;
+      }
+    }
 
-  private void saveOnCharacteristic(DecoratorContext context, Map<Characteristic, Double> characteristicCosts) {
-    for (Map.Entry<Characteristic, Double> entry : characteristicCosts.entrySet()) {
-      saveTechnicalDebt(context, entry.getKey(), entry.getValue(), false);
+    context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total.doubleValue());
+    saveOnRule(context, ruleDebts);
+
+    for (Characteristic characteristic : model.characteristics()) {
+      Long debt = characteristicDebts.get(characteristic);
+      saveTechnicalDebt(context, characteristic, debt != null ? debt.doubleValue() : 0d, false);
     }
   }
 
-  private void saveOnRule(DecoratorContext context, Map<org.sonar.api.rules.Rule, Double> requirementCosts) {
-    for (Map.Entry<org.sonar.api.rules.Rule, Double> entry : requirementCosts.entrySet()) {
-      saveTechnicalDebt(context, entry.getKey(), entry.getValue(), ResourceUtils.isEntity(context.getResource()));
+  private boolean computeDebt(@Nullable Long debt, RuleKey ruleKey, SumMap<RuleKey> ruleDebts, SumMap<Characteristic> characteristicDebts) {
+    if (debt != null) {
+      Rule rule = rules.find(ruleKey);
+      if (rule != null) {
+        String characteristicKey = rule.characteristic();
+        if (characteristicKey != null) {
+          Characteristic characteristic = model.characteristicByKey(characteristicKey);
+          if (characteristic != null) {
+            ruleDebts.add(ruleKey, debt);
+            characteristicDebts.add(characteristic, debt);
+            propagateTechnicalDebtInParents(characteristic.parent(), debt, characteristicDebts);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  private void propagateTechnicalDebtInParents(@Nullable Characteristic characteristic, long value, SumMap<Characteristic> characteristicDebts) {
+    if (characteristic != null) {
+      characteristicDebts.add(characteristic, value);
+      propagateTechnicalDebtInParents(characteristic.parent(), value, characteristicDebts);
+    }
+  }
+
+  private void saveOnRule(DecoratorContext context, SumMap<RuleKey> ruleDebts) {
+    for (Map.Entry<RuleKey, Long> entry : ruleDebts.entrySet()) {
+      org.sonar.api.rules.Rule oldRule = ruleFinder.findByKey(entry.getKey());
+      if (oldRule != null) {
+        saveTechnicalDebt(context, oldRule, entry.getValue().doubleValue(), ResourceUtils.isEntity(context.getResource()));
+      }
     }
   }
 
@@ -158,48 +186,6 @@ public final class TechnicalDebtDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  @VisibleForTesting
-  ListMultimap<RuleKey, Issue> issuesByRule(List<Issue> issues) {
-    ListMultimap<RuleKey, Issue> result = ArrayListMultimap.create();
-    for (Issue issue : issues) {
-      result.put(issue.ruleKey(), issue);
-    }
-    return result;
-  }
-
-  private double computeTechnicalDebt(Metric metric, DecoratorContext context, org.sonar.api.rules.Rule rule, Collection<Issue> issues) {
-    long debt = 0L;
-    if (issues != null) {
-      for (Issue issue : issues) {
-        Long currentDebt = ((DefaultIssue) issue).debtInMinutes();
-        if (currentDebt != null) {
-          debt += currentDebt;
-        }
-      }
-    }
-
-    for (Measure measure : context.getChildrenMeasures(MeasuresFilters.rule(metric, rule))) {
-      // Comparison on rule is only used for unit test, otherwise no need to do this check
-      RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      if (measure != null && ruleMeasure.getRule().equals(rule) && measure.getValue() != null) {
-        debt += measure.getValue();
-      }
-    }
-    return debt;
-  }
-
-  private void propagateTechnicalDebtInParents(@Nullable Characteristic characteristic, double value, Map<Characteristic, Double> characteristicCosts) {
-    if (characteristic != null) {
-      Double parentCost = characteristicCosts.get(characteristic);
-      if (parentCost == null) {
-        characteristicCosts.put(characteristic, value);
-      } else {
-        characteristicCosts.put(characteristic, value + parentCost);
-      }
-      propagateTechnicalDebtInParents(characteristic.parent(), value, characteristicCosts);
-    }
-  }
-
   private boolean shouldSaveMeasure(DecoratorContext context) {
     return context.getMeasure(CoreMetrics.TECHNICAL_DEBT) == null;
   }
@@ -216,4 +202,27 @@ public final class TechnicalDebtDecorator implements Decorator {
     );
   }
 
+  private static class SumMap<E> {
+    private Map<E, Long> sumByKeys;
+
+    public SumMap() {
+      sumByKeys = newHashMap();
+    }
+
+    public void add(@Nullable E key, Long value) {
+      if (key != null) {
+        Long currentValue = sumByKeys.get(key);
+        sumByKeys.put(key, currentValue != null ? currentValue + value : value);
+      }
+    }
+
+    @CheckForNull
+    public Long get(E key) {
+      return sumByKeys.get(key);
+    }
+
+    public Set<Map.Entry<E, Long>> entrySet() {
+      return sumByKeys.entrySet();
+    }
+  }
 }

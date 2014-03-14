@@ -21,6 +21,7 @@
 package org.sonar.api.technicaldebt.batch;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 
 import javax.annotation.CheckForNull;
 
@@ -56,5 +57,10 @@ public interface TechnicalDebtModel {
    */
   @Deprecated
   List<? extends Requirement> requirements();
+
+  /**
+   * @since 4.3
+   */
+  List<DefaultCharacteristic> characteristics();
 
 }
