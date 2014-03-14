@@ -120,19 +120,6 @@ requirejs(
           })
         ]);
 
-        if (_.isObject(window.SS.languages) && _.size(window.SS.languages) > 1) {
-          this.filters.add([
-            new BaseFilters.Filter({
-              name: window.SS.phrases.language,
-              property: 'languages[]',
-              type: ChoiceFilters.ChoiceFilterView,
-              enabled: false,
-              optional: true,
-              choices: window.SS.languages
-            })
-          ]);
-        }
-
         this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.lastAnalysis,

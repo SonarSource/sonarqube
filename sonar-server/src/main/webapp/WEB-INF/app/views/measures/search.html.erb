@@ -52,7 +52,6 @@
 
   _.extend(window.SS, {
     qualifiers: <%= render :partial => 'measures/qualifiers' -%>,
-    languages: <%= render :partial => 'measures/languages' -%>,
     <% condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden } %>
     metrics: <%= condition_metrics.to_json -%>,
     metricPeriods: {
@@ -81,7 +80,6 @@
       'date':           '<%= escape_javascript message('measure_filter.criteria.date') -%>',
       'favoritesOnly':  '<%= escape_javascript message('measure_filter.criteria.only_favorites') -%>',
       'keyContains':    '<%= escape_javascript message('measure_filter.criteria.key_contains') -%>',
-      'language':       '<%= escape_javascript message('measure_filter.criteria.language') -%>',
       'lastAnalysis':   '<%= escape_javascript message('measure_filter.criteria.last_analysis') -%>',
       'metric':         '<%= escape_javascript message('measure_filter.criteria.metric') -%>',
       'notSet':         '<%= escape_javascript message('measure_filter.criteria.metric.not_set') -%>',
@@ -115,7 +113,6 @@
     <% end %>
     { key: 'onFavourites', value: <%= @filter.criteria['onFavourites']=='true' -%> },
     { key: 'keySearch', value: '<%= h @filter.criteria['keySearch'] -%>' },
-    { key: 'languages[]', value: <%= @filter.criteria['languages'].to_json -%> },
 
     <% for i in 1..3 %>
       <% unless @filter.criteria("c#{i}_metric").blank? %>
