@@ -16,7 +16,6 @@
     <module>sonar-application</module>
     <module>sonar-batch</module>
     <module>sonar-batch-maven-compat</module>
-    <module>sonar-channel</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
@@ -528,7 +527,7 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-channel</artifactId>
-        <version>${project.version}</version>
+        <version>4.2-RC3</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>

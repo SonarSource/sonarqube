@@ -36,7 +36,6 @@
       <!-- used only for org.sonar.test.channel classes -->
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-channel</artifactId>
-      <version>${project.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
