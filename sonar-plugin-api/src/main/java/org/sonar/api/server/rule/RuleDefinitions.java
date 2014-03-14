@@ -45,7 +45,7 @@ import java.util.Set;
  * <p/>
  * This interface replaces the deprecated class org.sonar.api.rules.RuleRepository.
  *
- * @since 4.2
+ * @since 4.3
  */
 public interface RuleDefinitions extends ServerExtension {
 
@@ -57,7 +57,7 @@ public interface RuleDefinitions extends ServerExtension {
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 
 
-    public NewRepository newRepository(String key, String language) {
+    public NewRepository createRepository(String key, String language) {
       return new NewRepositoryImpl(this, key, language, false);
     }
 
@@ -95,7 +95,7 @@ public interface RuleDefinitions extends ServerExtension {
   }
 
   interface NewExtendedRepository {
-    NewRule newRule(String ruleKey);
+    NewRule createRule(String ruleKey);
 
     /**
      * Reads definition of rule from the annotations provided by the library sonar-check-api.
@@ -183,7 +183,7 @@ public interface RuleDefinitions extends ServerExtension {
     }
 
     @Override
-    public NewRule newRule(String ruleKey) {
+    public NewRule createRule(String ruleKey) {
       if (newRules.containsKey(ruleKey)) {
         // Should fail in a perfect world, but at the time being the Findbugs plugin
         // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
@@ -403,7 +403,7 @@ public interface RuleDefinitions extends ServerExtension {
       return this;
     }
 
-    public NewParam newParam(String paramKey) {
+    public NewParam createParam(String paramKey) {
       if (paramsByKey.containsKey(paramKey)) {
         throw new IllegalArgumentException(String.format("The parameter '%s' is declared several times on the rule %s", paramKey, this));
       }

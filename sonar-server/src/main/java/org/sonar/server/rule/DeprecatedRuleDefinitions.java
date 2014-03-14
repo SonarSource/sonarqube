@@ -75,13 +75,13 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
       // RuleRepository API does not handle difference between new and extended repositories,
       NewRepository newRepository;
       if (context.repository(repository.getKey()) == null) {
-        newRepository = context.newRepository(repository.getKey(), repository.getLanguage());
+        newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
         newRepository.setName(repository.getName());
       } else {
         newRepository = (NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
-        NewRule newRule = newRepository.newRule(rule.getKey());
+        NewRule newRule = newRepository.createRule(rule.getKey());
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
         newRule.setInternalKey(rule.getConfigKey());
@@ -90,7 +90,7 @@ public class DeprecatedRuleDefinitions implements RuleDefinitions {
         newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));
         newRule.setTags(rule.getTags());
         for (RuleParam param : rule.getParams()) {
-          NewParam newParam = newRule.newParam(param.getKey());
+          NewParam newParam = newRule.createParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());
           newParam.setDescription(paramDescription(repository.getKey(), rule.getKey(), param));
           newParam.setType(RuleParamType.parse(param.getType()));

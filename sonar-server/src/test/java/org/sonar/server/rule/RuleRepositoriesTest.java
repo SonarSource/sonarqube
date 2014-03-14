@@ -63,9 +63,9 @@ public class RuleRepositoriesTest {
   static class FindbugsDefinitions implements RuleDefinitions {
     @Override
     public void define(Context context) {
-      NewRepository repo = context.newRepository("findbugs", "java");
+      NewRepository repo = context.createRepository("findbugs", "java");
       repo.setName("Findbugs");
-      repo.newRule("ABC")
+      repo.createRule("ABC")
           .setName("ABC")
           .setHtmlDescription("Description of ABC");
       repo.done();
@@ -75,9 +75,9 @@ public class RuleRepositoriesTest {
   static class SquidDefinitions implements RuleDefinitions {
     @Override
     public void define(Context context) {
-      NewRepository repo = context.newRepository("squid", "java");
+      NewRepository repo = context.createRepository("squid", "java");
       repo.setName("Squid");
-      repo.newRule("DEF")
+      repo.createRule("DEF")
           .setName("DEF")
           .setHtmlDescription("Description of DEF");
       repo.done();

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.rule;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
@@ -57,7 +56,7 @@ public class RuleDefinitionsFromAnnotationsTest {
   @Test
   public void override_annotation_programmatically() {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewRepository newRepository = context.newRepository("squid", "java");
+    RuleDefinitions.NewRepository newRepository = context.createRepository("squid", "java");
     NewRule newRule = newRepository.loadAnnotatedClass(RuleWithProperty.class);
     newRule.setName("Overriden name");
     newRule.param("property").setDefaultValue("true");
@@ -144,7 +143,7 @@ public class RuleDefinitionsFromAnnotationsTest {
 
   private RuleDefinitions.Repository load(Class annotatedClass) {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewExtendedRepository newRepository = context.newRepository("squid", "java")
+    RuleDefinitions.NewExtendedRepository newRepository = context.createRepository("squid", "java")
       .loadAnnotatedClasses(annotatedClass);
     newRepository.done();
     return context.repository("squid");

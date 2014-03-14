@@ -38,8 +38,8 @@ public class RuleDefinitionsTest {
   public void define_repositories() throws Exception {
     assertThat(context.repositories()).isEmpty();
 
-    context.newRepository("findbugs", "java").setName("Findbugs").done();
-    context.newRepository("checkstyle", "java").done();
+    context.createRepository("findbugs", "java").setName("Findbugs").done();
+    context.createRepository("checkstyle", "java").done();
 
     assertThat(context.repositories()).hasSize(2);
     RuleDefinitions.Repository findbugs = context.repository("findbugs");
@@ -65,10 +65,9 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_rules() {
-    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    newFindbugs.newRule("NPE")
+    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    newFindbugs.createRule("NPE")
       .setName("Detect NPE")
-      .setHtmlDescription("Detect <code>NPE</code>")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
@@ -80,7 +79,7 @@ public class RuleDefinitionsTest {
       .setEffortToFixL10nKey("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
-    newFindbugs.newRule("ABC").setName("ABC").setHtmlDescription("ABC");
+    newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
     newFindbugs.done();
 
     RuleDefinitions.Repository findbugs = context.repository("findbugs");
@@ -112,8 +111,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_rule_with_default_fields() {
-    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
@@ -131,10 +130,10 @@ public class RuleDefinitionsTest {
 
   @Test
   public void define_rule_parameters() {
-    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    RuleDefinitions.NewRule newNpe = newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
-    newNpe.newParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level").setType(RuleParamType.INTEGER);
-    newNpe.newParam("effort");
+    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RuleDefinitions.NewRule newNpe = newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    newNpe.createParam("level").setDefaultValue("LOW").setName("Level").setDescription("The level").setType(RuleParamType.INTEGER);
+    newNpe.createParam("effort");
     newFindbugs.done();
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
@@ -160,8 +159,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void sanitize_rule_name() {
-    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    newFindbugs.newRule("NPE").setName("   \n  NullPointer   \n   ").setHtmlDescription("NPE");
+    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    newFindbugs.createRule("NPE").setName("   \n  NullPointer   \n   ").setHtmlDescription("NPE");
     newFindbugs.done();
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
@@ -170,8 +169,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void sanitize_remediation_factor_and_offset() {
-    RuleDefinitions.NewRepository newFindbugs = context.newRepository("findbugs", "java");
-    newFindbugs.newRule("NPE")
+    RuleDefinitions.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    newFindbugs.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("NPE")
       .setRemediationFactor("   1   h   ")
@@ -189,7 +188,7 @@ public class RuleDefinitionsTest {
 
     // for example fb-contrib
     RuleDefinitions.NewExtendedRepository newFindbugs = context.extendRepository("findbugs", "java");
-    newFindbugs.newRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
     assertThat(context.repositories()).isEmpty();
@@ -204,16 +203,16 @@ public class RuleDefinitionsTest {
 
   @Test
   public void cant_set_blank_repository_name() throws Exception {
-    context.newRepository("findbugs", "java").setName(null).done();
+    context.createRepository("findbugs", "java").setName(null).done();
 
     assertThat(context.repository("findbugs").name()).isEqualTo("findbugs");
   }
 
   @Test
   public void fail_if_duplicated_repo_keys() {
-    context.newRepository("findbugs", "java").done();
+    context.createRepository("findbugs", "java").done();
     try {
-      context.newRepository("findbugs", "whatever_the_language").done();
+      context.createRepository("findbugs", "whatever_the_language").done();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("The rule repository 'findbugs' is defined several times");
@@ -222,18 +221,18 @@ public class RuleDefinitionsTest {
 
   @Test
   public void warning_if_duplicated_rule_keys() {
-    RuleDefinitions.NewRepository findbugs = context.newRepository("findbugs", "java");
-    findbugs.newRule("NPE");
-    findbugs.newRule("NPE");
+    RuleDefinitions.NewRepository findbugs = context.createRepository("findbugs", "java");
+    findbugs.createRule("NPE");
+    findbugs.createRule("NPE");
     // do not fail as long as http://jira.codehaus.org/browse/SONARJAVA-428 is not fixed
   }
 
   @Test
   public void fail_if_duplicated_rule_param_keys() {
-    RuleDefinitions.NewRule rule = context.newRepository("findbugs", "java").newRule("NPE");
-    rule.newParam("level");
+    RuleDefinitions.NewRule rule = context.createRepository("findbugs", "java").createRule("NPE");
+    rule.createParam("level");
     try {
-      rule.newParam("level");
+      rule.createParam("level");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The parameter 'level' is declared several times on the rule [repository=findbugs, key=NPE]");
@@ -242,8 +241,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_name() {
-    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
-    newRepository.newRule("NPE").setName(null).setHtmlDescription("NPE");
+    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName(null).setHtmlDescription("NPE");
     try {
       newRepository.done();
       fail();
@@ -256,7 +255,7 @@ public class RuleDefinitionsTest {
   public void fail_if_bad_rule_tag() {
     try {
       // whitespaces are not allowed in tags
-      context.newRepository("findbugs", "java").newRule("NPE").setTags("coding style");
+      context.createRepository("findbugs", "java").createRule("NPE").setTags("coding style");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)
@@ -266,8 +265,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void load_rule_description_from_file() {
-    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
-    newRepository.newRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RuleDefinitionsTest/sample.html"));
+    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RuleDefinitionsTest/sample.html"));
     newRepository.done();
 
     RuleDefinitions.Rule rule = context.repository("findbugs").rule("NPE");
@@ -276,8 +275,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_to_load_rule_description_from_file() {
-    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
-    newRepository.newRule("NPE").setName("NPE").setHtmlDescription((URL)null);
+    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((URL)null);
     try {
       newRepository.done();
       fail();
@@ -288,8 +287,8 @@ public class RuleDefinitionsTest {
 
   @Test
   public void fail_if_blank_rule_html_description() {
-    RuleDefinitions.NewRepository newRepository = context.newRepository("findbugs", "java");
-    newRepository.newRule("NPE").setName("NPE").setHtmlDescription((String)null);
+    RuleDefinitions.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((String)null);
     try {
       newRepository.done();
       fail();
@@ -301,7 +300,7 @@ public class RuleDefinitionsTest {
   @Test
   public void fail_if_bad_rule_severity() {
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setSeverity("VERY HIGH");
+      context.createRepository("findbugs", "java").createRule("NPE").setSeverity("VERY HIGH");
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Severity of rule [repository=findbugs, key=NPE] is not correct: VERY HIGH");
@@ -311,7 +310,7 @@ public class RuleDefinitionsTest {
   @Test
   public void fail_if_removed_status() {
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setStatus(RuleStatus.REMOVED);
+      context.createRepository("findbugs", "java").createRule("NPE").setStatus(RuleStatus.REMOVED);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
@@ -322,14 +321,14 @@ public class RuleDefinitionsTest {
   @Ignore("TODO")
   public void fail_if_bad_remediation_factor_or_offset() {
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setRemediationFactor("ten hours");
+      context.createRepository("findbugs", "java").createRule("NPE").setRemediationFactor("ten hours");
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");
     }
 
     try {
-      context.newRepository("findbugs", "java").newRule("NPE").setRemediationOffset("ten hours");
+      context.createRepository("findbugs", "java").createRule("NPE").setRemediationOffset("ten hours");
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Duration 'ten hours' is invalid, it should use the following sample format : 2d 10h 15min");

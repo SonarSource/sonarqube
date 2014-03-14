@@ -241,9 +241,9 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   static class FakeRepository implements RuleDefinitions {
     @Override
     public void define(Context context) {
-      NewRepository repo = context.newRepository("fake", "java");
+      NewRepository repo = context.createRepository("fake", "java");
 
-      NewRule rule1 = repo.newRule("rule1")
+      NewRule rule1 = repo.createRule("rule1")
         .setName("One")
         .setHtmlDescription("Description of One")
         .setSeverity(Severity.BLOCKER)
@@ -254,10 +254,10 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setEffortToFixL10nKey("squid.S115.effortToFix")
         .setInternalKey("config1")
         .setTags("tag1", "tag3", "tag5");
-      rule1.newParam("param1").setDescription("parameter one").setDefaultValue("default value one");
-      rule1.newParam("param2").setDescription("parameter two").setDefaultValue("default value two");
+      rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default value one");
+      rule1.createParam("param2").setDescription("parameter two").setDefaultValue("default value two");
 
-      repo.newRule("rule2")
+      repo.createRule("rule2")
         .setName("Two")
         .setHtmlDescription("Description of Two")
         .setSeverity(Severity.INFO)
@@ -271,16 +271,16 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
 
     @Override
     public void define(Context context) {
-      NewRepository repo = context.newRepository("big", "java");
+      NewRepository repo = context.createRepository("big", "java");
       for (int i = 0; i < SIZE; i++) {
-        NewRule rule = repo.newRule("rule" + i)
+        NewRule rule = repo.createRule("rule" + i)
           .setName("name of " + i)
           .setHtmlDescription("description of " + i)
           .setSeverity(Severity.BLOCKER)
           .setInternalKey("config1")
           .setTags("tag1", "tag3", "tag5");
         for (int j = 0; j < 20; j++) {
-          rule.newParam("param" + j);
+          rule.createParam("param" + j);
         }
 
       }
@@ -291,8 +291,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   static class FindbugsRepository implements RuleDefinitions {
     @Override
     public void define(Context context) {
-      NewRepository repo = context.newRepository("findbugs", "java");
-      repo.newRule("rule1")
+      NewRepository repo = context.createRepository("findbugs", "java");
+      repo.createRule("rule1")
         .setName("Rule One")
         .setHtmlDescription("Description of Rule One");
       repo.done();
@@ -303,7 +303,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     @Override
     public void define(Context context) {
       NewExtendedRepository repo = context.extendRepository("findbugs", "java");
-      repo.newRule("rule2")
+      repo.createRule("rule2")
         .setName("Rule Two")
         .setHtmlDescription("Description of Rule Two");
       repo.done();

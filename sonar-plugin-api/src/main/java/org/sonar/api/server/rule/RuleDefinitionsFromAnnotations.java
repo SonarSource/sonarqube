@@ -70,7 +70,7 @@ class RuleDefinitionsFromAnnotations {
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);
 
-    RuleDefinitions.NewRule rule = repo.newRule(ruleKey);
+    RuleDefinitions.NewRule rule = repo.createRule(ruleKey);
     rule.setName(ruleName).setHtmlDescription(description);
     rule.setSeverity(ruleAnnotation.priority().name());
     rule.setTemplate(ruleAnnotation.cardinality() == Cardinality.MULTIPLE);
@@ -89,7 +89,7 @@ class RuleDefinitionsFromAnnotations {
     org.sonar.check.RuleProperty propertyAnnotation = field.getAnnotation(org.sonar.check.RuleProperty.class);
     if (propertyAnnotation != null) {
       String fieldKey = StringUtils.defaultIfEmpty(propertyAnnotation.key(), field.getName());
-      RuleDefinitions.NewParam param = rule.newParam(fieldKey)
+      RuleDefinitions.NewParam param = rule.createParam(fieldKey)
         .setDescription(propertyAnnotation.description())
         .setDefaultValue(propertyAnnotation.defaultValue());
 

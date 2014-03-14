@@ -39,7 +39,7 @@ public class RuleDefinitionsFromXmlTest {
 
   private RuleDefinitions.Repository load(Reader reader) {
     RuleDefinitions.Context context = new RuleDefinitions.Context();
-    RuleDefinitions.NewRepository newRepository = context.newRepository("squid", "java");
+    RuleDefinitions.NewRepository newRepository = context.createRepository("squid", "java");
     new RuleDefinitionsFromXml().loadRules(newRepository, reader);
     newRepository.done();
     return context.repository("squid");

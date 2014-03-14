@@ -34,11 +34,11 @@ public class XooRuleDefinitions implements RuleDefinitions {
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context.newRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
+    NewRepository repository = context.createRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
 
     // define a single rule programmatically. Note that rules
     // can be loaded from JSON or XML files too.
-    NewRule x1Rule = repository.newRule("x1")
+    NewRule x1Rule = repository.createRule("x1")
       .setName("No empty line")
       .setHtmlDescription("Generate an issue on empty lines of Xoo source files")
 
@@ -51,7 +51,7 @@ public class XooRuleDefinitions implements RuleDefinitions {
         // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
       .setSeverity(Severity.MINOR);
 
-    x1Rule.newParam("acceptWhitespace")
+    x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
       .setType(RuleParamType.BOOLEAN)
       .setDescription("Accept whitespaces on the line");

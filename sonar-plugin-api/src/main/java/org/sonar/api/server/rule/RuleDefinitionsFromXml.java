@@ -135,7 +135,7 @@ class RuleDefinitionsFromXml {
         tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
-    RuleDefinitions.NewRule rule = repo.newRule(key)
+    RuleDefinitions.NewRule rule = repo.createRule(key)
       .setHtmlDescription(description)
       .setSeverity(severity)
       .setName(name)
@@ -146,7 +146,7 @@ class RuleDefinitionsFromXml {
       rule.setStatus(RuleStatus.valueOf(status));
     }
     for (ParamStruct param : params) {
-      rule.newParam(param.key)
+      rule.createParam(param.key)
         .setDefaultValue(param.defaultValue)
         .setType(param.type)
         .setDescription(param.description);
