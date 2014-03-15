@@ -26,7 +26,6 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -35,7 +34,6 @@ import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
@@ -49,27 +47,16 @@ import java.util.Map;
 public class XMLProfileParser implements ServerComponent {
 
   private final RuleFinder ruleFinder;
-  private MetricFinder metricFinder;
 
   /**
    * For backward compatibility.
    *
    * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
-   *             because it should be retrieved as an IoC dependency.
+   * because it should be retrieved as an IoC dependency.
    */
   @Deprecated
   public XMLProfileParser(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;
-  }
-
-  /**
-   * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
-   *             because it should be retrieved as an IoC dependency.
-   */
-  @Deprecated
-  public XMLProfileParser(RuleFinder ruleFinder, MetricFinder metricFinder) {
-    this.ruleFinder = ruleFinder;
-    this.metricFinder = metricFinder;
   }
 
   public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {

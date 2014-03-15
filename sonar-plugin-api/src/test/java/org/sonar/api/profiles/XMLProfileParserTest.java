@@ -22,8 +22,6 @@ package org.sonar.api.profiles;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -83,22 +81,12 @@ public class XMLProfileParserTest {
   }
 
   private RulesProfile parse(String resource, ValidationMessages validation) {
-    return new XMLProfileParser(newRuleFinder(), newMetricFinder())
-        .parseResource(getClass().getClassLoader(), getResourcePath(resource), validation);
+    return new XMLProfileParser(newRuleFinder())
+      .parseResource(getClass().getClassLoader(), getResourcePath(resource), validation);
   }
 
   private String getResourcePath(String resource) {
     return "org/sonar/api/profiles/XMLProfileParserTest/" + resource;
-  }
-
-  private MetricFinder newMetricFinder() {
-    MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey(anyString())).thenAnswer(new Answer<Metric>() {
-      public Metric answer(InvocationOnMock iom) throws Throwable {
-        return new Metric((String) iom.getArguments()[0]);
-      }
-    });
-    return metricFinder;
   }
 
   private RuleFinder newRuleFinder() {

@@ -51,7 +51,7 @@ public final class PlatformLifecycleListener implements ServletContextListener {
     try {
       configureLogback(event);
       Platform.getInstance().init(event.getServletContext());
-      Platform.getInstance().start();
+      Platform.getInstance().doStart();
     } catch (Throwable t) {
       // Tomcat 7 "limitations":
       // - server does not stop if webapp fails at startup
@@ -65,14 +65,14 @@ public final class PlatformLifecycleListener implements ServletContextListener {
 
   private void stopQuietly() {
     try {
-      Platform.getInstance().stop();
+      Platform.getInstance().doStop();
     } catch (Exception e) {
       // ignored, but an error during startup generally prevents pico to be correctly stopped
     }
   }
 
   public void contextDestroyed(ServletContextEvent event) {
-    Platform.getInstance().stop();
+    Platform.getInstance().doStop();
   }
 
   /**

@@ -60,7 +60,7 @@ class DatabaseVersion
 
   def self.upgrade_and_start
     ActiveRecord::Migrator.migrate(migrations_path)
-    Java::OrgSonarServerPlatform::Platform.getInstance().start()
+    Java::OrgSonarServerPlatform::Platform.getInstance().doStart()
     load_java_web_services
   end
 

@@ -73,8 +73,7 @@ import java.util.Map;
  *
  *   @Test
  *   public void should_define_ws() throws Exception {
- *     // WsTester is available in the Maven artifact org.codehaus.sonar:sonar-plugin-api
- *     // with type "test-jar"
+ *     // WsTester is available in the Maven artifact org.codehaus.sonar:sonar-testing-harness
  *     WsTester tester = new WsTester(ws);
  *     WebService.Controller controller = tester.controller("api/hello");
  *     assertThat(controller).isNotNull();
