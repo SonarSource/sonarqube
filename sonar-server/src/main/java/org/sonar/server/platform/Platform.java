@@ -23,10 +23,6 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
-import org.sonar.api.profiles.XMLProfileParser;
-import org.sonar.api.profiles.XMLProfileSerializer;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
@@ -45,9 +41,6 @@ import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
-import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.ProfilesDao;
-import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
@@ -151,9 +144,6 @@ public class Platform {
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       level1Container.addSingleton(daoClass);
     }
-    level1Container.addComponent(RulesDao.class, false);
-    level1Container.addComponent(MeasuresDao.class, false);
-    level1Container.addComponent(ProfilesDao.class, false);
     level1Container.addSingleton(PurgeProfiler.class);
     level1Container.addSingleton(PluginDeployer.class);
     level1Container.addSingleton(ServerPluginInstaller.class);
@@ -194,14 +184,6 @@ public class Platform {
     level2Container.addSingleton(HttpDownloader.class);
     level2Container.addSingleton(UriReader.class);
     level2Container.addSingleton(ServerIdGenerator.class);
-
-    // quality profile
-    level2Container.addSingleton(XMLProfileParser.class);
-    level2Container.addSingleton(XMLProfileSerializer.class);
-
-    // rule
-    level2Container.addSingleton(AnnotationRuleParser.class);
-    level2Container.addSingleton(XMLRuleParser.class);
 
     // ws
     level2Container.addSingleton(RestartHandler.class);

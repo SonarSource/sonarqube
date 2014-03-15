@@ -23,8 +23,12 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.profiles.AnnotationProfileParser;
+import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.rules.AnnotationRuleParser;
+import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.issue.IssueFilterSerializer;
@@ -53,6 +57,9 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
+import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
@@ -182,27 +189,19 @@ public class ServerComponentsStarter {
     pico.addSingleton(Languages.class);
     pico.addSingleton(Views.class);
     pico.addSingleton(CodeColorizers.class);
-    pico.addComponent(ProfilesManager.class, false);
-    pico.addSingleton(SecurityRealmFactory.class);
-    pico.addSingleton(ServerLifecycleNotifier.class);
-    pico.addSingleton(AnnotationProfileParser.class);
-    pico.addSingleton(DefaultRuleFinder.class);
-    pico.addSingleton(DefaultMetricFinder.class);
     pico.addSingleton(ResourceTypes.class);
     pico.addSingleton(SettingsChangeNotifier.class);
     pico.addSingleton(PageDecorations.class);
-    pico.addSingleton(MeasureFilterFactory.class);
-    pico.addSingleton(MeasureFilterExecutor.class);
-    pico.addSingleton(MeasureFilterEngine.class);
     pico.addSingleton(PreviewCache.class);
     pico.addSingleton(DefaultResourcePermissions.class);
     pico.addSingleton(Periods.class);
 
-    // web services
-    pico.addSingleton(WebServiceEngine.class);
-    pico.addSingleton(ListingWs.class);
-
-    // quality profiles
+    // quality profile
+    pico.addSingleton(XMLProfileParser.class);
+    pico.addSingleton(XMLProfileSerializer.class);
+    pico.addComponent(ProfilesDao.class, false);
+    pico.addComponent(ProfilesManager.class, false);
+    pico.addSingleton(AnnotationProfileParser.class);
     pico.addSingleton(QProfileRuleLookup.class);
     pico.addSingleton(QProfiles.class);
     pico.addSingleton(QProfileLookup.class);
@@ -214,6 +213,37 @@ public class ServerComponentsStarter {
     pico.addSingleton(QProfileRepositoryExporter.class);
     pico.addSingleton(ESActiveRule.class);
 
+    // rule
+    pico.addSingleton(AnnotationRuleParser.class);
+    pico.addSingleton(XMLRuleParser.class);
+    pico.addComponent(RulesDao.class, false);
+    pico.addSingleton(DefaultRuleFinder.class);
+    pico.addSingleton(Rules.class);
+    pico.addSingleton(RuleOperations.class);
+    pico.addSingleton(RuleRegistry.class);
+    pico.addSingleton(RubyRuleService.class);
+    pico.addSingleton(RuleRepositories.class);
+    pico.addSingleton(RulesWs.class);
+    pico.addSingleton(RuleShowWsHandler.class);
+    pico.addSingleton(RuleSearchWsHandler.class);
+    pico.addSingleton(AddTagsWsHandler.class);
+    pico.addSingleton(RemoveTagsWsHandler.class);
+
+    // rule tags
+    pico.addSingleton(ESRuleTags.class);
+    pico.addSingleton(RuleTagLookup.class);
+    pico.addSingleton(RuleTagOperations.class);
+    pico.addSingleton(RuleTags.class);
+    pico.addSingleton(RuleTagsWs.class);
+
+    // measure
+    pico.addComponent(MeasuresDao.class, false);
+    pico.addSingleton(MeasureFilterFactory.class);
+    pico.addSingleton(MeasureFilterExecutor.class);
+    pico.addSingleton(MeasureFilterEngine.class);
+    pico.addSingleton(DefaultMetricFinder.class);
+    pico.addSingleton(ServerLifecycleNotifier.class);
+
     // quality gates
     pico.addSingleton(QualityGateDao.class);
     pico.addSingleton(QualityGateConditionDao.class);
@@ -223,7 +253,12 @@ public class ServerComponentsStarter {
     pico.addSingleton(QgateAppHandler.class);
     pico.addSingleton(QualityGatesWs.class);
 
+    // web services
+    pico.addSingleton(WebServiceEngine.class);
+    pico.addSingleton(ListingWs.class);
+
     // users
+    pico.addSingleton(SecurityRealmFactory.class);
     pico.addSingleton(HibernateUserFinder.class);
     pico.addSingleton(NewUserNotifier.class);
     pico.addSingleton(DefaultUserFinder.class);
@@ -274,25 +309,6 @@ public class ServerComponentsStarter {
     pico.addSingleton(SetSeverityAction.class);
     pico.addSingleton(CommentAction.class);
     pico.addSingleton(TransitionAction.class);
-
-    // rules
-    pico.addSingleton(Rules.class);
-    pico.addSingleton(RuleOperations.class);
-    pico.addSingleton(RuleRegistry.class);
-    pico.addSingleton(RubyRuleService.class);
-    pico.addSingleton(RuleRepositories.class);
-    pico.addSingleton(RulesWs.class);
-    pico.addSingleton(RuleShowWsHandler.class);
-    pico.addSingleton(RuleSearchWsHandler.class);
-    pico.addSingleton(AddTagsWsHandler.class);
-    pico.addSingleton(RemoveTagsWsHandler.class);
-
-    // rule tags
-    pico.addSingleton(ESRuleTags.class);
-    pico.addSingleton(RuleTagLookup.class);
-    pico.addSingleton(RuleTagOperations.class);
-    pico.addSingleton(RuleTags.class);
-    pico.addSingleton(RuleTagsWs.class);
 
     // technical debt
     pico.addSingleton(DebtService.class);
