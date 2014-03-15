@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.platform;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.server.platform.ClassLoaderUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -52,7 +53,7 @@ public class ClassLoaderUtilsTest {
     //    org/sonar/sqale/app/copyright.txt
     //    org/sonar/sqale/app/README.md
     //    org/sonar/other/other.txt
-    URL jarUrl = getClass().getResource("/org/sonar/server/plugins/ClassLoaderUtilsTest/ClassLoaderUtilsTest.jar");
+    URL jarUrl = getClass().getResource("/org/sonar/server/platform/ClassLoaderUtilsTest/ClassLoaderUtilsTest.jar");
     classLoader = new URLClassLoader(new URL[]{jarUrl}, /* no parent classloader */null);
   }
 

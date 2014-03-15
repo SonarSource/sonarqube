@@ -51,7 +51,6 @@ import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.platform.ws.PlatformWs;
 import org.sonar.server.platform.ws.RestartHandler;
-import org.sonar.server.plugins.ApplicationDeployer;
 import org.sonar.server.plugins.DefaultServerPluginRepository;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDeployer;
@@ -150,7 +149,7 @@ public class Platform {
     level1Container.addSingleton(InstalledPluginReferentialFactory.class);
     level1Container.addSingleton(DefaultServerPluginRepository.class);
     level1Container.addSingleton(DefaultServerFileSystem.class);
-    level1Container.addSingleton(ApplicationDeployer.class);
+    level1Container.addSingleton(RailsAppsDeployer.class);
     level1Container.addSingleton(JRubyI18n.class);
     level1Container.addSingleton(DefaultI18n.class);
     level1Container.addSingleton(RuleI18nManager.class);

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.platform;
 
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
@@ -40,16 +40,16 @@ import java.util.jar.JarFile;
 /**
  * @since 3.0
  */
-public final class ClassLoaderUtils {
+class ClassLoaderUtils {
 
   private ClassLoaderUtils() {
   }
 
-  public static File copyResources(ClassLoader classLoader, String rootPath, File toDir) {
+  static File copyResources(ClassLoader classLoader, String rootPath, File toDir) {
     return copyResources(classLoader, rootPath, toDir, Functions.<String>identity());
   }
 
-  public static File copyResources(ClassLoader classLoader, String rootPath, File toDir, Function<String, String> relocationFunction) {
+  static File copyResources(ClassLoader classLoader, String rootPath, File toDir, Function<String, String> relocationFunction) {
     Collection<String> relativePaths = listFiles(classLoader, rootPath);
     for (String relativePath : relativePaths) {
       URL resource = classLoader.getResource(relativePath);
@@ -72,7 +72,7 @@ public final class ClassLoaderUtils {
    * @param rootPath    the root directory, for example org/sonar/sqale
    * @return a list of relative paths, for example {"org/sonar/sqale/foo/bar.txt}. Never null.
    */
-  public static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
+  static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
     return listResources(classLoader, rootPath, new Predicate<String>() {
       public boolean apply(@Nullable String path) {
         return !StringUtils.endsWith(path, "/");
@@ -81,7 +81,7 @@ public final class ClassLoaderUtils {
   }
 
 
-  public static Collection<String> listResources(ClassLoader classLoader, String rootPath) {
+  static Collection<String> listResources(ClassLoader classLoader, String rootPath) {
     return listResources(classLoader, rootPath, Predicates.<String>alwaysTrue());
   }
 
@@ -93,7 +93,7 @@ public final class ClassLoaderUtils {
    * @param
    * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
    */
-  public static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
+  static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
     String jarPath = null;
     JarFile jar = null;
     try {

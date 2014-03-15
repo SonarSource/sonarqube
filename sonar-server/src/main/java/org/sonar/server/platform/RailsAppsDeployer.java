@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -30,7 +30,6 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -40,30 +39,26 @@ import java.io.IOException;
  *
  * @since 3.0
  */
-public class ApplicationDeployer {
-  private static final Logger LOG = LoggerFactory.getLogger(ApplicationDeployer.class);
+public class RailsAppsDeployer {
+  private static final Logger LOG = LoggerFactory.getLogger(RailsAppsDeployer.class);
   private static final String ROR_PATH = "org/sonar/ror/";
 
   private final ServerFileSystem fileSystem;
   private final PluginRepository pluginRepository;
 
-  public ApplicationDeployer(ServerFileSystem fileSystem, PluginRepository pluginRepository) {
+  public RailsAppsDeployer(ServerFileSystem fileSystem, PluginRepository pluginRepository) {
     this.fileSystem = fileSystem;
     this.pluginRepository = pluginRepository;
   }
 
   public void start() {
-    deployRubyRailsApps();
-  }
-
-  private void deployRubyRailsApps() {
     LOG.info("Deploy Ruby on Rails applications");
-    File appsDir = prepareRubyRailsRootDirectory();
+    File appsDir = prepareRailsDirectory();
 
     for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {
       String pluginKey = pluginMetadata.getKey();
       try {
-        deployRubyRailsApp(appsDir, pluginKey, pluginRepository.getPlugin(pluginKey).getClass().getClassLoader());
+        deployRailsApp(appsDir, pluginKey, pluginRepository.getPlugin(pluginKey).getClass().getClassLoader());
       } catch (Exception e) {
         throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
       }
@@ -71,15 +66,15 @@ public class ApplicationDeployer {
   }
 
   @VisibleForTesting
-  File prepareRubyRailsRootDirectory() {
+  File prepareRailsDirectory() {
     File appsDir = new File(fileSystem.getTempDir(), "ror");
     prepareDir(appsDir);
     return appsDir;
   }
 
   @VisibleForTesting
-  static void deployRubyRailsApp(File appsDir, final String pluginKey, ClassLoader appClassLoader) {
-    if (hasRubyRailsApp(pluginKey, appClassLoader)) {
+  static void deployRailsApp(File appsDir, final String pluginKey, ClassLoader appClassLoader) {
+    if (hasRailsApp(pluginKey, appClassLoader)) {
       LOG.info("Deploy app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
       ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, new Function<String, String>() {
@@ -99,9 +94,8 @@ public class ApplicationDeployer {
   }
 
   @VisibleForTesting
-  static boolean hasRubyRailsApp(String pluginKey, ClassLoader classLoader) {
+  static boolean hasRailsApp(String pluginKey, ClassLoader classLoader) {
     return classLoader.getResource(pathToRubyInitFile(pluginKey)) != null;
-
   }
 
   private void prepareDir(File appsDir) {

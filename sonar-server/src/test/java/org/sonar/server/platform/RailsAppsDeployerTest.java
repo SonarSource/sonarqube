@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.platform;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -33,11 +33,13 @@ import java.net.URLClassLoader;
 import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ApplicationDeployerTest {
+public class RailsAppsDeployerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -45,19 +47,19 @@ public class ApplicationDeployerTest {
   @Test
   public void hasRubyRailsApp() throws Exception {
     ClassLoader classLoader = new URLClassLoader(new URL[]{
-      getClass().getResource("/org/sonar/server/plugins/ApplicationDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+      getClass().getResource("/org/sonar/server/platform/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
 
-    assertTrue(ApplicationDeployer.hasRubyRailsApp("fake", classLoader));
-    assertFalse(ApplicationDeployer.hasRubyRailsApp("other", classLoader));
+    assertTrue(RailsAppsDeployer.hasRailsApp("fake", classLoader));
+    assertFalse(RailsAppsDeployer.hasRailsApp("other", classLoader));
   }
 
   @Test
   public void deployRubyRailsApp() throws Exception {
     File tempDir = this.temp.getRoot();
     ClassLoader classLoader = new URLClassLoader(new URL[]{
-      getClass().getResource("/org/sonar/server/plugins/ApplicationDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+      getClass().getResource("/org/sonar/server/platform/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
 
-    ApplicationDeployer.deployRubyRailsApp(tempDir, "fake", classLoader);
+    RailsAppsDeployer.deployRailsApp(tempDir, "fake", classLoader);
 
     File appDir = new File(tempDir, "fake");
     assertThat(appDir.isDirectory(), is(true));
@@ -76,7 +78,7 @@ public class ApplicationDeployerTest {
 
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.getMetadata()).thenReturn(Collections.<PluginMetadata>emptyList());
-    new ApplicationDeployer(fileSystem, pluginRepository).start();
+    new RailsAppsDeployer(fileSystem, pluginRepository).start();
 
     File appDir = new File(tempDir, "ror");
     assertThat(appDir.isDirectory(), is(true));
@@ -90,7 +92,7 @@ public class ApplicationDeployerTest {
     File tempDir = this.temp.getRoot();
     when(fileSystem.getTempDir()).thenReturn(tempDir);
 
-    File dir = new ApplicationDeployer(fileSystem, mock(PluginRepository.class)).prepareRubyRailsRootDirectory();
+    File dir = new RailsAppsDeployer(fileSystem, mock(PluginRepository.class)).prepareRailsDirectory();
 
     assertThat(dir.isDirectory(), is(true));
     assertThat(dir.exists(), is(true));
@@ -106,7 +108,7 @@ public class ApplicationDeployerTest {
     File file = new File(tempDir, "ror/foo/bar.txt");
     FileUtils.writeStringToFile(file, "foooo");
 
-    File dir = new ApplicationDeployer(fileSystem, mock(PluginRepository.class)).prepareRubyRailsRootDirectory();
+    File dir = new RailsAppsDeployer(fileSystem, mock(PluginRepository.class)).prepareRailsDirectory();
 
     assertThat(dir.isDirectory(), is(true));
     assertThat(dir.exists(), is(true));
