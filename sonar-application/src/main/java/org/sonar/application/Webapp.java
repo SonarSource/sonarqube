@@ -57,10 +57,10 @@ class Webapp {
   }
 
   static void configureRailsMode(Props props, Context context) {
-    if (props.booleanOf("sonar.web.dev")) {
+    if (props.booleanOf("sonar.rails.dev")) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
-      LoggerFactory.getLogger(Webapp.class).warn("\n\n\n------ DEVELOPMENT MODE IS ENABLED ------\n\n\n");
+      LoggerFactory.getLogger(Webapp.class).warn("\n\n\n------ RAILS DEVELOPMENT MODE IS ENABLED ------\n\n\n");
     } else {
       context.addParameter(RAILS_ENV, "production");
       context.addParameter(JRUBY_MAX_RUNTIMES, "1");

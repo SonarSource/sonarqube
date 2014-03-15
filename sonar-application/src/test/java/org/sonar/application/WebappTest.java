@@ -70,7 +70,7 @@ public class WebappTest {
   @Test
   public void configure_dev_mode() throws Exception {
     Props props = mock(Props.class);
-    when(props.booleanOf("sonar.web.dev")).thenReturn(true);
+    when(props.booleanOf("sonar.rails.dev")).thenReturn(true);
     Context context = mock(Context.class);
 
     Webapp.configureRailsMode(props, context);
@@ -82,7 +82,7 @@ public class WebappTest {
   @Test
   public void configure_production_mode() throws Exception {
     Props props = mock(Props.class);
-    when(props.booleanOf("sonar.web.dev")).thenReturn(false);
+    when(props.booleanOf("sonar.rails.dev")).thenReturn(false);
     Context context = mock(Context.class);
 
     Webapp.configureRailsMode(props, context);
