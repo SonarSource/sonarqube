@@ -121,7 +121,7 @@
   </session-config>
 
   <listener>
-    <listener-class>org.sonar.server.platform.PlatformLifecycleListener</listener-class>
+    <listener-class>org.sonar.server.platform.PlatformServletContextListener</listener-class>
   </listener>
   <listener>
     <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>

@@ -50,6 +50,8 @@ public class RestartHandler implements RequestHandler {
     if (settings.getBoolean("sonar.dev")) {
       LoggerFactory.getLogger(getClass()).info("Restart server");
       platform.restartLevel3Container();
+      response.noContent();
+
     } else {
       throw new BadRequestException("Available in development mode only (sonar.dev=true)");
     }

@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
-public final class PlatformLifecycleListener implements ServletContextListener {
+public final class PlatformServletContextListener implements ServletContextListener {
 
   private static final String CONFIG_LOG_CONSOLE = "sonar.log.console";
 
