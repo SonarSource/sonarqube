@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
@@ -48,8 +49,10 @@ public class RestartHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     if (settings.getBoolean("sonar.dev")) {
-      LoggerFactory.getLogger(getClass()).info("Restart server");
+      Logger logger = LoggerFactory.getLogger(getClass());
+      logger.info("Restart server");
       platform.restartLevel3Container();
+      logger.info("Server restarted");
       response.noContent();
 
     } else {
