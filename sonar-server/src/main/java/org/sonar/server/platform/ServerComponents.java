@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.platform.ComponentContainer;
@@ -29,8 +31,16 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
+import org.sonar.api.utils.Durations;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.component.db.ComponentDao;
+import org.sonar.core.config.Logback;
+import org.sonar.core.i18n.DefaultI18n;
+import org.sonar.core.i18n.GwtI18n;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -42,7 +52,16 @@ import org.sonar.core.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.PreviewDatabaseFactory;
+import org.sonar.core.persistence.SemaphoreUpdater;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
@@ -61,14 +80,21 @@ import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.jpa.session.DatabaseSessionProvider;
+import org.sonar.jpa.session.DefaultDatabaseConnector;
+import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.db.EmbeddedDatabaseFactory;
+import org.sonar.server.db.migrations.DatabaseMigrations;
+import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
 import org.sonar.server.debt.DebtModelSynchronizer;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.debt.DebtService;
 import org.sonar.server.es.ESIndex;
+import org.sonar.server.es.ESNode;
 import org.sonar.server.issue.ActionPlanService;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AssignAction;
@@ -95,8 +121,14 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
+import org.sonar.server.platform.ws.PlatformWs;
+import org.sonar.server.platform.ws.RestartHandler;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.ServerPluginJarInstaller;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -153,8 +185,11 @@ import org.sonar.server.startup.RegisterNewProfiles;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RegisterServletFilters;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
+import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.JRubyProfiling;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.DefaultUserService;
@@ -172,15 +207,97 @@ import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
-public class ServerComponentsStarter {
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-  public void start(ComponentContainer pico) {
-    registerComponents(pico);
-    pico.startComponents();
-    executeStartupTaks(pico);
+class ServerComponents {
+
+  private final Object[] rootComponents;
+
+  ServerComponents(Object... rootComponents) {
+    this.rootComponents = rootComponents;
   }
 
-  private void registerComponents(ComponentContainer pico) {
+  /**
+   * All the stuff required to connect to database
+   */
+  Collection level1Components() {
+    List components = Lists.newArrayList(rootComponents);
+    components.addAll(Arrays.asList(
+      new BaseConfiguration(),
+      ServerSettings.class,
+      ServerImpl.class,
+      Logback.class,
+      Profiling.class,
+      JRubyProfiling.class,
+      EmbeddedDatabaseFactory.class,
+      DefaultDatabase.class,
+      MyBatis.class,
+      DefaultServerUpgradeStatus.class,
+      DatabaseServerCompatibility.class,
+      DatabaseMigrator.class,
+      DatabaseVersion.class,
+      PurgeProfiler.class,
+      DefaultServerFileSystem.class,
+      PreviewDatabaseFactory.class,
+      SemaphoreUpdater.class,
+      SemaphoresImpl.class,
+      TempFolderCleaner.class,
+      new TempFolderProvider()
+    ));
+    components.addAll(DatabaseMigrations.CLASSES);
+    components.addAll(DaoUtils.getDaoClasses());
+    return components;
+  }
+
+  /**
+   * The stuff required to display the db upgrade form in webapp.
+   * Needs to be connected to db.
+   */
+  Collection level2Components() {
+    return Lists.newArrayList(
+      // plugins
+      ServerPluginJarsInstaller.class,
+      ServerPluginJarInstaller.class,
+      InstalledPluginReferentialFactory.class,
+      ServerPluginRepository.class,
+      ServerExtensionInstaller.class,
+
+      // depends on plugins
+      RailsAppsDeployer.class,
+      JRubyI18n.class,
+      DefaultI18n.class,
+      RuleI18nManager.class,
+      GwtI18n.class,
+      Durations.class,
+
+      // ws
+      RestartHandler.class,
+      PlatformWs.class
+    );
+  }
+
+  /**
+   * The core components that complete the initialization of database
+   * when its schema is up-to-date.
+   */
+  Collection level3Components() {
+    return Lists.newArrayList(
+      PersistentSettings.class,
+      DefaultDatabaseConnector.class,
+      ThreadLocalDatabaseSessionFactory.class,
+      new DatabaseSessionProvider(),
+      ServerMetadataPersister.class,
+      ESNode.class,
+      HttpDownloader.class,
+      UriReader.class,
+      ServerIdGenerator.class
+    );
+  }
+
+
+  void startLevel4Components(ComponentContainer pico) {
     pico.addSingleton(ESIndex.class);
     pico.addSingleton(UpdateCenterClient.class);
     pico.addSingleton(UpdateCenterMatrixFactory.class);
@@ -353,6 +470,9 @@ public class ServerComponentsStarter {
 
     ServerExtensionInstaller extensionRegistrar = pico.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.installExtensions(pico);
+
+    pico.startComponents();
+    executeStartupTaks(pico);
   }
 
   private void executeStartupTaks(ComponentContainer pico) {
@@ -383,7 +503,6 @@ public class ServerComponentsStarter {
     // It would hide the possible exception raised during startup
     // See SONAR-3107
     startupContainer.stopComponents();
-    pico.removeChild();
     pico.getComponentByType(DatabaseSessionFactory.class).clear();
   }
 }

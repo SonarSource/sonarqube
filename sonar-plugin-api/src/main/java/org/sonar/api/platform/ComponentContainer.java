@@ -32,7 +32,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
-
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -152,6 +152,13 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     return this;
   }
 
+  public ComponentContainer addSingletons(Collection components) {
+    for (Object component : components) {
+      addSingleton(component);
+    }
+    return this;
+  }
+
   public ComponentContainer addSingleton(Object component) {
     return addComponent(component, true);
   }
@@ -162,8 +169,12 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    */
   public ComponentContainer addComponent(Object component, boolean singleton) {
     Object key = componentKeys.of(component);
-    pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(key, component);
-    declareExtension(null, component);
+    if (component instanceof ComponentAdapter) {
+      pico.addAdapter((ComponentAdapter) component);
+    } else {
+      pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(key, component);
+      declareExtension(null, component);
+    }
     return this;
   }
 

@@ -51,7 +51,7 @@ public class RestartHandler implements RequestHandler {
     if (settings.getBoolean("sonar.dev")) {
       Logger logger = LoggerFactory.getLogger(getClass());
       logger.info("Restart server");
-      platform.restartLevel3Container();
+      platform.restart();
       logger.info("Server restarted");
       response.noContent();
 

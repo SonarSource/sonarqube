@@ -70,7 +70,6 @@ import static com.google.common.collect.Lists.newArrayList;
 public final class JRubyFacade {
 
   private static final JRubyFacade SINGLETON = new JRubyFacade();
-  private JRubyI18n i18n;
 
   public static JRubyFacade getInstance() {
     return SINGLETON;
@@ -311,10 +310,7 @@ public final class JRubyFacade {
   }
 
   private JRubyI18n getJRubyI18n() {
-    if (i18n == null) {
-      i18n = get(JRubyI18n.class);
-    }
-    return i18n;
+    return get(JRubyI18n.class);
   }
 
   public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {

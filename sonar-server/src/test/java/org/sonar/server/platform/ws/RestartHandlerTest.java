@@ -44,7 +44,7 @@ public class RestartHandlerTest {
     WsTester tester = new WsTester(ws);
     tester.newRequest("restart").execute();
 
-    verify(platform).restartLevel3Container();
+    verify(platform).restart();
   }
 
   @Test
