@@ -29,11 +29,12 @@ import org.sonar.updatecenter.common.Version;
  */
 public class UpdateCenterMatrixFactory implements ServerComponent {
 
-  private UpdateCenterClient centerClient;
-  private Version sonarVersion;
-  private InstalledPluginReferentialFactory installedPluginReferentialFactory;
+  private final UpdateCenterClient centerClient;
+  private final Version sonarVersion;
+  private final InstalledPluginReferentialFactory installedPluginReferentialFactory;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginReferentialFactory installedPluginReferentialFactory, Server server) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, Server server,
+                                   InstalledPluginReferentialFactory installedPluginReferentialFactory) {
     this.centerClient = centerClient;
     this.installedPluginReferentialFactory = installedPluginReferentialFactory;
     this.sonarVersion = Version.create(server.getVersion());
@@ -43,12 +44,10 @@ public class UpdateCenterMatrixFactory implements ServerComponent {
     UpdateCenter updatePluginCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
     if (updatePluginCenter != null) {
       return updatePluginCenter.setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
-          installedPluginReferentialFactory.getInstalledPluginReferential())
-          .setDate(centerClient.getLastRefreshDate());
-    } else {
-      return null;
+        installedPluginReferentialFactory.getInstalledPluginReferential())
+        .setDate(centerClient.getLastRefreshDate());
     }
+    return null;
   }
-
 }
 

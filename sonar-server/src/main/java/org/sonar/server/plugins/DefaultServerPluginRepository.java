@@ -19,57 +19,42 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.Sets;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.ServerPluginRepository;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * @since 2.2
+ * This class loads JAR files and initializes classloaders of plugins
  */
-public class DefaultServerPluginRepository implements ServerPluginRepository {
+public class DefaultServerPluginRepository implements PluginRepository, Startable {
 
-  private PluginClassloaders classloaders;
-  private PluginDeployer deployer;
+  private final PluginDeployer deployer;
+  private final PluginClassloaders classloaders;
   private Map<String, Plugin> pluginsByKey;
-  private Set<String> disabledPlugins = Sets.newHashSet();
 
   public DefaultServerPluginRepository(PluginDeployer deployer) {
     this.classloaders = new PluginClassloaders(getClass().getClassLoader());
     this.deployer = deployer;
   }
 
+  @Override
   public void start() {
     Collection<PluginMetadata> metadata = deployer.getMetadata();
     pluginsByKey = classloaders.init(metadata);
   }
 
+  @Override
   public void stop() {
-    if (classloaders != null) {
-      classloaders.clean();
-      classloaders = null;
-    }
+    classloaders.clean();
   }
 
-  public void disable(String pluginKey) {
-    disabledPlugins.add(pluginKey);
-    for (PluginMetadata metadata : getMetadata()) {
-      if (pluginKey.equals(metadata.getBasePlugin())) {
-        disable(metadata.getKey());
-      }
-    }
-  }
-
-  public boolean isDisabled(String pluginKey) {
-    return disabledPlugins.contains(pluginKey);
-  }
-
+  @Override
   public Plugin getPlugin(String key) {
     return pluginsByKey.get(key);
   }
@@ -92,10 +77,12 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return clazz;
   }
 
+  @Override
   public Collection<PluginMetadata> getMetadata() {
     return deployer.getMetadata();
   }
 
+  @Override
   public PluginMetadata getMetadata(String pluginKey) {
     return deployer.getMetadata(pluginKey);
   }

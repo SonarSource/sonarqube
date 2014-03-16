@@ -23,10 +23,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,9 +38,9 @@ import java.io.IOException;
 public final class GeneratePluginIndex {
 
   private DefaultServerFileSystem fileSystem;
-  private DefaultServerPluginRepository repository;
+  private PluginRepository repository;
 
-  public GeneratePluginIndex(DefaultServerFileSystem fileSystem, DefaultServerPluginRepository repository) {
+  public GeneratePluginIndex(DefaultServerFileSystem fileSystem, PluginRepository repository) {
     this.fileSystem = fileSystem;
     this.repository = repository;
   }
@@ -54,10 +54,8 @@ public final class GeneratePluginIndex {
     FileWriter writer = new FileWriter(indexFile, false);
     try {
       for (PluginMetadata metadata : repository.getMetadata()) {
-        if (!repository.isDisabled(metadata.getKey())) {
-          writer.append(RemotePlugin.create((DefaultPluginMetadata) metadata).marshal());
-          writer.append(CharUtils.LF);
-        }
+        writer.append(RemotePlugin.create((DefaultPluginMetadata) metadata).marshal());
+        writer.append(CharUtils.LF);
       }
       writer.flush();
 

@@ -31,6 +31,9 @@ import org.sonar.api.platform.PluginRepository;
 
 import java.util.Map;
 
+/**
+ * This class adds to picocontainer the server extensions provided by plugins
+ */
 public class ServerExtensionInstaller {
   private PluginRepository pluginRepository;
 

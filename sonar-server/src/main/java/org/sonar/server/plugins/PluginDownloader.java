@@ -49,7 +49,8 @@ public class PluginDownloader implements ServerComponent, Startable {
   private final HttpDownloader downloader;
   private final File downloadDir;
 
-  public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, DefaultServerFileSystem fileSystem) {
+  public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader,
+                          DefaultServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();

@@ -24,9 +24,9 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class GeneratePluginIndexTest {
 
   @Test
   public void shouldWriteIndex() throws IOException {
-    DefaultServerPluginRepository repository = mock(DefaultServerPluginRepository.class);
+    PluginRepository repository = mock(PluginRepository.class);
     PluginMetadata sqale = newMetadata("sqale");
     PluginMetadata checkstyle = newMetadata("checkstyle");
     when(repository.getMetadata()).thenReturn(Arrays.asList(sqale, checkstyle));
@@ -63,21 +63,6 @@ public class GeneratePluginIndexTest {
     assertThat(lines.size(), Is.is(2));
     assertThat(lines.get(0), containsString("sqale"));
     assertThat(lines.get(1), containsString("checkstyle"));
-  }
-
-  @Test
-  public void shouldSkipDisabledPlugin() throws IOException {
-    DefaultServerPluginRepository repository = mock(DefaultServerPluginRepository.class);
-    PluginMetadata sqale = newMetadata("sqale");
-    PluginMetadata checkstyle = newMetadata("checkstyle");
-    when(repository.getMetadata()).thenReturn(Arrays.asList(sqale, checkstyle));
-    when(repository.isDisabled("checkstyle")).thenReturn(true);
-
-    new GeneratePluginIndex(fileSystem, repository).start();
-
-    List<String> lines = FileUtils.readLines(index);
-    assertThat(lines.size(), Is.is(1));
-    assertThat(lines.get(0), containsString("sqale"));
   }
 
   private PluginMetadata newMetadata(String pluginKey) {
