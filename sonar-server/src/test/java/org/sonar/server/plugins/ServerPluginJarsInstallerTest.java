@@ -36,41 +36,43 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PluginDeployerTest {
+public class ServerPluginJarsInstallerTest {
 
   @Rule
   public TestName name = new TestName();
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
-  private ServerPluginInstaller extractor;
-  private DefaultServerFileSystem fileSystem;
-  private File homeDir;
-  private File deployDir;
-  private PluginDeployer deployer;
-  private Server server = mock(Server.class);
-  private ServerUpgradeStatus serverUpgradeStatus;
+
+  ServerPluginJarInstaller jarInstaller;
+  DefaultServerFileSystem fileSystem;
+  File homeDir;
+  File deployDir;
+  ServerPluginJarsInstaller jarsInstaller;
+  Server server = mock(Server.class);
+  ServerUpgradeStatus serverUpgradeStatus;
 
   @Before
-  public void start() {
+  public void before() {
     when(server.getVersion()).thenReturn("3.1");
-    homeDir = TestUtils.getResource(PluginDeployerTest.class, name.getMethodName());
-    deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
+    homeDir = TestUtils.getResource(ServerPluginJarsInstallerTest.class, name.getMethodName());
+    deployDir = TestUtils.getTestTempDir(ServerPluginJarsInstallerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
-    extractor = new ServerPluginInstaller();
+    jarInstaller = new ServerPluginJarInstaller();
     serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-    deployer = new PluginDeployer(server, serverUpgradeStatus, fileSystem, extractor);
+    jarsInstaller = new ServerPluginJarsInstaller(server, serverUpgradeStatus, fileSystem, jarInstaller);
   }
 
   @Test
   public void deployPlugin() {
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(false);
 
-    deployer.start();
+    jarsInstaller.install();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata()).hasSize(1);
+    assertThat(jarsInstaller.getMetadata()).hasSize(1);
 
-    PluginMetadata plugin = deployer.getMetadata("foo");
+    PluginMetadata plugin = jarsInstaller.getMetadata("foo");
     assertThat(plugin.getName()).isEqualTo("Foo");
     assertThat(plugin.getDeployedFiles()).hasSize(1);
     assertThat(plugin.isCore()).isFalse();
@@ -86,12 +88,12 @@ public class PluginDeployerTest {
   public void deployBundledPluginsOnFreshInstall() {
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
 
-    deployer.start();
+    jarsInstaller.install();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata()).hasSize(2);
+    assertThat(jarsInstaller.getMetadata()).hasSize(2);
 
-    PluginMetadata plugin = deployer.getMetadata("bar");
+    PluginMetadata plugin = jarsInstaller.getMetadata("bar");
     assertThat(plugin.getName()).isEqualTo("Bar");
     assertThat(plugin.getDeployedFiles()).hasSize(1);
     assertThat(plugin.isCore()).isFalse();
@@ -105,9 +107,9 @@ public class PluginDeployerTest {
 
   @Test
   public void ignoreJarsWhichAreNotPlugins() {
-    deployer.start();
+    jarsInstaller.install();
 
-    assertThat(deployer.getMetadata()).isEmpty();
+    assertThat(jarsInstaller.getMetadata()).isEmpty();
   }
 
   @Test
@@ -117,11 +119,11 @@ public class PluginDeployerTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Plugin switchoffviolations needs a more recent version of SonarQube than 2.0. At least 2.5 is expected");
 
-    deployer.start();
+    jarsInstaller.install();
   }
 
   @Test(expected = IllegalStateException.class)
   public void failIfTwoPluginsWithSameKey() {
-    deployer.start();
+    jarsInstaller.install();
   }
 }

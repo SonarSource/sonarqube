@@ -21,34 +21,46 @@ package org.sonar.server.platform;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.DatabaseVersion;
 
 /**
  * @since 2.5
  */
-public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus {
+public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startable {
 
+  private final DatabaseVersion dbVersion;
+
+  // available when connected to db
   private int initialDbVersion;
-  private DatabaseVersion dbVersion;
 
   public DefaultServerUpgradeStatus(DatabaseVersion dbVersion) {
     this.dbVersion = dbVersion;
   }
 
+  @Override
   public void start() {
     Integer v = dbVersion.getVersion();
     this.initialDbVersion = (v != null ? v : -1);
   }
 
+  @Override
+  public void stop() {
+
+  }
+
+  @Override
   public boolean isUpgraded() {
     return !isFreshInstall() && (initialDbVersion < DatabaseVersion.LAST_VERSION);
   }
 
+  @Override
   public boolean isFreshInstall() {
-    return initialDbVersion<0;
+    return initialDbVersion < 0;
   }
 
+  @Override
   public int getInitialDbVersion() {
     return initialDbVersion;
   }

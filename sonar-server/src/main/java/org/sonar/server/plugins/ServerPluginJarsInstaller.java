@@ -27,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
@@ -42,37 +41,34 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class PluginDeployer implements ServerComponent {
+public class ServerPluginJarsInstaller {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PluginDeployer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ServerPluginJarsInstaller.class);
 
   private final Server server;
   private final DefaultServerFileSystem fileSystem;
-  private final ServerPluginInstaller installer;
+  private final ServerPluginJarInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final ServerUpgradeStatus serverUpgradeStatus;
 
-  public PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem, ServerPluginInstaller installer) {
+  public ServerPluginJarsInstaller(Server server, ServerUpgradeStatus serverUpgradeStatus,
+                                   DefaultServerFileSystem fileSystem, ServerPluginJarInstaller installer) {
     this.server = server;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.fileSystem = fileSystem;
     this.installer = installer;
   }
 
-  public void start() {
+  public void install() {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
-
     deleteUninstalledPlugins();
-
     loadUserPlugins();
     if (serverUpgradeStatus.isFreshInstall()) {
       copyAndLoadBundledPlugins();
     }
     moveAndLoadDownloadedPlugins();
     loadCorePlugins();
-
     deployPlugins();
-
     profiler.stop();
   }
 
@@ -114,7 +110,7 @@ public class PluginDeployer implements ServerComponent {
 
   private void moveAndLoadDownloadedPlugins() {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] {"jar"}, false);
+      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
       for (File jar : jars) {
         installJarPlugin(jar, true);
       }
@@ -174,7 +170,7 @@ public class PluginDeployer implements ServerComponent {
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] {"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -184,7 +180,7 @@ public class PluginDeployer implements ServerComponent {
 
   public void cancelUninstalls() {
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] {"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         try {
           FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);

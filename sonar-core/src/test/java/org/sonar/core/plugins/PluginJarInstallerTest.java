@@ -30,9 +30,9 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class PluginInstallerTest {
+public class PluginJarInstallerTest {
 
-  private PluginInstaller extractor;
+  private PluginJarInstaller extractor;
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -42,7 +42,7 @@ public class PluginInstallerTest {
   @Before
   public void setUp() throws IOException {
     userHome = temporaryFolder.newFolder();
-    extractor = new PluginInstaller() {
+    extractor = new PluginJarInstaller() {
       @Override
       protected File extractPluginDependencies(File pluginFile, File pluginBasedir) throws IOException {
         return null;
@@ -98,7 +98,7 @@ public class PluginInstallerTest {
   }
 
   File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(PluginInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
+    File src = FileUtils.toFile(PluginJarInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);
     return destFile;

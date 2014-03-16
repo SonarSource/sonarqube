@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.server.platform.DefaultServerFileSystem;
@@ -39,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class PluginDownloader implements ServerComponent, Startable {
+public class PluginDownloader implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";

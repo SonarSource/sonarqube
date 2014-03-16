@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.PluginMetadata;
@@ -39,7 +40,8 @@ import java.io.IOException;
  *
  * @since 3.0
  */
-public class RailsAppsDeployer {
+public class RailsAppsDeployer implements Startable {
+
   private static final Logger LOG = LoggerFactory.getLogger(RailsAppsDeployer.class);
   private static final String ROR_PATH = "org/sonar/ror/";
 
@@ -51,6 +53,7 @@ public class RailsAppsDeployer {
     this.pluginRepository = pluginRepository;
   }
 
+  @Override
   public void start() {
     LOG.info("Deploy Ruby on Rails applications");
     File appsDir = prepareRailsDirectory();
@@ -63,6 +66,11 @@ public class RailsAppsDeployer {
         throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
       }
     }
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
   }
 
   @VisibleForTesting

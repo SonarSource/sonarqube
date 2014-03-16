@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -27,7 +26,7 @@ import org.sonar.updatecenter.common.Version;
 /**
  * @since 2.4
  */
-public class UpdateCenterMatrixFactory implements ServerComponent {
+public class UpdateCenterMatrixFactory {
 
   private final UpdateCenterClient centerClient;
   private final Version sonarVersion;

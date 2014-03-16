@@ -57,7 +57,6 @@ import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.Connection;
@@ -149,15 +148,15 @@ public final class JRubyFacade {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    get(PluginDeployer.class).uninstall(pluginKey);
+    get(ServerPluginJarsInstaller.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
-    get(PluginDeployer.class).cancelUninstalls();
+    get(ServerPluginJarsInstaller.class).cancelUninstalls();
   }
 
   public List<String> getPluginUninstalls() {
-    return get(PluginDeployer.class).getUninstalls();
+    return get(ServerPluginJarsInstaller.class).getUninstalls();
   }
 
   public UpdateCenter getUpdatePluginCenter(boolean forceReload) {
@@ -304,7 +303,7 @@ public final class JRubyFacade {
 
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
-    Class<?> componentClass = get(DefaultServerPluginRepository.class).getClass(pluginKey, className);
+    Class<?> componentClass = get(ServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
       component = get(componentClass);
     }

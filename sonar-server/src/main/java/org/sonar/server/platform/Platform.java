@@ -51,11 +51,11 @@ import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.platform.ws.PlatformWs;
 import org.sonar.server.platform.ws.RestartHandler;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.ServerPluginJarInstaller;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.ServerPluginInstaller;
 import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.JRubyProfiling;
@@ -144,22 +144,28 @@ public class Platform {
       level1Container.addSingleton(daoClass);
     }
     level1Container.addSingleton(PurgeProfiler.class);
-    level1Container.addSingleton(PluginDeployer.class);
-    level1Container.addSingleton(ServerPluginInstaller.class);
-    level1Container.addSingleton(InstalledPluginReferentialFactory.class);
-    level1Container.addSingleton(DefaultServerPluginRepository.class);
     level1Container.addSingleton(DefaultServerFileSystem.class);
+    level1Container.addSingleton(PreviewDatabaseFactory.class);
+    level1Container.addSingleton(SemaphoreUpdater.class);
+    level1Container.addSingleton(SemaphoresImpl.class);
+    level1Container.addPicoAdapter(new TempFolderProvider());
+    level1Container.addSingleton(TempFolderCleaner.class);
+
+
+    // plugins
+    level1Container.addSingleton(ServerPluginJarsInstaller.class);
+    level1Container.addSingleton(ServerPluginJarInstaller.class);
+    level1Container.addSingleton(InstalledPluginReferentialFactory.class);
+    level1Container.addSingleton(ServerPluginRepository.class);
+    level1Container.addSingleton(ServerExtensionInstaller.class);
+
+    // depends on plugins
     level1Container.addSingleton(RailsAppsDeployer.class);
     level1Container.addSingleton(JRubyI18n.class);
     level1Container.addSingleton(DefaultI18n.class);
     level1Container.addSingleton(RuleI18nManager.class);
     level1Container.addSingleton(GwtI18n.class);
     level1Container.addSingleton(Durations.class);
-    level1Container.addSingleton(PreviewDatabaseFactory.class);
-    level1Container.addSingleton(SemaphoreUpdater.class);
-    level1Container.addSingleton(SemaphoresImpl.class);
-    level1Container.addPicoAdapter(new TempFolderProvider());
-    level1Container.addSingleton(TempFolderCleaner.class);
     level1Container.startComponents();
   }
 
@@ -175,7 +181,6 @@ public class Platform {
     level2Container = level1Container.createChild();
     level2Container.addSingleton(PersistentSettings.class);
     level2Container.addSingleton(DefaultDatabaseConnector.class);
-    level2Container.addSingleton(ServerExtensionInstaller.class);
     level2Container.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     level2Container.addPicoAdapter(new DatabaseSessionProvider());
     level2Container.addSingleton(ServerMetadataPersister.class);

@@ -41,7 +41,7 @@ public class ServerExtensionInstaller {
     this.pluginRepository = pluginRepository;
   }
 
-  public void registerExtensions(ComponentContainer container) {
+  public void installExtensions(ComponentContainer container) {
     ListMultimap<PluginMetadata, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
 
     for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {

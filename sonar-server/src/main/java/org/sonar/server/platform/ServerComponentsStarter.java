@@ -352,7 +352,7 @@ public class ServerComponentsStarter {
     pico.addSingleton(StringListTypeValidation.class);
 
     ServerExtensionInstaller extensionRegistrar = pico.getComponentByType(ServerExtensionInstaller.class);
-    extensionRegistrar.registerExtensions(pico);
+    extensionRegistrar.installExtensions(pico);
   }
 
   private void executeStartupTaks(ComponentContainer pico) {

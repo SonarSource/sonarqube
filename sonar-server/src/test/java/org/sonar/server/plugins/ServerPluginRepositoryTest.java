@@ -34,9 +34,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultServerPluginRepositoryTest {
+public class ServerPluginRepositoryTest {
 
-  DefaultServerPluginRepository repository;
+  ServerPluginRepository repository;
 
   @After
   public void stop() {
@@ -47,15 +47,15 @@ public class DefaultServerPluginRepositoryTest {
 
   @Test
   public void testStart() {
-    PluginDeployer deployer = mock(PluginDeployer.class);
-    File pluginFile = TestUtils.getResource("/org/sonar/server/plugins/DefaultServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
+    ServerPluginJarsInstaller deployer = mock(ServerPluginJarsInstaller.class);
+    File pluginFile = TestUtils.getResource("/org/sonar/server/plugins/ServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
     PluginMetadata plugin = DefaultPluginMetadata.create(pluginFile)
       .setKey("artifactsize")
       .setMainClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin")
       .addDeployedFile(pluginFile);
     when(deployer.getMetadata()).thenReturn(Arrays.asList(plugin));
 
-    repository = new DefaultServerPluginRepository(deployer);
+    repository = new ServerPluginRepository(deployer);
     repository.start();
 
     assertThat(repository.getPlugin("artifactsize"), not(nullValue()));

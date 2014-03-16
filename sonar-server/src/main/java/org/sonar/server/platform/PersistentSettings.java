@@ -20,20 +20,19 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
 /**
  * @since 3.2
  */
-public class PersistentSettings implements ServerComponent {
+public class PersistentSettings implements Startable {
   private final PropertiesDao propertiesDao;
   private final ServerSettings settings;
 
@@ -42,12 +41,18 @@ public class PersistentSettings implements ServerComponent {
     this.settings = settings;
   }
 
+  @Override
   public void start() {
     Map<String, String> databaseProperties = Maps.newHashMap();
     for (PropertyDto property : getGlobalProperties()) {
       databaseProperties.put(property.getKey(), property.getValue());
     }
     settings.activateDatabaseSettings(databaseProperties);
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   public PersistentSettings saveProperty(String key, @Nullable String value) {
@@ -86,7 +91,7 @@ public class PersistentSettings implements ServerComponent {
     return settings;
   }
 
-  public List<PropertyDto> getGlobalProperties(){
+  public List<PropertyDto> getGlobalProperties() {
     return propertiesDao.selectGlobalProperties();
   }
 }

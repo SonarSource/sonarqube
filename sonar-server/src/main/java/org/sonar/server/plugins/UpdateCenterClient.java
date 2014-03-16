@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -43,32 +42,33 @@ import java.util.Date;
  * @since 2.4
  */
 @Properties({
-    @Property(
-        key = "sonar.updatecenter.activate",
-        defaultValue = "true",
-        name = "Enable Update Center",
-        project = false,
-      // hidden from UI
-        global = false,
-        category = "Update Center",
-        type = PropertyType.BOOLEAN),
-    @Property(
-        key = UpdateCenterClient.URL_PROPERTY,
-        defaultValue = "http://update.sonarsource.org/update-center.properties",
-        name = "Update Center URL",
-        project = false,
-      // hidden from UI
-        global = false,
-        category = "Update Center")
+  @Property(
+    key = "sonar.updatecenter.activate",
+    defaultValue = "true",
+    name = "Enable Update Center",
+    project = false,
+    // hidden from UI
+    global = false,
+    category = "Update Center",
+    type = PropertyType.BOOLEAN),
+  @Property(
+    key = UpdateCenterClient.URL_PROPERTY,
+    defaultValue = "http://update.sonarsource.org/update-center.properties",
+    name = "Update Center URL",
+    project = false,
+    // hidden from UI
+    global = false,
+    category = "Update Center")
 })
-public class UpdateCenterClient implements ServerComponent {
+public class UpdateCenterClient {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
-  private URI uri;
+
+  private final URI uri;
+  private final UriReader uriReader;
   private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
-  private UriReader uriReader;
 
   public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
     this.uriReader = uriReader;

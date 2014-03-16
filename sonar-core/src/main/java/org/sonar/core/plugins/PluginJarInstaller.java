@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-public abstract class PluginInstaller implements BatchComponent, ServerComponent {
+public abstract class PluginJarInstaller implements BatchComponent, ServerComponent {
 
   protected static final String FAIL_TO_INSTALL_PLUGIN = "Fail to install plugin: ";
 

@@ -20,10 +20,11 @@
 package org.sonar.server.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
-public class EmbeddedDatabaseFactory {
+public class EmbeddedDatabaseFactory implements Startable {
   private final Settings settings;
   private EmbeddedDatabase embeddedDatabase;
 
@@ -31,6 +32,7 @@ public class EmbeddedDatabaseFactory {
     this.settings = settings;
   }
 
+  @Override
   public void start() {
     if (embeddedDatabase == null) {
       String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
@@ -41,9 +43,11 @@ public class EmbeddedDatabaseFactory {
     }
   }
 
+  @Override
   public void stop() {
     if (embeddedDatabase != null) {
       embeddedDatabase.stop();
+      embeddedDatabase = null;
     }
   }
 

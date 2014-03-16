@@ -51,10 +51,10 @@ public class BatchPluginRepository implements PluginRepository {
   private Settings settings;
   private PluginClassloaders classLoaders;
   private final AnalysisMode analysisMode;
-  private final BatchPluginInstaller pluginInstaller;
+  private final BatchPluginJarInstaller pluginInstaller;
 
   public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings, AnalysisMode analysisMode,
-                               BatchPluginInstaller pluginInstaller) {
+                               BatchPluginJarInstaller pluginInstaller) {
     this.pluginDownloader = pluginDownloader;
     this.settings = settings;
     this.analysisMode = analysisMode;

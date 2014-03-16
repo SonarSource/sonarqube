@@ -71,7 +71,7 @@ public class BatchPluginRepositoryTest {
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(fileFromCache("sonar-checkstyle-plugin-2.8.jar"));
 
-    repository = new BatchPluginRepository(downloader, new Settings(), mode, new BatchPluginInstaller(cache));
+    repository = new BatchPluginRepository(downloader, new Settings(), mode, new BatchPluginJarInstaller(cache));
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -90,7 +90,7 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyle)).thenReturn(fileFromCache("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(fileFromCache("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
-    repository = new BatchPluginRepository(downloader, new Settings(), mode, new BatchPluginInstaller(cache));
+    repository = new BatchPluginRepository(downloader, new Settings(), mode, new BatchPluginJarInstaller(cache));
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -112,7 +112,7 @@ public class BatchPluginRepositoryTest {
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
-    repository = new BatchPluginRepository(downloader, settings, mode, new BatchPluginInstaller(cache));
+    repository = new BatchPluginRepository(downloader, settings, mode, new BatchPluginJarInstaller(cache));
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 

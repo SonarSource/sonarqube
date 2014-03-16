@@ -19,16 +19,16 @@
  */
 package org.sonar.server.platform;
 
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.platform.ServerStopHandler;
-import org.sonar.api.platform.Server;
 
 /**
  * @since 2.2
  */
-public class ServerLifecycleNotifier implements ServerComponent {
+public class ServerLifecycleNotifier implements Startable {
 
   private ServerStartHandler[] startHandlers;
   private ServerStopHandler[] stopHandlers;
@@ -52,6 +52,7 @@ public class ServerLifecycleNotifier implements ServerComponent {
     this(server, new ServerStartHandler[0], new ServerStopHandler[0]);
   }
 
+  @Override
   public void start() {
     /* IMPORTANT :
      we want to be sure that handlers are notified when all other services are started.
@@ -67,6 +68,7 @@ public class ServerLifecycleNotifier implements ServerComponent {
     }
   }
 
+  @Override
   public void stop() {
     LoggerFactory.getLogger(ServerLifecycleNotifier.class).debug("Notify " + ServerStopHandler.class.getSimpleName() + " handlers...");
     for (ServerStopHandler handler : stopHandlers) {

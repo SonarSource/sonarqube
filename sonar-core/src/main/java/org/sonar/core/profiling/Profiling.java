@@ -21,13 +21,12 @@ package org.sonar.core.profiling;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 
 /**
  * @since 4.1
  */
-public final class Profiling implements ServerExtension {
+public class Profiling {
 
   public static final String CONFIG_PROFILING_LEVEL = "sonar.log.profilingLevel";
 
@@ -44,7 +43,7 @@ public final class Profiling implements ServerExtension {
       if (settingsValue != null) {
         try {
           settingsLevel = Level.valueOf(settingsValue);
-        } catch(IllegalArgumentException invalidSettings) {
+        } catch (IllegalArgumentException invalidSettings) {
           LOGGER.debug("Bad profiling settings, profiling is disabled", invalidSettings);
         }
       }

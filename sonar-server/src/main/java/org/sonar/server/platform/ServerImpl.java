@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -35,7 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-public final class ServerImpl extends Server {
+public final class ServerImpl extends Server implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ServerImpl.class);
 
   private final Settings settings;
@@ -58,6 +59,7 @@ public final class ServerImpl extends Server {
     this.pomProperties = pomProperties;
   }
 
+  @Override
   public void start() {
     try {
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
@@ -74,6 +76,11 @@ public final class ServerImpl extends Server {
     } catch (IOException e) {
       throw new IllegalStateException("Can not load metadata", e);
     }
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
   }
 
   @Override

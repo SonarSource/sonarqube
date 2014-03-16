@@ -19,11 +19,11 @@
  */
 package org.sonar.server.plugins;
 
-import org.sonar.api.ServerComponent;
+import org.picocontainer.Startable;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.updatecenter.common.PluginReferential;
 
-public class InstalledPluginReferentialFactory implements ServerComponent {
+public class InstalledPluginReferentialFactory implements Startable {
 
   private final PluginRepository pluginRepository;
   private PluginReferential installedPluginReferential;
@@ -32,12 +32,18 @@ public class InstalledPluginReferentialFactory implements ServerComponent {
     this.pluginRepository = pluginRepository;
   }
 
+  @Override
   public void start() {
     try {
       init();
     } catch (Exception e) {
       throw new IllegalStateException("Unable to load installed plugins", e);
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   public PluginReferential getInstalledPluginReferential() {

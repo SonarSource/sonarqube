@@ -23,9 +23,11 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.Plugin;
 import org.sonar.api.ServerComponent;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 public interface PluginRepository extends BatchComponent, ServerComponent {
+  @CheckForNull
   Plugin getPlugin(String key);
 
   /**
@@ -41,5 +43,6 @@ public interface PluginRepository extends BatchComponent, ServerComponent {
    * Search for an installed plugin. Returns null if the plugin is not installed.
    * @since 2.9
    */
+  @CheckForNull
   PluginMetadata getMetadata(String pluginKey);
 }

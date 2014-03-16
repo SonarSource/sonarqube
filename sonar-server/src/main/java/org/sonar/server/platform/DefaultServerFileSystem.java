@@ -22,6 +22,7 @@ package org.sonar.server.platform;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -41,7 +42,7 @@ import java.util.List;
  *
  * @since 2.2
  */
-public class DefaultServerFileSystem implements ServerFileSystem {
+public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
 
@@ -68,6 +69,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     this.homeDir = homeDir;
   }
 
+  @Override
   public void start() {
     LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
     if (!homeDir.isDirectory() || !homeDir.exists()) {
@@ -99,10 +101,17 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     }
   }
 
+  @Override
+  public void stop() {
+    // do nothing
+  }
+
+  @Override
   public File getHomeDir() {
     return homeDir;
   }
 
+  @Override
   public File getTempDir() {
     return new File(homeDir, "temp");
   }
@@ -174,6 +183,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   /**
    * @deprecated since 4.1
    */
+  @Override
   @Deprecated
   public List<File> getExtensions(String dirName, String... suffixes) {
     File dir = new File(getHomeDir(), "extensions/rules/" + dirName);

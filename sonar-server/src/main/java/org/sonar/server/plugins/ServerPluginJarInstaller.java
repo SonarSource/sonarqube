@@ -20,17 +20,15 @@
 package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.plugins.DefaultPluginMetadata;
-import org.sonar.core.plugins.PluginInstaller;
+import org.sonar.core.plugins.PluginJarInstaller;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 
-public class ServerPluginInstaller extends PluginInstaller implements ServerComponent {
+public class ServerPluginJarInstaller extends PluginJarInstaller {
 
   public void installToDir(DefaultPluginMetadata metadata, File pluginBasedir) {
     try {
@@ -38,7 +36,7 @@ public class ServerPluginInstaller extends PluginInstaller implements ServerComp
       File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
       install(metadata, pluginBasedir, deployedPlugin);
     } catch (IOException e) {
-      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
+      throw new IllegalStateException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
     }
   }
 

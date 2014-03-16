@@ -26,26 +26,28 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * This class loads JAR files and initializes classloaders of plugins
  */
-public class DefaultServerPluginRepository implements PluginRepository, Startable {
+public class ServerPluginRepository implements PluginRepository, Startable {
 
-  private final PluginDeployer deployer;
+  private final ServerPluginJarsInstaller jarsInstaller;
   private final PluginClassloaders classloaders;
   private Map<String, Plugin> pluginsByKey;
 
-  public DefaultServerPluginRepository(PluginDeployer deployer) {
+  public ServerPluginRepository(ServerPluginJarsInstaller jarsInstaller) {
     this.classloaders = new PluginClassloaders(getClass().getClassLoader());
-    this.deployer = deployer;
+    this.jarsInstaller = jarsInstaller;
   }
 
   @Override
   public void start() {
-    Collection<PluginMetadata> metadata = deployer.getMetadata();
+    jarsInstaller.install();
+    Collection<PluginMetadata> metadata = jarsInstaller.getMetadata();
     pluginsByKey = classloaders.init(metadata);
   }
 
@@ -59,10 +61,12 @@ public class DefaultServerPluginRepository implements PluginRepository, Startabl
     return pluginsByKey.get(key);
   }
 
+  @CheckForNull
   public ClassLoader getClassLoader(String pluginKey) {
     return classloaders.get(pluginKey);
   }
 
+  @CheckForNull
   public Class getClass(String pluginKey, String classname) {
     Class clazz = null;
     ClassLoader classloader = getClassLoader(pluginKey);
@@ -79,12 +83,12 @@ public class DefaultServerPluginRepository implements PluginRepository, Startabl
 
   @Override
   public Collection<PluginMetadata> getMetadata() {
-    return deployer.getMetadata();
+    return jarsInstaller.getMetadata();
   }
 
   @Override
   public PluginMetadata getMetadata(String pluginKey) {
-    return deployer.getMetadata(pluginKey);
+    return jarsInstaller.getMetadata(pluginKey);
   }
 
 }

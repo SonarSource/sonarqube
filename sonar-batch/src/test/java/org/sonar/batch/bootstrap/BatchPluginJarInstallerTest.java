@@ -32,9 +32,9 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class BatchPluginInstallerTest {
+public class BatchPluginJarInstallerTest {
 
-  private BatchPluginInstaller extractor;
+  private BatchPluginJarInstaller extractor;
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -44,7 +44,7 @@ public class BatchPluginInstallerTest {
   @Before
   public void setUp() throws IOException {
     userHome = temporaryFolder.newFolder();
-    extractor = new BatchPluginInstaller(new FileCacheBuilder().setUserHome(userHome).build());
+    extractor = new BatchPluginJarInstaller(new FileCacheBuilder().setUserHome(userHome).build());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class BatchPluginInstallerTest {
   }
 
   File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(BatchPluginInstallerTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginInstallerTest/" + filename));
+    File src = FileUtils.toFile(BatchPluginJarInstallerTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginJarInstallerTest/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);
     return destFile;

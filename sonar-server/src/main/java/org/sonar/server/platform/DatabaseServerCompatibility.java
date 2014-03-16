@@ -19,27 +19,32 @@
  */
 package org.sonar.server.platform;
 
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
 
-public class DatabaseServerCompatibility implements ServerComponent {
-  
+public class DatabaseServerCompatibility implements Startable {
+
   private DatabaseVersion version;
 
   public DatabaseServerCompatibility(DatabaseVersion version) {
     this.version = version;
   }
 
+  @Override
   public void start() {
     DatabaseVersion.Status status = version.getStatus();
-    if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
+    if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
       throw MessageException.of("Database relates to a more recent version of sonar. Please check your settings.");
     }
-    if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
+    if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
     }
   }
 
+  @Override
+  public void stop() {
+    // do nothing
+  }
 }
