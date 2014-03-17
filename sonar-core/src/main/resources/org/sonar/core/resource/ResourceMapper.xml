@@ -54,7 +54,6 @@
     <result property="key" column="kee"/>
     <result property="deprecatedKey" column="deprecated_kee"/>
     <result property="path" column="path"/>
-    <result property="moduleKey" column="moduleKey"/>
     <result property="name" column="name"/>
     <result property="longName" column="long_name"/>
     <result property="rootId" column="root_id"/>
@@ -69,8 +68,7 @@
   </resultMap>
 
   <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
-    select p.*, r.kee moduleKey
-    from projects p left outer join projects r on p.root_id=r.id
+    select * from projects p
     <where>
       <if test="qualifiers != null and qualifiers.length!=0">
         and p.qualifier in
@@ -103,8 +101,7 @@
   </select>
 
   <select id="selectResource" parameterType="long" resultMap="resourceResultMap">
-    select p.*, r.kee moduleKey
-    from projects p left outer join projects r on p.root_id=r.id
+    select * from projects p
     where p.id=#{id}
   </select>
 

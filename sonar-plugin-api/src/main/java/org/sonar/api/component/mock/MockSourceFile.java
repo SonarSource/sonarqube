@@ -52,11 +52,6 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
-  @Override
-  public String moduleKey() {
-    return moduleKey;
-  }
-
   public MockSourceFile setModuleKey(String moduleKey) {
     this.moduleKey = moduleKey;
     return this;

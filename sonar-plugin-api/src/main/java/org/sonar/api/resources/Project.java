@@ -492,11 +492,6 @@ public class Project extends Resource implements Component {
   }
 
   @Override
-  public String moduleKey() {
-    return null;
-  }
-
-  @Override
   public String name() {
     return getName();
   }

@@ -28,13 +28,7 @@ public class ComponentDto implements Component {
 
   private Long id;
   private String kee;
-
-  // TODO delete it
   private String path;
-
-  // TODO delete it
-  private String moduleKey;
-
   private String name;
   private String longName;
   private String qualifier;
@@ -67,16 +61,6 @@ public class ComponentDto implements Component {
 
   public ComponentDto setPath(String path) {
     this.path = path;
-    return this;
-  }
-
-  @Override
-  public String moduleKey() {
-    return moduleKey;
-  }
-
-  public ComponentDto setModuleKey(String moduleKey) {
-    this.moduleKey = moduleKey;
     return this;
   }
 

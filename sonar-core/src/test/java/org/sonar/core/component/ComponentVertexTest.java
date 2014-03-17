@@ -44,7 +44,6 @@ public class ComponentVertexTest {
     assertThat(vertex.name()).isEqualTo("Foo.java");
     assertThat(vertex.qualifier()).isEqualTo(Qualifiers.FILE);
     assertThat(vertex.path()).isEqualTo("src/org/Foo.java");
-    assertThat(vertex.moduleKey()).isEqualTo("myproject");
   }
 
   @Test
