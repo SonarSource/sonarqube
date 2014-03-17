@@ -129,8 +129,6 @@ class ProjectController < ApplicationController
     qgate_id = params[:qgate_id].to_i
     previous_qgate_id = params[:previous_qgate_id].to_i
 
-    ### TODO pass previous qgate to be able to dissociate
-
     call_backend do
       if qgate_id == 0
         Internal.quality_gates.dissociateProject(previous_qgate_id, project_id)
