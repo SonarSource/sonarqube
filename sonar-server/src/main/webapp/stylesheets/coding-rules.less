@@ -45,10 +45,50 @@
   display: inline-block;
   vertical-align: middle;
   font-size: @baseFontSize;
+  height: 22px;
+  line-height: 22px;
+
+  .select2-search-field { line-height: 1; }
 }
 
 .coding-rules-detail-property + .coding-rules-detail-property {
   margin-left: 2 * @navigatorPadding;
+}
+
+.coding-rules-detail-tag + .coding-rules-detail-tag {
+  margin-left: @navigatorPadding;
+}
+
+.coding-rules-detail-tag-delete {
+  position: relative;
+  top: -1px;
+  .trans;
+
+  &:hover, &:focus { color: @red; }
+}
+
+.coding-rules-detail-tag-add {
+  .trans;
+
+  &:hover, &:focus { color: @green; }
+}
+
+.coding-rules-detail-tag + .coding-rules-detail-tags-change {
+  margin-left: 1.5 * @navigatorPadding;
+}
+
+.coding-rules-detail-add-tag-box {
+  position: absolute;
+  width: 200px;
+  padding: @navigatorPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  background-color: #fff;
+}
+
+.coding-rules-detail-add-tag-list-item {
+  padding: 3px 0;
+
+  input[type=text] { width: 120px; }
 }
 
 .coding-rules-detail-description {

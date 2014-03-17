@@ -64,6 +64,8 @@
           'apply': 'Apply',
           'bulk_change': 'Bulk Change',
           'cancel': 'Cancel',
+          'change': 'Change',
+          'done': 'Done',
           'moreCriteria': '+ More Criteria',
           'search_verb': 'Search',
           'update': 'Update',
@@ -74,6 +76,7 @@
           'severity.INFO': 'Info',
           'coding_rules.activate_quality_profile': 'Activate Quality Profile',
           'coding_rules.bulk_change': 'Bulk Change',
+          'coding_rules.extend_description': 'Extend Description',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
           'coding_rules.found': 'Found',
           'coding_rules.new_search': 'New Search',
@@ -83,6 +86,7 @@
           'coding_rules.page': 'Coding Rules',
           'coding_rules.quality_profiles': 'Quality Profiles',
           'coding_rules._rules': 'rule(s)',
+          'coding_rules.select_tag': 'Select Tag',
           'coding_rules.filters.availableSince': 'Available Since',
           'coding_rules.filters.description': 'Description',
           'coding_rules.filters.in_quality_profile': 'In Quality Profile',
@@ -167,6 +171,7 @@
           ],
           description: '<p>\nAccording to the Java Language Specification:\n</p>\n\n<pre>For compatibility with older versions of the Java SE platform,\nthe declaration of a method that returns an array is allowed to place (some or all of)\nthe empty bracket pairs that form the declaration of the array type after\nthe formal parameter list. This obsolescent syntax should not be used in new code.\n</pre>\n\n<p>The following code snippet illustrates this rule:</p>\n\n<pre>public int getVector()[] { /* ... */ }    // Non-Compliant\n\npublic int[] getVector() { /* ... */ }    // Compliant\n\npublic int[] getMatrix()[] { /* ... */ }  // Non-Compliant\n\npublic int[][] getMatrix() { /* ... */ }  // Compliant\n</pre>',
           extra: '<p>This note is here <b>only for test purposes</b>.</p>',
+          extraRaw: 'This note is here *only for test purposes*.',
           qualityProfiles: [
             {
               name: 'SonarWay',
@@ -196,7 +201,17 @@
       })
     });
     jQuery.mockjax({
+      url: "" + baseUrl + "/api/codingrules/extend_description",
+      responseText: JSON.stringify({
+        extra: '<p>This note is here <i>only for test purposes</i>.</p>',
+        extraRaw: 'This note is here *only for test purposes*.'
+      })
+    });
+    jQuery.mockjax({
       url: "" + baseUrl + "/api/codingrules/bulk_change"
+    });
+    jQuery.mockjax({
+      url: "" + baseUrl + "/api/codingrules/set_tags"
     });
     jQuery.mockjax({
       url: "" + baseUrl + "/api/qualityprofiles/list",

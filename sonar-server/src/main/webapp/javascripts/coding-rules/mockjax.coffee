@@ -48,6 +48,8 @@ define ['jquery.mockjax'], ->
         'apply': 'Apply'
         'bulk_change': 'Bulk Change'
         'cancel': 'Cancel'
+        'change': 'Change'
+        'done': 'Done'
         'moreCriteria': '+ More Criteria'
         'search_verb': 'Search'
         'update': 'Update'
@@ -60,6 +62,7 @@ define ['jquery.mockjax'], ->
 
         'coding_rules.activate_quality_profile': 'Activate Quality Profile'
         'coding_rules.bulk_change': 'Bulk Change'
+        'coding_rules.extend_description': 'Extend Description'
         'coding_rules.deactivate_quality_profile': 'Deactivate'
         'coding_rules.found': 'Found'
         'coding_rules.new_search': 'New Search'
@@ -69,6 +72,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.page': 'Coding Rules'
         'coding_rules.quality_profiles': 'Quality Profiles'
         'coding_rules._rules': 'rule(s)'
+        'coding_rules.select_tag': 'Select Tag'
 
         'coding_rules.filters.availableSince': 'Available Since'
         'coding_rules.filters.description': 'Description'
@@ -172,6 +176,7 @@ define ['jquery.mockjax'], ->
             public int[][] getMatrix() { /* ... */ }  // Compliant
             </pre>'''
         extra: '''<p>This note is here <b>only for test purposes</b>.</p>'''
+        extraRaw: '''This note is here *only for test purposes*.'''
 
         qualityProfiles: [
           {
@@ -198,9 +203,22 @@ define ['jquery.mockjax'], ->
 
 
 
+  # POST /api/codingrules/extend_description
+  jQuery.mockjax
+    url: "#{baseUrl}/api/codingrules/extend_description"
+    responseText: JSON.stringify
+      extra: '''<p>This note is here <i>only for test purposes</i>.</p>'''
+      extraRaw: '''This note is here *only for test purposes*.'''
+
+
   # POST /api/codingrules/bulk_change
   jQuery.mockjax
     url: "#{baseUrl}/api/codingrules/bulk_change"
+
+
+  # POST /api/codingrules/set_tags
+  jQuery.mockjax
+    url: "#{baseUrl}/api/codingrules/set_tags"
 
 
   # GET /api/qualityprofiles/list

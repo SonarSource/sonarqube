@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+a[class^="icon-"], a[class*=" icon-"] {
+  text-decoration: none !important;
+}
+
 
 /*
  * Severity
@@ -38,31 +42,31 @@
 .icon-severity-4:before {
   content: "\f000";
   color: @severityBlockerColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-severity-critical:before,
 .icon-severity-3:before {
   content: "\f001";
   color: @severityCriticalColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-severity-major:before,
 .icon-severity-2:before {
   content: "\f002";
   color: @severityMajorColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-severity-minor:before,
 .icon-severity-1:before {
   content: "\f003";
   color: @severityMinorColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-severity-info:before,
 .icon-severity-0:before {
   content: "\f004";
   color: @severityInfoColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 
 
@@ -78,53 +82,32 @@
 .icon-status-open:before {
   content: "\f010";
   color: @statusOpenColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
   line-height: @iconLineHeight;
 }
 .icon-status-confirmed:before {
   content: "\f011";
   color: @statusConfirmedColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
   line-height: @iconLineHeight;
 }
 .icon-status-reopened:before {
   content: "\f012";
   color: @statusReopenedColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
   line-height: @iconLineHeight;
 }
 .icon-status-resolved:before {
   content: "\f013";
   color: @statusResolvedColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
   line-height: @iconLineHeight;
 }
 .icon-status-closed:before {
   content: "\f014";
   color: @statusClosedColor;
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
   line-height: @iconLineHeight;
-}
-
-
-/*
- * Resolution
- */
-
-.icon-resolution-fixed:before {
-  content: "\f05d";
-  color: @resolutionFixedColor;
-  font-size: @iconFontSize;
-}
-.icon-resolution-false-positive:before {
-  content: "\f05c";
-  color: @resolutionFalsePositiveColor;
-  font-size: @iconFontSize;
-}
-.icon-resolution-removed:before {
-  content: "\f05e";
-  color: @resolutionRemovedColor;
-  font-size: @iconFontSize;
 }
 
 
@@ -135,22 +118,40 @@
 .icon-alert-ok:before {
   content: "\f013";
   color: @green;
-  font-size: @iconFontSize + 2px;
+  font-size: @iconFontSize;
 }
 .icon-alert-warn:before {
   content: "\f000";
   color: @orange;
-  font-size: @iconFontSize + 2px;
+  font-size: @iconFontSize;
 }
 .icon-alert-error:before {
   content: "\f057";
   color: @red;
-  font-size: @iconFontSize + 2px;
+  font-size: @iconFontSize;
 }
 .icon-alert-none:before {
   content: "\f059";
   color: @blue;
-  font-size: @iconFontSize + 2px;
+  font-size: @iconFontSize;
+}
+
+
+/*
+ * Qualifier
+ */
+
+.icon-qualifier-dir:before {
+  content: "\f07b";
+  font-size: @iconFontSize;
+}
+.icon-qualifier-fil:before {
+  content: "\f0f6";
+  font-size: @iconFontSize;
+}
+.icon-qualifier-lib:before {
+  content: "\e600";
+  font-size: @iconFontSize;
 }
 
 
@@ -210,21 +211,71 @@
 }
 .icon-lang:before {
   content: "\f024";
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-quality-profile:before {
   content: "\f022";
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-tags:before {
   content: "\f02c";
-  font-size: @iconFontSize;
+  font-size: @iconSmallFontSize;
 }
 .icon-calendar:before {
   position: relative;
   top: -0.1em;
   content: "\f073";
+  font-size: @iconSmallFontSize;
+}
+.icon-favorite:before {
+  content: "\f005";
+  color: @orange;
   font-size: @iconFontSize;
+}
+.icon-not-favorite:before {
+  content: "\f005";
+  color: @darkGrey;
+  font-size: @iconFontSize;
+}
+.icon-help:before {
+  content: "\f059";
+  color: @blue;
+  font-size: @iconFontSize;
+}
+.icon-info:before {
+  content: "\f05a";
+  color: @blue;
+  font-size: @iconFontSize;
+}
+.icon-uniF060:before {
+  content: "\f060";
+}
+.icon-uniF061:before {
+  content: "\f061";
+}
+.icon-uniF062:before {
+  content: "\f062";
+}
+.icon-uniF063:before {
+  content: "\f063";
+}
+.icon-comment:before {
+  content: "\f075";
+}
+.icon-delete:before {
+  content: "\f00d";
+}
+.icon-compare:before {
+  content: "\f0c5";
+}
+.icon-link:before {
+  content: "\f0c1";
+}
+.icon-inheritance:before {
+  content: "\f126";
+}
+.icon-plus:before {
+  content: "\f067";
 }
 
 

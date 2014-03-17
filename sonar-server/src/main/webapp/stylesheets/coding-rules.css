@@ -37,9 +37,49 @@
   display: inline-block;
   vertical-align: middle;
   font-size: 13px;
+  height: 22px;
+  line-height: 22px;
+}
+.coding-rules-detail-property .select2-search-field {
+  line-height: 1;
 }
 .coding-rules-detail-property + .coding-rules-detail-property {
   margin-left: 20px;
+}
+.coding-rules-detail-tag + .coding-rules-detail-tag {
+  margin-left: 10px;
+}
+.coding-rules-detail-tag-delete {
+  position: relative;
+  top: -1px;
+  transition: all 0.3s ease;
+}
+.coding-rules-detail-tag-delete:hover,
+.coding-rules-detail-tag-delete:focus {
+  color: #d4333f;
+}
+.coding-rules-detail-tag-add {
+  transition: all 0.3s ease;
+}
+.coding-rules-detail-tag-add:hover,
+.coding-rules-detail-tag-add:focus {
+  color: #85bb43;
+}
+.coding-rules-detail-tag + .coding-rules-detail-tags-change {
+  margin-left: 15px;
+}
+.coding-rules-detail-add-tag-box {
+  position: absolute;
+  width: 200px;
+  padding: 10px;
+  border: 1px solid #e1e1e1;
+  background-color: #fff;
+}
+.coding-rules-detail-add-tag-list-item {
+  padding: 3px 0;
+}
+.coding-rules-detail-add-tag-list-item input[type=text] {
+  width: 120px;
 }
 .coding-rules-detail-description {
   margin: 20px 0;

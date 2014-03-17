@@ -10,13 +10,50 @@
     <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
     <li class="coding-rules-detail-property"><i class="icon-lang"></i> {{language}}</li>
     <li class="coding-rules-detail-property"><i class="icon-calendar"></i> {{fCreationDate}}</li>
-    <li class="coding-rules-detail-property"><i class="icon-tags"></i> {{join tags ', '}}</li>
+    <li class="coding-rules-detail-property coding-rules-detail-tag-list">
+      <i class="icon-tags"></i>
+      {{join tags ', '}}
+      <a class="link-action coding-rules-detail-tags-change">{{t 'change'}}</a>
+    </li>
+    <li class="coding-rules-detail-property coding-rules-detail-tag-edit">
+      <input class="coding-rules-detail-tag-input" type="text" value="{{join tags ','}}">
+      <a class="link-action coding-rules-detail-tag-edit-done">{{t 'done'}}</a>
+    </li>
   </ul>
 
   <div class="coding-rules-detail-description rule-desc">{{{description}}}</div>
-  {{#if extra}}
-    <div class="coding-rules-detail-description coding-rules-detail-description-extra rule-desc">{{{extra}}}</div>
-  {{/if}}
+
+  <div class="coding-rules-detail-description coding-rules-detail-description-extra">
+    <div id="coding-rules-detail-description-extra">
+      {{#if extra}}<div class="rule-desc">{{{extra}}}</div>{{/if}}
+      <a class="link-action" id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</a>
+    </div>
+
+    <div id="coding-rules-detail-extend-description-form" class="admin">
+      <table class="width100 table">
+        <tbody>
+        <tr>
+          <td class="width100" colspan="2">
+            <textarea id="coding-rules-detail-extend-description-text" rows="4" style="width: 100%;">{{extraRaw}}</textarea>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <button id="coding-rules-detail-extend-description-submit">{{t 'coding_rules.extend_description'}}</button>
+            <a id="coding-rules-detail-extend-description-cancel" class="action">{{t 'cancel'}}</a>
+          </td>
+          <td class="right">
+            <%= render :partial => 'markdown/tips' -%>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="coding-rules-detail-extend-description-spinner">
+      <i class="spinner"></i>
+    </div>
+  </div>
 
   <table class="data zebra coding-rules-detail-parameters">
     <thead>
