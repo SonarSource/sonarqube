@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -28,36 +27,22 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ExclusionFiltersTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  private ModuleFileSystem fs;
-  private File basedir;
-
-  @Before
-  public void prepare() throws IOException {
-    basedir = temp.newFolder();
-    fs = mock(ModuleFileSystem.class);
-    when(fs.baseDir()).thenReturn(basedir);
-  }
 
   @Test
   public void match_main_inclusion() throws IOException {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
-    filter.prepare(fs);
+    filter.prepare();
 
     java.io.File file = temp.newFile();
     DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
@@ -73,45 +58,6 @@ public class ExclusionFiltersTest {
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isFalse();
   }
 
-  @Test
-  public void include_main_folders_by_default() throws IOException {
-    Settings settings = new Settings();
-    ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
-    when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
-
-    filter.prepare(fs);
-
-    java.io.File file = temp.newFile();
-
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
-
-    inputFile = new DefaultInputFile("src/main/java2/com/mycompany/FooDao.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
-
-    // source inclusions do not apply to tests
-    inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isFalse();
-  }
-
-  @Test
-  public void include_main_and_test_folders_by_default() throws IOException {
-    Settings settings = new Settings();
-    ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
-    when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
-    when(fs.testDirs()).thenReturn(Arrays.asList(new File(basedir, "src/test/java")));
-
-    filter.prepare(fs);
-
-    java.io.File file = temp.newFile();
-
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isFalse();
-
-    inputFile = new DefaultInputFile("src/test/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
-  }
 
   @Test
   public void exclude_test_inclusions_from_main_sources() throws IOException {
@@ -120,7 +66,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "src/test/java/**/*.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    filter.prepare(fs);
+    filter.prepare();
 
     java.io.File file = temp.newFile();
 
@@ -130,49 +76,6 @@ public class ExclusionFiltersTest {
 
     inputFile = new DefaultInputFile("src/test/java/com/mycompany/Foo.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
-  }
-
-  @Test
-  public void ignore_main_folders_if_inclusion_defined() throws IOException {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java2/**/*");
-    ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
-    when(fs.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
-
-    filter.prepare(fs);
-
-    java.io.File file = temp.newFile();
-
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
-
-    inputFile = new DefaultInputFile("src/main/java2/com/mycompany/FooDao.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
-
-    // source inclusions do not apply to tests
-    inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isFalse();
-  }
-
-  @Test
-  public void include_test_folders_by_default() throws IOException {
-    Settings settings = new Settings();
-    ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
-    when(fs.testDirs()).thenReturn(Arrays.asList(new File(basedir, "src/test/java")));
-
-    filter.prepare(fs);
-
-    java.io.File file = temp.newFile();
-
-    // test inclusions do not apply to main code
-    DefaultInputFile inputFile = new DefaultInputFile("src/test/java/com/mycompany/Foo.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
-
-    inputFile = new DefaultInputFile("src/test2/java/com/mycompany/FooTest.java").setFile(file);
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isFalse();
-
-    inputFile = new DefaultInputFile("src/test/java/com/mycompany/Foo.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
   }
 
@@ -182,7 +85,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java,**/*Dto.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    filter.prepare(fs);
+    filter.prepare();
 
     java.io.File file = temp.newFile();
 
@@ -201,7 +104,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    filter.prepare(fs);
+    filter.prepare();
 
     java.io.File file = temp.newFile();
     DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
@@ -225,7 +128,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getCanonicalPath());
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    filter.prepare(fs);
+    filter.prepare();
 
     DefaultInputFile inputFile = new DefaultInputFile("src/main/java/org/bar/Foo.java").setFile(includedFile);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
@@ -240,7 +143,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "   **/*Dao.java   ");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
 
-    assertThat(filter.prepareMainExclusions(fs)[0].toString()).isEqualTo("**/*Dao.java");
+    assertThat(filter.prepareMainExclusions()[0].toString()).isEqualTo("**/*Dao.java");
   }
 
 }

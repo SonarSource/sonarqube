@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -55,7 +54,7 @@ public class FileIndexer implements BatchComponent {
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-                     InputFileCache cache, PathResolver pathResolver, Project module) {
+                     InputFileCache cache, Project module) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
@@ -70,7 +69,7 @@ public class FileIndexer implements BatchComponent {
       return;
     }
     logger.info("Index files");
-    exclusionFilters.prepare(fileSystem);
+    exclusionFilters.prepare();
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 
