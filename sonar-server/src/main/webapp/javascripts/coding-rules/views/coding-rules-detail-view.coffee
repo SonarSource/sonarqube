@@ -1,12 +1,20 @@
 define [
+  'backbone',
   'backbone.marionette',
+  'coding-rules/views/coding-rules-detail-quality-profiles-view'
   'common/handlebars-extensions'
 ], (
-  Marionette
+  Backbone,
+  Marionette,
+  CodingRulesDetailQualityProfilesView
 ) ->
 
-  class CodingRulesDetailView extends Marionette.ItemView
+  class CodingRulesDetailView extends Marionette.Layout
     template: getTemplate '#coding-rules-detail-template'
+
+
+    regions:
+      qualityProfilesRegion: '#coding-rules-detail-quality-profiles'
 
 
     ui:
@@ -34,7 +42,14 @@ define [
       'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
 
 
+    initialize: (options) ->
+      @qualityProfilesView = new CodingRulesDetailQualityProfilesView
+        collection: new Backbone.Collection options.model.get 'qualityProfiles'
+
+
     onRender: ->
+      @qualityProfilesRegion.show @qualityProfilesView
+
       @ui.tagInput.select2
         tags: _.difference @options.app.tags, @model.get 'tags'
         width: '500px'

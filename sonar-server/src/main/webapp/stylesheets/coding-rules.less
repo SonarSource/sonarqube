@@ -106,15 +106,9 @@
 }
 
 .coding-rules-detail-quality-profile {
-  display: inline-block;
-  vertical-align: top;
-  width: 240px;
-  margin-right: 2 * @navigatorPadding;
-  .box-sizing(border-box);
-  font-size: @baseFontSize;
+  border: 1px solid transparent;
 
   &.active {
-    background-color: #CAE3F2;
     border-color: @highlighted;
 
     .coding-rules-detail-quality-profile-name {
@@ -124,9 +118,8 @@
   }
 }
 
-.coding-rules-detail-quality-profile-severity {
-  padding: @navigatorPadding / 2;
-  font-size: @smallFontSize;
+.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
+  margin-top: 2 * @navigatorPadding;
 }
 
 .coding-rules-detail-quality-profile-name {
@@ -141,31 +134,21 @@
 }
 
 .coding-rules-detail-quality-profile-parameters {
-  padding: @navigatorPadding / 2;
-}
 
-.coding-rules-detail-quality-profile-parameter {
-  white-space: nowrap;
-}
+  .coding-rules-detail-parameter-name,
+  .coding-rules-detail-parameter-description {
+    vertical-align: middle;
+  }
 
-.coding-rules-detail-quality-profile-parameter-key,
-.coding-rules-detail-quality-profile-parameter-value,
-.coding-rules-detail-quality-profile-parameter-actions {
-  vertical-align: middle;
-}
-
-.coding-rules-detail-quality-profile-parameter-key {
-  &:after {
-    content: ":";
+  .coding-rules-detail-parameter-description input {
+    width: 200px;
   }
 }
 
-.coding-rules-detail-quality-profile-parameter-value {
-  width: 110px;
-}
+.coding-rules-detail-quality-profile-inheritance {
+  margin: @navigatorPadding 0;
 
-.coding-rules-detail-quality-profile-parameter-actions {
-  float: right;
+  strong { font-weight: bold; }
 }
 
 .coding-rules-detail-quality-profiles-activation {

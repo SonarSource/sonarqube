@@ -68,6 +68,7 @@
           'done': 'Done',
           'moreCriteria': '+ More Criteria',
           'search_verb': 'Search',
+          'severity': 'Severity',
           'update': 'Update',
           'severity.BLOCKER': 'Blocker',
           'severity.CRITICAL': 'Critical',
@@ -80,16 +81,19 @@
           'coding_rules.extend_description': 'Extend Description',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
           'coding_rules.found': 'Found',
+          'coding_rules.inherits': 'Inherits',
           'coding_rules.key': 'Key:',
           'coding_rules.new_search': 'New Search',
           'coding_rules.no_results': 'No Coding Rules',
           'coding_rules.order': 'Order',
           'coding_rules.ordered_by': 'Ordered By',
+          'coding_rules.original': 'Original:',
           'coding_rules.page': 'Coding Rules',
           'coding_rules.parameters': 'Parameters',
           'coding_rules.parameters.default_value': 'Default Value:',
           'coding_rules.quality_profiles': 'Quality Profiles',
           'coding_rules.repository': 'Repository:',
+          'coding_rules.revert_to_parent_definition': 'Revert to Parent Definition',
           'coding_rules._rules': 'rule(s)',
           'coding_rules.select_tag': 'Select Tag',
           'coding_rules.filters.availableSince': 'Available Since',
@@ -182,6 +186,7 @@
           qualityProfiles: [
             {
               name: 'SonarWay',
+              key: 'sonarway',
               severity: 'MINOR',
               canDeactivate: true,
               canUpdate: true,
@@ -193,6 +198,7 @@
               ]
             }, {
               name: 'Quality Profile 1',
+              key: 'qualityprofile1',
               severity: 'MAJOR',
               canDeactivate: false,
               canUpdate: false,
@@ -201,7 +207,8 @@
                   key: 'max',
                   value: 6
                 }
-              ]
+              ],
+              inherits: 'sonarway'
             }
           ]
         }

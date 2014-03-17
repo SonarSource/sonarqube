@@ -85,25 +85,17 @@
   font-size: 0;
 }
 .coding-rules-detail-quality-profile {
-  display: inline-block;
-  vertical-align: top;
-  width: 240px;
-  margin-right: 20px;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  font-size: 13px;
+  border: 1px solid transparent;
 }
 .coding-rules-detail-quality-profile.active {
-  background-color: #CAE3F2;
   border-color: #4b9fd5;
 }
 .coding-rules-detail-quality-profile.active .coding-rules-detail-quality-profile-name {
   background-color: #4b9fd5;
   color: #fff;
 }
-.coding-rules-detail-quality-profile-severity {
-  padding: 5px;
-  font-size: 11px;
+.coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
+  margin-top: 20px;
 }
 .coding-rules-detail-quality-profile-name {
   padding: 5px;
@@ -114,25 +106,18 @@
 .coding-rules-detail-quality-profile-actions {
   padding: 5px;
 }
-.coding-rules-detail-quality-profile-parameters {
-  padding: 5px;
-}
-.coding-rules-detail-quality-profile-parameter {
-  white-space: nowrap;
-}
-.coding-rules-detail-quality-profile-parameter-key,
-.coding-rules-detail-quality-profile-parameter-value,
-.coding-rules-detail-quality-profile-parameter-actions {
+.coding-rules-detail-quality-profile-parameters .coding-rules-detail-parameter-name,
+.coding-rules-detail-quality-profile-parameters .coding-rules-detail-parameter-description {
   vertical-align: middle;
 }
-.coding-rules-detail-quality-profile-parameter-key:after {
-  content: ":";
+.coding-rules-detail-quality-profile-parameters .coding-rules-detail-parameter-description input {
+  width: 200px;
 }
-.coding-rules-detail-quality-profile-parameter-value {
-  width: 110px;
+.coding-rules-detail-quality-profile-inheritance {
+  margin: 10px 0;
 }
-.coding-rules-detail-quality-profile-parameter-actions {
-  float: right;
+.coding-rules-detail-quality-profile-inheritance strong {
+  font-weight: bold;
 }
 .coding-rules-detail-quality-profiles-activation {
   margin-top: -3px;

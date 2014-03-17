@@ -79,42 +79,6 @@
   {{/if}}
 
 
-  {{!--
-  <h3 class="coding-rules-detail-header coding-rules-detail-quality-profiles-header">
-    {{t 'coding_rules.quality_profiles'}}
-
-    <div class="button-group coding-rules-detail-quality-profiles-activation">
-      <button>{{t 'coding_rules.activate_quality_profile'}}</button>
-    </div>
-  </h3>
-
-  <ul class="coding-rules-detail-quality-profiles">
-    {{#each qualityProfiles}}
-      <li class="coding-rules-detail-quality-profile">
-        <div class="coding-rules-detail-quality-profile-name">{{name}}</div>
-        <div class="coding-rules-detail-quality-profile-severity">{{severityIcon severity}}{{t 'severity' severity}}</div>
-        <ul class="coding-rules-detail-quality-profile-parameters">
-          {{#each parameters}}
-            <li class="coding-rules-detail-quality-profile-parameter">
-              {{#if ../canUpdate}}
-                <label class="coding-rules-detail-quality-profile-parameter-key">{{key}}</label>
-                <input class="coding-rules-detail-quality-profile-parameter-value" type="text" value="{{value}}">
-                 <div class="button-group coding-rules-detail-quality-profile-parameter-actions">
-                   <button class="coding-rules-detail-quality-profile-parameter-update">{{t 'update'}}</button>
-                 </div>
-              {{else}}
-                {{key}}: {{value}}
-              {{/if}}
-            </li>
-          {{/each}}
-        </ul>
-        {{#if canDeactivate}}
-          <div class="button-group coding-rules-detail-quality-profile-actions">
-            <button class="button-red">{{t 'coding_rules.deactivate_quality_profile'}}</button>
-          </div>
-        {{/if}}
-      </li>
-    {{/each}}
-  </ul>
-  --}}
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
+  <div id="coding-rules-detail-quality-profiles"></div>
 </script>

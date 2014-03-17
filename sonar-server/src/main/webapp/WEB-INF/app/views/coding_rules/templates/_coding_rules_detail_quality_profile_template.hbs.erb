@@ -1,0 +1,48 @@
+<script id="coding-rules-detail-quality-profile-template" type="text/x-handlebars-template">
+  <div class="coding-rules-detail-quality-profile-name">{{name}}</div>
+
+  {{#if parent}}
+    <div class="coding-rules-detail-quality-profile-inheritance">
+      <i class="icon-inheritance"></i> {{t 'coding_rules.inherits'}} <strong>{{parent.name}}</strong>
+    </div>
+  {{/if}}
+
+  <ul class="coding-rules-detail-parameters coding-rules-detail-quality-profile-parameters">
+    <li class="coding-rules-detail-parameter">
+      <h3 class="coding-rules-detail-parameter-name">{{t 'severity'}}</h3>
+      <div class="coding-rules-detail-parameter-description">
+        <select class="coding-rules-detail-quality-profile-severity">
+          {{#each severities}}
+            <option value="{{this}}">{{t 'severity' this}}</option>
+          {{/each}}
+        </select>
+        {{#if parent}}
+          {{#notEq severity parent.severity}}
+            {{t 'coding_rules.original'}} {{severityIcon parent.severity}}{{t 'severity' parent.severity}}
+          {{/notEq}}
+        {{/if}}
+      </div>
+    </li>
+    {{#each parameters}}
+      <li class="coding-rules-detail-parameter">
+        <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
+        <div class="coding-rules-detail-parameter-description">
+          <input type="text" value="{{value}}">
+          {{#if ../parent}}
+            {{#notEq value original}}
+              {{t 'coding_rules.original'}} {{original}}
+            {{/notEq}}
+          {{/if}}
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+
+  <div class="button-group coding-rules-detail-quality-profile-actions">
+    <button>{{t 'update'}}</button>
+    {{#if parent}}
+      <button class="button-red">{{t 'coding_rules.revert_to_parent_definition'}}</button>
+    {{/if}}
+    <button class="button-red">{{t 'coding_rules.deactivate_quality_profile'}}</button>
+  </div>
+</script>

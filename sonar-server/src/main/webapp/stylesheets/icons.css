@@ -264,6 +264,7 @@ a[class*=" icon-"] {
 }
 .icon-inheritance:before {
   content: "\f126";
+  font-size: 16px;
 }
 .icon-plus:before {
   content: "\f067";

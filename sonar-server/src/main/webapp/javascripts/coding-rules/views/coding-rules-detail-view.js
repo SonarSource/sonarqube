@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['backbone.marionette', 'common/handlebars-extensions'], function(Marionette) {
+  define(['backbone', 'backbone.marionette', 'coding-rules/views/coding-rules-detail-quality-profiles-view', 'common/handlebars-extensions'], function(Backbone, Marionette, CodingRulesDetailQualityProfilesView) {
     var CodingRulesDetailView, _ref;
     return CodingRulesDetailView = (function(_super) {
       __extends(CodingRulesDetailView, _super);
@@ -14,6 +14,10 @@
       }
 
       CodingRulesDetailView.prototype.template = getTemplate('#coding-rules-detail-template');
+
+      CodingRulesDetailView.prototype.regions = {
+        qualityProfilesRegion: '#coding-rules-detail-quality-profiles'
+      };
 
       CodingRulesDetailView.prototype.ui = {
         tagsChange: '.coding-rules-detail-tags-change',
@@ -38,8 +42,15 @@
         'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
       };
 
+      CodingRulesDetailView.prototype.initialize = function(options) {
+        return this.qualityProfilesView = new CodingRulesDetailQualityProfilesView({
+          collection: new Backbone.Collection(options.model.get('qualityProfiles'))
+        });
+      };
+
       CodingRulesDetailView.prototype.onRender = function() {
         var qp;
+        this.qualityProfilesRegion.show(this.qualityProfilesView);
         this.ui.tagInput.select2({
           tags: _.difference(this.options.app.tags, this.model.get('tags')),
           width: '500px'
@@ -107,7 +118,7 @@
 
       return CodingRulesDetailView;
 
-    })(Marionette.ItemView);
+    })(Marionette.Layout);
   });
 
 }).call(this);
