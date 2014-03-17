@@ -294,4 +294,31 @@ public class RulesDefinitionTest {
     }
   }
 
+  @Test
+  public void fail_if_define_characteristic_without_function() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDebtCharacteristic("COMPILER");
+    try {
+      newRepository.done();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Both debt characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
+    }
+  }
+
+  @Test
+  public void fail_if_define_function_without_characteristic() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDebtCharacteristic("")
+      .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
+    try {
+      newRepository.done();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Both debt characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
+    }
+  }
+
 }

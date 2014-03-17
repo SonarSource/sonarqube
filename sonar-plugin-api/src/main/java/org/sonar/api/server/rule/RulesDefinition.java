@@ -439,6 +439,9 @@ public interface RulesDefinition extends ServerExtension {
       if (StringUtils.isBlank(htmlDescription)) {
         throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
       }
+      if ((StringUtils.isBlank(debtCharacteristic) && debtRemediationFunction != null) || (!StringUtils.isBlank(debtCharacteristic) && debtRemediationFunction == null)) {
+        throw new IllegalStateException(String.format("Both debt characteristic and debt remediation function should be defined on rule '%s'", this));
+      }
     }
 
     @Override
