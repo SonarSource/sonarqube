@@ -83,9 +83,9 @@ public class QualityGateProvider extends ProviderAdapter {
     String jsonText = null;
     try {
       long qGateId = Long.valueOf(qualityGateSetting);
-      jsonText = client.request(SHOW_URL + "?id="+qGateId);
+      jsonText = client.request(SHOW_URL + "?id="+qGateId, false);
     } catch(NumberFormatException configIsNameInsteadOfId) {
-      jsonText = client.request(SHOW_URL + "?name="+qualityGateSetting);
+      jsonText = client.request(SHOW_URL + "?name="+qualityGateSetting, false);
     }
 
     JsonParser parser = new JsonParser();

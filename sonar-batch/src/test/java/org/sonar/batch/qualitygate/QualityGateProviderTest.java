@@ -65,7 +65,7 @@ public class QualityGateProviderTest {
   public void should_load_empty_quality_gate_using_name() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    when(client.request("/api/qualitygates/show?name=Sonar way")).thenReturn("{'id':12345,'name':'Sonar way'}");
+    when(client.request("/api/qualitygates/show?name=Sonar way", false)).thenReturn("{'id':12345,'name':'Sonar way'}");
     QualityGate qGate = new QualityGateProvider().init(settings, client, metricFinder, logger);
     assertThat(qGate.name()).isEqualTo(qGateName);
     assertThat(qGate.isEnabled()).isTrue();
@@ -78,7 +78,7 @@ public class QualityGateProviderTest {
     long qGateId = 12345L;
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(Long.toString(qGateId));
-    when(client.request("/api/qualitygates/show?id=12345")).thenReturn("{'id':12345,'name':'Sonar way','conditions':["
+    when(client.request("/api/qualitygates/show?id=12345", false)).thenReturn("{'id':12345,'name':'Sonar way','conditions':["
       + "{'id':1,'metric':'metric1','op':'EQ','warning':'POLOP'},"
       + "{'id':2,'metric':'metric2','op':'NE','error':'PALAP','period':3}"
       + "]}");
@@ -106,7 +106,7 @@ public class QualityGateProviderTest {
   public void should_stop_analysis_if_gate_not_found() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    when(client.request("/api/qualitygates/show?name=Sonar way")).thenThrow(
+    when(client.request("/api/qualitygates/show?name=Sonar way", false)).thenThrow(
         new HttpDownloader.HttpException(URI.create("/api/qualitygates/show?name=Sonar%20way"), HttpURLConnection.HTTP_NOT_FOUND));
     new QualityGateProvider().provide(settings, client, metricFinder);
   }
@@ -115,7 +115,7 @@ public class QualityGateProviderTest {
   public void should_stop_analysis_if_server_error() {
     String qGateName = "Sonar way";
     when(settings.getString("sonar.qualitygate")).thenReturn(qGateName);
-    when(client.request("/api/qualitygates/show?name=Sonar way")).thenThrow(
+    when(client.request("/api/qualitygates/show?name=Sonar way", false)).thenThrow(
         new HttpDownloader.HttpException(URI.create("/api/qualitygates/show?name=Sonar%20way"), HttpURLConnection.HTTP_NOT_ACCEPTABLE));
     new QualityGateProvider().provide(settings, client, metricFinder);
   }
