@@ -234,7 +234,6 @@ class ServerComponents {
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       MyBatis.class,
-      DefaultServerUpgradeStatus.class,
       DatabaseServerCompatibility.class,
       DatabaseMigrator.class,
       DatabaseVersion.class,
@@ -257,6 +256,7 @@ class ServerComponents {
    */
   Collection level2Components() {
     return Lists.newArrayList(
+      DefaultServerUpgradeStatus.class,
       // plugins
       ServerPluginJarsInstaller.class,
       ServerPluginJarInstaller.class,
