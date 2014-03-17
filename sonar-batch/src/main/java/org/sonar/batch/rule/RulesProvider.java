@@ -78,18 +78,12 @@ public class RulesProvider extends ProviderAdapter {
         .setDescription(ruleDto.getDescription())
         .setStatus(RuleStatus.valueOf(ruleDto.getStatus()));
       // TODO should we set metadata ?
+
       if (!ruleDto.isCharacteristicDisabled()) {
-        Integer characteristicId = ruleDto.getCharacteristicId();
-        Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
-        if (characteristicId != null) {
-          Characteristic characteristic = characteristic(characteristicId, ruleKey, debtModel);
-          updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getRemediationFunction(), ruleDto.getRemediationFactor(), ruleDto.getRemediationOffset(), durations);
-        } else if (defaultCharacteristicId != null) {
-          Characteristic characteristic = characteristic(defaultCharacteristicId, ruleKey, debtModel);
-          updateRuleDebtDefinitions(newRule, ruleKey, characteristic, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationFactor(),
-            ruleDto.getDefaultRemediationOffset(), durations);
-        }
+        newRule.setCharacteristic(characteristic(ruleDto, ruleKey, debtModel).key());
+        setFunction(ruleDto, newRule, ruleKey, durations);
       }
+
       for (RuleParamDto ruleParamDto : paramDtosByRuleId.get(ruleDto.getId())) {
         newRule.addParam(ruleParamDto.getName())
           .setDescription(ruleParamDto.getDescription());
@@ -98,19 +92,33 @@ public class RulesProvider extends ProviderAdapter {
     return rulesBuilder.build();
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, RuleKey ruleKey, Characteristic characteristic, @Nullable String function,
-                                         @Nullable String factor, @Nullable String offset,
-                                         Durations durations) {
-    newRule.setCharacteristic(characteristic.key());
-    newRule.setFunction(function(function, ruleKey));
-    newRule.setFactor(factor != null ? durations.decode(factor) : null);
-    newRule.setOffset(offset != null ? durations.decode(offset) : null);
+  private void setFunction(RuleDto ruleDto, NewRule newRule, RuleKey ruleKey, Durations durations) {
+    String function = ruleDto.getRemediationFunction();
+    String factor = ruleDto.getRemediationFactor();
+    String offset = ruleDto.getRemediationOffset();
+
+    String defaultFunction = ruleDto.getDefaultRemediationFunction();
+    String defaultFactor = ruleDto.getDefaultRemediationFactor();
+    String defaultOffset = ruleDto.getDefaultRemediationOffset();
+
+    if (function != null) {
+      newRule.setFunction(function(function, ruleKey));
+      newRule.setFactor(factor != null ? durations.decode(factor) : null);
+      newRule.setOffset(offset != null ? durations.decode(offset) : null);
+    } else {
+      newRule.setFunction(function(defaultFunction, ruleKey));
+      newRule.setFactor(defaultFactor != null ? durations.decode(defaultFactor) : null);
+      newRule.setOffset(defaultOffset != null ? durations.decode(defaultOffset) : null);
+    }
   }
 
-  private Characteristic characteristic(Integer characteristicId, RuleKey ruleKey, TechnicalDebtModel debtModel) {
-    Characteristic characteristic = debtModel.characteristicById(characteristicId);
+  private Characteristic characteristic(RuleDto ruleDto, RuleKey ruleKey, TechnicalDebtModel debtModel) {
+    Integer characteristicId = ruleDto.getCharacteristicId();
+    Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
+    Integer effectiveCharacteristicId = characteristicId != null ? characteristicId : defaultCharacteristicId;
+    Characteristic characteristic = debtModel.characteristicById(effectiveCharacteristicId);
     if (characteristic == null) {
-      throw new IllegalStateException(String.format("Characteristic id '%s' on rule '%s' has not been found", characteristicId, ruleKey));
+      throw new IllegalStateException(String.format("Characteristic id '%s' on rule '%s' has not been found", effectiveCharacteristicId, ruleKey));
     }
     return characteristic;
   }

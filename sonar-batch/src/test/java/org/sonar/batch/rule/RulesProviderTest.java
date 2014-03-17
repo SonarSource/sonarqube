@@ -118,8 +118,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_user_debt_definitions() throws Exception {
-    setupData("build_rules_with_user_debt_definitions");
+  public void build_rules_with_overridden_debt_definitions() throws Exception {
+    setupData("build_rules_with_overridden_debt_definitions");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
@@ -131,8 +131,36 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_default_and_user_debt_definitions() throws Exception {
-    setupData("build_rules_with_default_and_user_debt_definitions");
+  public void build_rules_with_default_and_overridden_debt_definitions() throws Exception {
+    setupData("build_rules_with_default_and_overridden_debt_definitions");
+
+    Rules rules = provider.provide(ruleDao, debtModel, durations);
+
+    // As both default columns and user columns on debt are set, user debt columns should be used
+    Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
+    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
+    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
+    assertThat(rule.offset()).isNull();
+  }
+
+  @Test
+  public void build_rules_with_default_characteristic_and_overridden_function() throws Exception {
+    setupData("build_rules_with_default_characteristic_and_overridden_function");
+
+    Rules rules = provider.provide(ruleDao, debtModel, durations);
+
+    // As both default columns and user columns on debt are set, user debt columns should be used
+    Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
+    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
+    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
+    assertThat(rule.offset()).isNull();
+  }
+
+  @Test
+  public void build_rules_with_overridden_characteristic_and_default_function() throws Exception {
+    setupData("build_rules_with_overridden_characteristic_and_default_function");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
