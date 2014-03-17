@@ -70,8 +70,8 @@ public class ExclusionFilters implements BatchComponent {
       inclusionPatterns = testInclusions;
       exclusionPatterns = testExclusions;
     }
-    boolean matchInclusion = false;
-    if (inclusionPatterns != null && inclusionPatterns.length > 0) {
+    if (inclusionPatterns.length > 0) {
+      boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
         matchInclusion |= pattern.match(inputFile);
       }
@@ -79,14 +79,14 @@ public class ExclusionFilters implements BatchComponent {
         return false;
       }
     }
-    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
+    if (exclusionPatterns.length > 0) {
       for (PathPattern pattern : exclusionPatterns) {
         if (pattern.match(inputFile)) {
           return false;
         }
       }
     }
-    return matchInclusion;
+    return true;
   }
 
   PathPattern[] prepareMainInclusions() {
